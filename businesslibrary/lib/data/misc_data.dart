@@ -1,5 +1,3 @@
-import 'package:uuid/uuid.dart';
-
 class LineItem {
   String item;
   double price, quantity, lineAmount;
@@ -26,5 +24,11 @@ class BaseParticipant {
     // Generate a v1 (time-based) id
     String m = uuid.v1();
     return m;
+  }
+}
+
+class Uuid {
+  String v1() {
+    return 'stuff to figure out later';
   }
 }

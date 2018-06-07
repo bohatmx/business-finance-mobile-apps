@@ -1,6 +1,6 @@
-import 'package:govapp/data/misc_data.dart';
-import 'package:govapp/data/user.dart';
-import 'package:govapp/data/wallet.dart';
+import 'package:businesslibrary/data/misc_data.dart';
+import 'package:businesslibrary/data/user.dart';
+import 'package:businesslibrary/data/wallet.dart';
 import 'package:meta/meta.dart';
 
 class Company extends BaseParticipant {

@@ -1,9 +1,9 @@
-import 'package:govapp/data/misc_data.dart';
-import 'package:govapp/data/user.dart';
-import 'package:govapp/data/wallet.dart';
+import 'package:businesslibrary/data/misc_data.dart';
+import 'package:businesslibrary/data/user.dart';
+import 'package:businesslibrary/data/wallet.dart';
 import 'package:meta/meta.dart';
 
-class Company extends BaseParticipant {
+class GovtEntity extends BaseParticipant {
   String participantId;
   String name;
   String cellphone;
@@ -14,7 +14,7 @@ class Company extends BaseParticipant {
   List<User> users;
   String privateSectorType;
 
-  Company(
+  GovtEntity(
       {@required this.participantId,
       @required this.name,
       this.cellphone,
@@ -25,16 +25,14 @@ class Company extends BaseParticipant {
       @required this.users,
       @required this.privateSectorType});
 
-  static const Technology = "TECHNOLOGY",
-      Retail = "RETAIL",
-      Industrial = 'INDUSTRIAL',
-      Agricultural = 'AGRICULTURAL',
-      Informal = 'INFORMAL_TRADE',
-      Construction = 'CONSTRUCTION',
-      FinancialServices = 'FINANCIAL_SERVICES',
-      Education = 'EDUCATIONAL';
+  static const HomeAffairs = "HOME AFFAIRS",
+      TradeAndIndustry = "TRADE & INDUSTRY",
+      PublicWorks = 'PUBLIC_WORKS',
+      Municipality = 'MUNICIPALITY',
+      Provincial = 'PROVINCIAL',
+      Transport = 'TRANSPORT';
 
-  Company.fromJSON(Map data) {
+  GovtEntity.fromJSON(Map data) {
     this.participantId = data['participantId'];
     this.name = data['name'];
     this.description = data['description'];

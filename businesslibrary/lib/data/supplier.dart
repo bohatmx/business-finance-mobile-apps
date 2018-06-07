@@ -1,9 +1,9 @@
-import 'package:govapp/data/misc_data.dart';
-import 'package:govapp/data/user.dart';
-import 'package:govapp/data/wallet.dart';
+import 'package:businesslibrary/data/misc_data.dart';
+import 'package:businesslibrary/data/user.dart';
+import 'package:businesslibrary/data/wallet.dart';
 import 'package:meta/meta.dart';
 
-class Company extends BaseParticipant {
+class Supplier extends BaseParticipant {
   String participantId;
   String name;
   String cellphone;
@@ -14,7 +14,7 @@ class Company extends BaseParticipant {
   List<User> users;
   String privateSectorType;
 
-  Company(
+  Supplier(
       {@required this.participantId,
       @required this.name,
       this.cellphone,
@@ -34,7 +34,7 @@ class Company extends BaseParticipant {
       FinancialServices = 'FINANCIAL_SERVICES',
       Education = 'EDUCATIONAL';
 
-  Company.fromJSON(Map data) {
+  Supplier.fromJSON(Map data) {
     this.participantId = data['participantId'];
     this.name = data['name'];
     this.description = data['description'];
