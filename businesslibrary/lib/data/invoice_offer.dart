@@ -1,5 +1,3 @@
-import 'package:meta/meta.dart';
-
 class InvoiceOffer {
   String invoiceOfferId;
   DateTime startTime;
@@ -11,14 +9,14 @@ class InvoiceOffer {
   String user;
 
   InvoiceOffer(
-      {@required this.invoiceOfferId,
-      @required this.startTime,
-      @required this.endTime,
-      @required this.amount,
-      @required this.discountPercent,
-      @required this.invoice,
+      {this.invoiceOfferId,
+      this.startTime,
+      this.endTime,
+      this.amount,
+      this.discountPercent,
+      this.invoice,
       this.purchaseOrder,
-      @required this.user});
+      this.user});
 
   InvoiceOffer.fromJSON(Map data) {
     this.invoiceOfferId = data['invoiceOfferId'];

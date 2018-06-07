@@ -1,7 +1,6 @@
 import 'package:businesslibrary/data/misc_data.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/data/wallet.dart';
-import 'package:meta/meta.dart';
 
 class ProcurementOffice extends BaseParticipant {
   String participantId;
@@ -14,14 +13,14 @@ class ProcurementOffice extends BaseParticipant {
   List<User> users;
 
   ProcurementOffice(
-      {@required this.participantId,
-      @required this.name,
+      {this.participantId,
+      this.name,
       this.cellphone,
-      @required this.email,
+      this.email,
       this.description,
       this.address,
-      @required this.wallets,
-      @required this.users});
+      this.wallets,
+      this.users});
 
   ProcurementOffice.fromJSON(Map data) {
     this.participantId = data['participantId'];

@@ -1,5 +1,3 @@
-import 'package:meta/meta.dart';
-
 class InvoiceBid {
   String invoiceBidId;
   DateTime startTime;
@@ -13,15 +11,15 @@ class InvoiceBid {
   String invoiceBidAcceptance;
 
   InvoiceBid(
-      {@required this.invoiceBidId,
-      @required this.startTime,
-      @required this.endTime,
-      @required this.reservePercent,
-      @required this.amount,
-      @required this.discountPercent,
-      @required this.invoice,
-      @required this.investor,
-      @required this.user,
+      {this.invoiceBidId,
+      this.startTime,
+      this.endTime,
+      this.reservePercent,
+      this.amount,
+      this.discountPercent,
+      this.invoice,
+      this.investor,
+      this.user,
       this.invoiceBidAcceptance});
 
   InvoiceBid.fromJSON(Map data) {

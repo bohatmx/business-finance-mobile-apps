@@ -1,5 +1,3 @@
-import 'package:meta/meta.dart';
-
 class Wallet {
   String stellarPublicKey;
   DateTime dateRegistered;
@@ -15,7 +13,7 @@ class Wallet {
   String investor;
 
   Wallet(
-      {@required this.stellarPublicKey,
+      {this.stellarPublicKey,
       this.dateRegistered,
       this.lastBalance,
       this.lastBalanceDate,

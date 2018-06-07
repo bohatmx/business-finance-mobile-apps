@@ -1,5 +1,4 @@
 import 'package:businesslibrary/data/misc_data.dart';
-import 'package:meta/meta.dart';
 
 class DeliveryNote {
   String deliveryNoteId,
@@ -13,14 +12,14 @@ class DeliveryNote {
   List<LineItem> items;
 
   DeliveryNote(
-      {@required this.deliveryNoteId,
+      {this.deliveryNoteId,
       this.purchaseOrder,
       this.company,
       this.govtEntity,
       this.user,
       this.deliveryNoteURL,
       this.remarks,
-      @required this.date,
+      this.date,
       this.items});
 
   DeliveryNote.fromJSON(Map data) {

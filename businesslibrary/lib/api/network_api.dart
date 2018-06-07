@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:businesslibrary/data/purchase_order.dart';
+import 'package:businesslibrary/data/user.dart';
 
 class NetworkAPI {
   static const DEBUG_URL_HOME = 'http://192.168.86.238:3003/api/'; //FIBRE
@@ -10,11 +11,7 @@ class NetworkAPI {
 
   static const RELEASE_URL = 'http://192.168.86.238:3003/api/'; //CLOUD
 
-  Future signUp() {
-    return null;
-  }
-
-  String getURL() {
+  static String getURL() {
     var url;
     if (isInDebugMode) {
       url = DEBUG_URL_HOME; //switch  to DEBUG_URL_ROUTER before demo
@@ -24,7 +21,20 @@ class NetworkAPI {
     return url;
   }
 
-  Future<List<PurchaseOrder>> getPurchaseOrders(String participantId) async {
+  Future addUser(User user) async {
+    String url = getURL();
+    var httpClient = new HttpClient();
+    httpClient.postUrl(Uri.parse(url)).then((HttpClientRequest request) {
+      request.write(user);
+
+      return request.close();
+    }).then((HttpClientResponse response) {});
+
+    return null;
+  }
+
+  static Future<List<PurchaseOrder>> getPurchaseOrders(
+      String participantId) async {
     assert(participantId != null);
     String url = getURL() + participantId;
     print("getPurchaseOrders url: " + url);
@@ -53,7 +63,7 @@ class NetworkAPI {
     return pos;
   }
 
-  bool get isInDebugMode {
+  static bool get isInDebugMode {
     bool inDebugMode = false;
     assert(inDebugMode = true);
     return inDebugMode;

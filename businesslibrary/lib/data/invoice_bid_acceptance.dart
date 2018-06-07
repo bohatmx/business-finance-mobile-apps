@@ -1,5 +1,3 @@
-import 'package:meta/meta.dart';
-
 class InvoiceBidAcceptance {
   String acceptanceId;
   DateTime date;
@@ -7,10 +5,7 @@ class InvoiceBidAcceptance {
   String user;
 
   InvoiceBidAcceptance(
-      {@required this.acceptanceId,
-      @required this.date,
-      @required this.invoiceBid,
-      @required this.user});
+      {this.acceptanceId, this.date, this.invoiceBid, this.user});
 
   InvoiceBidAcceptance.fromJSON(Map data) {
     this.acceptanceId = data['acceptanceId'];

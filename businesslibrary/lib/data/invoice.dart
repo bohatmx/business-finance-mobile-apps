@@ -1,5 +1,3 @@
-import 'package:meta/meta.dart';
-
 class Invoice {
   String supplier,
       purchaseOrder,
@@ -15,19 +13,19 @@ class Invoice {
   double amount;
 
   Invoice(
-      {@required this.supplier,
+      {this.supplier,
       this.purchaseOrder,
       this.deliveryNote,
       this.company,
       this.govtEntity,
       this.wallet,
-      @required this.user,
+      this.user,
       this.invoiceNumber,
       this.description,
       this.reference,
-      @required this.date,
+      this.date,
       this.datePaymentRequired,
-      @required this.amount});
+      this.amount});
 
   Invoice.fromJSON(Map data) {
     this.supplier = data['supplier'];

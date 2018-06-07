@@ -1,7 +1,6 @@
 import 'package:businesslibrary/data/misc_data.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/data/wallet.dart';
-import 'package:meta/meta.dart';
 
 class Supplier extends BaseParticipant {
   String participantId;
@@ -15,15 +14,15 @@ class Supplier extends BaseParticipant {
   String privateSectorType;
 
   Supplier(
-      {@required this.participantId,
-      @required this.name,
+      {this.participantId,
+      this.name,
       this.cellphone,
-      @required this.email,
+      this.email,
       this.description,
       this.address,
-      @required this.wallets,
-      @required this.users,
-      @required this.privateSectorType});
+      this.wallets,
+      this.users,
+      this.privateSectorType});
 
   static const Technology = "TECHNOLOGY",
       Retail = "RETAIL",

@@ -1,5 +1,3 @@
-import 'package:meta/meta.dart';
-
 class InvestorInvoiceSettlement {
   String invoiceSettlementId;
   DateTime date;
@@ -12,15 +10,15 @@ class InvestorInvoiceSettlement {
   String wallet;
 
   InvestorInvoiceSettlement(
-      {@required this.invoiceSettlementId,
-      @required this.date,
-      @required this.settlementPercent,
-      @required this.amount,
+      {this.invoiceSettlementId,
+      this.date,
+      this.settlementPercent,
+      this.amount,
       this.discountPercent,
-      @required this.invoice,
-      @required this.investor,
-      @required this.user,
-      @required this.wallet});
+      this.invoice,
+      this.investor,
+      this.user,
+      this.wallet});
 
   InvestorInvoiceSettlement.fromJSON(Map data) {
     this.invoiceSettlementId = data['invoiceSettlementId'];
@@ -58,15 +56,15 @@ class CompanyInvoiceSettlement {
   String wallet;
 
   CompanyInvoiceSettlement(
-      {@required this.invoiceSettlementId,
-      @required this.date,
-      @required this.settlementPercent,
-      @required this.amount,
+      {this.invoiceSettlementId,
+      this.date,
+      this.settlementPercent,
+      this.amount,
       this.discountPercent,
-      @required this.invoice,
-      @required this.company,
-      @required this.user,
-      @required this.wallet});
+      this.invoice,
+      this.company,
+      this.user,
+      this.wallet});
 
   CompanyInvoiceSettlement.fromJSON(Map data) {
     this.invoiceSettlementId = data['invoiceSettlementId'];

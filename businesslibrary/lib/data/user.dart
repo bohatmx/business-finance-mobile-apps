@@ -1,5 +1,3 @@
-import 'package:meta/meta.dart';
-
 class User {
   String userId,
       firstName,
@@ -12,15 +10,15 @@ class User {
   DateTime dateRegistered;
 
   User(
-      {@required this.userId,
-      @required this.firstName,
-      @required this.lastName,
-      @required this.idNumber,
-      @required this.email,
-      @required this.password,
-      @required this.cellphone,
+      {this.userId,
+      this.firstName,
+      this.lastName,
+      this.idNumber,
+      this.email,
+      this.password,
+      this.cellphone,
       this.address,
-      @required this.dateRegistered});
+      this.dateRegistered});
 
   static const companyStaff = "COMPANY",
       govtStaff = 'GOVT',

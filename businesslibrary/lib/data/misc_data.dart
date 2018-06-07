@@ -17,18 +17,4 @@ class LineItem {
       };
 }
 
-class BaseParticipant {
-  //common methods???
-  String getUUID() {
-    var uuid = new Uuid();
-    // Generate a v1 (time-based) id
-    String m = uuid.v1();
-    return m;
-  }
-}
-
-class Uuid {
-  String v1() {
-    return 'stuff to figure out later';
-  }
-}
+class BaseParticipant {}

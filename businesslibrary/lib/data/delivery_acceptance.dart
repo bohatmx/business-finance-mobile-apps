@@ -1,5 +1,3 @@
-import 'package:meta/meta.dart';
-
 class DeliveryAcceptance {
   String acceptanceId;
   DateTime date;
@@ -9,12 +7,12 @@ class DeliveryAcceptance {
   String user;
 
   DeliveryAcceptance(
-      {@required this.acceptanceId,
-      @required this.date,
-      @required this.deliveryNote,
+      {this.acceptanceId,
+      this.date,
+      this.deliveryNote,
       this.govtEntity,
       this.company,
-      @required this.user});
+      this.user});
 
   DeliveryAcceptance.fromJSON(Map data) {
     this.acceptanceId = data['acceptanceId'];

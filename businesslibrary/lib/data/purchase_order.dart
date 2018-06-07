@@ -1,5 +1,4 @@
 import 'package:businesslibrary/data/misc_data.dart';
-import 'package:meta/meta.dart';
 
 class PurchaseOrder {
   String supplier, company, govtEntity, user;
@@ -14,13 +13,13 @@ class PurchaseOrder {
   List<LineItem> items;
 
   PurchaseOrder(
-      {@required this.supplier,
+      {this.supplier,
       this.company,
       this.govtEntity,
-      @required this.user,
-      @required this.date,
+      this.user,
+      this.date,
       this.deliveryDateRequired,
-      @required this.amount,
+      this.amount,
       this.description,
       this.deliveryAddress,
       this.reference,
