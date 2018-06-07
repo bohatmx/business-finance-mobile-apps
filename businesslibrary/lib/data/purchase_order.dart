@@ -2,6 +2,7 @@ import 'package:businesslibrary/data/misc_data.dart';
 
 class PurchaseOrder {
   String supplier, company, govtEntity, user;
+  String purchaseOrderId;
   DateTime date, deliveryDateRequired;
   double amount;
 
@@ -14,6 +15,7 @@ class PurchaseOrder {
 
   PurchaseOrder(
       {this.supplier,
+      this.purchaseOrderId,
       this.company,
       this.govtEntity,
       this.user,
@@ -31,6 +33,7 @@ class PurchaseOrder {
     this.supplier = data['supplier'];
     this.company = data['company'];
     this.govtEntity = data['govtEntity'];
+    this.purchaseOrderId = data['purchaseOrderId'];
     this.user = data['user'];
     this.date = data['date'];
     this.deliveryDateRequired = data['deliveryDateRequired'];
@@ -44,6 +47,7 @@ class PurchaseOrder {
   }
   Map<String, dynamic> toJson() => <String, dynamic>{
         'supplier': supplier,
+        'purchaseOrderId': purchaseOrderId,
         'company': company,
         'govtEntity': govtEntity,
         'user': user,

@@ -1,0 +1,11 @@
+name: businesslibrary
+description: Data model Package for Business Finance Network apps
+version: 0.0.5
+author: Aubrey Malabie <aubrey@aftarobot.com>
+homepage: http://aftarobot.com
+
+environment:
+  sdk: '>=1.23.0 <2.0.0'
+
+dependencies:
+    uuid: "^1.0.0"

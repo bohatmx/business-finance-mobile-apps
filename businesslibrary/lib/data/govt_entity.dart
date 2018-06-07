@@ -11,7 +11,7 @@ class GovtEntity extends BaseParticipant {
   String address;
   List<Wallet> wallets;
   List<User> users;
-  String privateSectorType;
+  String govtEntityType, country;
 
   GovtEntity(
       {this.participantId,
@@ -22,7 +22,8 @@ class GovtEntity extends BaseParticipant {
       this.address,
       this.wallets,
       this.users,
-      this.privateSectorType});
+      this.country,
+      this.govtEntityType});
 
   static const HomeAffairs = "HOME AFFAIRS",
       TradeAndIndustry = "TRADE & INDUSTRY",
@@ -35,22 +36,24 @@ class GovtEntity extends BaseParticipant {
     this.participantId = data['participantId'];
     this.name = data['name'];
     this.description = data['description'];
-    this.privateSectorType = data['privateSectorType'];
+    this.govtEntityType = data['govtEntityType'];
     this.wallets = data['wallets'];
     this.users = data['users'];
     this.cellphone = data['cellphone'];
     this.address = data['address'];
     this.email = data['address'];
+    this.country = data['country'];
   }
   Map<String, dynamic> toJson() => <String, dynamic>{
         'participantId': participantId,
         'name': name,
         'description': description,
-        'privateSectorType': privateSectorType,
+        'govtEntityType': govtEntityType,
         'wallets': wallets,
         'users': users,
         'cellphone': cellphone,
         'address': address,
-        'email': email
+        'email': email,
+        'country': country,
       };
 }

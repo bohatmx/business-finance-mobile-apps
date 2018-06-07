@@ -11,7 +11,7 @@ class Supplier extends BaseParticipant {
   String address;
   List<Wallet> wallets;
   List<User> users;
-  String privateSectorType;
+  String privateSectorType, country;
 
   Supplier(
       {this.participantId,
@@ -22,6 +22,7 @@ class Supplier extends BaseParticipant {
       this.address,
       this.wallets,
       this.users,
+      this.country,
       this.privateSectorType});
 
   static const Technology = "TECHNOLOGY",
@@ -43,6 +44,7 @@ class Supplier extends BaseParticipant {
     this.cellphone = data['cellphone'];
     this.address = data['address'];
     this.email = data['address'];
+    this.country = data['country'];
   }
   Map<String, dynamic> toJson() => <String, dynamic>{
         'participantId': participantId,
@@ -53,6 +55,7 @@ class Supplier extends BaseParticipant {
         'users': users,
         'cellphone': cellphone,
         'address': address,
-        'email': email
+        'email': email,
+        'country': country,
       };
 }

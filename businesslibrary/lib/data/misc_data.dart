@@ -17,4 +17,4 @@ class LineItem {
       };
 }
 
-class BaseParticipant {}
+abstract class BaseParticipant {}

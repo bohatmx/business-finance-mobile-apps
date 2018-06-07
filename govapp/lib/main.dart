@@ -1,5 +1,5 @@
-import 'package:businesslibrary/data/auditor.dart';
 import 'package:flutter/material.dart';
+import 'package:govapp/ester.dart';
 
 void main() => runApp(new MyApp());
 
@@ -59,7 +59,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    Auditor auditor;
+    Ester.getData();
     return new Scaffold(
       appBar: new AppBar(
         // Here we take the value from the MyHomePage object that was created by

@@ -8,7 +8,7 @@ class Investor extends BaseParticipant {
   String cellphone;
   String email;
   String description;
-  String address;
+  String address, country;
   List<Wallet> wallets;
   List<User> users;
 
@@ -20,6 +20,7 @@ class Investor extends BaseParticipant {
       this.description,
       this.address,
       this.wallets,
+      this.country,
       this.users});
 
   Investor.fromJSON(Map data) {
@@ -31,6 +32,7 @@ class Investor extends BaseParticipant {
     this.cellphone = data['cellphone'];
     this.address = data['address'];
     this.email = data['address'];
+    this.country = data['country'];
   }
   Map<String, dynamic> toJson() => <String, dynamic>{
         'participantId': participantId,
@@ -40,6 +42,7 @@ class Investor extends BaseParticipant {
         'users': users,
         'cellphone': cellphone,
         'address': address,
-        'email': email
+        'email': email,
+        'country': country,
       };
 }

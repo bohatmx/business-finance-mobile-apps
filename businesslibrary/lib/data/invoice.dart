@@ -1,6 +1,7 @@
 class Invoice {
   String supplier,
       purchaseOrder,
+      invoiceId,
       deliveryNote,
       company,
       govtEntity,
@@ -14,6 +15,7 @@ class Invoice {
 
   Invoice(
       {this.supplier,
+      this.invoiceId,
       this.purchaseOrder,
       this.deliveryNote,
       this.company,
@@ -29,6 +31,7 @@ class Invoice {
 
   Invoice.fromJSON(Map data) {
     this.supplier = data['supplier'];
+    this.invoiceId = data['invoiceId'];
     this.deliveryNote = data['deliveryNote'];
     this.purchaseOrder = data['purchaseOrder'];
     this.company = data['company'];
@@ -44,6 +47,7 @@ class Invoice {
   }
   Map<String, dynamic> toJson() => <String, dynamic>{
         'supplier': supplier,
+        'invoiceId': invoiceId,
         'deliveryNote': deliveryNote,
         'purchaseOrder': purchaseOrder,
         'company': company,

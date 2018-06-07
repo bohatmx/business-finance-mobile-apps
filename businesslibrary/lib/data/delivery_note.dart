@@ -6,9 +6,10 @@ class DeliveryNote {
       company,
       govtEntity,
       user,
+      acceptedBy,
       deliveryNoteURL,
       remarks;
-  DateTime date;
+  DateTime date, dateAccepted;
   List<LineItem> items;
 
   DeliveryNote(
@@ -20,6 +21,8 @@ class DeliveryNote {
       this.deliveryNoteURL,
       this.remarks,
       this.date,
+      this.dateAccepted,
+      this.acceptedBy,
       this.items});
 
   DeliveryNote.fromJSON(Map data) {
@@ -32,6 +35,8 @@ class DeliveryNote {
     this.remarks = data['remarks'];
     this.date = data['date'];
     this.items = data['items'];
+    this.dateAccepted = data['dateAccepted'];
+    this.acceptedBy = data['acceptedBy'];
   }
 
   Map<String, dynamic> toJson() => <String, dynamic>{
@@ -44,5 +49,7 @@ class DeliveryNote {
         'remarks': remarks,
         'date': date,
         'items': items,
+        'dateAccepted': dateAccepted,
+        'acceptedBy': acceptedBy,
       };
 }

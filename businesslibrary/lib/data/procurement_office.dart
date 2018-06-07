@@ -8,7 +8,7 @@ class ProcurementOffice extends BaseParticipant {
   String cellphone;
   String email;
   String description;
-  String address;
+  String address, country;
   List<Wallet> wallets;
   List<User> users;
 
@@ -20,6 +20,7 @@ class ProcurementOffice extends BaseParticipant {
       this.description,
       this.address,
       this.wallets,
+      this.country,
       this.users});
 
   ProcurementOffice.fromJSON(Map data) {
@@ -40,6 +41,7 @@ class ProcurementOffice extends BaseParticipant {
         'users': users,
         'cellphone': cellphone,
         'address': address,
-        'email': email
+        'email': email,
+        'country': country,
       };
 }
