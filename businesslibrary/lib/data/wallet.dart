@@ -1,8 +1,8 @@
 class Wallet {
   String stellarPublicKey;
-  DateTime dateRegistered;
+  String dateRegistered;
   String lastBalance;
-  DateTime lastBalanceDate;
+  String lastBalanceDate;
   String govtEntity;
   String company;
   String supplier;
@@ -26,7 +26,7 @@ class Wallet {
       this.bank,
       this.investor});
 
-  Wallet.fromJSON(Map data) {
+  Wallet.fromJson(Map data) {
     this.stellarPublicKey = data['stellarPublicKey'];
     this.dateRegistered = data['dateRegistered'];
     this.lastBalance = data['lastBalance'];
@@ -38,7 +38,7 @@ class Wallet {
     this.bank = data['bank'];
     this.investor = data['investor'];
   }
-  Map<String, dynamic> toJson() => <String, dynamic>{
+  Map<String, String> toJson() => <String, String>{
         'stellarPublicKey': stellarPublicKey,
         'dateRegistered': dateRegistered,
         'lastBalance': lastBalance,

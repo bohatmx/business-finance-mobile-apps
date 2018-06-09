@@ -1,5 +1,3 @@
-import 'package:businesslibrary/data/misc_data.dart';
-
 class DeliveryNote {
   String deliveryNoteId,
       purchaseOrder,
@@ -9,23 +7,22 @@ class DeliveryNote {
       acceptedBy,
       deliveryNoteURL,
       remarks;
-  DateTime date, dateAccepted;
-  List<LineItem> items;
+  String date, dateAccepted;
 
-  DeliveryNote(
-      {this.deliveryNoteId,
-      this.purchaseOrder,
-      this.company,
-      this.govtEntity,
-      this.user,
-      this.deliveryNoteURL,
-      this.remarks,
-      this.date,
-      this.dateAccepted,
-      this.acceptedBy,
-      this.items});
+  DeliveryNote({
+    this.deliveryNoteId,
+    this.purchaseOrder,
+    this.company,
+    this.govtEntity,
+    this.user,
+    this.deliveryNoteURL,
+    this.remarks,
+    this.date,
+    this.dateAccepted,
+    this.acceptedBy,
+  });
 
-  DeliveryNote.fromJSON(Map data) {
+  DeliveryNote.fromJson(Map data) {
     this.deliveryNoteId = data['deliveryNoteId'];
     this.purchaseOrder = data['purchaseOrder'];
     this.company = data['company'];
@@ -34,12 +31,11 @@ class DeliveryNote {
     this.deliveryNoteURL = data['deliveryNoteURL'];
     this.remarks = data['remarks'];
     this.date = data['date'];
-    this.items = data['items'];
     this.dateAccepted = data['dateAccepted'];
     this.acceptedBy = data['acceptedBy'];
   }
 
-  Map<String, dynamic> toJson() => <String, dynamic>{
+  Map<String, String> toJson() => <String, String>{
         'deliveryNoteId': deliveryNoteId,
         'purchaseOrder': purchaseOrder,
         'company': company,
@@ -48,7 +44,6 @@ class DeliveryNote {
         'deliveryNoteURL': deliveryNoteURL,
         'remarks': remarks,
         'date': date,
-        'items': items,
         'dateAccepted': dateAccepted,
         'acceptedBy': acceptedBy,
       };

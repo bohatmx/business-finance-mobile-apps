@@ -7,7 +7,7 @@ class User {
       password,
       cellphone,
       address;
-  DateTime dateRegistered;
+  String dateRegistered;
 
   User(
       {this.userId,
@@ -29,7 +29,7 @@ class User {
       investorStaff = 'INVESTOR',
       procurementStaff = 'PROCUREMENT';
 
-  User.fromJSON(Map data) {
+  User.fromJson(Map data) {
     this.userId = data['userId'];
     this.dateRegistered = data['dateRegistered'];
     this.firstName = data['firstName'];
@@ -39,7 +39,7 @@ class User {
     this.cellphone = data['cellphone'];
     this.address = data['address'];
   }
-  Map<String, dynamic> toJson() => <String, dynamic>{
+  Map<String, String> toJson() => <String, String>{
         'userId': userId,
         'dateRegistered': dateRegistered,
         'firstName': firstName,

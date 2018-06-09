@@ -1,9 +1,9 @@
 class InvoiceOffer {
   String invoiceOfferId;
-  DateTime startTime;
-  DateTime endTime;
-  double amount;
-  double discountPercent;
+  String startTime;
+  String endTime;
+  String amount;
+  String discountPercent;
   String invoice;
   String purchaseOrder;
   String user;
@@ -18,7 +18,7 @@ class InvoiceOffer {
       this.purchaseOrder,
       this.user});
 
-  InvoiceOffer.fromJSON(Map data) {
+  InvoiceOffer.fromJson(Map data) {
     this.invoiceOfferId = data['invoiceOfferId'];
     this.startTime = data['startTime'];
     this.endTime = data['endTime'];
@@ -29,7 +29,7 @@ class InvoiceOffer {
     this.user = data['user'];
   }
 
-  Map<String, dynamic> toJson() => <String, dynamic>{
+  Map<String, String> toJson() => <String, String>{
         'invoiceOfferId': invoiceOfferId,
         'startTime': startTime,
         'endTime': endTime,

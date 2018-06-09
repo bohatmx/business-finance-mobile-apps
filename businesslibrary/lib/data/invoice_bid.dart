@@ -1,10 +1,10 @@
 class InvoiceBid {
   String invoiceBidId;
-  DateTime startTime;
-  DateTime endTime;
-  double reservePercent;
-  double amount;
-  double discountPercent;
+  String startTime;
+  String endTime;
+  String reservePercent;
+  String amount;
+  String discountPercent;
   String invoice;
   String investor;
   String user;
@@ -22,7 +22,7 @@ class InvoiceBid {
       this.user,
       this.invoiceBidAcceptance});
 
-  InvoiceBid.fromJSON(Map data) {
+  InvoiceBid.fromJson(Map data) {
     this.invoiceBidId = data['invoiceBidId'];
     this.startTime = data['startTime'];
     this.endTime = data['endTime'];
@@ -34,7 +34,7 @@ class InvoiceBid {
     this.user = data['user'];
     this.invoiceBidAcceptance = data['invoiceBidAcceptance'];
   }
-  Map<String, dynamic> toJson() => <String, dynamic>{
+  Map<String, String> toJson() => <String, String>{
         'invoiceBidId': invoiceBidId,
         'startTime': startTime,
         'endTime': endTime,

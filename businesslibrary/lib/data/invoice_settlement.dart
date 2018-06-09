@@ -1,9 +1,9 @@
 class InvestorInvoiceSettlement {
   String invoiceSettlementId;
-  DateTime date;
-  double settlementPercent;
-  double amount;
-  double discountPercent;
+  String date;
+  String settlementPercent;
+  String amount;
+  String discountPercent;
   String invoice;
   String investor;
   String user;
@@ -20,7 +20,7 @@ class InvestorInvoiceSettlement {
       this.user,
       this.wallet});
 
-  InvestorInvoiceSettlement.fromJSON(Map data) {
+  InvestorInvoiceSettlement.fromJson(Map data) {
     this.invoiceSettlementId = data['invoiceSettlementId'];
     this.date = data['date'];
     this.settlementPercent = data['settlementPercent'];
@@ -31,7 +31,7 @@ class InvestorInvoiceSettlement {
     this.user = data['user'];
     this.wallet = data['wallet'];
   }
-  Map<String, dynamic> toJson() => <String, dynamic>{
+  Map<String, String> toJson() => <String, String>{
         'invoiceSettlementId': invoiceSettlementId,
         'date': date,
         'settlementPercent': settlementPercent,
@@ -46,10 +46,10 @@ class InvestorInvoiceSettlement {
 
 class CompanyInvoiceSettlement {
   String invoiceSettlementId;
-  DateTime date;
-  double settlementPercent;
-  double amount;
-  double discountPercent;
+  String date;
+  String settlementPercent;
+  String amount;
+  String discountPercent;
   String invoice;
   String company;
   String user;
@@ -66,7 +66,7 @@ class CompanyInvoiceSettlement {
       this.user,
       this.wallet});
 
-  CompanyInvoiceSettlement.fromJSON(Map data) {
+  CompanyInvoiceSettlement.fromJson(Map data) {
     this.invoiceSettlementId = data['invoiceSettlementId'];
     this.date = data['date'];
     this.settlementPercent = data['settlementPercent'];
@@ -77,7 +77,7 @@ class CompanyInvoiceSettlement {
     this.user = data['user'];
     this.wallet = data['wallet'];
   }
-  Map<String, dynamic> toJson() => <String, dynamic>{
+  Map<String, String> toJson() => <String, String>{
         'invoiceSettlementId': invoiceSettlementId,
         'date': date,
         'settlementPercent': settlementPercent,

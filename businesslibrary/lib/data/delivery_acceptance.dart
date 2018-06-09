@@ -1,6 +1,6 @@
 class DeliveryAcceptance {
   String acceptanceId;
-  DateTime date;
+  String date;
   String deliveryNote;
   String govtEntity;
   String company;
@@ -14,7 +14,7 @@ class DeliveryAcceptance {
       this.company,
       this.user});
 
-  DeliveryAcceptance.fromJSON(Map data) {
+  DeliveryAcceptance.fromJson(Map data) {
     this.acceptanceId = data['acceptanceId'];
     this.date = data['date'];
     this.deliveryNote = data['deliveryNote'];
@@ -22,7 +22,7 @@ class DeliveryAcceptance {
     this.company = data['company'];
     this.user = data['user'];
   }
-  Map<String, dynamic> toJson() => <String, dynamic>{
+  Map<String, String> toJson() => <String, String>{
         'acceptanceId': acceptanceId,
         'date': date,
         'deliveryNote': deliveryNote,

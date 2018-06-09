@@ -1,33 +1,30 @@
-import 'package:businesslibrary/data/misc_data.dart';
-
 class PurchaseOrder {
   String supplier, company, govtEntity, user;
   String purchaseOrderId;
-  DateTime date, deliveryDateRequired;
-  double amount;
+  String date, deliveryDateRequired;
+  String amount;
 
   String description;
   String deliveryAddress;
   String reference;
   String purchaseOrderNumber;
   String purchaseOrderURL;
-  List<LineItem> items;
 
-  PurchaseOrder(
-      {this.supplier,
-      this.purchaseOrderId,
-      this.company,
-      this.govtEntity,
-      this.user,
-      this.date,
-      this.deliveryDateRequired,
-      this.amount,
-      this.description,
-      this.deliveryAddress,
-      this.reference,
-      this.purchaseOrderNumber,
-      this.purchaseOrderURL,
-      this.items});
+  PurchaseOrder({
+    this.supplier,
+    this.purchaseOrderId,
+    this.company,
+    this.govtEntity,
+    this.user,
+    this.date,
+    this.deliveryDateRequired,
+    this.amount,
+    this.description,
+    this.deliveryAddress,
+    this.reference,
+    this.purchaseOrderNumber,
+    this.purchaseOrderURL,
+  });
 
   PurchaseOrder.fromJSON(Map data) {
     this.supplier = data['supplier'];
@@ -43,9 +40,8 @@ class PurchaseOrder {
     this.reference = data['reference'];
     this.purchaseOrderNumber = data['purchaseOrderNumber'];
     this.purchaseOrderURL = data['purchaseOrderURL'];
-    this.items = data['items'];
   }
-  Map<String, dynamic> toJson() => <String, dynamic>{
+  Map<String, String> toJson() => <String, String>{
         'supplier': supplier,
         'purchaseOrderId': purchaseOrderId,
         'company': company,
@@ -59,6 +55,5 @@ class PurchaseOrder {
         'reference': reference,
         'purchaseOrderNumber': purchaseOrderNumber,
         'purchaseOrderURL': purchaseOrderURL,
-        'items': items,
       };
 }

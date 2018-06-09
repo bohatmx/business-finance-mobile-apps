@@ -1,6 +1,4 @@
 import 'package:businesslibrary/data/misc_data.dart';
-import 'package:businesslibrary/data/user.dart';
-import 'package:businesslibrary/data/wallet.dart';
 
 class Auditor extends BaseParticipant {
   String participantId;
@@ -8,38 +6,37 @@ class Auditor extends BaseParticipant {
   String cellphone;
   String email;
   String description;
-  String address;
-  List<Wallet> wallets;
-  List<User> users;
+  String address, country, dateRegistered;
 
-  Auditor(
-      {this.participantId,
-      this.name,
-      this.cellphone,
-      this.email,
-      this.description,
-      this.address,
-      this.wallets,
-      this.users});
+  Auditor({
+    this.participantId,
+    this.name,
+    this.cellphone,
+    this.email,
+    this.description,
+    this.address,
+    this.dateRegistered,
+    this.country,
+  });
 
-  Auditor.fromJSON(Map data) {
+  Auditor.fromJson(Map data) {
     this.participantId = data['participantId'];
     this.name = data['name'];
     this.description = data['description'];
-    this.wallets = data['wallets'];
-    this.users = data['users'];
     this.cellphone = data['cellphone'];
     this.address = data['address'];
     this.email = data['address'];
+    this.country = data['country'];
+    this.dateRegistered = data['dateRegistered'];
   }
-  Map<String, dynamic> toJson() => <String, dynamic>{
+  Map<String, String> toJson() => <String, String>{
         'participantId': participantId,
         'name': name,
         'description': description,
-        'wallets': wallets,
-        'users': users,
         'cellphone': cellphone,
         'address': address,
-        'email': email
+        'email': email,
+        'country': country,
+        'dateRegistered': dateRegistered,
       };
 }

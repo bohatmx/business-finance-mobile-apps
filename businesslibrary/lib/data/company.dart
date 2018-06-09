@@ -1,6 +1,4 @@
 import 'package:businesslibrary/data/misc_data.dart';
-import 'package:businesslibrary/data/user.dart';
-import 'package:businesslibrary/data/wallet.dart';
 
 class Company extends BaseParticipant {
   String participantId;
@@ -8,9 +6,7 @@ class Company extends BaseParticipant {
   String cellphone;
   String email;
   String description;
-  String address;
-  List<Wallet> wallets;
-  List<User> users;
+  String address, dateRegistered;
   String privateSectorType, country;
 
   Company(
@@ -20,9 +16,8 @@ class Company extends BaseParticipant {
       this.email,
       this.description,
       this.address,
-      this.wallets,
-      this.users,
       this.country,
+      this.dateRegistered,
       this.privateSectorType});
 
   static const Technology = "TECHNOLOGY",
@@ -34,28 +29,26 @@ class Company extends BaseParticipant {
       FinancialServices = 'FINANCIAL_SERVICES',
       Education = 'EDUCATIONAL';
 
-  Company.fromJSON(Map data) {
+  Company.fromJson(Map data) {
     this.participantId = data['participantId'];
     this.name = data['name'];
     this.description = data['description'];
     this.privateSectorType = data['privateSectorType'];
-    this.wallets = data['wallets'];
-    this.users = data['users'];
     this.cellphone = data['cellphone'];
     this.address = data['address'];
     this.email = data['address'];
     this.country = data['country'];
+    this.dateRegistered = data['dateRegistered'];
   }
-  Map<String, dynamic> toJson() => <String, dynamic>{
+  Map<String, String> toJson() => <String, String>{
         'participantId': participantId,
         'name': name,
         'description': description,
         'privateSectorType': privateSectorType,
-        'wallets': wallets,
-        'users': users,
         'cellphone': cellphone,
         'address': address,
         'email': email,
         'country': country,
+        'dateRegistered': dateRegistered,
       };
 }

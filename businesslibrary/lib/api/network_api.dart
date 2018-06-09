@@ -34,7 +34,7 @@ class NetworkAPI {
       REGISTER_PURCHASE_ORDER = 'RegisterPurchaseOrder',
       REGISTER_DELIVERY_NOTE = 'RegisterDeliveryNote',
       INVESTOR = 'Investor';
-
+  static HttpClient httpClient = new HttpClient();
   static String getURL() {
     var url;
     if (isInDebugMode) {
@@ -45,20 +45,69 @@ class NetworkAPI {
     return url;
   }
 
+  // ignore: missing_return
+  static Future<List<GovtEntity>> getGovtEntities() async {
+    print('NetworkAPI.getGovtEntities ###### ................  ###');
+
+    var url = getURL() + GOVT_ENTITY;
+    print('NetworkAPI.getGovtEntities url: $url');
+    HttpClientRequest mRequest = await httpClient.getUrl(Uri.parse(url));
+    HttpClientResponse resp = await mRequest.close();
+    print('NetworkAPI.getGovtEntities resp.statusCode: ${resp.statusCode}');
+    var list = List<GovtEntity>();
+    if (resp.statusCode == 200) {
+      StringBuffer builder = new StringBuffer();
+      await for (String a in await resp.transform(utf8.decoder)) {
+        builder.write(a);
+      }
+      var contents = builder.toString();
+      print('NetworkAPI.transformGovtEntities, contents: $contents \n\n');
+      List mList = json.decode(contents);
+      await mList.forEach((f) {
+        GovtEntity g = new GovtEntity.fromJson(f);
+        list.add(g);
+        print(
+            'NetworkAPI.getGovtEntities)))))))  entity added to list: ${g.toJson()}');
+      });
+//      await resp.transform(utf8.decoder).listen((contents) {
+//        print('NetworkAPI.transformGovtEntities, contents: $contents \n\n');
+//        List mList = json.decode(contents);
+//        mList.forEach((f) {
+//          GovtEntity g = new GovtEntity.fromJson(f);
+//          list.add(g);
+//          print(
+//              'NetworkAPI.getGovtEntities)))))))  entity added to list: ${g.toJson()}');
+//        });
+//      });
+      print('NetworkAPI.getGovtEntities entities: ${list.length}');
+      return list;
+    } else {
+      print('NetworkAPI.getGovtEntities ERROR  ${resp.reasonPhrase}');
+      return null;
+    }
+  }
+
   static Future<String> addGovtEntity(GovtEntity govtEntity) async {
     govtEntity.participantId = _getKey();
-    var httpClient = new HttpClient();
-    HttpClientRequest mRequest =
-        await httpClient.postUrl(Uri.parse(getURL() + GOVT_ENTITY));
-    mRequest.write(govtEntity.toJson());
-    HttpClientResponse mResponse = await mRequest.close();
-
     print(
-        'NetworkAPI.addGovtEntity response status code:  ${mResponse.statusCode}');
-    if (mResponse.statusCode == 200) {
+        'NetworkAPI.addGovtEntity, before adding to chain...: ${govtEntity.toJson()}');
+
+    var url = getURL() + GOVT_ENTITY;
+    print('NetworkAPI.addGovtEntity url: $url');
+
+    Map map = govtEntity.toJson();
+    HttpClientRequest mRequest = await httpClient.postUrl(Uri.parse(url));
+    mRequest.headers.contentType =
+        new ContentType("application", "json", charset: "utf-8");
+    mRequest.write(json.encode(map));
+
+    HttpClientResponse resp = await mRequest.close();
+    print(
+        'NetworkAPI.addGovtEntity resp.statusCode: ${resp.statusCode} \n ${resp.headers}');
+    if (resp.statusCode == 200) {
       return govtEntity.participantId;
     } else {
-      print('NetworkAPI.addGovtEntity ERROR  ${mResponse.reasonPhrase}');
+      print('NetworkAPI.addGovtEntity ERROR  ${resp.reasonPhrase}');
       return "0";
     }
   }
