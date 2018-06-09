@@ -7,7 +7,7 @@ class User {
       password,
       cellphone,
       address;
-  String dateRegistered;
+  String dateRegistered, isAdministrator;
 
   User(
       {this.userId,
@@ -18,6 +18,7 @@ class User {
       this.password,
       this.cellphone,
       this.address,
+      this.isAdministrator,
       this.dateRegistered});
 
   static const companyStaff = "COMPANY",
@@ -38,6 +39,7 @@ class User {
     this.password = data['password'];
     this.cellphone = data['cellphone'];
     this.address = data['address'];
+    this.isAdministrator = data['isAdministrator'];
   }
   Map<String, String> toJson() => <String, String>{
         'userId': userId,
@@ -48,5 +50,6 @@ class User {
         'password': password,
         'cellphone': cellphone,
         'address': address,
+        'isAdministrator': isAdministrator,
       };
 }

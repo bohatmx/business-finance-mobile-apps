@@ -31,11 +31,11 @@ class _MyHomePageState extends State<MyHomePage> {
   String _key;
 
   void _addGovtEntity() async {
+    _key = await CrudDriver.addGovtEntity();
     var list = await CrudDriver.getGovtEntities();
     print(
         '_MyHomePageState._incrementCounter - list from package: ${list.length}');
 
-    // await CrudDriver.addGovtEntity();
     setState(() {
       _counter++;
     });
