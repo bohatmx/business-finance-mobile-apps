@@ -5,7 +5,7 @@ class Bank extends BaseParticipant {
   String name;
   String cellphone;
   String email;
-  String description;
+  String description, documentReference;
   String address, country, dateRegistered;
 
   Bank({
@@ -16,10 +16,11 @@ class Bank extends BaseParticipant {
     this.description,
     this.address,
     this.dateRegistered,
+    this.documentReference,
     this.country,
   });
 
-  Bank.fromJSON(Map data) {
+  Bank.fromJson(Map data) {
     this.participantId = data['participantId'];
     this.name = data['name'];
     this.description = data['description'];
@@ -28,6 +29,7 @@ class Bank extends BaseParticipant {
     this.email = data['address'];
     this.country = data['country'];
     this.dateRegistered = data['dateRegistered'];
+    this.documentReference = data['documentReference'];
   }
   Map<String, String> toJson() => <String, String>{
         'participantId': participantId,
@@ -38,5 +40,6 @@ class Bank extends BaseParticipant {
         'email': email,
         'country': country,
         'dateRegistered': dateRegistered,
+        'documentReference': documentReference,
       };
 }

@@ -4,7 +4,7 @@ class Supplier extends BaseParticipant {
   String participantId;
   String name;
   String cellphone;
-  String email;
+  String email, documentReference;
   String description;
   String address, dateRegistered;
   String privateSectorType, country;
@@ -16,6 +16,7 @@ class Supplier extends BaseParticipant {
       this.email,
       this.description,
       this.address,
+      this.documentReference,
       this.country,
       this.dateRegistered,
       this.privateSectorType});
@@ -39,6 +40,7 @@ class Supplier extends BaseParticipant {
     this.email = data['address'];
     this.country = data['country'];
     this.dateRegistered = data['dateRegistered'];
+    this.documentReference = data['documentReference'];
   }
   Map<String, String> toJson() => <String, String>{
         'participantId': participantId,
@@ -50,5 +52,6 @@ class Supplier extends BaseParticipant {
         'email': email,
         'country': country,
         'dateRegistered': dateRegistered,
+        'documentReference': documentReference,
       };
 }

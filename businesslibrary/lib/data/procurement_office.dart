@@ -4,7 +4,7 @@ class ProcurementOffice extends BaseParticipant {
   String participantId;
   String name;
   String cellphone;
-  String email;
+  String email, documentReference;
   String description, dateRegistered;
   String address, country;
 
@@ -15,6 +15,7 @@ class ProcurementOffice extends BaseParticipant {
     this.email,
     this.description,
     this.address,
+    this.documentReference,
     this.dateRegistered,
     this.country,
   });
@@ -27,6 +28,7 @@ class ProcurementOffice extends BaseParticipant {
     this.address = data['address'];
     this.email = data['address'];
     this.dateRegistered = data['dateRegistered'];
+    this.documentReference = data['documentReference'];
   }
   Map<String, String> toJson() => <String, String>{
         'participantId': participantId,
@@ -37,5 +39,6 @@ class ProcurementOffice extends BaseParticipant {
         'email': email,
         'country': country,
         'dateRegistered': dateRegistered,
+        'documentReference': documentReference,
       };
 }

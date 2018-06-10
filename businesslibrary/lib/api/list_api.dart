@@ -53,7 +53,7 @@ class ListAPI {
       var contents = await _transform(resp);
       List mList = json.decode(contents);
       await mList.forEach((f) {
-        PurchaseOrder g = new PurchaseOrder.fromJSON(f);
+        PurchaseOrder g = new PurchaseOrder.fromJson(f);
         list.add(g);
         print('ListAPI.getPurchaseOrders)))))))  purch order added to list: ${g
             .toJson()}');

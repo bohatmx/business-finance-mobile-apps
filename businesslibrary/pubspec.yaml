@@ -1,6 +1,6 @@
 name: businesslibrary
 description: Data model Package for Business Finance Network apps
-version: 0.0.31
+version: 0.0.41
 author: Aubrey Malabie <aubrey@aftarobot.com>
 homepage: http://aftarobot.com
 
@@ -8,5 +8,14 @@ environment:
   sdk: '>=1.23.0 <2.0.0'
 
 dependencies:
-    uuid: "^1.0.0"
-    http: "^0.11.3+16"
+    uuid: ^1.0.0
+    font_awesome_flutter: ^6.0.0
+    google_sign_in: ^3.0.3
+    firebase_auth: ^0.5.10
+    firebase_database: ^0.4.6
+    firebase_messaging: ^0.2.5
+    firebase_storage: ^0.3.4
+    firebase_remote_config: ^0.0.2
+    cloud_firestore: ^0.7.3
+    shared_preferences: ^0.4.0
+    path_provider: ^0.4.0

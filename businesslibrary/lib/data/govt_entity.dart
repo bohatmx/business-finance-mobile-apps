@@ -5,7 +5,7 @@ class GovtEntity extends BaseParticipant {
   String name;
   String cellphone;
   String email;
-  String description;
+  String description, documentReference;
   String address, dateRegistered;
 
   String govtEntityType, country;
@@ -18,6 +18,7 @@ class GovtEntity extends BaseParticipant {
       this.description,
       this.address,
       this.country,
+      this.documentReference,
       this.dateRegistered,
       this.govtEntityType});
 
@@ -38,6 +39,7 @@ class GovtEntity extends BaseParticipant {
     this.email = data['email'];
     this.country = data['country'];
     this.dateRegistered = data['dateRegistered'];
+    this.documentReference = data['documentReference'];
   }
 
   Map<String, String> toJson() => <String, String>{
@@ -50,5 +52,6 @@ class GovtEntity extends BaseParticipant {
         'email': email,
         'country': country,
         'dateRegistered': dateRegistered,
+        'documentReference': documentReference,
       };
 }

@@ -5,7 +5,7 @@ class Auditor extends BaseParticipant {
   String name;
   String cellphone;
   String email;
-  String description;
+  String description, documentReference;
   String address, country, dateRegistered;
 
   Auditor({
@@ -16,6 +16,7 @@ class Auditor extends BaseParticipant {
     this.description,
     this.address,
     this.dateRegistered,
+    this.documentReference,
     this.country,
   });
 
@@ -28,6 +29,7 @@ class Auditor extends BaseParticipant {
     this.email = data['address'];
     this.country = data['country'];
     this.dateRegistered = data['dateRegistered'];
+    this.documentReference = data['documentReference'];
   }
   Map<String, String> toJson() => <String, String>{
         'participantId': participantId,
@@ -38,5 +40,6 @@ class Auditor extends BaseParticipant {
         'email': email,
         'country': country,
         'dateRegistered': dateRegistered,
+        'documentReference': documentReference,
       };
 }

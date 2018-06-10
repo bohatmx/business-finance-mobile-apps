@@ -10,7 +10,7 @@ class Wallet {
   String oneConnect;
   String auditor;
   String bank;
-  String investor;
+  String investor, documentReference;
 
   Wallet(
       {this.stellarPublicKey,
@@ -24,6 +24,7 @@ class Wallet {
       this.oneConnect,
       this.auditor,
       this.bank,
+      this.documentReference,
       this.investor});
 
   Wallet.fromJson(Map data) {
@@ -37,6 +38,7 @@ class Wallet {
     this.auditor = data['auditor'];
     this.bank = data['bank'];
     this.investor = data['investor'];
+    this.documentReference = data['documentReference'];
   }
   Map<String, String> toJson() => <String, String>{
         'stellarPublicKey': stellarPublicKey,
@@ -50,5 +52,6 @@ class Wallet {
         'auditor': auditor,
         'bank': bank,
         'investor': investor,
+        'documentReference': documentReference,
       };
 }
