@@ -1,109 +1,223 @@
+import 'package:businesslibrary/api/shared_prefs.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:supplier/ui/main_page.dart';
+import 'package:supplier/ui/signup_page.dart';
 
-void main() => runApp(new MyApp());
+void main() => runApp(new SupplierApp());
 
-class MyApp extends StatelessWidget {
+final FirebaseMessaging _firebaseMessaging = new FirebaseMessaging();
+final FirebaseAuth _auth = FirebaseAuth.instance;
+
+class SupplierApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return new MaterialApp(
-      title: 'Supplier',
+      title: 'FinanceNetwork',
+      debugShowCheckedModeBanner: false,
       theme: new ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or press Run > Flutter Hot Reload in IntelliJ). Notice that the
-        // counter didn't reset back to zero; the application is not restarted.
         primarySwatch: Colors.teal,
+        accentColor: Colors.deepOrange,
       ),
-      home: new MyHomePage(title: 'SupplierApp BFNetwork'),
+      home: new StartPage(title: 'Business Finance App - Supplier'),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
+class StartPage extends StatefulWidget {
+  StartPage({Key key, this.title}) : super(key: key);
 
   final String title;
 
   @override
-  _MyHomePageState createState() => new _MyHomePageState();
+  _StartPageState createState() => new _StartPageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+class _StartPageState extends State<StartPage> {
+  FirebaseUser firebaseUser;
+  double fabOpacity = 0.3;
+  @override
+  initState() {
+    super.initState();
+    _configMessaging();
+    checkUser();
+  }
 
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
+  checkUser() async {
+    firebaseUser = await _auth.currentUser();
+    if (firebaseUser != null) {
+      print('_StartPageState.checkUser firebaseUser:  ${firebaseUser.email}');
+      await Navigator.push(
+        context,
+        new MaterialPageRoute(builder: (context) => new MainPage()),
+      );
+    }
+  }
+
+  void _configMessaging() async {
+    print(
+        '_MyHomePageState._configMessaging starting _firebaseMessaging config shit');
+    _firebaseMessaging.configure(
+      onMessage: (Map<String, dynamic> message) {
+//        P.mprint(widget,
+//            "onMessage, AccountDetails: expecting wallet, payment or error mesage via FCM:\n: $message");
+//        var messageType = message["messageType"];
+//        if (messageType == "PAYMENT") {
+//          P.mprint(widget,
+//              "AccountDetails Receiving PAYMENT message )))))))))))))))))))))))))))))))))");
+//          Map map = json.decode(message["json"]);
+//          var payment = new Payment.fromJson(map);
+//          assert(payment != null);
+//          P.mprint(widget, "received payment, details below");
+//          payment.printDetails();
+//          receivedPayment(payment);
+//        }
+//
+//        if (messageType == "PAYMENT_ERROR") {
+//          P.mprint(widget,
+//              "AccountDetails Receiving PAYMENT_ERROR message ################");
+//          Map map = json.decode(message["json"]);
+//          PaymentFailed paymentFailed = new PaymentFailed.fromJson(map);
+//          assert(paymentFailed != null);
+//          P.mprint(widget, paymentFailed.toJson().toString());
+//          P.mprint(widget,
+//              "What do we do now, Boss? payment error, Chief ....maybe show a snackbar?");
+//
+//          _showSnackbar("Payment failed, try again later. Sorry!");
+//        }
+      },
+      onLaunch: (Map<String, dynamic> message) {},
+      onResume: (Map<String, dynamic> message) {},
+    );
+
+    _firebaseMessaging.requestNotificationPermissions(
+        const IosNotificationSettings(sound: true, badge: true, alert: true));
+
+    _firebaseMessaging.onIosSettingsRegistered
+        .listen((IosNotificationSettings settings) {
+      print("Settings registered: $settings");
+    });
+
+    _firebaseMessaging.getToken().then((String token) async {
+      assert(token != null);
+      var oldToken = await SharedPrefs.getFCMToken();
+      if (token != oldToken) {
+        await SharedPrefs.saveFCMToken(token);
+        print('_MyHomePageState._configMessaging fcm token saved: $token');
+      }
+    }).catchError((e) {
+      print('_MyHomePageState._configMessaging ERROR fcmToken ');
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return new Scaffold(
       appBar: new AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
         title: new Text(widget.title),
       ),
-      body: new Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: new Column(
-          // Column is also layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Invoke "debug paint" (press "p" in the console where you ran
-          // "flutter run", or select "Toggle Debug Paint" from the Flutter tool
-          // window in IntelliJ) to see the wireframe for each widget.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            new Text(
-              'You have pushed the button this many times:',
+      body: Stack(
+        children: <Widget>[
+          new Opacity(
+            opacity: 0.4,
+            child: Container(
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage('assets/fincash.jpg'),
+                  fit: BoxFit.cover,
+                ),
+              ),
             ),
-            new Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.display1,
+          ),
+          new Center(
+            child: new Column(
+              children: <Widget>[
+                new Padding(
+                  padding: const EdgeInsets.only(top: 200.0),
+                  child: RaisedButton(
+                    onPressed: _startSignUpPage,
+                    color: Theme.of(context).primaryColor,
+                    elevation: 8.0,
+                    child: new Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: Text(
+                        'Start Supplier SignUp',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ),
+                ),
+                new Padding(
+                  padding: const EdgeInsets.only(top: 20.0),
+                  child: RaisedButton(
+                    onPressed: _startSignInPage,
+                    color: Colors.blue,
+                    elevation: 8.0,
+                    child: new Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: Text(
+                        'Sign into Supplier App',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
+          )
+        ],
       ),
-      floatingActionButton: new FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: new Icon(Icons.add),
+
+      floatingActionButton: new Opacity(
+        opacity: fabOpacity,
+        child: new FloatingActionButton(
+          onPressed: _startSignUp,
+          tooltip: 'Increment',
+          child: new Icon(FontAwesomeIcons.lockOpen),
+        ),
       ), // This trailing comma makes auto-formatting nicer for build methods.
+    );
+  }
+
+  void _startSignUp() async {
+    Navigator.push(
+      context,
+      new MaterialPageRoute(builder: (context) => new SignUpPage()),
+    );
+  }
+
+  void _startSignUpPage() async {
+    print('_MyHomePageState._btnPressed ................');
+    await Navigator.push(
+      context,
+      new MaterialPageRoute(builder: (context) => new SignUpPage()),
+    );
+  }
+
+  void _startSignInPage() async {
+    print('_MyHomePageState._startSignInPage ...........');
+  }
+}
+
+class BackImage extends StatelessWidget {
+  AssetImage _assetImage = AssetImage('assets/fincash.jpg');
+  @override
+  Widget build(BuildContext context) {
+    // var m = Image.asset('assets/fincash.jpg', fit: BoxFit.cover,)
+    var image = new Opacity(
+      opacity: 0.5,
+      child: Image(
+        image: _assetImage,
+        width: double.infinity,
+        height: double.infinity,
+        fit: BoxFit.cover,
+      ),
+    );
+    return Container(
+      child: image,
     );
   }
 }

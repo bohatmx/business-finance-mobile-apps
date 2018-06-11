@@ -4,7 +4,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:govt/ui/main_page.dart';
-import 'package:govt/ui/sign_up.dart';
+import 'package:govt/ui/signup_page.dart';
 
 void main() => runApp(new GovtApp());
 
