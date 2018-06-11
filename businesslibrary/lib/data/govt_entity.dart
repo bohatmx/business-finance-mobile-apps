@@ -22,12 +22,9 @@ class GovtEntity extends BaseParticipant {
       this.dateRegistered,
       this.govtEntityType});
 
-  static const HomeAffairs = "HOME_AFFAIRS",
-      TradeAndIndustry = "TRADE_AND_INDUSTRY",
-      PublicWorks = 'PUBLIC_WORKS',
+  static const National = "NATIONAL",
       Municipality = 'MUNICIPALITY',
-      Provincial = 'PROVINCIAL',
-      Transport = 'TRANSPORT';
+      Provincial = 'PROVINCIAL';
 
   GovtEntity.fromJson(Map data) {
     this.participantId = data['participantId'];

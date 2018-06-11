@@ -5,7 +5,7 @@ class InvoiceBid {
   String reservePercent;
   String amount;
   String discountPercent;
-  String invoice;
+  String invoiceOffer;
   String investor;
   String user;
   String invoiceBidAcceptance;
@@ -17,7 +17,7 @@ class InvoiceBid {
       this.reservePercent,
       this.amount,
       this.discountPercent,
-      this.invoice,
+      this.invoiceOffer,
       this.investor,
       this.user,
       this.invoiceBidAcceptance});
@@ -29,7 +29,7 @@ class InvoiceBid {
     this.reservePercent = data['reservePercent'];
     this.amount = data['amount'];
     this.discountPercent = data['discountPercent'];
-    this.invoice = data['invoice'];
+    this.invoiceOffer = data['invoiceOffer'];
     this.investor = data['investor'];
     this.user = data['user'];
     this.invoiceBidAcceptance = data['invoiceBidAcceptance'];
@@ -41,7 +41,7 @@ class InvoiceBid {
         'reservePercent': reservePercent,
         'amount': amount,
         'discountPercent': discountPercent,
-        'invoice': invoice,
+        'invoiceOffer': invoiceOffer,
         'investor': investor,
         'user': user,
         'invoiceBidAcceptance': invoiceBidAcceptance,

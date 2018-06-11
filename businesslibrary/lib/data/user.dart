@@ -2,7 +2,6 @@ class User {
   String userId,
       firstName,
       lastName,
-      idNumber,
       govtEntity,
       company,
       supplier,
@@ -17,13 +16,12 @@ class User {
       address,
       fcmToken,
       documentReference;
-  String dateRegistered, isAdministrator, userType;
+  String dateRegistered, isAdministrator;
 
   User(
       {this.userId,
       this.firstName,
       this.lastName,
-      this.idNumber,
       this.govtEntity,
       this.company,
       this.supplier,
@@ -39,8 +37,7 @@ class User {
       this.fcmToken,
       this.documentReference,
       this.dateRegistered,
-      this.isAdministrator,
-      this.userType});
+      this.isAdministrator});
 
   static const companyStaff = "COMPANY",
       govtStaff = 'GOVT_STAFF',
@@ -56,7 +53,6 @@ class User {
     this.dateRegistered = data['dateRegistered'];
     this.firstName = data['firstName'];
     this.lastName = data['lastName'];
-    this.idNumber = data['idNumber'];
     this.email = data['email'];
     this.password = data['password'];
     this.cellphone = data['cellphone'];
@@ -73,14 +69,12 @@ class User {
     this.procurementOffice = data['procurementOffice'];
     this.investor = data['investor'];
     this.bank = data['bank'];
-    this.userType = data['userType'];
   }
   Map<String, String> toJson() => <String, String>{
         'userId': userId,
         'dateRegistered': dateRegistered,
         'firstName': firstName,
         'lastName': lastName,
-        'idNumber': idNumber,
         'email': email,
         'password': password,
         'cellphone': cellphone,
@@ -96,6 +90,5 @@ class User {
         'procurementOffice': procurementOffice,
         'investor': investor,
         'bank': bank,
-        'userType': userType,
       };
 }

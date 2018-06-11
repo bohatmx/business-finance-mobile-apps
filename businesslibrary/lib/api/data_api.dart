@@ -5,10 +5,14 @@ import 'dart:io';
 import 'package:businesslibrary/data/auditor.dart';
 import 'package:businesslibrary/data/bank.dart';
 import 'package:businesslibrary/data/company.dart';
+import 'package:businesslibrary/data/delivery_acceptance.dart';
 import 'package:businesslibrary/data/delivery_note.dart';
 import 'package:businesslibrary/data/govt_entity.dart';
 import 'package:businesslibrary/data/investor.dart';
 import 'package:businesslibrary/data/invoice.dart';
+import 'package:businesslibrary/data/invoice_bid.dart';
+import 'package:businesslibrary/data/invoice_offer.dart';
+import 'package:businesslibrary/data/invoice_settlement.dart';
 import 'package:businesslibrary/data/item.dart';
 import 'package:businesslibrary/data/oneconnect.dart';
 import 'package:businesslibrary/data/procurement_office.dart';
@@ -36,6 +40,10 @@ class DataAPI {
       WALLET = 'Wallet',
       REGISTER_PURCHASE_ORDER = 'RegisterPurchaseOrder',
       REGISTER_DELIVERY_NOTE = 'RegisterDeliveryNote',
+      REGISTER_INVOICE = 'RegisterInvoice',
+      ACCEPT_DELIVERY = 'AcceptDelivery',
+      MAKE_INVOICE_OFFER = 'MakeInvoiceOffer',
+      MAKE_INVOICE_BID = 'MakeInvoiceBid',
       INVESTOR = 'Investor';
 
   HttpClient _httpClient = new HttpClient();
@@ -443,8 +451,44 @@ class DataAPI {
 
   Future<String> registerDeliveryNote(DeliveryNote deliveryNote) async {
     deliveryNote.deliveryNoteId = getKey();
+    String documentId, participantId, path;
+    if (deliveryNote.govtEntity != null) {
+      participantId = deliveryNote.govtEntity.split('#').elementAt(1);
+      path = 'govtEntities';
+    }
+    if (deliveryNote.company != null) {
+      participantId = deliveryNote.company.split('#').elementAt(1);
+      path = 'companies';
+    }
+    documentId = await _getDocumentId(path, participantId);
+    String orderId = deliveryNote.purchaseOrder.split("#").elementAt(1);
+    String poDocumentId;
+    var querySnap = await _firestore
+        .collection(path)
+        .document(documentId)
+        .collection('purchaseOrders')
+        .where('purchaseOrderId', isEqualTo: orderId)
+        .getDocuments();
+    querySnap.documents.forEach((snap) {
+      poDocumentId = snap.documentID;
+    });
+
+    var ref = await _firestore
+        .collection(path)
+        .document(documentId)
+        .collection('purchaseOrders')
+        .document(poDocumentId)
+        .collection('deliveryNotes')
+        .add(deliveryNote.toJson())
+        .catchError((e) {
+      print('DataAPI.registerDeliveryNote ERROR $e');
+      return '0';
+    });
+    print('DataAPI.registerDeliveryNote added to Firestore: ${ref.path}');
+
     var httpClient = new HttpClient();
-    HttpClientRequest mRequest = await httpClient.postUrl(Uri.parse(url));
+    HttpClientRequest mRequest =
+        await httpClient.postUrl(Uri.parse(url + REGISTER_DELIVERY_NOTE));
     mRequest.headers.contentType = _contentType;
     mRequest.write(json.encode(deliveryNote.toJson()));
     HttpClientResponse mResponse = await mRequest.close();
@@ -460,8 +504,31 @@ class DataAPI {
 
   Future<String> registerInvoice(Invoice invoice) async {
     invoice.invoiceId = getKey();
+    String documentId, participantId, path;
+    if (invoice.govtEntity != null) {
+      participantId = invoice.govtEntity.split('#').elementAt(1);
+      path = 'govtEntities';
+    }
+    if (invoice.company != null) {
+      participantId = invoice.company.split('#').elementAt(1);
+      path = 'companies';
+    }
+    documentId = await _getDocumentId(path, participantId);
+    var ref = await _firestore
+        .collection(path)
+        .document(documentId)
+        .collection('invoices')
+        .add(invoice.toJson())
+        .catchError((e) {
+      print('DataAPI.registerInvoice  ERROR $e');
+      return '0';
+    });
+    print('DataAPI.registerInvoice added to Firestore: ${ref.path}');
+    invoice.documentReference = ref.documentID;
+
     var httpClient = new HttpClient();
-    HttpClientRequest mRequest = await httpClient.postUrl(Uri.parse(url));
+    HttpClientRequest mRequest =
+        await httpClient.postUrl(Uri.parse(url + REGISTER_INVOICE));
     mRequest.headers.contentType = _contentType;
     mRequest.write(json.encode(invoice.toJson()));
     HttpClientResponse mResponse = await mRequest.close();
@@ -475,14 +542,33 @@ class DataAPI {
     }
   }
 
-  Future<int> acceptDelivery(String deliveryNote, String user) async {
-    var httpClient = new HttpClient();
-    HttpClientRequest mRequest = await httpClient.postUrl(Uri.parse(url));
-    mRequest.headers.contentType = _contentType;
-    mRequest.write({
-      'deliveryNote': deliveryNote,
-      'user': user,
+  Future<int> acceptDelivery(DeliveryAcceptance acceptance) async {
+    acceptance.acceptanceId = getKey();
+    String documentId, participantId, path;
+    if (acceptance.govtEntity != null) {
+      participantId = acceptance.govtEntity.split('#').elementAt(1);
+      path = 'govtEntities';
+    }
+    if (acceptance.company != null) {
+      participantId = acceptance.company.split('#').elementAt(1);
+      path = 'companies';
+    }
+    documentId = await _getDocumentId(path, participantId);
+    var ref = await _firestore
+        .collection(path)
+        .document(documentId)
+        .collection('deliveryAcceptances')
+        .add(acceptance.toJson())
+        .catchError((e) {
+      print('DataAPI.acceptDelivery  ERROR $e');
+      return '0';
     });
+    print('DataAPI.acceptDelivery added to Firestore: ${ref.path}');
+    var httpClient = new HttpClient();
+    HttpClientRequest mRequest =
+        await httpClient.postUrl(Uri.parse(url + ACCEPT_DELIVERY));
+    mRequest.headers.contentType = _contentType;
+    mRequest.write(acceptance.toJson());
     HttpClientResponse mResponse = await mRequest.close();
     print(
         'DataAPI.acceptDelivery response status code:  ${mResponse.statusCode}');
@@ -492,6 +578,77 @@ class DataAPI {
       print('DataAPI.acceptDelivery ERROR  ${mResponse.reasonPhrase}');
       return 1;
     }
+  }
+
+  Future<String> makeInvoiceOffer(InvoiceOffer offer) async {
+    var ref = await _firestore
+        .collection('invoiceOffers')
+        .add(offer.toJson())
+        .catchError((e) {
+      print('DataAPI.makeInvoiceOffer ERROR $e');
+      return '0';
+    });
+    print('DataAPI.makeInvoiceOffer added to Firestore: ${ref.path}');
+
+    offer.invoiceOfferId = getKey();
+    offer.documentReference = ref.documentID;
+    var httpClient = new HttpClient();
+    HttpClientRequest mRequest =
+        await httpClient.postUrl(Uri.parse(url + MAKE_INVOICE_OFFER));
+    mRequest.headers.contentType = _contentType;
+    mRequest.write(offer.toJson());
+    HttpClientResponse mResponse = await mRequest.close();
+    print(
+        'DataAPI.makeInvoiceOffer response status code:  ${mResponse.statusCode}');
+    if (mResponse.statusCode == 200) {
+      return offer.invoiceOfferId;
+    } else {
+      print('DataAPI.makeInvoiceOffer ERROR  ${mResponse.reasonPhrase}');
+      return '0';
+    }
+  }
+
+  Future<String> makeInvoiceBid(InvoiceBid bid, InvoiceOffer offer) async {
+    var ref = await _firestore
+        .collection('invoiceOffers')
+        .document(offer.documentReference)
+        .collection('invoiceBids')
+        .add(bid.toJson())
+        .catchError((e) {
+      print('DataAPI.makeInvoiceBid ERROR $e');
+      return '0';
+    });
+    print('DataAPI.makeInvoiceBid added to Firestore: ${ref.path}');
+
+    bid.invoiceBidId = getKey();
+    var httpClient = new HttpClient();
+    HttpClientRequest mRequest =
+        await httpClient.postUrl(Uri.parse(url + MAKE_INVOICE_BID));
+    mRequest.headers.contentType = _contentType;
+    mRequest.write(bid.toJson());
+    HttpClientResponse mResponse = await mRequest.close();
+    print(
+        'DataAPI.makeInvoiceBid response status code:  ${mResponse.statusCode}');
+    if (mResponse.statusCode == 200) {
+      return bid.invoiceBidId;
+    } else {
+      print('DataAPI.makeInvoiceBid ERROR  ${mResponse.reasonPhrase}');
+      return '0';
+    }
+  }
+
+  Future<String> selectInvoiceBid(InvoiceBid bid) async {
+    return null;
+  }
+
+  Future<String> makeInvestorInvoiceSettlement(
+      InvestorInvoiceSettlement settlement) async {
+    return null;
+  }
+
+  Future<String> makeCustomerInvoiceSettlement(
+      CompanyInvoiceSettlement settlement) async {
+    return null;
   }
 
   static String getKey() {

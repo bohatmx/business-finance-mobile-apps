@@ -16,6 +16,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class SignUp {
+  static const NameSpace = 'resource:com.oneconnect.biz';
   final String url;
   final Firestore _firestore = Firestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -35,13 +36,14 @@ class SignUp {
       ErrorBlockchain = 3;
 
   Future<int> signUpGovtEntity(GovtEntity govtEntity, User admin) async {
+    govtEntity.dateRegistered = DateTime.now().toIso8601String();
     DataAPI dataAPI = DataAPI(url);
     var key = await dataAPI.addGovtEntity(govtEntity);
     if (key == null) {
       return ErrorBlockchain;
     }
 
-    admin.govtEntity = 'resource:oneconnect.com.biz.GovtEntity#' + key;
+    admin.govtEntity = NameSpace + '.GovtEntity#' + key;
     admin.isAdministrator = 'true';
     return await signUp(admin);
   }
@@ -53,7 +55,7 @@ class SignUp {
       return ErrorBlockchain;
     }
 
-    admin.company = 'resource:oneconnect.com.biz.Company#' + key;
+    admin.company = NameSpace + '.Company#' + key;
     admin.isAdministrator = 'true';
     return await signUp(admin);
   }
@@ -65,7 +67,7 @@ class SignUp {
       return ErrorBlockchain;
     }
 
-    admin.supplier = 'resource:oneconnect.com.biz.Supplier#' + key;
+    admin.supplier = NameSpace + '.Supplier#' + key;
     admin.isAdministrator = 'true';
     return await signUp(admin);
   }
@@ -77,7 +79,7 @@ class SignUp {
       return ErrorBlockchain;
     }
 
-    admin.investor = 'resource:oneconnect.com.biz.Investor#' + key;
+    admin.investor = NameSpace + '.Investor#' + key;
     admin.isAdministrator = 'true';
     return await signUp(admin);
   }
@@ -89,7 +91,7 @@ class SignUp {
       return ErrorBlockchain;
     }
 
-    admin.auditor = 'resource:oneconnect.com.biz.Auditor#' + key;
+    admin.auditor = NameSpace + '.Auditor#' + key;
     admin.isAdministrator = 'true';
     return await signUp(admin);
   }
@@ -102,8 +104,7 @@ class SignUp {
       return ErrorBlockchain;
     }
 
-    admin.procurementOffice =
-        'resource:oneconnect.com.biz.ProcurementOffice#' + key;
+    admin.procurementOffice = NameSpace + '.ProcurementOffice#' + key;
     admin.isAdministrator = 'true';
     return await signUp(admin);
   }
@@ -115,7 +116,7 @@ class SignUp {
       return ErrorBlockchain;
     }
 
-    admin.bank = 'resource:oneconnect.com.biz.Bank#' + key;
+    admin.bank = NameSpace + '.Bank#' + key;
     admin.isAdministrator = 'true';
     return await signUp(admin);
   }
@@ -127,7 +128,7 @@ class SignUp {
       return ErrorBlockchain;
     }
 
-    admin.oneConnect = 'resource:oneconnect.com.biz.OneConnect#' + key;
+    admin.oneConnect = NameSpace + '.OneConnect#' + key;
     admin.isAdministrator = 'true';
     return await signUp(admin);
   }
@@ -138,9 +139,7 @@ class SignUp {
     assert(user.password != null);
     assert(user.firstName != null);
     assert(user.lastName != null);
-    assert(user.idNumber != null);
     assert(user.isAdministrator != null);
-    assert(user.userType != null);
 
     if (!hasOwner(user)) {
       return ErrorMissingOrInvalidData;

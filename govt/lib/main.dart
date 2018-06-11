@@ -1,43 +1,44 @@
 import 'package:businesslibrary/api/shared_prefs.dart';
-import 'package:businesslibrary/api/signup.dart';
-import 'package:businesslibrary/data/user.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:govt/util.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:govt/ui/main_page.dart';
+import 'package:govt/ui/sign_up.dart';
 
-void main() => runApp(new MyApp());
+void main() => runApp(new GovtApp());
 
 final FirebaseMessaging _firebaseMessaging = new FirebaseMessaging();
 final FirebaseAuth _auth = FirebaseAuth.instance;
 
-class MyApp extends StatelessWidget {
+class GovtApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return new MaterialApp(
-      title: 'Flutter Demo',
+      title: 'FinanceNetwork',
+      debugShowCheckedModeBanner: false,
       theme: new ThemeData(
         primarySwatch: Colors.pink,
+        accentColor: Colors.teal,
       ),
-      home: new MyHomePage(title: 'Business Finance - Govt'),
+      home: new StartPage(title: 'Business Finance App - Govt'),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
+class StartPage extends StatefulWidget {
+  StartPage({Key key, this.title}) : super(key: key);
 
   final String title;
 
   @override
-  _MyHomePageState createState() => new _MyHomePageState();
+  _StartPageState createState() => new _StartPageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+class _StartPageState extends State<StartPage> {
   FirebaseUser firebaseUser;
-
+  double fabOpacity = 0.3;
   @override
   initState() {
     super.initState();
@@ -48,16 +49,12 @@ class _MyHomePageState extends State<MyHomePage> {
   checkUser() async {
     firebaseUser = await _auth.currentUser();
     if (firebaseUser != null) {
-      print('_MyHomePageState.checkUser firebaseUser:  ${firebaseUser.email}');
-    } else {
-      signUp();
+      print('_StartPageState.checkUser firebaseUser:  ${firebaseUser.email}');
+      await Navigator.push(
+        context,
+        new MaterialPageRoute(builder: (context) => new MainPage()),
+      );
     }
-  }
-
-  void _incrementCounter() async {
-    setState(() {
-      _counter++;
-    });
   }
 
   void _configMessaging() async {
@@ -122,62 +119,99 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: new AppBar(
         title: new Text(widget.title),
       ),
-      body: new Center(
-        child: new Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            new Text(
-              'You have pushed the button this many times:',
+      body: Stack(
+        children: <Widget>[
+          new Opacity(
+            opacity: 0.4,
+            child: Container(
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage('assets/fincash.jpg'),
+                  fit: BoxFit.cover,
+                ),
+              ),
             ),
-            new Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.display1,
+          ),
+          new Center(
+            child: new Column(
+              children: <Widget>[
+                new Padding(
+                  padding: const EdgeInsets.only(top: 200.0),
+                  child: RaisedButton(
+                    onPressed: _startSignUpPage,
+                    color: Theme.of(context).primaryColor,
+                    elevation: 8.0,
+                    child: Text(
+                      'Start Government Entity SignUp',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ),
+                new Padding(
+                  padding: const EdgeInsets.only(top: 20.0),
+                  child: RaisedButton(
+                    onPressed: _startSignInPage,
+                    color: Colors.blue,
+                    elevation: 8.0,
+                    child: Text(
+                      'Sign in Government Entity App',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
+          )
+        ],
       ),
-      floatingActionButton: new FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: new Icon(Icons.add),
+
+      floatingActionButton: new Opacity(
+        opacity: fabOpacity,
+        child: new FloatingActionButton(
+          onPressed: _startSignUp,
+          tooltip: 'Increment',
+          child: new Icon(FontAwesomeIcons.lockOpen),
+        ),
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 
-  //resource:com.oneconnect.biz.GovtEntity#0445
-  void signUp() async {
-    SignUp signUp = SignUp(Util.getURL());
-    var user = User(
-        firstName: 'Johnson',
-        lastName: 'Drogueman',
-        idNumber: '7609124660081',
-        email: 'drouman@golf.com',
-        password: 'kktiger3x',
-        isAdministrator: 'true',
-        userType: User.govtStaff,
-        govtEntity:
-            'resource:com.oneconnect.biz.GovtEntity#09f19ec0-4800-11e8-9c07-5ba79e5d711f');
+  void _startSignUp() async {
+    Navigator.push(
+      context,
+      new MaterialPageRoute(builder: (context) => new SignUpPage()),
+    );
+  }
 
-    var result = await signUp.signUp(user);
-    switch (result) {
-      case SignUp.Success:
-        print('_MyHomePageState.signUp --- SUCCESS !!!');
-        break;
-      case SignUp.ErrorCreatingFirebaseUser:
-        print('_MyHomePageState.signUp ErrorCreatingFirebaseUser ');
-        break;
-      case SignUp.ErrorFireStore:
-        print('_MyHomePageState.signUp ErrorFireStore ');
-        break;
-      case SignUp.ErrorFirebaseUserExists:
-        print('_MyHomePageState.signUp ErrorFirebaseUserExists ');
-        break;
-      case SignUp.ErrorBlockchain:
-        print('_MyHomePageState.signUp ErrorBlockchain ');
-        break;
-      case SignUp.ErrorMissingOrInvalidData:
-        print('_MyHomePageState.signUp  ErrorMissingOrInvalidData');
-        break;
-    }
+  void _startSignUpPage() async {
+    print('_MyHomePageState._btnPressed ................');
+    await Navigator.push(
+      context,
+      new MaterialPageRoute(builder: (context) => new SignUpPage()),
+    );
+  }
+
+  void _startSignInPage() async {
+    print('_MyHomePageState._startSignInPage ...........');
+  }
+}
+
+class BackImage extends StatelessWidget {
+  AssetImage _assetImage = AssetImage('assets/fincash.jpg');
+  @override
+  Widget build(BuildContext context) {
+    // var m = Image.asset('assets/fincash.jpg', fit: BoxFit.cover,)
+    var image = new Opacity(
+      opacity: 0.5,
+      child: Image(
+        image: _assetImage,
+        width: double.infinity,
+        height: double.infinity,
+        fit: BoxFit.cover,
+      ),
+    );
+    return Container(
+      child: image,
+    );
   }
 }
