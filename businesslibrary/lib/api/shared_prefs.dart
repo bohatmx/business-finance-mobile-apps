@@ -113,11 +113,11 @@ class SharedPrefs {
     return supplier;
   }
 
-  static Future saveBank(Bank company) async {
+  static Future saveBank(Bank bank) async {
     print('SharedPrefs.saveBank saving data ........');
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
-    Map jsonx = company.toJson();
+    Map jsonx = bank.toJson();
     var jx = json.encode(jsonx);
     print(jx);
     prefs.setString('bank', jx);
@@ -210,11 +210,11 @@ class SharedPrefs {
     return investor;
   }
 
-  static Future saveOneConnect(OneConnect investor) async {
+  static Future saveOneConnect(OneConnect oneConnect) async {
     print('SharedPrefs  OneConnect  saving data ........');
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
-    Map jsonx = investor.toJson();
+    Map jsonx = oneConnect.toJson();
     var jx = json.encode(jsonx);
     print(jx);
     prefs.setString('oneconnect', jx);

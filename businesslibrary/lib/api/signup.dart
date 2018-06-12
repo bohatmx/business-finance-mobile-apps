@@ -43,6 +43,7 @@ class SignUp {
       return ErrorBlockchain;
     }
 
+    await SharedPrefs.saveGovtEntity(govtEntity);
     admin.govtEntity = NameSpace + '.GovtEntity#' + key;
     admin.isAdministrator = 'true';
     return await signUp(admin);
@@ -54,7 +55,7 @@ class SignUp {
     if (key == null) {
       return ErrorBlockchain;
     }
-
+    await SharedPrefs.saveCompany(company);
     admin.company = NameSpace + '.Company#' + key;
     admin.isAdministrator = 'true';
     return await signUp(admin);
@@ -66,7 +67,7 @@ class SignUp {
     if (key == null) {
       return ErrorBlockchain;
     }
-
+    await SharedPrefs.saveSupplier(supplier);
     admin.supplier = NameSpace + '.Supplier#' + key;
     admin.isAdministrator = 'true';
     return await signUp(admin);
@@ -79,6 +80,7 @@ class SignUp {
       return ErrorBlockchain;
     }
 
+    await SharedPrefs.saveInvestor(investor);
     admin.investor = NameSpace + '.Investor#' + key;
     admin.isAdministrator = 'true';
     return await signUp(admin);
@@ -91,6 +93,7 @@ class SignUp {
       return ErrorBlockchain;
     }
 
+    await SharedPrefs.saveAuditor(auditor);
     admin.auditor = NameSpace + '.Auditor#' + key;
     admin.isAdministrator = 'true';
     return await signUp(admin);
@@ -104,6 +107,7 @@ class SignUp {
       return ErrorBlockchain;
     }
 
+    await SharedPrefs.saveProcurementOffice(office);
     admin.procurementOffice = NameSpace + '.ProcurementOffice#' + key;
     admin.isAdministrator = 'true';
     return await signUp(admin);
@@ -116,6 +120,7 @@ class SignUp {
       return ErrorBlockchain;
     }
 
+    await SharedPrefs.saveBank(bank);
     admin.bank = NameSpace + '.Bank#' + key;
     admin.isAdministrator = 'true';
     return await signUp(admin);
@@ -128,6 +133,7 @@ class SignUp {
       return ErrorBlockchain;
     }
 
+    await SharedPrefs.saveOneConnect(oneConnect);
     admin.oneConnect = NameSpace + '.OneConnect#' + key;
     admin.isAdministrator = 'true';
     return await signUp(admin);

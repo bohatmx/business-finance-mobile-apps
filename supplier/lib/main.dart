@@ -1,9 +1,12 @@
 import 'package:businesslibrary/api/shared_prefs.dart';
+import 'package:businesslibrary/data/supplier.dart';
+import 'package:businesslibrary/data/user.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:supplier/ui/main_page.dart';
+import 'package:supplier/ui/dashboard.dart';
+import 'package:supplier/ui/signin_page.dart';
 import 'package:supplier/ui/signup_page.dart';
 
 void main() => runApp(new SupplierApp());
@@ -39,6 +42,8 @@ class StartPage extends StatefulWidget {
 class _StartPageState extends State<StartPage> {
   FirebaseUser firebaseUser;
   double fabOpacity = 0.3;
+  Supplier supplier;
+  User user;
   @override
   initState() {
     super.initState();
@@ -50,9 +55,14 @@ class _StartPageState extends State<StartPage> {
     firebaseUser = await _auth.currentUser();
     if (firebaseUser != null) {
       print('_StartPageState.checkUser firebaseUser:  ${firebaseUser.email}');
+
+      supplier = await SharedPrefs.getSupplier();
+      user = await SharedPrefs.getUser();
+      var dash = new Dashboard();
+      dash.supplier = supplier;
       await Navigator.push(
         context,
-        new MaterialPageRoute(builder: (context) => new MainPage()),
+        new MaterialPageRoute(builder: (context) => new Dashboard()),
       );
     }
   }
@@ -199,6 +209,10 @@ class _StartPageState extends State<StartPage> {
 
   void _startSignInPage() async {
     print('_MyHomePageState._startSignInPage ...........');
+    Navigator.push(
+      context,
+      new MaterialPageRoute(builder: (context) => new SignInPage()),
+    );
   }
 }
 

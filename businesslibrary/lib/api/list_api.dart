@@ -52,7 +52,7 @@ class ListAPI {
     if (resp.statusCode == 200) {
       var contents = await _transform(resp);
       List mList = json.decode(contents);
-      await mList.forEach((f) {
+      mList.forEach((f) {
         PurchaseOrder g = new PurchaseOrder.fromJson(f);
         list.add(g);
         print('ListAPI.getPurchaseOrders)))))))  purch order added to list: ${g

@@ -1,9 +1,11 @@
+import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/api/signup.dart';
 import 'package:businesslibrary/data/misc_data.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:flutter/material.dart';
+import 'package:supplier/ui/dashboard.dart';
 import 'package:supplier/util.dart';
 
 class SignUpPage extends StatefulWidget {
@@ -284,6 +286,25 @@ class _SignUpPageState extends State<SignUpPage> {
               backgroundColor: Colors.teal,
               actionLabel: 'Start',
               icon: Icons.lock_open);
+
+          //get owning object
+          var user = await SharedPrefs.getUser();
+          if (user.govtEntity != null) {
+            var obj = await SharedPrefs.getGovEntity();
+            Navigator.push(
+              context,
+              new MaterialPageRoute(
+                  builder: (context) => new Dashboard(null, obj)),
+            );
+          }
+          if (user.supplier != null) {
+            var obj = await SharedPrefs.getSupplier();
+            Navigator.push(
+              context,
+              new MaterialPageRoute(
+                  builder: (context) => new Dashboard(obj, null)),
+            );
+          }
           break;
         case SignUp.ErrorBlockchain:
           print('_SignUpPageState._onSavePressed  ErrorBlockchain');

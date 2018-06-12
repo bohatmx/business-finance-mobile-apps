@@ -89,3 +89,41 @@ class CompanyInvoiceSettlement {
         'wallet': wallet,
       };
 }
+
+class GovtInvoiceSettlement {
+  String invoiceSettlementId;
+  String date;
+  String amount;
+  String invoice;
+  String govtEntity;
+  String user;
+  String wallet;
+
+  GovtInvoiceSettlement(
+      {this.invoiceSettlementId,
+      this.date,
+      this.amount,
+      this.invoice,
+      this.govtEntity,
+      this.user,
+      this.wallet});
+
+  GovtInvoiceSettlement.fromJson(Map data) {
+    this.invoiceSettlementId = data['invoiceSettlementId'];
+    this.date = data['date'];
+    this.amount = data['amount'];
+    this.invoice = data['invoice'];
+    this.govtEntity = data['govtEntity'];
+    this.user = data['user'];
+    this.wallet = data['wallet'];
+  }
+  Map<String, String> toJson() => <String, String>{
+        'invoiceSettlementId': invoiceSettlementId,
+        'date': date,
+        'amount': amount,
+        'invoice': invoice,
+        'govtEntity': govtEntity,
+        'user': user,
+        'wallet': wallet,
+      };
+}
