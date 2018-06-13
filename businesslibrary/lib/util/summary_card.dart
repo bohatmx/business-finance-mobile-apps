@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+///summary card used in dashboards
 class SummaryCard extends StatelessWidget {
   final int total;
   final String label, date, lastLabel;
