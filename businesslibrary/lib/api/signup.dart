@@ -184,17 +184,15 @@ class SignUp {
   Future<FirebaseUser> _createUser(String email, String password) async {
     print('SignUp.createUser ========= starting to create new user .... ===');
     FirebaseUser user;
-    try {
-      user = await _auth.createUserWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-      if (user != null) {
-        print('SignUp.createUser done.  new user on firebase: '
-            '${user.email} $password ---- Yay!');
-      }
-    } catch (e) {
-      print('SignUp.createUser ERROR: $e');
+
+    user = await _auth.createUserWithEmailAndPassword(
+      email: email,
+      password: password,
+    );
+
+    if (user != null) {
+      print('SignUp.createUser done.  new user on firebase: '
+          '${user.email} $password ---- Yay!');
     }
 
     return user;

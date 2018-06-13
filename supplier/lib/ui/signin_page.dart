@@ -119,20 +119,28 @@ class _SignInPageState extends State<SignInPage> {
       switch (result) {
         case SignIn.Success:
           print('_SignInPageState._onSavePressed SUCCESS!!!!!!');
-          AppSnackbar.showSnackbarWithAction(
-              context: context,
-              scaffoldKey: _scaffoldKey,
-              message: 'Supplier Sign Up successful',
-              textColor: Colors.white,
-              backgroundColor: Colors.teal,
-              actionLabel: 'Start',
-              icon: Icons.lock_open);
+
           supplier = await SharedPrefs.getSupplier();
-          Navigator.push(
-            context,
-            new MaterialPageRoute(
-                builder: (context) => new Dashboard(supplier, null)),
-          );
+          if (supplier == null) {
+            AppSnackbar.showErrorSnackbar(
+                context: context,
+                scaffoldKey: _scaffoldKey,
+                message: 'Unable to sign you in as a  Supplier',
+                actionLabel: "close");
+          } else {
+            AppSnackbar.showSnackbarWithAction(
+                context: context,
+                scaffoldKey: _scaffoldKey,
+                message: 'Supplier Sign Up successful',
+                textColor: Colors.white,
+                backgroundColor: Colors.teal,
+                actionLabel: 'Start',
+                icon: Icons.lock_open);
+            Navigator.push(
+              context,
+              new MaterialPageRoute(builder: (context) => new Dashboard()),
+            );
+          }
           break;
         case SignIn.ErrorDatabase:
           print('_SignInPageState._onSavePressed  ErrorDatabase');

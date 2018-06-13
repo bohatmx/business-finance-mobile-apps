@@ -3,6 +3,7 @@ import 'package:businesslibrary/data/govt_entity.dart';
 import 'package:businesslibrary/data/misc_data.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:flutter/material.dart';
+import 'package:govt/ui/dashboard.dart';
 import 'package:govt/util.dart';
 
 class SignUpPage extends StatefulWidget {
@@ -230,6 +231,10 @@ class _SignUpPageState extends State<SignUpPage> {
       switch (result) {
         case SignUp.Success:
           print('_SignUpPageState._onSavePressed SUCCESS!!!!!!');
+          Navigator.push(
+            context,
+            new MaterialPageRoute(builder: (context) => new Dashboard()),
+          );
           break;
         case SignUp.ErrorBlockchain:
           print('_SignUpPageState._onSavePressed  ErrorBlockchain');

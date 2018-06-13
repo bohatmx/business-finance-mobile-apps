@@ -1,4 +1,3 @@
-import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/api/signup.dart';
 import 'package:businesslibrary/data/misc_data.dart';
 import 'package:businesslibrary/data/supplier.dart';
@@ -287,24 +286,11 @@ class _SignUpPageState extends State<SignUpPage> {
               actionLabel: 'Start',
               icon: Icons.lock_open);
 
-          //get owning object
-          var user = await SharedPrefs.getUser();
-          if (user.govtEntity != null) {
-            var obj = await SharedPrefs.getGovEntity();
-            Navigator.push(
-              context,
-              new MaterialPageRoute(
-                  builder: (context) => new Dashboard(null, obj)),
-            );
-          }
-          if (user.supplier != null) {
-            var obj = await SharedPrefs.getSupplier();
-            Navigator.push(
-              context,
-              new MaterialPageRoute(
-                  builder: (context) => new Dashboard(obj, null)),
-            );
-          }
+          Navigator.push(
+            context,
+            new MaterialPageRoute(builder: (context) => new Dashboard()),
+          );
+
           break;
         case SignUp.ErrorBlockchain:
           print('_SignUpPageState._onSavePressed  ErrorBlockchain');

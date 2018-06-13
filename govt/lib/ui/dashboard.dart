@@ -1,15 +1,13 @@
 import 'package:businesslibrary/api/firestore_list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/delivery_note.dart';
+import 'package:businesslibrary/data/govt_entity.dart';
 import 'package:businesslibrary/data/invoice.dart';
 import 'package:businesslibrary/data/invoice_settlement.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
-import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
+import 'package:businesslibrary/util/summary_card.dart';
 import 'package:flutter/material.dart';
-import 'package:supplier/ui/delivery_note_list.dart';
-import 'package:supplier/ui/invoice_list.dart';
-import 'package:supplier/ui/purchase_order_list.dart';
 
 class Dashboard extends StatefulWidget {
   @override
@@ -20,13 +18,11 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   AnimationController animationController;
   Animation<double> animation;
-  Supplier supplier;
+  GovtEntity govtEntity;
   List<Invoice> invoices;
   List<DeliveryNote> deliveryNotes;
   List<PurchaseOrder> purchaseOrders;
-  List<InvestorInvoiceSettlement> investorSettlements;
   List<GovtInvoiceSettlement> govtSettlements;
-  List<CompanyInvoiceSettlement> companySettlements;
   User user;
   String fullName;
   @override
@@ -51,37 +47,33 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
   _getSummaryData() async {
     user = await SharedPrefs.getUser();
     fullName = user.firstName + ' ' + user.lastName;
-    supplier = await SharedPrefs.getSupplier();
-    assert(supplier != null);
-    name = supplier.name;
+    govtEntity = await SharedPrefs.getGovEntity();
+    assert(govtEntity != null);
+    name = govtEntity.name;
     setState(() {});
-    print('_MainPageState._getSummaryData SUPPLIER -  ${supplier.toJson()}');
+    print(
+        '_MainPageState._getSummaryData GOVT_ENTITY -  ${govtEntity.toJson()}');
     //get invoices
-    purchaseOrders = await FirestoreListAPI.getSupplierPurchaseOrders(supplier);
+    purchaseOrders = await FirestoreListAPI.getGovtPurchaseOrders(govtEntity);
     setState(() {
       totalPOs = purchaseOrders.length;
     });
-    deliveryNotes = await FirestoreListAPI.getSupplierDeliveryNotes(supplier);
+    deliveryNotes = await FirestoreListAPI.getGovtDeliveryNotes(govtEntity);
     setState(() {
       totalNotes = deliveryNotes.length;
     });
-    invoices = await FirestoreListAPI.getSupplierInvoices(supplier);
+    invoices = await FirestoreListAPI.getGovtInvoices(govtEntity);
     if (invoices.isNotEmpty) {
       lastInvoice = invoices.last;
     }
     setState(() {
       totalInvoices = invoices.length;
     });
-    investorSettlements =
-        await FirestoreListAPI.getSupplierInvestorSettlements(supplier);
-    govtSettlements =
-        await FirestoreListAPI.getSupplierGovtSettlements(supplier);
-    companySettlements =
-        await FirestoreListAPI.getSupplierCompanySettlements(supplier);
+
+    govtSettlements = await FirestoreListAPI.getGovtSettlements(govtEntity);
+
     setState(() {
-      totalPayments = investorSettlements.length +
-          govtSettlements.length +
-          companySettlements.length;
+      totalPayments = govtSettlements.length;
     });
   }
 
@@ -256,130 +248,29 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
 
   void _onInvoiceTapped() {
     print('_MainPageState._onInvoiceTapped ... go  to list of invoices');
-    Navigator.push(
-      context,
-      new MaterialPageRoute(builder: (context) => new InvoiceListPage()),
-    );
+//    Navigator.push(
+//      context,
+//      new MaterialPageRoute(builder: (context) => new InvoiceListPage()),
+//    );
   }
 
   void _onPurchaseOrdersTapped() {
     print('_MainPageState._onPurchaseOrdersTapped  go to list of pos');
-    Navigator.push(
-      context,
-      new MaterialPageRoute(builder: (context) => new PurchaseOrderListPage()),
-    );
+//    Navigator.push(
+//      context,
+//      new MaterialPageRoute(builder: (context) => new PurchaseOrderListPage()),
+//    );
   }
 
   void _onDeliveryNotesTapped() {
     print('_MainPageState._onDeliveryNotesTapped go to  delivery notes');
-    Navigator.push(
-      context,
-      new MaterialPageRoute(builder: (context) => new DeliveryNoteListPage()),
-    );
+//    Navigator.push(
+//      context,
+//      new MaterialPageRoute(builder: (context) => new DeliveryNoteListPage()),
+//    );
   }
 
   void _onPaymentsTapped() {
     print('_MainPageState._onPaymentsTapped - go to payments');
-  }
-}
-
-class SummaryCard extends StatelessWidget {
-  final int total;
-  final String label, date, lastLabel;
-  final double amount;
-  final TextStyle totalStyle;
-
-  SummaryCard(
-      {this.total,
-      this.totalStyle,
-      this.label,
-      this.date,
-      this.lastLabel,
-      this.amount});
-  final bigLabel = TextStyle(
-    fontWeight: FontWeight.w900,
-    fontSize: 20.0,
-    color: Colors.grey,
-  );
-
-  @override
-  Widget build(BuildContext context) {
-    var opacity = 1.0;
-    var height = 120.0, cHeight = 60.0, top = 10.0;
-    if (total == 0) {
-      opacity = 0.0;
-      height = 90.0;
-      cHeight = 0.0;
-      top = 5.0;
-    }
-
-    return new Container(
-      height: height,
-      child: new Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: Card(
-          elevation: 4.0,
-          child: Column(
-            children: <Widget>[
-              new Padding(
-                padding: EdgeInsets.only(top: top),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: <Widget>[
-                    Text(
-                      label,
-                      style: bigLabel,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 10.0, right: 10.0),
-                      child: Text(
-                        '$total',
-                        style: totalStyle,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              new Padding(
-                padding:
-                    const EdgeInsets.only(left: 28.0, bottom: 10.0, top: 0.0),
-                child: new Container(
-                  height: cHeight,
-                  child: new Opacity(
-                    opacity: opacity,
-                    child: Row(
-                      children: <Widget>[
-                        Text(
-                          lastLabel,
-                          style: TextStyle(color: Colors.grey),
-                        ),
-                        new Padding(
-                          padding: const EdgeInsets.only(left: 8.0),
-                          child: Text(
-                            date,
-                            style: TextStyle(fontSize: 12.0),
-                          ),
-                        ),
-                        new Padding(
-                          padding: const EdgeInsets.only(left: 8.0),
-                          child: Text(
-                            '$amount',
-                            style: TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.normal,
-                                fontSize: 16.0),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
   }
 }

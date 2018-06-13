@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:businesslibrary/data/delivery_note.dart';
+import 'package:businesslibrary/data/govt_entity.dart';
 import 'package:businesslibrary/data/invoice.dart';
 import 'package:businesslibrary/data/invoice_settlement.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
@@ -31,6 +32,27 @@ class FirestoreListAPI {
     return list;
   }
 
+  static Future<List<PurchaseOrder>> getGovtPurchaseOrders(
+      GovtEntity govtEntity) async {
+    List<PurchaseOrder> list = List();
+    var querySnapshot = await _firestore
+        .collection('govtEntities')
+        .document(govtEntity.documentReference)
+        .collection('purchaseOrders')
+        .orderBy('date')
+        .getDocuments()
+        .catchError((e) {
+      print('FirestoreListAPI.getGovtPurchaseOrders  ERROR $e');
+      return null;
+    });
+    querySnapshot.documents.forEach((doc) {
+      var m = new PurchaseOrder.fromJson(doc.data);
+      list.add(m);
+    });
+    print('FirestoreListAPI.getGovtPurchaseOrders found ${list.length}');
+    return list;
+  }
+
   static Future<List<DeliveryNote>> getSupplierDeliveryNotes(
       Supplier supplier) async {
     List<DeliveryNote> list = List();
@@ -52,6 +74,27 @@ class FirestoreListAPI {
     return list;
   }
 
+  static Future<List<DeliveryNote>> getGovtDeliveryNotes(
+      GovtEntity govtEntity) async {
+    List<DeliveryNote> list = List();
+    var querySnapshot = await _firestore
+        .collection('govtEntities')
+        .document(govtEntity.documentReference)
+        .collection('deliveryNotes')
+        .orderBy('date')
+        .getDocuments()
+        .catchError((e) {
+      print('FirestoreListAPI.getGovtDeliveryNotes  ERROR $e');
+      return null;
+    });
+    querySnapshot.documents.forEach((doc) {
+      var m = new DeliveryNote.fromJson(doc.data);
+      list.add(m);
+    });
+    print('FirestoreListAPI.getGovtDeliveryNotes found ${list.length}');
+    return list;
+  }
+
   static Future<List<Invoice>> getSupplierInvoices(Supplier supplier) async {
     List<Invoice> list = List();
     var querySnapshot = await _firestore
@@ -68,7 +111,27 @@ class FirestoreListAPI {
       var invoice = new Invoice.fromJson(doc.data);
       list.add(invoice);
     });
-    print('FirestoreListAPI.getSupplierPurchaseOrders found ${list.length}');
+    print('FirestoreListAPI.getSupplierInvoices found ${list.length}');
+    return list;
+  }
+
+  static Future<List<Invoice>> getGovtInvoices(GovtEntity govtEntity) async {
+    List<Invoice> list = List();
+    var querySnapshot = await _firestore
+        .collection('govtEntities')
+        .document(govtEntity.documentReference)
+        .collection('invoices')
+        .orderBy('date')
+        .getDocuments()
+        .catchError((e) {
+      print('FirestoreListAPI.getGovtInvoices  ERROR $e');
+      return null;
+    });
+    querySnapshot.documents.forEach((doc) {
+      var invoice = new Invoice.fromJson(doc.data);
+      list.add(invoice);
+    });
+    print('FirestoreListAPI.getGovtInvoices found ${list.length}');
     return list;
   }
 
@@ -89,6 +152,26 @@ class FirestoreListAPI {
       list.add(m);
     });
     print('FirestoreListAPI.getSupplierGovtSettlements found ${list.length}');
+    return list;
+  }
+
+  static Future<List<GovtInvoiceSettlement>> getGovtSettlements(
+      GovtEntity govtEntity) async {
+    List<GovtInvoiceSettlement> list = List();
+    var querySnapshot = await _firestore
+        .collection('govtEntities')
+        .document(govtEntity.documentReference)
+        .collection('govtInvoiceSettlements')
+        .getDocuments()
+        .catchError((e) {
+      print('FirestoreListAPI.getGovtSettlements  ERROR $e');
+      return null;
+    });
+    querySnapshot.documents.forEach((doc) {
+      var m = new GovtInvoiceSettlement.fromJson(doc.data);
+      list.add(m);
+    });
+    print('FirestoreListAPI.getGovtSettlements found ${list.length}');
     return list;
   }
 

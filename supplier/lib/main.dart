@@ -22,9 +22,9 @@ class SupplierApp extends StatelessWidget {
       title: 'FinanceNetwork',
       debugShowCheckedModeBanner: false,
       theme: new ThemeData(
-        primarySwatch: Colors.teal,
-        accentColor: Colors.deepOrange,
-      ),
+          primarySwatch: Colors.teal,
+          accentColor: Colors.deepOrange,
+          fontFamily: 'Raleway'),
       home: new StartPage(title: 'Business Finance App - Supplier'),
     );
   }
@@ -52,14 +52,15 @@ class _StartPageState extends State<StartPage> {
   }
 
   checkUser() async {
+    user = await SharedPrefs.getUser();
+    supplier = await SharedPrefs.getSupplier();
     firebaseUser = await _auth.currentUser();
     if (firebaseUser != null) {
       print('_StartPageState.checkUser firebaseUser:  ${firebaseUser.email}');
 
       supplier = await SharedPrefs.getSupplier();
       user = await SharedPrefs.getUser();
-      var dash = new Dashboard();
-      dash.supplier = supplier;
+      assert(supplier != null);
       await Navigator.push(
         context,
         new MaterialPageRoute(builder: (context) => new Dashboard()),
@@ -217,7 +218,7 @@ class _StartPageState extends State<StartPage> {
 }
 
 class BackImage extends StatelessWidget {
-  AssetImage _assetImage = AssetImage('assets/fincash.jpg');
+  final AssetImage _assetImage = AssetImage('assets/fincash.jpg');
   @override
   Widget build(BuildContext context) {
     // var m = Image.asset('assets/fincash.jpg', fit: BoxFit.cover,)
