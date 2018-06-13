@@ -8,6 +8,7 @@ import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/summary_card.dart';
 import 'package:flutter/material.dart';
+import 'package:govt/ui/purchase_order_list.dart';
 
 class Dashboard extends StatefulWidget {
   @override
@@ -256,10 +257,10 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
 
   void _onPurchaseOrdersTapped() {
     print('_MainPageState._onPurchaseOrdersTapped  go to list of pos');
-//    Navigator.push(
-//      context,
-//      new MaterialPageRoute(builder: (context) => new PurchaseOrderListPage()),
-//    );
+    Navigator.push(
+      context,
+      new MaterialPageRoute(builder: (context) => new PurchaseOrderListPage()),
+    );
   }
 
   void _onDeliveryNotesTapped() {

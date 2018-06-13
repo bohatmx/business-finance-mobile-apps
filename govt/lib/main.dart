@@ -4,6 +4,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:govt/ui/dashboard.dart';
+import 'package:govt/ui/signin_page.dart';
 import 'package:govt/ui/signup_page.dart';
 
 void main() => runApp(new GovtApp());
@@ -193,6 +194,10 @@ class _StartPageState extends State<StartPage> {
 
   void _startSignInPage() async {
     print('_MyHomePageState._startSignInPage ...........');
+    await Navigator.push(
+      context,
+      new MaterialPageRoute(builder: (context) => new SignInPage()),
+    );
   }
 }
 
