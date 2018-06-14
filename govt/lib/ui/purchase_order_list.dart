@@ -1,5 +1,6 @@
+import 'package:businesslibrary/util/purchase_order_page.dart';
 import 'package:flutter/material.dart';
-import 'package:govt/ui/purchase_order.dart';
+import 'package:govt/util.dart';
 
 class PurchaseOrderListPage extends StatefulWidget {
   @override
@@ -38,7 +39,8 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage> {
     print('_PurchaseOrderListPageState._onAddPurchaseOrder .......');
     await Navigator.push(
       context,
-      new MaterialPageRoute(builder: (context) => new PurchaseOrderPage()),
+      new MaterialPageRoute(
+          builder: (context) => new PurchaseOrderPageXX(Util.getURL())),
     );
   }
 }

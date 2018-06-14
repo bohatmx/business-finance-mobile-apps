@@ -45,6 +45,7 @@ class DataAPI {
       MAKE_INVOICE_OFFER = 'MakeInvoiceOffer',
       MAKE_INVOICE_BID = 'MakeInvoiceBid',
       INVESTOR = 'Investor';
+  static const ErrorFirestore = 1, ErrorBlockchain = 2, Success = 0;
 
   HttpClient _httpClient = new HttpClient();
   ContentType _contentType =
@@ -57,26 +58,31 @@ class DataAPI {
         .add(govtEntity.toJson())
         .catchError((e) {
       print('DataAPI.addGovtEntity ERROR adding to Firestore $e');
-      return "0";
+      return ErrorFirestore;
     });
     print('DataAPI.addGovtEntity added to Firestore: ${ref.path}');
 
     govtEntity.documentReference = ref.documentID;
     print('DataAPI.addGovtEntity url: ${url + GOVT_ENTITY}');
 
-    HttpClientRequest mRequest =
-        await _httpClient.postUrl(Uri.parse(url + GOVT_ENTITY));
-    mRequest.headers.contentType = _contentType;
-    mRequest.write(json.encode(govtEntity.toJson()));
+    try {
+      HttpClientRequest mRequest =
+          await _httpClient.postUrl(Uri.parse(url + GOVT_ENTITY));
+      mRequest.headers.contentType = _contentType;
+      mRequest.write(json.encode(govtEntity.toJson()));
 
-    HttpClientResponse resp = await mRequest.close();
-    print(
-        'DataAPI.addGovtEntity resp.statusCode: ${resp.statusCode} \n ${resp.headers}');
-    if (resp.statusCode == 200) {
-      return govtEntity.participantId;
-    } else {
-      print('DataAPI.addGovtEntity ERROR  ${resp.reasonPhrase}');
-      return "0";
+      HttpClientResponse resp = await mRequest.close();
+      print('DataAPI.addGovtEntity resp.statusCode: ${resp.statusCode} \n ${resp
+              .headers}');
+      if (resp.statusCode == 200) {
+        return govtEntity.participantId;
+      } else {
+        print('DataAPI.addGovtEntity ERROR  ${resp.reasonPhrase}');
+        return "0";
+      }
+    } catch (e) {
+      print('DataAPI.addGovtEntity ERROR $e');
+      return '0';
     }
   }
 
@@ -91,20 +97,25 @@ class DataAPI {
     print('DataAPI.addUser user added to Firestore ${ref.documentID}');
 
     user.documentReference = ref.documentID;
-    var httpClient = new HttpClient();
-    HttpClientRequest mRequest =
-        await httpClient.postUrl(Uri.parse(url + USER));
-    mRequest.headers.contentType = _contentType;
-    mRequest.write(json.encode(user.toJson()));
-    HttpClientResponse mResponse = await mRequest.close();
-    print(
-        'DataAPI.addUser ######## response status code:  ${mResponse.statusCode}');
-    if (mResponse.statusCode == 200) {
-      return user.userId;
-    } else {
+    try {
+      var httpClient = new HttpClient();
+      HttpClientRequest mRequest =
+          await httpClient.postUrl(Uri.parse(url + USER));
+      mRequest.headers.contentType = _contentType;
+      mRequest.write(json.encode(user.toJson()));
+      HttpClientResponse mResponse = await mRequest.close();
       print(
-          'DataAPI.addUser ----- ERROR  ${mResponse.reasonPhrase} ${mResponse.headers}');
-      return "0";
+          'DataAPI.addUser ######## response status code:  ${mResponse.statusCode}');
+      if (mResponse.statusCode == 200) {
+        return user.userId;
+      } else {
+        print(
+            'DataAPI.addUser ----- ERROR  ${mResponse.reasonPhrase} ${mResponse.headers}');
+        return "0";
+      }
+    } catch (e) {
+      print('DataAPI.addUser ERROR $e');
+      return '0';
     }
   }
 
@@ -112,18 +123,23 @@ class DataAPI {
   /// object should contain valid Stellar public key
   ///
   Future<String> addWallet(Wallet wallet) async {
-    var httpClient = new HttpClient();
-    HttpClientRequest mRequest =
-        await httpClient.postUrl(Uri.parse(url + WALLET));
-    mRequest.headers.contentType = _contentType;
-    mRequest.write(json.encode(wallet.toJson()));
-    HttpClientResponse mResponse = await mRequest.close();
-    print('DataAPI.addUser response status code:  ${mResponse.statusCode}');
-    if (mResponse.statusCode == 200) {
-      return wallet.stellarPublicKey;
-    } else {
-      print('DataAPI.addUser ERROR  ${mResponse.reasonPhrase}');
-      return "0";
+    try {
+      var httpClient = new HttpClient();
+      HttpClientRequest mRequest =
+          await httpClient.postUrl(Uri.parse(url + WALLET));
+      mRequest.headers.contentType = _contentType;
+      mRequest.write(json.encode(wallet.toJson()));
+      HttpClientResponse mResponse = await mRequest.close();
+      print('DataAPI.addUser response status code:  ${mResponse.statusCode}');
+      if (mResponse.statusCode == 200) {
+        return wallet.stellarPublicKey;
+      } else {
+        print('DataAPI.addUser ERROR  ${mResponse.reasonPhrase}');
+        return "0";
+      }
+    } catch (e) {
+      print('DataAPI.addGovtEntity ERROR $e');
+      return '0';
     }
   }
 
@@ -155,18 +171,24 @@ class DataAPI {
     });
     print('DataAPI.addCompany added to Firestore: ${ref.documentID}');
     company.documentReference = ref.documentID;
-    var httpClient = new HttpClient();
-    HttpClientRequest mRequest =
-        await httpClient.postUrl(Uri.parse(url + COMPANY));
-    mRequest.headers.contentType = _contentType;
-    mRequest.write(json.encode(company.toJson()));
-    HttpClientResponse mResponse = await mRequest.close();
-    print('DataAPI.addCompany response status code:  ${mResponse.statusCode}');
-    if (mResponse.statusCode == 200) {
-      return company.participantId;
-    } else {
-      print('DataAPI.addCompany ERROR  ${mResponse.reasonPhrase}');
-      return "0";
+    try {
+      var httpClient = new HttpClient();
+      HttpClientRequest mRequest =
+          await httpClient.postUrl(Uri.parse(url + COMPANY));
+      mRequest.headers.contentType = _contentType;
+      mRequest.write(json.encode(company.toJson()));
+      HttpClientResponse mResponse = await mRequest.close();
+      print(
+          'DataAPI.addCompany response status code:  ${mResponse.statusCode}');
+      if (mResponse.statusCode == 200) {
+        return company.participantId;
+      } else {
+        print('DataAPI.addCompany ERROR  ${mResponse.reasonPhrase}');
+        return "0";
+      }
+    } catch (e) {
+      print('DataAPI.addCompany ERROR $e');
+      return '0';
     }
   }
 
@@ -181,18 +203,25 @@ class DataAPI {
     });
     print('DataAPI.addSupplier added to Firestore: ${ref.documentID}');
     supplier.documentReference = ref.documentID;
-    var httpClient = new HttpClient();
-    HttpClientRequest mRequest =
-        await httpClient.postUrl(Uri.parse(url + SUPPLIER));
-    mRequest.headers.contentType = _contentType;
-    mRequest.write(json.encode(supplier.toJson()));
-    HttpClientResponse mResponse = await mRequest.close();
-    print('DataAPI.addSupplier response status code:  ${mResponse.statusCode}');
-    if (mResponse.statusCode == 200) {
-      return supplier.participantId;
-    } else {
-      print('DataAPI.addSupplier ERROR  ${mResponse.reasonPhrase}');
-      return "0";
+
+    try {
+      var httpClient = new HttpClient();
+      HttpClientRequest mRequest =
+          await httpClient.postUrl(Uri.parse(url + SUPPLIER));
+      mRequest.headers.contentType = _contentType;
+      mRequest.write(json.encode(supplier.toJson()));
+      HttpClientResponse mResponse = await mRequest.close();
+      print(
+          'DataAPI.addSupplier response status code:  ${mResponse.statusCode}');
+      if (mResponse.statusCode == 200) {
+        return supplier.participantId;
+      } else {
+        print('DataAPI.addSupplier ERROR  ${mResponse.reasonPhrase}');
+        return "0";
+      }
+    } catch (e) {
+      print('DataAPI.addSupplier ERROR $e');
+      return '0';
     }
   }
 
@@ -207,18 +236,24 @@ class DataAPI {
     });
     investor.documentReference = ref.documentID;
     print('DataAPI.addInvestor added to Firestore: ${ref.documentID}');
-    var httpClient = new HttpClient();
-    HttpClientRequest mRequest =
-        await httpClient.postUrl(Uri.parse(url + INVESTOR));
-    mRequest.headers.contentType = _contentType;
-    mRequest.write(json.encode(investor.toJson()));
-    HttpClientResponse mResponse = await mRequest.close();
-    print('DataAPI.addInvestor response status code:  ${mResponse.statusCode}');
-    if (mResponse.statusCode == 200) {
-      return investor.participantId;
-    } else {
-      print('DataAPI.addInvestor ERROR  ${mResponse.reasonPhrase}');
-      return "0";
+    try {
+      var httpClient = new HttpClient();
+      HttpClientRequest mRequest =
+          await httpClient.postUrl(Uri.parse(url + INVESTOR));
+      mRequest.headers.contentType = _contentType;
+      mRequest.write(json.encode(investor.toJson()));
+      HttpClientResponse mResponse = await mRequest.close();
+      print(
+          'DataAPI.addInvestor response status code:  ${mResponse.statusCode}');
+      if (mResponse.statusCode == 200) {
+        return investor.participantId;
+      } else {
+        print('DataAPI.addInvestor ERROR  ${mResponse.reasonPhrase}');
+        return "0";
+      }
+    } catch (e) {
+      print('DataAPI.addInvestor ERROR $e');
+      return '0';
     }
   }
 
@@ -230,20 +265,25 @@ class DataAPI {
       return '0';
     });
     bank.documentReference = ref.documentID;
-    var httpClient = new HttpClient();
-    HttpClientRequest mRequest =
-        await httpClient.postUrl(Uri.parse(url + BANK));
-    mRequest.headers.contentType = _contentType;
-    mRequest.write(json.encode(bank.toJson()));
-    HttpClientResponse mResponse = await mRequest.close();
-    print('DataAPI.addBank response status code:  ${mResponse.statusCode}');
-    if (mResponse.statusCode == 200) {
-      print('DataAPI.addBank added to Firestore: ${ref.documentID}');
+    try {
+      var httpClient = new HttpClient();
+      HttpClientRequest mRequest =
+          await httpClient.postUrl(Uri.parse(url + BANK));
+      mRequest.headers.contentType = _contentType;
+      mRequest.write(json.encode(bank.toJson()));
+      HttpClientResponse mResponse = await mRequest.close();
+      print('DataAPI.addBank response status code:  ${mResponse.statusCode}');
+      if (mResponse.statusCode == 200) {
+        print('DataAPI.addBank added to Firestore: ${ref.documentID}');
 
-      return bank.participantId;
-    } else {
-      print('DataAPI.addBank ERROR  ${mResponse.reasonPhrase}');
-      return "0";
+        return bank.participantId;
+      } else {
+        print('DataAPI.addBank ERROR  ${mResponse.reasonPhrase}');
+        return "0";
+      }
+    } catch (e) {
+      print('DataAPI.addBank ERROR $e');
+      return '0';
     }
   }
 
@@ -258,19 +298,24 @@ class DataAPI {
     });
     print('DataAPI.addOneConnect added to Firestore: ${ref.documentID}');
     oneConnect.documentReference = ref.documentID;
-    var httpClient = new HttpClient();
-    HttpClientRequest mRequest =
-        await httpClient.postUrl(Uri.parse(url + ONECONNECT));
-    mRequest.headers.contentType = _contentType;
-    mRequest.write(json.encode(oneConnect.toJson()));
-    HttpClientResponse mResponse = await mRequest.close();
-    print(
-        'DataAPI.addOneConnect response status code:  ${mResponse.statusCode}');
-    if (mResponse.statusCode == 200) {
-      return oneConnect.participantId;
-    } else {
-      print('DataAPI.addOneConnect ERROR  ${mResponse.reasonPhrase}');
-      return "0";
+    try {
+      var httpClient = new HttpClient();
+      HttpClientRequest mRequest =
+          await httpClient.postUrl(Uri.parse(url + ONECONNECT));
+      mRequest.headers.contentType = _contentType;
+      mRequest.write(json.encode(oneConnect.toJson()));
+      HttpClientResponse mResponse = await mRequest.close();
+      print(
+          'DataAPI.addOneConnect response status code:  ${mResponse.statusCode}');
+      if (mResponse.statusCode == 200) {
+        return oneConnect.participantId;
+      } else {
+        print('DataAPI.addOneConnect ERROR  ${mResponse.reasonPhrase}');
+        return "0";
+      }
+    } catch (e) {
+      print('DataAPI.addOneConnect ERROR $e');
+      return '0';
     }
   }
 
@@ -286,19 +331,24 @@ class DataAPI {
     print('DataAPI.addProcurementOffice added to Firestore: ${ref.documentID}');
     office.documentReference = ref.documentID;
 
-    var httpClient = new HttpClient();
-    HttpClientRequest mRequest =
-        await httpClient.postUrl(Uri.parse(url + PROCUREMENT_OFFICE));
-    mRequest.headers.contentType = _contentType;
-    mRequest.write(json.encode(office.toJson()));
-    HttpClientResponse mResponse = await mRequest.close();
-    print(
-        'DataAPI.addProcurementOffice response status code:  ${mResponse.statusCode}');
-    if (mResponse.statusCode == 200) {
-      return office.participantId;
-    } else {
-      print('DataAPI.addProcurementOffice ERROR  ${mResponse.reasonPhrase}');
-      return "0";
+    try {
+      var httpClient = new HttpClient();
+      HttpClientRequest mRequest =
+          await httpClient.postUrl(Uri.parse(url + PROCUREMENT_OFFICE));
+      mRequest.headers.contentType = _contentType;
+      mRequest.write(json.encode(office.toJson()));
+      HttpClientResponse mResponse = await mRequest.close();
+      print(
+          'DataAPI.addProcurementOffice response status code:  ${mResponse.statusCode}');
+      if (mResponse.statusCode == 200) {
+        return office.participantId;
+      } else {
+        print('DataAPI.addProcurementOffice ERROR  ${mResponse.reasonPhrase}');
+        return "0";
+      }
+    } catch (e) {
+      print('DataAPI.addProcurementOffice ERROR $e');
+      return '0';
     }
   }
 
@@ -314,18 +364,24 @@ class DataAPI {
     print('DataAPI.addAuditor added to Firestore: ${ref.documentID}');
     auditor.documentReference = ref.documentID;
 
-    var httpClient = new HttpClient();
-    HttpClientRequest mRequest =
-        await httpClient.postUrl(Uri.parse(url + AUDITOR));
-    mRequest.headers.contentType = _contentType;
-    mRequest.write(json.encode(auditor.toJson()));
-    HttpClientResponse mResponse = await mRequest.close();
-    print('DataAPI.addAuditor response status code:  ${mResponse.statusCode}');
-    if (mResponse.statusCode == 200) {
-      return auditor.participantId;
-    } else {
-      print('DataAPI.addAuditor ERROR  ${mResponse.reasonPhrase}');
-      return "0";
+    try {
+      var httpClient = new HttpClient();
+      HttpClientRequest mRequest =
+          await httpClient.postUrl(Uri.parse(url + AUDITOR));
+      mRequest.headers.contentType = _contentType;
+      mRequest.write(json.encode(auditor.toJson()));
+      HttpClientResponse mResponse = await mRequest.close();
+      print(
+          'DataAPI.addAuditor response status code:  ${mResponse.statusCode}');
+      if (mResponse.statusCode == 200) {
+        return auditor.participantId;
+      } else {
+        print('DataAPI.addAuditor ERROR  ${mResponse.reasonPhrase}');
+        return "0";
+      }
+    } catch (e) {
+      print('DataAPI.addAuditor ERROR $e');
+      return '0';
     }
   }
 
@@ -333,7 +389,11 @@ class DataAPI {
   ///
   Future<String> registerPurchaseOrder(PurchaseOrder purchaseOrder) async {
     purchaseOrder.purchaseOrderId = getKey();
-    String participantId, collection, documentId, supplierDoocumentId;
+    String participantId,
+        collection,
+        documentId,
+        supplierDocumentId,
+        userDocumentId;
     if (purchaseOrder.govtEntity != null) {
       var strings = purchaseOrder.govtEntity.split("#");
       participantId = strings.elementAt(1);
@@ -349,9 +409,15 @@ class DataAPI {
     if (purchaseOrder.supplier != null) {
       var strings = purchaseOrder.supplier.split("#");
       participantId = strings.elementAt(1);
-      supplierDoocumentId = await _getDocumentId('suppliers', participantId);
+      supplierDocumentId = purchaseOrder.supplierDocumentRef;
+    }
+    if (purchaseOrder.user != null) {
+      var strings = purchaseOrder.user.split("#");
+      participantId = strings.elementAt(1);
+      userDocumentId = await _getDocumentId('users', participantId);
     }
 
+    ///write govt or company po
     var ref = await _firestore
         .collection(collection)
         .document(documentId)
@@ -361,9 +427,11 @@ class DataAPI {
       print('DataAPI.registerPurchaseOrder ERROR $e');
       return '0';
     });
+
+    ///write po to intended supplier
     var ref2 = await _firestore
         .collection('suppliers')
-        .document(supplierDoocumentId)
+        .document(supplierDocumentId)
         .collection('purchaseOrders')
         .add(purchaseOrder.toJson())
         .catchError((e) {
@@ -373,19 +441,28 @@ class DataAPI {
     print('DataAPI.registerPurchaseOrder document issuer path: ${ref.path}');
     print('DataAPI.registerPurchaseOrder document supplier path: ${ref2.path}');
     purchaseOrder.documentReference = ref.documentID;
-    var httpClient = new HttpClient();
-    HttpClientRequest mRequest =
-        await httpClient.postUrl(Uri.parse(url + REGISTER_PURCHASE_ORDER));
-    mRequest.headers.contentType = _contentType;
-    mRequest.write(json.encode(purchaseOrder.toJson()));
-    HttpClientResponse mResponse = await mRequest.close();
-    print(
-        'DataAPI.registerPurchaseOrder response status code:  ${mResponse.statusCode}');
-    if (mResponse.statusCode == 200) {
-      return purchaseOrder.purchaseOrderId;
-    } else {
-      print('DataAPI.registerPurchaseOrder ERROR  ${mResponse.reasonPhrase}');
-      return "0";
+    purchaseOrder.supplierDocumentRef = ref2.documentID;
+
+    ///write to blockchain
+    ///
+    try {
+      var httpClient = new HttpClient();
+      HttpClientRequest mRequest =
+          await httpClient.postUrl(Uri.parse(url + REGISTER_PURCHASE_ORDER));
+      mRequest.headers.contentType = _contentType;
+      mRequest.write(json.encode(purchaseOrder.toJson()));
+      HttpClientResponse mResponse = await mRequest.close();
+      print('DataAPI.registerPurchaseOrder response status code:  ${mResponse
+              .statusCode}');
+      if (mResponse.statusCode == 200) {
+        return purchaseOrder.purchaseOrderId;
+      } else {
+        print('DataAPI.registerPurchaseOrder ERROR  ${mResponse.reasonPhrase}');
+        return "0";
+      }
+    } catch (e) {
+      print('DataAPI.registerPurchaseOrder ERROR $e');
+      return '0';
     }
   }
 
@@ -434,18 +511,23 @@ class DataAPI {
   Future<String> _addItem(Item item) async {
     item.itemId = getKey();
 
-    var httpClient = new HttpClient();
-    HttpClientRequest mRequest =
-        await httpClient.postUrl(Uri.parse(url + ITEM));
-    mRequest.headers.contentType = _contentType;
-    mRequest.write(json.encode(item.toJson()));
-    HttpClientResponse mResponse = await mRequest.close();
-    print('DataAPI.addItem response status code:  ${mResponse.statusCode}');
-    if (mResponse.statusCode == 200) {
-      return item.itemId;
-    } else {
-      print('DataAPI.addItem ERROR  ${mResponse.reasonPhrase}');
-      return "0";
+    try {
+      var httpClient = new HttpClient();
+      HttpClientRequest mRequest =
+          await httpClient.postUrl(Uri.parse(url + ITEM));
+      mRequest.headers.contentType = _contentType;
+      mRequest.write(json.encode(item.toJson()));
+      HttpClientResponse mResponse = await mRequest.close();
+      print('DataAPI.addItem response status code:  ${mResponse.statusCode}');
+      if (mResponse.statusCode == 200) {
+        return item.itemId;
+      } else {
+        print('DataAPI.addItem ERROR  ${mResponse.reasonPhrase}');
+        return "0";
+      }
+    } catch (e) {
+      print('DataAPI.addItem ERROR $e');
+      return '0';
     }
   }
 
@@ -473,6 +555,9 @@ class DataAPI {
       poDocumentId = snap.documentID;
     });
 
+    if (poDocumentId == null) {
+      return '0';
+    }
     var ref = await _firestore
         .collection(path)
         .document(documentId)
@@ -486,25 +571,30 @@ class DataAPI {
     });
     print('DataAPI.registerDeliveryNote added to Firestore: ${ref.path}');
 
-    var httpClient = new HttpClient();
-    HttpClientRequest mRequest =
-        await httpClient.postUrl(Uri.parse(url + REGISTER_DELIVERY_NOTE));
-    mRequest.headers.contentType = _contentType;
-    mRequest.write(json.encode(deliveryNote.toJson()));
-    HttpClientResponse mResponse = await mRequest.close();
-    print(
-        'DataAPI.registerDeliveryNote response status code:  ${mResponse.statusCode}');
-    if (mResponse.statusCode == 200) {
-      return deliveryNote.deliveryNoteId;
-    } else {
-      print('DataAPI.registerDeliveryNote ERROR  ${mResponse.reasonPhrase}');
-      return "0";
+    try {
+      var httpClient = new HttpClient();
+      HttpClientRequest mRequest =
+          await httpClient.postUrl(Uri.parse(url + REGISTER_DELIVERY_NOTE));
+      mRequest.headers.contentType = _contentType;
+      mRequest.write(json.encode(deliveryNote.toJson()));
+      HttpClientResponse mResponse = await mRequest.close();
+      print(
+          'DataAPI.registerDeliveryNote response status code:  ${mResponse.statusCode}');
+      if (mResponse.statusCode == 200) {
+        return deliveryNote.deliveryNoteId;
+      } else {
+        print('DataAPI.registerDeliveryNote ERROR  ${mResponse.reasonPhrase}');
+        return "0";
+      }
+    } catch (e) {
+      print('DataAPI.registerDeliveryNote ERROR $e');
+      return '0';
     }
   }
 
   Future<String> registerInvoice(Invoice invoice) async {
     invoice.invoiceId = getKey();
-    String documentId, participantId, path;
+    String documentId, participantId, supplierDocRef, supplierId, path;
     if (invoice.govtEntity != null) {
       participantId = invoice.govtEntity.split('#').elementAt(1);
       path = 'govtEntities';
@@ -512,6 +602,21 @@ class DataAPI {
     if (invoice.company != null) {
       participantId = invoice.company.split('#').elementAt(1);
       path = 'companies';
+    }
+    if (invoice.supplier != null) {
+      supplierId = invoice.supplier.split('#').elementAt(1);
+      var path = 'suppliers';
+      var qs = await _firestore
+          .collection(path)
+          .where('participantId', isEqualTo: supplierId)
+          .getDocuments()
+          .catchError((e) {
+        print('DataAPI.registerInvoice ERROR $e');
+        return '0';
+      });
+      qs.documents.forEach((doc) {
+        supplierDocRef = doc.documentID;
+      });
     }
     documentId = await _getDocumentId(path, participantId);
     var ref = await _firestore
@@ -525,26 +630,32 @@ class DataAPI {
     });
     print('DataAPI.registerInvoice added to Firestore: ${ref.path}');
     invoice.documentReference = ref.documentID;
+    invoice.supplierDocumentRef = supplierDocRef;
 
-    var httpClient = new HttpClient();
-    HttpClientRequest mRequest =
-        await httpClient.postUrl(Uri.parse(url + REGISTER_INVOICE));
-    mRequest.headers.contentType = _contentType;
-    mRequest.write(json.encode(invoice.toJson()));
-    HttpClientResponse mResponse = await mRequest.close();
-    print(
-        'DataAPI.registerInvoice response status code:  ${mResponse.statusCode}');
-    if (mResponse.statusCode == 200) {
-      return invoice.invoiceId;
-    } else {
-      print('DataAPI.registerInvoice ERROR  ${mResponse.reasonPhrase}');
-      return "0";
+    try {
+      var httpClient = new HttpClient();
+      HttpClientRequest mRequest =
+          await httpClient.postUrl(Uri.parse(url + REGISTER_INVOICE));
+      mRequest.headers.contentType = _contentType;
+      mRequest.write(json.encode(invoice.toJson()));
+      HttpClientResponse mResponse = await mRequest.close();
+      print('DataAPI.registerInvoice response status code:  ${mResponse
+              .statusCode}');
+      if (mResponse.statusCode == 200) {
+        return invoice.invoiceId;
+      } else {
+        print('DataAPI.registerInvoice ERROR  ${mResponse.reasonPhrase}');
+        return "0";
+      }
+    } catch (e) {
+      print('DataAPI.registerInvoice ERROR $e');
+      return '0';
     }
   }
 
-  Future<int> acceptDelivery(DeliveryAcceptance acceptance) async {
+  Future<String> acceptDelivery(DeliveryAcceptance acceptance) async {
     acceptance.acceptanceId = getKey();
-    String documentId, participantId, path;
+    String documentId, participantId, path, supplierDocRef, supplierId;
     if (acceptance.govtEntity != null) {
       participantId = acceptance.govtEntity.split('#').elementAt(1);
       path = 'govtEntities';
@@ -552,6 +663,21 @@ class DataAPI {
     if (acceptance.company != null) {
       participantId = acceptance.company.split('#').elementAt(1);
       path = 'companies';
+    }
+    if (acceptance.supplier != null) {
+      supplierId = acceptance.supplier.split('#').elementAt(1);
+      var path = 'suppliers';
+      var qs = await _firestore
+          .collection(path)
+          .where('participantId', isEqualTo: supplierId)
+          .getDocuments()
+          .catchError((e) {
+        print('DataAPI.acceptDelivery ERROR $e');
+        return '0';
+      });
+      qs.documents.forEach((doc) {
+        supplierDocRef = doc.documentID;
+      });
     }
     documentId = await _getDocumentId(path, participantId);
     var ref = await _firestore
@@ -563,20 +689,36 @@ class DataAPI {
       print('DataAPI.acceptDelivery  ERROR $e');
       return '0';
     });
-    print('DataAPI.acceptDelivery added to Firestore: ${ref.path}');
-    var httpClient = new HttpClient();
-    HttpClientRequest mRequest =
-        await httpClient.postUrl(Uri.parse(url + ACCEPT_DELIVERY));
-    mRequest.headers.contentType = _contentType;
-    mRequest.write(acceptance.toJson());
-    HttpClientResponse mResponse = await mRequest.close();
-    print(
-        'DataAPI.acceptDelivery response status code:  ${mResponse.statusCode}');
-    if (mResponse.statusCode == 200) {
-      return 0;
-    } else {
-      print('DataAPI.acceptDelivery ERROR  ${mResponse.reasonPhrase}');
-      return 1;
+    var ref2 = await _firestore
+        .collection('suppliers')
+        .document(supplierDocRef)
+        .collection('deliveryAcceptances')
+        .add(acceptance.toJson())
+        .catchError((e) {
+      print('DataAPI.acceptDelivery  ERROR $e');
+      return '0';
+    });
+    print('DataAPI.acceptDelivery OWNER added to Firestore: ${ref.path}');
+    print('DataAPI.acceptDelivery SUPPLIER added to Firestore: ${ref2.path}');
+
+    try {
+      var httpClient = new HttpClient();
+      HttpClientRequest mRequest =
+          await httpClient.postUrl(Uri.parse(url + ACCEPT_DELIVERY));
+      mRequest.headers.contentType = _contentType;
+      mRequest.write(acceptance.toJson());
+      HttpClientResponse mResponse = await mRequest.close();
+      print(
+          'DataAPI.acceptDelivery response status code:  ${mResponse.statusCode}');
+      if (mResponse.statusCode == 200) {
+        return acceptance.acceptanceId;
+      } else {
+        print('DataAPI.acceptDelivery ERROR  ${mResponse.reasonPhrase}');
+        return '0';
+      }
+    } catch (e) {
+      print('DataAPI.acceptDelivery ERROR $e');
+      return '0';
     }
   }
 
@@ -592,18 +734,24 @@ class DataAPI {
 
     offer.invoiceOfferId = getKey();
     offer.documentReference = ref.documentID;
-    var httpClient = new HttpClient();
-    HttpClientRequest mRequest =
-        await httpClient.postUrl(Uri.parse(url + MAKE_INVOICE_OFFER));
-    mRequest.headers.contentType = _contentType;
-    mRequest.write(offer.toJson());
-    HttpClientResponse mResponse = await mRequest.close();
-    print(
-        'DataAPI.makeInvoiceOffer response status code:  ${mResponse.statusCode}');
-    if (mResponse.statusCode == 200) {
-      return offer.invoiceOfferId;
-    } else {
-      print('DataAPI.makeInvoiceOffer ERROR  ${mResponse.reasonPhrase}');
+
+    try {
+      var httpClient = new HttpClient();
+      HttpClientRequest mRequest =
+          await httpClient.postUrl(Uri.parse(url + MAKE_INVOICE_OFFER));
+      mRequest.headers.contentType = _contentType;
+      mRequest.write(offer.toJson());
+      HttpClientResponse mResponse = await mRequest.close();
+      print(
+          'DataAPI.makeInvoiceOffer response status code:  ${mResponse.statusCode}');
+      if (mResponse.statusCode == 200) {
+        return offer.invoiceOfferId;
+      } else {
+        print('DataAPI.makeInvoiceOffer ERROR  ${mResponse.reasonPhrase}');
+        return '0';
+      }
+    } catch (e) {
+      print('DataAPI.makeInvoiceOffer ERROR $e');
       return '0';
     }
   }
@@ -621,18 +769,24 @@ class DataAPI {
     print('DataAPI.makeInvoiceBid added to Firestore: ${ref.path}');
 
     bid.invoiceBidId = getKey();
-    var httpClient = new HttpClient();
-    HttpClientRequest mRequest =
-        await httpClient.postUrl(Uri.parse(url + MAKE_INVOICE_BID));
-    mRequest.headers.contentType = _contentType;
-    mRequest.write(bid.toJson());
-    HttpClientResponse mResponse = await mRequest.close();
-    print(
-        'DataAPI.makeInvoiceBid response status code:  ${mResponse.statusCode}');
-    if (mResponse.statusCode == 200) {
-      return bid.invoiceBidId;
-    } else {
-      print('DataAPI.makeInvoiceBid ERROR  ${mResponse.reasonPhrase}');
+    bid.documentReference = ref.documentID;
+    try {
+      var httpClient = new HttpClient();
+      HttpClientRequest mRequest =
+          await httpClient.postUrl(Uri.parse(url + MAKE_INVOICE_BID));
+      mRequest.headers.contentType = _contentType;
+      mRequest.write(bid.toJson());
+      HttpClientResponse mResponse = await mRequest.close();
+      print(
+          'DataAPI.makeInvoiceBid response status code:  ${mResponse.statusCode}');
+      if (mResponse.statusCode == 200) {
+        return bid.invoiceBidId;
+      } else {
+        print('DataAPI.makeInvoiceBid ERROR  ${mResponse.reasonPhrase}');
+        return '0';
+      }
+    } catch (e) {
+      print('DataAPI.makeInvoiceBid ERROR $e');
       return '0';
     }
   }

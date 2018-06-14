@@ -2,6 +2,8 @@ import 'package:businesslibrary/api/signup.dart';
 import 'package:businesslibrary/data/govt_entity.dart';
 import 'package:businesslibrary/data/misc_data.dart';
 import 'package:businesslibrary/data/user.dart';
+import 'package:businesslibrary/util/lookups.dart';
+import 'package:businesslibrary/util/selectors.dart';
 import 'package:flutter/material.dart';
 import 'package:govt/ui/dashboard.dart';
 import 'package:govt/util.dart';
@@ -26,29 +28,56 @@ class _SignUpPageState extends State<SignUpPage> {
 
   String participationId;
   List<DropdownMenuItem> items = List();
-
+  Country country;
   var govtEntityType;
+
+  _getCountry() async {
+    country = await Navigator.push(
+      context,
+      new MaterialPageRoute(builder: (context) => new CountrySelectorPage()),
+    );
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     items = List();
     var item1 = DropdownMenuItem(
       value: GovtTypeUtil.National,
       child: Row(
-        children: <Widget>[Icon(Icons.apps), Text('National')],
+        children: <Widget>[
+          Icon(Icons.apps),
+          new Padding(
+            padding: const EdgeInsets.only(left: 8.0),
+            child: Text('National'),
+          )
+        ],
       ),
     );
     items.add(item1);
     var item2 = DropdownMenuItem(
       value: GovtTypeUtil.Provincial,
       child: Row(
-        children: <Widget>[Icon(Icons.directions_car), Text('Provincial')],
+        children: <Widget>[
+          Icon(Icons.directions_car),
+          new Padding(
+            padding: const EdgeInsets.only(left: 8.0),
+            child: Text('Provincial'),
+          )
+        ],
       ),
     );
     items.add(item2);
     var item3 = DropdownMenuItem(
       value: GovtTypeUtil.Municipality,
       child: Row(
-        children: <Widget>[Icon(Icons.directions_car), Text('Municipality')],
+        children: <Widget>[
+          Icon(Icons.directions_car),
+          new Padding(
+            padding: const EdgeInsets.only(left: 8.0),
+            child: Text('Municipality'),
+          )
+        ],
       ),
     );
     items.add(item3);
@@ -67,12 +96,15 @@ class _SignUpPageState extends State<SignUpPage> {
               padding: const EdgeInsets.all(10.0),
               child: ListView(
                 children: <Widget>[
-                  Text(
-                    'Organisation Details',
-                    style: TextStyle(
-                        color: Theme.of(context).primaryColor,
-                        fontSize: 14.0,
-                        fontWeight: FontWeight.w900),
+                  new Opacity(
+                    opacity: 0.5,
+                    child: Text(
+                      'Organisation Details',
+                      style: TextStyle(
+                          color: Theme.of(context).primaryColor,
+                          fontSize: 14.0,
+                          fontWeight: FontWeight.w900),
+                    ),
                   ),
                   TextFormField(
                     decoration: InputDecoration(
@@ -114,19 +146,29 @@ class _SignUpPageState extends State<SignUpPage> {
                           });
                         },
                       ),
-                      Text(
-                        govtEntityType == null ? '' : govtEntityType,
+                      new Padding(
+                        padding: const EdgeInsets.only(left: 16.0),
+                        child: Text(
+                          govtEntityType == null ? '' : govtEntityType,
+                          style: TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.w900,
+                              fontSize: 20.0),
+                        ),
                       )
                     ],
                   ),
                   new Padding(
                     padding: const EdgeInsets.only(top: 14.0),
-                    child: Text(
-                      'Administrator Details',
-                      style: TextStyle(
-                          color: Theme.of(context).accentColor,
-                          fontSize: 14.0,
-                          fontWeight: FontWeight.w900),
+                    child: new Opacity(
+                      opacity: 0.5,
+                      child: Text(
+                        'Administrator Details',
+                        style: TextStyle(
+                            color: Theme.of(context).accentColor,
+                            fontSize: 14.0,
+                            fontWeight: FontWeight.w900),
+                      ),
                     ),
                   ),
                   TextFormField(
@@ -179,6 +221,27 @@ class _SignUpPageState extends State<SignUpPage> {
                     },
                     onSaved: (val) => password = val,
                   ),
+                  Column(
+                    children: <Widget>[
+                      new GestureDetector(
+                        onTap: _getCountry,
+                        child: Text(
+                          'Get Country',
+                          style: TextStyle(color: Colors.blue, fontSize: 16.0),
+                        ),
+                      ),
+                      new Padding(
+                        padding: const EdgeInsets.only(top: 16.0),
+                        child: Text(
+                          country == null ? '' : country.name,
+                          style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 20.0,
+                              fontWeight: FontWeight.w900),
+                        ),
+                      ),
+                    ],
+                  ),
                   new Padding(
                     padding: const EdgeInsets.only(
                         left: 28.0, right: 20.0, top: 30.0),
@@ -214,7 +277,7 @@ class _SignUpPageState extends State<SignUpPage> {
       GovtEntity govtEntity = GovtEntity(
         name: name,
         email: email,
-        country: CountryUtil.SouthAfrica,
+        country: country.name,
         govtEntityType: govtEntityType,
         dateRegistered: DateTime.now().toIso8601String(),
       );

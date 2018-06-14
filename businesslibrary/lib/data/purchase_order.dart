@@ -6,7 +6,7 @@ class PurchaseOrder {
 
   String description;
   String deliveryAddress;
-  String reference, documentReference;
+  String reference, documentReference, supplierDocumentRef;
   String purchaseOrderNumber;
   String purchaseOrderURL;
 
@@ -24,6 +24,7 @@ class PurchaseOrder {
     this.reference,
     this.documentReference,
     this.purchaseOrderNumber,
+    this.supplierDocumentRef,
     this.purchaseOrderURL,
   });
 
@@ -42,6 +43,7 @@ class PurchaseOrder {
     this.purchaseOrderNumber = data['purchaseOrderNumber'];
     this.purchaseOrderURL = data['purchaseOrderURL'];
     this.documentReference = data['documentReference'];
+    this.supplierDocumentRef = data['supplierDocumentRef'];
   }
   Map<String, String> toJson() => <String, String>{
         'supplier': supplier,
@@ -58,5 +60,6 @@ class PurchaseOrder {
         'purchaseOrderNumber': purchaseOrderNumber,
         'purchaseOrderURL': purchaseOrderURL,
         'documentReference': documentReference,
+        'supplierDocumentRef': supplierDocumentRef,
       };
 }

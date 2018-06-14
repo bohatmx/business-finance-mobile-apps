@@ -1,6 +1,7 @@
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
+import 'package:businesslibrary/util/lookups.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -185,7 +186,7 @@ class _StartPageState extends State<StartPage> {
       floatingActionButton: new Opacity(
         opacity: fabOpacity,
         child: new FloatingActionButton(
-          onPressed: _startSignUp,
+          onPressed: _startSignUpPage,
           tooltip: 'Increment',
           child: new Icon(FontAwesomeIcons.lockOpen),
         ),
@@ -193,19 +194,13 @@ class _StartPageState extends State<StartPage> {
     );
   }
 
-  void _startSignUp() async {
-    Navigator.push(
-      context,
-      new MaterialPageRoute(builder: (context) => new SignUpPage()),
-    );
-  }
-
   void _startSignUpPage() async {
     print('_MyHomePageState._btnPressed ................');
-    await Navigator.push(
+    PrivateSectorType type = await Navigator.push(
       context,
       new MaterialPageRoute(builder: (context) => new SignUpPage()),
     );
+    print('_StartPageState._startSignUpPage  ${type.type}');
   }
 
   void _startSignInPage() async {

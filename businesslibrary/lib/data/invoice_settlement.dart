@@ -6,7 +6,7 @@ class InvestorInvoiceSettlement {
   String discountPercent;
   String invoice;
   String investor;
-  String user;
+  String user, documentReference;
   String wallet;
 
   InvestorInvoiceSettlement(
@@ -17,6 +17,7 @@ class InvestorInvoiceSettlement {
       this.discountPercent,
       this.invoice,
       this.investor,
+      this.documentReference,
       this.user,
       this.wallet});
 
@@ -30,6 +31,7 @@ class InvestorInvoiceSettlement {
     this.investor = data['investor'];
     this.user = data['user'];
     this.wallet = data['wallet'];
+    this.documentReference = data['documentReference'];
   }
   Map<String, String> toJson() => <String, String>{
         'invoiceSettlementId': invoiceSettlementId,
@@ -41,6 +43,7 @@ class InvestorInvoiceSettlement {
         'investor': investor,
         'user': user,
         'wallet': wallet,
+        'documentReference': documentReference,
       };
 }
 
@@ -49,7 +52,7 @@ class CompanyInvoiceSettlement {
   String date;
   String settlementPercent;
   String amount;
-  String discountPercent;
+  String discountPercent, documentReference;
   String invoice;
   String company;
   String user;
@@ -64,6 +67,7 @@ class CompanyInvoiceSettlement {
       this.invoice,
       this.company,
       this.user,
+      this.documentReference,
       this.wallet});
 
   CompanyInvoiceSettlement.fromJson(Map data) {
@@ -76,6 +80,7 @@ class CompanyInvoiceSettlement {
     this.company = data['company'];
     this.user = data['user'];
     this.wallet = data['wallet'];
+    this.documentReference = data['documentReference'];
   }
   Map<String, String> toJson() => <String, String>{
         'invoiceSettlementId': invoiceSettlementId,
@@ -87,6 +92,7 @@ class CompanyInvoiceSettlement {
         'company': company,
         'user': user,
         'wallet': wallet,
+        'documentReference': documentReference,
       };
 }
 

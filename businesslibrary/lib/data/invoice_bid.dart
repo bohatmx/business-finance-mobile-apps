@@ -7,7 +7,7 @@ class InvoiceBid {
   String discountPercent;
   String invoiceOffer;
   String investor;
-  String user;
+  String user, documentReference;
   String invoiceBidAcceptance;
 
   InvoiceBid(
@@ -20,6 +20,7 @@ class InvoiceBid {
       this.invoiceOffer,
       this.investor,
       this.user,
+      this.documentReference,
       this.invoiceBidAcceptance});
 
   InvoiceBid.fromJson(Map data) {
@@ -33,6 +34,7 @@ class InvoiceBid {
     this.investor = data['investor'];
     this.user = data['user'];
     this.invoiceBidAcceptance = data['invoiceBidAcceptance'];
+    this.documentReference = data['documentReference'];
   }
   Map<String, String> toJson() => <String, String>{
         'invoiceBidId': invoiceBidId,
@@ -45,5 +47,6 @@ class InvoiceBid {
         'investor': investor,
         'user': user,
         'invoiceBidAcceptance': invoiceBidAcceptance,
+        'documentReference': documentReference,
       };
 }

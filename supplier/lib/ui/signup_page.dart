@@ -1,10 +1,11 @@
 import 'package:businesslibrary/api/signup.dart';
-import 'package:businesslibrary/data/misc_data.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
+import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:flutter/material.dart';
 import 'package:supplier/ui/dashboard.dart';
+import 'package:supplier/ui/selectors.dart';
 import 'package:supplier/util.dart';
 
 class SignUpPage extends StatefulWidget {
@@ -27,80 +28,32 @@ class _SignUpPageState extends State<SignUpPage> {
   final GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
 
   String participationId;
-  List<DropdownMenuItem> items = List();
 
-  var sectorType;
+  PrivateSectorType sectorType;
+  Country country;
+  @override
+  initState() {
+    super.initState();
+  }
+
+  _getSector() async {
+    sectorType = await Navigator.push(
+      context,
+      new MaterialPageRoute(builder: (context) => new SectorSelectorPage()),
+    );
+    setState(() {});
+  }
+
+  _getCountry() async {
+    country = await Navigator.push(
+      context,
+      new MaterialPageRoute(builder: (context) => new CountrySelectorPage()),
+    );
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
-    items = List();
-    var item1 = DropdownMenuItem(
-      value: SectorUtil.Industrial,
-      child: Row(
-        children: <Widget>[Icon(Icons.apps), Text('Industrial')],
-      ),
-    );
-    items.add(item1);
-    var item2 = DropdownMenuItem(
-      value: SectorUtil.Agricultural,
-      child: Row(
-        children: <Widget>[Icon(Icons.apps), Text('Agricultural')],
-      ),
-    );
-    items.add(item2);
-    var item3 = DropdownMenuItem(
-      value: SectorUtil.Construction,
-      child: Row(
-        children: <Widget>[Icon(Icons.apps), Text('Construction')],
-      ),
-    );
-    items.add(item3);
-
-    var item4 = DropdownMenuItem(
-      value: SectorUtil.Retail,
-      child: Row(
-        children: <Widget>[Icon(Icons.apps), Text('Retail')],
-      ),
-    );
-    items.add(item4);
-
-    var item5 = DropdownMenuItem(
-      value: SectorUtil.FinancialServices,
-      child: Row(
-        children: <Widget>[Icon(Icons.apps), Text('FinancialServices')],
-      ),
-    );
-    items.add(item5);
-
-    var item6 = DropdownMenuItem(
-      value: SectorUtil.Health,
-      child: Row(
-        children: <Widget>[Icon(Icons.apps), Text('Health')],
-      ),
-    );
-    items.add(item6);
-
-    var item7 = DropdownMenuItem(
-      value: SectorUtil.Technology,
-      child: Row(
-        children: <Widget>[Icon(Icons.apps), Text('Technology')],
-      ),
-    );
-    items.add(item7);
-    var item8 = DropdownMenuItem(
-      value: SectorUtil.Education,
-      child: Row(
-        children: <Widget>[Icon(Icons.apps), Text('Education')],
-      ),
-    );
-    items.add(item8);
-    var item9 = DropdownMenuItem(
-      value: SectorUtil.InformalTrade,
-      child: Row(
-        children: <Widget>[Icon(Icons.apps), Text('InformalTrade')],
-      ),
-    );
-    items.add(item9);
-
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
@@ -146,25 +99,6 @@ class _SignUpPageState extends State<SignUpPage> {
                       }
                     },
                     onSaved: (val) => email = val,
-                  ),
-                  new Row(
-                    children: <Widget>[
-                      DropdownButton(
-                        items: items,
-                        hint: Text(
-                          'Select Sector',
-                          style: TextStyle(color: Colors.blue),
-                        ),
-                        onChanged: (val) {
-                          setState(() {
-                            sectorType = val;
-                          });
-                        },
-                      ),
-                      Text(
-                        sectorType == null ? '' : sectorType,
-                      )
-                    ],
                   ),
                   new Padding(
                     padding: const EdgeInsets.only(top: 14.0),
@@ -226,6 +160,37 @@ class _SignUpPageState extends State<SignUpPage> {
                     },
                     onSaved: (val) => password = val,
                   ),
+                  Column(
+                    children: <Widget>[
+                      new GestureDetector(
+                        onTap: _getCountry,
+                        child: Text(
+                          'Get Country',
+                          style: TextStyle(color: Colors.blue),
+                        ),
+                      ),
+                      Text(
+                        country == null ? '' : country.name,
+                        style: TextStyle(
+                            fontSize: 20.0, fontWeight: FontWeight.w900),
+                      ),
+                      new Padding(
+                        padding: const EdgeInsets.only(top: 10.0),
+                        child: new GestureDetector(
+                          onTap: _getSector,
+                          child: Text(
+                            'Get Sector',
+                            style: TextStyle(color: Colors.blue),
+                          ),
+                        ),
+                      ),
+                      Text(
+                        sectorType == null ? '' : sectorType.type,
+                        style: TextStyle(
+                            fontSize: 20.0, fontWeight: FontWeight.w900),
+                      ),
+                    ],
+                  ),
                   new Padding(
                     padding: const EdgeInsets.only(
                         left: 28.0, right: 20.0, top: 30.0),
@@ -259,8 +224,8 @@ class _SignUpPageState extends State<SignUpPage> {
       Supplier supplier = Supplier(
         name: name,
         email: email,
-        country: CountryUtil.SouthAfrica,
-        privateSectorType: sectorType,
+        country: country.name,
+        privateSectorType: sectorType.type,
         dateRegistered: DateTime.now().toIso8601String(),
       );
       print('_SignUpPageState._onSavePressed ${supplier.toJson()}');

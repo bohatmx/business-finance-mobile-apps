@@ -11,6 +11,41 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class FirestoreListAPI {
   static final Firestore _firestore = Firestore.instance;
 
+  static Future<List<Supplier>> getSuppliersBySector(String sector) async {
+    List<Supplier> list = List();
+    var qs = await _firestore
+        .collection('suppliers')
+        .where('privateSectorType', isEqualTo: sector)
+        .orderBy('type')
+        .getDocuments()
+        .catchError((e) {
+      print('FirestoreListAPI.getSuppliersBySector ERROR $e');
+      return list;
+    });
+    qs.documents.forEach((doc) {
+      list.add(new Supplier.fromJson(doc.data));
+    });
+    print('FirestoreListAPI.getSuppliersBySector .. found: ${list.length}');
+    return list;
+  }
+
+  static Future<List<Supplier>> getSuppliers() async {
+    List<Supplier> list = List();
+    var qs = await _firestore
+        .collection('suppliers')
+        .orderBy('privateSectorType')
+        .getDocuments()
+        .catchError((e) {
+      print('FirestoreListAPI.getSuppliers ERROR $e');
+      return list;
+    });
+    qs.documents.forEach((doc) {
+      list.add(new Supplier.fromJson(doc.data));
+    });
+    print('FirestoreListAPI.getSuppliers .. found: ${list.length}');
+    return list;
+  }
+
   static Future<List<PurchaseOrder>> getSupplierPurchaseOrders(
       Supplier supplier) async {
     List<PurchaseOrder> list = List();
