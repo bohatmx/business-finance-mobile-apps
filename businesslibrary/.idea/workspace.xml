@@ -3,6 +3,8 @@
   <component name="ChangeListManager">
     <list default="true" id="660adc5a-c8c8-4a31-b30d-d6acb1a8cbf3" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../crudderv3/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../crudderv3/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../supplierv3/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/pubspec.yaml" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <ignored path="../.gradle/4.4/fileChanges/last-build.bin" />
@@ -643,6 +645,7 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="2264" y="23" width="1689" height="1000" extended-state="0" />
+    <editor active="true" />
     <layout>
       <window_info anchor="right" id="Palette" order="3" />
       <window_info anchor="bottom" id="TODO" order="6" />
