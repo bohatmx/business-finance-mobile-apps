@@ -14,6 +14,7 @@ class User {
       password,
       cellphone,
       address,
+      uid,
       fcmToken,
       documentReference;
   String dateRegistered, isAdministrator;
@@ -35,6 +36,7 @@ class User {
       this.cellphone,
       this.address,
       this.fcmToken,
+      this.uid,
       this.documentReference,
       this.dateRegistered,
       this.isAdministrator});
@@ -69,6 +71,7 @@ class User {
     this.procurementOffice = data['procurementOffice'];
     this.investor = data['investor'];
     this.bank = data['bank'];
+    this.uid = data['uid'];
   }
   Map<String, String> toJson() => <String, String>{
         'userId': userId,
@@ -89,6 +92,7 @@ class User {
         'oneConnect': oneConnect,
         'procurementOffice': procurementOffice,
         'investor': investor,
+        'uid': uid,
         'bank': bank,
       };
 }

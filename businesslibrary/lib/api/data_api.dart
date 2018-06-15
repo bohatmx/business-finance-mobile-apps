@@ -72,9 +72,9 @@ class DataAPI {
       mRequest.write(json.encode(govtEntity.toJson()));
 
       HttpClientResponse resp = await mRequest.close();
-      print('DataAPI.addGovtEntity resp.statusCode: ${resp.statusCode} \n ${resp
-              .headers}');
+      print('DataAPI.addGovtEntity resp.statusCode: ${resp.statusCode} }');
       if (resp.statusCode == 200) {
+        print('DataAPI.addGovtEntity HTTP response 200 ${resp.map}');
         return govtEntity.participantId;
       } else {
         resp.transform(utf8.decoder).listen((contents) {
@@ -90,7 +90,7 @@ class DataAPI {
   }
 
   Future<String> addUser(User user) async {
-    print('DataAPI.addUser -- ${user.toJson()}');
+    print('DataAPI.addUser --------- ${user.toJson()}');
     user.userId = getKey();
     var ref =
         await _firestore.collection('users').add(user.toJson()).catchError((e) {
@@ -471,13 +471,21 @@ class DataAPI {
       if (mResponse.statusCode == 200) {
         return purchaseOrder.purchaseOrderId;
       } else {
+        await _deletePOfromFirestore(ref, ref2);
         print('DataAPI.registerPurchaseOrder ERROR  ${mResponse.reasonPhrase}');
         return "0";
       }
     } catch (e) {
+      await _deletePOfromFirestore(ref, ref2);
       print('DataAPI.registerPurchaseOrder ERROR $e');
       return '0';
     }
+  }
+
+  Future _deletePOfromFirestore(
+      DocumentReference ref, DocumentReference ref2) async {
+    await ref.delete();
+    await ref2.delete();
   }
 
   Future<String> _getDocumentId(String collection, String participantId) async {

@@ -11,7 +11,8 @@ class Invoice {
       description,
       reference,
       documentReference,
-      supplierDocumentRef;
+      supplierDocumentRef,
+      supplierName;
   String date, datePaymentRequired;
   String amount;
 
@@ -28,6 +29,7 @@ class Invoice {
       this.description,
       this.reference,
       this.date,
+      this.supplierName,
       this.documentReference,
       this.supplierDocumentRef,
       this.datePaymentRequired,
@@ -50,6 +52,7 @@ class Invoice {
     this.amount = data['amount'];
     this.documentReference = data['documentReference'];
     this.supplierDocumentRef = data['supplierDocumentRef'];
+    this.supplierName = data['supplierName'];
   }
   Map<String, String> toJson() => <String, String>{
         'supplier': supplier,
@@ -68,5 +71,6 @@ class Invoice {
         'amount': amount,
         'documentReference': documentReference,
         'supplierDocumentRef': supplierDocumentRef,
+        'supplierName': supplierName,
       };
 }

@@ -9,6 +9,7 @@ class PurchaseOrder {
   String reference,
       documentReference,
       supplierDocumentRef,
+      supplierName,
       govtDocumentRef,
       companyDocumentRef;
   String purchaseOrderNumber;
@@ -31,6 +32,7 @@ class PurchaseOrder {
       this.govtDocumentRef,
       this.companyDocumentRef,
       this.purchaseOrderNumber,
+      this.supplierName,
       this.purchaseOrderURL});
 
   PurchaseOrder.fromJson(Map data) {
@@ -51,6 +53,7 @@ class PurchaseOrder {
     this.supplierDocumentRef = data['supplierDocumentRef'];
     this.govtDocumentRef = data['govtDocumentRef'];
     this.companyDocumentRef = data['companyDocumentRef'];
+    this.supplierName = data['supplierName'];
   }
   Map<String, String> toJson() => <String, String>{
         'supplier': supplier,
@@ -70,5 +73,6 @@ class PurchaseOrder {
         'supplierDocumentRef': supplierDocumentRef,
         'govtDocumentRef': govtDocumentRef,
         'companyDocumentRef': companyDocumentRef,
+        'supplierName': supplierName,
       };
 }

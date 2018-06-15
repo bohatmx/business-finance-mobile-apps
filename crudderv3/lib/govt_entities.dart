@@ -47,7 +47,7 @@ class GovtUtil {
           lastName: 'Nkosi',
           password: 'mpassword123',
           email: 'thabo.nkosi@water.gov.za');
-      signUp.signUpGovtEntity(e1, u1);
+      await signUp.signUpGovtEntity(e1, u1);
 
       GovtEntity e2 = new GovtEntity(
         name: 'Department of Public Works',
@@ -58,8 +58,9 @@ class GovtUtil {
       User u2 = new User(
           firstName: 'Ntombi',
           lastName: 'Mathebula',
+          password: 'mpassword123',
           email: 'ntombi.m@publicworks.gov.za');
-      signUp.signUpGovtEntity(e2, u2);
+      await signUp.signUpGovtEntity(e2, u2);
     } catch (e) {
       print('GovtUtil.cleanUp ERROR $e');
       return 1;
@@ -83,7 +84,7 @@ class GovtUtil {
           lastName: 'Mkhize',
           password: 'mpassword123',
           email: 'dmkhize@mkhize.com');
-      signUp.signUpSupplier(e1, u1);
+      await signUp.signUpSupplier(e1, u1);
 
       Supplier e2 = new Supplier(
         name: 'Dlamini Contractors',
@@ -96,7 +97,7 @@ class GovtUtil {
           lastName: 'Dlamini',
           password: 'mpassword123',
           email: 'ddlam@dlamini.com');
-      signUp.signUpSupplier(e2, u2);
+      await signUp.signUpSupplier(e2, u2);
 
       Supplier e3 = new Supplier(
         name: 'Frannie Event Management',
@@ -109,7 +110,7 @@ class GovtUtil {
           lastName: 'Dlamini',
           password: 'mpassword123',
           email: 'mosesd@femevent.com');
-      signUp.signUpSupplier(e3, u3);
+      await signUp.signUpSupplier(e3, u3);
 
       Supplier e4 = new Supplier(
         name: 'Soweto Social Management',
@@ -122,7 +123,7 @@ class GovtUtil {
           lastName: 'Khoza',
           password: 'mpassword123',
           email: 'dkhoza@femevent.com');
-      signUp.signUpSupplier(e4, u4);
+      await signUp.signUpSupplier(e4, u4);
 
       Supplier e5 = new Supplier(
         name: 'TrebleX Engineering',
@@ -135,7 +136,7 @@ class GovtUtil {
           lastName: 'Khoza',
           password: 'mpassword123',
           email: 'danielkk@engineers.com');
-      signUp.signUpSupplier(e5, u5);
+      await signUp.signUpSupplier(e5, u5);
 
       Supplier e6 = new Supplier(
         name: 'DHH Transport Logistics',
@@ -148,7 +149,7 @@ class GovtUtil {
           lastName: 'Johnson',
           password: 'mpassword123',
           email: 'petejohn@dhhtransport.com');
-      signUp.signUpSupplier(e6, u6);
+      await signUp.signUpSupplier(e6, u6);
 
       Supplier e7 = new Supplier(
         name: 'ZamaZama Transport Logistics',
@@ -161,7 +162,7 @@ class GovtUtil {
           lastName: 'Oakley-Smith',
           password: 'mpassword123',
           email: 'susanoak@zamatransport.com');
-      signUp.signUpSupplier(e7, u7);
+      await signUp.signUpSupplier(e7, u7);
     } catch (e) {
       print('GovtUtil.generateSuppliers ERROR $e');
       return 1;

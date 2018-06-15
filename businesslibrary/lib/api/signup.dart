@@ -46,6 +46,7 @@ class SignUp {
         .getDocuments()
         .catchError((e) {
       print('SignUp.signUpGovtEntity ERROR $e');
+      return ErrorFireStore;
     });
     if (qs.documents.isNotEmpty) {
       print('SignUp.signUpGovtEntity ERROR govtEntity already exists');
@@ -260,6 +261,7 @@ class SignUp {
         .getDocuments()
         .catchError((e) {
       print('SignUp.signUp ERROR $e');
+      return ErrorFireStore;
     });
     if (qs.documents.isNotEmpty) {
       print('SignUp.signUp ERROR user already exists');
@@ -276,6 +278,7 @@ class SignUp {
     }
     var token = await SharedPrefs.getFCMToken();
     user.fcmToken = token;
+    user.uid = fbUser.uid;
 
     DataAPI api = DataAPI(url);
     String key = await api.addUser(user);
@@ -291,14 +294,19 @@ class SignUp {
     print('SignUp.createUser ========= starting to create new user .... ===');
     FirebaseUser user;
 
-    user = await _auth.createUserWithEmailAndPassword(
+    user = await _auth
+        .createUserWithEmailAndPassword(
       email: email,
       password: password,
-    );
+    )
+        .catchError((e) {
+      print('SignUp._createUser ERROR $e');
+      return null;
+    });
 
     if (user != null) {
       print('SignUp.createUser done.  new user on firebase: '
-          '${user.email} $password ---- Yay!');
+          '${user.email} uid: ${user.uid} ---- Yay!');
     }
 
     return user;

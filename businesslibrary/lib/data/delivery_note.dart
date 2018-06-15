@@ -7,6 +7,7 @@ class DeliveryNote {
       acceptedBy,
       deliveryNoteURL,
       documentReference,
+      supplierName,
       remarks;
   String date, dateAccepted;
 
@@ -19,6 +20,7 @@ class DeliveryNote {
     this.deliveryNoteURL,
     this.remarks,
     this.date,
+    this.supplierName,
     this.documentReference,
     this.dateAccepted,
     this.acceptedBy,
@@ -36,6 +38,7 @@ class DeliveryNote {
     this.dateAccepted = data['dateAccepted'];
     this.acceptedBy = data['acceptedBy'];
     this.documentReference = data['documentReference'];
+    this.supplierName = data['supplierName'];
   }
 
   Map<String, String> toJson() => <String, String>{
@@ -50,5 +53,6 @@ class DeliveryNote {
         'dateAccepted': dateAccepted,
         'acceptedBy': acceptedBy,
         'documentReference': documentReference,
+        'supplierName': supplierName,
       };
 }

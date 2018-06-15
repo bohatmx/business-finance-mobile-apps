@@ -17,7 +17,7 @@ class AppSnackbar {
         message,
         style: new TextStyle(color: textColor),
       ),
-      duration: new Duration(minutes: 3),
+      duration: new Duration(seconds: 15),
       backgroundColor: backgroundColor,
     ));
   }
@@ -110,7 +110,7 @@ class AppSnackbar {
         message,
         style: new TextStyle(color: Colors.yellow),
       ),
-      duration: new Duration(minutes: 3),
+      duration: new Duration(seconds: 20),
       backgroundColor: Colors.red.shade900,
       action: SnackBarAction(
         label: actionLabel,

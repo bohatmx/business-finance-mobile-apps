@@ -107,14 +107,7 @@ class _PurchaseOrderPageState extends State<PurchaseOrderPageGovt> {
             message: 'Error submitting purchase order',
             actionLabel: 'close');
       } else {
-        AppSnackbar.showSnackbarWithAction(
-            context: context,
-            scaffoldKey: _scaffoldKey,
-            message: 'Purchase Order submitted successfully',
-            actionLabel: 'Done',
-            backgroundColor: Colors.black,
-            textColor: Colors.white,
-            icon: Icons.done);
+        Navigator.pop(context, purchaseOrder);
       }
     }
   }
