@@ -3,21 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="660adc5a-c8c8-4a31-b30d-d6acb1a8cbf3" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/api/data_api.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/api/data_api.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/api/signup.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/api/signup.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/data/delivery_note.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/data/delivery_note.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/data/invoice.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/data/invoice.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/data/purchase_order.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/data/purchase_order.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/data/user.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/data/user.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/util/snackbar_util.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/util/snackbar_util.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../crudderv3/.idea/libraries/Dart_Packages.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../crudderv3/.idea/libraries/Dart_Packages.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../crudderv3/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../crudderv3/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../crudderv3/lib/govt_entities.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../crudderv3/lib/govt_entities.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../crudderv3/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/../crudderv3/pubspec.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/lib/ui/purchase_order_list.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../govt/lib/ui/purchase_order_list.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/lib/ui/purchase_order_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../govt/lib/ui/purchase_order_page.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../supplierv3/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/.idea/workspace.xml" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <ignored path="../.gradle/4.4/fileChanges/last-build.bin" />
@@ -704,7 +689,8 @@
     <MESSAGE value="added summary card II" />
     <MESSAGE value="added selectors for supplier, sector, country" />
     <MESSAGE value="tweaks" />
-    <option name="LAST_COMMIT_MESSAGE" value="tweaks" />
+    <MESSAGE value="tweaks II" />
+    <option name="LAST_COMMIT_MESSAGE" value="tweaks II" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
