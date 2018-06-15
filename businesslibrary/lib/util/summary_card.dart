@@ -23,7 +23,7 @@ class SummaryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var opacity = 1.0;
-    var height = 120.0, cHeight = 60.0, top = 10.0;
+    var height = 140.0, cHeight = 60.0, top = 10.0;
     if (total == 0) {
       opacity = 0.0;
       height = 90.0;
@@ -36,7 +36,7 @@ class SummaryCard extends StatelessWidget {
       child: new Padding(
         padding: const EdgeInsets.all(12.0),
         child: Card(
-          elevation: 4.0,
+          elevation: 6.0,
           child: Column(
             children: <Widget>[
               new Padding(

@@ -16,14 +16,16 @@ class FirestoreListAPI {
     var qs = await _firestore
         .collection('suppliers')
         .where('privateSectorType', isEqualTo: sector)
-        .orderBy('type')
+        .orderBy('name')
         .getDocuments()
         .catchError((e) {
       print('FirestoreListAPI.getSuppliersBySector ERROR $e');
       return list;
     });
     qs.documents.forEach((doc) {
-      list.add(new Supplier.fromJson(doc.data));
+      Supplier s = new Supplier.fromJson(doc.data);
+      s.documentReference = doc.documentID;
+      list.add(s);
     });
     print('FirestoreListAPI.getSuppliersBySector .. found: ${list.length}');
     return list;
@@ -33,14 +35,16 @@ class FirestoreListAPI {
     List<Supplier> list = List();
     var qs = await _firestore
         .collection('suppliers')
-        .orderBy('privateSectorType')
+        .orderBy('name')
         .getDocuments()
         .catchError((e) {
       print('FirestoreListAPI.getSuppliers ERROR $e');
       return list;
     });
     qs.documents.forEach((doc) {
-      list.add(new Supplier.fromJson(doc.data));
+      Supplier s = new Supplier.fromJson(doc.data);
+      s.documentReference = doc.documentID;
+      list.add(s);
     });
     print('FirestoreListAPI.getSuppliers .. found: ${list.length}');
     return list;

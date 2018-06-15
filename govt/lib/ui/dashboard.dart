@@ -6,9 +6,9 @@ import 'package:businesslibrary/data/invoice.dart';
 import 'package:businesslibrary/data/invoice_settlement.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/user.dart';
-import 'package:businesslibrary/util/summary_card.dart';
 import 'package:flutter/material.dart';
 import 'package:govt/ui/purchase_order_list.dart';
+import 'package:govt/ui/summary_card.dart';
 
 class Dashboard extends StatefulWidget {
   @override

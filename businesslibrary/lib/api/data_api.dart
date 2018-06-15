@@ -77,6 +77,9 @@ class DataAPI {
       if (resp.statusCode == 200) {
         return govtEntity.participantId;
       } else {
+        resp.transform(utf8.decoder).listen((contents) {
+          print('DataAPI.addGovtEntity  $contents');
+        });
         print('DataAPI.addGovtEntity ERROR  ${resp.reasonPhrase}');
         return "0";
       }
@@ -109,6 +112,9 @@ class DataAPI {
       if (mResponse.statusCode == 200) {
         return user.userId;
       } else {
+        mResponse.transform(utf8.decoder).listen((contents) {
+          print('DataAPI.addUser  $contents');
+        });
         print(
             'DataAPI.addUser ----- ERROR  ${mResponse.reasonPhrase} ${mResponse.headers}');
         return "0";
@@ -130,15 +136,18 @@ class DataAPI {
       mRequest.headers.contentType = _contentType;
       mRequest.write(json.encode(wallet.toJson()));
       HttpClientResponse mResponse = await mRequest.close();
-      print('DataAPI.addUser response status code:  ${mResponse.statusCode}');
+      print('DataAPI.addWallet response status code:  ${mResponse.statusCode}');
       if (mResponse.statusCode == 200) {
         return wallet.stellarPublicKey;
       } else {
-        print('DataAPI.addUser ERROR  ${mResponse.reasonPhrase}');
+        mResponse.transform(utf8.decoder).listen((contents) {
+          print('DataAPI.addWallet  $contents');
+        });
+        print('DataAPI.addWallet ERROR  ${mResponse.reasonPhrase}');
         return "0";
       }
     } catch (e) {
-      print('DataAPI.addGovtEntity ERROR $e');
+      print('DataAPI.addWallet ERROR $e');
       return '0';
     }
   }
@@ -183,6 +192,10 @@ class DataAPI {
       if (mResponse.statusCode == 200) {
         return company.participantId;
       } else {
+        mResponse.transform(utf8.decoder).listen((contents) {
+          print('DataAPI.addCompany  $contents');
+        });
+
         print('DataAPI.addCompany ERROR  ${mResponse.reasonPhrase}');
         return "0";
       }
@@ -217,6 +230,9 @@ class DataAPI {
         return supplier.participantId;
       } else {
         print('DataAPI.addSupplier ERROR  ${mResponse.reasonPhrase}');
+        mResponse.transform(utf8.decoder).listen((contents) {
+          print('DataAPI.addSupplier  $contents');
+        });
         return "0";
       }
     } catch (e) {
@@ -249,6 +265,9 @@ class DataAPI {
         return investor.participantId;
       } else {
         print('DataAPI.addInvestor ERROR  ${mResponse.reasonPhrase}');
+        mResponse.transform(utf8.decoder).listen((contents) {
+          print('DataAPI.addInvestor  $contents');
+        });
         return "0";
       }
     } catch (e) {
@@ -279,6 +298,9 @@ class DataAPI {
         return bank.participantId;
       } else {
         print('DataAPI.addBank ERROR  ${mResponse.reasonPhrase}');
+        mResponse.transform(utf8.decoder).listen((contents) {
+          print('DataAPI.addBank  $contents');
+        });
         return "0";
       }
     } catch (e) {
@@ -311,6 +333,9 @@ class DataAPI {
         return oneConnect.participantId;
       } else {
         print('DataAPI.addOneConnect ERROR  ${mResponse.reasonPhrase}');
+        mResponse.transform(utf8.decoder).listen((contents) {
+          print('DataAPI.addOneConnect  $contents');
+        });
         return "0";
       }
     } catch (e) {
@@ -344,6 +369,9 @@ class DataAPI {
         return office.participantId;
       } else {
         print('DataAPI.addProcurementOffice ERROR  ${mResponse.reasonPhrase}');
+        mResponse.transform(utf8.decoder).listen((contents) {
+          print('DataAPI.addProcurementOffice  $contents');
+        });
         return "0";
       }
     } catch (e) {
@@ -377,6 +405,9 @@ class DataAPI {
         return auditor.participantId;
       } else {
         print('DataAPI.addAuditor ERROR  ${mResponse.reasonPhrase}');
+        mResponse.transform(utf8.decoder).listen((contents) {
+          print('DataAPI.addAuditor  $contents');
+        });
         return "0";
       }
     } catch (e) {
@@ -389,32 +420,16 @@ class DataAPI {
   ///
   Future<String> registerPurchaseOrder(PurchaseOrder purchaseOrder) async {
     purchaseOrder.purchaseOrderId = getKey();
-    String participantId,
-        collection,
-        documentId,
-        supplierDocumentId,
-        userDocumentId;
+    print(
+        'DataAPI.registerPurchaseOrder ... starting po: ${purchaseOrder.toJson()}');
+    String collection, documentId;
     if (purchaseOrder.govtEntity != null) {
-      var strings = purchaseOrder.govtEntity.split("#");
-      participantId = strings.elementAt(1);
       collection = 'govtEntities';
-      documentId = await _getDocumentId(collection, participantId);
+      documentId = purchaseOrder.govtDocumentRef;
     }
     if (purchaseOrder.company != null) {
-      var strings = purchaseOrder.company.split("#");
-      participantId = strings.elementAt(1);
       collection = 'companies';
-      documentId = await _getDocumentId(collection, participantId);
-    }
-    if (purchaseOrder.supplier != null) {
-      var strings = purchaseOrder.supplier.split("#");
-      participantId = strings.elementAt(1);
-      supplierDocumentId = purchaseOrder.supplierDocumentRef;
-    }
-    if (purchaseOrder.user != null) {
-      var strings = purchaseOrder.user.split("#");
-      participantId = strings.elementAt(1);
-      userDocumentId = await _getDocumentId('users', participantId);
+      documentId = purchaseOrder.companyDocumentRef;
     }
 
     ///write govt or company po
@@ -431,7 +446,7 @@ class DataAPI {
     ///write po to intended supplier
     var ref2 = await _firestore
         .collection('suppliers')
-        .document(supplierDocumentId)
+        .document(purchaseOrder.supplierDocumentRef)
         .collection('purchaseOrders')
         .add(purchaseOrder.toJson())
         .catchError((e) {
@@ -441,7 +456,6 @@ class DataAPI {
     print('DataAPI.registerPurchaseOrder document issuer path: ${ref.path}');
     print('DataAPI.registerPurchaseOrder document supplier path: ${ref2.path}');
     purchaseOrder.documentReference = ref.documentID;
-    purchaseOrder.supplierDocumentRef = ref2.documentID;
 
     ///write to blockchain
     ///

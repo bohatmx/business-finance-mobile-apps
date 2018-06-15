@@ -9,16 +9,16 @@ import 'package:businesslibrary/util/selectors.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:flutter/material.dart';
 
-class PurchaseOrderPageXX extends StatefulWidget {
+class PurchaseOrderPageGovt extends StatefulWidget {
   final String url;
 
-  PurchaseOrderPageXX(this.url);
+  PurchaseOrderPageGovt(this.url);
 
   @override
   _PurchaseOrderPageState createState() => _PurchaseOrderPageState();
 }
 
-class _PurchaseOrderPageState extends State<PurchaseOrderPageXX> {
+class _PurchaseOrderPageState extends State<PurchaseOrderPageGovt> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   final GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
 
@@ -27,6 +27,7 @@ class _PurchaseOrderPageState extends State<PurchaseOrderPageXX> {
   GovtEntity govtEntity;
   Company company;
   Supplier supplier;
+  String poNumber, amount;
 
   @override
   void initState() {
@@ -39,6 +40,13 @@ class _PurchaseOrderPageState extends State<PurchaseOrderPageXX> {
       context,
       new MaterialPageRoute(builder: (context) => new SupplierSelectorPage()),
     );
+    if (supplier == null) {
+      AppSnackbar.showErrorSnackbar(
+          context: context,
+          scaffoldKey: _scaffoldKey,
+          message: 'No supplier found',
+          actionLabel: 'Close');
+    }
     print('_PurchaseOrderPageState._getSupplier ${supplier.toJson()}');
     setState(() {});
   }
@@ -61,41 +69,53 @@ class _PurchaseOrderPageState extends State<PurchaseOrderPageXX> {
 
   _registerPurchaseOrder() async {
     print('_PurchaseOrderPageState._registerPurchaseOrder .........');
-    if (govtEntity != null) {
-      purchaseOrder.govtEntity =
-          'com.oneconnect.biz.GovtEntity#' + govtEntity.participantId;
-    }
-    if (company != null) {
-      purchaseOrder.company =
-          'com.oneconnect.biz.Company#' + company.participantId;
-    }
-    if (supplier != null) {
-      purchaseOrder.supplierDocumentRef = supplier.documentReference;
-      purchaseOrder.supplier =
-          'com.oneconnect.biz.Supplier#' + supplier.participantId;
-    }
-    if (user != null) {
-      purchaseOrder.user = 'com.oneconnect.biz.User#' + user.userId;
-    }
-    print(
-        '_PurchaseOrderPageState._registerPurchaseOrder ${purchaseOrder.toJson()}');
-    DataAPI api = DataAPI(widget.url);
-    var key = await api.registerPurchaseOrder(purchaseOrder);
-    if (key == '0') {
-      AppSnackbar.showErrorSnackbar(
-          context: context,
-          scaffoldKey: _scaffoldKey,
-          message: 'Error submitting purchase order',
-          actionLabel: 'close');
-    } else {
-      AppSnackbar.showSnackbarWithAction(
-          context: context,
-          scaffoldKey: _scaffoldKey,
-          message: 'Purchase Order submitted successfully',
-          actionLabel: 'Done',
-          backgroundColor: Colors.black,
-          textColor: Colors.white,
-          icon: Icons.done);
+    final form = _formKey.currentState;
+    if (form.validate()) {
+      form.save();
+      if (govtEntity != null) {
+        purchaseOrder.govtEntity =
+            'com.oneconnect.biz.GovtEntity#' + govtEntity.participantId;
+        purchaseOrder.govtDocumentRef = govtEntity.documentReference;
+        label = 'Govt';
+      }
+      if (company != null) {
+        purchaseOrder.company =
+            'com.oneconnect.biz.Company#' + company.participantId;
+        purchaseOrder.companyDocumentRef = company.documentReference;
+        label = 'Company';
+      }
+      if (supplier != null) {
+        purchaseOrder.supplierDocumentRef = supplier.documentReference;
+        purchaseOrder.supplier =
+            'com.oneconnect.biz.Supplier#' + supplier.participantId;
+      }
+      if (user != null) {
+        purchaseOrder.user = 'com.oneconnect.biz.User#' + user.userId;
+      }
+      print('_PurchaseOrderPageState._registerPurchaseOrder ... ${purchaseOrder
+              .toJson()}');
+      purchaseOrder.date = new DateTime.now().toIso8601String();
+      purchaseOrder.amount = amount;
+      purchaseOrder.purchaseOrderNumber = poNumber;
+
+      DataAPI api = DataAPI(widget.url);
+      var key = await api.registerPurchaseOrder(purchaseOrder);
+      if (key == '0') {
+        AppSnackbar.showErrorSnackbar(
+            context: context,
+            scaffoldKey: _scaffoldKey,
+            message: 'Error submitting purchase order',
+            actionLabel: 'close');
+      } else {
+        AppSnackbar.showSnackbarWithAction(
+            context: context,
+            scaffoldKey: _scaffoldKey,
+            message: 'Purchase Order submitted successfully',
+            actionLabel: 'Done',
+            backgroundColor: Colors.black,
+            textColor: Colors.white,
+            icon: Icons.done);
+      }
     }
   }
 
@@ -142,13 +162,13 @@ class _PurchaseOrderPageState extends State<PurchaseOrderPageXX> {
     color: Colors.white,
     fontSize: 12.0,
   );
-  var name, userName;
+  var name, userName, label = '';
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
-        title: Text('Purchase Order'),
+        title: Text('$label Purchase Order'),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(60.0),
           child: Column(
@@ -230,7 +250,7 @@ class _PurchaseOrderPageState extends State<PurchaseOrderPageXX> {
                           return 'Please enter PO number';
                         }
                       },
-                      onSaved: (val) => purchaseOrder.purchaseOrderNumber = val,
+                      onSaved: (val) => poNumber = val,
                     ),
                     TextFormField(
                       decoration: InputDecoration(
@@ -243,7 +263,7 @@ class _PurchaseOrderPageState extends State<PurchaseOrderPageXX> {
                           return 'Please enter the amount';
                         }
                       },
-                      onSaved: (val) => purchaseOrder.amount = val,
+                      onSaved: (val) => amount = val,
                     ),
                     new Padding(
                       padding: const EdgeInsets.only(

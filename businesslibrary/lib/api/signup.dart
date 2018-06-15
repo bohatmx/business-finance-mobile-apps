@@ -18,8 +18,8 @@ import 'package:google_sign_in/google_sign_in.dart';
 class SignUp {
   static const NameSpace = 'resource:com.oneconnect.biz';
   final String url;
-  final Firestore _firestore = Firestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final Firestore _firestore = Firestore.instance;
   final GoogleSignIn _googleSignIn = new GoogleSignIn(
     scopes: [
       'email',
@@ -32,14 +32,29 @@ class SignUp {
       ErrorFirebaseUserExists = 1,
       ErrorMissingOrInvalidData = 4,
       ErrorCreatingFirebaseUser = 5,
+      ErrorEntityAlreadyExists = 6,
+      ErrorUserAlreadyExists = 7,
       ErrorFireStore = 2,
       ErrorBlockchain = 3;
 
   Future<int> signUpGovtEntity(GovtEntity govtEntity, User admin) async {
-    govtEntity.dateRegistered = DateTime.now().toIso8601String();
+    var qs = await _firestore
+        .collection('govtEntities')
+        .where('name', isEqualTo: govtEntity.name)
+        .where('govtEntityType', isEqualTo: govtEntity.govtEntityType)
+        .where('country', isEqualTo: govtEntity.govtEntityType)
+        .getDocuments()
+        .catchError((e) {
+      print('SignUp.signUpGovtEntity ERROR $e');
+    });
+    if (qs.documents.isNotEmpty) {
+      print('SignUp.signUpGovtEntity ERROR govtEntity already exists');
+      return ErrorEntityAlreadyExists;
+    }
+    govtEntity.dateRegistered = new DateTime.now().toIso8601String();
     DataAPI dataAPI = DataAPI(url);
     var key = await dataAPI.addGovtEntity(govtEntity);
-    if (key == null) {
+    if (key == '0') {
       return ErrorBlockchain;
     }
 
@@ -50,9 +65,23 @@ class SignUp {
   }
 
   Future<int> signUpCompany(Company company, User admin) async {
+    var qs = await _firestore
+        .collection('companies')
+        .where('name', isEqualTo: company.name)
+        .where('country', isEqualTo: company.country)
+        .getDocuments()
+        .catchError((e) {
+      print('SignUp.signUpCompany ERROR $e');
+    });
+    if (qs.documents.isNotEmpty) {
+      print('SignUp.signUpCompany ERROR company already exists');
+      return ErrorEntityAlreadyExists;
+    }
+
+    company.dateRegistered = DateTime.now().toIso8601String();
     DataAPI dataAPI = DataAPI(url);
     var key = await dataAPI.addCompany(company);
-    if (key == null) {
+    if (key == '0') {
       return ErrorBlockchain;
     }
     await SharedPrefs.saveCompany(company);
@@ -62,9 +91,22 @@ class SignUp {
   }
 
   Future<int> signUpSupplier(Supplier supplier, User admin) async {
+    var qs = await _firestore
+        .collection('suppliers')
+        .where('name', isEqualTo: supplier.name)
+        .where('country', isEqualTo: supplier.country)
+        .getDocuments()
+        .catchError((e) {
+      print('SignUp.signUpSupplier ERROR $e');
+    });
+    if (qs.documents.isNotEmpty) {
+      print('SignUp.signUpSupplier ERROR supplier already exists');
+      return ErrorEntityAlreadyExists;
+    }
     DataAPI dataAPI = DataAPI(url);
+    supplier.dateRegistered = new DateTime.now().toIso8601String();
     var key = await dataAPI.addSupplier(supplier);
-    if (key == null) {
+    if (key == '0') {
       return ErrorBlockchain;
     }
     await SharedPrefs.saveSupplier(supplier);
@@ -74,9 +116,22 @@ class SignUp {
   }
 
   Future<int> signUpInvestor(Investor investor, User admin) async {
+    var qs = await _firestore
+        .collection('investors')
+        .where('name', isEqualTo: investor.name)
+        .where('country', isEqualTo: investor.country)
+        .getDocuments()
+        .catchError((e) {
+      print('SignUp.signUpInvestor ERROR $e');
+    });
+    if (qs.documents.isNotEmpty) {
+      print('SignUp.signUpInvestor ERROR investor already exists');
+      return ErrorEntityAlreadyExists;
+    }
+    investor.dateRegistered = new DateTime.now().toIso8601String();
     DataAPI dataAPI = DataAPI(url);
     var key = await dataAPI.addInvestor(investor);
-    if (key == null) {
+    if (key == '0') {
       return ErrorBlockchain;
     }
 
@@ -87,9 +142,21 @@ class SignUp {
   }
 
   Future<int> signUpAuditor(Auditor auditor, User admin) async {
+    var qs = await _firestore
+        .collection('auditors')
+        .where('name', isEqualTo: auditor.name)
+        .where('country', isEqualTo: auditor.country)
+        .getDocuments()
+        .catchError((e) {
+      print('SignUp.signUpAuditor ERROR $e');
+    });
+    if (qs.documents.isNotEmpty) {
+      print('SignUp.signUpAuditor ERROR auditor already exists');
+      return ErrorEntityAlreadyExists;
+    }
     DataAPI dataAPI = DataAPI(url);
     var key = await dataAPI.addAuditor(auditor);
-    if (key == null) {
+    if (key == '0') {
       return ErrorBlockchain;
     }
 
@@ -101,9 +168,22 @@ class SignUp {
 
   Future<int> signUpProcurementOffice(
       ProcurementOffice office, User admin) async {
+    var qs = await _firestore
+        .collection('procurementOffices')
+        .where('name', isEqualTo: office.name)
+        .where('country', isEqualTo: office.country)
+        .getDocuments()
+        .catchError((e) {
+      print('SignUp.signUpProcurementOffice ERROR $e');
+    });
+    if (qs.documents.isNotEmpty) {
+      print(
+          'SignUp.signUpProcurementOffice ERROR ProcurementOffice already exists');
+      return ErrorEntityAlreadyExists;
+    }
     DataAPI dataAPI = DataAPI(url);
     var key = await dataAPI.addProcurementOffice(office);
-    if (key == null) {
+    if (key == '0') {
       return ErrorBlockchain;
     }
 
@@ -114,9 +194,21 @@ class SignUp {
   }
 
   Future<int> signUpBank(Bank bank, User admin) async {
+    var qs = await _firestore
+        .collection('bank')
+        .where('name', isEqualTo: bank.name)
+        .where('country', isEqualTo: bank.country)
+        .getDocuments()
+        .catchError((e) {
+      print('SignUp.signUpBank ERROR $e');
+    });
+    if (qs.documents.isNotEmpty) {
+      print('SignUp.signUpBank ERROR bank already exists');
+      return ErrorEntityAlreadyExists;
+    }
     DataAPI dataAPI = DataAPI(url);
     var key = await dataAPI.addBank(bank);
-    if (key == null) {
+    if (key == '0') {
       return ErrorBlockchain;
     }
 
@@ -127,9 +219,19 @@ class SignUp {
   }
 
   Future<int> signUpOneConnect(OneConnect oneConnect, User admin) async {
+    var qs = await _firestore
+        .collection('oneConnect')
+        .getDocuments()
+        .catchError((e) {
+      print('SignUp.signUpOneConnect ERROR $e');
+    });
+    if (qs.documents.isNotEmpty) {
+      print('SignUp.signUpOneConnect ERROR OneConnect already exists');
+      return ErrorEntityAlreadyExists;
+    }
     DataAPI dataAPI = DataAPI(url);
     var key = await dataAPI.addOneConnect(oneConnect);
-    if (key == null) {
+    if (key == '0') {
       return ErrorBlockchain;
     }
 
@@ -150,7 +252,19 @@ class SignUp {
     if (!hasOwner(user)) {
       return ErrorMissingOrInvalidData;
     }
-
+    var qs = await _firestore
+        .collection('users')
+        .where('firstName', isEqualTo: user.firstName)
+        .where('lastName', isEqualTo: user.lastName)
+        .where('email', isEqualTo: user.email)
+        .getDocuments()
+        .catchError((e) {
+      print('SignUp.signUp ERROR $e');
+    });
+    if (qs.documents.isNotEmpty) {
+      print('SignUp.signUp ERROR user already exists');
+      return ErrorUserAlreadyExists;
+    }
     user.userId = DataAPI.getKey();
     user.dateRegistered = DateTime.now().toIso8601String();
 
@@ -162,14 +276,6 @@ class SignUp {
     }
     var token = await SharedPrefs.getFCMToken();
     user.fcmToken = token;
-
-    DocumentReference ref =
-        await _firestore.collection('users').add(user.toJson()).catchError((e) {
-      print('SignUp.signUp ERROR: $e');
-      return ErrorFireStore;
-    });
-    print('SignUp.signUp: @@@@@@@@ DocumentReference path: ${ref.path}');
-    user.documentReference = ref.documentID;
 
     DataAPI api = DataAPI(url);
     String key = await api.addUser(user);
@@ -239,7 +345,6 @@ class SignUp {
     }
     if (user == null) {
       print('%%%%%% ERROR - user null from Google sign in');
-      return null;
     }
     print(
         "This user signed in via Google #############################: $user");
