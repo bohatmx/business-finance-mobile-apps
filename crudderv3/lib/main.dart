@@ -1,4 +1,4 @@
-import 'package:crudderv3/govt_entities.dart';
+import 'package:crudderv3/generator.dart';
 import 'package:flutter/material.dart';
 
 void main() => runApp(new MyApp());
@@ -30,15 +30,19 @@ class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
 
   void _generate() async {
-    await GovtUtil.cleanUp();
+    await Generator.cleanUp();
     setState(() {
       _counter++;
     });
-    await GovtUtil.generateEntities();
+    await Generator.generateEntities();
     setState(() {
       _counter++;
     });
-    await GovtUtil.generateSuppliers();
+    await Generator.generateSuppliers();
+    setState(() {
+      _counter++;
+    });
+    await Generator.generatePurchaseOrders();
     setState(() {
       _counter++;
     });

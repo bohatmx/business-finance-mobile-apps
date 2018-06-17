@@ -100,6 +100,7 @@ class DataAPI {
     print('DataAPI.addUser user added to Firestore ${ref.documentID}');
 
     user.documentReference = ref.documentID;
+    print('DataAPI.addUser url: ${url + USER}');
     try {
       var httpClient = new HttpClient();
       HttpClientRequest mRequest =
@@ -216,7 +217,7 @@ class DataAPI {
     });
     print('DataAPI.addSupplier added to Firestore: ${ref.documentID}');
     supplier.documentReference = ref.documentID;
-
+    print('DataAPI.addSupplier url: ${url + SUPPLIER}');
     try {
       var httpClient = new HttpClient();
       HttpClientRequest mRequest =
@@ -421,16 +422,27 @@ class DataAPI {
   Future<String> registerPurchaseOrder(PurchaseOrder purchaseOrder) async {
     purchaseOrder.purchaseOrderId = getKey();
     print(
-        'DataAPI.registerPurchaseOrder ... starting po: ${purchaseOrder.toJson()}');
-    String collection, documentId;
+        'DataAPI.registerPurchaseOrder ... starting purchase: ${purchaseOrder.toJson()}');
+    String collection, documentId, supplierDocId;
     if (purchaseOrder.govtEntity != null) {
       collection = 'govtEntities';
-      documentId = purchaseOrder.govtDocumentRef;
+      var id = purchaseOrder.govtEntity.split('#').elementAt(1);
+      documentId = await _getDocumentId(collection, id);
+      purchaseOrder.govtDocumentRef = documentId;
     }
     if (purchaseOrder.company != null) {
       collection = 'companies';
-      documentId = purchaseOrder.companyDocumentRef;
+      var id = purchaseOrder.company.split('#').elementAt(1);
+      documentId = await _getDocumentId(collection, id);
+      purchaseOrder.companyDocumentRef = documentId;
     }
+    if (purchaseOrder.supplier != null) {
+      var id = purchaseOrder.supplier.split('#').elementAt(1);
+      supplierDocId = await _getDocumentId('suppliers', id);
+      purchaseOrder.supplierDocumentRef = supplierDocId;
+    }
+    print(
+        'DataAPI.registerPurchaseOrder ... starting purchase order: ${purchaseOrder.toJson()}');
 
     ///write govt or company po
     var ref = await _firestore
@@ -446,7 +458,7 @@ class DataAPI {
     ///write po to intended supplier
     var ref2 = await _firestore
         .collection('suppliers')
-        .document(purchaseOrder.supplierDocumentRef)
+        .document(supplierDocId)
         .collection('purchaseOrders')
         .add(purchaseOrder.toJson())
         .catchError((e) {
@@ -459,6 +471,8 @@ class DataAPI {
 
     ///write to blockchain
     ///
+    print(
+        'DataAPI.registerPurchaseOrder url: ${url + REGISTER_PURCHASE_ORDER}');
     try {
       var httpClient = new HttpClient();
       HttpClientRequest mRequest =
@@ -486,6 +500,7 @@ class DataAPI {
       DocumentReference ref, DocumentReference ref2) async {
     await ref.delete();
     await ref2.delete();
+    print('DataAPI._deletePOfromFirestore po deleted');
   }
 
   Future<String> _getDocumentId(String collection, String participantId) async {
@@ -555,7 +570,7 @@ class DataAPI {
 
   Future<String> registerDeliveryNote(DeliveryNote deliveryNote) async {
     deliveryNote.deliveryNoteId = getKey();
-    String documentId, participantId, path;
+    String documentId, participantId, path, supplierDocId;
     if (deliveryNote.govtEntity != null) {
       participantId = deliveryNote.govtEntity.split('#').elementAt(1);
       path = 'govtEntities';
@@ -565,26 +580,15 @@ class DataAPI {
       path = 'companies';
     }
     documentId = await _getDocumentId(path, participantId);
-    String orderId = deliveryNote.purchaseOrder.split("#").elementAt(1);
-    String poDocumentId;
-    var querySnap = await _firestore
-        .collection(path)
-        .document(documentId)
-        .collection('purchaseOrders')
-        .where('purchaseOrderId', isEqualTo: orderId)
-        .getDocuments();
-    querySnap.documents.forEach((snap) {
-      poDocumentId = snap.documentID;
-    });
 
-    if (poDocumentId == null) {
-      return '0';
+    if (deliveryNote.supplier != null) {
+      var id = deliveryNote.supplier.split('#').elementAt(1);
+      supplierDocId = await _getDocumentId('suppliers', id);
     }
+
     var ref = await _firestore
         .collection(path)
         .document(documentId)
-        .collection('purchaseOrders')
-        .document(poDocumentId)
         .collection('deliveryNotes')
         .add(deliveryNote.toJson())
         .catchError((e) {
@@ -592,7 +596,17 @@ class DataAPI {
       return '0';
     });
     print('DataAPI.registerDeliveryNote added to Firestore: ${ref.path}');
-
+    var ref2 = await _firestore
+        .collection('suppliers')
+        .document(supplierDocId)
+        .collection('deliveryNotes')
+        .add(deliveryNote.toJson())
+        .catchError((e) {
+      print('DataAPI.registerDeliveryNote ERROR $e');
+      return '0';
+    });
+    print('DataAPI.registerDeliveryNote added to Firestore: ${ref2.path}');
+    print('DataAPI.registerDeliveryNote url: ${url + REGISTER_DELIVERY_NOTE}');
     try {
       var httpClient = new HttpClient();
       HttpClientRequest mRequest =
@@ -606,44 +620,45 @@ class DataAPI {
         return deliveryNote.deliveryNoteId;
       } else {
         print('DataAPI.registerDeliveryNote ERROR  ${mResponse.reasonPhrase}');
+        ref.delete();
+        ref2.delete();
+        print('DataAPI.registerDeliveryNote firestore del notes deleted');
         return "0";
       }
     } catch (e) {
       print('DataAPI.registerDeliveryNote ERROR $e');
+      ref.delete();
+      ref2.delete();
+      print('DataAPI.registerDeliveryNote firestore del notes deleted');
       return '0';
     }
   }
 
   Future<String> registerInvoice(Invoice invoice) async {
     invoice.invoiceId = getKey();
-    String documentId, participantId, supplierDocRef, supplierId, path;
+    String documentRef, participantId, supplierDocRef, collection;
     if (invoice.govtEntity != null) {
       participantId = invoice.govtEntity.split('#').elementAt(1);
-      path = 'govtEntities';
+      collection = 'govtEntities';
+      documentRef = await _getDocumentId(collection, participantId);
+      invoice.govtDocumentRef = documentRef;
     }
     if (invoice.company != null) {
       participantId = invoice.company.split('#').elementAt(1);
-      path = 'companies';
+      collection = 'companies';
+      documentRef = await _getDocumentId(collection, participantId);
+      invoice.companyDocumentRef = documentRef;
     }
+
     if (invoice.supplier != null) {
-      supplierId = invoice.supplier.split('#').elementAt(1);
-      var path = 'suppliers';
-      var qs = await _firestore
-          .collection(path)
-          .where('participantId', isEqualTo: supplierId)
-          .getDocuments()
-          .catchError((e) {
-        print('DataAPI.registerInvoice ERROR $e');
-        return '0';
-      });
-      qs.documents.forEach((doc) {
-        supplierDocRef = doc.documentID;
-      });
+      var id = invoice.supplier.split('#').elementAt(1);
+      supplierDocRef = await _getDocumentId('suppliers', id);
+      invoice.supplierDocumentRef = supplierDocRef;
     }
-    documentId = await _getDocumentId(path, participantId);
+    print('DataAPI.registerInvoice adding  ${invoice.toJson()}');
     var ref = await _firestore
-        .collection(path)
-        .document(documentId)
+        .collection(collection)
+        .document(documentRef)
         .collection('invoices')
         .add(invoice.toJson())
         .catchError((e) {
@@ -652,8 +667,19 @@ class DataAPI {
     });
     print('DataAPI.registerInvoice added to Firestore: ${ref.path}');
     invoice.documentReference = ref.documentID;
-    invoice.supplierDocumentRef = supplierDocRef;
 
+    var ref2 = await _firestore
+        .collection('suppliers')
+        .document(supplierDocRef)
+        .collection('invoices')
+        .add(invoice.toJson())
+        .catchError((e) {
+      print('DataAPI.registerInvoice  ERROR $e');
+      return '0';
+    });
+    print('DataAPI.registerInvoice added to Firestore: ${ref2.path}');
+
+    print('DataAPI.registerInvoice url: ${url + REGISTER_INVOICE}');
     try {
       var httpClient = new HttpClient();
       HttpClientRequest mRequest =
@@ -667,10 +693,16 @@ class DataAPI {
         return invoice.invoiceId;
       } else {
         print('DataAPI.registerInvoice ERROR  ${mResponse.reasonPhrase}');
+        ref.delete();
+        ref2.delete();
+        print('DataAPI.registerInvoice Firestore invoice deleted');
         return "0";
       }
     } catch (e) {
       print('DataAPI.registerInvoice ERROR $e');
+      ref.delete();
+      ref2.delete();
+      print('DataAPI.registerInvoice Firestore invoice deleted');
       return '0';
     }
   }
