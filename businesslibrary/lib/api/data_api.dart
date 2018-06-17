@@ -113,6 +113,7 @@ class DataAPI {
       if (mResponse.statusCode == 200) {
         return user.userId;
       } else {
+        ref.delete();
         mResponse.transform(utf8.decoder).listen((contents) {
           print('DataAPI.addUser  $contents');
         });
@@ -121,6 +122,7 @@ class DataAPI {
         return "0";
       }
     } catch (e) {
+      ref.delete();
       print('DataAPI.addUser ERROR $e');
       return '0';
     }
@@ -130,6 +132,7 @@ class DataAPI {
   /// object should contain valid Stellar public key
   ///
   Future<String> addWallet(Wallet wallet) async {
+    print('DataAPI.addWallet ${url + WALLET}');
     try {
       var httpClient = new HttpClient();
       HttpClientRequest mRequest =
@@ -181,6 +184,9 @@ class DataAPI {
     });
     print('DataAPI.addCompany added to Firestore: ${ref.documentID}');
     company.documentReference = ref.documentID;
+    company.dateRegistered = new DateTime.now().toIso8601String();
+
+    print('DataAPI.addCompany ${url + COMPANY}');
     try {
       var httpClient = new HttpClient();
       HttpClientRequest mRequest =
@@ -193,6 +199,7 @@ class DataAPI {
       if (mResponse.statusCode == 200) {
         return company.participantId;
       } else {
+        ref.delete();
         mResponse.transform(utf8.decoder).listen((contents) {
           print('DataAPI.addCompany  $contents');
         });
@@ -201,6 +208,7 @@ class DataAPI {
         return "0";
       }
     } catch (e) {
+      ref.delete();
       print('DataAPI.addCompany ERROR $e');
       return '0';
     }
@@ -230,6 +238,7 @@ class DataAPI {
       if (mResponse.statusCode == 200) {
         return supplier.participantId;
       } else {
+        ref.delete();
         print('DataAPI.addSupplier ERROR  ${mResponse.reasonPhrase}');
         mResponse.transform(utf8.decoder).listen((contents) {
           print('DataAPI.addSupplier  $contents');
@@ -237,6 +246,7 @@ class DataAPI {
         return "0";
       }
     } catch (e) {
+      ref.delete();
       print('DataAPI.addSupplier ERROR $e');
       return '0';
     }
@@ -244,6 +254,7 @@ class DataAPI {
 
   Future<String> addInvestor(Investor investor) async {
     investor.participantId = getKey();
+    investor.dateRegistered = new DateTime.now().toIso8601String();
     var ref = await _firestore
         .collection('investors')
         .add(investor.toJson())
@@ -252,7 +263,10 @@ class DataAPI {
       return '0';
     });
     investor.documentReference = ref.documentID;
+
     print('DataAPI.addInvestor added to Firestore: ${ref.documentID}');
+    print('DataAPI.addInvestor   ${url + INVESTOR}');
+
     try {
       var httpClient = new HttpClient();
       HttpClientRequest mRequest =
@@ -265,6 +279,7 @@ class DataAPI {
       if (mResponse.statusCode == 200) {
         return investor.participantId;
       } else {
+        ref.delete();
         print('DataAPI.addInvestor ERROR  ${mResponse.reasonPhrase}');
         mResponse.transform(utf8.decoder).listen((contents) {
           print('DataAPI.addInvestor  $contents');
@@ -272,6 +287,7 @@ class DataAPI {
         return "0";
       }
     } catch (e) {
+      ref.delete();
       print('DataAPI.addInvestor ERROR $e');
       return '0';
     }
@@ -285,6 +301,9 @@ class DataAPI {
       return '0';
     });
     bank.documentReference = ref.documentID;
+    bank.dateRegistered = new DateTime.now().toIso8601String();
+
+    print('DataAPI.addBank ${url + BANK}');
     try {
       var httpClient = new HttpClient();
       HttpClientRequest mRequest =
@@ -298,6 +317,7 @@ class DataAPI {
 
         return bank.participantId;
       } else {
+        ref.delete();
         print('DataAPI.addBank ERROR  ${mResponse.reasonPhrase}');
         mResponse.transform(utf8.decoder).listen((contents) {
           print('DataAPI.addBank  $contents');
@@ -305,6 +325,7 @@ class DataAPI {
         return "0";
       }
     } catch (e) {
+      ref.delete();
       print('DataAPI.addBank ERROR $e');
       return '0';
     }
@@ -312,6 +333,7 @@ class DataAPI {
 
   Future<String> addOneConnect(OneConnect oneConnect) async {
     oneConnect.participantId = getKey();
+    oneConnect.dateRegistered = new DateTime.now().toIso8601String();
     var ref = await _firestore
         .collection('oneConnect')
         .add(oneConnect.toJson())
@@ -321,6 +343,7 @@ class DataAPI {
     });
     print('DataAPI.addOneConnect added to Firestore: ${ref.documentID}');
     oneConnect.documentReference = ref.documentID;
+    print('DataAPI.addOneConnect ${url + ONECONNECT}');
     try {
       var httpClient = new HttpClient();
       HttpClientRequest mRequest =
@@ -347,6 +370,8 @@ class DataAPI {
 
   Future<String> addProcurementOffice(ProcurementOffice office) async {
     office.participantId = getKey();
+    office.dateRegistered = new DateTime.now().toIso8601String();
+
     var ref = await _firestore
         .collection('procurementOffices')
         .add(office.toJson())
@@ -357,6 +382,7 @@ class DataAPI {
     print('DataAPI.addProcurementOffice added to Firestore: ${ref.documentID}');
     office.documentReference = ref.documentID;
 
+    print('DataAPI.addProcurementOffice ${url + PROCUREMENT_OFFICE}');
     try {
       var httpClient = new HttpClient();
       HttpClientRequest mRequest =
@@ -369,6 +395,7 @@ class DataAPI {
       if (mResponse.statusCode == 200) {
         return office.participantId;
       } else {
+        ref.delete();
         print('DataAPI.addProcurementOffice ERROR  ${mResponse.reasonPhrase}');
         mResponse.transform(utf8.decoder).listen((contents) {
           print('DataAPI.addProcurementOffice  $contents');
@@ -376,6 +403,7 @@ class DataAPI {
         return "0";
       }
     } catch (e) {
+      ref.delete();
       print('DataAPI.addProcurementOffice ERROR $e');
       return '0';
     }
@@ -392,7 +420,9 @@ class DataAPI {
     });
     print('DataAPI.addAuditor added to Firestore: ${ref.documentID}');
     auditor.documentReference = ref.documentID;
+    auditor.dateRegistered = new DateTime.now().toIso8601String();
 
+    print('DataAPI.addAuditor ${url + AUDITOR}');
     try {
       var httpClient = new HttpClient();
       HttpClientRequest mRequest =
@@ -405,6 +435,7 @@ class DataAPI {
       if (mResponse.statusCode == 200) {
         return auditor.participantId;
       } else {
+        ref.delete();
         print('DataAPI.addAuditor ERROR  ${mResponse.reasonPhrase}');
         mResponse.transform(utf8.decoder).listen((contents) {
           print('DataAPI.addAuditor  $contents');
@@ -412,6 +443,7 @@ class DataAPI {
         return "0";
       }
     } catch (e) {
+      ref.delete();
       print('DataAPI.addAuditor ERROR $e');
       return '0';
     }
@@ -487,6 +519,9 @@ class DataAPI {
       } else {
         await _deletePOfromFirestore(ref, ref2);
         print('DataAPI.registerPurchaseOrder ERROR  ${mResponse.reasonPhrase}');
+        mResponse.transform(utf8.decoder).listen((contents) {
+          print('DataAPI.registerPurchaseOrder  $contents');
+        });
         return "0";
       }
     } catch (e) {
@@ -620,6 +655,9 @@ class DataAPI {
         return deliveryNote.deliveryNoteId;
       } else {
         print('DataAPI.registerDeliveryNote ERROR  ${mResponse.reasonPhrase}');
+        mResponse.transform(utf8.decoder).listen((contents) {
+          print('DataAPI.registerDeliveryNote  $contents');
+        });
         ref.delete();
         ref2.delete();
         print('DataAPI.registerDeliveryNote firestore del notes deleted');
@@ -693,6 +731,9 @@ class DataAPI {
         return invoice.invoiceId;
       } else {
         print('DataAPI.registerInvoice ERROR  ${mResponse.reasonPhrase}');
+        mResponse.transform(utf8.decoder).listen((contents) {
+          print('DataAPI.registerInvoice  $contents');
+        });
         ref.delete();
         ref2.delete();
         print('DataAPI.registerInvoice Firestore invoice deleted');
