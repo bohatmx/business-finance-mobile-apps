@@ -2,19 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="660adc5a-c8c8-4a31-b30d-d6acb1a8cbf3" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/../crudderv3/lib/generator.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/api/data_api.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/api/data_api.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/data/delivery_note.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/data/delivery_note.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/data/invoice.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/data/invoice.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../crudderv3/.idea/libraries/Dart_Packages.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../crudderv3/.idea/libraries/Dart_Packages.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../crudderv3/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../crudderv3/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../crudderv3/lib/govt_entities.dart" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../crudderv3/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../crudderv3/lib/main.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../crudderv3/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/../crudderv3/pubspec.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../supplierv3/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/.idea/workspace.xml" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <ignored path="../.gradle/4.4/fileChanges/last-build.bin" />
@@ -301,7 +289,7 @@
           <file leaf-file-name="delivery_note.dart" pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/lib/data/delivery_note.dart">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="315">
+                <state relative-caret-position="327">
                   <caret line="53" column="27" selection-start-line="53" selection-start-column="27" selection-end-line="53" selection-end-column="27" />
                   <folding>
                     <element signature="e#593#1150#0" expanded="true" />
@@ -642,8 +630,8 @@
       <window_info anchor="right" id="Maven Projects" order="3" />
       <window_info anchor="bottom" id="Dart Analysis" order="7" weight="0.32890365" />
       <window_info anchor="bottom" id="Run" order="2" />
-      <window_info anchor="bottom" id="Version Control" order="7" weight="0.32890365" />
-      <window_info active="true" anchor="bottom" id="Terminal" order="7" visible="true" weight="0.34219268" />
+      <window_info active="true" anchor="bottom" id="Version Control" order="7" visible="true" weight="0.32890365" />
+      <window_info anchor="bottom" id="Terminal" order="7" weight="0.34219268" />
       <window_info anchor="right" id="Flutter Outline" order="3" />
       <window_info id="Capture Tool" order="2" />
       <window_info id="Designer" order="2" />
@@ -663,6 +651,32 @@
       <window_info anchor="bottom" id="Find" order="1" />
     </layout>
   </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="RECENTLY_FILTERED_USER_GROUPS">
+                <collection />
+              </option>
+              <option name="RECENTLY_FILTERED_BRANCH_GROUPS">
+                <collection />
+              </option>
+              <option name="COLUMN_ORDER">
+                <list>
+                  <option value="0" />
+                  <option value="1" />
+                  <option value="2" />
+                  <option value="3" />
+                </list>
+              </option>
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
   <component name="VcsContentAnnotationSettings">
     <option name="myLimit" value="2678400000" />
   </component>
@@ -678,7 +692,8 @@
     <MESSAGE value="added selectors for supplier, sector, country" />
     <MESSAGE value="tweaks" />
     <MESSAGE value="tweaks II" />
-    <option name="LAST_COMMIT_MESSAGE" value="tweaks II" />
+    <MESSAGE value="tweaks III" />
+    <option name="LAST_COMMIT_MESSAGE" value="tweaks III" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -997,7 +1012,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/lib/data/delivery_note.dart">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="315">
+        <state relative-caret-position="327">
           <caret line="53" column="27" selection-start-line="53" selection-start-column="27" selection-end-line="53" selection-end-column="27" />
           <folding>
             <element signature="e#593#1150#0" expanded="true" />
