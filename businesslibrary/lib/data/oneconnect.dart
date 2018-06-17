@@ -1,5 +1,6 @@
 import 'package:businesslibrary/data/misc_data.dart';
 
+///special  class to handle network ownership
 class OneConnect extends BaseParticipant {
   String participantId;
   String name;
