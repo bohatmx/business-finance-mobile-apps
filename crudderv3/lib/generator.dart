@@ -3,9 +3,15 @@ import 'dart:math';
 
 import 'package:businesslibrary/api/data_api.dart';
 import 'package:businesslibrary/api/signup.dart';
+import 'package:businesslibrary/data/auditor.dart';
+import 'package:businesslibrary/data/bank.dart';
+import 'package:businesslibrary/data/company.dart';
 import 'package:businesslibrary/data/delivery_note.dart';
 import 'package:businesslibrary/data/govt_entity.dart';
+import 'package:businesslibrary/data/investor.dart';
 import 'package:businesslibrary/data/invoice.dart';
+import 'package:businesslibrary/data/oneconnect.dart';
+import 'package:businesslibrary/data/procurement_office.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
@@ -285,7 +291,13 @@ class Generator {
       qs.documents.forEach((doc) async {
         await doc.reference.delete();
       });
-      print('Generator.cleanUp users deleted from Firestore ');
+      print('Generator.cleanUp users deleted from Firestore ################');
+      var qs1 = await fs.collection('oneConnect').getDocuments();
+      qs1.documents.forEach((doc) async {
+        await doc.reference.delete();
+      });
+      print(
+          'Generator.cleanUp oneConnect deleted from Firestore ################');
       var qs2 = await fs.collection('govtEntities').getDocuments();
       qs2.documents.forEach((doc) async {
         var msnap =
@@ -305,7 +317,7 @@ class Generator {
         await doc.reference.delete();
       });
       print(
-          'Generator.cleanUp govtEntities deleted from Firestore ######################');
+          'Generator.cleanUp govtEntities deleted from Firestore ################');
       var qs3 = await fs.collection('suppliers').getDocuments();
       qs3.documents.forEach((doc) async {
         var msnap =
@@ -324,7 +336,99 @@ class Generator {
         });
         await doc.reference.delete();
       });
-      print('Generator.cleanUp suppliers deleted from Firestore ');
+      print(
+          'Generator.cleanUp suppliers deleted from Firestore ##############');
+
+      var qs5 = await fs.collection('investors').getDocuments();
+      qs5.documents.forEach((doc) async {
+        await doc.reference.delete();
+      });
+      print(
+          'Generator.cleanUp investors deleted from Firestore ######################');
+      var qs6 = await fs.collection('procurementOffices').getDocuments();
+      qs6.documents.forEach((doc) async {
+        await doc.reference.delete();
+      });
+      print(
+          'Generator.cleanUp investors deleted from Firestore ######################');
+      var qs7 = await fs.collection('companies').getDocuments();
+      qs7.documents.forEach((doc) async {
+        var msnap =
+            await doc.reference.collection('purchaseOrders').getDocuments();
+        msnap.documents.forEach((x) async {
+          await x.reference.delete();
+        });
+        var msnap2 =
+            await doc.reference.collection('deliveryNotes').getDocuments();
+        msnap2.documents.forEach((x) async {
+          await x.reference.delete();
+        });
+        var msnap3 = await doc.reference.collection('invoices').getDocuments();
+        msnap3.documents.forEach((x) async {
+          await x.reference.delete();
+        });
+        await doc.reference.delete();
+      });
+      print(
+          'Generator.cleanUp companies deleted from Firestore ###############');
+      var qs8 = await fs.collection('banks').getDocuments();
+      qs8.documents.forEach((doc) async {
+        var msnap =
+            await doc.reference.collection('purchaseOrders').getDocuments();
+        msnap.documents.forEach((x) async {
+          await x.reference.delete();
+        });
+        var msnap2 =
+            await doc.reference.collection('deliveryNotes').getDocuments();
+        msnap2.documents.forEach((x) async {
+          await x.reference.delete();
+        });
+        var msnap3 = await doc.reference.collection('invoices').getDocuments();
+        msnap3.documents.forEach((x) async {
+          await x.reference.delete();
+        });
+        await doc.reference.delete();
+      });
+      print('Generator.cleanUp banks deleted from Firestore ##############');
+      var qs9 = await fs.collection('procurementOffices').getDocuments();
+      qs9.documents.forEach((doc) async {
+        var msnap =
+            await doc.reference.collection('purchaseOrders').getDocuments();
+        msnap.documents.forEach((x) async {
+          await x.reference.delete();
+        });
+        var msnap2 =
+            await doc.reference.collection('deliveryNotes').getDocuments();
+        msnap2.documents.forEach((x) async {
+          await x.reference.delete();
+        });
+        var msnap3 = await doc.reference.collection('invoices').getDocuments();
+        msnap3.documents.forEach((x) async {
+          await x.reference.delete();
+        });
+        await doc.reference.delete();
+      });
+      print(
+          'Generator.cleanUp procurementOffices deleted from Firestore   #############');
+      var qs10 = await fs.collection('auditors').getDocuments();
+      qs10.documents.forEach((doc) async {
+        var msnap =
+            await doc.reference.collection('purchaseOrders').getDocuments();
+        msnap.documents.forEach((x) async {
+          await x.reference.delete();
+        });
+        var msnap2 =
+            await doc.reference.collection('deliveryNotes').getDocuments();
+        msnap2.documents.forEach((x) async {
+          await x.reference.delete();
+        });
+        var msnap3 = await doc.reference.collection('invoices').getDocuments();
+        msnap3.documents.forEach((x) async {
+          await x.reference.delete();
+        });
+        await doc.reference.delete();
+      });
+      print('Generator.cleanUp auditors deleted from Firestore ##############');
     } catch (e) {
       print('Generator.cleanUp ERROR $e');
       return 1;
@@ -362,11 +466,12 @@ class Generator {
           password: 'mpassword123',
           email: 'ntombi.m@publicworks.gov.za');
       await signUp.signUpGovtEntity(e2, u2);
+      print('Generator.generateEntities COMPLETED');
     } catch (e) {
-      print('Generator.cleanUp ERROR $e');
+      print('Generator.generateEntities ERROR $e');
       return 1;
     }
-    print('Generator.generateEntities COMPLETED');
+
     return 0;
   }
 
@@ -464,11 +569,183 @@ class Generator {
           password: 'mpassword123',
           email: 'susanoak@zamatransport.com');
       await signUp.signUpSupplier(e7, u7);
+      print('Generator.generateSuppliers COMPLETED');
     } catch (e) {
       print('Generator.generateSuppliers ERROR $e');
       return 1;
     }
-    print('Generator.generateSuppliers COMPLETED');
+
+    return 0;
+  }
+
+  static Future<int> generateInvestors() async {
+    print('Generator.generateInvestors ......................\n\n');
+    SignUp signUp = SignUp(Util.getURL());
+    try {
+      Investor e1 = new Investor(
+          name: 'FinanceCapital Pty Ltd',
+          email: 'info@fincap.com',
+          country: 'South Africa',
+          cellphone: '086 789 4534');
+      User u1 = new User(
+          firstName: 'Robert',
+          lastName: 'van der Merwe',
+          password: 'mpassword123',
+          email: 'robert.vdm@fincap.com');
+      await signUp.signUpInvestor(e1, u1);
+
+      Investor e2 = new Investor(
+        name: 'Invoice Brokers Pty Ltd',
+        email: 'info@invbrokers.co.za',
+        country: 'South Africa',
+        cellphone: '073  456 7899',
+      );
+      User u2 = new User(
+          firstName: 'Rogers',
+          lastName: 'Smith-Kline',
+          password: 'mpassword123',
+          email: 'rogers.m@invbrokers.co.za');
+      await signUp.signUpInvestor(e2, u2);
+      print('Generator.generateInvestors COMPLETED');
+    } catch (e) {
+      print('Generator.generateInvestors ERROR $e');
+      return 1;
+    }
+
+    return 0;
+  }
+
+  static Future<int> generateProcurementOffice() async {
+    print('Generator.generateProcurementOffice ......................\n\n');
+    SignUp signUp = SignUp(Util.getURL());
+    try {
+      ProcurementOffice e1 = new ProcurementOffice(
+          name: 'Treasury Procurement Office',
+          email: 'info@treasury.gov.za',
+          country: 'South Africa',
+          cellphone: '086 789 4534');
+      User u1 = new User(
+          firstName: 'Thamsanqa',
+          lastName: 'Maluleke',
+          password: 'mpassword123',
+          email: 'thami.mal@treasury.gov.za');
+      await signUp.signUpProcurementOffice(e1, u1);
+      print('Generator.generateProcurementOffice COMPLETED');
+    } catch (e) {
+      print('Generator.generateProcurementOffice ERROR $e');
+      return 1;
+    }
+
+    return 0;
+  }
+
+  static Future<int> generateBank() async {
+    print('Generator.generateBank ......................\n\n');
+    SignUp signUp = SignUp(Util.getURL());
+    try {
+      Bank e1 = new Bank(
+          name: 'Number One Bank',
+          email: 'info@bankone.com',
+          country: 'South Africa',
+          cellphone: '081 555 4534');
+      User u1 = new User(
+          firstName: 'Maryanne',
+          lastName: 'Poppins',
+          password: 'mpassword123',
+          email: 'marypopl@bankone.com');
+      await signUp.signUpBank(e1, u1);
+      print('Generator.generateBank COMPLETED');
+    } catch (e) {
+      print('Generator.generateBank ERROR $e');
+      return 1;
+    }
+
+    return 0;
+  }
+
+  static Future<int> generateAuditor() async {
+    print('Generator.generateAuditor ......................\n\n');
+    SignUp signUp = SignUp(Util.getURL());
+    try {
+      Auditor e1 = new Auditor(
+          name: 'Great Auditors Inc.',
+          email: 'info@auditors.com',
+          country: 'South Africa',
+          cellphone: '081 555 7745');
+      User u1 = new User(
+          firstName: 'Johan',
+          lastName: 'de Klerk',
+          password: 'mpassword123',
+          email: 'johanl@auditors.com');
+      await signUp.signUpAuditor(e1, u1);
+      print('Generator.generateAuditor COMPLETED');
+    } catch (e) {
+      print('Generator.generateAuditor ERROR $e');
+      return 1;
+    }
+
+    return 0;
+  }
+
+  static Future<int> generateCompanies() async {
+    print('Generator.generateCompanies ......................\n\n');
+    SignUp signUp = SignUp(Util.getURL());
+    try {
+      Company e1 = new Company(
+          name: 'The Successful Company',
+          email: 'info@success.co.za',
+          country: 'South Africa',
+          privateSectorType: 'Industrial',
+          cellphone: '098 687 5544');
+      User u1 = new User(
+          firstName: 'Lesego',
+          lastName: 'Grootboom',
+          password: 'mpassword123',
+          email: 'lesgo@success.co.za');
+      await signUp.signUpCompany(e1, u1);
+
+      Company e2 = new Company(
+          name: 'Group Seven Construction',
+          email: 'info@group7.com',
+          country: 'South Africa',
+          privateSectorType: 'Construction',
+          cellphone: '097 667 5655');
+      User u2 = new User(
+          firstName: 'James',
+          lastName: 'Beach',
+          password: 'mpassword123',
+          email: 'jamesb@group7.com');
+      await signUp.signUpCompany(e2, u2);
+      print('Generator.generateCompanies COMPLETED');
+    } catch (e) {
+      print('Generator.generateCompanies ERROR $e');
+      return 1;
+    }
+
+    return 0;
+  }
+
+  static Future<int> generateOneConnect() async {
+    print('Generator.generateOneConnect .....................\n\n');
+    SignUp signUp = SignUp(Util.getURL());
+    try {
+      OneConnect e1 = new OneConnect(
+          name: 'OneConnect Business Finance',
+          email: 'info@oneconnect.co.za',
+          country: 'South Africa',
+          cellphone: '081 333 4534');
+      User u1 = new User(
+          firstName: 'Mpho',
+          lastName: 'Khunou',
+          password: 'mpassword123',
+          email: 'mpho@oneconnect.co.za');
+      await signUp.signUpOneConnect(e1, u1);
+      print('Generator.generateOneConnect COMPLETED');
+    } catch (e) {
+      print('Generator.generateOneConnect ERROR $e');
+      return 1;
+    }
+
     return 0;
   }
 }

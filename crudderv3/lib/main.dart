@@ -30,22 +30,48 @@ class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
 
   void _generate() async {
-    await Generator.cleanUp();
+//    await Generator.cleanUp();
+//    setState(() {
+//      _counter++;
+//    });
+//    await Generator.generateEntities();
+//    setState(() {
+//      _counter++;
+//    });
+//    await Generator.generateSuppliers();
+//    setState(() {
+//      _counter++;
+//    });
+//
+//    await Generator.generateInvestors();
+//    setState(() {
+//      _counter++;
+//    });
+//    await Generator.generateProcurementOffice();
+//    setState(() {
+//      _counter++;
+//    });
+//    await Generator.generateBank();
+//    setState(() {
+//      _counter++;
+//    });
+//    await Generator.generateAuditor();
+//    setState(() {
+//      _counter++;
+//    });
+//    await Generator.generateCompanies();
+//    setState(() {
+//      _counter++;
+//    });
+    await Generator.generateOneConnect();
     setState(() {
       _counter++;
     });
-    await Generator.generateEntities();
-    setState(() {
-      _counter++;
-    });
-    await Generator.generateSuppliers();
-    setState(() {
-      _counter++;
-    });
-    await Generator.generatePurchaseOrders();
-    setState(() {
-      _counter++;
-    });
+
+//    await Generator.generatePurchaseOrders();
+//    setState(() {
+//      _counter++;
+//    });
   }
 
   @override
