@@ -1,6 +1,6 @@
 name: businesslibrary
 description: Data model Package for Business Finance Network apps
-version: 0.0.142
+version: 0.0.149
 author: Aubrey Malabie <aubrey@aftarobot.com>
 homepage: http://aftarobot.com
 
@@ -20,6 +20,7 @@ dependencies:
     shared_preferences: ^0.4.0
     path_provider: ^0.4.0
     json_annotation: ^0.2.5
+    intl: ^0.15.6
 
 dev-dependencies:
   build_runner: ^0.8.9

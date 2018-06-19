@@ -1,9 +1,11 @@
+import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/api/signup.dart';
 import 'package:businesslibrary/data/govt_entity.dart';
 import 'package:businesslibrary/data/misc_data.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/selectors.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:govt/ui/dashboard.dart';
 import 'package:govt/util.dart';
@@ -25,6 +27,7 @@ class _SignUpPageState extends State<SignUpPage> {
       adminCellphone,
       idNumber;
   final GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
+  final FirebaseMessaging _firebaseMessaging = new FirebaseMessaging();
 
   String participationId;
   List<DropdownMenuItem> items = List();
@@ -294,6 +297,19 @@ class _SignUpPageState extends State<SignUpPage> {
       switch (result) {
         case SignUp.Success:
           print('_SignUpPageState._onSavePressed SUCCESS!!!!!!');
+          var govtEntity = await SharedPrefs.getGovEntity();
+          var topic = 'invoices' + govtEntity.documentReference;
+          _firebaseMessaging.subscribeToTopic(topic);
+          var topic2 = 'general';
+          _firebaseMessaging.subscribeToTopic(topic2);
+          var topic3 = 'settlements' + govtEntity.documentReference;
+          _firebaseMessaging.subscribeToTopic(topic3);
+          var topic4 = 'deliveryNotes' + govtEntity.documentReference;
+          _firebaseMessaging.subscribeToTopic(topic4);
+
+          print(
+              '_StartPageState._configMessaging ... ############# subscribed to FCM topics '
+              '\n $topic \n $topic2 \n $topic3 \n $topic4');
           Navigator.push(
             context,
             new MaterialPageRoute(builder: (context) => new Dashboard()),

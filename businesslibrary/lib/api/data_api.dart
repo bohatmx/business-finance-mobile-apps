@@ -453,6 +453,7 @@ class DataAPI {
   /// transactions
   ///
   Future<String> registerPurchaseOrder(PurchaseOrder purchaseOrder) async {
+    assert(purchaseOrder.purchaserName != null);
     purchaseOrder.purchaseOrderId = getKey();
     print(
         'DataAPI.registerPurchaseOrder ... starting purchase: ${purchaseOrder.toJson()}');
@@ -610,16 +611,20 @@ class DataAPI {
     if (deliveryNote.govtEntity != null) {
       participantId = deliveryNote.govtEntity.split('#').elementAt(1);
       path = 'govtEntities';
+      documentId = await _getDocumentId(path, participantId);
+      deliveryNote.govtDocumentRef = documentId;
     }
     if (deliveryNote.company != null) {
       participantId = deliveryNote.company.split('#').elementAt(1);
       path = 'companies';
+      documentId = await _getDocumentId(path, participantId);
+      deliveryNote.companyDocumentRef = documentId;
     }
-    documentId = await _getDocumentId(path, participantId);
 
     if (deliveryNote.supplier != null) {
       var id = deliveryNote.supplier.split('#').elementAt(1);
       supplierDocId = await _getDocumentId('suppliers', id);
+      deliveryNote.supplierDocumentRef = supplierDocId;
     }
 
     var ref = await _firestore

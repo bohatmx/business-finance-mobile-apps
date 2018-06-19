@@ -1,11 +1,13 @@
+import 'dart:convert';
+
 import 'package:businesslibrary/api/shared_prefs.dart';
+import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:supplierv3/ui/dashboard.dart';
 import 'package:supplierv3/ui/signin_page.dart';
 import 'package:supplierv3/ui/signup_page.dart';
@@ -70,36 +72,23 @@ class _StartPageState extends State<StartPage> {
   }
 
   void _configMessaging() async {
+    supplier = await SharedPrefs.getSupplier();
     print(
         '_MyHomePageState._configMessaging starting _firebaseMessaging config shit');
     _firebaseMessaging.configure(
       onMessage: (Map<String, dynamic> message) {
-//        P.mprint(widget,
-//            "onMessage, AccountDetails: expecting wallet, payment or error mesage via FCM:\n: $message");
-//        var messageType = message["messageType"];
-//        if (messageType == "PAYMENT") {
-//          P.mprint(widget,
-//              "AccountDetails Receiving PAYMENT message )))))))))))))))))))))))))))))))))");
-//          Map map = json.decode(message["json"]);
-//          var payment = new Payment.fromJson(map);
-//          assert(payment != null);
-//          P.mprint(widget, "received payment, details below");
-//          payment.printDetails();
-//          receivedPayment(payment);
-//        }
-//
-//        if (messageType == "PAYMENT_ERROR") {
-//          P.mprint(widget,
-//              "AccountDetails Receiving PAYMENT_ERROR message ################");
-//          Map map = json.decode(message["json"]);
-//          PaymentFailed paymentFailed = new PaymentFailed.fromJson(map);
-//          assert(paymentFailed != null);
-//          P.mprint(widget, paymentFailed.toJson().toString());
-//          P.mprint(widget,
-//              "What do we do now, Boss? payment error, Chief ....maybe show a snackbar?");
-//
-//          _showSnackbar("Payment failed, try again later. Sorry!");
-//        }
+        print(
+            '_StartPageState._configMessaging "onMessage: expecting purchase order, settlement, invoiceBid, or error mesage via FCM $message');
+        var messageType = message["messageType"];
+        if (messageType == "PURCHASE_ORDER") {
+          print(
+              '_StartPageState._configMessaging: receiving PURCHASE_ORDER message  from FCM');
+          Map map = json.decode(message["json"]);
+          var po = new PurchaseOrder.fromJson(map);
+          assert(po != null);
+
+          receivedPurchaseOrder(po);
+        }
       },
       onLaunch: (Map<String, dynamic> message) {},
       onResume: (Map<String, dynamic> message) {},
@@ -118,7 +107,11 @@ class _StartPageState extends State<StartPage> {
       var oldToken = await SharedPrefs.getFCMToken();
       if (token != oldToken) {
         await SharedPrefs.saveFCMToken(token);
+        //  TODO - update user's token on Firestore
         print('_MyHomePageState._configMessaging fcm token saved: $token');
+      } else {
+        print(
+            '_StartPageState._configMessaging: token has not changed. no need to save');
       }
     }).catchError((e) {
       print('_MyHomePageState._configMessaging ERROR fcmToken ');
@@ -148,18 +141,37 @@ class _StartPageState extends State<StartPage> {
             child: new Column(
               children: <Widget>[
                 new Padding(
-                  padding: const EdgeInsets.only(top: 200.0),
+                  padding: const EdgeInsets.only(
+                      top: 110.0, left: 50.0, right: 30.0),
+                  child: Text(
+                    'To create a brand new Supplier Account press the button below. To do this, you must be an Administrator or Manager',
+                    style: TextStyle(
+                        color: Colors.black, fontWeight: FontWeight.bold),
+                  ),
+                ),
+                new Padding(
+                  padding: const EdgeInsets.only(top: 20.0),
                   child: RaisedButton(
                     onPressed: _startSignUpPage,
                     color: Theme.of(context).primaryColor,
-                    elevation: 8.0,
+                    elevation: 16.0,
                     child: new Padding(
                       padding: const EdgeInsets.all(12.0),
                       child: Text(
-                        'Start Supplier SignUp',
-                        style: TextStyle(color: Colors.white),
+                        'Start Supplier Account',
+                        style: TextStyle(
+                            color: Colors.white, fontWeight: FontWeight.bold),
                       ),
                     ),
+                  ),
+                ),
+                new Padding(
+                  padding:
+                      const EdgeInsets.only(top: 40.0, left: 50.0, right: 30.0),
+                  child: Text(
+                    'To sign in to Supplier Entity Account press the button below.',
+                    style: TextStyle(
+                        color: Colors.black, fontWeight: FontWeight.bold),
                   ),
                 ),
                 new Padding(
@@ -167,12 +179,13 @@ class _StartPageState extends State<StartPage> {
                   child: RaisedButton(
                     onPressed: _startSignInPage,
                     color: Colors.blue,
-                    elevation: 8.0,
+                    elevation: 16.0,
                     child: new Padding(
                       padding: const EdgeInsets.all(12.0),
                       child: Text(
-                        'Sign into Supplier App',
-                        style: TextStyle(color: Colors.white),
+                        'Sign in to Supplier App',
+                        style: TextStyle(
+                            color: Colors.white, fontWeight: FontWeight.bold),
                       ),
                     ),
                   ),
@@ -182,15 +195,6 @@ class _StartPageState extends State<StartPage> {
           )
         ],
       ),
-
-      floatingActionButton: new Opacity(
-        opacity: fabOpacity,
-        child: new FloatingActionButton(
-          onPressed: _startSignUpPage,
-          tooltip: 'Increment',
-          child: new Icon(FontAwesomeIcons.lockOpen),
-        ),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 
@@ -208,6 +212,15 @@ class _StartPageState extends State<StartPage> {
     Navigator.push(
       context,
       new MaterialPageRoute(builder: (context) => new SignInPage()),
+    );
+  }
+
+  void receivedPurchaseOrder(PurchaseOrder po) {
+    print('_StartPageState.receivedPurchaseOrder, -------------- '
+        'about to go refresh Dashboard: ${po.toJson()}');
+    Navigator.push(
+      context,
+      new MaterialPageRoute(builder: (context) => new Dashboard()),
     );
   }
 }

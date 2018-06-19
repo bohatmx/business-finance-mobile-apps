@@ -11,22 +11,27 @@ class DeliveryNote {
       supplierName,
       remarks;
   String date, dateAccepted;
+  String companyDocumentRef;
+  String supplierDocumentRef;
+  String govtDocumentRef;
 
-  DeliveryNote({
-    this.deliveryNoteId,
-    this.purchaseOrder,
-    this.company,
-    this.govtEntity,
-    this.user,
-    this.deliveryNoteURL,
-    this.remarks,
-    this.date,
-    this.supplierName,
-    this.supplier,
-    this.documentReference,
-    this.dateAccepted,
-    this.acceptedBy,
-  });
+  DeliveryNote(
+      {this.deliveryNoteId,
+      this.purchaseOrder,
+      this.company,
+      this.govtEntity,
+      this.user,
+      this.acceptedBy,
+      this.deliveryNoteURL,
+      this.documentReference,
+      this.supplier,
+      this.supplierName,
+      this.remarks,
+      this.date,
+      this.dateAccepted,
+      this.companyDocumentRef,
+      this.supplierDocumentRef,
+      this.govtDocumentRef});
 
   DeliveryNote.fromJson(Map data) {
     this.deliveryNoteId = data['deliveryNoteId'];
@@ -42,6 +47,10 @@ class DeliveryNote {
     this.documentReference = data['documentReference'];
     this.supplierName = data['supplierName'];
     this.supplier = data['supplier'];
+
+    this.govtDocumentRef = data['govtDocumentRef'];
+    this.supplierDocumentRef = data['supplierDocumentRef'];
+    this.companyDocumentRef = data['companyDocumentRef'];
   }
 
   Map<String, String> toJson() => <String, String>{
@@ -58,5 +67,8 @@ class DeliveryNote {
         'documentReference': documentReference,
         'supplierName': supplierName,
         'supplier': supplier,
+        'govtDocumentRef': govtDocumentRef,
+        'supplierDocumentRef': supplierDocumentRef,
+        'companyDocumentRef': companyDocumentRef,
       };
 }

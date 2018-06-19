@@ -3,6 +3,7 @@ import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:supplierv3/ui/dashboard.dart';
 import 'package:supplierv3/ui/selectors.dart';
@@ -13,7 +14,7 @@ class SignUpPage extends StatefulWidget {
   _SignUpPageState createState() => _SignUpPageState();
 }
 
-class _SignUpPageState extends State<SignUpPage> {
+class _SignUpPageState extends State<SignUpPage> implements SnackBarListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   var name,
       email,
@@ -26,7 +27,7 @@ class _SignUpPageState extends State<SignUpPage> {
       adminCellphone,
       idNumber;
   final GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
-
+  final FirebaseMessaging _firebaseMessaging = new FirebaseMessaging();
   String participationId;
 
   PrivateSectorType sectorType;
@@ -243,7 +244,7 @@ class _SignUpPageState extends State<SignUpPage> {
         case SignUp.Success:
           print('_SignUpPageState._onSavePressed SUCCESS!!!!!!');
           AppSnackbar.showSnackbarWithAction(
-              context: context,
+              listener: this,
               scaffoldKey: _scaffoldKey,
               message: 'Supplier Sign Up successful',
               textColor: Colors.white,
@@ -251,6 +252,16 @@ class _SignUpPageState extends State<SignUpPage> {
               actionLabel: 'Start',
               icon: Icons.lock_open);
 
+          var topic = 'purchaseOrders' + supplier.documentReference;
+          _firebaseMessaging.subscribeToTopic(topic);
+          var topic2 = 'general';
+          _firebaseMessaging.subscribeToTopic(topic2);
+          var topic3 = 'settlements' + supplier.documentReference;
+          _firebaseMessaging.subscribeToTopic(topic3);
+          var topic4 = 'invoiceBids' + supplier.documentReference;
+          _firebaseMessaging.subscribeToTopic(topic4);
+          print(
+              '_StartPageState._configMessaging ... ############# subscribed to FCM topics');
           Navigator.push(
             context,
             new MaterialPageRoute(builder: (context) => new Dashboard()),
@@ -260,7 +271,7 @@ class _SignUpPageState extends State<SignUpPage> {
         case SignUp.ErrorBlockchain:
           print('_SignUpPageState._onSavePressed  ErrorBlockchain');
           AppSnackbar.showErrorSnackbar(
-              context: context,
+              listener: this,
               scaffoldKey: _scaffoldKey,
               message: 'Blockchain failed to process Sign Up',
               actionLabel: "Support");
@@ -268,7 +279,7 @@ class _SignUpPageState extends State<SignUpPage> {
         case SignUp.ErrorMissingOrInvalidData:
           print('_SignUpPageState._onSavePressed  ErrorMissingOrInvalidData');
           AppSnackbar.showErrorSnackbar(
-              context: context,
+              listener: this,
               scaffoldKey: _scaffoldKey,
               message: 'Missing or Invalid data in the form',
               actionLabel: "Support");
@@ -276,7 +287,7 @@ class _SignUpPageState extends State<SignUpPage> {
         case SignUp.ErrorFirebaseUserExists:
           print('_SignUpPageState._onSavePressed  ErrorFirebaseUserExists');
           AppSnackbar.showErrorSnackbar(
-              context: context,
+              listener: this,
               scaffoldKey: _scaffoldKey,
               message: 'This user already  exists',
               actionLabel: "Close");
@@ -284,7 +295,7 @@ class _SignUpPageState extends State<SignUpPage> {
         case SignUp.ErrorFireStore:
           print('_SignUpPageState._onSavePressed  ErrorFireStore');
           AppSnackbar.showErrorSnackbar(
-              context: context,
+              listener: this,
               scaffoldKey: _scaffoldKey,
               message: 'Database Error',
               actionLabel: "Support");
@@ -292,12 +303,17 @@ class _SignUpPageState extends State<SignUpPage> {
         case SignUp.ErrorCreatingFirebaseUser:
           print('_SignUpPageState._onSavePressed  ErrorCreatingFirebaseUser');
           AppSnackbar.showErrorSnackbar(
-              context: context,
+              listener: this,
               scaffoldKey: _scaffoldKey,
               message: 'Database Error',
               actionLabel: "Support");
           break;
       }
     }
+  }
+
+  @override
+  onActionPressed() {
+    print('_SignUpPageState.onActionPressed .............. yay!');
   }
 }

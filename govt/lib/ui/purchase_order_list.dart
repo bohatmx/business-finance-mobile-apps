@@ -33,8 +33,32 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage> {
       appBar: AppBar(
         title: Text('Purchase Orders'),
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(60.0),
-          child: Row(),
+          preferredSize: const Size.fromHeight(50.0),
+          child: new Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: <Widget>[
+                new Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    'Existing POs',
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16.0,
+                        fontWeight: FontWeight.normal),
+                  ),
+                ),
+                Text(
+                  purchaseOrders == null ? '0' : '${purchaseOrders.length}',
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 30.0,
+                      fontWeight: FontWeight.w900),
+                )
+              ],
+            ),
+          ),
         ),
         actions: <Widget>[
           IconButton(

@@ -1,7 +1,7 @@
+import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/util/selectors.dart';
 import 'package:flutter/material.dart';
-import 'package:govt/list_api.dart';
 
 class SupplierListPage extends StatefulWidget {
   @override

@@ -1,4 +1,5 @@
 import 'package:businesslibrary/api/firestore_list_api.dart';
+import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/delivery_note.dart';
 import 'package:businesslibrary/data/govt_entity.dart';
@@ -6,8 +7,8 @@ import 'package:businesslibrary/data/invoice.dart';
 import 'package:businesslibrary/data/invoice_settlement.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/user.dart';
+import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:flutter/material.dart';
-import 'package:govt/list_api.dart';
 import 'package:govt/ui/purchase_order_list.dart';
 import 'package:govt/ui/summary_card.dart';
 
@@ -48,6 +49,11 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
   ///get  summaries from Firestore
   _getSummaryData() async {
     print('_DashboardState._getSummaryData ..................................');
+    AppSnackbar.showSnackbarWithProgressIndicator(
+        scaffoldKey: _scaffoldKey,
+        message: 'Loading fresh data',
+        textColor: Colors.white,
+        backgroundColor: Colors.black);
     user = await SharedPrefs.getUser();
     fullName = user.firstName + ' ' + user.lastName;
     govtEntity = await SharedPrefs.getGovEntity();
@@ -85,6 +91,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
     setState(() {
       totalPayments = govtSettlements.length;
     });
+    _scaffoldKey.currentState.hideCurrentSnackBar();
   }
 
   Invoice lastInvoice;
@@ -166,6 +173,10 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
             ),
           ),
           actions: <Widget>[
+            IconButton(
+              icon: Icon(Icons.refresh),
+              onPressed: _getSummaryData,
+            ),
             IconButton(
               icon: Icon(Icons.category),
               onPressed: _toggleView,

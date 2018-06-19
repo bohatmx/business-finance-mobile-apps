@@ -7,15 +7,18 @@ import 'package:businesslibrary/data/invoice_settlement.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
-import 'package:businesslibrary/util/summary_card.dart';
+import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:flutter/material.dart';
 import 'package:supplierv3/ui/delivery_note_list.dart';
 import 'package:supplierv3/ui/invoice_list.dart';
 import 'package:supplierv3/ui/purchase_order_list.dart';
+import 'package:supplierv3/ui/summary_card.dart';
 
 class Dashboard extends StatefulWidget {
   @override
   _DashboardState createState() => _DashboardState();
+  static _DashboardState of(BuildContext context) =>
+      context.ancestorStateOfType(const TypeMatcher<_DashboardState>());
 }
 
 class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
@@ -58,7 +61,11 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
     name = supplier.name;
     setState(() {});
     print('_MainPageState._getSummaryData SUPPLIER -  ${supplier.toJson()}');
-    //get invoices
+    AppSnackbar.showSnackbarWithProgressIndicator(
+        scaffoldKey: _scaffoldKey,
+        message: 'Loading fresh dashbboard data',
+        textColor: Colors.white,
+        backgroundColor: Colors.black);
     purchaseOrders = await ListAPI.getPurchaseOrders(
         supplier.documentReference, 'suppliers');
     setState(() {
@@ -88,6 +95,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
           govtSettlements.length +
           companySettlements.length;
     });
+    _scaffoldKey.currentState.hideCurrentSnackBar();
   }
 
   Invoice lastInvoice;
@@ -170,6 +178,10 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
           ),
           actions: <Widget>[
             IconButton(
+              icon: Icon(Icons.refresh),
+              onPressed: _getSummaryData,
+            ),
+            IconButton(
               icon: Icon(Icons.category),
               onPressed: _toggleView,
             ),
@@ -199,9 +211,6 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                       child: SummaryCard(
                         total: totalPayments == null ? 0 : totalPayments,
                         label: 'Payments',
-                        date: '30 December 2018',
-                        lastLabel: 'Last:',
-                        amount: 450300.95,
                         totalStyle: paymentStyle,
                       ),
                     ),
@@ -210,9 +219,6 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                       child: SummaryCard(
                         total: totalInvoices == null ? 0 : totalInvoices,
                         label: 'Invoices',
-                        date: lastInvoice == null ? '' : lastInvoice.date,
-                        lastLabel: 'Last:',
-                        amount: lastInvoice == null ? 0.0 : lastInvoice.amount,
                         totalStyle: invoiceStyle,
                       ),
                     ),
@@ -221,9 +227,6 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                       child: SummaryCard(
                         total: totalPOs == null ? 0 : totalPOs,
                         label: 'Purchase Orders',
-                        date: lastPO == null ? '' : lastPO.date,
-                        lastLabel: 'Last:',
-                        amount: lastPO == null ? 0.0 : lastPO.amount,
                         totalStyle: poStyle,
                       ),
                     ),
@@ -232,9 +235,6 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                       child: SummaryCard(
                         total: totalNotes == null ? 0 : totalNotes,
                         label: 'Delivery Notes',
-                        date: lastNote == null ? '' : lastNote.date,
-                        lastLabel: 'Last:',
-                        amount: 0.00,
                         totalStyle: delNoteStyle,
                       ),
                     ),
@@ -271,7 +271,8 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
     print('_MainPageState._onPurchaseOrdersTapped  go to list of pos');
     Navigator.push(
       context,
-      new MaterialPageRoute(builder: (context) => new PurchaseOrderListPage()),
+      new MaterialPageRoute(
+          builder: (context) => new PurchaseOrderListPage(purchaseOrders)),
     );
   }
 
@@ -285,5 +286,11 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
 
   void _onPaymentsTapped() {
     print('_MainPageState._onPaymentsTapped - go to payments');
+  }
+
+  refresh() {
+    print(
+        '_DashboardState.refresh: ################## REFRESH called. getSummary ...');
+    _getSummaryData();
   }
 }

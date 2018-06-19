@@ -2,8 +2,7 @@ import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/api/signin.dart';
 import 'package:businesslibrary/data/govt_entity.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:govt/ui/dashboard.dart';
 
@@ -16,8 +15,7 @@ class _SignInPageState extends State<SignInPage> implements SnackBarListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   var adminEmail, password, adminCellphone, idNumber;
   final GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
-  static FirebaseAuth _auth = FirebaseAuth.instance;
-  static Firestore _firestore = Firestore.instance;
+  final FirebaseMessaging _firebaseMessaging = new FirebaseMessaging();
   GovtEntity govtEntity;
 
   String participationId;
@@ -140,6 +138,19 @@ class _SignInPageState extends State<SignInPage> implements SnackBarListener {
                 message: 'Unable to sign you in as a Government Entity',
                 actionLabel: "close");
           } else {
+            var govtEntity = await SharedPrefs.getGovEntity();
+
+            var topic2 = 'general';
+            _firebaseMessaging.subscribeToTopic(topic2);
+            var topic3 = 'settlements' + govtEntity.documentReference;
+            _firebaseMessaging.subscribeToTopic(topic3);
+            var topic4 = 'deliveryNotes' + govtEntity.documentReference;
+            _firebaseMessaging.subscribeToTopic(topic4);
+            var topic0 = 'invoices' + govtEntity.documentReference;
+            _firebaseMessaging.subscribeToTopic(topic0);
+            print(
+                '_SignInPageState._onSavePressed ... ############# subscribed to FCM topics '
+                '\n $topic0 \n $topic2 \n $topic3 \n $topic4');
             Navigator.push(
               context,
               new MaterialPageRoute(builder: (context) => new Dashboard()),

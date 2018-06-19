@@ -1,8 +1,11 @@
+import 'dart:convert';
+
 import 'package:businesslibrary/api/shared_prefs.dart';
+import 'package:businesslibrary/data/delivery_note.dart';
+import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:govt/ui/dashboard.dart';
 import 'package:govt/ui/signin_page.dart';
 import 'package:govt/ui/signup_page.dart';
@@ -22,6 +25,7 @@ class GovtApp extends StatelessWidget {
       theme: new ThemeData(
         primarySwatch: Colors.pink,
         accentColor: Colors.teal,
+        fontFamily: 'Raleway',
       ),
       home: new StartPage(title: 'Business Finance App - Govt'),
     );
@@ -37,7 +41,8 @@ class StartPage extends StatefulWidget {
   _StartPageState createState() => new _StartPageState();
 }
 
-class _StartPageState extends State<StartPage> {
+class _StartPageState extends State<StartPage> implements SnackBarListener {
+  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   FirebaseUser firebaseUser;
   double fabOpacity = 0.3;
   @override
@@ -63,32 +68,17 @@ class _StartPageState extends State<StartPage> {
         '_MyHomePageState._configMessaging starting _firebaseMessaging config shit');
     _firebaseMessaging.configure(
       onMessage: (Map<String, dynamic> message) {
-//        P.mprint(widget,
-//            "onMessage, AccountDetails: expecting wallet, payment or error mesage via FCM:\n: $message");
-//        var messageType = message["messageType"];
-//        if (messageType == "PAYMENT") {
-//          P.mprint(widget,
-//              "AccountDetails Receiving PAYMENT message )))))))))))))))))))))))))))))))))");
-//          Map map = json.decode(message["json"]);
-//          var payment = new Payment.fromJson(map);
-//          assert(payment != null);
-//          P.mprint(widget, "received payment, details below");
-//          payment.printDetails();
-//          receivedPayment(payment);
-//        }
-//
-//        if (messageType == "PAYMENT_ERROR") {
-//          P.mprint(widget,
-//              "AccountDetails Receiving PAYMENT_ERROR message ################");
-//          Map map = json.decode(message["json"]);
-//          PaymentFailed paymentFailed = new PaymentFailed.fromJson(map);
-//          assert(paymentFailed != null);
-//          P.mprint(widget, paymentFailed.toJson().toString());
-//          P.mprint(widget,
-//              "What do we do now, Boss? payment error, Chief ....maybe show a snackbar?");
-//
-//          _showSnackbar("Payment failed, try again later. Sorry!");
-//        }
+        print(
+            '_StartPageState._configMessaging  ############## Receiving FCM message $message');
+        var messageType = message["messageType"];
+        if (messageType == "GOVT_DELIVERY_NOTE") {
+          print(
+              '_StartPageState._configMessaging; DELIVERY_NOTE message  received');
+          Map map = json.decode(message["json"]);
+          var note = new DeliveryNote.fromJson(map);
+          assert(note != null);
+          _startDashboard();
+        }
       },
       onLaunch: (Map<String, dynamic> message) {},
       onResume: (Map<String, dynamic> message) {},
@@ -117,6 +107,7 @@ class _StartPageState extends State<StartPage> {
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
+      key: _scaffoldKey,
       appBar: new AppBar(
         title: new Text(widget.title),
       ),
@@ -137,15 +128,37 @@ class _StartPageState extends State<StartPage> {
             child: new Column(
               children: <Widget>[
                 new Padding(
-                  padding: const EdgeInsets.only(top: 200.0),
+                  padding: const EdgeInsets.only(
+                      top: 110.0, left: 50.0, right: 30.0),
+                  child: Text(
+                    'To create a brand new Government Entity Account press the button below. To do this, you must be an Administrator or Manager',
+                    style: TextStyle(
+                        color: Colors.black, fontWeight: FontWeight.bold),
+                  ),
+                ),
+                new Padding(
+                  padding: const EdgeInsets.only(top: 10.0),
                   child: RaisedButton(
                     onPressed: _startSignUpPage,
                     color: Theme.of(context).primaryColor,
-                    elevation: 8.0,
-                    child: Text(
-                      'Start Government Entity SignUp',
-                      style: TextStyle(color: Colors.white),
+                    elevation: 16.0,
+                    child: new Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: Text(
+                        'Start New Government Entity Account',
+                        style: TextStyle(
+                            color: Colors.white, fontWeight: FontWeight.bold),
+                      ),
                     ),
+                  ),
+                ),
+                new Padding(
+                  padding:
+                      const EdgeInsets.only(top: 80.0, left: 50.0, right: 30.0),
+                  child: Text(
+                    'To sign in to an existing Government Entity Account press the button below.',
+                    style: TextStyle(
+                        color: Colors.black, fontWeight: FontWeight.bold),
                   ),
                 ),
                 new Padding(
@@ -153,10 +166,14 @@ class _StartPageState extends State<StartPage> {
                   child: RaisedButton(
                     onPressed: _startSignInPage,
                     color: Colors.blue,
-                    elevation: 8.0,
-                    child: Text(
-                      'Sign in Government Entity App',
-                      style: TextStyle(color: Colors.white),
+                    elevation: 16.0,
+                    child: new Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: Text(
+                        'Sign in to Government Entity App',
+                        style: TextStyle(
+                            color: Colors.white, fontWeight: FontWeight.bold),
+                      ),
                     ),
                   ),
                 ),
@@ -166,21 +183,14 @@ class _StartPageState extends State<StartPage> {
         ],
       ),
 
-      floatingActionButton: new Opacity(
-        opacity: fabOpacity,
-        child: new FloatingActionButton(
-          onPressed: _startSignUp,
-          tooltip: 'Increment',
-          child: new Icon(FontAwesomeIcons.lockOpen),
-        ),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
-    );
-  }
-
-  void _startSignUp() async {
-    Navigator.push(
-      context,
-      new MaterialPageRoute(builder: (context) => new SignUpPage()),
+//      floatingActionButton: new Opacity(
+//        opacity: fabOpacity,
+//        child: new FloatingActionButton(
+//          onPressed: _startSignUp,
+//          tooltip: 'Increment',
+//          child: new Icon(FontAwesomeIcons.lockOpen),
+//        ),
+//      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 
@@ -197,6 +207,23 @@ class _StartPageState extends State<StartPage> {
     await Navigator.push(
       context,
       new MaterialPageRoute(builder: (context) => new SignInPage()),
+    );
+  }
+
+  void _startDashboard() async {
+    print('_MyHomePageState._starDashboard ...........');
+    await Navigator.push(
+      context,
+      new MaterialPageRoute(builder: (context) => new Dashboard()),
+    );
+  }
+
+  @override
+  onActionPressed() {
+    print('_StartPageState.onActionPressed +++++++++++++++++ >>>');
+    Navigator.push(
+      context,
+      new MaterialPageRoute(builder: (context) => new Dashboard()),
     );
   }
 }

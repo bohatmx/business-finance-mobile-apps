@@ -70,6 +70,7 @@ class _PurchaseOrderPageState extends State<PurchaseOrderPageGovt>
 
   _registerPurchaseOrder() async {
     print('_PurchaseOrderPageState._registerPurchaseOrder .........');
+    Navigator.pop(context);
     final form = _formKey.currentState;
     if (form.validate()) {
       form.save();
@@ -77,18 +78,21 @@ class _PurchaseOrderPageState extends State<PurchaseOrderPageGovt>
         purchaseOrder.govtEntity =
             'com.oneconnect.biz.GovtEntity#' + govtEntity.participantId;
         purchaseOrder.govtDocumentRef = govtEntity.documentReference;
+        purchaseOrder.purchaserName = govtEntity.name;
         label = 'Govt';
       }
       if (company != null) {
         purchaseOrder.company =
             'com.oneconnect.biz.Company#' + company.participantId;
         purchaseOrder.companyDocumentRef = company.documentReference;
+        purchaseOrder.purchaserName = company.name;
         label = 'Company';
       }
       if (supplier != null) {
         purchaseOrder.supplierDocumentRef = supplier.documentReference;
         purchaseOrder.supplier =
             'com.oneconnect.biz.Supplier#' + supplier.participantId;
+        purchaseOrder.supplierName = supplier.name;
       }
       if (user != null) {
         purchaseOrder.user = 'com.oneconnect.biz.User#' + user.userId;
@@ -98,10 +102,15 @@ class _PurchaseOrderPageState extends State<PurchaseOrderPageGovt>
       purchaseOrder.date = new DateTime.now().toIso8601String();
       purchaseOrder.amount = amount;
       purchaseOrder.purchaseOrderNumber = poNumber;
-      purchaseOrder.supplierName = supplier.name;
 
+      AppSnackbar.showSnackbarWithProgressIndicator(
+          scaffoldKey: _scaffoldKey,
+          message: 'Registering purchase order',
+          textColor: Colors.white,
+          backgroundColor: Colors.deepPurple.shade700);
       DataAPI api = DataAPI(widget.url);
       var key = await api.registerPurchaseOrder(purchaseOrder);
+      _scaffoldKey.currentState.hideCurrentSnackBar();
       if (key == '0') {
         AppSnackbar.showErrorSnackbar(
             listener: this,
@@ -109,7 +118,11 @@ class _PurchaseOrderPageState extends State<PurchaseOrderPageGovt>
             message: 'Error submitting purchase order',
             actionLabel: 'close');
       } else {
-        Navigator.pop(context, purchaseOrder);
+        AppSnackbar.showSnackbar(
+            scaffoldKey: _scaffoldKey,
+            message: 'Purchase Order registered',
+            textColor: Colors.white,
+            backgroundColor: Colors.teal.shade700);
       }
     }
   }
@@ -121,17 +134,17 @@ class _PurchaseOrderPageState extends State<PurchaseOrderPageGovt>
               title: new Text("Confirm Purchase Order"),
               content: new Text("Do you want to submit this Purchase Order?"),
               actions: <Widget>[
-                GestureDetector(
-                  onTap: _cancel,
+                FlatButton(
+                  onPressed: _cancel,
                   child: Text(
                     'NO',
                     style: style,
                   ),
                 ),
                 new Padding(
-                  padding: const EdgeInsets.only(left: 28.0),
-                  child: GestureDetector(
-                    onTap: _registerPurchaseOrder,
+                  padding: const EdgeInsets.only(left: 28.0, right: 16.0),
+                  child: FlatButton(
+                    onPressed: _registerPurchaseOrder,
                     child: Text(
                       'YES',
                       style: style,
