@@ -2,43 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="660adc5a-c8c8-4a31-b30d-d6acb1a8cbf3" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/build.yaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../govt/lib/list_api.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../govt/lib/ui/supplier_list_page.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../govt/mlibrary/mlibrary.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.flutter-plugins" beforeDir="false" afterPath="$PROJECT_DIR$/.flutter-plugins" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/api/data_api.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/api/data_api.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/api/list_api.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/api/list_api.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/api/signin.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/api/signin.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/data/auditor.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/data/auditor.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/data/invoice_bid.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/data/invoice_bid.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/data/invoice_offer.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/data/offer.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/data/item.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/data/item.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/data/purchase_order.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/data/purchase_order.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/util/snackbar_util.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/util/snackbar_util.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../crudderv3/.idea/libraries/Dart_Packages.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../crudderv3/.idea/libraries/Dart_Packages.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../crudderv3/.idea/libraries/Flutter_Plugins.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../crudderv3/.idea/libraries/Flutter_Plugins.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../crudderv3/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../crudderv3/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../crudderv3/lib/generator.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../crudderv3/lib/generator.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../crudderv3/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../crudderv3/lib/main.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../crudderv3/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/../crudderv3/pubspec.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/.idea/libraries/Dart_Packages.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../govt/.idea/libraries/Dart_Packages.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/.idea/libraries/Flutter_Plugins.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../govt/.idea/libraries/Flutter_Plugins.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../govt/.idea/modules.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/govt.iml" beforeDir="false" afterPath="$PROJECT_DIR$/../govt/govt.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/lib/ui/dashboard.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../govt/lib/ui/dashboard.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/lib/ui/purchase_order_list.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../govt/lib/ui/purchase_order_list.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/lib/ui/purchase_order_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../govt/lib/ui/purchase_order_page.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/lib/ui/signin_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../govt/lib/ui/signin_page.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/lib/ui/summary_card.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../govt/lib/ui/summary_card.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/../govt/pubspec.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../supplierv3/.idea/libraries/Dart_Packages.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/.idea/libraries/Dart_Packages.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../supplierv3/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../supplierv3/lib/ui/dashboard.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/lib/ui/dashboard.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../supplierv3/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/pubspec.yaml" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <ignored path="../.gradle/4.4/fileChanges/last-build.bin" />
@@ -350,8 +315,8 @@
       <file leaf-file-name="snackbar_util.dart" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/lib/util/snackbar_util.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1994">
-              <caret line="126" column="1" lean-forward="true" selection-start-line="126" selection-start-column="1" selection-end-line="126" selection-end-column="1" />
+            <state relative-caret-position="32">
+              <caret line="3" column="37" selection-start-line="3" selection-start-column="37" selection-end-line="3" selection-end-column="37" />
               <folding>
                 <element signature="e#277#644#0" expanded="true" />
                 <element signature="e#850#1602#0" expanded="true" />
@@ -467,8 +432,8 @@
         <option value="$PROJECT_DIR$/lib/api/list_api.dart" />
         <option value="$PROJECT_DIR$/lib/api/data_api.dart" />
         <option value="$PROJECT_DIR$/pubspec.yaml" />
-        <option value="$PROJECT_DIR$/lib/util/snackbar_util.dart" />
         <option value="$PROJECT_DIR$/lib/api/signin.dart" />
+        <option value="$PROJECT_DIR$/lib/util/snackbar_util.dart" />
       </list>
     </option>
   </component>
@@ -689,7 +654,14 @@
       <option name="project" value="LOCAL" />
       <updated>1529225673697</updated>
     </task>
-    <option name="localTasksCounter" value="12" />
+    <task id="LOCAL-00012" summary="refactored snackbbar + other shit">
+      <created>1529389127728</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1529389127729</updated>
+    </task>
+    <option name="localTasksCounter" value="13" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -770,7 +742,8 @@
     <MESSAGE value="tweaks II" />
     <MESSAGE value="tweaks III" />
     <MESSAGE value="tweaks IV" />
-    <option name="LAST_COMMIT_MESSAGE" value="tweaks IV" />
+    <MESSAGE value="refactored snackbbar + other shit" />
+    <option name="LAST_COMMIT_MESSAGE" value="refactored snackbbar + other shit" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -978,6 +951,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="432">
           <caret line="27" column="58" lean-forward="true" selection-start-line="27" selection-start-column="58" selection-end-line="27" selection-end-column="58" />
+          <folding>
+            <element signature="e#726#1105#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -1102,8 +1078,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/lib/util/snackbar_util.dart">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1994">
-          <caret line="126" column="1" lean-forward="true" selection-start-line="126" selection-start-column="1" selection-end-line="126" selection-end-column="1" />
+        <state relative-caret-position="32">
+          <caret line="3" column="37" selection-start-line="3" selection-start-column="37" selection-end-line="3" selection-end-column="37" />
           <folding>
             <element signature="e#277#644#0" expanded="true" />
             <element signature="e#850#1602#0" expanded="true" />

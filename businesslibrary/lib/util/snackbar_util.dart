@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 
+///Utility class to provide snackbars
 class AppSnackbar {
   static showSnackbar(
       {@required GlobalKey<ScaffoldState> scaffoldKey,
