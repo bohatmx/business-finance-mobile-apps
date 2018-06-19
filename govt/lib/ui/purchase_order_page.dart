@@ -18,7 +18,8 @@ class PurchaseOrderPageGovt extends StatefulWidget {
   _PurchaseOrderPageState createState() => _PurchaseOrderPageState();
 }
 
-class _PurchaseOrderPageState extends State<PurchaseOrderPageGovt> {
+class _PurchaseOrderPageState extends State<PurchaseOrderPageGovt>
+    implements SnackBarListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   final GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
 
@@ -42,7 +43,7 @@ class _PurchaseOrderPageState extends State<PurchaseOrderPageGovt> {
     );
     if (supplier == null) {
       AppSnackbar.showErrorSnackbar(
-          context: context,
+          listener: this,
           scaffoldKey: _scaffoldKey,
           message: 'No supplier found',
           actionLabel: 'Close');
@@ -97,12 +98,13 @@ class _PurchaseOrderPageState extends State<PurchaseOrderPageGovt> {
       purchaseOrder.date = new DateTime.now().toIso8601String();
       purchaseOrder.amount = amount;
       purchaseOrder.purchaseOrderNumber = poNumber;
+      purchaseOrder.supplierName = supplier.name;
 
       DataAPI api = DataAPI(widget.url);
       var key = await api.registerPurchaseOrder(purchaseOrder);
       if (key == '0') {
         AppSnackbar.showErrorSnackbar(
-            context: context,
+            listener: this,
             scaffoldKey: _scaffoldKey,
             message: 'Error submitting purchase order',
             actionLabel: 'close');
@@ -287,5 +289,10 @@ class _PurchaseOrderPageState extends State<PurchaseOrderPageGovt> {
 
   void _cancel() {
     print('_PurchaseOrderPageState._cancel CANCELLED confirm');
+  }
+
+  @override
+  onActionPressed() {
+    print('_PurchaseOrderPageState.onActionPressed .......... Yay!!');
   }
 }

@@ -1,6 +1,11 @@
-import 'package:businesslibrary/data/misc_data.dart';
+import 'package:json_annotation/json_annotation.dart';
 
-class Auditor extends BaseParticipant {
+//part 'auditor.g.dart';
+/*
+extends Object with _$AuditorSerializerMixin
+ */
+@JsonSerializable(nullable: false)
+class Auditor {
   String participantId;
   String name;
   String cellphone;
@@ -19,6 +24,9 @@ class Auditor extends BaseParticipant {
     this.documentReference,
     this.country,
   });
+
+//  factory Auditor.fromJson(Map<String, dynamic> json) =>
+//      _$AuditorFromJson(data);
 
   Auditor.fromJson(Map data) {
     this.participantId = data['participantId'];

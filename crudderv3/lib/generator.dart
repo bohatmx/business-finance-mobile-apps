@@ -10,6 +10,8 @@ import 'package:businesslibrary/data/delivery_note.dart';
 import 'package:businesslibrary/data/govt_entity.dart';
 import 'package:businesslibrary/data/investor.dart';
 import 'package:businesslibrary/data/invoice.dart';
+import 'package:businesslibrary/data/invoice_bid.dart';
+import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/data/oneconnect.dart';
 import 'package:businesslibrary/data/procurement_office.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
@@ -121,8 +123,8 @@ class Generator {
     po.user = NameSpace + 'User#' + user.userId;
     po.supplierName = supplier.name;
     po.reference = 'reference placeholder';
-    po.amount = getRandomAmount();
-    po.purchaseOrderNumber = getRandomPONumber(entity);
+    po.amount = _getRandomAmount();
+    po.purchaseOrderNumber = _getRandomPONumber(entity);
     po.date = today.subtract(new Duration(days: 180)).toIso8601String();
     po.govtDocumentRef = entity.documentReference;
     po.supplierDocumentRef = supplier.documentReference;
@@ -137,8 +139,8 @@ class Generator {
     }
     print('Generator._addSupplierPurchaseOrders delivery note done: $key');
     //////
-    po.purchaseOrderNumber = getRandomPONumber(entity);
-    po.amount = getRandomAmount();
+    po.purchaseOrderNumber = _getRandomPONumber(entity);
+    po.amount = _getRandomAmount();
     po.date = today.subtract(new Duration(days: 120)).toIso8601String();
     key = await dataAPI.registerPurchaseOrder(po);
     if (key == '0') {
@@ -151,8 +153,8 @@ class Generator {
     }
     print('Generator._addSupplierPurchaseOrders delivery note done: $key');
     ////////
-    po.purchaseOrderNumber = getRandomPONumber(entity);
-    po.amount = getRandomAmount();
+    po.purchaseOrderNumber = _getRandomPONumber(entity);
+    po.amount = _getRandomAmount();
     po.date = today.subtract(new Duration(days: 90)).toIso8601String();
     key = await dataAPI.registerPurchaseOrder(po);
     if (key == '0') {
@@ -165,8 +167,8 @@ class Generator {
     }
     print('Generator._addSupplierPurchaseOrders delivery note done: $key');
     ////////
-    po.purchaseOrderNumber = getRandomPONumber(entity);
-    po.amount = getRandomAmount();
+    po.purchaseOrderNumber = _getRandomPONumber(entity);
+    po.amount = _getRandomAmount();
     po.date = today.subtract(new Duration(days: 60)).toIso8601String();
     key = await dataAPI.registerPurchaseOrder(po);
     if (key == '0') {
@@ -179,8 +181,8 @@ class Generator {
     }
     print('Generator._addSupplierPurchaseOrders delivery note done: $key');
     //////
-    po.purchaseOrderNumber = getRandomPONumber(entity);
-    po.amount = getRandomAmount();
+    po.purchaseOrderNumber = _getRandomPONumber(entity);
+    po.amount = _getRandomAmount();
     po.date = today.subtract(new Duration(days: 30)).toIso8601String();
     key = await dataAPI.registerPurchaseOrder(po);
     if (key == '0') {
@@ -193,8 +195,8 @@ class Generator {
     }
     print('Generator._addSupplierPurchaseOrders delivery note done: $key');
     /////
-    po.purchaseOrderNumber = getRandomPONumber(entity);
-    po.amount = getRandomAmount();
+    po.purchaseOrderNumber = _getRandomPONumber(entity);
+    po.amount = _getRandomAmount();
     po.date = today.toIso8601String();
     key = await dataAPI.registerPurchaseOrder(po);
     if (key == '0') {
@@ -247,13 +249,107 @@ class Generator {
     inv.supplierName = supplier.name;
     inv.supplierDocumentRef = supplier.documentReference;
     inv.reference = 'reference placeholder';
-    inv.invoiceNumber = getRandomInvoiceNumber(supplier);
+    inv.invoiceNumber = _getRandomInvoiceNumber(supplier);
 
     var key = await dataAPI.registerInvoice(inv);
+    _addOffer(inv, user, po, supplier);
     return key;
   }
 
-  static String getRandomPONumber(GovtEntity e) {
+  static Future<String> _addOffer(
+      Invoice invoice, User user, PurchaseOrder po, Supplier supplier) async {
+    print(
+        'Generator._addOffer invoice: ${invoice.invoiceNumber} --------------\n\n');
+    Offer offer = new Offer(
+        invoice: NameSpace + 'Invoice#' + invoice.invoiceId,
+        user: NameSpace + 'User#' + user.userId,
+        purchaseOrder: NameSpace + 'PurchaseOrder#' + po.purchaseOrderId,
+        amount: invoice.amount,
+        discountPercent: _getRandomDiscount(),
+        startTime: new DateTime.now().toIso8601String(),
+        endTime:
+            new DateTime.now().add(new Duration(days: 14)).toIso8601String(),
+        participantId: supplier.participantId,
+        privateSectorType: supplier.privateSectorType);
+
+    var key = await dataAPI.makeOffer(offer);
+    return key;
+  }
+
+  static List<Investor> investors = List();
+  // ignore: missing_return
+  static Future<int> generateBids() async {
+    print('Generator.generateBids ################################# \n\n');
+    dataAPI = new DataAPI(Util.getURL());
+    var qs0 = await _fs.collection('investors').getDocuments();
+
+    qs0.documents.forEach((doc) {
+      var inv = new Investor.fromJson(doc.data);
+      inv.documentReference = doc.documentID;
+      investors.add(inv);
+    });
+    doubles.add(1.2);
+    doubles.add(1.3);
+    doubles.add(1.4);
+    doubles.add(1.5);
+    doubles.add(1.6);
+    doubles.add(1.25);
+    doubles.add(1.35);
+    doubles.add(1.15);
+    doubles.add(1.28);
+
+    var qs = await _fs.collection('invoiceOffers').getDocuments();
+
+    qs.documents.forEach((doc) async {
+      var offer = new Offer.fromJson(doc.data);
+      offer.documentReference = doc.documentID;
+      await __processInvestorBids(offer);
+    });
+    print(
+        'Generator.generateBids generated bids for ${qs.documents.length} invoice offers ######### \n\n');
+  }
+
+  // ignore: missing_return
+  static Future<int> __processInvestorBids(Offer offer) async {
+    investors.forEach((inv) async {
+      var result = await _makeBid(offer, inv);
+      if (result > 0) {
+        return result;
+      }
+    });
+  }
+
+  static List<double> doubles = List();
+  static Future<int> _makeBid(Offer offer, Investor inv) async {
+    double offerDiscount = double.parse(offer.discountPercent);
+    int index = rand.nextInt(doubles.length - 1);
+    double investorDiscount = offerDiscount * doubles.elementAt(index);
+
+    double offerAmt = double.parse(offer.amount);
+    double investorAmt = (offerAmt * (100.0 - investorDiscount)) / 100;
+    print(
+        'Generator._makeBid offerAmt  $offerAmt offerDiscount: $offerDiscount investorDiscount: $investorDiscount investorAmt: $investorAmt \n\n');
+
+    InvoiceBid bid = new InvoiceBid(
+      investor: NameSpace + 'Investor#' + inv.participantId,
+      offer: NameSpace + 'Offer#' + offer.offerId,
+      discountPercent: offer.discountPercent,
+      reservePercent: '$investorDiscount',
+      startTime: offer.startTime,
+      endTime: offer.endTime,
+      amount: '$investorAmt',
+      participantId: inv.participantId,
+    );
+
+    var key = await dataAPI.makeInvoiceBid(bid, offer);
+    if (key == '0') {
+      return 1;
+    } else {
+      return 0;
+    }
+  }
+
+  static String _getRandomPONumber(GovtEntity e) {
     var string =
         '${e.name.substring(0,0)}${ rand.nextInt(9)}${ rand.nextInt(9)}'
         '${ rand.nextInt(9)}-${ rand.nextInt(9)}${ rand.nextInt(9)}'
@@ -263,7 +359,7 @@ class Generator {
     return string;
   }
 
-  static String getRandomInvoiceNumber(Supplier e) {
+  static String _getRandomInvoiceNumber(Supplier e) {
     var string =
         '${e.name.substring(0,0)}${ rand.nextInt(9)}${ rand.nextInt(9)}'
         '${ rand.nextInt(9)}-${ rand.nextInt(9)}${ rand.nextInt(9)}'
@@ -273,7 +369,7 @@ class Generator {
     return string;
   }
 
-  static String getRandomAmount() {
+  static String _getRandomAmount() {
     var x = rand.nextInt(100);
     double amt = x * 1000.00;
     if (x > 80) {
@@ -281,6 +377,15 @@ class Generator {
     }
 
     return amt.toStringAsFixed(2);
+  }
+
+  static String _getRandomDiscount() {
+    var x = rand.nextInt(50);
+    if (x < 10) {
+      x = 25;
+    }
+    double amt = x * 1.0;
+    return amt.toStringAsFixed(1);
   }
 
   static Future<int> cleanUp() async {
@@ -429,6 +534,18 @@ class Generator {
         await doc.reference.delete();
       });
       print('Generator.cleanUp auditors deleted from Firestore ##############');
+      var qs11 = await fs.collection('invoiceOffers').getDocuments();
+      qs11.documents.forEach((doc) async {
+        var msnap =
+            await doc.reference.collection('invoiceBids').getDocuments();
+        msnap.documents.forEach((x) async {
+          await x.reference.delete();
+        });
+
+        await doc.reference.delete();
+      });
+      print(
+          'Generator.cleanUp invoiceOffers and invoiceBids deleted from Firestore ##############');
     } catch (e) {
       print('Generator.cleanUp ERROR $e');
       return 1;
@@ -450,7 +567,7 @@ class Generator {
       User u1 = new User(
           firstName: 'Thabo',
           lastName: 'Nkosi',
-          password: 'mpassword123',
+          password: 'pass123',
           email: 'thabo.nkosi@water.gov.za');
       await signUp.signUpGovtEntity(e1, u1);
 
@@ -463,7 +580,7 @@ class Generator {
       User u2 = new User(
           firstName: 'Ntombi',
           lastName: 'Mathebula',
-          password: 'mpassword123',
+          password: 'pass123',
           email: 'ntombi.m@publicworks.gov.za');
       await signUp.signUpGovtEntity(e2, u2);
       print('Generator.generateEntities COMPLETED');
@@ -488,7 +605,7 @@ class Generator {
       User u1 = new User(
           firstName: 'David',
           lastName: 'Mkhize',
-          password: 'mpassword123',
+          password: 'pass123',
           email: 'dmkhize@mkhize.com');
       await signUp.signUpSupplier(e1, u1);
 
@@ -501,7 +618,7 @@ class Generator {
       User u2 = new User(
           firstName: 'Moses',
           lastName: 'Dlamini',
-          password: 'mpassword123',
+          password: 'pass123',
           email: 'ddlam@dlamini.com');
       await signUp.signUpSupplier(e2, u2);
 
@@ -514,7 +631,7 @@ class Generator {
       User u3 = new User(
           firstName: 'Moses',
           lastName: 'Dlamini',
-          password: 'mpassword123',
+          password: 'pass123',
           email: 'mosesd@femevent.com');
       await signUp.signUpSupplier(e3, u3);
 
@@ -527,7 +644,7 @@ class Generator {
       User u4 = new User(
           firstName: 'Daniel',
           lastName: 'Khoza',
-          password: 'mpassword123',
+          password: 'pass123',
           email: 'dkhoza@femevent.com');
       await signUp.signUpSupplier(e4, u4);
 
@@ -540,7 +657,7 @@ class Generator {
       User u5 = new User(
           firstName: 'Daniel',
           lastName: 'Khoza',
-          password: 'mpassword123',
+          password: 'pass123',
           email: 'danielkk@engineers.com');
       await signUp.signUpSupplier(e5, u5);
 
@@ -553,7 +670,7 @@ class Generator {
       User u6 = new User(
           firstName: 'Peter',
           lastName: 'Johnson',
-          password: 'mpassword123',
+          password: 'pass123',
           email: 'petejohn@dhhtransport.com');
       await signUp.signUpSupplier(e6, u6);
 
@@ -566,7 +683,7 @@ class Generator {
       User u7 = new User(
           firstName: 'Susan',
           lastName: 'Oakley-Smith',
-          password: 'mpassword123',
+          password: 'pass123',
           email: 'susanoak@zamatransport.com');
       await signUp.signUpSupplier(e7, u7);
       print('Generator.generateSuppliers COMPLETED');
@@ -590,7 +707,7 @@ class Generator {
       User u1 = new User(
           firstName: 'Robert',
           lastName: 'van der Merwe',
-          password: 'mpassword123',
+          password: 'pass123',
           email: 'robert.vdm@fincap.com');
       await signUp.signUpInvestor(e1, u1);
 
@@ -603,7 +720,7 @@ class Generator {
       User u2 = new User(
           firstName: 'Rogers',
           lastName: 'Smith-Kline',
-          password: 'mpassword123',
+          password: 'pass123',
           email: 'rogers.m@invbrokers.co.za');
       await signUp.signUpInvestor(e2, u2);
       print('Generator.generateInvestors COMPLETED');
@@ -627,7 +744,7 @@ class Generator {
       User u1 = new User(
           firstName: 'Thamsanqa',
           lastName: 'Maluleke',
-          password: 'mpassword123',
+          password: 'pass123',
           email: 'thami.mal@treasury.gov.za');
       await signUp.signUpProcurementOffice(e1, u1);
       print('Generator.generateProcurementOffice COMPLETED');
@@ -651,7 +768,7 @@ class Generator {
       User u1 = new User(
           firstName: 'Maryanne',
           lastName: 'Poppins',
-          password: 'mpassword123',
+          password: 'pass123',
           email: 'marypopl@bankone.com');
       await signUp.signUpBank(e1, u1);
       print('Generator.generateBank COMPLETED');
@@ -675,7 +792,7 @@ class Generator {
       User u1 = new User(
           firstName: 'Johan',
           lastName: 'de Klerk',
-          password: 'mpassword123',
+          password: 'pass123',
           email: 'johanl@auditors.com');
       await signUp.signUpAuditor(e1, u1);
       print('Generator.generateAuditor COMPLETED');
@@ -700,7 +817,7 @@ class Generator {
       User u1 = new User(
           firstName: 'Lesego',
           lastName: 'Grootboom',
-          password: 'mpassword123',
+          password: 'pass123',
           email: 'lesgo@success.co.za');
       await signUp.signUpCompany(e1, u1);
 
@@ -713,7 +830,7 @@ class Generator {
       User u2 = new User(
           firstName: 'James',
           lastName: 'Beach',
-          password: 'mpassword123',
+          password: 'pass123',
           email: 'jamesb@group7.com');
       await signUp.signUpCompany(e2, u2);
       print('Generator.generateCompanies COMPLETED');
@@ -737,7 +854,7 @@ class Generator {
       User u1 = new User(
           firstName: 'Mpho',
           lastName: 'Khunou',
-          password: 'mpassword123',
+          password: 'pass123',
           email: 'mpho@oneconnect.co.za');
       await signUp.signUpOneConnect(e1, u1);
       print('Generator.generateOneConnect COMPLETED');
@@ -747,5 +864,52 @@ class Generator {
     }
 
     return 0;
+  }
+
+  // ignore: missing_return
+  static Future<int> generateOffers() async {
+    dataAPI = new DataAPI(Util.getURL());
+    var qs0 = await _fs.collection('suppliers').getDocuments();
+    print('Generator.generateOffers suppliers: ${qs0.documents.length}');
+    qs0.documents.forEach((doc) async {
+      var qs0a = await doc.reference.collection('invoices').getDocuments();
+      print('Generator.generateOffers invoices: ${qs0a.documents.length}');
+      var snap = qs0a.documents.elementAt(0);
+      Invoice invoice = new Invoice.fromJson(snap.data);
+      invoice.invoiceId = snap.documentID;
+      Offer offer = new Offer(
+        invoice: NameSpace + 'Invoice#' + invoice.invoiceId,
+        amount: invoice.amount,
+        discountPercent: _getRandomDiscount(),
+        startTime: new DateTime.now().toIso8601String(),
+        endTime:
+            new DateTime.now().add(new Duration(days: 14)).toIso8601String(),
+      );
+      var key = await dataAPI.makeOffer(offer);
+      if (key == '0') {
+        print('Generator.generateOffers error - quit.');
+        return 9;
+      }
+//      qs0a.documents.forEach((doc) async {
+//        Offer offer = getOffer(doc);
+//        var key = await dataAPI.makeOffer(offer);
+//        if (key == '0') {
+//          print('Generator.generateOffers error - quit.');
+//          return 9;
+//        }
+//      });
+    });
+  }
+
+  static Offer getOffer(DocumentSnapshot doc) {
+    var invoice = new Invoice.fromJson(doc.data);
+    Offer offer = new Offer(
+      invoice: NameSpace + 'Invoice#' + invoice.invoiceId,
+      amount: invoice.amount,
+      discountPercent: _getRandomDiscount(),
+      startTime: new DateTime.now().toIso8601String(),
+      endTime: new DateTime.now().add(new Duration(days: 14)).toIso8601String(),
+    );
+    return offer;
   }
 }

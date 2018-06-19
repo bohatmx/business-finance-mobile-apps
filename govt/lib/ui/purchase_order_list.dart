@@ -1,12 +1,15 @@
 import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/supplier.dart';
-import 'package:businesslibrary/util/selectors.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:flutter/material.dart';
 import 'package:govt/ui/purchase_order_page.dart';
 import 'package:govt/util.dart';
 
 class PurchaseOrderListPage extends StatefulWidget {
+  final List<PurchaseOrder> purchaseOrders;
+
+  PurchaseOrderListPage(this.purchaseOrders);
+
   @override
   _PurchaseOrderListPageState createState() => _PurchaseOrderListPageState();
 }
@@ -14,8 +17,8 @@ class PurchaseOrderListPage extends StatefulWidget {
 class _PurchaseOrderListPageState extends State<PurchaseOrderListPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   PurchaseOrder purchaseOrder;
-  List<PurchaseOrder> purchaseOrders = List();
   List<Supplier> suppliers;
+  List<PurchaseOrder> purchaseOrders;
 
   @override
   void initState() {
@@ -24,6 +27,7 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage> {
 
   @override
   Widget build(BuildContext context) {
+    purchaseOrders = widget.purchaseOrders;
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
@@ -47,16 +51,13 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage> {
             children: <Widget>[
               new Flexible(
                 child: new ListView.builder(
-                    itemCount: suppliers == null ? 0 : suppliers.length,
+                    itemCount:
+                        purchaseOrders == null ? 0 : purchaseOrders.length,
                     itemBuilder: (BuildContext context, int index) {
                       return new GestureDetector(
-                          onTap: () {
-                            var supp = suppliers.elementAt(index);
-                            print(
-                                'SupplierSelectorPage.build about to pop ${supp.name}');
-                            Navigator.pop(context, supp);
-                          },
-                          child: new SupplierCard(suppliers.elementAt(index)));
+                          onTap: _onPurchaseOrderTapped,
+                          child: new PurchaseOrderCard(
+                              purchaseOrders.elementAt(index)));
                     }),
               ),
             ],
@@ -77,7 +78,6 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage> {
       purchaseOrders.add(purchaseOrder);
       setState(() {});
       AppSnackbar.showSnackbar(
-        context: context,
         scaffoldKey: _scaffoldKey,
         message: 'Purchase Order submitted successfully',
         backgroundColor: Colors.black,
@@ -85,6 +85,8 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage> {
       );
     }
   }
+
+  void _onPurchaseOrderTapped() {}
 }
 
 class PurchaseOrderCard extends StatelessWidget {
@@ -94,13 +96,60 @@ class PurchaseOrderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 2.0,
-      child: Column(
-        children: <Widget>[
-          Row(),
-          Row(),
-        ],
+    return new Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Card(
+        elevation: 2.0,
+        child: Column(
+          children: <Widget>[
+            new Row(
+              children: <Widget>[
+                new Padding(
+                  padding: const EdgeInsets.only(left: 8.0),
+                  child: Icon(Icons.apps),
+                ),
+                new Padding(
+                  padding: const EdgeInsets.only(left: 8.0),
+                  child: Text(
+                    purchaseOrder.supplierName == null
+                        ? 'Unknown Supplier'
+                        : purchaseOrder.supplierName,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                      fontSize: 20.0,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            new Padding(
+              padding: const EdgeInsets.only(left: 40.0, bottom: 20.0),
+              child: Row(
+                children: <Widget>[
+                  new Padding(
+                    padding: const EdgeInsets.only(right: 8.0),
+                    child: Text(
+                      purchaseOrder.purchaseOrderNumber,
+                      style: TextStyle(
+                          fontSize: 14.0, fontWeight: FontWeight.normal),
+                    ),
+                  ),
+                  new Padding(
+                    padding: const EdgeInsets.only(left: 8.0),
+                    child: Text(
+                      purchaseOrder.amount,
+                      style: TextStyle(
+                          fontSize: 14.0,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.teal),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

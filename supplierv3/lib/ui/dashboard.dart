@@ -1,4 +1,5 @@
 import 'package:businesslibrary/api/firestore_list_api.dart';
+import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/delivery_note.dart';
 import 'package:businesslibrary/data/invoice.dart';
@@ -58,15 +59,18 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
     setState(() {});
     print('_MainPageState._getSummaryData SUPPLIER -  ${supplier.toJson()}');
     //get invoices
-    purchaseOrders = await FirestoreListAPI.getSupplierPurchaseOrders(supplier);
+    purchaseOrders = await ListAPI.getPurchaseOrders(
+        supplier.documentReference, 'suppliers');
     setState(() {
       totalPOs = purchaseOrders.length;
     });
-    deliveryNotes = await FirestoreListAPI.getSupplierDeliveryNotes(supplier);
+    deliveryNotes =
+        await ListAPI.getDeliveryNotes(supplier.documentReference, 'suppliers');
     setState(() {
       totalNotes = deliveryNotes.length;
     });
-    invoices = await FirestoreListAPI.getSupplierInvoices(supplier);
+    invoices =
+        await ListAPI.getInvoices(supplier.documentReference, 'suppliers');
     if (invoices.isNotEmpty) {
       lastInvoice = invoices.last;
     }

@@ -5,6 +5,7 @@ import 'package:businesslibrary/data/invoice.dart';
 import 'package:businesslibrary/data/invoice_bid.dart';
 import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
+import 'package:businesslibrary/data/supplier.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ListAPI {
@@ -158,8 +159,8 @@ class ListAPI {
       print('ListAPI.getInvoices $e');
       return null;
     });
-
-    qs.documents.forEach((doc) async {
+    print('ListAPI.getInvoices ............. ))))))) ${qs.documents.length}');
+    qs.documents.forEach((doc) {
       list.add(new Invoice.fromJson(doc.data));
     });
 
@@ -182,11 +183,31 @@ class ListAPI {
       return null;
     });
 
-    qs.documents.forEach((doc) async {
+    qs.documents.forEach((doc) {
       list.add(new DeliveryNote.fromJson(doc.data));
     });
 
     print('ListAPI.getDeliveryNotes ############ found: ${list.length}');
+    return list;
+  }
+
+  static Future<List<Supplier>> getSuppliers() async {
+    print('ListAPI.getSuppliers .......  ');
+    List<Supplier> list = List();
+    var qs = await _firestore
+        .collection('suppliers')
+        .orderBy('name')
+        .getDocuments()
+        .catchError((e) {
+      print('ListAPI.getSuppliers $e');
+      return null;
+    });
+
+    qs.documents.forEach((doc) {
+      list.add(new Supplier.fromJson(doc.data));
+    });
+
+    print('ListAPI.getSuppliers ############ found: ${list.length}');
     return list;
   }
 }

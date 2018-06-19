@@ -3,12 +3,11 @@ import 'package:meta/meta.dart';
 
 class AppSnackbar {
   static showSnackbar(
-      {@required BuildContext context,
-      @required GlobalKey<ScaffoldState> scaffoldKey,
+      {@required GlobalKey<ScaffoldState> scaffoldKey,
       @required String message,
       @required Color textColor,
       @required Color backgroundColor}) {
-    if (scaffoldKey.currentState == null || context == null) {
+    if (scaffoldKey.currentState == null) {
       return;
     }
     scaffoldKey.currentState.hideCurrentSnackBar();
@@ -23,12 +22,11 @@ class AppSnackbar {
   }
 
   static showSnackbarWithProgressIndicator(
-      {@required BuildContext context,
-      @required GlobalKey<ScaffoldState> scaffoldKey,
+      {@required GlobalKey<ScaffoldState> scaffoldKey,
       @required String message,
       @required Color textColor,
       @required Color backgroundColor}) {
-    if (scaffoldKey.currentState == null || context == null) {
+    if (scaffoldKey.currentState == null) {
       return;
     }
     scaffoldKey.currentState.hideCurrentSnackBar();
@@ -36,7 +34,7 @@ class AppSnackbar {
       content: new Row(
         children: <Widget>[
           new Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.only(left: 8.0, right: 20.0),
             child: new Container(
               height: 40.0,
               width: 40.0,
@@ -51,20 +49,20 @@ class AppSnackbar {
           ),
         ],
       ),
-      duration: new Duration(minutes: 3),
+      duration: new Duration(minutes: 5),
       backgroundColor: backgroundColor,
     ));
   }
 
   static showSnackbarWithAction(
-      {@required BuildContext context,
-      @required GlobalKey<ScaffoldState> scaffoldKey,
+      {@required GlobalKey<ScaffoldState> scaffoldKey,
       @required String message,
       @required Color textColor,
       @required Color backgroundColor,
       @required String actionLabel,
+      @required SnackBarListener listener,
       @required IconData icon}) {
-    if (scaffoldKey.currentState == null || context == null) {
+    if (scaffoldKey.currentState == null) {
       return;
     }
     scaffoldKey.currentState.hideCurrentSnackBar();
@@ -72,7 +70,7 @@ class AppSnackbar {
       content: new Row(
         children: <Widget>[
           new Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.only(left: 8.0, right: 20.0),
             child: new Container(
               height: 40.0,
               width: 40.0,
@@ -85,41 +83,45 @@ class AppSnackbar {
           ),
         ],
       ),
-      duration: new Duration(minutes: 3),
+      duration: new Duration(minutes: 5),
       backgroundColor: backgroundColor,
       action: SnackBarAction(
         label: actionLabel,
         onPressed: () {
-          Navigator.pop(context);
+          listener.onActionPressed();
         },
       ),
     ));
   }
 
   static showErrorSnackbar(
-      {@required BuildContext context,
-      @required GlobalKey<ScaffoldState> scaffoldKey,
+      {@required GlobalKey<ScaffoldState> scaffoldKey,
       @required String message,
+      @required SnackBarListener listener,
       @required String actionLabel}) {
-    if (scaffoldKey.currentState == null || context == null) {
+    if (scaffoldKey.currentState == null) {
       return;
     }
     scaffoldKey.currentState.hideCurrentSnackBar();
     var snackbar = new SnackBar(
       content: new Text(
         message,
-        style: new TextStyle(color: Colors.yellow),
+        style: new TextStyle(color: Colors.white),
       ),
       duration: new Duration(seconds: 20),
       backgroundColor: Colors.red.shade900,
       action: SnackBarAction(
         label: actionLabel,
         onPressed: () {
-          Navigator.pop(context);
+          listener.onActionPressed();
         },
       ),
     );
 
     scaffoldKey.currentState.showSnackBar(snackbar);
   }
+}
+
+abstract class SnackBarListener {
+  onActionPressed();
 }

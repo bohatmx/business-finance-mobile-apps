@@ -29,49 +29,67 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
 
+  void _generateBids() async {
+    await Generator.generateBids();
+    setState(() {
+      _counter++;
+    });
+  }
+
+  void _generateOffers() async {
+    var result = await Generator.generateOffers();
+    setState(() {
+      _counter++;
+    });
+    if (result > 0) {
+      print(
+          '_MyHomePageState._generateOffers. it did not end well. @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@');
+    }
+  }
+
   void _generate() async {
-//    await Generator.cleanUp();
-//    setState(() {
-//      _counter++;
-//    });
-//    await Generator.generateEntities();
-//    setState(() {
-//      _counter++;
-//    });
-//    await Generator.generateSuppliers();
-//    setState(() {
-//      _counter++;
-//    });
-//
-//    await Generator.generateInvestors();
-//    setState(() {
-//      _counter++;
-//    });
-//    await Generator.generateProcurementOffice();
-//    setState(() {
-//      _counter++;
-//    });
-//    await Generator.generateBank();
-//    setState(() {
-//      _counter++;
-//    });
-//    await Generator.generateAuditor();
-//    setState(() {
-//      _counter++;
-//    });
-//    await Generator.generateCompanies();
-//    setState(() {
-//      _counter++;
-//    });
+    await Generator.cleanUp();
+    setState(() {
+      _counter++;
+    });
+    await Generator.generateEntities();
+    setState(() {
+      _counter++;
+    });
+    await Generator.generateSuppliers();
+    setState(() {
+      _counter++;
+    });
+
+    await Generator.generateInvestors();
+    setState(() {
+      _counter++;
+    });
+    await Generator.generateProcurementOffice();
+    setState(() {
+      _counter++;
+    });
+    await Generator.generateBank();
+    setState(() {
+      _counter++;
+    });
+    await Generator.generateAuditor();
+    setState(() {
+      _counter++;
+    });
+    await Generator.generateCompanies();
+    setState(() {
+      _counter++;
+    });
     await Generator.generateOneConnect();
     setState(() {
       _counter++;
     });
 
-//    await Generator.generatePurchaseOrders();
-//    setState(() {
-//      _counter++;
-//    });
+    await Generator.generatePurchaseOrders();
+    setState(() {
+      _counter++;
+    });
   }
 
   @override
@@ -125,6 +143,44 @@ class _MyHomePageState extends State<MyHomePage> {
                             fontSize: 80.0,
                             fontWeight: FontWeight.w900,
                             color: Colors.teal),
+                      ),
+                      new Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: new Container(
+                          width: 200.0,
+                          child: RaisedButton(
+                            elevation: 16.0,
+                            onPressed: _generateOffers,
+                            color: Colors.blue.shade700,
+                            child: new Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(
+                                'Generate Offers',
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 20.0),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      new Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: new Container(
+                          width: 200.0,
+                          child: RaisedButton(
+                            elevation: 8.0,
+                            onPressed: _generateBids,
+                            color: Colors.pink,
+                            child: new Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(
+                                'Generate Bids',
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 20.0),
+                              ),
+                            ),
+                          ),
+                        ),
                       ),
                     ],
                   ),

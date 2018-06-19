@@ -11,9 +11,9 @@ import 'package:businesslibrary/data/govt_entity.dart';
 import 'package:businesslibrary/data/investor.dart';
 import 'package:businesslibrary/data/invoice.dart';
 import 'package:businesslibrary/data/invoice_bid.dart';
-import 'package:businesslibrary/data/invoice_offer.dart';
 import 'package:businesslibrary/data/invoice_settlement.dart';
 import 'package:businesslibrary/data/item.dart';
+import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/data/oneconnect.dart';
 import 'package:businesslibrary/data/procurement_office.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
@@ -27,6 +27,7 @@ class DataAPI {
   final String url;
 
   DataAPI(this.url);
+
   final Firestore _firestore = Firestore.instance;
   static const GOVT_ENTITY = 'GovtEntity',
       USER = 'User',
@@ -553,7 +554,7 @@ class DataAPI {
   }
 
   Future<String> addPurchaseOrderItem(
-      Item item, PurchaseOrder purchaseOrder) async {
+      PurchaseOrderItem item, PurchaseOrder purchaseOrder) async {
     String path, documentId, participantId;
     if (purchaseOrder.govtEntity != null) {
       path = 'govtEntities';
@@ -580,7 +581,7 @@ class DataAPI {
     return await _addItem(item);
   }
 
-  Future<String> _addItem(Item item) async {
+  Future<String> _addItem(PurchaseOrderItem item) async {
     item.itemId = getKey();
 
     try {
@@ -817,41 +818,54 @@ class DataAPI {
     }
   }
 
-  Future<String> makeInvoiceOffer(InvoiceOffer offer) async {
+  Future<String> makeOffer(Offer offer) async {
+    offer.offerId = getKey();
+    offer.date = new DateTime.now().toIso8601String();
     var ref = await _firestore
         .collection('invoiceOffers')
         .add(offer.toJson())
         .catchError((e) {
-      print('DataAPI.makeInvoiceOffer ERROR $e');
+      print('DataAPI.makeOffer ERROR $e');
       return '0';
     });
-    print('DataAPI.makeInvoiceOffer added to Firestore: ${ref.path}');
+    print('DataAPI.makeOffer added to Firestore: ${ref.path}');
 
-    offer.invoiceOfferId = getKey();
     offer.documentReference = ref.documentID;
 
+    print('DataAPI.makeOffer  ${url + 'MakeOffer'}');
+    print('DataAPI.makeOffer ${offer.toJson()}');
     try {
+      Map map = offer.toJson();
+      var mjson = json.encode(map);
       var httpClient = new HttpClient();
       HttpClientRequest mRequest =
-          await httpClient.postUrl(Uri.parse(url + MAKE_INVOICE_OFFER));
+          await httpClient.postUrl(Uri.parse(url + 'MakeOffer'));
       mRequest.headers.contentType = _contentType;
-      mRequest.write(offer.toJson());
+      mRequest.write(mjson);
       HttpClientResponse mResponse = await mRequest.close();
-      print(
-          'DataAPI.makeInvoiceOffer response status code:  ${mResponse.statusCode}');
+      print('DataAPI.makeOffer response status code:  ${mResponse.statusCode}');
       if (mResponse.statusCode == 200) {
-        return offer.invoiceOfferId;
+        return offer.offerId;
       } else {
-        print('DataAPI.makeInvoiceOffer ERROR  ${mResponse.reasonPhrase}');
+        ref.delete();
+        print('DataAPI.makeOffer ERROR - doc deleted from firestore');
+        mResponse.transform(utf8.decoder).listen((contents) {
+          print('DataAPI.makeOffer ERROR  $contents');
+        });
+        print('DataAPI.MakeOffer ERROR  ${mResponse.reasonPhrase}');
         return '0';
       }
     } catch (e) {
-      print('DataAPI.makeInvoiceOffer ERROR $e');
+      ref.delete();
+      print('DataAPI.MakeOffer ERROR $e');
       return '0';
     }
   }
 
-  Future<String> makeInvoiceBid(InvoiceBid bid, InvoiceOffer offer) async {
+  Future<String> makeInvoiceBid(InvoiceBid bid, Offer offer) async {
+    assert(offer.documentReference != null);
+    bid.invoiceBidId = getKey();
+    bid.date = new DateTime.now().toIso8601String();
     var ref = await _firestore
         .collection('invoiceOffers')
         .document(offer.documentReference)
@@ -863,24 +877,31 @@ class DataAPI {
     });
     print('DataAPI.makeInvoiceBid added to Firestore: ${ref.path}');
 
-    bid.invoiceBidId = getKey();
     bid.documentReference = ref.documentID;
+    print('DataAPI.makeInvoiceBid ${url + MAKE_INVOICE_BID}');
     try {
+      Map map = bid.toJson();
+      var mjson = json.encode(map);
       var httpClient = new HttpClient();
       HttpClientRequest mRequest =
           await httpClient.postUrl(Uri.parse(url + MAKE_INVOICE_BID));
       mRequest.headers.contentType = _contentType;
-      mRequest.write(bid.toJson());
+      mRequest.write(mjson);
       HttpClientResponse mResponse = await mRequest.close();
       print(
           'DataAPI.makeInvoiceBid response status code:  ${mResponse.statusCode}');
       if (mResponse.statusCode == 200) {
         return bid.invoiceBidId;
       } else {
+        ref.delete();
+        mResponse.transform(utf8.decoder).listen((contents) {
+          print('DataAPI.makeInvoiceBid  $contents');
+        });
         print('DataAPI.makeInvoiceBid ERROR  ${mResponse.reasonPhrase}');
         return '0';
       }
     } catch (e) {
+      ref.delete();
       print('DataAPI.makeInvoiceBid ERROR $e');
       return '0';
     }

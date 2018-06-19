@@ -2,6 +2,8 @@ import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/api/signin.dart';
 import 'package:businesslibrary/data/govt_entity.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:govt/ui/dashboard.dart';
 
@@ -10,17 +12,26 @@ class SignInPage extends StatefulWidget {
   _SignInPageState createState() => _SignInPageState();
 }
 
-class _SignInPageState extends State<SignInPage> {
+class _SignInPageState extends State<SignInPage> implements SnackBarListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   var adminEmail, password, adminCellphone, idNumber;
   final GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
-
+  static FirebaseAuth _auth = FirebaseAuth.instance;
+  static Firestore _firestore = Firestore.instance;
   GovtEntity govtEntity;
 
   String participationId;
   List<DropdownMenuItem> items = List();
 
-  var sectorType;
+  String sectorType;
+  bool busy = false;
+  @override
+  void initState() {
+    super.initState();
+    // _test();
+  }
+
+  //thabo.nkosi@water.gov.za
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -84,12 +95,12 @@ class _SignInPageState extends State<SignInPage> {
                       child: new Padding(
                         padding: const EdgeInsets.all(12.0),
                         child: Text(
-                          'Submit SignUp',
+                          'Submit Sign In',
                           style: TextStyle(color: Colors.white, fontSize: 20.0),
                         ),
                       ),
                     ),
-                  )
+                  ),
                 ],
               ),
             ),
@@ -100,32 +111,35 @@ class _SignInPageState extends State<SignInPage> {
   }
 
   void _onSavePressed() async {
+    if (busy == true) {
+      print('_SignInPageState._onSavePressed I am busy ... so piss off!');
+      return;
+    }
     final form = _formKey.currentState;
     if (form.validate()) {
       form.save();
-
+      AppSnackbar.showSnackbarWithProgressIndicator(
+          scaffoldKey: _scaffoldKey,
+          message: 'BFN authenticating ... wait',
+          textColor: Colors.white,
+          backgroundColor: Colors.black);
+      busy = true;
       var result = await SignIn.signIn(adminEmail, password);
-
+      busy = false;
+      _scaffoldKey.currentState.hideCurrentSnackBar();
       switch (result) {
         case SignIn.Success:
-          print('_SignInPageState._onSavePressed SUCCESS!!!!!!');
+          print(
+              '_SignInPageState._onSavePressed SUCCESS!!!!!! User has signed in  ############');
 
           govtEntity = await SharedPrefs.getGovEntity();
           if (govtEntity == null) {
             AppSnackbar.showErrorSnackbar(
-                context: context,
+                listener: this,
                 scaffoldKey: _scaffoldKey,
                 message: 'Unable to sign you in as a Government Entity',
                 actionLabel: "close");
           } else {
-            AppSnackbar.showSnackbarWithAction(
-                context: context,
-                scaffoldKey: _scaffoldKey,
-                message: 'Government Entity Sign In successful',
-                textColor: Colors.white,
-                backgroundColor: Colors.teal,
-                actionLabel: 'Start',
-                icon: Icons.lock_open);
             Navigator.push(
               context,
               new MaterialPageRoute(builder: (context) => new Dashboard()),
@@ -135,7 +149,7 @@ class _SignInPageState extends State<SignInPage> {
         case SignIn.ErrorDatabase:
           print('_SignInPageState._onSavePressed  ErrorDatabase');
           AppSnackbar.showErrorSnackbar(
-              context: context,
+              listener: this,
               scaffoldKey: _scaffoldKey,
               message: 'Error  in Databbasep',
               actionLabel: "Support");
@@ -143,7 +157,7 @@ class _SignInPageState extends State<SignInPage> {
         case SignIn.ErrorNoOwningEntity:
           print('_SignInPageState._onSavePressed  ErrorNoOwningEntity');
           AppSnackbar.showErrorSnackbar(
-              context: context,
+              listener: this,
               scaffoldKey: _scaffoldKey,
               message: 'Missing or Invalid data in the form',
               actionLabel: "Support");
@@ -151,12 +165,33 @@ class _SignInPageState extends State<SignInPage> {
         case SignIn.ErrorUserNotInDatabase:
           print('_SignInPageState._onSavePressed  ErrorUserNotInDatabase');
           AppSnackbar.showErrorSnackbar(
-              context: context,
+              listener: this,
               scaffoldKey: _scaffoldKey,
               message: 'User not found',
               actionLabel: "Close");
           break;
+        case SignIn.ErrorSignIn:
+          print('_SignInPageState._onSavePressed  ErrorUserNotInDatabase');
+          AppSnackbar.showErrorSnackbar(
+              scaffoldKey: _scaffoldKey,
+              listener: this,
+              message: 'User authentication failed. Try again',
+              actionLabel: "Close");
+          break;
+        default:
+          print('_SignInPageState._onSavePressed  ErrorUserNotInDatabase');
+          AppSnackbar.showErrorSnackbar(
+              scaffoldKey: _scaffoldKey,
+              listener: this,
+              message: 'User authentication failed. Unknown error',
+              actionLabel: "Close");
+          break;
       }
     }
+  }
+
+  @override
+  onActionPressed() {
+    print('_SignInPageState.onActionPressed ============= Yay!!');
   }
 }

@@ -5,6 +5,7 @@ import 'package:businesslibrary/data/auditor.dart';
 import 'package:businesslibrary/data/company.dart';
 import 'package:businesslibrary/data/govt_entity.dart';
 import 'package:businesslibrary/data/investor.dart';
+import 'package:businesslibrary/data/oneconnect.dart';
 import 'package:businesslibrary/data/procurement_office.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
@@ -21,17 +22,30 @@ class SignIn {
       ErrorDatabase = 3,
       ErrorNoOwningEntity = 4;
 
+  ///Existing user signs into BFN  and cahes data to SharedPrefs
   static Future<int> signIn(String email, String password) async {
-    var fbbUser = await _auth
-        .signInWithEmailAndPassword(email: email, password: password)
-        .catchError((e) {
-      print('SignIn.signIn ERROR $e');
-      return ErrorSignIn;
-    });
-    if (fbbUser == null) {
+    print('SignIn.signIn ++++++++++++++++ Firebase  $email $password +++++++');
+    print('SignIn.signIn: ***** 7:56 AM version ****');
+
+    FirebaseUser fbUser;
+    try {
+      fbUser = await _auth
+          .signInWithEmailAndPassword(email: email, password: password)
+          .catchError((e) {
+        print('SignIn.signIn: ------------ fucking *&%*fukIUHUB^!!  ERROR! $e');
+        return ErrorSignIn;
+      });
+
+      if (fbUser == null) {
+        return ErrorSignIn;
+      }
+    } catch (e) {
+      print(
+          'SignIn.signIn:------------->>> FIREBASE AUTHENTICATION ERROR - $e');
       return ErrorSignIn;
     }
     //get user from Firestore
+    print('SignIn.signIn: ......... get user from Firestore');
     var querySnapshot = await _firestore
         .collection('users')
         .where('email', isEqualTo: email)
@@ -43,12 +57,21 @@ class SignIn {
     User user;
     querySnapshot.documents.forEach((doc) {
       user = new User.fromJson(doc.data);
+      user.documentReference = doc.documentID;
     });
+
+    if (user == null) {
+      print('SignIn.signIn ERROR  user not found in Firestore ---------------');
+      return ErrorSignIn;
+    }
+    print('SignIn.signIn: so far, so good, about  to save user ');
     await SharedPrefs.saveUser(user);
     return await getOwningEntity(user);
   }
 
   static Future<int> getOwningEntity(User user) async {
+    print(
+        'SignIn.getOwningEntity: .... .....  ${user.firstName} ${user.lastName}');
     if (user.govtEntity != null) {
       var partId = user.govtEntity.split("#").elementAt(1);
       var qSnap = await _firestore
@@ -61,7 +84,12 @@ class SignIn {
       GovtEntity govtEntity;
       qSnap.documents.forEach((doc) {
         govtEntity = new GovtEntity.fromJson(doc.data);
+        govtEntity.documentReference = doc.documentID;
       });
+      if (govtEntity == null) {
+        print('SignIn.signIn ERROR  govtEntity not found in Firestore');
+        return ErrorSignIn;
+      }
       await SharedPrefs.saveGovtEntity(govtEntity);
       return Success;
     }
@@ -78,7 +106,12 @@ class SignIn {
       Supplier supplier;
       qSnap.documents.forEach((doc) {
         supplier = new Supplier.fromJson(doc.data);
+        supplier.documentReference = doc.documentID;
       });
+      if (supplier == null) {
+        print('SignIn.signIn ERROR  supplier not found in Firestore');
+        return ErrorSignIn;
+      }
       await SharedPrefs.saveSupplier(supplier);
       return Success;
     }
@@ -94,7 +127,12 @@ class SignIn {
       Company company;
       qSnap.documents.forEach((doc) {
         company = new Company.fromJson(doc.data);
+        company.documentReference = doc.documentID;
       });
+      if (company == null) {
+        print('SignIn.signIn ERROR  company not found in Firestore');
+        return ErrorSignIn;
+      }
       await SharedPrefs.saveCompany(company);
       return Success;
     }
@@ -110,7 +148,12 @@ class SignIn {
       Auditor auditor;
       qSnap.documents.forEach((doc) {
         auditor = new Auditor.fromJson(doc.data);
+        auditor.documentReference = doc.documentID;
       });
+      if (auditor == null) {
+        print('SignIn.signIn ERROR  auditor not found in Firestore');
+        return ErrorSignIn;
+      }
       await SharedPrefs.saveAuditor(auditor);
       return Success;
     }
@@ -126,7 +169,12 @@ class SignIn {
       ProcurementOffice office;
       qSnap.documents.forEach((doc) {
         office = new ProcurementOffice.fromJson(doc.data);
+        office.documentReference = doc.documentID;
       });
+      if (office == null) {
+        print('SignIn.signIn ERROR  office not found in Firestore');
+        return ErrorSignIn;
+      }
       await SharedPrefs.saveProcurementOffice(office);
       return Success;
     }
@@ -142,7 +190,12 @@ class SignIn {
       Investor investor;
       qSnap.documents.forEach((doc) {
         investor = new Investor.fromJson(doc.data);
+        investor.documentReference = doc.documentID;
       });
+      if (investor == null) {
+        print('SignIn.signIn ERROR  investor not found in Firestore');
+        return ErrorSignIn;
+      }
       await SharedPrefs.saveInvestor(investor);
       return Success;
     }
@@ -155,11 +208,15 @@ class SignIn {
           .catchError((e) {
         return ErrorNoOwningEntity;
       });
-      Supplier supplier;
+      OneConnect one;
       qSnap.documents.forEach((doc) {
-        supplier = new Supplier.fromJson(doc.data);
+        one = new OneConnect.fromJson(doc.data);
       });
-      await SharedPrefs.saveSupplier(supplier);
+      if (one == null) {
+        print('SignIn.signIn ERROR  OneConnect not found in Firestore');
+        return ErrorSignIn;
+      }
+      await SharedPrefs.saveOneConnect(one);
       return Success;
     }
 

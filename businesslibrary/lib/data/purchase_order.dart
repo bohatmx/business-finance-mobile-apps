@@ -1,3 +1,5 @@
+import 'package:businesslibrary/data/item.dart';
+
 class PurchaseOrder {
   String supplier, company, govtEntity, user;
   String purchaseOrderId;
@@ -14,6 +16,7 @@ class PurchaseOrder {
       companyDocumentRef;
   String purchaseOrderNumber;
   String purchaseOrderURL;
+  List<PurchaseOrderItem> items;
 
   PurchaseOrder(
       {this.supplier,
@@ -33,6 +36,7 @@ class PurchaseOrder {
       this.companyDocumentRef,
       this.purchaseOrderNumber,
       this.supplierName,
+      this.items,
       this.purchaseOrderURL});
 
   PurchaseOrder.fromJson(Map data) {
@@ -54,7 +58,29 @@ class PurchaseOrder {
     this.govtDocumentRef = data['govtDocumentRef'];
     this.companyDocumentRef = data['companyDocumentRef'];
     this.supplierName = data['supplierName'];
+    this.items = List();
   }
+
+  Map<String, dynamic> toJsonWithDynamic() => <String, dynamic>{
+        'supplier': supplier,
+        'purchaseOrderId': purchaseOrderId,
+        'company': company,
+        'govtEntity': govtEntity,
+        'user': user,
+        'date': date,
+        'deliveryDateRequired': deliveryDateRequired,
+        'amount': amount,
+        'description': description,
+        'deliveryAddress': deliveryAddress,
+        'reference': reference,
+        'purchaseOrderNumber': purchaseOrderNumber,
+        'purchaseOrderURL': purchaseOrderURL,
+        'documentReference': documentReference,
+        'supplierDocumentRef': supplierDocumentRef,
+        'govtDocumentRef': govtDocumentRef,
+        'companyDocumentRef': companyDocumentRef,
+        'supplierName': supplierName,
+      };
   Map<String, String> toJson() => <String, String>{
         'supplier': supplier,
         'purchaseOrderId': purchaseOrderId,

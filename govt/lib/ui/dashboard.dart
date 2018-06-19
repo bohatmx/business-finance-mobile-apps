@@ -7,6 +7,7 @@ import 'package:businesslibrary/data/invoice_settlement.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:flutter/material.dart';
+import 'package:govt/list_api.dart';
 import 'package:govt/ui/purchase_order_list.dart';
 import 'package:govt/ui/summary_card.dart';
 
@@ -46,24 +47,32 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
 
   ///get  summaries from Firestore
   _getSummaryData() async {
+    print('_DashboardState._getSummaryData ..................................');
     user = await SharedPrefs.getUser();
     fullName = user.firstName + ' ' + user.lastName;
     govtEntity = await SharedPrefs.getGovEntity();
     assert(govtEntity != null);
     name = govtEntity.name;
+    print(
+        '_DashboardState._getSummaryData govt doc id: ${govtEntity.documentReference}');
     setState(() {});
     print(
         '_MainPageState._getSummaryData GOVT_ENTITY -  ${govtEntity.toJson()}');
     //get invoices
-    purchaseOrders = await FirestoreListAPI.getGovtPurchaseOrders(govtEntity);
+    purchaseOrders = await ListAPI.getPurchaseOrders(
+        govtEntity.documentReference, 'govtEntities');
+    print(
+        '_DashboardState._getSummaryData @@@ purchaseOrders: ${purchaseOrders.length}');
     setState(() {
       totalPOs = purchaseOrders.length;
     });
-    deliveryNotes = await FirestoreListAPI.getGovtDeliveryNotes(govtEntity);
+    deliveryNotes = await ListAPI.getDeliveryNotes(
+        govtEntity.documentReference, 'govtEntities');
     setState(() {
       totalNotes = deliveryNotes.length;
     });
-    invoices = await FirestoreListAPI.getGovtInvoices(govtEntity);
+    invoices =
+        await ListAPI.getInvoices(govtEntity.documentReference, 'govtEntities');
     if (invoices.isNotEmpty) {
       lastInvoice = invoices.last;
     }
@@ -187,9 +196,6 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                       child: SummaryCard(
                         total: totalPayments == null ? 0 : totalPayments,
                         label: 'Payments',
-                        date: '30 December 2018',
-                        lastLabel: 'Last:',
-                        amount: 450300.95,
                         totalStyle: paymentStyle,
                       ),
                     ),
@@ -198,9 +204,6 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                       child: SummaryCard(
                         total: totalInvoices == null ? 0 : totalInvoices,
                         label: 'Invoices',
-                        date: lastInvoice == null ? '' : lastInvoice.date,
-                        lastLabel: 'Last:',
-                        amount: lastInvoice == null ? 0.0 : lastInvoice.amount,
                         totalStyle: invoiceStyle,
                       ),
                     ),
@@ -209,9 +212,6 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                       child: SummaryCard(
                         total: totalPOs == null ? 0 : totalPOs,
                         label: 'Purchase Orders',
-                        date: lastPO == null ? '' : lastPO.date,
-                        lastLabel: 'Last:',
-                        amount: lastPO == null ? 0.0 : lastPO.amount,
                         totalStyle: poStyle,
                       ),
                     ),
@@ -220,9 +220,6 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                       child: SummaryCard(
                         total: totalNotes == null ? 0 : totalNotes,
                         label: 'Delivery Notes',
-                        date: lastNote == null ? '' : lastNote.date,
-                        lastLabel: 'Last:',
-                        amount: 0.00,
                         totalStyle: delNoteStyle,
                       ),
                     ),
@@ -259,7 +256,8 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
     print('_MainPageState._onPurchaseOrdersTapped  go to list of pos');
     Navigator.push(
       context,
-      new MaterialPageRoute(builder: (context) => new PurchaseOrderListPage()),
+      new MaterialPageRoute(
+          builder: (context) => new PurchaseOrderListPage(purchaseOrders)),
     );
   }
 

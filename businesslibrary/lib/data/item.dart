@@ -1,8 +1,8 @@
-class Item {
+class PurchaseOrderItem {
   String itemId, item, purchaseOrder;
   String price, quantity, amount;
 
-  Item(
+  PurchaseOrderItem(
       {this.item,
       this.itemId,
       this.price,
@@ -10,7 +10,7 @@ class Item {
       this.amount,
       this.purchaseOrder});
 
-  Item.fromJson(Map data) {
+  PurchaseOrderItem.fromJson(Map data) {
     this.item = data['item'];
     this.price = data['price'];
     this.quantity = data['quantity'];
