@@ -1,12 +1,9 @@
-import 'dart:convert';
-
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:supplierv3/ui/dashboard.dart';
 import 'package:supplierv3/ui/signin_page.dart';
@@ -14,7 +11,6 @@ import 'package:supplierv3/ui/signup_page.dart';
 
 void main() => runApp(new SupplierApp());
 
-final FirebaseMessaging _firebaseMessaging = new FirebaseMessaging();
 final FirebaseAuth _auth = FirebaseAuth.instance;
 
 class SupplierApp extends StatelessWidget {
@@ -50,7 +46,6 @@ class _StartPageState extends State<StartPage> {
   @override
   initState() {
     super.initState();
-    _configMessaging();
     checkUser();
   }
 
@@ -69,53 +64,6 @@ class _StartPageState extends State<StartPage> {
         new MaterialPageRoute(builder: (context) => new Dashboard()),
       );
     }
-  }
-
-  void _configMessaging() async {
-    supplier = await SharedPrefs.getSupplier();
-    print(
-        '_MyHomePageState._configMessaging starting _firebaseMessaging config shit');
-    _firebaseMessaging.configure(
-      onMessage: (Map<String, dynamic> message) {
-        print(
-            '_StartPageState._configMessaging "onMessage: expecting purchase order, settlement, invoiceBid, or error mesage via FCM $message');
-        var messageType = message["messageType"];
-        if (messageType == "PURCHASE_ORDER") {
-          print(
-              '_StartPageState._configMessaging: receiving PURCHASE_ORDER message  from FCM');
-          Map map = json.decode(message["json"]);
-          var po = new PurchaseOrder.fromJson(map);
-          assert(po != null);
-
-          receivedPurchaseOrder(po);
-        }
-      },
-      onLaunch: (Map<String, dynamic> message) {},
-      onResume: (Map<String, dynamic> message) {},
-    );
-
-    _firebaseMessaging.requestNotificationPermissions(
-        const IosNotificationSettings(sound: true, badge: true, alert: true));
-
-    _firebaseMessaging.onIosSettingsRegistered
-        .listen((IosNotificationSettings settings) {
-      print("Settings registered: $settings");
-    });
-
-    _firebaseMessaging.getToken().then((String token) async {
-      assert(token != null);
-      var oldToken = await SharedPrefs.getFCMToken();
-      if (token != oldToken) {
-        await SharedPrefs.saveFCMToken(token);
-        //  TODO - update user's token on Firestore
-        print('_MyHomePageState._configMessaging fcm token saved: $token');
-      } else {
-        print(
-            '_StartPageState._configMessaging: token has not changed. no need to save');
-      }
-    }).catchError((e) {
-      print('_MyHomePageState._configMessaging ERROR fcmToken ');
-    });
   }
 
   @override

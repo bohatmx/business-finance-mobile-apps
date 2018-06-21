@@ -22,6 +22,7 @@ class _DeliveryNotePageState extends State<DeliveryNotePage>
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   PurchaseOrder _purchaseOrder;
   User _user;
+  String userName;
 
   @override
   void initState() {
@@ -31,6 +32,7 @@ class _DeliveryNotePageState extends State<DeliveryNotePage>
 
   _getUser() async {
     _user = await SharedPrefs.getUser();
+    userName = _user.firstName + ' ' + _user.lastName;
   }
 
   var styleLabels = TextStyle(
@@ -61,7 +63,7 @@ class _DeliveryNotePageState extends State<DeliveryNotePage>
       appBar: AppBar(
         title: Text(
           'Delivery Note',
-          style: TextStyle(fontWeight: FontWeight.w900),
+          style: TextStyle(fontWeight: FontWeight.normal),
         ),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(80.0),
@@ -70,19 +72,19 @@ class _DeliveryNotePageState extends State<DeliveryNotePage>
               Text(
                 _purchaseOrder.supplierName,
                 style: TextStyle(
-                    fontWeight: FontWeight.normal,
+                    fontWeight: FontWeight.w900,
                     color: Colors.white,
-                    fontSize: 16.0),
+                    fontSize: 20.0),
               ),
               new Container(
                 child: new Padding(
                   padding: const EdgeInsets.only(bottom: 18.0),
                   child: Text(
-                    _getFormattedAmount(),
+                    userName == null ? '' : userName,
                     style: TextStyle(
-                        fontWeight: FontWeight.w900,
+                        fontWeight: FontWeight.normal,
                         color: Colors.white,
-                        fontSize: 20.0),
+                        fontSize: 14.0),
                   ),
                 ),
               ),

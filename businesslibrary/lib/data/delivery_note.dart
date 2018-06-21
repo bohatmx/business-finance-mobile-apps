@@ -11,7 +11,7 @@ class DeliveryNote {
       supplierName,
       remarks;
   String date, dateAccepted;
-  String companyDocumentRef;
+  String companyDocumentRef, purchaseOrderNumber, customerName;
   String supplierDocumentRef;
   String govtDocumentRef;
 
@@ -29,6 +29,8 @@ class DeliveryNote {
       this.remarks,
       this.date,
       this.dateAccepted,
+      this.purchaseOrderNumber,
+      this.customerName,
       this.companyDocumentRef,
       this.supplierDocumentRef,
       this.govtDocumentRef});
@@ -51,6 +53,9 @@ class DeliveryNote {
     this.govtDocumentRef = data['govtDocumentRef'];
     this.supplierDocumentRef = data['supplierDocumentRef'];
     this.companyDocumentRef = data['companyDocumentRef'];
+
+    this.purchaseOrderNumber = data['purchaseOrderNumber'];
+    this.customerName = data['customerName'];
   }
 
   Map<String, String> toJson() => <String, String>{
@@ -70,5 +75,7 @@ class DeliveryNote {
         'govtDocumentRef': govtDocumentRef,
         'supplierDocumentRef': supplierDocumentRef,
         'companyDocumentRef': companyDocumentRef,
+        'purchaseOrderNumber': purchaseOrderNumber,
+        'customerName': customerName,
       };
 }

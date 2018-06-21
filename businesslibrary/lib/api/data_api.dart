@@ -110,7 +110,7 @@ class DataAPI {
       mRequest.write(json.encode(user.toJson()));
       HttpClientResponse mResponse = await mRequest.close();
       print(
-          'DataAPI.addUser ######## response status code:  ${mResponse.statusCode}');
+          'DataAPI.addUser ######## blockchain response status code:  ${mResponse.statusCode}');
       if (mResponse.statusCode == 200) {
         return user.userId;
       } else {
@@ -141,7 +141,8 @@ class DataAPI {
       mRequest.headers.contentType = _contentType;
       mRequest.write(json.encode(wallet.toJson()));
       HttpClientResponse mResponse = await mRequest.close();
-      print('DataAPI.addWallet response status code:  ${mResponse.statusCode}');
+      print(
+          'DataAPI.addWallet blockchain response status code:  ${mResponse.statusCode}');
       if (mResponse.statusCode == 200) {
         return wallet.stellarPublicKey;
       } else {
@@ -196,7 +197,7 @@ class DataAPI {
       mRequest.write(json.encode(company.toJson()));
       HttpClientResponse mResponse = await mRequest.close();
       print(
-          'DataAPI.addCompany response status code:  ${mResponse.statusCode}');
+          'DataAPI.addCompany blockchain response status code:  ${mResponse.statusCode}');
       if (mResponse.statusCode == 200) {
         return company.participantId;
       } else {
@@ -235,7 +236,7 @@ class DataAPI {
       mRequest.write(json.encode(supplier.toJson()));
       HttpClientResponse mResponse = await mRequest.close();
       print(
-          'DataAPI.addSupplier response status code:  ${mResponse.statusCode}');
+          'DataAPI.addSupplier blockchain response status code:  ${mResponse.statusCode}');
       if (mResponse.statusCode == 200) {
         return supplier.participantId;
       } else {
@@ -276,7 +277,7 @@ class DataAPI {
       mRequest.write(json.encode(investor.toJson()));
       HttpClientResponse mResponse = await mRequest.close();
       print(
-          'DataAPI.addInvestor response status code:  ${mResponse.statusCode}');
+          'DataAPI.addInvestor blockchain response status code:  ${mResponse.statusCode}');
       if (mResponse.statusCode == 200) {
         return investor.participantId;
       } else {
@@ -312,7 +313,8 @@ class DataAPI {
       mRequest.headers.contentType = _contentType;
       mRequest.write(json.encode(bank.toJson()));
       HttpClientResponse mResponse = await mRequest.close();
-      print('DataAPI.addBank response status code:  ${mResponse.statusCode}');
+      print(
+          'DataAPI.addBank blockchain response status code:  ${mResponse.statusCode}');
       if (mResponse.statusCode == 200) {
         print('DataAPI.addBank added to Firestore: ${ref.documentID}');
 
@@ -353,7 +355,7 @@ class DataAPI {
       mRequest.write(json.encode(oneConnect.toJson()));
       HttpClientResponse mResponse = await mRequest.close();
       print(
-          'DataAPI.addOneConnect response status code:  ${mResponse.statusCode}');
+          'DataAPI.addOneConnect blockchain response status code:  ${mResponse.statusCode}');
       if (mResponse.statusCode == 200) {
         return oneConnect.participantId;
       } else {
@@ -392,7 +394,7 @@ class DataAPI {
       mRequest.write(json.encode(office.toJson()));
       HttpClientResponse mResponse = await mRequest.close();
       print(
-          'DataAPI.addProcurementOffice response status code:  ${mResponse.statusCode}');
+          'DataAPI.addProcurementOffice blockchain response status code:  ${mResponse.statusCode}');
       if (mResponse.statusCode == 200) {
         return office.participantId;
       } else {
@@ -432,7 +434,7 @@ class DataAPI {
       mRequest.write(json.encode(auditor.toJson()));
       HttpClientResponse mResponse = await mRequest.close();
       print(
-          'DataAPI.addAuditor response status code:  ${mResponse.statusCode}');
+          'DataAPI.addAuditor blockchain response status code:  ${mResponse.statusCode}');
       if (mResponse.statusCode == 200) {
         return auditor.participantId;
       } else {
@@ -514,7 +516,8 @@ class DataAPI {
       mRequest.headers.contentType = _contentType;
       mRequest.write(json.encode(purchaseOrder.toJson()));
       HttpClientResponse mResponse = await mRequest.close();
-      print('DataAPI.registerPurchaseOrder response status code:  ${mResponse
+      print(
+          'DataAPI.registerPurchaseOrder blockchain response status code:  ${mResponse
               .statusCode}');
       if (mResponse.statusCode == 200) {
         return purchaseOrder.purchaseOrderId;
@@ -592,7 +595,8 @@ class DataAPI {
       mRequest.headers.contentType = _contentType;
       mRequest.write(json.encode(item.toJson()));
       HttpClientResponse mResponse = await mRequest.close();
-      print('DataAPI.addItem response status code:  ${mResponse.statusCode}');
+      print(
+          'DataAPI.addItem blockchain response status code:  ${mResponse.statusCode}');
       if (mResponse.statusCode == 200) {
         return item.itemId;
       } else {
@@ -656,7 +660,7 @@ class DataAPI {
       mRequest.write(json.encode(deliveryNote.toJson()));
       HttpClientResponse mResponse = await mRequest.close();
       print(
-          'DataAPI.registerDeliveryNote response status code:  ${mResponse.statusCode}');
+          'DataAPI.registerDeliveryNote blockchain response status code:  ${mResponse.statusCode}');
       if (mResponse.statusCode == 200) {
         return deliveryNote.deliveryNoteId;
       } else {
@@ -731,7 +735,8 @@ class DataAPI {
       mRequest.headers.contentType = _contentType;
       mRequest.write(json.encode(invoice.toJson()));
       HttpClientResponse mResponse = await mRequest.close();
-      print('DataAPI.registerInvoice response status code:  ${mResponse
+      print(
+          'DataAPI.registerInvoice blockchain response status code:  ${mResponse
               .statusCode}');
       if (mResponse.statusCode == 200) {
         return invoice.invoiceId;
@@ -756,6 +761,7 @@ class DataAPI {
 
   Future<String> acceptDelivery(DeliveryAcceptance acceptance) async {
     acceptance.acceptanceId = getKey();
+    print('DataAPI.acceptDelivery ....... ${acceptance.toJson()}');
     String documentId, participantId, path, supplierDocRef, supplierId;
     if (acceptance.govtEntity != null) {
       participantId = acceptance.govtEntity.split('#').elementAt(1);
@@ -780,6 +786,7 @@ class DataAPI {
         supplierDocRef = doc.documentID;
       });
     }
+
     documentId = await _getDocumentId(path, participantId);
     var ref = await _firestore
         .collection(path)
@@ -810,10 +817,13 @@ class DataAPI {
       mRequest.write(acceptance.toJson());
       HttpClientResponse mResponse = await mRequest.close();
       print(
-          'DataAPI.acceptDelivery response status code:  ${mResponse.statusCode}');
+          'DataAPI.acceptDelivery blockchain response status code:  ${mResponse.statusCode}');
       if (mResponse.statusCode == 200) {
         return acceptance.acceptanceId;
       } else {
+        mResponse.transform(utf8.decoder).listen((contents) {
+          print('DataAPI.makeOffer ERROR  $contents');
+        });
         print('DataAPI.acceptDelivery ERROR  ${mResponse.reasonPhrase}');
         return '0';
       }
@@ -848,7 +858,8 @@ class DataAPI {
       mRequest.headers.contentType = _contentType;
       mRequest.write(mjson);
       HttpClientResponse mResponse = await mRequest.close();
-      print('DataAPI.makeOffer response status code:  ${mResponse.statusCode}');
+      print(
+          'DataAPI.makeOffer blockchain response status code:  ${mResponse.statusCode}');
       if (mResponse.statusCode == 200) {
         return offer.offerId;
       } else {
@@ -894,7 +905,7 @@ class DataAPI {
       mRequest.write(mjson);
       HttpClientResponse mResponse = await mRequest.close();
       print(
-          'DataAPI.makeInvoiceBid response status code:  ${mResponse.statusCode}');
+          'DataAPI.makeInvoiceBid blockchain response status code:  ${mResponse.statusCode}');
       if (mResponse.statusCode == 200) {
         return bid.invoiceBidId;
       } else {

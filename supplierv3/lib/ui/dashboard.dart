@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:convert';
+
 import 'package:businesslibrary/api/firestore_list_api.dart';
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
@@ -8,6 +11,7 @@ import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:supplierv3/ui/delivery_note_list.dart';
 import 'package:supplierv3/ui/invoice_list.dart';
@@ -23,6 +27,7 @@ class Dashboard extends StatefulWidget {
 
 class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  final FirebaseMessaging _firebaseMessaging = new FirebaseMessaging();
   AnimationController animationController;
   Animation<double> animation;
   Supplier supplier;
@@ -43,7 +48,52 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
       vsync: this,
     );
     animation = new Tween(begin: 0.0, end: 1.0).animate(animationController);
-    _getSummaryData();
+    _getCachedPrefs();
+    _configMessaging();
+  }
+
+  void _configMessaging() async {
+    supplier = await SharedPrefs.getSupplier();
+    print('Dashboard._configMessaging starting _firebaseMessaging config shit');
+    _firebaseMessaging.configure(
+      onMessage: (Map<String, dynamic> message) {
+        var messageType = message["messageType"];
+        if (messageType == "PURCHASE_ORDER") {
+          print(
+              'Dashboard._configMessaging: ############## receiving PURCHASE_ORDER message from FCM');
+          Map map = json.decode(message["json"]);
+          var po = new PurchaseOrder.fromJson(map);
+          assert(po != null);
+
+          _getPOs();
+        }
+      },
+      onLaunch: (Map<String, dynamic> message) {},
+      onResume: (Map<String, dynamic> message) {},
+    );
+
+    _firebaseMessaging.requestNotificationPermissions(
+        const IosNotificationSettings(sound: true, badge: true, alert: true));
+
+    _firebaseMessaging.onIosSettingsRegistered
+        .listen((IosNotificationSettings settings) {
+      print("Settings registered: $settings");
+    });
+
+    _firebaseMessaging.getToken().then((String token) async {
+      assert(token != null);
+      var oldToken = await SharedPrefs.getFCMToken();
+      if (token != oldToken) {
+        await SharedPrefs.saveFCMToken(token);
+        //  TODO - update user's token on Firestore
+        print('Dashboard._configMessaging fcm token saved: $token');
+      } else {
+        print(
+            'Dashboard._configMessaging: token has not changed. no need to save');
+      }
+    }).catchError((e) {
+      print('Dashboard._configMessaging ERROR fcmToken $e');
+    });
   }
 
   @override
@@ -54,36 +104,29 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
 
   ///get  summaries from Firestore
   _getSummaryData() async {
+    print('_MainPageState._getSummaryData SUPPLIER -  ${supplier.toJson()}');
+    await _getPOs();
+    await getDelNotes();
+    await _getInvoices();
+    await _getSettlements();
+  }
+
+  Future _getCachedPrefs() async {
     user = await SharedPrefs.getUser();
     fullName = user.firstName + ' ' + user.lastName;
     supplier = await SharedPrefs.getSupplier();
     assert(supplier != null);
     name = supplier.name;
     setState(() {});
-    print('_MainPageState._getSummaryData SUPPLIER -  ${supplier.toJson()}');
+    _getSummaryData();
+  }
+
+  Future _getSettlements() async {
     AppSnackbar.showSnackbarWithProgressIndicator(
         scaffoldKey: _scaffoldKey,
-        message: 'Loading fresh dashbboard data',
+        message: 'Loading fresh settlements data',
         textColor: Colors.white,
         backgroundColor: Colors.black);
-    purchaseOrders = await ListAPI.getPurchaseOrders(
-        supplier.documentReference, 'suppliers');
-    setState(() {
-      totalPOs = purchaseOrders.length;
-    });
-    deliveryNotes =
-        await ListAPI.getDeliveryNotes(supplier.documentReference, 'suppliers');
-    setState(() {
-      totalNotes = deliveryNotes.length;
-    });
-    invoices =
-        await ListAPI.getInvoices(supplier.documentReference, 'suppliers');
-    if (invoices.isNotEmpty) {
-      lastInvoice = invoices.last;
-    }
-    setState(() {
-      totalInvoices = invoices.length;
-    });
     investorSettlements =
         await FirestoreListAPI.getSupplierInvestorSettlements(supplier);
     govtSettlements =
@@ -94,6 +137,51 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
       totalPayments = investorSettlements.length +
           govtSettlements.length +
           companySettlements.length;
+    });
+    _scaffoldKey.currentState.hideCurrentSnackBar();
+  }
+
+  Future _getInvoices() async {
+    AppSnackbar.showSnackbarWithProgressIndicator(
+        scaffoldKey: _scaffoldKey,
+        message: 'Loading fresh invoices data',
+        textColor: Colors.white,
+        backgroundColor: Colors.black);
+    invoices =
+        await ListAPI.getInvoices(supplier.documentReference, 'suppliers');
+    if (invoices.isNotEmpty) {
+      lastInvoice = invoices.last;
+    }
+    setState(() {
+      totalInvoices = invoices.length;
+    });
+    _scaffoldKey.currentState.hideCurrentSnackBar();
+  }
+
+  Future getDelNotes() async {
+    AppSnackbar.showSnackbarWithProgressIndicator(
+        scaffoldKey: _scaffoldKey,
+        message: 'Loading fresh delivery notes data',
+        textColor: Colors.white,
+        backgroundColor: Colors.black);
+    deliveryNotes =
+        await ListAPI.getDeliveryNotes(supplier.documentReference, 'suppliers');
+    setState(() {
+      totalNotes = deliveryNotes.length;
+    });
+    _scaffoldKey.currentState.hideCurrentSnackBar();
+  }
+
+  Future _getPOs() async {
+    AppSnackbar.showSnackbarWithProgressIndicator(
+        scaffoldKey: _scaffoldKey,
+        message: 'Loading fresh PO data',
+        textColor: Colors.white,
+        backgroundColor: Colors.black);
+    purchaseOrders = await ListAPI.getPurchaseOrders(
+        supplier.documentReference, 'suppliers');
+    setState(() {
+      totalPOs = purchaseOrders.length;
     });
     _scaffoldKey.currentState.hideCurrentSnackBar();
   }
@@ -136,11 +224,11 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
           elevation: 3.0,
           title: Text(
             'BFN - Dashboard',
-            style: TextStyle(fontWeight: FontWeight.w900),
+            style: TextStyle(fontWeight: FontWeight.normal),
           ),
           leading: Container(),
           bottom: PreferredSize(
-            preferredSize: const Size.fromHeight(60.0),
+            preferredSize: const Size.fromHeight(80.0),
             child: new Column(
               children: <Widget>[
                 Row(
@@ -152,7 +240,8 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                         name == null ? 'Organisation' : name,
                         style: TextStyle(
                           color: Colors.white,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w900,
+                          fontSize: 20.0,
                         ),
                       ),
                     )
@@ -162,12 +251,12 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
                     new Padding(
-                      padding: const EdgeInsets.only(top: 0.0, bottom: 10.0),
+                      padding: const EdgeInsets.only(top: 0.0, bottom: 20.0),
                       child: Text(
                         fullName == null ? 'user' : fullName,
                         style: TextStyle(
                           color: Colors.white,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.normal,
                         ),
                       ),
                     )
@@ -203,7 +292,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
             new Opacity(
               opacity: opacity,
               child: new Padding(
-                padding: const EdgeInsets.only(top: 2.0),
+                padding: const EdgeInsets.only(top: 20.0),
                 child: ListView(
                   children: <Widget>[
                     new GestureDetector(

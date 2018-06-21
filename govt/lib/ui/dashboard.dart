@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:businesslibrary/api/firestore_list_api.dart';
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
@@ -8,7 +10,9 @@ import 'package:businesslibrary/data/invoice_settlement.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:govt/ui/delivery_note_list.dart';
 import 'package:govt/ui/purchase_order_list.dart';
 import 'package:govt/ui/summary_card.dart';
 
@@ -28,6 +32,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
   List<GovtInvoiceSettlement> govtSettlements;
   User user;
   String fullName;
+  final FirebaseMessaging _firebaseMessaging = new FirebaseMessaging();
   @override
   initState() {
     super.initState();
@@ -37,7 +42,49 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
       vsync: this,
     );
     animation = new Tween(begin: 0.0, end: 1.0).animate(animationController);
-    _getSummaryData();
+    _getCachedPrefs();
+    _configMessaging();
+  }
+
+  void _configMessaging() async {
+    print(
+        '_DashboardState._configMessaging starting _firebaseMessaging config shit');
+    _firebaseMessaging.configure(
+      onMessage: (Map<String, dynamic> message) {
+        print(
+            '_DashboardState._configMessaging  ############## Receiving FCM message $message');
+        var messageType = message["messageType"];
+        if (messageType == "GOVT_DELIVERY_NOTE") {
+          print(
+              '_DashboardState._configMessaging; DELIVERY_NOTE message  received');
+          Map map = json.decode(message["json"]);
+          var note = new DeliveryNote.fromJson(map);
+          assert(note != null);
+          _getNotes();
+        }
+      },
+      onLaunch: (Map<String, dynamic> message) {},
+      onResume: (Map<String, dynamic> message) {},
+    );
+
+    _firebaseMessaging.requestNotificationPermissions(
+        const IosNotificationSettings(sound: true, badge: true, alert: true));
+
+    _firebaseMessaging.onIosSettingsRegistered
+        .listen((IosNotificationSettings settings) {
+      print("Settings registered: $settings");
+    });
+
+    _firebaseMessaging.getToken().then((String token) async {
+      assert(token != null);
+      var oldToken = await SharedPrefs.getFCMToken();
+      if (token != oldToken) {
+        await SharedPrefs.saveFCMToken(token);
+        print('_MyHomePageState._configMessaging fcm token saved: $token');
+      }
+    }).catchError((e) {
+      print('_MyHomePageState._configMessaging ERROR fcmToken ');
+    });
   }
 
   @override
@@ -46,37 +93,45 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
     super.dispose();
   }
 
-  ///get  summaries from Firestore
-  _getSummaryData() async {
-    print('_DashboardState._getSummaryData ..................................');
-    AppSnackbar.showSnackbarWithProgressIndicator(
-        scaffoldKey: _scaffoldKey,
-        message: 'Loading fresh data',
-        textColor: Colors.white,
-        backgroundColor: Colors.black);
+  _getCachedPrefs() async {
     user = await SharedPrefs.getUser();
     fullName = user.firstName + ' ' + user.lastName;
     govtEntity = await SharedPrefs.getGovEntity();
     assert(govtEntity != null);
     name = govtEntity.name;
     print(
-        '_DashboardState._getSummaryData govt doc id: ${govtEntity.documentReference}');
+        '_DashboardState._getSummaryData ....... govt documentId: ${govtEntity.documentReference}');
     setState(() {});
     print(
-        '_MainPageState._getSummaryData GOVT_ENTITY -  ${govtEntity.toJson()}');
-    //get invoices
+        '_MainPageState._getSummaryData ......... GOVT_ENTITY -  ${govtEntity.toJson()}');
+    _getSummaryData();
+  }
+
+  ///get  summaries from Firestore
+  _getPOData() async {
+    print('_DashboardState._getPOData ................');
+    AppSnackbar.showSnackbarWithProgressIndicator(
+        scaffoldKey: _scaffoldKey,
+        message: 'Loading fresh PO data',
+        textColor: Colors.white,
+        backgroundColor: Colors.black);
     purchaseOrders = await ListAPI.getPurchaseOrders(
         govtEntity.documentReference, 'govtEntities');
     print(
-        '_DashboardState._getSummaryData @@@ purchaseOrders: ${purchaseOrders.length}');
+        '_DashboardState._getSummaryData @@@@@@@@@@@@ purchaseOrders: ${purchaseOrders.length}');
     setState(() {
       totalPOs = purchaseOrders.length;
     });
-    deliveryNotes = await ListAPI.getDeliveryNotes(
-        govtEntity.documentReference, 'govtEntities');
-    setState(() {
-      totalNotes = deliveryNotes.length;
-    });
+    _scaffoldKey.currentState.hideCurrentSnackBar();
+  }
+
+  _getInvoices() async {
+    AppSnackbar.showSnackbarWithProgressIndicator(
+        scaffoldKey: _scaffoldKey,
+        message: 'Loading fresh invoice data',
+        textColor: Colors.white,
+        backgroundColor: Colors.black);
+    print('_DashboardState._getInvoices ................');
     invoices =
         await ListAPI.getInvoices(govtEntity.documentReference, 'govtEntities');
     if (invoices.isNotEmpty) {
@@ -84,13 +139,58 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
     }
     setState(() {
       totalInvoices = invoices.length;
+      print(
+          '_DashboardState._getSummaryData ++++++++++++  invoices: ${invoices.length}');
     });
+    _scaffoldKey.currentState.hideCurrentSnackBar();
+  }
 
+  _getNotes() async {
+    print('_DashboardState._getNotes ......................');
+    AppSnackbar.showSnackbarWithProgressIndicator(
+        scaffoldKey: _scaffoldKey,
+        message: 'Loading fresh delivery note data',
+        textColor: Colors.white,
+        backgroundColor: Colors.black);
+    deliveryNotes = await ListAPI.getDeliveryNotes(
+        govtEntity.documentReference, 'govtEntities');
+    setState(() {
+      totalNotes = deliveryNotes.length;
+      print(
+          '_DashboardState._getSummaryData ========== deliveryNotes:  ${deliveryNotes.length}');
+    });
+    _scaffoldKey.currentState.hideCurrentSnackBar();
+  }
+
+  _getSettlements() async {
+    AppSnackbar.showSnackbarWithProgressIndicator(
+        scaffoldKey: _scaffoldKey,
+        message: 'Loading fresh settlement data',
+        textColor: Colors.white,
+        backgroundColor: Colors.black);
     govtSettlements = await FirestoreListAPI.getGovtSettlements(govtEntity);
 
     setState(() {
       totalPayments = govtSettlements.length;
+      print(
+          '_DashboardState._getSummaryData ------------  payments: $totalPayments');
     });
+    _scaffoldKey.currentState.hideCurrentSnackBar();
+  }
+
+  _getSummaryData() async {
+    print('_DashboardState._getSummaryData ..................................');
+    AppSnackbar.showSnackbarWithProgressIndicator(
+        scaffoldKey: _scaffoldKey,
+        message: 'Loading fresh data',
+        textColor: Colors.white,
+        backgroundColor: Colors.black);
+
+    await _getPOData();
+    await _getInvoices();
+    await _getNotes();
+    await _getSettlements();
+
     _scaffoldKey.currentState.hideCurrentSnackBar();
   }
 
@@ -132,11 +232,11 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
           elevation: 3.0,
           title: Text(
             'BFN - Dashboard',
-            style: TextStyle(fontWeight: FontWeight.w900),
+            style: TextStyle(fontWeight: FontWeight.normal),
           ),
           leading: Container(),
           bottom: PreferredSize(
-            preferredSize: const Size.fromHeight(60.0),
+            preferredSize: const Size.fromHeight(80.0),
             child: new Column(
               children: <Widget>[
                 Row(
@@ -148,7 +248,8 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                         name == null ? 'Organisation' : name,
                         style: TextStyle(
                           color: Colors.white,
-                          fontWeight: FontWeight.bold,
+                          fontSize: 20.0,
+                          fontWeight: FontWeight.w900,
                         ),
                       ),
                     )
@@ -158,12 +259,12 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
                     new Padding(
-                      padding: const EdgeInsets.only(top: 0.0, bottom: 10.0),
+                      padding: const EdgeInsets.only(top: 0.0, bottom: 20.0),
                       child: Text(
                         fullName == null ? 'user' : fullName,
                         style: TextStyle(
                           color: Colors.white,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.normal,
                         ),
                       ),
                     )
@@ -199,7 +300,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
             new Opacity(
               opacity: opacity,
               child: new Padding(
-                padding: const EdgeInsets.only(top: 2.0),
+                padding: const EdgeInsets.only(top: 20.0),
                 child: ListView(
                   children: <Widget>[
                     new GestureDetector(
@@ -274,10 +375,11 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
 
   void _onDeliveryNotesTapped() {
     print('_MainPageState._onDeliveryNotesTapped go to  delivery notes');
-//    Navigator.push(
-//      context,
-//      new MaterialPageRoute(builder: (context) => new DeliveryNoteListPage()),
-//    );
+    Navigator.push(
+      context,
+      new MaterialPageRoute(
+          builder: (context) => new DeliveryNoteList(deliveryNotes)),
+    );
   }
 
   void _onPaymentsTapped() {

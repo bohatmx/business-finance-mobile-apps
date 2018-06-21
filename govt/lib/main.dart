@@ -1,7 +1,3 @@
-import 'dart:convert';
-
-import 'package:businesslibrary/api/shared_prefs.dart';
-import 'package:businesslibrary/data/delivery_note.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -48,7 +44,6 @@ class _StartPageState extends State<StartPage> implements SnackBarListener {
   @override
   initState() {
     super.initState();
-    _configMessaging();
     checkUser();
   }
 
@@ -61,47 +56,6 @@ class _StartPageState extends State<StartPage> implements SnackBarListener {
         new MaterialPageRoute(builder: (context) => new Dashboard()),
       );
     }
-  }
-
-  void _configMessaging() async {
-    print(
-        '_MyHomePageState._configMessaging starting _firebaseMessaging config shit');
-    _firebaseMessaging.configure(
-      onMessage: (Map<String, dynamic> message) {
-        print(
-            '_StartPageState._configMessaging  ############## Receiving FCM message $message');
-        var messageType = message["messageType"];
-        if (messageType == "GOVT_DELIVERY_NOTE") {
-          print(
-              '_StartPageState._configMessaging; DELIVERY_NOTE message  received');
-          Map map = json.decode(message["json"]);
-          var note = new DeliveryNote.fromJson(map);
-          assert(note != null);
-          _startDashboard();
-        }
-      },
-      onLaunch: (Map<String, dynamic> message) {},
-      onResume: (Map<String, dynamic> message) {},
-    );
-
-    _firebaseMessaging.requestNotificationPermissions(
-        const IosNotificationSettings(sound: true, badge: true, alert: true));
-
-    _firebaseMessaging.onIosSettingsRegistered
-        .listen((IosNotificationSettings settings) {
-      print("Settings registered: $settings");
-    });
-
-    _firebaseMessaging.getToken().then((String token) async {
-      assert(token != null);
-      var oldToken = await SharedPrefs.getFCMToken();
-      if (token != oldToken) {
-        await SharedPrefs.saveFCMToken(token);
-        print('_MyHomePageState._configMessaging fcm token saved: $token');
-      }
-    }).catchError((e) {
-      print('_MyHomePageState._configMessaging ERROR fcmToken ');
-    });
   }
 
   @override

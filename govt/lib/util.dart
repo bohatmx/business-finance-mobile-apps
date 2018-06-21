@@ -1,3 +1,5 @@
+import 'package:intl/intl.dart';
+
 class Util {
   static const DEBUG_URL_HOME = 'http://192.168.86.238:3003/api/'; //FIBRE
   static const DEBUG_URL_ROUTER = 'http://192.168.8.237:3003/api/'; //ROUTER
@@ -17,5 +19,23 @@ class Util {
     bool inDebugMode = false;
     assert(inDebugMode = true);
     return inDebugMode;
+  }
+
+  static String getFormattedDate(String date) {
+    DateTime d = DateTime.parse(date);
+    var format = new DateFormat.yMMMd();
+    return format.format(d);
+  }
+
+  static String getFormattedLongDate(String date) {
+    DateTime d = DateTime.parse(date);
+    var format = new DateFormat.yMMMMEEEEd();
+    return format.format(d);
+  }
+
+  static String getFormattedAmount(String amount) {
+    final oCcy = new NumberFormat("#,##0.00", "en_ZA");
+    double m = double.parse(amount);
+    return oCcy.format(m);
   }
 }

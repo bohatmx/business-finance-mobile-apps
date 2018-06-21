@@ -226,12 +226,17 @@ class Generator {
     dn.supplier = NameSpace + 'Supplier#' + supplier.participantId;
     dn.purchaseOrder = NameSpace + 'PurchaseOrder#' + po.purchaseOrderId;
     dn.remarks = 'remarks placeholder';
+    dn.supplierDocumentRef = supplier.documentReference;
+    dn.govtDocumentRef = entity.documentReference;
+    dn.supplierName = supplier.name;
+    dn.customerName = entity.name;
+    dn.purchaseOrderNumber = po.purchaseOrderNumber;
 
-    print('Generator._addDeliveryNote ******************** ${dn.toJson()}');
     var key = await dataAPI.registerDeliveryNote(dn);
     if (key == '0') {
       return key;
     }
+    print('Generator._addDeliveryNote ******************** ${dn.toJson()}');
     key = await _addInvoice(entity, supplier, user, po, dn);
     return key;
   }
@@ -254,6 +259,9 @@ class Generator {
     inv.invoiceNumber = _getRandomInvoiceNumber(supplier);
 
     var key = await dataAPI.registerInvoice(inv);
+    if (key == '0') {
+      return key;
+    }
     _addOffer(inv, user, po, supplier);
     return key;
   }
@@ -561,7 +569,7 @@ class Generator {
     SignUp signUp = SignUp(Util.getURL());
     try {
       GovtEntity e1 = new GovtEntity(
-        name: 'Department of Home Affairs',
+        name: 'Dept of Home Affairs',
         email: 'info@water.gov.za',
         country: 'South Africa',
         govtEntityType: 'NATIONAL',
@@ -574,7 +582,7 @@ class Generator {
       await signUp.signUpGovtEntity(e1, u1);
 
       GovtEntity e2 = new GovtEntity(
-        name: 'Department of Public Works',
+        name: 'Dept of Public Works',
         email: 'info@publicworks.gov.za',
         country: 'South Africa',
         govtEntityType: 'NATIONAL',
@@ -585,7 +593,8 @@ class Generator {
           password: 'pass123',
           email: 'ntombi.m@publicworks.gov.za');
       await signUp.signUpGovtEntity(e2, u2);
-      print('Generator.generateEntities COMPLETED');
+
+      print('Generator.generateEntities ########################## COMPLETED');
     } catch (e) {
       print('Generator.generateEntities ERROR $e');
       return 1;
@@ -677,7 +686,7 @@ class Generator {
       await signUp.signUpSupplier(e6, u6);
 
       Supplier e7 = new Supplier(
-        name: 'ZamaZama Transport Logistics',
+        name: 'Zamas Logistics',
         email: 'info@zamatransport.com',
         country: 'South Africa',
         privateSectorType: 'Industrial',
