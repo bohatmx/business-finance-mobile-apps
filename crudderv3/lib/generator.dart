@@ -16,7 +16,9 @@ import 'package:businesslibrary/data/oneconnect.dart';
 import 'package:businesslibrary/data/procurement_office.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/supplier.dart';
+import 'package:businesslibrary/data/supplier_contract.dart';
 import 'package:businesslibrary/data/user.dart';
+import 'package:businesslibrary/util/lookups.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:crudderv3/util.dart';
 
@@ -47,8 +49,8 @@ class Generator {
       users.add(g);
     });
     ////
-    print('Generator.generatePurchaseOrders ######################### '
-        'entities: ${govtEntities.length} suppliers: ${suppliers.length} users: ${users.length}');
+    print('\n\nGenerator.generatePurchaseOrders ######################### '
+        'entities: ${govtEntities.length} suppliers: ${suppliers.length} users: ${users.length}\n\n');
 
     List<User> govtUsers = getGovtUsers(users);
 
@@ -101,6 +103,7 @@ class Generator {
     print(
         '\n\nGenerator._processEntityPurchaseOrders purchase order for GovtEntity:  ${entity.name}  user ${user.firstName} ${user.lastName}');
     list.forEach((supplier) async {
+      await _addSupplierContract(entity, user, supplier);
       var result = await _addSupplierPurchaseOrders(entity, user, supplier);
       if (result > 0) {
         print('Generator._processEntityPurchaseOrders ERROR FOUND - quit');
@@ -110,10 +113,38 @@ class Generator {
     return 0;
   }
 
+  static Future<int> _addSupplierContract(
+      GovtEntity entity, User user, Supplier supplier) async {
+    print(
+        '\n\nGenerator._addSupplierContract ......... for:  ${supplier.name} - documentRef: ${supplier.documentReference} \n\n');
+    DateTime today = new DateTime.now();
+    dataAPI = DataAPI(Util.getURL());
+
+    SupplierContract contract = SupplierContract(
+      customerName: entity.name,
+      supplierName: supplier.name,
+      user: NameSpace + 'User#' + user.userId,
+      supplier: NameSpace + 'Supplier#' + supplier.participantId,
+      govtEntity: NameSpace + 'GovtEntity#' + entity.participantId,
+      date: new DateTime.now().toIso8601String(),
+      startDate: today.toIso8601String(),
+      endDate: today.add(new Duration(days: 365)).toIso8601String(),
+      estimatedValue: _getRandomContractValue(),
+      description:
+          'The best government contract ever agreed upon.  Lots of money to be made by  ${supplier.name}',
+    );
+
+    var key = await dataAPI.addSupplierContract(contract);
+    if (key == '0') {
+      return 9;
+    }
+    return 0;
+  }
+
   static Future<int> _addSupplierPurchaseOrders(
       GovtEntity entity, User user, Supplier supplier) async {
     print(
-        '\n\n\nGenerator._addSupplierPurchaseOrders, purchase orders for  Supplier:  ${supplier.name} ');
+        '\n\n\nGenerator._addSupplierContract for  Supplier:  ${supplier.name} ');
     DateTime today = new DateTime.now();
     dataAPI = DataAPI(Util.getURL());
 
@@ -217,7 +248,7 @@ class Generator {
 
   static Future<String> _addDeliveryNote(
       GovtEntity entity, User user, Supplier supplier, PurchaseOrder po) async {
-    print('\n\nGenerator._addDeliveryNote for po: ${po.toJson()} \n\n');
+    PrettyPrint.prettyPrint(po.toJson(), 'Generator._addDeliveryNote for po');
     DeliveryNote dn = DeliveryNote();
     dn.user = NameSpace + 'User#' + user.userId;
     dn.date = po.date;
@@ -237,6 +268,7 @@ class Generator {
       return key;
     }
     print('Generator._addDeliveryNote ******************** ${dn.toJson()}');
+    PrettyPrint.prettyPrint(po.toJson(), 'Generator._addDeliveryNote note:');
     key = await _addInvoice(entity, supplier, user, po, dn);
     return key;
   }
@@ -257,11 +289,14 @@ class Generator {
     inv.supplierDocumentRef = supplier.documentReference;
     inv.reference = 'reference placeholder';
     inv.invoiceNumber = _getRandomInvoiceNumber(supplier);
+    inv.purchaseOrderNumber = po.purchaseOrderNumber;
+    inv.customerName = entity.name;
 
     var key = await dataAPI.registerInvoice(inv);
     if (key == '0') {
       return key;
     }
+    PrettyPrint.prettyPrint(inv.toJson(), 'Generator._addInvoice');
     _addOffer(inv, user, po, supplier);
     return key;
   }
@@ -271,6 +306,7 @@ class Generator {
     print(
         'Generator._addOffer invoice: ${invoice.invoiceNumber} --------------\n\n');
     Offer offer = new Offer(
+        supplier: NameSpace + 'Supplier#' + supplier.participantId,
         invoice: NameSpace + 'Invoice#' + invoice.invoiceId,
         user: NameSpace + 'User#' + user.userId,
         purchaseOrder: NameSpace + 'PurchaseOrder#' + po.purchaseOrderId,
@@ -279,17 +315,19 @@ class Generator {
         startTime: new DateTime.now().toIso8601String(),
         endTime:
             new DateTime.now().add(new Duration(days: 14)).toIso8601String(),
+        date: new DateTime.now().toIso8601String(),
         participantId: supplier.participantId,
         privateSectorType: supplier.privateSectorType);
 
     var key = await dataAPI.makeOffer(offer);
+    PrettyPrint.prettyPrint(offer.toJson(), 'Generator._addOffer: ');
     return key;
   }
 
   static List<Investor> investors = List();
   // ignore: missing_return
   static Future<int> generateBids() async {
-    print('Generator.generateBids ################################# \n\n');
+    print('\n\nGenerator.generateBids ################################# \n\n');
     dataAPI = new DataAPI(Util.getURL());
     var qs0 = await _fs.collection('investors').getDocuments();
 
@@ -355,6 +393,7 @@ class Generator {
     if (key == '0') {
       return 1;
     } else {
+      PrettyPrint.prettyPrint(bid.toJson(), 'Generator._makeBid');
       return 0;
     }
   }
@@ -379,8 +418,18 @@ class Generator {
     return string;
   }
 
-  static String _getRandomAmount() {
+  static String _getRandomContractValue() {
     var x = rand.nextInt(100);
+    double amt = x * 100000.00;
+
+    return amt.toStringAsFixed(2);
+  }
+
+  static String _getRandomAmount() {
+    var x = rand.nextInt(1000);
+    if (x == 0) {
+      x = 339;
+    }
     double amt = x * 1000.00;
     if (x > 80) {
       amt = amt * 10;
@@ -579,7 +628,10 @@ class Generator {
           lastName: 'Nkosi',
           password: 'pass123',
           email: 'thabo.nkosi@water.gov.za');
-      await signUp.signUpGovtEntity(e1, u1);
+      int key = await signUp.signUpGovtEntity(e1, u1);
+      if (key > 0) {
+        return key;
+      }
 
       GovtEntity e2 = new GovtEntity(
         name: 'Dept of Public Works',
@@ -592,7 +644,10 @@ class Generator {
           lastName: 'Mathebula',
           password: 'pass123',
           email: 'ntombi.m@publicworks.gov.za');
-      await signUp.signUpGovtEntity(e2, u2);
+      key = await signUp.signUpGovtEntity(e2, u2);
+      if (key > 0) {
+        return key;
+      }
 
       print('Generator.generateEntities ########################## COMPLETED');
     } catch (e) {
@@ -875,41 +930,6 @@ class Generator {
     }
 
     return 0;
-  }
-
-  // ignore: missing_return
-  static Future<int> generateOffers() async {
-    dataAPI = new DataAPI(Util.getURL());
-    var qs0 = await _fs.collection('suppliers').getDocuments();
-    print('Generator.generateOffers suppliers: ${qs0.documents.length}');
-    qs0.documents.forEach((doc) async {
-      var qs0a = await doc.reference.collection('invoices').getDocuments();
-      print('Generator.generateOffers invoices: ${qs0a.documents.length}');
-      var snap = qs0a.documents.elementAt(0);
-      Invoice invoice = new Invoice.fromJson(snap.data);
-      invoice.invoiceId = snap.documentID;
-      Offer offer = new Offer(
-        invoice: NameSpace + 'Invoice#' + invoice.invoiceId,
-        amount: invoice.amount,
-        discountPercent: _getRandomDiscount(),
-        startTime: new DateTime.now().toIso8601String(),
-        endTime:
-            new DateTime.now().add(new Duration(days: 14)).toIso8601String(),
-      );
-      var key = await dataAPI.makeOffer(offer);
-      if (key == '0') {
-        print('Generator.generateOffers error - quit.');
-        return 9;
-      }
-//      qs0a.documents.forEach((doc) async {
-//        Offer offer = getOffer(doc);
-//        var key = await dataAPI.makeOffer(offer);
-//        if (key == '0') {
-//          print('Generator.generateOffers error - quit.');
-//          return 9;
-//        }
-//      });
-    });
   }
 
   static Offer getOffer(DocumentSnapshot doc) {

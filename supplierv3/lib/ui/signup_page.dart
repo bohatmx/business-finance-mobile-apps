@@ -252,16 +252,7 @@ class _SignUpPageState extends State<SignUpPage> implements SnackBarListener {
               actionLabel: 'Start',
               icon: Icons.lock_open);
 
-          var topic = 'purchaseOrders' + supplier.documentReference;
-          _firebaseMessaging.subscribeToTopic(topic);
-          var topic2 = 'general';
-          _firebaseMessaging.subscribeToTopic(topic2);
-          var topic3 = 'settlements' + supplier.documentReference;
-          _firebaseMessaging.subscribeToTopic(topic3);
-          var topic4 = 'invoiceBids' + supplier.documentReference;
-          _firebaseMessaging.subscribeToTopic(topic4);
-          print(
-              '_StartPageState._configMessaging ... ############# subscribed to FCM topics');
+          subscribe(supplier);
           Navigator.push(
             context,
             new MaterialPageRoute(builder: (context) => new Dashboard()),
@@ -310,6 +301,22 @@ class _SignUpPageState extends State<SignUpPage> implements SnackBarListener {
           break;
       }
     }
+  }
+
+  void subscribe(Supplier supplier) {
+    var topic = 'purchaseOrders' + supplier.documentReference;
+    _firebaseMessaging.subscribeToTopic(topic);
+    var topic2 = 'general';
+    _firebaseMessaging.subscribeToTopic(topic2);
+    var topic3 = 'settlements' + supplier.documentReference;
+    _firebaseMessaging.subscribeToTopic(topic3);
+    var topic4 = 'invoiceBids' + supplier.documentReference;
+    _firebaseMessaging.subscribeToTopic(topic4);
+    var topic5 = 'deliveryAcceptances' + supplier.documentReference;
+    _firebaseMessaging.subscribeToTopic(topic5);
+    print(
+        '_SignInState._configMessaging ... ############# subscribed to FCM topics '
+        '\n $topic \n $topic2 \n $topic3 \n $topic4 \n  $topic5');
   }
 
   @override

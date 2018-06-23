@@ -7,8 +7,9 @@ class Offer {
   String discountPercent;
   String invoice, documentReference, privateSectorType;
   String purchaseOrder, participantId;
-  String user, date;
-
+  String user, date, supplier;
+  String invoiceDocumentRef;
+  String supplierDocumentRef;
   Offer(
       {this.offerId,
       this.startTime,
@@ -21,6 +22,9 @@ class Offer {
       this.participantId,
       this.privateSectorType,
       this.purchaseOrder,
+      this.supplier,
+      this.invoiceDocumentRef,
+      this.supplierDocumentRef,
       this.user});
 
   Offer.fromJson(Map data) {
@@ -36,6 +40,10 @@ class Offer {
     this.participantId = data['participantId'];
     this.documentReference = data['documentReference'];
     this.privateSectorType = data['privateSectorType'];
+
+    this.invoiceDocumentRef = data['invoiceDocumentRef'];
+    this.supplierDocumentRef = data['supplierDocumentRef'];
+    this.supplier = data['supplier'];
   }
 
   Map<String, String> toJson() => <String, String>{
@@ -51,5 +59,8 @@ class Offer {
         'documentReference': documentReference,
         'participantId': participantId,
         'privateSectorType': privateSectorType,
+        'invoiceDocumentRef': invoiceDocumentRef,
+        'supplierDocumentRef': supplierDocumentRef,
+        'supplier': supplier,
       };
 }

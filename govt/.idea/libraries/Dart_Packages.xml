@@ -33,7 +33,7 @@
         <entry key="businesslibrary">
           <value>
             <list>
-              <option value="$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/businesslibrary-0.0.151/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/businesslibrary-0.0.169/lib" />
             </list>
           </value>
         </entry>
@@ -492,7 +492,7 @@
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/args-1.4.3/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/async-2.0.7/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/boolean_selector-1.0.3/lib" />
-      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/businesslibrary-0.0.151/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/businesslibrary-0.0.169/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/charcode-1.1.1/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/cloud_firestore-0.7.3/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/collection-1.14.6/lib" />

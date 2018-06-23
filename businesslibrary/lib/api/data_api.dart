@@ -18,8 +18,10 @@ import 'package:businesslibrary/data/oneconnect.dart';
 import 'package:businesslibrary/data/procurement_office.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/supplier.dart';
+import 'package:businesslibrary/data/supplier_contract.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/data/wallet.dart';
+import 'package:businesslibrary/util/lookups.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
 
@@ -38,6 +40,7 @@ class DataAPI {
       PROCUREMENT_OFFICE = 'ProcurementOffice',
       BANK = 'Bank',
       ONECONNECT = 'OneConnect',
+      SUPPLIER_CONTRACT = 'SupplierContract',
       WALLET = 'Wallet',
       REGISTER_PURCHASE_ORDER = 'RegisterPurchaseOrder',
       REGISTER_DELIVERY_NOTE = 'RegisterDeliveryNote',
@@ -91,7 +94,6 @@ class DataAPI {
   }
 
   Future<String> addUser(User user) async {
-    print('DataAPI.addUser --------- ${user.toJson()}');
     user.userId = getKey();
     var ref =
         await _firestore.collection('users').add(user.toJson()).catchError((e) {
@@ -102,6 +104,7 @@ class DataAPI {
 
     user.documentReference = ref.documentID;
     print('DataAPI.addUser url: ${url + USER}');
+    PrettyPrint.prettyPrint(user.toJson(), 'DataAPI.addUser ');
     try {
       var httpClient = new HttpClient();
       HttpClientRequest mRequest =
@@ -334,6 +337,69 @@ class DataAPI {
     }
   }
 
+  Future<String> addSupplierContract(SupplierContract contract) async {
+    var supplierId = contract.supplier.split("#").elementAt(1);
+    var docId = await _getDocumentId('suppliers', supplierId);
+    contract.supplierDocumentRef = docId;
+
+    if (contract.govtEntity != null) {
+      var id = contract.govtEntity.split("#").elementAt(1);
+      var docId = await _getDocumentId('govtEntities', id);
+      contract.govtDocumentRef = docId;
+    }
+    if (contract.company != null) {
+      var id = contract.company.split("#").elementAt(1);
+      var docId = await _getDocumentId('companies', id);
+      contract.companyDocumentRef = docId;
+    }
+
+    contract.contractId = getKey();
+    var ref = await _firestore
+        .collection('suppliers')
+        .document(docId)
+        .collection('supplierContracts')
+        .add(contract.toJson())
+        .catchError((e) {
+      print('DataAPI.addSupplierContract ERROR adding to Firestore $e');
+      return '0';
+    });
+
+    contract.documentReference = ref.documentID;
+    contract.date = new DateTime.now().toIso8601String();
+
+    print(
+        'DataAPI.addSupplierContract #########################  ${url + SUPPLIER_CONTRACT}');
+    PrettyPrint.prettyPrint(contract.toJson(),
+        'DataAPI.addSupplierContract: document refs anyone? .....  ');
+    try {
+      var httpClient = new HttpClient();
+      HttpClientRequest mRequest =
+          await httpClient.postUrl(Uri.parse(url + SUPPLIER_CONTRACT));
+      mRequest.headers.contentType = _contentType;
+      mRequest.write(json.encode(contract.toJson()));
+      HttpClientResponse mResponse = await mRequest.close();
+      print(
+          'DataAPI.addSupplierContract blockchain response status code:  ${mResponse.statusCode}');
+      if (mResponse.statusCode == 200) {
+        print(
+            'DataAPI.addSupplierContract added to Firestore: ${ref.documentID}');
+
+        return contract.contractId;
+      } else {
+        ref.delete();
+        print('DataAPI.addSupplierContract ERROR  ${mResponse.reasonPhrase}');
+        mResponse.transform(utf8.decoder).listen((contents) {
+          print('DataAPI.addSupplierContract  $contents');
+        });
+        return "0";
+      }
+    } catch (e) {
+      ref.delete();
+      print('DataAPI.addSupplierContract ERROR $e');
+      return '0';
+    }
+  }
+
   Future<String> addOneConnect(OneConnect oneConnect) async {
     oneConnect.participantId = getKey();
     oneConnect.dateRegistered = new DateTime.now().toIso8601String();
@@ -505,10 +571,10 @@ class DataAPI {
     print('DataAPI.registerPurchaseOrder document supplier path: ${ref2.path}');
     purchaseOrder.documentReference = ref.documentID;
 
-    ///write to blockchain
-    ///
     print(
         'DataAPI.registerPurchaseOrder url: ${url + REGISTER_PURCHASE_ORDER}');
+    PrettyPrint.prettyPrint(
+        purchaseOrder.toJson(), 'DataAPI.registerPurchaseOrder  ');
     try {
       var httpClient = new HttpClient();
       HttpClientRequest mRequest =
@@ -522,7 +588,7 @@ class DataAPI {
       if (mResponse.statusCode == 200) {
         return purchaseOrder.purchaseOrderId;
       } else {
-        await _deletePOfromFirestore(ref, ref2);
+        await _deleteFromFirestore(ref, ref2);
         print('DataAPI.registerPurchaseOrder ERROR  ${mResponse.reasonPhrase}');
         mResponse.transform(utf8.decoder).listen((contents) {
           print('DataAPI.registerPurchaseOrder  $contents');
@@ -530,17 +596,18 @@ class DataAPI {
         return "0";
       }
     } catch (e) {
-      await _deletePOfromFirestore(ref, ref2);
+      await _deleteFromFirestore(ref, ref2);
       print('DataAPI.registerPurchaseOrder ERROR $e');
       return '0';
     }
   }
 
-  Future _deletePOfromFirestore(
+  Future _deleteFromFirestore(
       DocumentReference ref, DocumentReference ref2) async {
     await ref.delete();
     await ref2.delete();
-    print('DataAPI._deletePOfromFirestore po deleted');
+    print('DataAPI._deleteFromFirestore record deleted: ${ref.documentID}');
+    print('DataAPI._deleteFromFirestore record deleted: ${ref2.documentID}');
   }
 
   Future<String> _getDocumentId(String collection, String participantId) async {
@@ -652,6 +719,7 @@ class DataAPI {
     });
     print('DataAPI.registerDeliveryNote added to Firestore: ${ref2.path}');
     print('DataAPI.registerDeliveryNote url: ${url + REGISTER_DELIVERY_NOTE}');
+    PrettyPrint.prettyPrint(deliveryNote.toJson(), 'registerDeliveryNote ');
     try {
       var httpClient = new HttpClient();
       HttpClientRequest mRequest =
@@ -728,6 +796,8 @@ class DataAPI {
     print('DataAPI.registerInvoice added to Firestore: ${ref2.path}');
 
     print('DataAPI.registerInvoice url: ${url + REGISTER_INVOICE}');
+    PrettyPrint.prettyPrint(invoice.toJson(),
+        'DataAPI.registerInvoice .. calling BFN via http(s) ...');
     try {
       var httpClient = new HttpClient();
       HttpClientRequest mRequest =
@@ -745,15 +815,13 @@ class DataAPI {
         mResponse.transform(utf8.decoder).listen((contents) {
           print('DataAPI.registerInvoice  $contents');
         });
-        ref.delete();
-        ref2.delete();
+        _deleteFromFirestore(ref, ref2);
         print('DataAPI.registerInvoice Firestore invoice deleted');
         return "0";
       }
     } catch (e) {
       print('DataAPI.registerInvoice ERROR $e');
-      ref.delete();
-      ref2.delete();
+      _deleteFromFirestore(ref, ref2);
       print('DataAPI.registerInvoice Firestore invoice deleted');
       return '0';
     }
@@ -809,12 +877,17 @@ class DataAPI {
     print('DataAPI.acceptDelivery OWNER added to Firestore: ${ref.path}');
     print('DataAPI.acceptDelivery SUPPLIER added to Firestore: ${ref2.path}');
 
+    print('DataAPI.acceptDelivery url: ${url + ACCEPT_DELIVERY}');
+    PrettyPrint.prettyPrint(
+        acceptance.toJson(), 'DataAPI.acceptDelivery ... calling BFN ...');
     try {
+      Map map = acceptance.toJson();
+      var mjson = json.encode(map);
       var httpClient = new HttpClient();
       HttpClientRequest mRequest =
           await httpClient.postUrl(Uri.parse(url + ACCEPT_DELIVERY));
       mRequest.headers.contentType = _contentType;
-      mRequest.write(acceptance.toJson());
+      mRequest.write(mjson);
       HttpClientResponse mResponse = await mRequest.close();
       print(
           'DataAPI.acceptDelivery blockchain response status code:  ${mResponse.statusCode}');
@@ -822,13 +895,15 @@ class DataAPI {
         return acceptance.acceptanceId;
       } else {
         mResponse.transform(utf8.decoder).listen((contents) {
-          print('DataAPI.makeOffer ERROR  $contents');
+          print('DataAPI.acceptDelivery ERROR  $contents');
         });
         print('DataAPI.acceptDelivery ERROR  ${mResponse.reasonPhrase}');
+        _deleteFromFirestore(ref, ref2);
         return '0';
       }
     } catch (e) {
       print('DataAPI.acceptDelivery ERROR $e');
+      _deleteFromFirestore(ref, ref2);
       return '0';
     }
   }
@@ -836,6 +911,22 @@ class DataAPI {
   Future<String> makeOffer(Offer offer) async {
     offer.offerId = getKey();
     offer.date = new DateTime.now().toIso8601String();
+
+    var supplierId = offer.supplier.split('#').elementAt(1);
+    var invoiceId = offer.invoice.split('#').elementAt(1);
+
+    offer.supplierDocumentRef = await _getDocumentId('suppliers', supplierId);
+
+    var qs = await _firestore
+        .collection('suppliers')
+        .document(offer.supplierDocumentRef)
+        .collection('invoices')
+        .where('invoiceId', isEqualTo: invoiceId)
+        .getDocuments();
+
+    var invoiceDocId = qs.documents.first.documentID;
+    offer.invoiceDocumentRef = invoiceDocId;
+
     var ref = await _firestore
         .collection('invoiceOffers')
         .add(offer.toJson())
@@ -844,11 +935,10 @@ class DataAPI {
       return '0';
     });
     print('DataAPI.makeOffer added to Firestore: ${ref.path}');
-
     offer.documentReference = ref.documentID;
 
     print('DataAPI.makeOffer  ${url + 'MakeOffer'}');
-    print('DataAPI.makeOffer ${offer.toJson()}');
+    PrettyPrint.prettyPrint(offer.toJson(), 'DataAPI.makeOffer offer: ');
     try {
       Map map = offer.toJson();
       var mjson = json.encode(map);
@@ -861,6 +951,7 @@ class DataAPI {
       print(
           'DataAPI.makeOffer blockchain response status code:  ${mResponse.statusCode}');
       if (mResponse.statusCode == 200) {
+        await _updateInvoiceWithOffer(qs, offer, invoiceDocId);
         return offer.offerId;
       } else {
         ref.delete();
@@ -876,6 +967,22 @@ class DataAPI {
       print('DataAPI.MakeOffer ERROR $e');
       return '0';
     }
+  }
+
+  Future _updateInvoiceWithOffer(
+      QuerySnapshot qs, Offer offer, String invoiceDocId) async {
+    Invoice inv = new Invoice.fromJson(qs.documents.first.data);
+    inv.isOnOffer = 'true';
+    inv.offer = 'resource:com.oneconnect.biz.Offer#' + offer.offerId;
+    //update invoice with offer
+    await _firestore
+        .collection('suppliers')
+        .document(offer.supplierDocumentRef)
+        .collection('invoices')
+        .document(invoiceDocId)
+        .updateData(inv.toJson());
+    print('DataAPI.makeOffer ******* invoice updated with  offer ');
+    PrettyPrint.prettyPrint(inv.toJson(), 'updated invoice on  Firestore');
   }
 
   Future<String> makeInvoiceBid(InvoiceBid bid, Offer offer) async {

@@ -258,9 +258,11 @@ class _SignInPageState extends State<SignInPage> implements SnackBarListener {
     _firebaseMessaging.subscribeToTopic(topic3);
     var topic4 = 'invoiceBids' + supplier.documentReference;
     _firebaseMessaging.subscribeToTopic(topic4);
+    var topic5 = 'deliveryAcceptances' + supplier.documentReference;
+    _firebaseMessaging.subscribeToTopic(topic5);
     print(
-        '_StartPageState._configMessaging ... ############# subscribed to FCM topics '
-        '\n $topic \n $topic2 \n $topic3 \n $topic4');
+        '_SignInState._configMessaging ... ############# subscribed to FCM topics '
+        '\n $topic \n $topic2 \n $topic3 \n $topic4 \n  $topic5');
   }
 
   @override

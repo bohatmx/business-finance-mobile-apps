@@ -14,9 +14,13 @@ class Invoice {
       supplierDocumentRef,
       govtDocumentRef,
       companyDocumentRef,
+      supplierContract,
+      contractDocumentRef,
+      isOnOffer,
+      offer,
       supplierName;
   String date, datePaymentRequired;
-  String amount;
+  String amount, customerName, purchaseOrderNumber;
 
   Invoice(
       {this.supplier,
@@ -31,12 +35,18 @@ class Invoice {
       this.description,
       this.reference,
       this.date,
+      this.purchaseOrderNumber,
+      this.customerName,
       this.supplierName,
       this.documentReference,
       this.supplierDocumentRef,
       this.govtDocumentRef,
+      this.contractDocumentRef,
+      this.supplierContract,
       this.companyDocumentRef,
       this.datePaymentRequired,
+      this.isOnOffer,
+      this.offer,
       this.amount});
 
   Invoice.fromJson(Map data) {
@@ -59,6 +69,12 @@ class Invoice {
     this.supplierName = data['supplierName'];
     this.govtDocumentRef = data['govtDocumentRef'];
     this.companyDocumentRef = data['companyDocumentRef'];
+    this.purchaseOrderNumber = data['purchaseOrderNumber'];
+    this.customerName = data['customerName'];
+    this.supplierContract = data['supplierContract'];
+    this.contractDocumentRef = data['contractDocumentRef'];
+    this.isOnOffer = data['isOnOffer'];
+    this.offer = data['offer'];
   }
   Map<String, String> toJson() => <String, String>{
         'supplier': supplier,
@@ -80,5 +96,11 @@ class Invoice {
         'supplierName': supplierName,
         'govtDocumentRef': govtDocumentRef,
         'companyDocumentRef': companyDocumentRef,
+        'purchaseOrderNumber': purchaseOrderNumber,
+        'customerName': customerName,
+        'supplierContract': supplierContract,
+        'contractDocumentRef': contractDocumentRef,
+        'isOnOffer': isOnOffer,
+        'offer': offer,
       };
 }

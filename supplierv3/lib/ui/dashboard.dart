@@ -4,17 +4,20 @@ import 'dart:convert';
 import 'package:businesslibrary/api/firestore_list_api.dart';
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
+import 'package:businesslibrary/data/delivery_acceptance.dart';
 import 'package:businesslibrary/data/delivery_note.dart';
 import 'package:businesslibrary/data/invoice.dart';
 import 'package:businesslibrary/data/invoice_settlement.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
+import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:supplierv3/ui/delivery_note_list.dart';
 import 'package:supplierv3/ui/invoice_list.dart';
+import 'package:supplierv3/ui/invoice_page.dart';
 import 'package:supplierv3/ui/purchase_order_list.dart';
 import 'package:supplierv3/ui/summary_card.dart';
 
@@ -25,7 +28,9 @@ class Dashboard extends StatefulWidget {
       context.ancestorStateOfType(const TypeMatcher<_DashboardState>());
 }
 
-class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
+class _DashboardState extends State<Dashboard>
+    with TickerProviderStateMixin
+    implements SnackBarListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   final FirebaseMessaging _firebaseMessaging = new FirebaseMessaging();
   AnimationController animationController;
@@ -39,6 +44,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
   List<CompanyInvoiceSettlement> companySettlements;
   User user;
   String fullName;
+  DeliveryAcceptance acceptance;
   @override
   initState() {
     super.initState();
@@ -64,8 +70,25 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
           Map map = json.decode(message["json"]);
           var po = new PurchaseOrder.fromJson(map);
           assert(po != null);
-
+          PrettyPrint.prettyPrint(map, 'Dashboard._configMessaging: ');
           _getPOs();
+        }
+        if (messageType == "DELIVERY_ACCEPTANCE") {
+          print(
+              'Dashboard._configMessaging: ############## receiving DELIVERY_ACCEPTANCE message from FCM');
+          Map map = json.decode(message["json"]);
+          acceptance = new DeliveryAcceptance.fromJson(map);
+          assert(acceptance != null);
+          PrettyPrint.prettyPrint(map, 'Dashboard._configMessaging: ');
+          _scaffoldKey.currentState.hideCurrentSnackBar();
+          AppSnackbar.showSnackbarWithAction(
+              scaffoldKey: _scaffoldKey,
+              message: 'Delivery Note accepted',
+              textColor: Colors.white,
+              backgroundColor: Colors.black,
+              actionLabel: 'INVOICE',
+              listener: this,
+              icon: Icons.done);
         }
       },
       onLaunch: (Map<String, dynamic> message) {},
@@ -104,7 +127,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
 
   ///get  summaries from Firestore
   _getSummaryData() async {
-    print('_MainPageState._getSummaryData SUPPLIER -  ${supplier.toJson()}');
+    PrettyPrint.prettyPrint(supplier.toJson(), 'Dashboard_getSummaryData: ');
     await _getPOs();
     await getDelNotes();
     await _getInvoices();
@@ -352,7 +375,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
     print('_MainPageState._onInvoiceTapped ... go  to list of invoices');
     Navigator.push(
       context,
-      new MaterialPageRoute(builder: (context) => new InvoiceListPage()),
+      new MaterialPageRoute(builder: (context) => new InvoiceList(invoices)),
     );
   }
 
@@ -369,7 +392,8 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
     print('_MainPageState._onDeliveryNotesTapped go to  delivery notes');
     Navigator.push(
       context,
-      new MaterialPageRoute(builder: (context) => new DeliveryNoteListPage()),
+      new MaterialPageRoute(
+          builder: (context) => new DeliveryNoteList(deliveryNotes)),
     );
   }
 
@@ -381,5 +405,15 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
     print(
         '_DashboardState.refresh: ################## REFRESH called. getSummary ...');
     _getSummaryData();
+  }
+
+  @override
+  onActionPressed() {
+    print(
+        '_DashboardState.onActionPressed ..................  start DeliveryAcceptance ==> create invoice');
+    Navigator.push(
+      context,
+      new MaterialPageRoute(builder: (context) => new InvoicePage(acceptance)),
+    );
   }
 }

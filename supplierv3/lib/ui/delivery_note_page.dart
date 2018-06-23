@@ -209,6 +209,8 @@ class _DeliveryNotePageState extends State<DeliveryNotePage>
       supplierName: _purchaseOrder.supplierName,
       user: NameSpaceUser + _user.userId,
       date: new DateTime.now().toIso8601String(),
+      purchaseOrderNumber: _purchaseOrder.purchaseOrderNumber,
+      customerName: _purchaseOrder.purchaserName,
     );
     if (_purchaseOrder.govtEntity != null) {
       note.govtEntity = _purchaseOrder.govtEntity;

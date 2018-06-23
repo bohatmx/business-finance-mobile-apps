@@ -2,7 +2,7 @@ class DeliveryAcceptance {
   String acceptanceId;
   String date;
   String deliveryNote;
-  String govtEntity;
+  String govtEntity, purchaseOrder, purchaseOrderNumber, customerName;
   String company, supplierDocumentRef, invoice;
   String user, supplier, govtDocumentRef, companyDocumentRef;
 
@@ -17,6 +17,9 @@ class DeliveryAcceptance {
       this.user,
       this.supplier,
       this.govtDocumentRef,
+      this.customerName,
+      this.purchaseOrderNumber,
+      this.purchaseOrder,
       this.companyDocumentRef});
 
   DeliveryAcceptance.fromJson(Map data) {
@@ -29,9 +32,12 @@ class DeliveryAcceptance {
     this.supplier = data['supplier'];
     this.supplierDocumentRef = data['supplierDocumentRef'];
     this.invoice = data['invoice'];
-
+    this.purchaseOrder = data['purchaseOrder'];
     this.govtDocumentRef = data['govtDocumentRef'];
     this.companyDocumentRef = data['companyDocumentRef'];
+
+    this.customerName = data['customerName'];
+    this.purchaseOrderNumber = data['purchaseOrderNumber'];
   }
   Map<String, String> toJson() => <String, String>{
         'acceptanceId': acceptanceId,
@@ -40,10 +46,13 @@ class DeliveryAcceptance {
         'govtEntity': govtEntity,
         'company': company,
         'invoice': invoice,
+        'purchaseOrder': purchaseOrder,
         'user': user,
         'supplier': supplier,
         'supplierDocumentRef': supplierDocumentRef,
         'govtDocumentRef': govtDocumentRef,
         'companyDocumentRef': companyDocumentRef,
+        'customerName': customerName,
+        'purchaseOrderNumber': purchaseOrderNumber,
       };
 }

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:businesslibrary/data/delivery_acceptance.dart';
 import 'package:businesslibrary/data/delivery_note.dart';
 import 'package:businesslibrary/data/invoice.dart';
 import 'package:businesslibrary/data/invoice_bid.dart';
@@ -185,6 +186,29 @@ class ListAPI {
 
     qs.documents.forEach((doc) {
       list.add(new DeliveryNote.fromJson(doc.data));
+    });
+
+    print('ListAPI.getDeliveryNotes ############ found: ${list.length}');
+    return list;
+  }
+
+  static Future<List<DeliveryAcceptance>> getDeliveryAcceptances(
+      String documentId, String collection) async {
+    print('ListAPI.getDeliveryAcceptances .......  documentId: $documentId');
+    List<DeliveryAcceptance> list = List();
+    var qs = await _firestore
+        .collection(collection)
+        .document(documentId)
+        .collection('deliveryAcceptances')
+        .orderBy('date', descending: true)
+        .getDocuments()
+        .catchError((e) {
+      print('ListAPI.getDeliveryAcceptances $e');
+      return null;
+    });
+
+    qs.documents.forEach((doc) {
+      list.add(new DeliveryAcceptance.fromJson(doc.data));
     });
 
     print('ListAPI.getDeliveryNotes ############ found: ${list.length}');

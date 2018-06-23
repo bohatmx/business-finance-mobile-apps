@@ -1,8 +1,11 @@
 import 'package:businesslibrary/api/data_api.dart';
+import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/delivery_acceptance.dart';
 import 'package:businesslibrary/data/delivery_note.dart';
+import 'package:businesslibrary/data/govt_entity.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
+import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:flutter/material.dart';
 import 'package:govt/util.dart';
@@ -22,6 +25,17 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
   List<Supplier> suppliers;
   List<DeliveryNote> deliveryNotes;
   User user;
+  GovtEntity govtEntity;
+  @override
+  void initState() {
+    super.initState();
+    _getCachedPrefs();
+  }
+
+  _getCachedPrefs() async {
+    user = await SharedPrefs.getUser();
+    govtEntity = await SharedPrefs.getGovEntity();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -89,8 +103,9 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
   @override
   onDeliveryNoteTapped(DeliveryNote deliveryNote) {
     this.deliveryNote = deliveryNote;
-    print(
-        '_DeliveryNoteListState.onDeliveryNoteTapped ...  showing dialog.... ${deliveryNote.toJson()}');
+
+    PrettyPrint.prettyPrint(deliveryNote.toJson(),
+        '_DeliveryNoteListState.onDeliveryNoteTapped ...');
 
     showDialog(
         context: context,
@@ -100,7 +115,7 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
                   "Do you want to accept this Delivery Note?\n\nPurchase Order: ${deliveryNote.purchaseOrderNumber}"),
               actions: <Widget>[
                 FlatButton(
-                  onPressed: _cancel,
+                  onPressed: () => Navigator.pop(context),
                   child: Text(
                     'NO',
                     style: TextStyle(
@@ -117,6 +132,7 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
                       'YES',
                       style: TextStyle(
                         fontSize: 16.0,
+                        fontWeight: FontWeight.bold,
                         color: Colors.teal.shade800,
                       ),
                     ),
@@ -126,10 +142,15 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
             ));
   }
 
-  void _cancel() {}
-
-  static const Namespace = 'com.oneconnect.biz.';
+  static const Namespace = 'resource:com.oneconnect.biz.';
   void _acceptDelivery() async {
+    Navigator.pop(context);
+    AppSnackbar.showSnackbarWithProgressIndicator(
+        scaffoldKey: _scaffoldKey,
+        message: 'Submitting Delivery Acceptance ...',
+        textColor: Colors.white,
+        backgroundColor: Colors.black);
+
     DataAPI api = new DataAPI(Util.getURL());
     DeliveryAcceptance acceptance = DeliveryAcceptance(
       date: new DateTime.now().toIso8601String(),
@@ -137,29 +158,42 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
       supplierDocumentRef: deliveryNote.supplierDocumentRef,
       companyDocumentRef: deliveryNote.companyDocumentRef,
       govtDocumentRef: deliveryNote.govtDocumentRef,
+      purchaseOrder: deliveryNote.purchaseOrder,
       company: deliveryNote.company,
-      govtEntity: deliveryNote.govtDocumentRef,
+      govtEntity: deliveryNote.govtEntity,
       user: Namespace + 'User#' + user.userId,
       deliveryNote: Namespace + "DeliveryNote#" + deliveryNote.deliveryNoteId,
+      customerName: deliveryNote.customerName,
+      purchaseOrderNumber: deliveryNote.purchaseOrderNumber,
     );
-    print(
-        '_DeliveryNoteListState._acceptDelivery ...... ${acceptance.toJson()}');
-    var key = await api.acceptDelivery(acceptance);
-    if (key == '0') {
+
+    PrettyPrint.prettyPrint(
+        acceptance.toJson(), '_DeliveryNoteListState._acceptDelivery ......');
+    try {
+      var key = await api.acceptDelivery(acceptance);
+      if (key == '0') {
+        AppSnackbar.showErrorSnackbar(
+            scaffoldKey: _scaffoldKey,
+            message: 'Delivery Acceptance failed',
+            listener: this,
+            actionLabel: 'ERROR');
+      } else {
+        AppSnackbar.showSnackbarWithAction(
+            scaffoldKey: _scaffoldKey,
+            message: 'Delivery  Note accepted',
+            textColor: Colors.white,
+            backgroundColor: Colors.black,
+            actionLabel: 'DONE',
+            listener: this,
+            icon: Icons.done);
+      }
+    } catch (e) {
+      print('_DeliveryNoteListState._acceptDelivery ERROR $e');
       AppSnackbar.showErrorSnackbar(
           scaffoldKey: _scaffoldKey,
           message: 'Delivery Acceptance failed',
           listener: this,
           actionLabel: 'ERROR');
-    } else {
-      AppSnackbar.showSnackbarWithAction(
-          scaffoldKey: _scaffoldKey,
-          message: 'Deilvery  Note accepted',
-          textColor: Colors.white,
-          backgroundColor: Colors.black,
-          actionLabel: 'DONE',
-          listener: this,
-          icon: Icons.done);
     }
   }
 }

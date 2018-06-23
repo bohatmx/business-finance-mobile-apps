@@ -9,6 +9,7 @@ import 'package:businesslibrary/data/invoice.dart';
 import 'package:businesslibrary/data/invoice_settlement.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/user.dart';
+import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -52,15 +53,29 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
     _firebaseMessaging.configure(
       onMessage: (Map<String, dynamic> message) {
         print(
-            '_DashboardState._configMessaging  ############## Receiving FCM message $message');
+            '_DashboardState._configMessaging  ############## Receiving FCM message ....');
+
         var messageType = message["messageType"];
-        if (messageType == "GOVT_DELIVERY_NOTE") {
+        if (messageType == "GOVT_DELIVERY_NOTE" ||
+            messageType == "DELIVERY_NOTE") {
           print(
               '_DashboardState._configMessaging; DELIVERY_NOTE message  received');
           Map map = json.decode(message["json"]);
           var note = new DeliveryNote.fromJson(map);
           assert(note != null);
+          PrettyPrint.prettyPrint(
+              note.toJson(), 'FCM message received DeliveryNote: ');
           _getNotes();
+        }
+        if (messageType == "GOVT_INVOICE" || messageType == "INVOICE") {
+          print(
+              '_DashboardState._configMessaging; GOVT_INVOICE message  received');
+          Map map = json.decode(message["json"]);
+          var invoice = new Invoice.fromJson(map);
+          assert(invoice != null);
+          PrettyPrint.prettyPrint(
+              invoice.toJson(), 'FCM message received Invoice: ');
+          _getInvoices();
         }
       },
       onLaunch: (Map<String, dynamic> message) {},

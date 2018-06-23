@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:meta/meta.dart';
 
 class Lookups {
@@ -247,4 +249,48 @@ class Country {
         'name': name,
         'code': code,
       };
+}
+
+class Helper {
+  static String getFormattedDateMedium(String date, BuildContext context) {
+    var cc = MaterialLocalizations.of(context);
+    return cc.formatMediumDate(DateTime.parse(date));
+  }
+
+  static String getFormattedDateLong(String date, BuildContext context) {
+    var cc = MaterialLocalizations.of(context);
+    return cc.formatFullDate(DateTime.parse(date));
+  }
+
+  static String getFormattedDate(String date) {
+    DateTime d = DateTime.parse(date);
+    var format = new DateFormat.yMMMd();
+    return format.format(d);
+  }
+
+  static String getFormattedLongestDate(String date) {
+    DateTime d = DateTime.parse(date);
+    var format = new DateFormat.yMMMMEEEEd();
+    return format.format(d);
+  }
+
+  static String getFormattedAmount(String amount, BuildContext context) {
+    Locale myLocale = Localizations.localeOf(context);
+    var val = myLocale.languageCode + '_' + myLocale.countryCode;
+    print('Helper.getFormattedAmount ----------- locale is  $val');
+    final oCcy = new NumberFormat("#,##0.00", val);
+    double m = double.parse(amount);
+
+    return oCcy.format(m);
+  }
+}
+
+class PrettyPrint {
+  static prettyPrint(Map map, String name) {
+    print('\n\n$name \t{\n');
+    map.forEach((key, val) {
+      print('\t$key : $val ,\n');
+    });
+    print('\n}\n\n');
+  }
 }

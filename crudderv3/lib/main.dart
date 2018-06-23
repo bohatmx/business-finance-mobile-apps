@@ -36,17 +36,6 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  void _generateOffers() async {
-    var result = await Generator.generateOffers();
-    setState(() {
-      _counter++;
-    });
-    if (result > 0) {
-      print(
-          '_MyHomePageState._generateOffers. it did not end well. @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@');
-    }
-  }
-
   void _generate() async {
     await Generator.cleanUp();
     setState(() {
@@ -143,25 +132,6 @@ class _MyHomePageState extends State<MyHomePage> {
                             fontSize: 80.0,
                             fontWeight: FontWeight.w900,
                             color: Colors.teal),
-                      ),
-                      new Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: new Container(
-                          width: 200.0,
-                          child: RaisedButton(
-                            elevation: 16.0,
-                            onPressed: _generateOffers,
-                            color: Colors.blue.shade700,
-                            child: new Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Text(
-                                'Generate Offers',
-                                style: TextStyle(
-                                    color: Colors.white, fontSize: 20.0),
-                              ),
-                            ),
-                          ),
-                        ),
                       ),
                       new Padding(
                         padding: const EdgeInsets.all(8.0),

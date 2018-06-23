@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
-import 'package:businesslibrary/data/delivery_note.dart';
+import 'package:businesslibrary/data/delivery_acceptance.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
@@ -11,32 +11,26 @@ import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 
-class DeliveryNoteList extends StatefulWidget {
-  final List<DeliveryNote> deliveryNotes;
-
-  DeliveryNoteList(this.deliveryNotes);
-
+class DeliveryAcceptanceList extends StatefulWidget {
   @override
-  _DeliveryNoteListState createState() => _DeliveryNoteListState();
+  _DeliveryAcceptanceListState createState() => _DeliveryAcceptanceListState();
 }
 
-class _DeliveryNoteListState extends State<DeliveryNoteList>
-    implements SnackBarListener, DeliveryNoteCardListener {
+class _DeliveryAcceptanceListState extends State<DeliveryAcceptanceList>
+    implements SnackBarListener, DeliveryAcceptanceCardListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   final FirebaseMessaging _firebaseMessaging = new FirebaseMessaging();
-  List<DeliveryNote> deliveryNotes;
-  DeliveryNote deliveryNote;
+  List<DeliveryAcceptance> acceptances;
+  DeliveryAcceptance deliveryAcceptance;
   User user;
   Supplier supplier;
-  bool isPurchaseOrder, isDeliveryNote;
+  bool isPurchaseOrder, isDeliveryAcceptance;
 
   @override
   void initState() {
     super.initState();
     _configMessaging();
-    if (widget.deliveryNotes == null) {
-      _getDeliveryNotes();
-    }
+    _getAcceptances();
   }
 
   void _configMessaging() async {
@@ -67,11 +61,11 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
           print(
               'Dashboard._configMessaging: ############## receiving DELIVERY_ACCEPTANCE message from FCM');
           Map map = json.decode(message["json"]);
-          var acceptance = new DeliveryNote.fromJson(map);
+          var acceptance = new DeliveryAcceptance.fromJson(map);
           assert(acceptance != null);
-          deliveryNotes.insert(0, acceptance);
+          acceptances.insert(0, acceptance);
           PrettyPrint.prettyPrint(map, 'Dashboard._configMessaging: ');
-          isDeliveryNote = true;
+          isDeliveryAcceptance = true;
           _scaffoldKey.currentState.hideCurrentSnackBar();
           AppSnackbar.showSnackbarWithAction(
               scaffoldKey: _scaffoldKey,
@@ -112,31 +106,32 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
     });
   }
 
-  _getDeliveryNotes() async {
-    AppSnackbar.showSnackbarWithProgressIndicator(
-        scaffoldKey: _scaffoldKey,
-        message: 'Loading delivery notes',
-        textColor: Colors.white,
-        backgroundColor: Colors.black);
+  _getAcceptances() async {
     user = await SharedPrefs.getUser();
     supplier = await SharedPrefs.getSupplier();
-    deliveryNotes = await ListAPI.getDeliveryNotes(
-        deliveryNote.supplierDocumentRef, 'suppliers');
+
+    AppSnackbar.showSnackbarWithProgressIndicator(
+        scaffoldKey: _scaffoldKey,
+        message: 'Loading delivery note acceptances',
+        textColor: Colors.white,
+        backgroundColor: Colors.black);
+    acceptances = await ListAPI.getDeliveryAcceptances(
+        deliveryAcceptance.supplierDocumentRef, 'suppliers');
     _scaffoldKey.currentState.hideCurrentSnackBar();
   }
 
-  _confirm(DeliveryNote note) {
-    print('_DeliveryNoteListState._confirm');
-    PrettyPrint.prettyPrint(note.toJson(), '_DeliveryNoteListState._confirm');
+  _confirm(DeliveryAcceptance acceptance) {
+    print('_DeliveryAcceptanceListState._confirm');
+    PrettyPrint.prettyPrint(
+        acceptance.toJson(), '_DeliveryAcceptanceListState._confirm');
   }
 
   @override
   Widget build(BuildContext context) {
-    deliveryNotes = widget.deliveryNotes;
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
-        title: Text('Delivery Notes'),
+        title: Text('Delivery Acceptances'),
       ),
       body: Card(
         elevation: 4.0,
@@ -144,14 +139,14 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
           children: <Widget>[
             new Flexible(
               child: new ListView.builder(
-                  itemCount: deliveryNotes == null ? 0 : deliveryNotes.length,
+                  itemCount: acceptances == null ? 0 : acceptances.length,
                   itemBuilder: (BuildContext context, int index) {
                     return new InkWell(
                       onTap: () {
-                        _confirm(deliveryNotes.elementAt(index));
+                        _confirm(acceptances.elementAt(index));
                       },
-                      child: DeliveryNoteCard(
-                        deliveryNote: deliveryNotes.elementAt(index),
+                      child: DeliveryAcceptanceCard(
+                        deliveryAcceptance: acceptances.elementAt(index),
                         listener: this,
                       ),
                     );
@@ -165,21 +160,21 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
 
   @override
   onActionPressed() {
-    print('_DeliveryNoteListState.onActionPressed');
+    print('_DeliveryAcceptanceListState.onActionPressed');
   }
 
   @override
-  onNoteTapped(DeliveryNote note) {
+  onAcceptanceTapped(DeliveryAcceptance acceptance) {
     PrettyPrint.prettyPrint(
-        note.toJson(), '_DeliveryNoteListState.onAcceptanceTapped');
+        acceptance.toJson(), '_DeliveryAcceptanceListState.onAcceptanceTapped');
   }
 }
 
-class DeliveryNoteCard extends StatelessWidget {
-  final DeliveryNote deliveryNote;
-  final DeliveryNoteCardListener listener;
+class DeliveryAcceptanceCard extends StatelessWidget {
+  final DeliveryAcceptance deliveryAcceptance;
+  final DeliveryAcceptanceCardListener listener;
 
-  DeliveryNoteCard({this.deliveryNote, this.listener});
+  DeliveryAcceptanceCard({this.deliveryAcceptance, this.listener});
 
   @override
   Widget build(BuildContext context) {
@@ -194,7 +189,7 @@ class DeliveryNoteCard extends StatelessWidget {
                 child: Icon(Icons.event),
               ),
               Text(
-                Helper.getFormattedDate(deliveryNote.date),
+                Helper.getFormattedDate(deliveryAcceptance.date),
                 style: TextStyle(
                     color: Colors.blue,
                     fontSize: 16.0,
@@ -203,7 +198,7 @@ class DeliveryNoteCard extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(left: 8.0),
                 child: Text(
-                  deliveryNote.customerName,
+                  deliveryAcceptance.customerName,
                   style: TextStyle(
                       color: Colors.blue,
                       fontSize: 16.0,
@@ -218,6 +213,6 @@ class DeliveryNoteCard extends StatelessWidget {
   }
 }
 
-abstract class DeliveryNoteCardListener {
-  onNoteTapped(DeliveryNote note);
+abstract class DeliveryAcceptanceCardListener {
+  onAcceptanceTapped(DeliveryAcceptance acceptance);
 }
