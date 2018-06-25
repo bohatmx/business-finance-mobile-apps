@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:businesslibrary/api/StorageAPI.dart';
 import 'package:businesslibrary/api/data_api.dart';
 import 'package:businesslibrary/api/signup.dart';
 import 'package:businesslibrary/data/auditor.dart';
@@ -498,6 +499,11 @@ class Generator {
         msnap3.documents.forEach((x) async {
           await x.reference.delete();
         });
+        var msnap4 =
+            await doc.reference.collection('supplierContracts').getDocuments();
+        msnap4.documents.forEach((x) async {
+          await x.reference.delete();
+        });
         await doc.reference.delete();
       });
       print(
@@ -603,8 +609,11 @@ class Generator {
 
         await doc.reference.delete();
       });
+
+      await StorageAPI.deleteFolder('contracts');
+
       print(
-          'Generator.cleanUp invoiceOffers and invoiceBids deleted from Firestore ##############');
+          'Generator.cleanUp invoiceOffers and invoiceBids deleted from Firestore and FirebaseStorage ##############');
     } catch (e) {
       print('Generator.cleanUp ERROR $e');
       return 1;

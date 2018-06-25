@@ -24,20 +24,129 @@ class InvoiceList extends StatefulWidget {
 class _InvoiceListState extends State<InvoiceList> implements SnackBarListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   final FirebaseMessaging _firebaseMessaging = new FirebaseMessaging();
+  static const MakeOffer = '1', CancelOffer = '2', EditInvoice = '3';
   List<Invoice> invoices;
   Invoice invoice;
   User user;
   Supplier supplier;
   bool isPurchaseOrder, isInvoice;
+  List<DropdownMenuItem<String>> items = List();
 
   @override
   void initState() {
     super.initState();
     _configMessaging();
 
+    _getCached();
     if (widget.invoices == null) {
       _getInvoices();
     }
+  }
+
+  _showMenuDialog(Invoice invoice) {
+    this.invoice = invoice;
+    showDialog(
+        context: context,
+        builder: (_) => new AlertDialog(
+              title: new Text(
+                "Invoice Actions",
+                style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).primaryColor),
+              ),
+              content: Container(
+                height: 240.0,
+                child: Column(
+                  children: <Widget>[
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4.0, bottom: 10.0),
+                      child: Text(
+                        'Invoice Number: ${invoice.invoiceNumber}',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    _buildItems(),
+                  ],
+                ),
+              ),
+            ));
+  }
+
+  Widget _buildItems() {
+    var item1 = Card(
+      elevation: 4.0,
+      child: InkWell(
+        onTap: _onOffer,
+        child: Row(
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Icon(
+                Icons.attach_money,
+                color: Colors.green.shade800,
+              ),
+            ),
+            Text('Make Invoice Offer'),
+          ],
+        ),
+      ),
+    );
+    var item2 = Card(
+      elevation: 4.0,
+      child: InkWell(
+        onTap: _cancelOffer,
+        child: Row(
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Icon(
+                Icons.cancel,
+                color: Colors.red.shade800,
+              ),
+            ),
+            Text('Cancel Invoice Offer'),
+          ],
+        ),
+      ),
+    );
+    var item3 = Card(
+      elevation: 4.0,
+      child: InkWell(
+        onTap: _confirm,
+        child: Row(
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Icon(
+                Icons.description,
+                color: Colors.blue.shade800,
+              ),
+            ),
+            Text('View Invoice Details'),
+          ],
+        ),
+      ),
+    );
+
+    return Column(
+      children: <Widget>[
+        item1,
+        item2,
+        item3,
+        Padding(
+          padding: const EdgeInsets.only(top: 16.0),
+          child: FlatButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: Text(
+              'Cancel',
+              style: TextStyle(color: Colors.blue, fontSize: 20.0),
+            ),
+          ),
+        ),
+      ],
+    );
   }
 
   void _configMessaging() async {
@@ -113,21 +222,39 @@ class _InvoiceListState extends State<InvoiceList> implements SnackBarListener {
     });
   }
 
+  _getCached() async {
+    user = await SharedPrefs.getUser();
+    supplier = await SharedPrefs.getSupplier();
+    setState(() {});
+  }
+
   _getInvoices() async {
     AppSnackbar.showSnackbarWithProgressIndicator(
         scaffoldKey: _scaffoldKey,
         message: 'Loading invoices ...',
         textColor: Colors.white,
         backgroundColor: Colors.black);
-    user = await SharedPrefs.getUser();
-    supplier = await SharedPrefs.getSupplier();
+
     invoices =
         await ListAPI.getInvoices(invoice.supplierDocumentRef, 'suppliers');
     _scaffoldKey.currentState.hideCurrentSnackBar();
+    _calculateTotal();
   }
 
-  _confirm(Invoice invoice) {
-    this.invoice = invoice;
+  void _calculateTotal() {
+    if (invoices.isNotEmpty) {
+      double total = 0.00;
+      invoices.forEach((inv) {
+        double amt = double.parse(inv.amount);
+        total += amt;
+      });
+
+      totalAmount = Helper.getFormattedAmount('$total', context);
+    }
+    setState(() {});
+  }
+
+  void _confirm() {
     print('_InvoiceListState._confirm');
     PrettyPrint.prettyPrint(invoice.toJson(), '_InvoiceListState._confirm');
     showDialog(
@@ -182,9 +309,15 @@ class _InvoiceListState extends State<InvoiceList> implements SnackBarListener {
             ));
   }
 
+  String totalAmount;
   @override
   Widget build(BuildContext context) {
     invoices = widget.invoices;
+    if (invoices == null) {
+      _getInvoices();
+    } else {
+      _calculateTotal();
+    }
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
@@ -195,16 +328,41 @@ class _InvoiceListState extends State<InvoiceList> implements SnackBarListener {
                 Padding(
                   padding: const EdgeInsets.only(bottom: 10.0),
                   child: Text(
-                    supplier == null ? '' : supplier.name,
+                    supplier == null ? 'Blank Supplier?' : supplier.name,
                     style: TextStyle(
                         fontSize: 20.0,
                         color: Colors.white,
                         fontWeight: FontWeight.w900),
                   ),
-                )
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(
+                      left: 10.0, bottom: 20.0, top: 10.0),
+                  child: Column(
+                    children: <Widget>[
+                      Text(
+                        'Total Amount',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16.0,
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 8.0, top: 8.0),
+                        child: Text(
+                          totalAmount == null ? '0.00' : totalAmount,
+                          style: TextStyle(
+                            fontSize: 24.0,
+                            fontWeight: FontWeight.w900,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ],
             ),
-            preferredSize: Size.fromHeight(40.0)),
+            preferredSize: Size.fromHeight(110.0)),
       ),
       body: Card(
         elevation: 4.0,
@@ -216,7 +374,7 @@ class _InvoiceListState extends State<InvoiceList> implements SnackBarListener {
                   itemBuilder: (BuildContext context, int index) {
                     return new InkWell(
                       onTap: () {
-                        _confirm(invoices.elementAt(index));
+                        _showMenuDialog(invoices.elementAt(index));
                       },
                       child: InvoiceCard(
                         invoice: invoices.elementAt(index),
@@ -250,6 +408,14 @@ class _InvoiceListState extends State<InvoiceList> implements SnackBarListener {
     print('_InvoiceListState._onCancel');
     Navigator.pop(context);
   }
+
+  void _cancelOffer() {
+    print('_InvoiceListState._cancelOffer ..........');
+  }
+
+  void _viewInvoice() {
+    print('_InvoiceListState._viewInvoice ............');
+  }
 }
 
 class InvoiceCard extends StatelessWidget {
@@ -261,26 +427,27 @@ class InvoiceCard extends StatelessWidget {
   Widget build(BuildContext context) {
     amount = _getFormattedAmt();
     return Padding(
-      padding: const EdgeInsets.all(10.0),
+      padding: const EdgeInsets.only(left: 10.0, right: 10.0, bottom: 2.0),
       child: Card(
         elevation: 2.0,
+        color: Colors.brown.shade50,
         child: Column(
           children: <Widget>[
             Row(
               children: <Widget>[
                 Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: Icon(Icons.event),
-                ),
-                Container(
-                  width: 100.0,
-                  child: Text(
-                    Helper.getFormattedDate(invoice.date),
-                    style: TextStyle(
-                        color: Colors.blue,
-                        fontSize: 16.0,
-                        fontWeight: FontWeight.bold),
+                  child: Icon(
+                    Icons.directions_car,
+                    color: Colors.grey,
                   ),
+                ),
+                Text(
+                  Helper.getFormattedLongestDate(invoice.date),
+                  style: TextStyle(
+                      color: Colors.blue,
+                      fontSize: 16.0,
+                      fontWeight: FontWeight.normal),
                 ),
               ],
             ),
@@ -302,7 +469,8 @@ class InvoiceCard extends StatelessWidget {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.only(left: 40.0, bottom: 10.0),
+              padding:
+                  const EdgeInsets.only(left: 40.0, bottom: 10.0, top: 10.0),
               child: Row(
                 children: <Widget>[
                   Text('Amount'),

@@ -419,7 +419,7 @@ class _MakeOfferPageState extends State<MakeOfferPage>
                 child: Text(
                   'Invoice Offer Details',
                   style: TextStyle(
-                      fontSize: 20.0,
+                      fontSize: 14.0,
                       color: Colors.grey,
                       fontWeight: FontWeight.w900),
                 ),
@@ -457,7 +457,7 @@ class _MakeOfferPageState extends State<MakeOfferPage>
                 ],
               ),
               Padding(
-                padding: const EdgeInsets.only(top: 18.0, left: 28.0),
+                padding: const EdgeInsets.only(top: 10.0, left: 28.0),
                 child: Row(
                   children: <Widget>[
                     Container(
@@ -488,13 +488,13 @@ class _MakeOfferPageState extends State<MakeOfferPage>
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.only(left: 80.0, top: 10.0),
+                padding: const EdgeInsets.only(left: 80.0, top: 4.0),
                 child: Row(
                   children: <Widget>[
                     Text(
                       days == null ? '0' : '$days',
                       style: TextStyle(
-                          fontSize: 72.0,
+                          fontSize: 60.0,
                           fontWeight: FontWeight.w900,
                           color: Colors.teal),
                     ),
@@ -510,7 +510,7 @@ class _MakeOfferPageState extends State<MakeOfferPage>
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.only(left: 28.0, top: 28.0),
+                padding: const EdgeInsets.only(left: 28.0, top: 10.0),
                 child: Row(
                   children: <Widget>[
                     Container(width: 120.0, child: Text('Invoice Number')),
@@ -559,7 +559,7 @@ class _MakeOfferPageState extends State<MakeOfferPage>
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.only(left: 28.0, top: 28.0),
+                padding: const EdgeInsets.only(left: 28.0, top: 10.0),
                 child: Row(
                   children: <Widget>[
                     Padding(
@@ -567,8 +567,15 @@ class _MakeOfferPageState extends State<MakeOfferPage>
                       child: DropdownButton<String>(
                         items: items,
                         onChanged: _onDiscountTapped,
-                        elevation: 8,
-                        hint: Text('Select Discount'),
+                        elevation: 16,
+                        hint: Text(
+                          'Select Discount',
+                          style: TextStyle(
+                            fontSize: 16.0,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.blue,
+                          ),
+                        ),
                       ),
                     ),
                     Text(
@@ -576,7 +583,7 @@ class _MakeOfferPageState extends State<MakeOfferPage>
                       style: TextStyle(
                         color: Colors.black,
                         fontWeight: FontWeight.w900,
-                        fontSize: 48.0,
+                        fontSize: 36.0,
                       ),
                     ),
                     Padding(
@@ -593,13 +600,13 @@ class _MakeOfferPageState extends State<MakeOfferPage>
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.only(left: 10.0, top: 20.0),
+                padding: const EdgeInsets.only(left: 10.0, top: 10.0),
                 child: Row(
                   children: <Widget>[
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Container(
-                          width: 120.0, child: Text('Expected Amount')),
+                          width: 140.0, child: Text('Expected Amount')),
                     ),
                     Text(
                       supplierAmount == null
@@ -607,7 +614,7 @@ class _MakeOfferPageState extends State<MakeOfferPage>
                           : Helper.getFormattedAmount(supplierAmount, context),
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        fontSize: 28.0,
+                        fontSize: 24.0,
                         color: Colors.teal,
                       ),
                     ),
@@ -615,13 +622,13 @@ class _MakeOfferPageState extends State<MakeOfferPage>
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.only(left: 10.0, top: 4.0),
+                padding: const EdgeInsets.only(left: 10.0, top: 0.0),
                 child: Row(
                   children: <Widget>[
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Container(
-                          width: 120.0, child: Text('Investor Amount')),
+                          width: 140.0, child: Text('Investor(s) Amount')),
                     ),
                     Text(
                       investorAmount == null
@@ -629,7 +636,7 @@ class _MakeOfferPageState extends State<MakeOfferPage>
                           : Helper.getFormattedAmount(investorAmount, context),
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        fontSize: 20.0,
+                        fontSize: 16.0,
                         color: Colors.grey,
                       ),
                     ),

@@ -15,6 +15,8 @@ import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:supplierv3/ui/contract_list.dart';
 import 'package:supplierv3/ui/delivery_note_list.dart';
 import 'package:supplierv3/ui/invoice_list.dart';
 import 'package:supplierv3/ui/invoice_page.dart';
@@ -33,6 +35,8 @@ class _DashboardState extends State<Dashboard>
     implements SnackBarListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   final FirebaseMessaging _firebaseMessaging = new FirebaseMessaging();
+  static const platform = const MethodChannel('com.oneconnect.files/pdf');
+
   AnimationController animationController;
   Animation<double> animation;
   Supplier supplier;
@@ -290,6 +294,10 @@ class _DashboardState extends State<Dashboard>
           ),
           actions: <Widget>[
             IconButton(
+              icon: Icon(Icons.library_books),
+              onPressed: _goToContracts,
+            ),
+            IconButton(
               icon: Icon(Icons.refresh),
               onPressed: _getSummaryData,
             ),
@@ -414,6 +422,14 @@ class _DashboardState extends State<Dashboard>
     Navigator.push(
       context,
       new MaterialPageRoute(builder: (context) => new InvoicePage(acceptance)),
+    );
+  }
+
+  void _goToContracts() {
+    print('_DashboardState._goToContracts .......');
+    Navigator.push(
+      context,
+      new MaterialPageRoute(builder: (context) => new ContractList()),
     );
   }
 }

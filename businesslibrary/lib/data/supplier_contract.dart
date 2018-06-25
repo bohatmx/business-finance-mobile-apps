@@ -14,7 +14,7 @@ class SupplierContract {
   String govtEntity;
   String company;
   String supplier;
-  String user;
+  String user, contractURL;
 
   SupplierContract(
       {this.contractId,
@@ -31,6 +31,7 @@ class SupplierContract {
       this.supplierDocumentRef,
       this.govtEntity,
       this.company,
+      this.contractURL,
       this.supplier,
       this.user});
 
@@ -51,6 +52,7 @@ class SupplierContract {
     this.govtDocumentRef = data['govtDocumentRef'];
     this.supplierDocumentRef = data['supplierDocumentRef'];
     this.companyDocumentRef = data['companyDocumentRef'];
+    this.contractURL = data['contractURL'];
   }
 
   Map<String, String> toJson() => <String, String>{
@@ -70,5 +72,6 @@ class SupplierContract {
         'govtDocumentRef': govtDocumentRef,
         'supplierDocumentRef': supplierDocumentRef,
         'companyDocumentRef': companyDocumentRef,
+        'contractURL': contractURL,
       };
 }

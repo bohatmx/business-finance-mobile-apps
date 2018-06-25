@@ -130,6 +130,7 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
     PrettyPrint.prettyPrint(note.toJson(), '_DeliveryNoteListState._confirm');
   }
 
+  int count;
   @override
   Widget build(BuildContext context) {
     deliveryNotes = widget.deliveryNotes;
@@ -137,6 +138,33 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
       key: _scaffoldKey,
       appBar: AppBar(
         title: Text('Delivery Notes'),
+        bottom: PreferredSize(
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 28.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: <Widget>[
+                  Text(
+                    supplier == null ? 'No Supplier?' : supplier.name,
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20.0,
+                        fontWeight: FontWeight.bold),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 48.0, right: 20.0),
+                    child: Text(
+                      count == null ? '0' : '$count',
+                      style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 40.0,
+                          fontWeight: FontWeight.w900),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            preferredSize: Size.fromHeight(80.0)),
       ),
       body: Card(
         elevation: 4.0,
@@ -185,32 +213,63 @@ class DeliveryNoteCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       elevation: 2.0,
+      color: Colors.teal.shade50,
       child: Column(
         children: <Widget>[
           Row(
             children: <Widget>[
               Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: Icon(Icons.event),
+                child: Icon(
+                  Icons.event,
+                  color: Colors.deepOrange.shade100,
+                ),
               ),
               Text(
                 Helper.getFormattedDate(deliveryNote.date),
                 style: TextStyle(
                     color: Colors.blue,
                     fontSize: 16.0,
-                    fontWeight: FontWeight.bold),
+                    fontWeight: FontWeight.normal),
               ),
               Padding(
                 padding: const EdgeInsets.only(left: 8.0),
                 child: Text(
                   deliveryNote.customerName,
                   style: TextStyle(
-                      color: Colors.blue,
+                      color: Colors.black,
                       fontSize: 16.0,
                       fontWeight: FontWeight.bold),
                 ),
               )
             ],
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 40.0),
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 10.0),
+              child: Row(
+                children: <Widget>[
+                  Text(
+                    'PO Number',
+                    style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 14.0,
+                        fontWeight: FontWeight.normal),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 8.0),
+                    child: Text(
+                      deliveryNote.purchaseOrderNumber,
+                      style: TextStyle(
+                          color: Colors.pink.shade100,
+                          fontSize: 20.0,
+                          fontWeight: FontWeight.bold),
+                    ),
+                  )
+                ],
+              ),
+            ),
           ),
         ],
       ),

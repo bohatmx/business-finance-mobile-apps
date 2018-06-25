@@ -1,12 +1,15 @@
 import 'dart:async';
 
+import 'package:businesslibrary/data/company.dart';
 import 'package:businesslibrary/data/delivery_acceptance.dart';
 import 'package:businesslibrary/data/delivery_note.dart';
+import 'package:businesslibrary/data/govt_entity.dart';
 import 'package:businesslibrary/data/invoice.dart';
 import 'package:businesslibrary/data/invoice_bid.dart';
 import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/supplier.dart';
+import 'package:businesslibrary/data/supplier_contract.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ListAPI {
@@ -189,6 +192,94 @@ class ListAPI {
     });
 
     print('ListAPI.getDeliveryNotes ############ found: ${list.length}');
+    return list;
+  }
+
+  static Future<List<SupplierContract>> getSupplierContracts(
+      String supplierDocumentRef) async {
+    print(
+        'ListAPI.getSupplierContracts .......  documentId: $supplierDocumentRef');
+    List<SupplierContract> list = List();
+    var qs = await _firestore
+        .collection('suppliers')
+        .document(supplierDocumentRef)
+        .collection('supplierContracts')
+        .orderBy('date', descending: true)
+        .getDocuments()
+        .catchError((e) {
+      print('ListAPI.getSupplierContracts $e');
+      return null;
+    });
+
+    qs.documents.forEach((doc) {
+      list.add(new SupplierContract.fromJson(doc.data));
+    });
+
+    print('ListAPI.getSupplierContracts ############ found: ${list.length}');
+    return list;
+  }
+
+  static Future<List<GovtEntity>> getGovtEntitiesByCountry(
+      String country) async {
+    print('ListAPI.getGovtEntities .......  country: $country');
+    List<GovtEntity> list = List();
+    var qs = await _firestore
+        .collection('govtEntities')
+        .where('country', isEqualTo: country)
+        .orderBy('name', descending: false)
+        .getDocuments()
+        .catchError((e) {
+      print('ListAPI.getGovtEntities $e');
+      return null;
+    });
+
+    qs.documents.forEach((doc) {
+      list.add(new GovtEntity.fromJson(doc.data));
+    });
+
+    print('ListAPI.getGovtEntities ############ found: ${list.length}');
+    return list;
+  }
+
+  static Future<List<Supplier>> getSuppliersByCountry(String country) async {
+    print('ListAPI.getSuppliersByCountry .......  country: $country');
+    List<Supplier> list = List();
+    var qs = await _firestore
+        .collection('suppliers')
+        .where('country', isEqualTo: country)
+        .orderBy('name', descending: false)
+        .getDocuments()
+        .catchError((e) {
+      print('ListAPI.getSuppliersByCountry $e');
+      return null;
+    });
+
+    qs.documents.forEach((doc) {
+      list.add(new Supplier.fromJson(doc.data));
+    });
+
+    print('ListAPI.getSuppliersByCountry ############ found: ${list.length}');
+    return list;
+  }
+
+  static Future<List<Company>> getCompaniesByCountry(String country) async {
+    print('ListAPI.getCompaniesByCountry .......  country: $country');
+    List<Company> list = List();
+    var qs = await _firestore
+        .collection('companies')
+        .where('country', isEqualTo: country)
+        .orderBy('name', descending: false)
+        .getDocuments()
+        .catchError((e) {
+      print('ListAPI.getCompaniesByCountry $e');
+      return null;
+    });
+
+    qs.documents.forEach((doc) {
+      list.add(new Company.fromJson(doc.data));
+    });
+
+    print('ListAPI.getCompaniesByCountry ############ found: ${list.length}');
     return list;
   }
 
