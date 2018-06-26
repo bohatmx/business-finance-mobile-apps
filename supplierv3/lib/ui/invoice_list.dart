@@ -10,6 +10,8 @@ import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:supplierv3/ui/delivery_acceptance_list.dart';
+import 'package:supplierv3/ui/invoice_page.dart';
 import 'package:supplierv3/ui/make_offer.dart';
 
 class InvoiceList extends StatefulWidget {
@@ -72,6 +74,14 @@ class _InvoiceListState extends State<InvoiceList> implements SnackBarListener {
             ));
   }
 
+  _onInvoiceDetails() {
+    Navigator.push(
+      context,
+      new MaterialPageRoute(
+          builder: (context) => new InvoiceDetailsPage(invoice)),
+    );
+  }
+
   Widget _buildItems() {
     var item1 = Card(
       elevation: 4.0,
@@ -112,7 +122,7 @@ class _InvoiceListState extends State<InvoiceList> implements SnackBarListener {
     var item3 = Card(
       elevation: 4.0,
       child: InkWell(
-        onTap: _confirm,
+        onTap: _onInvoiceDetails,
         child: Row(
           children: <Widget>[
             Padding(
@@ -161,7 +171,7 @@ class _InvoiceListState extends State<InvoiceList> implements SnackBarListener {
           Map map = json.decode(message["json"]);
           var purchaseOrder = new PurchaseOrder.fromJson(map);
           assert(purchaseOrder != null);
-          PrettyPrint.prettyPrint(map, 'Dashboard._configMessaging: ');
+          prettyPrint(map, 'Dashboard._configMessaging: ');
           isPurchaseOrder = true;
           _scaffoldKey.currentState.hideCurrentSnackBar();
           AppSnackbar.showSnackbarWithAction(
@@ -180,7 +190,7 @@ class _InvoiceListState extends State<InvoiceList> implements SnackBarListener {
           var acceptance = new Invoice.fromJson(map);
           assert(acceptance != null);
           invoices.insert(0, acceptance);
-          PrettyPrint.prettyPrint(map, 'Dashboard._configMessaging: ');
+          prettyPrint(map, 'Dashboard._configMessaging: ');
           isInvoice = true;
           _scaffoldKey.currentState.hideCurrentSnackBar();
           AppSnackbar.showSnackbarWithAction(
@@ -249,14 +259,14 @@ class _InvoiceListState extends State<InvoiceList> implements SnackBarListener {
         total += amt;
       });
 
-      totalAmount = Helper.getFormattedAmount('$total', context);
+      totalAmount = getFormattedAmount('$total', context);
     }
     setState(() {});
   }
 
   void _confirm() {
     print('_InvoiceListState._confirm');
-    PrettyPrint.prettyPrint(invoice.toJson(), '_InvoiceListState._confirm');
+    prettyPrint(invoice.toJson(), '_InvoiceListState._confirm');
     showDialog(
         context: context,
         builder: (_) => new AlertDialog(
@@ -322,6 +332,13 @@ class _InvoiceListState extends State<InvoiceList> implements SnackBarListener {
       key: _scaffoldKey,
       appBar: AppBar(
         title: Text('Invoices'),
+        elevation: 8.0,
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.add),
+            onPressed: _onInvoiceAdd,
+          ),
+        ],
         bottom: PreferredSize(
             child: Column(
               children: <Widget>[
@@ -413,8 +430,11 @@ class _InvoiceListState extends State<InvoiceList> implements SnackBarListener {
     print('_InvoiceListState._cancelOffer ..........');
   }
 
-  void _viewInvoice() {
-    print('_InvoiceListState._viewInvoice ............');
+  void _onInvoiceAdd() {
+    Navigator.push(
+      context,
+      new MaterialPageRoute(builder: (context) => new DeliveryAcceptanceList()),
+    );
   }
 }
 
@@ -427,7 +447,7 @@ class InvoiceCard extends StatelessWidget {
   Widget build(BuildContext context) {
     amount = _getFormattedAmt();
     return Padding(
-      padding: const EdgeInsets.only(left: 10.0, right: 10.0, bottom: 2.0),
+      padding: const EdgeInsets.only(left: 5.0, right: 5.0, bottom: 2.0),
       child: Card(
         elevation: 2.0,
         color: Colors.brown.shade50,
@@ -438,12 +458,12 @@ class InvoiceCard extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Icon(
-                    Icons.directions_car,
+                    Icons.description,
                     color: Colors.grey,
                   ),
                 ),
                 Text(
-                  Helper.getFormattedLongestDate(invoice.date),
+                  getFormattedLongestDate(invoice.date),
                   style: TextStyle(
                       color: Colors.blue,
                       fontSize: 16.0,
@@ -495,7 +515,7 @@ class InvoiceCard extends StatelessWidget {
 
   String amount;
   String _getFormattedAmt() {
-    amount = Helper.getFormattedAmount(invoice.amount, context);
+    amount = getFormattedAmount(invoice.amount, context);
     print('InvoiceCard._getFormattedAmt $amount');
     return amount;
   }

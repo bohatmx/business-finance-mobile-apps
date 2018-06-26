@@ -17,9 +17,9 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:supplierv3/ui/contract_list.dart';
+import 'package:supplierv3/ui/delivery_acceptance_list.dart';
 import 'package:supplierv3/ui/delivery_note_list.dart';
 import 'package:supplierv3/ui/invoice_list.dart';
-import 'package:supplierv3/ui/invoice_page.dart';
 import 'package:supplierv3/ui/purchase_order_list.dart';
 import 'package:supplierv3/ui/summary_card.dart';
 
@@ -74,7 +74,7 @@ class _DashboardState extends State<Dashboard>
           Map map = json.decode(message["json"]);
           var po = new PurchaseOrder.fromJson(map);
           assert(po != null);
-          PrettyPrint.prettyPrint(map, 'Dashboard._configMessaging: ');
+          prettyPrint(map, 'Dashboard._configMessaging: ');
           _getPOs();
         }
         if (messageType == "DELIVERY_ACCEPTANCE") {
@@ -83,7 +83,7 @@ class _DashboardState extends State<Dashboard>
           Map map = json.decode(message["json"]);
           acceptance = new DeliveryAcceptance.fromJson(map);
           assert(acceptance != null);
-          PrettyPrint.prettyPrint(map, 'Dashboard._configMessaging: ');
+          prettyPrint(map, 'Dashboard._configMessaging: ');
           _scaffoldKey.currentState.hideCurrentSnackBar();
           AppSnackbar.showSnackbarWithAction(
               scaffoldKey: _scaffoldKey,
@@ -131,7 +131,7 @@ class _DashboardState extends State<Dashboard>
 
   ///get  summaries from Firestore
   _getSummaryData() async {
-    PrettyPrint.prettyPrint(supplier.toJson(), 'Dashboard_getSummaryData: ');
+    prettyPrint(supplier.toJson(), 'Dashboard_getSummaryData: ');
     await _getPOs();
     await getDelNotes();
     await _getInvoices();
@@ -421,7 +421,7 @@ class _DashboardState extends State<Dashboard>
         '_DashboardState.onActionPressed ..................  start DeliveryAcceptance ==> create invoice');
     Navigator.push(
       context,
-      new MaterialPageRoute(builder: (context) => new InvoicePage(acceptance)),
+      new MaterialPageRoute(builder: (context) => new DeliveryAcceptanceList()),
     );
   }
 

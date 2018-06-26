@@ -56,11 +56,21 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: <Widget>[
                     Text(
-                      deliveryNotes == null ? '0' : '${deliveryNotes.length}',
+                      govtEntity == null ? 'No Govt' : govtEntity.name,
                       style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 28.0,
+                          color: Colors.black,
+                          fontSize: 20.0,
                           fontWeight: FontWeight.w900),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 20.0),
+                      child: Text(
+                        deliveryNotes == null ? '0' : '${deliveryNotes.length}',
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 28.0,
+                            fontWeight: FontWeight.w900),
+                      ),
                     )
                   ],
                 ),
@@ -71,24 +81,21 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
       ),
       body: new Padding(
         padding: const EdgeInsets.all(10.0),
-        child: new Card(
-          elevation: 4.0,
-          child: new Column(
-            children: <Widget>[
-              new Flexible(
-                child: new ListView.builder(
-                    itemCount: deliveryNotes == null ? 0 : deliveryNotes.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      return new Padding(
-                        padding: const EdgeInsets.only(bottom: 0.0),
-                        child: new DeliveryNoteCard(
-                            deliveryNote: deliveryNotes.elementAt(index),
-                            listener: this),
-                      );
-                    }),
-              ),
-            ],
-          ),
+        child: new Column(
+          children: <Widget>[
+            new Flexible(
+              child: new ListView.builder(
+                  itemCount: deliveryNotes == null ? 0 : deliveryNotes.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return new Padding(
+                      padding: const EdgeInsets.only(bottom: 0.0),
+                      child: new DeliveryNoteCard(
+                          deliveryNote: deliveryNotes.elementAt(index),
+                          listener: this),
+                    );
+                  }),
+            ),
+          ],
         ),
       ),
     );
@@ -104,36 +111,74 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
   onDeliveryNoteTapped(DeliveryNote deliveryNote) {
     this.deliveryNote = deliveryNote;
 
-    PrettyPrint.prettyPrint(deliveryNote.toJson(),
+    prettyPrint(deliveryNote.toJson(),
         '_DeliveryNoteListState.onDeliveryNoteTapped ...');
 
     showDialog(
         context: context,
         builder: (_) => new AlertDialog(
-              title: new Text("Confirm Delivery Acceptance"),
-              content: new Text(
-                  "Do you want to accept this Delivery Note?\n\nPurchase Order: ${deliveryNote.purchaseOrderNumber}"),
+              title: new Text(
+                "Confirm Delivery Acceptance",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              content: Container(
+                height: 120.0,
+                child: Column(
+                  children: <Widget>[
+                    new Text("Do you want to accept this Delivery Note?\n\ "),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 28.0),
+                      child: Row(
+                        children: <Widget>[
+                          Text(
+                            'Purchase Order:',
+                            style: TextStyle(fontSize: 12.0),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 10.0),
+                            child: Text(
+                              '${deliveryNote.purchaseOrderNumber}',
+                              style: TextStyle(
+                                color: Colors.pink,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
               actions: <Widget>[
-                FlatButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: Text(
-                    'NO',
-                    style: TextStyle(
-                      fontSize: 16.0,
-                      color: Colors.red,
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 18.0),
+                  child: FlatButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: Text(
+                      'NO',
+                      style: TextStyle(
+                        fontSize: 16.0,
+                        color: Colors.grey,
+                      ),
                     ),
                   ),
                 ),
                 new Padding(
-                  padding: const EdgeInsets.only(left: 28.0, right: 16.0),
-                  child: FlatButton(
+                  padding: const EdgeInsets.only(
+                      left: 28.0, right: 16.0, bottom: 10.0),
+                  child: RaisedButton(
+                    elevation: 4.0,
                     onPressed: _acceptDelivery,
+                    color: Colors.teal,
                     child: Text(
                       'YES',
                       style: TextStyle(
                         fontSize: 16.0,
                         fontWeight: FontWeight.bold,
-                        color: Colors.teal.shade800,
+                        color: Colors.white,
                       ),
                     ),
                   ),
@@ -167,7 +212,7 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
       purchaseOrderNumber: deliveryNote.purchaseOrderNumber,
     );
 
-    PrettyPrint.prettyPrint(
+    prettyPrint(
         acceptance.toJson(), '_DeliveryNoteListState._acceptDelivery ......');
     try {
       var key = await api.acceptDelivery(acceptance);
@@ -208,6 +253,7 @@ class DeliveryNoteCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       elevation: 2.0,
+      color: Colors.pink.shade50,
       child: new Padding(
         padding: const EdgeInsets.all(10.0),
         child: new GestureDetector(
@@ -254,27 +300,6 @@ class DeliveryNoteCard extends StatelessWidget {
                       deliveryNote.purchaseOrderNumber == null
                           ? ''
                           : deliveryNote.purchaseOrderNumber,
-                      style: TextStyle(
-                          fontSize: 16.0, fontWeight: FontWeight.bold),
-                    ),
-                  ],
-                ),
-              ),
-              new Padding(
-                padding: const EdgeInsets.only(left: 10.0),
-                child: new Row(
-                  children: <Widget>[
-                    Text(
-                      'Customer:',
-                      style: TextStyle(
-                          fontSize: 16.0,
-                          fontWeight: FontWeight.normal,
-                          color: Colors.grey),
-                    ),
-                    Text(
-                      deliveryNote.customerName == null
-                          ? ''
-                          : deliveryNote.customerName,
                       style: TextStyle(
                           fontSize: 16.0, fontWeight: FontWeight.bold),
                     ),

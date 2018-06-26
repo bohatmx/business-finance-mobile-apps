@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:businesslibrary/api/data_api.dart';
+import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/delivery_acceptance.dart';
 import 'package:businesslibrary/data/invoice.dart';
@@ -13,22 +14,24 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:supplierv3/util.dart';
 
-class InvoicePage extends StatefulWidget {
+class NewInvoicePage extends StatefulWidget {
   final DeliveryAcceptance deliveryAcceptance;
 
-  InvoicePage(this.deliveryAcceptance);
+  NewInvoicePage(this.deliveryAcceptance);
 
   @override
-  _InvoicePageState createState() => _InvoicePageState();
+  _NewInvoicePageState createState() => _NewInvoicePageState();
 }
 
 ///
-class _InvoicePageState extends State<InvoicePage> implements SnackBarListener {
+class _NewInvoicePageState extends State<NewInvoicePage>
+    implements SnackBarListener {
   final GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   final FirebaseMessaging _firebaseMessaging = new FirebaseMessaging();
 
   DeliveryAcceptance deliveryAcceptance;
+  List<DeliveryAcceptance> deliveryAcceptances;
   User _user;
   String invoiceNumber, amount;
   Invoice invoice;
@@ -39,6 +42,14 @@ class _InvoicePageState extends State<InvoicePage> implements SnackBarListener {
     super.initState();
     _getCachedPrefs();
     _configMessaging();
+    _getDeliveryAcceptances();
+  }
+
+  _getDeliveryAcceptances() async {
+    deliveryAcceptances = await ListAPI.getDeliveryAcceptances(
+        supplier.documentReference, 'suppliers');
+    print(
+        '_NewInvoicePageState._getDeliveryAcceptances deliveryAcceptances: ${deliveryAcceptances.length}');
   }
 
   void _configMessaging() async {
@@ -53,7 +64,7 @@ class _InvoicePageState extends State<InvoicePage> implements SnackBarListener {
           Map map = json.decode(message["json"]);
           var po = new PurchaseOrder.fromJson(map);
           assert(po != null);
-          PrettyPrint.prettyPrint(map, 'Dashboard._configMessaging: ');
+          prettyPrint(map, 'Dashboard._configMessaging: ');
           _scaffoldKey.currentState.hideCurrentSnackBar();
           AppSnackbar.showSnackbarWithAction(
               scaffoldKey: _scaffoldKey,
@@ -70,7 +81,7 @@ class _InvoicePageState extends State<InvoicePage> implements SnackBarListener {
           Map map = json.decode(message["json"]);
           var acceptance = new DeliveryAcceptance.fromJson(map);
           assert(acceptance != null);
-          PrettyPrint.prettyPrint(map, 'Dashboard._configMessaging: ');
+          prettyPrint(map, 'Dashboard._configMessaging: ');
           _scaffoldKey.currentState.hideCurrentSnackBar();
           AppSnackbar.showSnackbarWithAction(
               scaffoldKey: _scaffoldKey,
@@ -187,11 +198,13 @@ class _InvoicePageState extends State<InvoicePage> implements SnackBarListener {
               Padding(
                 padding: const EdgeInsets.only(bottom: 20.0),
                 child: Text(
-                  deliveryAcceptance.customerName,
+                  deliveryAcceptance == null
+                      ? 'Customer Name Here'
+                      : deliveryAcceptance.customerName,
                   style: TextStyle(
                       fontWeight: FontWeight.w900,
                       color: Colors.white,
-                      fontSize: 24.0),
+                      fontSize: 20.0),
                 ),
               ),
             ],
@@ -209,14 +222,14 @@ class _InvoicePageState extends State<InvoicePage> implements SnackBarListener {
               child: ListView(
                 children: <Widget>[
                   new Padding(
-                    padding: const EdgeInsets.only(top: 14.0),
+                    padding: const EdgeInsets.only(top: 4.0),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: <Widget>[
                         Text(
                           'Invoice Details',
                           style: TextStyle(
-                              color: Theme.of(context).accentColor,
+                              color: Colors.grey,
                               fontSize: 16.0,
                               fontWeight: FontWeight.w900),
                         ),
@@ -233,6 +246,10 @@ class _InvoicePageState extends State<InvoicePage> implements SnackBarListener {
                   Padding(
                     padding: const EdgeInsets.only(left: 12.0, right: 12.0),
                     child: TextFormField(
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20.0,
+                          color: Colors.black),
                       decoration: InputDecoration(
                         labelText: 'Invoice Number',
                       ),
@@ -251,7 +268,7 @@ class _InvoicePageState extends State<InvoicePage> implements SnackBarListener {
                       style: TextStyle(
                           fontSize: 24.0,
                           fontWeight: FontWeight.bold,
-                          color: Colors.pink),
+                          color: Colors.red),
                       decoration: InputDecoration(
                         labelText: 'Amount',
                       ),
@@ -267,7 +284,7 @@ class _InvoicePageState extends State<InvoicePage> implements SnackBarListener {
                   ),
                   Padding(
                     padding: const EdgeInsets.only(
-                      top: 40.0,
+                      top: 20.0,
                       bottom: 12.0,
                       left: 12.0,
                     ),
@@ -278,7 +295,7 @@ class _InvoicePageState extends State<InvoicePage> implements SnackBarListener {
                           padding:
                               const EdgeInsets.only(left: 12.0, right: 12.0),
                           child: Text(
-                            deliveryAcceptance.purchaseOrderNumber == null
+                            deliveryAcceptance == null
                                 ? ''
                                 : deliveryAcceptance.purchaseOrderNumber,
                             style: TextStyle(
@@ -299,7 +316,7 @@ class _InvoicePageState extends State<InvoicePage> implements SnackBarListener {
                         Padding(
                           padding: const EdgeInsets.only(left: 12.0),
                           child: Text(
-                            deliveryAcceptance.customerName == null
+                            deliveryAcceptance == null
                                 ? ''
                                 : deliveryAcceptance.customerName,
                             style: TextStyle(
@@ -343,7 +360,7 @@ class _InvoicePageState extends State<InvoicePage> implements SnackBarListener {
                         padding: const EdgeInsets.all(12.0),
                         child: Text(
                           'Submit Invoice',
-                          style: TextStyle(color: Colors.white, fontSize: 20.0),
+                          style: TextStyle(color: Colors.white, fontSize: 16.0),
                         ),
                       ),
                     ),
@@ -359,9 +376,66 @@ class _InvoicePageState extends State<InvoicePage> implements SnackBarListener {
 
   @override
   onActionPressed() {
-    print('_InvoicePageState.onActionPressed');
+    print('_NewInvoicePageState.onActionPressed');
     if (isSuccess) {
       Navigator.pop(context);
     }
+  }
+}
+
+class InvoiceDetailsPage extends StatelessWidget {
+  final Invoice invoice;
+
+  InvoiceDetailsPage(this.invoice);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Invoice Details'),
+        bottom: PreferredSize(
+            child: Column(
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.only(top: .0),
+                  child: Text(
+                    invoice.customerName,
+                    style: getTitleTextWhite(),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(
+                      left: 48.0, top: 10.0, bottom: 20.0),
+                  child: Row(
+                    children: <Widget>[
+                      Text(
+                        'Invoice Number',
+                        style: getTextWhiteSmall(),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 8.0),
+                        child: Text(
+                          invoice.invoiceNumber,
+                          style: getTextWhiteMedium(),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            preferredSize: Size.fromHeight(60.0)),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Card(
+          child: Column(
+            children: <Widget>[
+              Text('More coming ....'),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }

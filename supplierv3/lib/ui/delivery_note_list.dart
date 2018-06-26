@@ -51,7 +51,7 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
           Map map = json.decode(message["json"]);
           var purchaseOrder = new PurchaseOrder.fromJson(map);
           assert(purchaseOrder != null);
-          PrettyPrint.prettyPrint(map, 'Dashboard._configMessaging: ');
+          prettyPrint(map, 'Dashboard._configMessaging: ');
           isPurchaseOrder = true;
           _scaffoldKey.currentState.hideCurrentSnackBar();
           AppSnackbar.showSnackbarWithAction(
@@ -70,7 +70,7 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
           var acceptance = new DeliveryNote.fromJson(map);
           assert(acceptance != null);
           deliveryNotes.insert(0, acceptance);
-          PrettyPrint.prettyPrint(map, 'Dashboard._configMessaging: ');
+          prettyPrint(map, 'Dashboard._configMessaging: ');
           isDeliveryNote = true;
           _scaffoldKey.currentState.hideCurrentSnackBar();
           AppSnackbar.showSnackbarWithAction(
@@ -127,7 +127,7 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
 
   _confirm(DeliveryNote note) {
     print('_DeliveryNoteListState._confirm');
-    PrettyPrint.prettyPrint(note.toJson(), '_DeliveryNoteListState._confirm');
+    prettyPrint(note.toJson(), '_DeliveryNoteListState._confirm');
   }
 
   int count;
@@ -198,8 +198,7 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
 
   @override
   onNoteTapped(DeliveryNote note) {
-    PrettyPrint.prettyPrint(
-        note.toJson(), '_DeliveryNoteListState.onAcceptanceTapped');
+    prettyPrint(note.toJson(), '_DeliveryNoteListState.onAcceptanceTapped');
   }
 }
 
@@ -226,7 +225,7 @@ class DeliveryNoteCard extends StatelessWidget {
                 ),
               ),
               Text(
-                Helper.getFormattedDate(deliveryNote.date),
+                getFormattedDate(deliveryNote.date),
                 style: TextStyle(
                     color: Colors.blue,
                     fontSize: 16.0,

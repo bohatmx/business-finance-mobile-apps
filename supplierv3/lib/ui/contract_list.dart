@@ -40,7 +40,7 @@ class _ContractListState extends State<ContractList> {
         double val = double.parse(ct.estimatedValue);
         total += val;
       });
-      totalValue = Helper.getFormattedAmount('$total', context);
+      totalValue = getFormattedAmount('$total', context);
     }
     setState(() {});
   }
@@ -187,7 +187,7 @@ class _ContractListState extends State<ContractList> {
   }
 
   void _confirm(SupplierContract contract) {
-    PrettyPrint.prettyPrint(contract.toJson(), '_ContractListState._confirm:');
+    prettyPrint(contract.toJson(), '_ContractListState._confirm:');
   }
 }
 
@@ -214,7 +214,7 @@ class SupplierContractCard extends StatelessWidget {
                   child: Icon(Icons.event),
                 ),
                 Text(
-                  Helper.getFormattedLongestDate(supplierContract.date),
+                  getFormattedLongestDate(supplierContract.date),
                   style: TextStyle(
                       color: Colors.black,
                       fontSize: 16.0,
@@ -268,7 +268,7 @@ class SupplierContractCard extends StatelessWidget {
                     child: Text(
                       supplierContract == null
                           ? 'No Date'
-                          : Helper.getFormattedDate(supplierContract.endDate),
+                          : getFormattedDate(supplierContract.endDate),
                       style: TextStyle(
                           fontSize: 18.0,
                           fontWeight: FontWeight.normal,
@@ -286,8 +286,7 @@ class SupplierContractCard extends StatelessWidget {
 
   String amount;
   String _getFormattedAmt() {
-    amount =
-        Helper.getFormattedAmount(supplierContract.estimatedValue, context);
+    amount = getFormattedAmount(supplierContract.estimatedValue, context);
     print('SupplierContractCard._getFormattedAmt $amount');
     return amount;
   }

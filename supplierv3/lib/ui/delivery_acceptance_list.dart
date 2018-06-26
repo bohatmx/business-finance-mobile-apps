@@ -10,6 +10,8 @@ import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:supplierv3/ui/invoice_page.dart';
+import 'package:supplierv3/util.dart';
 
 class DeliveryAcceptanceList extends StatefulWidget {
   @override
@@ -17,7 +19,7 @@ class DeliveryAcceptanceList extends StatefulWidget {
 }
 
 class _DeliveryAcceptanceListState extends State<DeliveryAcceptanceList>
-    implements SnackBarListener, DeliveryAcceptanceCardListener {
+    implements SnackBarListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   final FirebaseMessaging _firebaseMessaging = new FirebaseMessaging();
   List<DeliveryAcceptance> acceptances;
@@ -25,6 +27,8 @@ class _DeliveryAcceptanceListState extends State<DeliveryAcceptanceList>
   User user;
   Supplier supplier;
   bool isPurchaseOrder, isDeliveryAcceptance;
+
+  DeliveryAcceptance acceptance;
 
   @override
   void initState() {
@@ -45,7 +49,7 @@ class _DeliveryAcceptanceListState extends State<DeliveryAcceptanceList>
           Map map = json.decode(message["json"]);
           var purchaseOrder = new PurchaseOrder.fromJson(map);
           assert(purchaseOrder != null);
-          PrettyPrint.prettyPrint(map, 'Dashboard._configMessaging: ');
+          prettyPrint(map, 'Dashboard._configMessaging: ');
           isPurchaseOrder = true;
           _scaffoldKey.currentState.hideCurrentSnackBar();
           AppSnackbar.showSnackbarWithAction(
@@ -64,7 +68,7 @@ class _DeliveryAcceptanceListState extends State<DeliveryAcceptanceList>
           var acceptance = new DeliveryAcceptance.fromJson(map);
           assert(acceptance != null);
           acceptances.insert(0, acceptance);
-          PrettyPrint.prettyPrint(map, 'Dashboard._configMessaging: ');
+          prettyPrint(map, 'Dashboard._configMessaging: ');
           isDeliveryAcceptance = true;
           _scaffoldKey.currentState.hideCurrentSnackBar();
           AppSnackbar.showSnackbarWithAction(
@@ -110,20 +114,92 @@ class _DeliveryAcceptanceListState extends State<DeliveryAcceptanceList>
     user = await SharedPrefs.getUser();
     supplier = await SharedPrefs.getSupplier();
 
+    setState(() {});
     AppSnackbar.showSnackbarWithProgressIndicator(
         scaffoldKey: _scaffoldKey,
         message: 'Loading delivery note acceptances',
         textColor: Colors.white,
         backgroundColor: Colors.black);
+    print('_DeliveryAcceptanceListState._getAcceptances ... calling api');
     acceptances = await ListAPI.getDeliveryAcceptances(
-        deliveryAcceptance.supplierDocumentRef, 'suppliers');
+        supplier.documentReference, 'suppliers');
     _scaffoldKey.currentState.hideCurrentSnackBar();
+    setState(() {});
+    if (acceptances.isEmpty) {
+      AppSnackbar.showSnackbarWithAction(
+          scaffoldKey: _scaffoldKey,
+          message: 'No delivery acceptances',
+          textColor: Colors.white,
+          backgroundColor: Colors.black,
+          actionLabel: 'Close',
+          listener: this,
+          icon: Icons.error);
+    }
   }
 
-  _confirm(DeliveryAcceptance acceptance) {
+  _confirm() {
     print('_DeliveryAcceptanceListState._confirm');
-    PrettyPrint.prettyPrint(
-        acceptance.toJson(), '_DeliveryAcceptanceListState._confirm');
+    prettyPrint(acceptance.toJson(), '_DeliveryAcceptanceListState._confirm');
+    showDialog(
+        context: context,
+        builder: (_) => new AlertDialog(
+              title: new Text(
+                "Invoice Actions",
+                style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).primaryColor),
+              ),
+              content: Container(
+                height: 120.0,
+                child: Column(
+                  children: <Widget>[
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4.0, bottom: 10.0),
+                      child: Text(
+                        'Delivery Acceptance: ${acceptance.customerName}',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    Text(
+                        'Do you want to create an Invoice based on this Delivery Acceptance?'),
+                  ],
+                ),
+              ),
+              actions: <Widget>[
+                FlatButton(
+                  child: Text(
+                    'NO',
+                    style: TextStyle(color: Colors.grey),
+                  ),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 20.0),
+                  child: RaisedButton(
+                    onPressed: _onInvoiceToCreate,
+                    elevation: 4.0,
+                    color: Colors.amber.shade300,
+                    child: Text(
+                      'Create Invoice',
+                      style: TextStyle(color: Colors.black),
+                    ),
+                  ),
+                ),
+              ],
+            ));
+  }
+
+  _onInvoiceToCreate() {
+    print(
+        '_DeliveryAcceptanceListState._onInvoiceToCreate ... go to NewInvoicePage');
+    Navigator.pop(context);
+    Navigator.push(
+      context,
+      new MaterialPageRoute(
+          builder: (context) => new NewInvoicePage(acceptance)),
+    );
   }
 
   @override
@@ -132,6 +208,19 @@ class _DeliveryAcceptanceListState extends State<DeliveryAcceptanceList>
       key: _scaffoldKey,
       appBar: AppBar(
         title: Text('Delivery Acceptances'),
+        bottom: PreferredSize(
+            child: Column(
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 18.0),
+                  child: Text(
+                    supplier == null ? '' : supplier.name,
+                    style: getTitleTextWhite(),
+                  ),
+                )
+              ],
+            ),
+            preferredSize: Size.fromHeight(40.0)),
       ),
       body: Card(
         elevation: 4.0,
@@ -143,11 +232,11 @@ class _DeliveryAcceptanceListState extends State<DeliveryAcceptanceList>
                   itemBuilder: (BuildContext context, int index) {
                     return new InkWell(
                       onTap: () {
-                        _confirm(acceptances.elementAt(index));
+                        acceptance = acceptances.elementAt(index);
+                        _confirm();
                       },
                       child: DeliveryAcceptanceCard(
                         deliveryAcceptance: acceptances.elementAt(index),
-                        listener: this,
                       ),
                     );
                   }),
@@ -161,58 +250,60 @@ class _DeliveryAcceptanceListState extends State<DeliveryAcceptanceList>
   @override
   onActionPressed() {
     print('_DeliveryAcceptanceListState.onActionPressed');
+    Navigator.pop(context);
   }
 
   @override
   onAcceptanceTapped(DeliveryAcceptance acceptance) {
-    PrettyPrint.prettyPrint(
+    prettyPrint(
         acceptance.toJson(), '_DeliveryAcceptanceListState.onAcceptanceTapped');
   }
 }
 
 class DeliveryAcceptanceCard extends StatelessWidget {
   final DeliveryAcceptance deliveryAcceptance;
-  final DeliveryAcceptanceCardListener listener;
 
-  DeliveryAcceptanceCard({this.deliveryAcceptance, this.listener});
+  DeliveryAcceptanceCard({this.deliveryAcceptance});
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 2.0,
-      child: Column(
-        children: <Widget>[
-          Row(
-            children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Icon(Icons.event),
-              ),
-              Text(
-                Helper.getFormattedDate(deliveryAcceptance.date),
-                style: TextStyle(
-                    color: Colors.blue,
-                    fontSize: 16.0,
-                    fontWeight: FontWeight.bold),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(left: 8.0),
-                child: Text(
-                  deliveryAcceptance.customerName,
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Card(
+        elevation: 2.0,
+        child: Column(
+          children: <Widget>[
+            Row(
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Icon(
+                    Icons.event,
+                    color: Colors.grey,
+                  ),
+                ),
+                Text(
+                  getFormattedDate(deliveryAcceptance.date),
                   style: TextStyle(
                       color: Colors.blue,
-                      fontSize: 16.0,
-                      fontWeight: FontWeight.bold),
+                      fontSize: 12.0,
+                      fontWeight: FontWeight.normal),
                 ),
-              )
-            ],
-          ),
-        ],
+                Padding(
+                  padding: const EdgeInsets.only(left: 8.0),
+                  child: Text(
+                    deliveryAcceptance.customerName,
+                    style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 16.0,
+                        fontWeight: FontWeight.bold),
+                  ),
+                )
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
-}
-
-abstract class DeliveryAcceptanceCardListener {
-  onAcceptanceTapped(DeliveryAcceptance acceptance);
 }

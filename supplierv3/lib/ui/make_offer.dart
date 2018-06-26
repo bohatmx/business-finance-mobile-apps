@@ -446,8 +446,7 @@ class _MakeOfferPageState extends State<MakeOfferPage>
                     child: Text(
                       startTime == null
                           ? ''
-                          : Helper
-                              .getFormattedDate(startTime.toIso8601String()),
+                          : getFormattedDate(startTime.toIso8601String()),
                       style: TextStyle(
                           fontSize: 20.0,
                           fontWeight: FontWeight.bold,
@@ -476,8 +475,7 @@ class _MakeOfferPageState extends State<MakeOfferPage>
                       child: Text(
                         endTime == null
                             ? ''
-                            : Helper
-                                .getFormattedDate(endTime.toIso8601String()),
+                            : getFormattedDate(endTime.toIso8601String()),
                         style: TextStyle(
                             fontSize: 20.0,
                             fontWeight: FontWeight.bold,
@@ -534,7 +532,7 @@ class _MakeOfferPageState extends State<MakeOfferPage>
                     Padding(
                       padding: const EdgeInsets.only(left: 8.0),
                       child: Text(
-                        Helper.getFormattedAmount(invoice.amount, context),
+                        getFormattedAmount(invoice.amount, context),
                         style: TextStyle(
                             fontSize: 20.0, fontWeight: FontWeight.bold),
                       ),
@@ -550,7 +548,7 @@ class _MakeOfferPageState extends State<MakeOfferPage>
                     Padding(
                       padding: const EdgeInsets.only(left: 8.0),
                       child: Text(
-                        Helper.getFormattedDate(invoice.date),
+                        getFormattedDate(invoice.date),
                         style: TextStyle(
                             fontSize: 20.0, fontWeight: FontWeight.bold),
                       ),
@@ -611,7 +609,7 @@ class _MakeOfferPageState extends State<MakeOfferPage>
                     Text(
                       supplierAmount == null
                           ? '0.00'
-                          : Helper.getFormattedAmount(supplierAmount, context),
+                          : getFormattedAmount(supplierAmount, context),
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 24.0,
@@ -633,7 +631,7 @@ class _MakeOfferPageState extends State<MakeOfferPage>
                     Text(
                       investorAmount == null
                           ? '0.00'
-                          : Helper.getFormattedAmount(investorAmount, context),
+                          : getFormattedAmount(investorAmount, context),
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 16.0,

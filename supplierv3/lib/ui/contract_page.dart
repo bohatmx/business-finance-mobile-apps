@@ -396,8 +396,7 @@ class _ContractPageState extends State<ContractPage>
                           child: Text(
                             startTime == null
                                 ? ''
-                                : Helper.getFormattedDate(
-                                    startTime.toIso8601String()),
+                                : getFormattedDate(startTime.toIso8601String()),
                             style: TextStyle(
                               fontSize: 20.0,
                               color: Colors.black,
@@ -429,8 +428,7 @@ class _ContractPageState extends State<ContractPage>
                         child: Text(
                           endTime == null
                               ? ''
-                              : Helper
-                                  .getFormattedDate(endTime.toIso8601String()),
+                              : getFormattedDate(endTime.toIso8601String()),
                           style: TextStyle(
                             fontSize: 20.0,
                             color: Colors.pink,

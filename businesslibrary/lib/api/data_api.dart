@@ -104,7 +104,7 @@ class DataAPI {
 
     user.documentReference = ref.documentID;
     print('DataAPI.addUser url: ${url + USER}');
-    PrettyPrint.prettyPrint(user.toJson(), 'DataAPI.addUser ');
+    prettyPrint(user.toJson(), 'DataAPI.addUser ');
     try {
       var httpClient = new HttpClient();
       HttpClientRequest mRequest =
@@ -369,7 +369,7 @@ class DataAPI {
 
     print(
         'DataAPI.addSupplierContract #########################  ${url + SUPPLIER_CONTRACT}');
-    PrettyPrint.prettyPrint(contract.toJson(),
+    prettyPrint(contract.toJson(),
         'DataAPI.addSupplierContract: document refs anyone? .....  ');
     try {
       var httpClient = new HttpClient();
@@ -573,8 +573,7 @@ class DataAPI {
 
     print(
         'DataAPI.registerPurchaseOrder url: ${url + REGISTER_PURCHASE_ORDER}');
-    PrettyPrint.prettyPrint(
-        purchaseOrder.toJson(), 'DataAPI.registerPurchaseOrder  ');
+    prettyPrint(purchaseOrder.toJson(), 'DataAPI.registerPurchaseOrder  ');
     try {
       var httpClient = new HttpClient();
       HttpClientRequest mRequest =
@@ -719,7 +718,7 @@ class DataAPI {
     });
     print('DataAPI.registerDeliveryNote added to Firestore: ${ref2.path}');
     print('DataAPI.registerDeliveryNote url: ${url + REGISTER_DELIVERY_NOTE}');
-    PrettyPrint.prettyPrint(deliveryNote.toJson(), 'registerDeliveryNote ');
+    prettyPrint(deliveryNote.toJson(), 'registerDeliveryNote ');
     try {
       var httpClient = new HttpClient();
       HttpClientRequest mRequest =
@@ -771,7 +770,7 @@ class DataAPI {
       supplierDocRef = await _getDocumentId('suppliers', id);
       invoice.supplierDocumentRef = supplierDocRef;
     }
-    print('DataAPI.registerInvoice adding  ${invoice.toJson()}');
+    prettyPrint(invoice.toJson(), 'DataAPI.registerInvoice adding');
     var ref = await _firestore
         .collection(collection)
         .document(documentRef)
@@ -796,7 +795,7 @@ class DataAPI {
     print('DataAPI.registerInvoice added to Firestore: ${ref2.path}');
 
     print('DataAPI.registerInvoice url: ${url + REGISTER_INVOICE}');
-    PrettyPrint.prettyPrint(invoice.toJson(),
+    prettyPrint(invoice.toJson(),
         'DataAPI.registerInvoice .. calling BFN via http(s) ...');
     try {
       var httpClient = new HttpClient();
@@ -878,7 +877,7 @@ class DataAPI {
     print('DataAPI.acceptDelivery SUPPLIER added to Firestore: ${ref2.path}');
 
     print('DataAPI.acceptDelivery url: ${url + ACCEPT_DELIVERY}');
-    PrettyPrint.prettyPrint(
+    prettyPrint(
         acceptance.toJson(), 'DataAPI.acceptDelivery ... calling BFN ...');
     try {
       Map map = acceptance.toJson();
@@ -938,7 +937,7 @@ class DataAPI {
     offer.documentReference = ref.documentID;
 
     print('DataAPI.makeOffer  ${url + 'MakeOffer'}');
-    PrettyPrint.prettyPrint(offer.toJson(), 'DataAPI.makeOffer offer: ');
+    prettyPrint(offer.toJson(), 'DataAPI.makeOffer offer: ');
     try {
       Map map = offer.toJson();
       var mjson = json.encode(map);
@@ -982,7 +981,7 @@ class DataAPI {
         .document(invoiceDocId)
         .updateData(inv.toJson());
     print('DataAPI.makeOffer ******* invoice updated with  offer ');
-    PrettyPrint.prettyPrint(inv.toJson(), 'updated invoice on  Firestore');
+    prettyPrint(inv.toJson(), 'updated invoice on  Firestore');
   }
 
   Future<String> makeInvoiceBid(InvoiceBid bid, Offer offer) async {

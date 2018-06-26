@@ -14,6 +14,7 @@ import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:govt/ui/delivery_note_list.dart';
+import 'package:govt/ui/invoice_list.dart';
 import 'package:govt/ui/purchase_order_list.dart';
 import 'package:govt/ui/summary_card.dart';
 
@@ -22,7 +23,14 @@ class Dashboard extends StatefulWidget {
   _DashboardState createState() => _DashboardState();
 }
 
-class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
+class _DashboardState extends State<Dashboard>
+    with TickerProviderStateMixin
+    implements SnackBarListener {
+  static const Payments = 1,
+      Invoices = 2,
+      PurchaseOrders = 3,
+      DeliveryNotes = 4,
+      DeliveryAcceptances = 5;
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   AnimationController animationController;
   Animation<double> animation;
@@ -33,6 +41,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
   List<GovtInvoiceSettlement> govtSettlements;
   User user;
   String fullName;
+  int messageReceived;
   final FirebaseMessaging _firebaseMessaging = new FirebaseMessaging();
   @override
   initState() {
@@ -63,9 +72,20 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
           Map map = json.decode(message["json"]);
           var note = new DeliveryNote.fromJson(map);
           assert(note != null);
-          PrettyPrint.prettyPrint(
-              note.toJson(), 'FCM message received DeliveryNote: ');
-          _getNotes();
+
+          setState(() {
+            deliveryNotes.insert(0, note);
+          });
+          prettyPrint(note.toJson(), 'FCM message received DeliveryNote: ');
+          messageReceived = DeliveryNotes;
+          AppSnackbar.showSnackbarWithAction(
+              scaffoldKey: _scaffoldKey,
+              message: 'Delivery Note arrived',
+              textColor: Colors.white,
+              backgroundColor: Colors.deepPurple,
+              actionLabel: 'Notes',
+              listener: this,
+              icon: Icons.email);
         }
         if (messageType == "GOVT_INVOICE" || messageType == "INVOICE") {
           print(
@@ -73,9 +93,16 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
           Map map = json.decode(message["json"]);
           var invoice = new Invoice.fromJson(map);
           assert(invoice != null);
-          PrettyPrint.prettyPrint(
-              invoice.toJson(), 'FCM message received Invoice: ');
-          _getInvoices();
+          prettyPrint(invoice.toJson(), 'FCM message received Invoice: ');
+          messageReceived = Invoices;
+          AppSnackbar.showSnackbarWithAction(
+              scaffoldKey: _scaffoldKey,
+              message: 'Invoice arrived',
+              textColor: Colors.white,
+              backgroundColor: Colors.deepPurple,
+              actionLabel: 'Invoices',
+              listener: this,
+              icon: Icons.email);
         }
       },
       onLaunch: (Map<String, dynamic> message) {},
@@ -184,13 +211,12 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
         textColor: Colors.white,
         backgroundColor: Colors.black);
     govtSettlements = await FirestoreListAPI.getGovtSettlements(govtEntity);
-
+    _scaffoldKey.currentState.hideCurrentSnackBar();
     setState(() {
       totalPayments = govtSettlements.length;
       print(
           '_DashboardState._getSummaryData ------------  payments: $totalPayments');
     });
-    _scaffoldKey.currentState.hideCurrentSnackBar();
   }
 
   _getSummaryData() async {
@@ -318,7 +344,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                 padding: const EdgeInsets.only(top: 20.0),
                 child: ListView(
                   children: <Widget>[
-                    new GestureDetector(
+                    new InkWell(
                       onTap: _onPaymentsTapped,
                       child: SummaryCard(
                         total: totalPayments == null ? 0 : totalPayments,
@@ -326,15 +352,15 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                         totalStyle: paymentStyle,
                       ),
                     ),
-                    new GestureDetector(
-                      onTap: _onInvoiceTapped,
+                    new InkWell(
+                      onTap: _onInvoicesTapped,
                       child: SummaryCard(
                         total: totalInvoices == null ? 0 : totalInvoices,
                         label: 'Invoices',
                         totalStyle: invoiceStyle,
                       ),
                     ),
-                    new GestureDetector(
+                    new InkWell(
                       onTap: _onPurchaseOrdersTapped,
                       child: SummaryCard(
                         total: totalPOs == null ? 0 : totalPOs,
@@ -342,7 +368,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                         totalStyle: poStyle,
                       ),
                     ),
-                    new GestureDetector(
+                    new InkWell(
                       onTap: _onDeliveryNotesTapped,
                       child: SummaryCard(
                         total: totalNotes == null ? 0 : totalNotes,
@@ -371,12 +397,12 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
     setState(() {});
   }
 
-  void _onInvoiceTapped() {
-    print('_MainPageState._onInvoiceTapped ... go  to list of invoices');
-//    Navigator.push(
-//      context,
-//      new MaterialPageRoute(builder: (context) => new InvoiceListPage()),
-//    );
+  void _onInvoicesTapped() {
+    print('_MainPageState._onInvoicesTapped ... go  to list of invoices');
+    Navigator.push(
+      context,
+      new MaterialPageRoute(builder: (context) => new InvoiceList(invoices)),
+    );
   }
 
   void _onPurchaseOrdersTapped() {
@@ -399,5 +425,22 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
 
   void _onPaymentsTapped() {
     print('_MainPageState._onPaymentsTapped - go to payments');
+  }
+
+  @override
+  onActionPressed() {
+    if (messageReceived == null) {
+      print('_DashboardState.onActionPressed ERROR ERROR ');
+      return;
+    }
+    print('_DashboardState.onActionPressed $messageReceived');
+    switch (messageReceived) {
+      case DeliveryNotes:
+        _onDeliveryNotesTapped();
+        break;
+      case Invoices:
+        _onInvoicesTapped();
+        break;
+    }
   }
 }

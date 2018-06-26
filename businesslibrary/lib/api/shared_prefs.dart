@@ -11,6 +11,7 @@ import 'package:businesslibrary/data/procurement_office.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/data/wallet.dart';
+import 'package:businesslibrary/util/lookups.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SharedPrefs {
@@ -33,8 +34,9 @@ class SharedPrefs {
     if (string == null) {
       return null;
     }
+
     var jx = json.decode(string);
-    print(jx);
+    prettyPrint(jx, 'User from cache: ');
     User account = new User.fromJson(jx);
     return account;
   }
@@ -59,7 +61,7 @@ class SharedPrefs {
       return null;
     }
     var jx = json.decode(string);
-    print(jx);
+    prettyPrint(jx, 'GovtEntity from cache: ');
     GovtEntity govtEntity = new GovtEntity.fromJson(jx);
     return govtEntity;
   }
@@ -84,7 +86,7 @@ class SharedPrefs {
       return null;
     }
     var jx = json.decode(string);
-    print(jx);
+    prettyPrint(jx, 'Company from cache: ');
     Company company = new Company.fromJson(jx);
     return company;
   }
@@ -108,7 +110,7 @@ class SharedPrefs {
       return null;
     }
     var jx = json.decode(string);
-    print(jx);
+    prettyPrint(jx, 'Supplier from cache: ');
     Supplier supplier = new Supplier.fromJson(jx);
     return supplier;
   }
@@ -119,7 +121,7 @@ class SharedPrefs {
 
     Map jsonx = bank.toJson();
     var jx = json.encode(jsonx);
-    print(jx);
+
     prefs.setString('bank', jx);
     print("SharedPrefs.saveBank =========  data SAVED.........");
   }
@@ -132,7 +134,7 @@ class SharedPrefs {
       return null;
     }
     var jx = json.decode(string);
-    print(jx);
+    prettyPrint(jx, 'Bank from cache: ');
     Bank bank = new Bank.fromJson(jx);
     return bank;
   }
@@ -156,7 +158,7 @@ class SharedPrefs {
       return null;
     }
     var jx = json.decode(string);
-    print(jx);
+    prettyPrint(jx, 'Bank from cache: ');
     Auditor auditor = new Auditor.fromJson(jx);
     return auditor;
   }
@@ -181,7 +183,7 @@ class SharedPrefs {
       return null;
     }
     var jx = json.decode(string);
-    print(jx);
+    prettyPrint(jx, 'ProcurementOffice from cache: ');
     ProcurementOffice office = new ProcurementOffice.fromJson(jx);
     return office;
   }
@@ -205,7 +207,7 @@ class SharedPrefs {
       return null;
     }
     var jx = json.decode(string);
-    print(jx);
+    prettyPrint(jx, 'Investor from cache: ');
     Investor investor = new Investor.fromJson(jx);
     return investor;
   }
@@ -229,7 +231,7 @@ class SharedPrefs {
       return null;
     }
     var jx = json.decode(string);
-    print(jx);
+    prettyPrint(jx, 'OneConnect from cache: ');
     OneConnect one = new OneConnect.fromJson(jx);
     return one;
   }
@@ -261,7 +263,7 @@ class SharedPrefs {
     var map = json.decode(jx);
     Wallet w = new Wallet.fromJson(map);
     print("SharedPrefs - Check the details of the wallet retrieved");
-    print(w.toJson());
+    prettyPrint(map, 'Wallet from cache: ');
     return w;
   }
 

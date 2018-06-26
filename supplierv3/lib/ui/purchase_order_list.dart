@@ -68,7 +68,7 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
           Map map = json.decode(message["json"]);
           purchaseOrder = new PurchaseOrder.fromJson(map);
           assert(purchaseOrder != null);
-          PrettyPrint.prettyPrint(map, 'Dashboard._configMessaging: ');
+          prettyPrint(map, 'Dashboard._configMessaging: ');
           isPurchaseOrder = true;
           _scaffoldKey.currentState.hideCurrentSnackBar();
           AppSnackbar.showSnackbarWithAction(
@@ -86,7 +86,7 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
           Map map = json.decode(message["json"]);
           acceptance = new DeliveryAcceptance.fromJson(map);
           assert(acceptance != null);
-          PrettyPrint.prettyPrint(map, 'Dashboard._configMessaging: ');
+          prettyPrint(map, 'Dashboard._configMessaging: ');
           isDeliveryAcceptance = true;
           _scaffoldKey.currentState.hideCurrentSnackBar();
           AppSnackbar.showSnackbarWithAction(
@@ -171,27 +171,23 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
       ),
       body: new Padding(
         padding: const EdgeInsets.all(10.0),
-        child: new Card(
-          elevation: 4.0,
-          child: new Column(
-            children: <Widget>[
-              new Flexible(
-                child: new ListView.builder(
-                    itemCount:
-                        purchaseOrders == null ? 0 : purchaseOrders.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      return new InkWell(
-                        onTap: () {
-                          _confirm(purchaseOrders.elementAt(index));
-                        },
-                        child: PurchaseOrderCard(
-                          purchaseOrder: purchaseOrders.elementAt(index),
-                        ),
-                      );
-                    }),
-              ),
-            ],
-          ),
+        child: new Column(
+          children: <Widget>[
+            new Flexible(
+              child: new ListView.builder(
+                  itemCount: purchaseOrders == null ? 0 : purchaseOrders.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return new InkWell(
+                      onTap: () {
+                        _confirm(purchaseOrders.elementAt(index));
+                      },
+                      child: PurchaseOrderCard(
+                        purchaseOrder: purchaseOrders.elementAt(index),
+                      ),
+                    );
+                  }),
+            ),
+          ],
         ),
       ),
     );
@@ -202,10 +198,54 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
     showDialog(
         context: context,
         builder: (_) => new AlertDialog(
-              title: new Text("Task Selection"),
-              content: new Text(
-                  "Do you want  to create a Delivery Note?\n\n${order.purchaseOrderNumber}"),
+              title: new Text(
+                "Task Selection",
+                style: TextStyle(
+                    color: Theme.of(context).primaryColor,
+                    fontSize: 20.0,
+                    fontWeight: FontWeight.bold),
+              ),
+              content: Container(
+                height: 100.0,
+                child: Column(
+                  children: <Widget>[
+                    new Text(
+                        "Do you want  to create a Delivery Note for this Purchase Order?"),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 18.0),
+                      child: Row(
+                        children: <Widget>[
+                          Text(
+                            'PO Number:',
+                            style: TextStyle(color: Colors.grey),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 10.0),
+                            child: Text(
+                              '${order.purchaseOrderNumber}',
+                              style: TextStyle(
+                                color: Colors.pink.shade100,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 20.0,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
               actions: <Widget>[
+                FlatButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: Text(
+                    'NO',
+                    style: TextStyle(fontSize: 16.0, color: Colors.grey),
+                  ),
+                ),
                 FlatButton(
                   onPressed: _onDeliveryNote,
                   child: Text(
@@ -216,16 +256,6 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
                         fontWeight: FontWeight.bold),
                   ),
                 ),
-//                new Padding(
-//                  padding: const EdgeInsets.only(left: 28.0, right: 16.0),
-//                  child: FlatButton(
-//                    onPressed: _onInvoice,
-//                    child: Text(
-//                      'Invoice',
-//                      style: TextStyle(color: Colors.pink),
-//                    ),
-//                  ),
-//                ),
               ],
             ));
   }
@@ -249,7 +279,7 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
       Navigator.push(
         context,
         new MaterialPageRoute(
-            builder: (context) => new InvoicePage(acceptance)),
+            builder: (context) => new NewInvoicePage(acceptance)),
       );
     }
     if (isPurchaseOrder) {
@@ -274,28 +304,35 @@ class PurchaseOrderCard extends StatelessWidget {
       padding: const EdgeInsets.all(8.0),
       child: Card(
         elevation: 2.0,
+        color: Colors.lightBlue.shade50,
         child: Column(
           children: <Widget>[
-            new Row(
-              children: <Widget>[
-                new Padding(
-                  padding: const EdgeInsets.only(left: 8.0),
-                  child: Icon(Icons.apps),
-                ),
-                new Padding(
-                  padding: const EdgeInsets.only(left: 8.0),
-                  child: Text(
-                    purchaseOrder.purchaserName == null
-                        ? 'Unknown Purchaser'
-                        : purchaseOrder.purchaserName,
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                      fontSize: 20.0,
+            Padding(
+              padding: const EdgeInsets.only(top: 18.0),
+              child: new Row(
+                children: <Widget>[
+                  new Padding(
+                    padding: const EdgeInsets.only(left: 8.0),
+                    child: Icon(
+                      Icons.apps,
+                      color: Colors.grey,
                     ),
                   ),
-                ),
-              ],
+                  new Padding(
+                    padding: const EdgeInsets.only(left: 8.0),
+                    child: Text(
+                      purchaseOrder.purchaserName == null
+                          ? 'Unknown Purchaser'
+                          : purchaseOrder.purchaserName,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                        fontSize: 20.0,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
             new Padding(
               padding: const EdgeInsets.only(left: 40.0, bottom: 20.0),
@@ -327,8 +364,4 @@ class PurchaseOrderCard extends StatelessWidget {
       ),
     );
   }
-}
-
-abstract class PurchaseOrderListener {
-  onPurchaseOrderTapped(PurchaseOrder order);
 }
