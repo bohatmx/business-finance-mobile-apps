@@ -1,6 +1,5 @@
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:govt/ui/dashboard.dart';
 import 'package:govt/ui/signin_page.dart';
@@ -8,7 +7,6 @@ import 'package:govt/ui/signup_page.dart';
 
 void main() => runApp(new GovtApp());
 
-final FirebaseMessaging _firebaseMessaging = new FirebaseMessaging();
 final FirebaseAuth _auth = FirebaseAuth.instance;
 
 class GovtApp extends StatelessWidget {
@@ -164,16 +162,8 @@ class _StartPageState extends State<StartPage> implements SnackBarListener {
     );
   }
 
-  void _startDashboard() async {
-    print('_MyHomePageState._starDashboard ...........');
-    await Navigator.push(
-      context,
-      new MaterialPageRoute(builder: (context) => new Dashboard()),
-    );
-  }
-
   @override
-  onActionPressed() {
+  onActionPressed(int action) {
     print('_StartPageState.onActionPressed +++++++++++++++++ >>>');
     Navigator.push(
       context,

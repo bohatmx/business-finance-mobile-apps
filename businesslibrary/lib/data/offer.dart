@@ -9,7 +9,8 @@ class Offer {
   String purchaseOrder, participantId;
   String user, date, supplier;
   String invoiceDocumentRef;
-  String supplierDocumentRef;
+  String supplierDocumentRef, supplierFCMToken;
+  List<String> invoiceBids;
   Offer(
       {this.offerId,
       this.startTime,
@@ -23,6 +24,8 @@ class Offer {
       this.privateSectorType,
       this.purchaseOrder,
       this.supplier,
+      this.invoiceBids,
+      this.supplierFCMToken,
       this.invoiceDocumentRef,
       this.supplierDocumentRef,
       this.user});
@@ -44,9 +47,11 @@ class Offer {
     this.invoiceDocumentRef = data['invoiceDocumentRef'];
     this.supplierDocumentRef = data['supplierDocumentRef'];
     this.supplier = data['supplier'];
+    this.invoiceBids = data['invoiceBids'];
+    this.supplierFCMToken = data['supplierFCMToken'];
   }
 
-  Map<String, String> toJson() => <String, String>{
+  Map<String, dynamic> toJson() => <String, dynamic>{
         'offerId': offerId,
         'startTime': startTime,
         'endTime': endTime,
@@ -62,5 +67,7 @@ class Offer {
         'invoiceDocumentRef': invoiceDocumentRef,
         'supplierDocumentRef': supplierDocumentRef,
         'supplier': supplier,
+        'invoiceBids': invoiceBids,
+        'supplierFCMToken': supplierFCMToken,
       };
 }

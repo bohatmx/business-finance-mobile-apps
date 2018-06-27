@@ -94,6 +94,9 @@ class _DashboardState extends State<Dashboard>
           var invoice = new Invoice.fromJson(map);
           assert(invoice != null);
           prettyPrint(invoice.toJson(), 'FCM message received Invoice: ');
+          setState(() {
+            invoices.insert(0, invoice);
+          });
           messageReceived = Invoices;
           AppSnackbar.showSnackbarWithAction(
               scaffoldKey: _scaffoldKey,
@@ -428,7 +431,7 @@ class _DashboardState extends State<Dashboard>
   }
 
   @override
-  onActionPressed() {
+  onActionPressed(int action) {
     if (messageReceived == null) {
       print('_DashboardState.onActionPressed ERROR ERROR ');
       return;

@@ -7,8 +7,8 @@ import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
+import 'package:businesslibrary/util/util.dart';
 import 'package:flutter/material.dart';
-import 'package:supplierv3/util.dart';
 
 class MakeOfferPage extends StatefulWidget {
   final Invoice invoice;
@@ -22,7 +22,6 @@ class MakeOfferPage extends StatefulWidget {
 class _MakeOfferPageState extends State<MakeOfferPage>
     implements SnackBarListener {
   static const NameSpace = 'resource:com.oneconnect.biz.';
-  final GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   Invoice invoice;
   Supplier supplier;
@@ -350,7 +349,7 @@ class _MakeOfferPageState extends State<MakeOfferPage>
         message: 'Submitting Invoice Offer',
         textColor: Colors.white,
         backgroundColor: Colors.black);
-    DataAPI dataAPI = DataAPI(Util.getURL());
+    DataAPI dataAPI = DataAPI(getURL());
     var key = await dataAPI.makeOffer(offer);
     if (key == '0') {
       AppSnackbar.showErrorSnackbar(
@@ -655,7 +654,7 @@ class _MakeOfferPageState extends State<MakeOfferPage>
   }
 
   @override
-  onActionPressed() {
+  onActionPressed(int action) {
     print('_MakeOfferPageState.onActionPressed');
     Navigator.pop(context);
   }

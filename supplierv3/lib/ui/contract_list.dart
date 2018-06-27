@@ -4,7 +4,6 @@ import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/supplier_contract.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/lookups.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:supplierv3/ui/contract_page.dart';
 
@@ -15,7 +14,6 @@ class ContractList extends StatefulWidget {
 
 class _ContractListState extends State<ContractList> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
-  final FirebaseMessaging _firebaseMessaging = new FirebaseMessaging();
 
   List<SupplierContract> contracts;
   Supplier supplier;

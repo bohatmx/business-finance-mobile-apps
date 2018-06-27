@@ -89,7 +89,7 @@ class AppSnackbar {
       action: SnackBarAction(
         label: actionLabel,
         onPressed: () {
-          listener.onActionPressed();
+          listener.onActionPressed(Action);
         },
       ),
     ));
@@ -114,15 +114,17 @@ class AppSnackbar {
       action: SnackBarAction(
         label: actionLabel,
         onPressed: () {
-          listener.onActionPressed();
+          listener.onActionPressed(Error);
         },
       ),
     );
 
     scaffoldKey.currentState.showSnackBar(snackbar);
   }
+
+  static const Error = 0, Action = 1;
 }
 
 abstract class SnackBarListener {
-  onActionPressed();
+  onActionPressed(int action);
 }

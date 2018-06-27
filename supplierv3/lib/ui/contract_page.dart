@@ -10,11 +10,11 @@ import 'package:businesslibrary/data/supplier_contract.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
+import 'package:businesslibrary/util/util.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:supplierv3/storage_api.dart';
-import 'package:supplierv3/util.dart';
 
 class ContractPage extends StatefulWidget {
   final SupplierContract contract;
@@ -184,7 +184,7 @@ class _ContractPageState extends State<ContractPage>
           'resource:com.oneconnect.biz.Supplier#' + supplier.participantId,
     );
 
-    DataAPI api = DataAPI(Util.getURL());
+    DataAPI api = DataAPI(getURL());
     var res = await api.addSupplierContract(c);
     isBusy = false;
     if (res == '0') {
@@ -539,7 +539,12 @@ class _ContractPageState extends State<ContractPage>
     if (s == null) {
       return false;
     }
-    return double.parse(s, (e) => null) != null;
+    try {
+      double.parse(s);
+      return true;
+    } on FormatException {
+      return false;
+    }
   }
 
   void _confirm() {
@@ -653,7 +658,7 @@ class _ContractPageState extends State<ContractPage>
   }
 
   @override
-  onActionPressed() {
+  onActionPressed(int action) {
     print('_ContractPageState.onActionPressed ............');
     if (isDone) {
       Navigator.pop(context);

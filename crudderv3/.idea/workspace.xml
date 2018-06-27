@@ -2,33 +2,46 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="ee13a624-2909-4df1-b542-b77eab000913" name="Default" comment="tweaked generators IV">
-      <change afterPath="$PROJECT_DIR$/../govt/lib/ui/invoice_list.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../govt/lib/ui/invoice_settlement.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../businesslibrary/lib/util/util.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../businesslibrary/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/api/StorageAPI.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/api/storage_api.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/api/data_api.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/api/data_api.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/api/shared_prefs.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/api/shared_prefs.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/util/lookups.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/util/lookups.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/api/signup.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/api/signup.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/data/invoice.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/data/invoice.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/data/invoice_bid.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/data/invoice_bid.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/data/invoice_settlement.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/data/invoice_settlement.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/data/offer.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/data/offer.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/data/wallet.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/data/wallet.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/util/selectors.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/util/selectors.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/util/snackbar_util.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/util/snackbar_util.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/.idea/libraries/Dart_Packages.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../govt/.idea/libraries/Dart_Packages.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/generator.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/generator.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/util.dart" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../govt/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../govt/lib/main.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../govt/lib/ui/dashboard.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../govt/lib/ui/dashboard.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../govt/lib/ui/delivery_note_list.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../govt/lib/ui/delivery_note_list.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/../govt/pubspec.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../supplierv3/.idea/libraries/Dart_Packages.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/.idea/libraries/Dart_Packages.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../govt/lib/ui/invoice_list.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../govt/lib/ui/invoice_list.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../govt/lib/ui/invoice_settlement.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../govt/lib/ui/invoice_settlement.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../govt/lib/ui/purchase_order_list.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../govt/lib/ui/purchase_order_list.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../govt/lib/ui/purchase_order_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../govt/lib/ui/purchase_order_page.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../govt/lib/ui/signin_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../govt/lib/ui/signin_page.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../govt/lib/ui/signup_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../govt/lib/ui/signup_page.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../govt/lib/util.dart" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/../supplierv3/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../supplierv3/lib/ui/contract_list.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/lib/ui/contract_list.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../supplierv3/lib/ui/contract_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/lib/ui/contract_page.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../supplierv3/lib/ui/dashboard.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/lib/ui/dashboard.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../supplierv3/lib/ui/delivery_acceptance_list.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/lib/ui/delivery_acceptance_list.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../supplierv3/lib/ui/delivery_note_list.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/lib/ui/delivery_note_list.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../supplierv3/lib/ui/delivery_note_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/lib/ui/delivery_note_page.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../supplierv3/lib/ui/file_util.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/lib/ui/file_util.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../supplierv3/lib/ui/govt_entities_list.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/lib/ui/govt_entities_list.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../supplierv3/lib/ui/invoice_list.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/lib/ui/invoice_list.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../supplierv3/lib/ui/invoice_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/lib/ui/invoice_page.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../supplierv3/lib/ui/make_offer.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/lib/ui/make_offer.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../supplierv3/lib/ui/purchase_order_list.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/lib/ui/purchase_order_list.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../supplierv3/lib/util.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/lib/util.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../supplierv3/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/pubspec.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../supplierv3/lib/ui/signin_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/lib/ui/signin_page.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../supplierv3/lib/ui/signup_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/lib/ui/signup_page.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../supplierv3/lib/util.dart" beforeDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <ignored path="../.gradle/4.4/fileChanges/last-build.bin" />
@@ -282,7 +295,7 @@
       <file leaf-file-name="main.dart" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/lib/main.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="416">
+            <state relative-caret-position="56">
               <caret line="37" selection-start-line="37" selection-end-line="37" />
               <folding>
                 <element signature="e#782#873#0" expanded="true" />
@@ -291,24 +304,46 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="generator.dart" pinned="false" current-in-tab="false">
+      <file leaf-file-name="generator.dart" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/lib/generator.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="676">
-              <caret line="504" column="37" selection-start-line="504" selection-start-column="37" selection-end-line="504" selection-end-column="37" />
+            <state relative-caret-position="431">
+              <caret line="115" lean-forward="true" selection-start-line="115" selection-end-line="115" />
               <folding>
                 <element signature="e#0#20#0" expanded="true" />
                 <element signature="e#4252#5244#0" expanded="true" />
+                <element signature="e#9380#10435#0" expanded="true" />
+                <element signature="e#10563#11628#0" expanded="true" />
                 <element signature="e#11736#12643#0" expanded="true" />
+                <element signature="e#12760#13874#0" expanded="true" />
+                <element signature="e#14193#14355#0" expanded="true" />
+                <element signature="e#14468#14759#0" expanded="true" />
+                <element signature="e#14454#15497#0" expanded="true" />
+                <element signature="e#15904#16092#0" expanded="true" />
+                <element signature="e#16131#16265#0" expanded="true" />
+                <element signature="e#16709#23579#0" expanded="true" />
+                <element signature="e#22942#24181#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="pubspec.yaml" pinned="false" current-in-tab="true">
+      <file leaf-file-name="signup.dart" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/../businesslibrary/lib/api/signup.dart">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="145">
+              <caret line="43" column="14" selection-start-line="43" selection-start-column="14" selection-end-line="43" selection-end-column="14" />
+              <folding>
+                <element signature="e#1694#2814#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="pubspec.yaml" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/pubspec.yaml">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="85">
+            <state relative-caret-position="153">
               <caret line="12" column="86" selection-start-line="12" selection-start-column="86" selection-end-line="12" selection-end-column="86" />
             </state>
           </provider>
@@ -333,11 +368,15 @@
       <find>Zama</find>
       <find>_addDeliveryNote</find>
       <find>investor</find>
+      <find>PrettyPrint.</find>
+      <find>Helper.</find>
+      <find>Util.</find>
     </findStrings>
     <replaceStrings>
       <replace>Generator</replace>
       <replace>pass123</replace>
       <replace>Dept</replace>
+      <replace />
     </replaceStrings>
   </component>
   <component name="Git.Settings">
@@ -351,16 +390,17 @@
         <option value="$PROJECT_DIR$/lib/govt_entities.dart" />
         <option value="$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/businesslibrary-0.0.101/lib/api/data_api.dart" />
         <option value="$PROJECT_DIR$/lib/main.dart" />
-        <option value="$PROJECT_DIR$/lib/generator.dart" />
         <option value="$PROJECT_DIR$/pubspec.yaml" />
+        <option value="$PROJECT_DIR$/../businesslibrary/lib/api/data_api.dart" />
+        <option value="$PROJECT_DIR$/lib/generator.dart" />
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" extendedState="1">
-    <option name="x" value="1729" />
+  <component name="ProjectFrameBounds">
+    <option name="x" value="1858" />
     <option name="y" value="23" />
-    <option name="width" value="1816" />
-    <option name="height" value="1004" />
+    <option name="width" value="1524" />
+    <option name="height" value="1009" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true">
     <ConfirmationsSetting value="2" id="Add" />
@@ -511,7 +551,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="1729" y="23" width="1816" height="1004" extended-state="1" />
+    <frame x="1858" y="23" width="1524" height="1009" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info anchor="right" id="Palette" order="3" />
@@ -519,26 +559,27 @@
       <window_info id="Build Variants" order="2" sideWeight="0.5014493" side_tool="true" weight="0.2496382" />
       <window_info anchor="bottom" id="Event Log" order="7" side_tool="true" />
       <window_info anchor="right" id="Maven Projects" order="4" />
-      <window_info anchor="bottom" id="Dart Analysis" order="7" weight="0.3296582" />
+      <window_info active="true" anchor="bottom" id="Dart Analysis" order="7" visible="true" weight="0.32894737" />
       <window_info anchor="right" id="Flutter Outline" order="5" />
       <window_info anchor="bottom" id="Logcat" order="7" />
       <window_info id="Capture Tool" order="2" />
       <window_info id="Designer" order="2" />
-      <window_info id="Structure" order="1" sideWeight="0.5114638" side_tool="true" visible="true" weight="0.16290869" />
+      <window_info id="Structure" order="1" sideWeight="0.5114638" side_tool="true" visible="true" weight="0.19500674" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info id="UI Designer" order="2" />
       <window_info anchor="right" id="Device File Explorer" order="10" side_tool="true" weight="0.32976323" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.39911798" />
       <window_info anchor="bottom" id="TODO" order="6" />
-      <window_info active="true" anchor="bottom" id="Messages" order="7" visible="true" weight="0.24255788" />
+      <window_info anchor="bottom" id="Messages" order="7" weight="0.24255788" />
       <window_info anchor="right" id="Palette&#9;" order="6" />
       <window_info id="Image Layers" order="2" />
       <window_info anchor="right" id="Capture Analysis" order="7" />
-      <window_info anchor="bottom" id="Run" order="2" weight="0.008820287" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.29714912" />
       <window_info anchor="bottom" id="Version Control" order="7" weight="0.3296582" />
       <window_info anchor="bottom" id="Terminal" order="7" weight="0.3296582" />
       <window_info id="Captures" order="2" />
-      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.48853615" visible="true" weight="0.1561443" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.48853615" visible="true" weight="0.18690959" />
+      <window_info anchor="bottom" id="Find" order="1" />
       <window_info anchor="right" id="Theme Preview" order="8" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="right" id="Flutter Inspector" order="9" />
@@ -547,7 +588,6 @@
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
-      <window_info anchor="bottom" id="Find" order="1" />
     </layout>
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -597,39 +637,10 @@
           <properties />
         </breakpoint>
       </default-breakpoints>
-      <option name="time" value="40" />
+      <option name="time" value="43" />
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/pubspec.yaml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="80">
-          <caret line="5" column="16" selection-start-line="5" selection-start-column="16" selection-end-line="5" selection-end-column="16" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/lib/generator.dart">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="368">
-          <caret line="107" column="7" selection-start-line="107" selection-start-column="7" selection-end-line="107" selection-end-column="7" />
-          <folding>
-            <element signature="e#0#20#0" expanded="true" />
-            <element signature="e#4252#5244#0" expanded="true" />
-            <element signature="e#11736#12643#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/lib/main.dart">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="544">
-          <caret line="45" column="115" selection-start-line="45" selection-start-column="115" selection-end-line="45" selection-end-column="115" />
-          <folding>
-            <element signature="e#782#873#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/pubspec.yaml">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="160">
@@ -644,7 +655,17 @@
           <folding>
             <element signature="e#0#20#0" expanded="true" />
             <element signature="e#4252#5244#0" expanded="true" />
+            <element signature="e#9380#10435#0" expanded="true" />
+            <element signature="e#10563#11628#0" expanded="true" />
             <element signature="e#11736#12643#0" expanded="true" />
+            <element signature="e#12760#13874#0" expanded="true" />
+            <element signature="e#14193#14355#0" expanded="true" />
+            <element signature="e#14468#14759#0" expanded="true" />
+            <element signature="e#14454#15497#0" expanded="true" />
+            <element signature="e#15904#16092#0" expanded="true" />
+            <element signature="e#16131#16265#0" expanded="true" />
+            <element signature="e#16709#23579#0" expanded="true" />
+            <element signature="e#22942#24181#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -666,7 +687,17 @@
           <folding>
             <element signature="e#0#20#0" expanded="true" />
             <element signature="e#4252#5244#0" expanded="true" />
+            <element signature="e#9380#10435#0" expanded="true" />
+            <element signature="e#10563#11628#0" expanded="true" />
             <element signature="e#11736#12643#0" expanded="true" />
+            <element signature="e#12760#13874#0" expanded="true" />
+            <element signature="e#14193#14355#0" expanded="true" />
+            <element signature="e#14468#14759#0" expanded="true" />
+            <element signature="e#14454#15497#0" expanded="true" />
+            <element signature="e#15904#16092#0" expanded="true" />
+            <element signature="e#16131#16265#0" expanded="true" />
+            <element signature="e#16709#23579#0" expanded="true" />
+            <element signature="e#22942#24181#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -695,7 +726,17 @@
           <folding>
             <element signature="e#0#20#0" expanded="true" />
             <element signature="e#4252#5244#0" expanded="true" />
+            <element signature="e#9380#10435#0" expanded="true" />
+            <element signature="e#10563#11628#0" expanded="true" />
             <element signature="e#11736#12643#0" expanded="true" />
+            <element signature="e#12760#13874#0" expanded="true" />
+            <element signature="e#14193#14355#0" expanded="true" />
+            <element signature="e#14468#14759#0" expanded="true" />
+            <element signature="e#14454#15497#0" expanded="true" />
+            <element signature="e#15904#16092#0" expanded="true" />
+            <element signature="e#16131#16265#0" expanded="true" />
+            <element signature="e#16709#23579#0" expanded="true" />
+            <element signature="e#22942#24181#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -731,7 +772,17 @@
           <folding>
             <element signature="e#0#20#0" expanded="true" />
             <element signature="e#4252#5244#0" expanded="true" />
+            <element signature="e#9380#10435#0" expanded="true" />
+            <element signature="e#10563#11628#0" expanded="true" />
             <element signature="e#11736#12643#0" expanded="true" />
+            <element signature="e#12760#13874#0" expanded="true" />
+            <element signature="e#14193#14355#0" expanded="true" />
+            <element signature="e#14468#14759#0" expanded="true" />
+            <element signature="e#14454#15497#0" expanded="true" />
+            <element signature="e#15904#16092#0" expanded="true" />
+            <element signature="e#16131#16265#0" expanded="true" />
+            <element signature="e#16709#23579#0" expanded="true" />
+            <element signature="e#22942#24181#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -760,7 +811,17 @@
           <folding>
             <element signature="e#0#20#0" expanded="true" />
             <element signature="e#4252#5244#0" expanded="true" />
+            <element signature="e#9380#10435#0" expanded="true" />
+            <element signature="e#10563#11628#0" expanded="true" />
             <element signature="e#11736#12643#0" expanded="true" />
+            <element signature="e#12760#13874#0" expanded="true" />
+            <element signature="e#14193#14355#0" expanded="true" />
+            <element signature="e#14468#14759#0" expanded="true" />
+            <element signature="e#14454#15497#0" expanded="true" />
+            <element signature="e#15904#16092#0" expanded="true" />
+            <element signature="e#16131#16265#0" expanded="true" />
+            <element signature="e#16709#23579#0" expanded="true" />
+            <element signature="e#22942#24181#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -789,7 +850,17 @@
           <folding>
             <element signature="e#0#20#0" expanded="true" />
             <element signature="e#4252#5244#0" expanded="true" />
+            <element signature="e#9380#10435#0" expanded="true" />
+            <element signature="e#10563#11628#0" expanded="true" />
             <element signature="e#11736#12643#0" expanded="true" />
+            <element signature="e#12760#13874#0" expanded="true" />
+            <element signature="e#14193#14355#0" expanded="true" />
+            <element signature="e#14468#14759#0" expanded="true" />
+            <element signature="e#14454#15497#0" expanded="true" />
+            <element signature="e#15904#16092#0" expanded="true" />
+            <element signature="e#16131#16265#0" expanded="true" />
+            <element signature="e#16709#23579#0" expanded="true" />
+            <element signature="e#22942#24181#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -818,7 +889,17 @@
           <folding>
             <element signature="e#0#20#0" expanded="true" />
             <element signature="e#4252#5244#0" expanded="true" />
+            <element signature="e#9380#10435#0" expanded="true" />
+            <element signature="e#10563#11628#0" expanded="true" />
             <element signature="e#11736#12643#0" expanded="true" />
+            <element signature="e#12760#13874#0" expanded="true" />
+            <element signature="e#14193#14355#0" expanded="true" />
+            <element signature="e#14468#14759#0" expanded="true" />
+            <element signature="e#14454#15497#0" expanded="true" />
+            <element signature="e#15904#16092#0" expanded="true" />
+            <element signature="e#16131#16265#0" expanded="true" />
+            <element signature="e#16709#23579#0" expanded="true" />
+            <element signature="e#22942#24181#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -840,7 +921,17 @@
           <folding>
             <element signature="e#0#20#0" expanded="true" />
             <element signature="e#4252#5244#0" expanded="true" />
+            <element signature="e#9380#10435#0" expanded="true" />
+            <element signature="e#10563#11628#0" expanded="true" />
             <element signature="e#11736#12643#0" expanded="true" />
+            <element signature="e#12760#13874#0" expanded="true" />
+            <element signature="e#14193#14355#0" expanded="true" />
+            <element signature="e#14468#14759#0" expanded="true" />
+            <element signature="e#14454#15497#0" expanded="true" />
+            <element signature="e#15904#16092#0" expanded="true" />
+            <element signature="e#16131#16265#0" expanded="true" />
+            <element signature="e#16709#23579#0" expanded="true" />
+            <element signature="e#22942#24181#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -883,7 +974,17 @@
           <folding>
             <element signature="e#0#20#0" expanded="true" />
             <element signature="e#4252#5244#0" expanded="true" />
+            <element signature="e#9380#10435#0" expanded="true" />
+            <element signature="e#10563#11628#0" expanded="true" />
             <element signature="e#11736#12643#0" expanded="true" />
+            <element signature="e#12760#13874#0" expanded="true" />
+            <element signature="e#14193#14355#0" expanded="true" />
+            <element signature="e#14468#14759#0" expanded="true" />
+            <element signature="e#14454#15497#0" expanded="true" />
+            <element signature="e#15904#16092#0" expanded="true" />
+            <element signature="e#16131#16265#0" expanded="true" />
+            <element signature="e#16709#23579#0" expanded="true" />
+            <element signature="e#22942#24181#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -947,7 +1048,17 @@
           <folding>
             <element signature="e#0#20#0" expanded="true" />
             <element signature="e#4252#5244#0" expanded="true" />
+            <element signature="e#9380#10435#0" expanded="true" />
+            <element signature="e#10563#11628#0" expanded="true" />
             <element signature="e#11736#12643#0" expanded="true" />
+            <element signature="e#12760#13874#0" expanded="true" />
+            <element signature="e#14193#14355#0" expanded="true" />
+            <element signature="e#14468#14759#0" expanded="true" />
+            <element signature="e#14454#15497#0" expanded="true" />
+            <element signature="e#15904#16092#0" expanded="true" />
+            <element signature="e#16131#16265#0" expanded="true" />
+            <element signature="e#16709#23579#0" expanded="true" />
+            <element signature="e#22942#24181#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -1024,7 +1135,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/lib/main.dart">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="416">
+        <state relative-caret-position="56">
           <caret line="37" selection-start-line="37" selection-end-line="37" />
           <folding>
             <element signature="e#782#873#0" expanded="true" />
@@ -1032,22 +1143,60 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/lib/generator.dart">
+    <entry file="file://$PROJECT_DIR$/pubspec.yaml">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="676">
-          <caret line="504" column="37" selection-start-line="504" selection-start-column="37" selection-end-line="504" selection-end-column="37" />
+        <state relative-caret-position="153">
+          <caret line="12" column="86" selection-start-line="12" selection-start-column="86" selection-end-line="12" selection-end-column="86" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../businesslibrary/lib/api/data_api.dart">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="292">
+          <caret line="1056" column="32" lean-forward="true" selection-start-line="1056" selection-start-column="32" selection-end-line="1056" selection-end-column="32" />
           <folding>
-            <element signature="e#0#20#0" expanded="true" />
-            <element signature="e#4252#5244#0" expanded="true" />
-            <element signature="e#11736#12643#0" expanded="true" />
+            <element signature="e#39955#42127#0" expanded="true" />
+            <element signature="e#42213#44410#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/pubspec.yaml">
+    <entry file="file://$PROJECT_DIR$/../businesslibrary/lib/api/signup.dart">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="85">
-          <caret line="12" column="86" selection-start-line="12" selection-start-column="86" selection-end-line="12" selection-end-column="86" />
+        <state relative-caret-position="145">
+          <caret line="43" column="14" selection-start-line="43" selection-start-column="14" selection-end-line="43" selection-end-column="14" />
+          <folding>
+            <element signature="e#1694#2814#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lib/util.dart">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="144">
+          <caret line="21" lean-forward="true" selection-start-line="21" selection-end-line="21" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lib/generator.dart">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="431">
+          <caret line="115" lean-forward="true" selection-start-line="115" selection-end-line="115" />
+          <folding>
+            <element signature="e#0#20#0" expanded="true" />
+            <element signature="e#4252#5244#0" expanded="true" />
+            <element signature="e#9380#10435#0" expanded="true" />
+            <element signature="e#10563#11628#0" expanded="true" />
+            <element signature="e#11736#12643#0" expanded="true" />
+            <element signature="e#12760#13874#0" expanded="true" />
+            <element signature="e#14193#14355#0" expanded="true" />
+            <element signature="e#14468#14759#0" expanded="true" />
+            <element signature="e#14454#15497#0" expanded="true" />
+            <element signature="e#15904#16092#0" expanded="true" />
+            <element signature="e#16131#16265#0" expanded="true" />
+            <element signature="e#16709#23579#0" expanded="true" />
+            <element signature="e#22942#24181#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

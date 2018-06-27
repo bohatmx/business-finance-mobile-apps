@@ -11,6 +11,8 @@ import 'package:businesslibrary/data/oneconnect.dart';
 import 'package:businesslibrary/data/procurement_office.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
+import 'package:businesslibrary/data/wallet.dart';
+import 'package:businesslibrary/util/util.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -36,7 +38,9 @@ class SignUp {
       ErrorUserAlreadyExists = 7,
       ErrorFireStore = 2,
       ErrorBlockchain = 3;
-
+  static const ACCOUNT_ID =
+          "GDJ4EYJNMQEE75OXVSRXP7G7IMDUXVPZUBYTORILVKH5FAG2I3EPXJY5",
+      SECRET = "SCY6UGXJAWH6FFCNCW4HH72TUVGU5ESUI6SSBWVSJ7MHOBQEWOSQKTPB";
   Future<int> signUpGovtEntity(GovtEntity govtEntity, User admin) async {
     var qs = await _firestore
         .collection('govtEntities')
@@ -60,9 +64,23 @@ class SignUp {
     }
 
     await SharedPrefs.saveGovtEntity(govtEntity);
+    var wallet = await _getWallet();
+    wallet.govtEntity = NameSpace + 'GovtEntity#' + govtEntity.participantId;
+    await dataAPI.addWalletToFirestoreForStellar(wallet);
+
     admin.govtEntity = NameSpace + '.GovtEntity#' + key;
     admin.isAdministrator = 'true';
     return await signUp(admin);
+  }
+
+  Future<Wallet> _getWallet() async {
+    var wallet = Wallet();
+    wallet.dateRegistered = new DateTime.now().toIso8601String();
+    wallet.lastBalance = '0';
+    wallet.sourceSeed = SECRET;
+    wallet.debug = isInDebugMode;
+    wallet.fcmToken = await SharedPrefs.getFCMToken();
+    return wallet;
   }
 
   Future<int> signUpCompany(Company company, User admin) async {
@@ -86,6 +104,11 @@ class SignUp {
       return ErrorBlockchain;
     }
     await SharedPrefs.saveCompany(company);
+
+    var wallet = await _getWallet();
+    wallet.govtEntity = NameSpace + 'Company#' + company.participantId;
+    await dataAPI.addWalletToFirestoreForStellar(wallet);
+
     admin.company = NameSpace + '.Company#' + key;
     admin.isAdministrator = 'true';
     return await signUp(admin);
@@ -113,6 +136,11 @@ class SignUp {
     await SharedPrefs.saveSupplier(supplier);
     admin.supplier = NameSpace + '.Supplier#' + key;
     admin.isAdministrator = 'true';
+
+    var wallet = await _getWallet();
+    wallet.supplier = NameSpace + 'Supplier#' + supplier.participantId;
+    await dataAPI.addWalletToFirestoreForStellar(wallet);
+
     return await signUp(admin);
   }
 
@@ -137,6 +165,11 @@ class SignUp {
     }
 
     await SharedPrefs.saveInvestor(investor);
+
+    var wallet = await _getWallet();
+    wallet.investor = NameSpace + 'Investor#' + investor.participantId;
+    await dataAPI.addWalletToFirestoreForStellar(wallet);
+
     admin.investor = NameSpace + '.Investor#' + key;
     admin.isAdministrator = 'true';
     return await signUp(admin);
@@ -162,6 +195,11 @@ class SignUp {
     }
 
     await SharedPrefs.saveAuditor(auditor);
+
+    var wallet = await _getWallet();
+    wallet.auditor = NameSpace + 'Auditor#' + auditor.participantId;
+    await dataAPI.addWalletToFirestoreForStellar(wallet);
+
     admin.auditor = NameSpace + '.Auditor#' + key;
     admin.isAdministrator = 'true';
     return await signUp(admin);
@@ -189,6 +227,12 @@ class SignUp {
     }
 
     await SharedPrefs.saveProcurementOffice(office);
+
+    var wallet = await _getWallet();
+    wallet.procurementOffice =
+        NameSpace + 'ProcurementOffice#' + office.participantId;
+    await dataAPI.addWalletToFirestoreForStellar(wallet);
+
     admin.procurementOffice = NameSpace + '.ProcurementOffice#' + key;
     admin.isAdministrator = 'true';
     return await signUp(admin);
@@ -214,6 +258,11 @@ class SignUp {
     }
 
     await SharedPrefs.saveBank(bank);
+
+    var wallet = await _getWallet();
+    wallet.bank = NameSpace + 'Bank#' + bank.participantId;
+    await dataAPI.addWalletToFirestoreForStellar(wallet);
+
     admin.bank = NameSpace + '.Bank#' + key;
     admin.isAdministrator = 'true';
     return await signUp(admin);
@@ -237,6 +286,11 @@ class SignUp {
     }
 
     await SharedPrefs.saveOneConnect(oneConnect);
+
+    var wallet = await _getWallet();
+    wallet.oneConnect = NameSpace + 'OneConnect#' + oneConnect.participantId;
+    await dataAPI.addWalletToFirestoreForStellar(wallet);
+
     admin.oneConnect = NameSpace + '.OneConnect#' + key;
     admin.isAdministrator = 'true';
     return await signUp(admin);

@@ -31,6 +31,7 @@ class DataAPI {
   DataAPI(this.url);
 
   final Firestore _firestore = Firestore.instance;
+
   static const GOVT_ENTITY = 'GovtEntity',
       USER = 'User',
       SUPPLIER = 'Supplier',
@@ -48,6 +49,9 @@ class DataAPI {
       ACCEPT_DELIVERY = 'AcceptDelivery',
       MAKE_INVOICE_OFFER = 'MakeInvoiceOffer',
       MAKE_INVOICE_BID = 'MakeInvoiceBid',
+      MAKE_INVESTOR_SETTLEMENT = 'MakeInvestorInvoiceSettlement',
+      MAKE_COMPANY_SETTLEMENT = 'MakeCompanyInvoiceSettlement',
+      MAKE_GOVT_SETTLEMENT = 'MakeGovtInvoiceSettlement',
       INVESTOR = 'Investor';
   static const ErrorFirestore = 1, ErrorBlockchain = 2, Success = 0;
 
@@ -174,7 +178,7 @@ class DataAPI {
       return "0";
     });
     print(
-        'DataAPI.addWalletToFirestoreForStellar added to Firestore: ${ref.documentID}');
+        'DataAPI.addWalletToFirestoreForStellar: WALLET added to Firestore: ${ref.documentID}');
     return ref.documentID;
   }
 
@@ -1035,12 +1039,183 @@ class DataAPI {
 
   Future<String> makeInvestorInvoiceSettlement(
       InvestorInvoiceSettlement settlement) async {
-    return null;
+    settlement.invoiceSettlementId = getKey();
+    settlement.date = new DateTime.now().toIso8601String();
+
+    var investorId = settlement.investor.split('#').elementAt(1);
+    var investorDocId = await _getDocumentId('investors', investorId);
+    var ref = await _firestore
+        .collection('investors')
+        .document(investorDocId)
+        .collection('invoiceSettlements')
+        .add(settlement.toJson())
+        .catchError((e) {
+      print('DataAPI.makeInvestorInvoiceSettlement ERROR $e');
+      return '0';
+    });
+
+    var supplierId = settlement.supplier.split('#').elementAt(1);
+    var supplierDocId = await _getDocumentId('suppliers', supplierId);
+    var ref2 = await _firestore
+        .collection('suppliers')
+        .document(supplierDocId)
+        .collection('invoiceSettlements')
+        .add(settlement.toJson())
+        .catchError((e) {
+      print('DataAPI.makeInvestorInvoiceSettlement ERROR $e');
+      return '0';
+    });
+    //write settlement to blockchain
+    try {
+      Map map = settlement.toJson();
+      var mjson = json.encode(map);
+      var httpClient = new HttpClient();
+      HttpClientRequest mRequest =
+          await httpClient.postUrl(Uri.parse(url + MAKE_INVESTOR_SETTLEMENT));
+      mRequest.headers.contentType = _contentType;
+      mRequest.write(mjson);
+      HttpClientResponse mResponse = await mRequest.close();
+      print(
+          'DataAPI.makeInvestorInvoiceSettlement blockchain response status code:  ${mResponse.statusCode}');
+      if (mResponse.statusCode == 200) {
+        return settlement.invoiceSettlementId;
+      } else {
+        _deleteFromFirestore(ref, ref2);
+        print(
+            'DataAPI.makeInvestorInvoiceSettlement ERROR - doc deleted from firestore');
+        mResponse.transform(utf8.decoder).listen((contents) {
+          print('DataAPI.makeInvestorInvoiceSettlement ERROR  $contents');
+        });
+        print(
+            'DataAPI.makeInvestorInvoiceSettlement ERROR  ${mResponse.reasonPhrase}');
+        return '0';
+      }
+    } catch (e) {
+      _deleteFromFirestore(ref, ref2);
+      print('DataAPI.makeInvestorInvoiceSettlement ERROR $e');
+      return '0';
+    }
   }
 
-  Future<String> makeCustomerInvoiceSettlement(
+  Future<String> makeCompanyInvoiceSettlement(
       CompanyInvoiceSettlement settlement) async {
-    return null;
+    settlement.invoiceSettlementId = getKey();
+    settlement.date = new DateTime.now().toIso8601String();
+
+    var investorId = settlement.company.split('#').elementAt(1);
+    var investorDocId = await _getDocumentId('companies', investorId);
+    var ref = await _firestore
+        .collection('companies')
+        .document(investorDocId)
+        .collection('invoiceSettlements')
+        .add(settlement.toJson())
+        .catchError((e) {
+      print('DataAPI.makeCompanyInvoiceSettlement ERROR $e');
+      return '0';
+    });
+
+    var supplierId = settlement.supplier.split('#').elementAt(1);
+    var supplierDocId = await _getDocumentId('suppliers', supplierId);
+    var ref2 = await _firestore
+        .collection('suppliers')
+        .document(supplierDocId)
+        .collection('invoiceSettlements')
+        .add(settlement.toJson())
+        .catchError((e) {
+      print('DataAPI.makeCompanyInvoiceSettlement ERROR $e');
+      return '0';
+    });
+    //write settlement to blockchain
+    try {
+      Map map = settlement.toJson();
+      var mjson = json.encode(map);
+      var httpClient = new HttpClient();
+      HttpClientRequest mRequest =
+          await httpClient.postUrl(Uri.parse(url + MAKE_COMPANY_SETTLEMENT));
+      mRequest.headers.contentType = _contentType;
+      mRequest.write(mjson);
+      HttpClientResponse mResponse = await mRequest.close();
+      print(
+          'DataAPI.makeCompanyInvoiceSettlement blockchain response status code:  ${mResponse.statusCode}');
+      if (mResponse.statusCode == 200) {
+        return settlement.invoiceSettlementId;
+      } else {
+        _deleteFromFirestore(ref, ref2);
+        print(
+            'DataAPI.makeCompanyInvoiceSettlement ERROR - doc deleted from firestore');
+        mResponse.transform(utf8.decoder).listen((contents) {
+          print('DataAPI.makeCompanyInvoiceSettlement ERROR  $contents');
+        });
+        print(
+            'DataAPI.makeCompanyInvoiceSettlement ERROR  ${mResponse.reasonPhrase}');
+        return '0';
+      }
+    } catch (e) {
+      _deleteFromFirestore(ref, ref2);
+      print('DataAPI.makeCompanyInvoiceSettlement ERROR $e');
+      return '0';
+    }
+  }
+
+  Future<String> makeGovtInvoiceSettlement(
+      GovtInvoiceSettlement settlement) async {
+    settlement.invoiceSettlementId = getKey();
+    settlement.date = new DateTime.now().toIso8601String();
+
+    var investorId = settlement.govtEntity.split('#').elementAt(1);
+    var investorDocId = await _getDocumentId('govtEntities', investorId);
+    var ref = await _firestore
+        .collection('govtEntities')
+        .document(investorDocId)
+        .collection('invoiceSettlements')
+        .add(settlement.toJson())
+        .catchError((e) {
+      print('DataAPI.makeCompanyInvoiceSettlement ERROR $e');
+      return '0';
+    });
+
+    var supplierId = settlement.supplier.split('#').elementAt(1);
+    var supplierDocId = await _getDocumentId('suppliers', supplierId);
+    var ref2 = await _firestore
+        .collection('suppliers')
+        .document(supplierDocId)
+        .collection('invoiceSettlements')
+        .add(settlement.toJson())
+        .catchError((e) {
+      print('DataAPI.makeCompanyInvoiceSettlement ERROR $e');
+      return '0';
+    });
+    //write settlement to blockchain
+    try {
+      Map map = settlement.toJson();
+      var mjson = json.encode(map);
+      var httpClient = new HttpClient();
+      HttpClientRequest mRequest =
+          await httpClient.postUrl(Uri.parse(url + MAKE_GOVT_SETTLEMENT));
+      mRequest.headers.contentType = _contentType;
+      mRequest.write(mjson);
+      HttpClientResponse mResponse = await mRequest.close();
+      print(
+          'DataAPI.makeCompanyInvoiceSettlement blockchain response status code:  ${mResponse
+              .statusCode}');
+      if (mResponse.statusCode == 200) {
+        return settlement.invoiceSettlementId;
+      } else {
+        _deleteFromFirestore(ref, ref2);
+        print(
+            'DataAPI.makeCompanyInvoiceSettlement ERROR - doc deleted from firestore');
+        mResponse.transform(utf8.decoder).listen((contents) {
+          print('DataAPI.makeCompanyInvoiceSettlement ERROR  $contents');
+        });
+        print('DataAPI.makeCompanyInvoiceSettlement ERROR  ${mResponse
+                .reasonPhrase}');
+        return '0';
+      }
+    } catch (e) {
+      _deleteFromFirestore(ref, ref2);
+      print('DataAPI.makeCompanyInvoiceSettlement ERROR $e');
+      return '0';
+    }
   }
 
   static String getKey() {

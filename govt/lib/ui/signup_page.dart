@@ -5,10 +5,10 @@ import 'package:businesslibrary/data/misc_data.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/selectors.dart';
+import 'package:businesslibrary/util/util.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:govt/ui/dashboard.dart';
-import 'package:govt/util.dart';
 
 class SignUpPage extends StatefulWidget {
   @override
@@ -292,7 +292,7 @@ class _SignUpPageState extends State<SignUpPage> {
         password: password,
       );
       print('_SignUpPageState._onSavePressed ${admin.toJson()}');
-      SignUp signUp = SignUp(Util.getURL());
+      SignUp signUp = SignUp(getURL());
       var result = await signUp.signUpGovtEntity(govtEntity, admin);
       switch (result) {
         case SignUp.Success:

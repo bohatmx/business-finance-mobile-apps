@@ -10,9 +10,9 @@ import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
+import 'package:businesslibrary/util/util.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:supplierv3/util.dart';
 
 class NewInvoicePage extends StatefulWidget {
   final DeliveryAcceptance deliveryAcceptance;
@@ -156,7 +156,7 @@ class _NewInvoicePageState extends State<NewInvoicePage>
           textColor: Colors.white,
           backgroundColor: Colors.black);
 
-      DataAPI api = DataAPI(Util.getURL());
+      DataAPI api = DataAPI(getURL());
       var result = await api.registerInvoice(invoice);
       if (result == '0') {
         isSuccess = false;
@@ -375,7 +375,7 @@ class _NewInvoicePageState extends State<NewInvoicePage>
   }
 
   @override
-  onActionPressed() {
+  onActionPressed(int action) {
     print('_NewInvoicePageState.onActionPressed');
     if (isSuccess) {
       Navigator.pop(context);

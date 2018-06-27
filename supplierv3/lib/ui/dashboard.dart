@@ -8,6 +8,7 @@ import 'package:businesslibrary/data/delivery_acceptance.dart';
 import 'package:businesslibrary/data/delivery_note.dart';
 import 'package:businesslibrary/data/invoice.dart';
 import 'package:businesslibrary/data/invoice_settlement.dart';
+import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
@@ -60,6 +61,46 @@ class _DashboardState extends State<Dashboard>
     animation = new Tween(begin: 0.0, end: 1.0).animate(animationController);
     _getCachedPrefs();
     _configMessaging();
+    test();
+  }
+
+  void test() {
+    List<String> list = List();
+    list.add('settlement 1');
+    list.add('settlement 2');
+    list.add('settlement 3');
+    list.add('settlement 4');
+    list.add('settlement 5');
+    list.add('settlement 6');
+    var inv = new Invoice(
+      invoiceNumber: '666-0987767',
+      purchaseOrder: 'somepurchaseoeder',
+      deliveryNote: 'someDeliveryNote',
+      investorInvoiceSettlements: list,
+    );
+
+    prettyPrint(inv.toJson(), 'invoice json:');
+    var inv2 = new Invoice.fromJson(inv.toJson());
+    prettyPrint(inv2.toJson(), 'invoice 2,  test: ');
+    //
+    List<String> list2 = List();
+    list2.add('invoiceBid 1');
+    list2.add('invoiceBid 2');
+    list2.add('invoiceBid 3');
+    list2.add('invoiceBid 4');
+    list2.add('invoiceBid 5');
+    list2.add('invoiceBid 6');
+    var off = new Offer(
+      purchaseOrder: 'resource:com.oneconnect.biz.PurchaseOrder#7648764187',
+      supplier: 'resource:com.oneconnect.biz.Supplier#86787689687687',
+      user: 'resource:com.oneconnect.biz.User',
+      discountPercent: '10.5',
+      invoiceBids: list2,
+    );
+
+    prettyPrint(off.toJson(), 'offer json:');
+    var off2 = new Offer.fromJson(off.toJson());
+    prettyPrint(off2.toJson(), 'offer 2,  testing ....: ');
   }
 
   void _configMessaging() async {
@@ -416,7 +457,7 @@ class _DashboardState extends State<Dashboard>
   }
 
   @override
-  onActionPressed() {
+  onActionPressed(int action) {
     print(
         '_DashboardState.onActionPressed ..................  start DeliveryAcceptance ==> create invoice');
     Navigator.push(

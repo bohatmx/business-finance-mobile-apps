@@ -4,10 +4,10 @@ import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/api/signin.dart';
 import 'package:businesslibrary/data/govt_entity.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
+import 'package:businesslibrary/util/util.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:govt/ui/dashboard.dart';
-import 'package:govt/util.dart';
 
 class SignInPage extends StatefulWidget {
   @override
@@ -91,7 +91,7 @@ class _SignInPageState extends State<SignInPage> implements SnackBarListener {
       key: _scaffoldKey,
       appBar: AppBar(
         title: Text('Government Sign In'),
-        bottom: Util.isInDebugMode ? _getPreferredSize() : Container(),
+        bottom: isInDebugMode ? _getPreferredSize() : Container(),
       ),
       body: Form(
         key: _formKey,
@@ -176,7 +176,7 @@ class _SignInPageState extends State<SignInPage> implements SnackBarListener {
         textColor: Colors.white,
         backgroundColor: Colors.black);
     busy = true;
-    if (Util.isInDebugMode) {
+    if (isInDebugMode) {
       if (adminEmail == null) {
         AppSnackbar.showErrorSnackbar(
             scaffoldKey: _scaffoldKey,
@@ -278,7 +278,7 @@ class _SignInPageState extends State<SignInPage> implements SnackBarListener {
   }
 
   @override
-  onActionPressed() {
+  onActionPressed(int action) {
     print('_SignInPageState.onActionPressed ============= Yay!!');
   }
 }

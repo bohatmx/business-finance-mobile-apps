@@ -12,9 +12,9 @@ class FileUtil {
     dir = await getApplicationDocumentsDirectory();
     var f = await getExternalStorageDirectory();
     var ents = f.list(recursive: true, followLinks: true);
-    print('FileUtil.test FileSystemEntities ######## ');
+    print('Filetest FileSystemEntities ######## ');
     ents.forEach((fsEnt) {
-      print('FileUtil.test FileSystemEntity: ${fsEnt.path}');
+      print('Filetest FileSystemEntity: ${fsEnt.path}');
     });
     return 0;
 

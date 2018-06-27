@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:businesslibrary/api/StorageAPI.dart';
 import 'package:businesslibrary/api/data_api.dart';
 import 'package:businesslibrary/api/signup.dart';
+import 'package:businesslibrary/api/storage_api.dart';
 import 'package:businesslibrary/data/auditor.dart';
 import 'package:businesslibrary/data/bank.dart';
 import 'package:businesslibrary/data/company.dart';
@@ -20,8 +20,8 @@ import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/supplier_contract.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/lookups.dart';
+import 'package:businesslibrary/util/util.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:crudderv3/util.dart';
 
 class Generator {
   static Firestore _fs = Firestore.instance;
@@ -119,7 +119,7 @@ class Generator {
     print(
         '\n\nGenerator._addSupplierContract ......... for:  ${supplier.name} - documentRef: ${supplier.documentReference} \n\n');
     DateTime today = new DateTime.now();
-    dataAPI = DataAPI(Util.getURL());
+    dataAPI = DataAPI(getURL());
 
     SupplierContract contract = SupplierContract(
       customerName: entity.name,
@@ -147,7 +147,7 @@ class Generator {
     print(
         '\n\n\nGenerator._addSupplierContract for  Supplier:  ${supplier.name} ');
     DateTime today = new DateTime.now();
-    dataAPI = DataAPI(Util.getURL());
+    dataAPI = DataAPI(getURL());
 
     PurchaseOrder po = PurchaseOrder();
     po.govtEntity = NameSpace + 'GovtEntity#' + entity.participantId;
@@ -249,7 +249,7 @@ class Generator {
 
   static Future<String> _addDeliveryNote(
       GovtEntity entity, User user, Supplier supplier, PurchaseOrder po) async {
-    PrettyPrint.prettyPrint(po.toJson(), 'Generator._addDeliveryNote for po');
+    prettyPrint(po.toJson(), 'Generator._addDeliveryNote for po');
     DeliveryNote dn = DeliveryNote();
     dn.user = NameSpace + 'User#' + user.userId;
     dn.date = po.date;
@@ -269,13 +269,15 @@ class Generator {
       return key;
     }
     print('Generator._addDeliveryNote ******************** ${dn.toJson()}');
-    PrettyPrint.prettyPrint(po.toJson(), 'Generator._addDeliveryNote note:');
+    prettyPrint(po.toJson(), 'Generator._addDeliveryNote note:');
     key = await _addInvoice(entity, supplier, user, po, dn);
     return key;
   }
 
   static Future<String> _addInvoice(GovtEntity entity, Supplier supplier,
       User user, PurchaseOrder po, DeliveryNote dn) async {
+    double tax = double.parse(po.amount) * 1.15;
+    var total = double.parse(po.amount) + tax;
     print(
         '\n\nGenerator._addInvoice for ${entity.name} from ${supplier.name} po: ${po.purchaseOrderNumber} \n\n');
     Invoice inv = Invoice();
@@ -285,6 +287,8 @@ class Generator {
     inv.purchaseOrder = NameSpace + 'PurchaseOrder#' + po.purchaseOrderId;
     inv.deliveryNote = NameSpace + 'DeliveryNote#' + dn.deliveryNoteId;
     inv.amount = po.amount;
+    inv.valueAddedTax = '$tax';
+    inv.totalAmount = '$total';
     inv.date = po.date;
     inv.supplierName = supplier.name;
     inv.supplierDocumentRef = supplier.documentReference;
@@ -297,7 +301,7 @@ class Generator {
     if (key == '0') {
       return key;
     }
-    PrettyPrint.prettyPrint(inv.toJson(), 'Generator._addInvoice');
+    prettyPrint(inv.toJson(), 'Generator._addInvoice');
     _addOffer(inv, user, po, supplier);
     return key;
   }
@@ -306,12 +310,14 @@ class Generator {
       Invoice invoice, User user, PurchaseOrder po, Supplier supplier) async {
     print(
         'Generator._addOffer invoice: ${invoice.invoiceNumber} --------------\n\n');
+    double disc = double.parse(_getRandomDiscount());
+    var amt = double.parse(invoice.amount) * (disc / 100);
     Offer offer = new Offer(
         supplier: NameSpace + 'Supplier#' + supplier.participantId,
         invoice: NameSpace + 'Invoice#' + invoice.invoiceId,
         user: NameSpace + 'User#' + user.userId,
         purchaseOrder: NameSpace + 'PurchaseOrder#' + po.purchaseOrderId,
-        amount: invoice.amount,
+        amount: '$amt',
         discountPercent: _getRandomDiscount(),
         startTime: new DateTime.now().toIso8601String(),
         endTime:
@@ -321,7 +327,7 @@ class Generator {
         privateSectorType: supplier.privateSectorType);
 
     var key = await dataAPI.makeOffer(offer);
-    PrettyPrint.prettyPrint(offer.toJson(), 'Generator._addOffer: ');
+    prettyPrint(offer.toJson(), 'Generator._addOffer: ');
     return key;
   }
 
@@ -329,7 +335,7 @@ class Generator {
   // ignore: missing_return
   static Future<int> generateBids() async {
     print('\n\nGenerator.generateBids ################################# \n\n');
-    dataAPI = new DataAPI(Util.getURL());
+    dataAPI = new DataAPI(getURL());
     var qs0 = await _fs.collection('investors').getDocuments();
 
     qs0.documents.forEach((doc) {
@@ -348,24 +354,41 @@ class Generator {
     doubles.add(1.28);
 
     var qs = await _fs.collection('invoiceOffers').getDocuments();
-
+    print('Generator.generateBids qs: ${qs.documents.length} offers found ...');
     qs.documents.forEach((doc) async {
       var offer = new Offer.fromJson(doc.data);
       offer.documentReference = doc.documentID;
-      await __processInvestorBids(offer);
+      offers.add(offer);
     });
+    processInvestor1();
     print(
-        'Generator.generateBids generated bids for ${qs.documents.length} invoice offers ######### \n\n');
+        '\n\n\nGenerator.generateBids generated bids for ${qs.documents.length} invoice offers ######### \n\n');
   }
 
-  // ignore: missing_return
-  static Future<int> __processInvestorBids(Offer offer) async {
-    investors.forEach((inv) async {
-      var result = await _makeBid(offer, inv);
-      if (result > 0) {
-        return result;
-      }
-    });
+  static List<Offer> offers = List();
+  static int index = 0;
+  static void processInvestor1() async {
+    Investor inv1 = investors.elementAt(0);
+    await _makeBid(offers.elementAt(index), inv1);
+    index++;
+    if (index == offers.length) {
+      index = 0;
+      processInvestor2();
+      return;
+    }
+    processInvestor1();
+  }
+
+  static void processInvestor2() async {
+    Investor inv1 = investors.elementAt(1);
+    await _makeBid(offers.elementAt(index), inv1);
+    index++;
+    if (index == offers.length) {
+      print(
+          '\n\nGenerator.processInvestor2 ##################### DONE generating bids ##########\n\n\n');
+      return;
+    }
+    processInvestor2();
   }
 
   static List<double> doubles = List();
@@ -373,7 +396,6 @@ class Generator {
     double offerDiscount = double.parse(offer.discountPercent);
     int index = rand.nextInt(doubles.length - 1);
     double investorDiscount = offerDiscount * doubles.elementAt(index);
-
     double offerAmt = double.parse(offer.amount);
     double investorAmt = (offerAmt * (100.0 - investorDiscount)) / 100;
     print(
@@ -394,7 +416,7 @@ class Generator {
     if (key == '0') {
       return 1;
     } else {
-      PrettyPrint.prettyPrint(bid.toJson(), 'Generator._makeBid');
+      prettyPrint(bid.toJson(), 'Generator._makeBid');
       return 0;
     }
   }
@@ -440,9 +462,9 @@ class Generator {
   }
 
   static String _getRandomDiscount() {
-    var x = rand.nextInt(50);
-    if (x < 10) {
-      x = 25;
+    var x = rand.nextInt(80);
+    if (x < 50) {
+      x = 80;
     }
     double amt = x * 1.0;
     return amt.toStringAsFixed(1);
@@ -452,11 +474,17 @@ class Generator {
     print('Generator.cleanUp ................ ########  ................');
     var fs = Firestore.instance;
     try {
-      var qs = await fs.collection('users').getDocuments();
-      qs.documents.forEach((doc) async {
+      var qs0 = await fs.collection('users').getDocuments();
+      qs0.documents.forEach((doc) async {
         await doc.reference.delete();
       });
       print('Generator.cleanUp users deleted from Firestore ################');
+      var qs = await fs.collection('wallets').getDocuments();
+      qs.documents.forEach((doc) async {
+        await doc.reference.delete();
+      });
+      print(
+          'Generator.cleanUp wallets deleted from Firestore ################');
       var qs1 = await fs.collection('oneConnect').getDocuments();
       qs1.documents.forEach((doc) async {
         await doc.reference.delete();
@@ -624,7 +652,7 @@ class Generator {
 
   static Future<int> generateEntities() async {
     print('Generator.generateEntities ......................');
-    SignUp signUp = SignUp(Util.getURL());
+    SignUp signUp = SignUp(getURL());
     try {
       GovtEntity e1 = new GovtEntity(
         name: 'Dept of Home Affairs',
@@ -669,7 +697,7 @@ class Generator {
 
   static Future<int> generateSuppliers() async {
     print('Generator.generateSuppliers ............');
-    SignUp signUp = SignUp(Util.getURL());
+    SignUp signUp = SignUp(getURL());
     try {
       Supplier e1 = new Supplier(
         name: 'Mkhize Electrical',
@@ -772,7 +800,7 @@ class Generator {
 
   static Future<int> generateInvestors() async {
     print('Generator.generateInvestors ......................\n\n');
-    SignUp signUp = SignUp(Util.getURL());
+    SignUp signUp = SignUp(getURL());
     try {
       Investor e1 = new Investor(
           name: 'FinanceCapital Pty Ltd',
@@ -809,7 +837,7 @@ class Generator {
 
   static Future<int> generateProcurementOffice() async {
     print('Generator.generateProcurementOffice ......................\n\n');
-    SignUp signUp = SignUp(Util.getURL());
+    SignUp signUp = SignUp(getURL());
     try {
       ProcurementOffice e1 = new ProcurementOffice(
           name: 'Treasury Procurement Office',
@@ -833,7 +861,7 @@ class Generator {
 
   static Future<int> generateBank() async {
     print('Generator.generateBank ......................\n\n');
-    SignUp signUp = SignUp(Util.getURL());
+    SignUp signUp = SignUp(getURL());
     try {
       Bank e1 = new Bank(
           name: 'Number One Bank',
@@ -857,7 +885,7 @@ class Generator {
 
   static Future<int> generateAuditor() async {
     print('Generator.generateAuditor ......................\n\n');
-    SignUp signUp = SignUp(Util.getURL());
+    SignUp signUp = SignUp(getURL());
     try {
       Auditor e1 = new Auditor(
           name: 'Great Auditors Inc.',
@@ -881,7 +909,7 @@ class Generator {
 
   static Future<int> generateCompanies() async {
     print('Generator.generateCompanies ......................\n\n');
-    SignUp signUp = SignUp(Util.getURL());
+    SignUp signUp = SignUp(getURL());
     try {
       Company e1 = new Company(
           name: 'The Successful Company',
@@ -919,7 +947,7 @@ class Generator {
 
   static Future<int> generateOneConnect() async {
     print('Generator.generateOneConnect .....................\n\n');
-    SignUp signUp = SignUp(Util.getURL());
+    SignUp signUp = SignUp(getURL());
     try {
       OneConnect e1 = new OneConnect(
           name: 'OneConnect Business Finance',

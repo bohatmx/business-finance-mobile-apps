@@ -7,8 +7,8 @@ import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
+import 'package:businesslibrary/util/util.dart';
 import 'package:flutter/material.dart';
-import 'package:govt/util.dart';
 
 class DeliveryNoteList extends StatefulWidget {
   final List<DeliveryNote> deliveryNotes;
@@ -103,7 +103,7 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
 
   DeliveryNote deliveryNote;
   @override
-  onActionPressed() {
+  onActionPressed(int action) {
     print('_DeliveryNoteListState.onActionPressed');
   }
 
@@ -196,7 +196,7 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
         textColor: Colors.white,
         backgroundColor: Colors.black);
 
-    DataAPI api = new DataAPI(Util.getURL());
+    DataAPI api = new DataAPI(getURL());
     DeliveryAcceptance acceptance = DeliveryAcceptance(
       date: new DateTime.now().toIso8601String(),
       supplier: deliveryNote.supplier,
@@ -320,7 +320,7 @@ class DeliveryNoteCard extends StatelessWidget {
                     Text(
                       deliveryNote.date == null
                           ? ''
-                          : Util.getFormattedLongDate(deliveryNote.date),
+                          : getFormattedLongDate(deliveryNote.date),
                       style: TextStyle(
                           fontSize: 16.0, fontWeight: FontWeight.bold),
                     ),

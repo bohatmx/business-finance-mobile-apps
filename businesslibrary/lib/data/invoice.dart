@@ -17,10 +17,16 @@ class Invoice {
       supplierContract,
       contractDocumentRef,
       isOnOffer,
+      isSettled,
+      companyInvoiceSettlement,
       offer,
+      valueAddedTax,
+      totalAmount,
+      govtInvoiceSettlement,
       supplierName;
   String date, datePaymentRequired;
   String amount, customerName, purchaseOrderNumber;
+  List<String> investorInvoiceSettlements;
 
   Invoice(
       {this.supplier,
@@ -31,10 +37,16 @@ class Invoice {
       this.govtEntity,
       this.wallet,
       this.user,
+      this.companyInvoiceSettlement,
+      this.govtInvoiceSettlement,
+      this.investorInvoiceSettlements,
+      this.isSettled,
       this.invoiceNumber,
       this.description,
       this.reference,
       this.date,
+      this.totalAmount,
+      this.valueAddedTax,
       this.purchaseOrderNumber,
       this.customerName,
       this.supplierName,
@@ -50,6 +62,9 @@ class Invoice {
       this.amount});
 
   Invoice.fromJson(Map data) {
+    this.totalAmount = data['totalAmount'];
+    this.valueAddedTax = data['valueAddedTax'];
+
     this.supplier = data['supplier'];
     this.invoiceId = data['invoiceId'];
     this.deliveryNote = data['deliveryNote'];
@@ -75,32 +90,49 @@ class Invoice {
     this.contractDocumentRef = data['contractDocumentRef'];
     this.isOnOffer = data['isOnOffer'];
     this.offer = data['offer'];
+
+    this.companyInvoiceSettlement = data['companyInvoiceSettlement'];
+    this.govtInvoiceSettlement = data['govtInvoiceSettlement'];
+    this.isSettled = data['isSettled'];
+    this.investorInvoiceSettlements = data['investorInvoiceSettlements'];
   }
-  Map<String, String> toJson() => <String, String>{
-        'supplier': supplier,
-        'invoiceId': invoiceId,
-        'deliveryNote': deliveryNote,
-        'purchaseOrder': purchaseOrder,
-        'company': company,
-        'govtEntity': govtEntity,
-        'wallet': wallet,
-        'user': user,
-        'invoiceNumber': invoiceNumber,
-        'description': description,
-        'reference': reference,
-        'date': date,
-        'datePaymentRequired': datePaymentRequired,
-        'amount': amount,
-        'documentReference': documentReference,
-        'supplierDocumentRef': supplierDocumentRef,
-        'supplierName': supplierName,
-        'govtDocumentRef': govtDocumentRef,
-        'companyDocumentRef': companyDocumentRef,
-        'purchaseOrderNumber': purchaseOrderNumber,
-        'customerName': customerName,
-        'supplierContract': supplierContract,
-        'contractDocumentRef': contractDocumentRef,
-        'isOnOffer': isOnOffer,
-        'offer': offer,
-      };
+
+  Map<String, dynamic> toJson() {
+    Map<String, dynamic> map = Map();
+
+    map['totalAmount'] = totalAmount;
+    map['valueAddedTax'] = valueAddedTax;
+
+    map['supplier'] = supplier;
+    map['invoiceId'] = invoiceId;
+    map['deliveryNote'] = deliveryNote;
+    map['purchaseOrder'] = purchaseOrder;
+    map['company'] = company;
+    map['govtEntity'] = govtEntity;
+    map['wallet'] = wallet;
+    map['user'] = user;
+    map['invoiceNumber'] = invoiceNumber;
+    map['description'] = description;
+    map['reference'] = reference;
+    map['date'] = date;
+    map['datePaymentRequired'] = datePaymentRequired;
+    map['amount'] = amount;
+    map['documentReference'] = documentReference;
+    map['supplierDocumentRef'] = supplierDocumentRef;
+    map['supplierName'] = supplierName;
+    map['govtDocumentRef'] = govtDocumentRef;
+    map['companyDocumentRef'] = companyDocumentRef;
+    map['purchaseOrderNumber'] = purchaseOrderNumber;
+    map['customerName'] = customerName;
+    map['supplierContract'] = supplierContract;
+    map['contractDocumentRef'] = contractDocumentRef;
+    map['isOnOffer'] = isOnOffer;
+    map['offer'] = offer;
+
+    map['companyInvoiceSettlement'] = companyInvoiceSettlement;
+    map['govtInvoiceSettlement'] = govtInvoiceSettlement;
+    map['isSettled'] = isSettled;
+    map['investorInvoiceSettlements'] = investorInvoiceSettlements;
+    return map;
+  }
 }

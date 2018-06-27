@@ -1,9 +1,9 @@
 import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
+import 'package:businesslibrary/util/util.dart';
 import 'package:flutter/material.dart';
 import 'package:govt/ui/purchase_order_page.dart';
-import 'package:govt/util.dart';
 
 class PurchaseOrderListPage extends StatefulWidget {
   final List<PurchaseOrder> purchaseOrders;
@@ -78,7 +78,7 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage> {
                     itemCount:
                         purchaseOrders == null ? 0 : purchaseOrders.length,
                     itemBuilder: (BuildContext context, int index) {
-                      return new GestureDetector(
+                      return new InkWell(
                           onTap: _onPurchaseOrderTapped,
                           child: new PurchaseOrderCard(
                               purchaseOrders.elementAt(index)));
@@ -96,7 +96,7 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage> {
     purchaseOrder = await Navigator.push(
       context,
       new MaterialPageRoute(
-          builder: (context) => new PurchaseOrderPageGovt(Util.getURL())),
+          builder: (context) => new PurchaseOrderPageGovt(getURL())),
     );
     if (purchaseOrder != null) {
       purchaseOrders.add(purchaseOrder);

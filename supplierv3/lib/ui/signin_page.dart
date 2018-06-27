@@ -9,10 +9,10 @@ import 'package:businesslibrary/data/investor.dart';
 import 'package:businesslibrary/data/procurement_office.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
+import 'package:businesslibrary/util/util.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:supplierv3/ui/dashboard.dart';
-import 'package:supplierv3/util.dart';
 
 class SignInPage extends StatefulWidget {
   @override
@@ -37,7 +37,7 @@ class _SignInPageState extends State<SignInPage> implements SnackBarListener {
   initState() {
     super.initState();
 
-    isDebug = Util.isInDebugMode;
+    isDebug = isInDebugMode;
     if (isDebug) {
       _buildUserList();
     }
@@ -89,7 +89,7 @@ class _SignInPageState extends State<SignInPage> implements SnackBarListener {
       key: _scaffoldKey,
       appBar: AppBar(
         title: Text('Supplier Sign In'),
-        bottom: Util.isInDebugMode ? _getPreferredSize() : Container(),
+        bottom: isInDebugMode ? _getPreferredSize() : Container(),
       ),
       body: Form(
         key: _formKey,
@@ -163,7 +163,7 @@ class _SignInPageState extends State<SignInPage> implements SnackBarListener {
   }
 
   void _onSavePressed() async {
-    if (Util.isInDebugMode) {
+    if (isInDebugMode) {
       if (adminEmail == null) {
         AppSnackbar.showErrorSnackbar(
             scaffoldKey: _scaffoldKey,
@@ -266,7 +266,7 @@ class _SignInPageState extends State<SignInPage> implements SnackBarListener {
   }
 
   @override
-  onActionPressed() {
+  onActionPressed(int action) {
     print('_SignInPageState.onActionPressed ,,,,,,,,,,,,  yay!');
   }
 

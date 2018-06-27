@@ -1,4 +1,6 @@
-import 'package:businesslibrary/api/firestore_list_api.dart';
+import 'dart:math';
+
+import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:flutter/material.dart';
@@ -196,7 +198,7 @@ class _SupplierSelectorPageState extends State<SupplierSelectorPage> {
   }
 
   _getSuppliers() async {
-    suppliers = await FirestoreListAPI.getSuppliers();
+    suppliers = await ListAPI.getSuppliers();
     print(
         'SupplierSelectorPage._getTypes types found:suppliers ${suppliers.length}');
     setState(() {});
@@ -211,26 +213,23 @@ class _SupplierSelectorPageState extends State<SupplierSelectorPage> {
       ),
       body: new Padding(
         padding: const EdgeInsets.all(10.0),
-        child: new Card(
-          elevation: 4.0,
-          child: new Column(
-            children: <Widget>[
-              new Flexible(
-                child: new ListView.builder(
-                    itemCount: suppliers == null ? 0 : suppliers.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      return new GestureDetector(
-                          onTap: () {
-                            var supp = suppliers.elementAt(index);
-                            print(
-                                'SupplierSelectorPage.build about to pop ${supp.name}');
-                            Navigator.pop(context, supp);
-                          },
-                          child: new SupplierCard(suppliers.elementAt(index)));
-                    }),
-              ),
-            ],
-          ),
+        child: new Column(
+          children: <Widget>[
+            new Flexible(
+              child: new ListView.builder(
+                  itemCount: suppliers == null ? 0 : suppliers.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return new InkWell(
+                        onTap: () {
+                          var supp = suppliers.elementAt(index);
+                          print(
+                              'SupplierSelectorPage.build about to pop ${supp.name}');
+                          Navigator.pop(context, supp);
+                        },
+                        child: new SupplierCard(suppliers.elementAt(index)));
+                  }),
+            ),
+          ],
         ),
       ),
     );
@@ -242,19 +241,56 @@ class SupplierCard extends StatelessWidget {
 
   SupplierCard(this.supplier);
 
+  List<Color> colors = List();
+  Color color;
+  Random rand = Random(new DateTime.now().millisecondsSinceEpoch);
+  void _getColor() {
+    print('SupplierCard._getColor ..........');
+    colors.add(Colors.blue);
+    colors.add(Colors.grey);
+    colors.add(Colors.black);
+    colors.add(Colors.pink);
+    colors.add(Colors.teal);
+    colors.add(Colors.red);
+    colors.add(Colors.green);
+    colors.add(Colors.amber);
+    colors.add(Colors.indigo);
+    colors.add(Colors.lightBlue);
+    colors.add(Colors.lime);
+    colors.add(Colors.deepPurple);
+    colors.add(Colors.deepOrange);
+    colors.add(Colors.brown);
+    colors.add(Colors.cyan);
+    rand = Random(new DateTime.now().millisecondsSinceEpoch);
+    int index = rand.nextInt(colors.length - 1);
+    color = colors.elementAt(index);
+  }
+
   @override
   Widget build(BuildContext context) {
-    return new Padding(
+    _getColor();
+    return Padding(
       padding: const EdgeInsets.all(8.0),
-      child: new Container(
-        height: 40.0,
-        child: Card(
-          elevation: 1.0,
-          child: ListTile(
-            leading: Icon(Icons.apps),
-            title: Text(
-              supplier.name,
-            ),
+      child: Card(
+        elevation: 2.0,
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Row(
+            children: <Widget>[
+              Icon(
+                Icons.apps,
+                color: color == null ? Colors.blue : color,
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: 8.0),
+                child: Text(
+                  supplier.name,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              )
+            ],
           ),
         ),
       ),

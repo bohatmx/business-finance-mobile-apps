@@ -1,3 +1,4 @@
+import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/govt_entity.dart';
 import 'package:businesslibrary/data/invoice.dart';
@@ -25,6 +26,14 @@ class _InvoiceListState extends State<InvoiceList> {
     _getCached();
   }
 
+  _getInvoices() async {
+    print('_InvoiceListState._getInvoices ..........');
+    invoices =
+        await ListAPI.getInvoices(entity.documentReference, 'govtEntities');
+    print('_InvoiceListState._getInvoices, found: ${invoices.length} ');
+    setState(() {});
+  }
+
   _getCached() async {
     entity = await SharedPrefs.getGovEntity();
     setState(() {});
@@ -49,6 +58,12 @@ class _InvoiceListState extends State<InvoiceList> {
       key: _scaffoldKey,
       appBar: AppBar(
         title: Text('Invoices'),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.refresh),
+            onPressed: _getInvoices,
+          )
+        ],
         bottom: PreferredSize(
             child: Column(
               children: <Widget>[
@@ -81,7 +96,7 @@ class _InvoiceListState extends State<InvoiceList> {
                 ),
               ],
             ),
-            preferredSize: Size.fromHeight(40.0)),
+            preferredSize: Size.fromHeight(60.0)),
       ),
       body: Card(
         elevation: 4.0,

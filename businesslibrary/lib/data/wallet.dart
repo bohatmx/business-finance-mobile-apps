@@ -8,9 +8,10 @@ class Wallet {
   String supplier;
   String procurementOffice;
   String oneConnect;
-  String auditor;
-  String bank;
+  String auditor, sourceSeed;
+  String bank, secret, fcmToken;
   String investor, documentReference;
+  bool debug;
 
   Wallet(
       {this.stellarPublicKey,
@@ -24,6 +25,10 @@ class Wallet {
       this.oneConnect,
       this.auditor,
       this.bank,
+      this.debug,
+      this.secret,
+      this.sourceSeed,
+      this.fcmToken,
       this.documentReference,
       this.investor});
 
@@ -39,8 +44,12 @@ class Wallet {
     this.bank = data['bank'];
     this.investor = data['investor'];
     this.documentReference = data['documentReference'];
+    this.secret = data['secret'];
+    this.fcmToken = data['fcmToken'];
+    this.sourceSeed = data['sourceSeed'];
+    this.debug = data['debug'];
   }
-  Map<String, String> toJson() => <String, String>{
+  Map<String, dynamic> toJson() => <String, dynamic>{
         'stellarPublicKey': stellarPublicKey,
         'dateRegistered': dateRegistered,
         'lastBalance': lastBalance,
@@ -53,5 +62,9 @@ class Wallet {
         'bank': bank,
         'investor': investor,
         'documentReference': documentReference,
+        'secret': secret,
+        'fcmToken': fcmToken,
+        'sourceSeed': sourceSeed,
+        'debug': debug,
       };
 }

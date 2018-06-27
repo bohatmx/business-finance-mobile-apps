@@ -264,61 +264,6 @@ class _InvoiceListState extends State<InvoiceList> implements SnackBarListener {
     setState(() {});
   }
 
-  void _confirm() {
-    print('_InvoiceListState._confirm');
-    prettyPrint(invoice.toJson(), '_InvoiceListState._confirm');
-    showDialog(
-        context: context,
-        builder: (_) => new AlertDialog(
-              title: new Text(
-                "Invoice Handling",
-                style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).primaryColor),
-              ),
-              content: Container(
-                height: 120.0,
-                child: Column(
-                  children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.only(top: 4.0, bottom: 10.0),
-                      child: Text(
-                        'Invoice Number: ${invoice.invoiceNumber}',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                    Text(
-                      "Do you want  to offer this invoice to the Business Finance Network?",
-                      style: TextStyle(fontWeight: FontWeight.normal),
-                    ),
-                  ],
-                ),
-              ),
-              actions: <Widget>[
-                FlatButton(
-                  onPressed: _onOffer,
-                  child: Text(
-                    'YES',
-                    style: TextStyle(
-                        color: Colors.blue,
-                        fontSize: 20.0,
-                        fontWeight: FontWeight.bold),
-                  ),
-                ),
-                new Padding(
-                  padding: const EdgeInsets.only(left: 28.0, right: 16.0),
-                  child: FlatButton(
-                    onPressed: _onCancel,
-                    child: Text(
-                      'NO',
-                      style: TextStyle(color: Colors.pink, fontSize: 20.0),
-                    ),
-                  ),
-                ),
-              ],
-            ));
-  }
-
   String totalAmount;
   @override
   Widget build(BuildContext context) {
@@ -407,7 +352,7 @@ class _InvoiceListState extends State<InvoiceList> implements SnackBarListener {
   }
 
   @override
-  onActionPressed() {
+  onActionPressed(int action) {
     print('_InvoiceListState.onActionPressed');
   }
 
@@ -419,11 +364,6 @@ class _InvoiceListState extends State<InvoiceList> implements SnackBarListener {
       context,
       new MaterialPageRoute(builder: (context) => new MakeOfferPage(invoice)),
     );
-  }
-
-  void _onCancel() {
-    print('_InvoiceListState._onCancel');
-    Navigator.pop(context);
   }
 
   void _cancelOffer() {

@@ -5,9 +5,9 @@ class InvestorInvoiceSettlement {
   String amount;
   String discountPercent;
   String invoice;
-  String investor;
+  String investor, supplier, offer;
   String user, documentReference;
-  String wallet;
+  String wallet, supplierFCMToken;
 
   InvestorInvoiceSettlement(
       {this.invoiceSettlementId,
@@ -17,8 +17,11 @@ class InvestorInvoiceSettlement {
       this.discountPercent,
       this.invoice,
       this.investor,
+      this.supplierFCMToken,
       this.documentReference,
       this.user,
+      this.offer,
+      this.supplier,
       this.wallet});
 
   InvestorInvoiceSettlement.fromJson(Map data) {
@@ -32,6 +35,10 @@ class InvestorInvoiceSettlement {
     this.user = data['user'];
     this.wallet = data['wallet'];
     this.documentReference = data['documentReference'];
+    this.supplierFCMToken = data['supplierFCMToken'];
+
+    this.supplier = data['supplier'];
+    this.offer = data['offer'];
   }
   Map<String, String> toJson() => <String, String>{
         'invoiceSettlementId': invoiceSettlementId,
@@ -44,6 +51,9 @@ class InvestorInvoiceSettlement {
         'user': user,
         'wallet': wallet,
         'documentReference': documentReference,
+        'supplierFCMToken': supplierFCMToken,
+        'supplier': supplier,
+        'offer': offer,
       };
 }
 
@@ -55,7 +65,7 @@ class CompanyInvoiceSettlement {
   String discountPercent, documentReference;
   String invoice;
   String company;
-  String user;
+  String user, supplierFCMToken, supplier;
   String wallet;
 
   CompanyInvoiceSettlement(
@@ -67,6 +77,8 @@ class CompanyInvoiceSettlement {
       this.invoice,
       this.company,
       this.user,
+      this.supplier,
+      this.supplierFCMToken,
       this.documentReference,
       this.wallet});
 
@@ -81,6 +93,9 @@ class CompanyInvoiceSettlement {
     this.user = data['user'];
     this.wallet = data['wallet'];
     this.documentReference = data['documentReference'];
+    this.supplierFCMToken = data['supplierFCMToken'];
+
+    this.supplier = data['supplier'];
   }
   Map<String, String> toJson() => <String, String>{
         'invoiceSettlementId': invoiceSettlementId,
@@ -93,6 +108,8 @@ class CompanyInvoiceSettlement {
         'user': user,
         'wallet': wallet,
         'documentReference': documentReference,
+        'supplierFCMToken': supplierFCMToken,
+        'supplier': supplier,
       };
 }
 
@@ -101,8 +118,8 @@ class GovtInvoiceSettlement {
   String date;
   String amount;
   String invoice;
-  String govtEntity;
-  String user;
+  String govtEntity, supplierFCMToken;
+  String user, supplier;
   String wallet;
 
   GovtInvoiceSettlement(
@@ -110,8 +127,10 @@ class GovtInvoiceSettlement {
       this.date,
       this.amount,
       this.invoice,
+      this.supplierFCMToken,
       this.govtEntity,
       this.user,
+      this.supplier,
       this.wallet});
 
   GovtInvoiceSettlement.fromJson(Map data) {
@@ -122,6 +141,8 @@ class GovtInvoiceSettlement {
     this.govtEntity = data['govtEntity'];
     this.user = data['user'];
     this.wallet = data['wallet'];
+    this.supplierFCMToken = data['supplierFCMToken'];
+    this.supplier = data['supplier'];
   }
   Map<String, String> toJson() => <String, String>{
         'invoiceSettlementId': invoiceSettlementId,
@@ -131,5 +152,7 @@ class GovtInvoiceSettlement {
         'govtEntity': govtEntity,
         'user': user,
         'wallet': wallet,
+        'supplierFCMToken': supplierFCMToken,
+        'supplier': supplier,
       };
 }
