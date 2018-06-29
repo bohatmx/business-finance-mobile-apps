@@ -1,7 +1,21 @@
 import 'dart:async';
+import 'dart:convert';
 
+import 'package:businesslibrary/api/shared_prefs.dart';
+import 'package:businesslibrary/data/delivery_acceptance.dart';
+import 'package:businesslibrary/data/delivery_note.dart';
+import 'package:businesslibrary/data/invoice.dart';
+import 'package:businesslibrary/data/invoice_bid.dart';
+import 'package:businesslibrary/data/invoice_settlement.dart';
+import 'package:businesslibrary/data/offer.dart';
+import 'package:businesslibrary/data/purchase_order.dart';
+import 'package:businesslibrary/data/user.dart';
+import 'package:businesslibrary/data/wallet.dart';
+import 'package:businesslibrary/util/util.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:meta/meta.dart';
 
@@ -291,29 +305,192 @@ prettyPrint(Map map, String name) {
   print('\n}\n\n');
 }
 
-//final cryptor = new PlatformStringCryptor();
+configureMessaging(FCMListener listener) async {
+  print('configureMessaging starting _firebaseMessaging config shit');
+  final FirebaseMessaging _firebaseMessaging = new FirebaseMessaging();
 
-//Future<EncryptResult> encrypt(String string, String password) async {
-//  print('encrypt $string password: $password');
-//  final salt = await cryptor.generateSalt();
-//  final generatedKey = await cryptor.generateKeyFromPassword(password, salt);
-//  var result = EncryptResult(
-//    generatedKey: generatedKey,
-//    salt: salt,
-//  );
-//  print("encrypt: salt: $salt, generatedKey: $generatedKey");
-//  decrypt(generatedKey, salt);
-//  return result;
-//}
-//
-//String decrypt(String string, String salt) async {
-//  final decrypted = await cryptor.decrypt(string, salt);
-//  print('decrypted: $decrypted');
-//
-//  return null;
-//}
+  _firebaseMessaging.configure(
+    onMessage: (Map<String, dynamic> message) async {
+      var messageType = message["messageType"];
+      if (messageType == "WALLET") {
+        print(
+            'configureMessaging: ############## receiving WALLET message from FCM');
+        Map map = json.decode(message["json"]);
+        var wallet = new Wallet.fromJson(map);
+        assert(wallet != null);
+        prettyPrint(map, 'Dashboard._configMessaging: wallet:');
+        await SharedPrefs.saveWallet(wallet);
+        listener.onWalletMessage(wallet);
+      }
+      if (messageType == "WALLET_ERROR") {
+        print(
+            'configureMessaging: ############## receiving WALLET_ERROR message from FCM');
+        listener.onWalletError();
+      }
+      if (messageType == "PURCHASE_ORDER") {
+        print(
+            'configureMessaging: ############## receiving PURCHASE_ORDER message from FCM');
+        Map map = json.decode(message["json"]);
+        var po = new PurchaseOrder.fromJson(map);
+        assert(po != null);
+        listener.onPurchaseOrderMessage(po);
+      }
+      if (messageType == "DELIVERY_NOTE") {
+        print(
+            'configureMessaging: ############## receiving DELIVERY_NOTE message from FCM');
+        Map map = json.decode(message["json"]);
+        var m = new DeliveryNote.fromJson(map);
+        assert(m != null);
+        listener.onDeliveryNote(m);
+      }
+      if (messageType == "DELIVERY_ACCEPTANCE") {
+        print(
+            'configureMessaging: ############## receiving DELIVERY_ACCEPTANCE message from FCM');
+        Map map = json.decode(message["json"]);
+        var m = new DeliveryAcceptance.fromJson(map);
+        assert(m != null);
+        listener.onDeliveryAcceptance(m);
+      }
+      if (messageType == "INVOICE") {
+        print(
+            'configureMessaging: ############## receiving INVOICE message from FCM');
+        Map map = json.decode(message["json"]);
+        var m = new Invoice.fromJson(map);
+        assert(m != null);
+        listener.onInvoiceMessage(m);
+      }
+      if (messageType == "INVOICE_OFFER") {
+        print(
+            'configureMessaging: ############## receiving INVOICE_OFFER message from FCM');
+        Map map = json.decode(message["json"]);
+        var m = new Offer.fromJson(map);
+        assert(m != null);
+        listener.onOfferMessage(m);
+      }
+      if (messageType == "INVOICE_BID") {
+        print(
+            'configureMessaging: ############## receiving INVOICE_BID message from FCM');
+        Map map = json.decode(message["json"]);
+        var m = new InvoiceBid.fromJson(map);
+        assert(m != null);
+        listener.onInvoiceBidMessage(m);
+      }
+      if (messageType == "GOVT_INVOICE_SETTLEMENT") {
+        print(
+            'configureMessaging: ############## receiving GOVT_INVOICE_SETTLEMENT message from FCM');
+        Map map = json.decode(message["json"]);
+        var m = new GovtInvoiceSettlement.fromJson(map);
+        assert(m != null);
+        listener.onGovtInvoiceSettlement(m);
+      }
+      if (messageType == "INVESTOR_INVOICE_SETTLEMENT") {
+        print(
+            'configureMessaging: ############## receiving INVESTOR_INVOICE_SETTLEMENT message from FCM');
+        Map map = json.decode(message["json"]);
+        var m = new InvestorInvoiceSettlement.fromJson(map);
+        assert(m != null);
+        listener.onInvestorSettlement(m);
+      }
+      if (messageType == "COMPANY_INVOICE_SETTLEMENT") {
+        print(
+            'configureMessaging: ############## receiving COMPANY_INVOICE_SETTLEMENT message from FCM');
+        Map map = json.decode(message["json"]);
+        var m = new CompanyInvoiceSettlement.fromJson(map);
+        assert(m != null);
+        listener.onCompanySettlement(m);
+      }
+    },
+    onLaunch: (Map<String, dynamic> message) {},
+    onResume: (Map<String, dynamic> message) {},
+  );
 
-class EncryptResult {
-  String generatedKey, salt;
-  EncryptResult({this.generatedKey, this.salt});
+  _firebaseMessaging.requestNotificationPermissions(
+      const IosNotificationSettings(sound: true, badge: true, alert: true));
+
+  _firebaseMessaging.onIosSettingsRegistered
+      .listen((IosNotificationSettings settings) {});
+
+  _firebaseMessaging.getToken().then((String token) async {
+    assert(token != null);
+    var oldToken = await SharedPrefs.getFCMToken();
+    if (token != oldToken) {
+      await SharedPrefs.saveFCMToken(token);
+      print('configureMessaging fcm token saved: $token');
+      _updateToken(token);
+    } else {
+      print('configureMessaging: token has not changed. no need to save');
+    }
+  }).catchError((e) {
+    print('configureMessaging ERROR fcmToken $e');
+  });
+}
+
+final Firestore _firestore = Firestore.instance;
+
+_updateToken(String token) async {
+  print('_updateToken #################  update user FCM token');
+  var user = await SharedPrefs.getUser();
+  var qs = await _firestore
+      .collection('users')
+      .where('userId', isEqualTo: user.userId)
+      .getDocuments();
+  User mUser = User.fromJson(qs.documents.first.data);
+  mUser.fcmToken = token;
+  await _firestore
+      .collection('users')
+      .document(qs.documents.first.documentID)
+      .updateData(mUser.toJson());
+  SharedPrefs.saveUser(mUser);
+}
+
+abstract class FCMListener {
+  onWalletMessage(Wallet wallet);
+  onWalletError();
+  onPurchaseOrderMessage(PurchaseOrder purchaseOrder);
+  onDeliveryNote(DeliveryNote deliveryNote);
+  onDeliveryAcceptance(DeliveryAcceptance deliveryAcceptance);
+  onInvoiceMessage(Invoice invoice);
+  onOfferMessage(Offer offer);
+  onInvoiceBidMessage(InvoiceBid invoiceBid);
+  onGovtInvoiceSettlement(GovtInvoiceSettlement settlement);
+  onInvestorSettlement(InvestorInvoiceSettlement settlement);
+  onCompanySettlement(CompanyInvoiceSettlement settlement);
+}
+
+const DEBUG_URL =
+    'https://us-central1-business-finance-dev.cloudfunctions.net/';
+const PROD_URL =
+    'https://us-central1-business-finance-prod.cloudfunctions.net/';
+
+Future<String> encrypt(String accountId, String secret) async {
+  print('encrypt ++++++++++++ accountId: $accountId secret: $secret');
+
+  var data = {'accountId': accountId, 'secret': secret};
+  var url;
+  if (isInDebugMode) {
+    url = DEBUG_URL;
+  } else {
+    url = PROD_URL;
+  }
+  url += 'encryptor';
+  var result = await http.post(url, body: data);
+  print('encrypt ############ RESULT: ${result.body}');
+  return result.body;
+}
+
+Future<String> decrypt(String accountId, String encrypted) async {
+  print('decrypt -------- accountId: $accountId encrypted: $encrypted');
+
+  var data = {'accountId': accountId, 'encrypted': encrypted};
+  var url;
+  if (isInDebugMode) {
+    url = DEBUG_URL;
+  } else {
+    url = PROD_URL;
+  }
+  url += 'decryptor';
+  var result = await http.post(url, body: data);
+
+  print('decrypt ############ RESULT: ${result.body}');
+  return result.body;
 }

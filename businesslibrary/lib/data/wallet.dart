@@ -8,7 +8,7 @@ class Wallet {
   String procurementOffice;
   String oneConnect;
   String auditor, sourceSeed;
-  String bank, secret, fcmToken;
+  String bank, secret, fcmToken, encryptedSecret;
   String investor, documentReference;
   bool debug;
 
@@ -27,6 +27,7 @@ class Wallet {
       this.secret,
       this.sourceSeed,
       this.fcmToken,
+      this.encryptedSecret,
       this.documentReference,
       this.investor});
 
@@ -46,6 +47,7 @@ class Wallet {
     this.fcmToken = data['fcmToken'];
     this.sourceSeed = data['sourceSeed'];
     this.debug = data['debug'];
+    this.encryptedSecret = data['encryptedSecret'];
   }
   Map<String, dynamic> toJson() => <String, dynamic>{
         'stellarPublicKey': stellarPublicKey,
@@ -64,5 +66,6 @@ class Wallet {
         'fcmToken': fcmToken,
         'sourceSeed': sourceSeed,
         'debug': debug,
+        'encryptedSecret': encryptedSecret,
       };
 }

@@ -9,6 +9,7 @@ class Offer {
   String purchaseOrder, participantId;
   String user, date, supplier;
   String invoiceDocumentRef;
+  DateTime dateClosed;
   String supplierDocumentRef, supplierFCMToken;
   List<String> invoiceBids;
   Offer(
@@ -25,6 +26,7 @@ class Offer {
       this.purchaseOrder,
       this.supplier,
       this.invoiceBids,
+      this.dateClosed,
       this.supplierFCMToken,
       this.invoiceDocumentRef,
       this.supplierDocumentRef,
@@ -49,6 +51,7 @@ class Offer {
     this.supplier = data['supplier'];
     this.invoiceBids = data['invoiceBids'];
     this.supplierFCMToken = data['supplierFCMToken'];
+    this.dateClosed = data['dateClosed'];
   }
 
   Map<String, dynamic> toJson() => <String, dynamic>{
@@ -69,5 +72,6 @@ class Offer {
         'supplier': supplier,
         'invoiceBids': invoiceBids,
         'supplierFCMToken': supplierFCMToken,
+        'dateClosed': dateClosed,
       };
 }

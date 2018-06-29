@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/company.dart';
 import 'package:businesslibrary/data/delivery_acceptance.dart';
 import 'package:businesslibrary/data/delivery_note.dart';
@@ -22,10 +23,8 @@ class ListAPI {
         .collection('wallets')
         .where(ownerType, isEqualTo: name)
         .getDocuments();
-    Wallet wallet;
-    qs.documents.forEach((doc) {
-      wallet = Wallet.fromJson(doc.data);
-    });
+    Wallet wallet = Wallet.fromJson(qs.documents.first.data);
+    await SharedPrefs.saveWallet(wallet);
     return wallet;
   }
 

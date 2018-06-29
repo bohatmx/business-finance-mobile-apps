@@ -1,8 +1,10 @@
 import 'dart:async';
 
+import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/api/signin.dart';
 import 'package:businesslibrary/data/govt_entity.dart';
+import 'package:businesslibrary/data/wallet.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/util.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -228,6 +230,13 @@ class _SignInPageState extends State<SignInPage> implements SnackBarListener {
           print(
               '_SignInPageState._onSavePressed ... ############# subscribed to FCM topics '
               '\n $topic0 \n $topic2 \n $topic3 \n $topic4');
+          //get wallet
+          Wallet wallet = await ListAPI.getWallet(
+              'govtEntity',
+              'resource:com.oneconnect.biz.GovtEntity#' +
+                  govtEntity.participantId);
+          print(
+              '_SignInPageState.checkResult wallet recovered ${wallet.toJson()}');
           Navigator.push(
             context,
             new MaterialPageRoute(builder: (context) => new Dashboard()),

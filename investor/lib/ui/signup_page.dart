@@ -128,6 +128,7 @@ class _SignUpPageState extends State<SignUpPage> implements SnackBarListener {
       fontWeight: FontWeight.bold, color: Colors.black, fontSize: 20.0);
   @override
   Widget build(BuildContext context) {
+    _debug();
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(

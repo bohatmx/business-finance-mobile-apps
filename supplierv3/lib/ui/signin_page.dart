@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/api/signin.dart';
 import 'package:businesslibrary/data/auditor.dart';
@@ -8,6 +9,7 @@ import 'package:businesslibrary/data/govt_entity.dart';
 import 'package:businesslibrary/data/investor.dart';
 import 'package:businesslibrary/data/procurement_office.dart';
 import 'package:businesslibrary/data/supplier.dart';
+import 'package:businesslibrary/data/wallet.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/util.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -208,6 +210,11 @@ class _SignInPageState extends State<SignInPage> implements SnackBarListener {
               actionLabel: "close");
         } else {
           subscribeToFCM();
+          //get wallet
+          Wallet wallet = await ListAPI.getWallet('supplier',
+              'resource:com.oneconnect.biz.Supplier#' + supplier.participantId);
+          print(
+              '_SignInPageState.checkResult wallet recovered ${wallet.toJson()}');
           Navigator.push(
             context,
             new MaterialPageRoute(builder: (context) => new Dashboard()),
