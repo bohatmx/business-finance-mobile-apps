@@ -22,6 +22,7 @@ dependencies:
     json_annotation: ^0.2.5
     intl: ^0.15.6
 
+
 dev-dependencies:
   build_runner: ^0.8.9
   json_serializable: ^0.5.7

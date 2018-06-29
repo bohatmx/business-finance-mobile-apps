@@ -290,3 +290,30 @@ prettyPrint(Map map, String name) {
   });
   print('\n}\n\n');
 }
+
+//final cryptor = new PlatformStringCryptor();
+
+//Future<EncryptResult> encrypt(String string, String password) async {
+//  print('encrypt $string password: $password');
+//  final salt = await cryptor.generateSalt();
+//  final generatedKey = await cryptor.generateKeyFromPassword(password, salt);
+//  var result = EncryptResult(
+//    generatedKey: generatedKey,
+//    salt: salt,
+//  );
+//  print("encrypt: salt: $salt, generatedKey: $generatedKey");
+//  decrypt(generatedKey, salt);
+//  return result;
+//}
+//
+//String decrypt(String string, String salt) async {
+//  final decrypted = await cryptor.decrypt(string, salt);
+//  print('decrypted: $decrypted');
+//
+//  return null;
+//}
+
+class EncryptResult {
+  String generatedKey, salt;
+  EncryptResult({this.generatedKey, this.salt});
+}

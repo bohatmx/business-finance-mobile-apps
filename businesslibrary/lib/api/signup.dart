@@ -12,13 +12,15 @@ import 'package:businesslibrary/data/procurement_office.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/data/wallet.dart';
+import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/util.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class SignUp {
-  static const NameSpace = 'resource:com.oneconnect.biz';
+  static const NameSpace = 'resource:com.oneconnect.biz.';
   final String url;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final Firestore _firestore = Firestore.instance;
@@ -30,6 +32,7 @@ class SignUp {
   );
 
   SignUp(this.url);
+
   static const Success = 0,
       ErrorFirebaseUserExists = 1,
       ErrorMissingOrInvalidData = 4,
@@ -38,10 +41,23 @@ class SignUp {
       ErrorUserAlreadyExists = 7,
       ErrorFireStore = 2,
       ErrorBlockchain = 3;
-  static const ACCOUNT_ID =
-          "GDJ4EYJNMQEE75OXVSRXP7G7IMDUXVPZUBYTORILVKH5FAG2I3EPXJY5",
-      SECRET = "SCY6UGXJAWH6FFCNCW4HH72TUVGU5ESUI6SSBWVSJ7MHOBQEWOSQKTPB";
+
+  String publicKey, privateKey;
+  Future<Null> _setupRemoteConfig() async {
+    print(
+        'SignUp.setupRemoteConfig ############ getting RemoteConfig settings');
+    final RemoteConfig remoteConfig = await RemoteConfig.instance;
+    RemoteConfigSettings settings = RemoteConfigSettings(debugMode: true);
+    await remoteConfig.setConfigSettings(settings);
+    await remoteConfig.fetch(expiration: Duration(seconds: 5));
+    await remoteConfig.activateFetched();
+    publicKey = remoteConfig.getString('account_id');
+    privateKey = remoteConfig.getString('private_key');
+    print('SignUp.setupRemoteConfig $publicKey $privateKey ');
+  }
+
   Future<int> signUpGovtEntity(GovtEntity govtEntity, User admin) async {
+    await _setupRemoteConfig();
     var qs = await _firestore
         .collection('govtEntities')
         .where('name', isEqualTo: govtEntity.name)
@@ -64,26 +80,28 @@ class SignUp {
     }
 
     await SharedPrefs.saveGovtEntity(govtEntity);
-    var wallet = await _getWallet();
+    var wallet = await _getWallet(govtEntity.name);
     wallet.govtEntity = NameSpace + 'GovtEntity#' + govtEntity.participantId;
     await dataAPI.addWalletToFirestoreForStellar(wallet);
 
-    admin.govtEntity = NameSpace + '.GovtEntity#' + key;
+    admin.govtEntity = NameSpace + 'GovtEntity#' + key;
     admin.isAdministrator = 'true';
     return await signUp(admin);
   }
 
-  Future<Wallet> _getWallet() async {
+  Future<Wallet> _getWallet(String name) async {
     var wallet = Wallet();
     wallet.dateRegistered = new DateTime.now().toIso8601String();
-    wallet.lastBalance = '0';
-    wallet.sourceSeed = SECRET;
+    wallet.sourceSeed = privateKey;
     wallet.debug = isInDebugMode;
+    wallet.name = name;
     wallet.fcmToken = await SharedPrefs.getFCMToken();
+    prettyPrint(wallet.toJson(), 'wallet to be created');
     return wallet;
   }
 
   Future<int> signUpCompany(Company company, User admin) async {
+    await _setupRemoteConfig();
     var qs = await _firestore
         .collection('companies')
         .where('name', isEqualTo: company.name)
@@ -105,16 +123,17 @@ class SignUp {
     }
     await SharedPrefs.saveCompany(company);
 
-    var wallet = await _getWallet();
-    wallet.govtEntity = NameSpace + 'Company#' + company.participantId;
+    var wallet = await _getWallet(company.name);
+    wallet.company = NameSpace + 'Company#' + company.participantId;
     await dataAPI.addWalletToFirestoreForStellar(wallet);
 
-    admin.company = NameSpace + '.Company#' + key;
+    admin.company = NameSpace + 'Company#' + key;
     admin.isAdministrator = 'true';
     return await signUp(admin);
   }
 
   Future<int> signUpSupplier(Supplier supplier, User admin) async {
+    await _setupRemoteConfig();
     var qs = await _firestore
         .collection('suppliers')
         .where('name', isEqualTo: supplier.name)
@@ -134,10 +153,10 @@ class SignUp {
       return ErrorBlockchain;
     }
     await SharedPrefs.saveSupplier(supplier);
-    admin.supplier = NameSpace + '.Supplier#' + key;
+    admin.supplier = NameSpace + 'Supplier#' + key;
     admin.isAdministrator = 'true';
 
-    var wallet = await _getWallet();
+    var wallet = await _getWallet(supplier.name);
     wallet.supplier = NameSpace + 'Supplier#' + supplier.participantId;
     await dataAPI.addWalletToFirestoreForStellar(wallet);
 
@@ -145,6 +164,7 @@ class SignUp {
   }
 
   Future<int> signUpInvestor(Investor investor, User admin) async {
+    await _setupRemoteConfig();
     var qs = await _firestore
         .collection('investors')
         .where('name', isEqualTo: investor.name)
@@ -166,16 +186,17 @@ class SignUp {
 
     await SharedPrefs.saveInvestor(investor);
 
-    var wallet = await _getWallet();
+    var wallet = await _getWallet(investor.name);
     wallet.investor = NameSpace + 'Investor#' + investor.participantId;
     await dataAPI.addWalletToFirestoreForStellar(wallet);
 
-    admin.investor = NameSpace + '.Investor#' + key;
+    admin.investor = NameSpace + 'Investor#' + key;
     admin.isAdministrator = 'true';
     return await signUp(admin);
   }
 
   Future<int> signUpAuditor(Auditor auditor, User admin) async {
+    await _setupRemoteConfig();
     var qs = await _firestore
         .collection('auditors')
         .where('name', isEqualTo: auditor.name)
@@ -196,17 +217,18 @@ class SignUp {
 
     await SharedPrefs.saveAuditor(auditor);
 
-    var wallet = await _getWallet();
+    var wallet = await _getWallet(auditor.name);
     wallet.auditor = NameSpace + 'Auditor#' + auditor.participantId;
     await dataAPI.addWalletToFirestoreForStellar(wallet);
 
-    admin.auditor = NameSpace + '.Auditor#' + key;
+    admin.auditor = NameSpace + 'Auditor#' + key;
     admin.isAdministrator = 'true';
     return await signUp(admin);
   }
 
   Future<int> signUpProcurementOffice(
       ProcurementOffice office, User admin) async {
+    await _setupRemoteConfig();
     var qs = await _firestore
         .collection('procurementOffices')
         .where('name', isEqualTo: office.name)
@@ -228,17 +250,18 @@ class SignUp {
 
     await SharedPrefs.saveProcurementOffice(office);
 
-    var wallet = await _getWallet();
+    var wallet = await _getWallet(office.name);
     wallet.procurementOffice =
         NameSpace + 'ProcurementOffice#' + office.participantId;
     await dataAPI.addWalletToFirestoreForStellar(wallet);
 
-    admin.procurementOffice = NameSpace + '.ProcurementOffice#' + key;
+    admin.procurementOffice = NameSpace + 'ProcurementOffice#' + key;
     admin.isAdministrator = 'true';
     return await signUp(admin);
   }
 
   Future<int> signUpBank(Bank bank, User admin) async {
+    await _setupRemoteConfig();
     var qs = await _firestore
         .collection('bank')
         .where('name', isEqualTo: bank.name)
@@ -259,16 +282,17 @@ class SignUp {
 
     await SharedPrefs.saveBank(bank);
 
-    var wallet = await _getWallet();
+    var wallet = await _getWallet(bank.name);
     wallet.bank = NameSpace + 'Bank#' + bank.participantId;
     await dataAPI.addWalletToFirestoreForStellar(wallet);
 
-    admin.bank = NameSpace + '.Bank#' + key;
+    admin.bank = NameSpace + 'Bank#' + key;
     admin.isAdministrator = 'true';
     return await signUp(admin);
   }
 
   Future<int> signUpOneConnect(OneConnect oneConnect, User admin) async {
+    await _setupRemoteConfig();
     var qs = await _firestore
         .collection('oneConnect')
         .getDocuments()
@@ -287,11 +311,11 @@ class SignUp {
 
     await SharedPrefs.saveOneConnect(oneConnect);
 
-    var wallet = await _getWallet();
+    var wallet = await _getWallet(oneConnect.name);
     wallet.oneConnect = NameSpace + 'OneConnect#' + oneConnect.participantId;
     await dataAPI.addWalletToFirestoreForStellar(wallet);
 
-    admin.oneConnect = NameSpace + '.OneConnect#' + key;
+    admin.oneConnect = NameSpace + 'OneConnect#' + key;
     admin.isAdministrator = 'true';
     return await signUp(admin);
   }

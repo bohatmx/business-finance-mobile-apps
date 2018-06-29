@@ -10,10 +10,24 @@ import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/supplier_contract.dart';
+import 'package:businesslibrary/data/wallet.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ListAPI {
   static final Firestore _firestore = Firestore.instance;
+
+  static Future<Wallet> getWallet(String ownerType, String name) async {
+    print('ListAPI.getWallet ownerType: $ownerType name: $name');
+    var qs = await _firestore
+        .collection('wallets')
+        .where(ownerType, isEqualTo: name)
+        .getDocuments();
+    Wallet wallet;
+    qs.documents.forEach((doc) {
+      wallet = Wallet.fromJson(doc.data);
+    });
+    return wallet;
+  }
 
   static Future<List<InvoiceBid>> getInvoiceBidsByOffer(String offer) async {
     List<InvoiceBid> list = List();

@@ -19,6 +19,7 @@ import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/supplier_contract.dart';
 import 'package:businesslibrary/data/user.dart';
+import 'package:businesslibrary/data/wallet.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/util.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -28,6 +29,41 @@ class Generator {
   static const NameSpace = 'resource:com.oneconnect.biz.';
   static Random rand = new Random(new DateTime.now().millisecondsSinceEpoch);
   static DataAPI dataAPI;
+
+  static List<Wallet> wallets = List();
+
+  // ignore: missing_return
+  static Future<int> generateWallets() async {
+    dataAPI = DataAPI(getURL());
+    var qs = await _fs.collection('wallets').getDocuments();
+    qs.documents.forEach((doc) {
+      wallets.add(new Wallet.fromJson(doc.data));
+    });
+    print(
+        'Generator.generateWallets ###### processing ${wallets.length} wallets .....');
+    index = 0;
+    _processWallet();
+  }
+
+  // ignore: missing_return
+  static Future<int> _processWallet() async {
+    var wallet = wallets.elementAt(index);
+    wallet.debug = null;
+    wallet.sourceSeed = null;
+    wallet.secret = null;
+
+    prettyPrint(wallet.toJson(),
+        'Processing wallet, adding to BFN blockchain, index $index: ');
+    await dataAPI.addWallet(wallet);
+
+    index++;
+    if (index < wallets.length) {
+      _processWallet();
+    } else {
+      print(
+          'Generator.processWallet DONE ####### wallets put on BFN blockchain');
+    }
+  }
 
   static Future<int> generatePurchaseOrders() async {
     print('\n\n\nGenerator.generatePurchaseOrders ....................');

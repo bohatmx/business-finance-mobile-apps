@@ -42,26 +42,23 @@ class _SectorSelectorPageState extends State<SectorSelectorPage> {
       ),
       body: new Padding(
         padding: const EdgeInsets.all(10.0),
-        child: new Card(
-          elevation: 4.0,
-          child: new Column(
-            children: <Widget>[
-              new Flexible(
-                child: new ListView.builder(
-                    itemCount: types == null ? 0 : types.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      return new GestureDetector(
-                          onTap: () {
-                            var xType = types.elementAt(index);
-                            print(
-                                'SectorSelectorPage.build about to pop ${xType.type}');
-                            Navigator.pop(context, xType);
-                          },
-                          child: new SectorCard(types.elementAt(index)));
-                    }),
-              ),
-            ],
-          ),
+        child: new Column(
+          children: <Widget>[
+            new Flexible(
+              child: new ListView.builder(
+                  itemCount: types == null ? 0 : types.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return new GestureDetector(
+                        onTap: () {
+                          var xType = types.elementAt(index);
+                          print(
+                              'SectorSelectorPage.build about to pop ${xType.type}');
+                          Navigator.pop(context, xType);
+                        },
+                        child: new SectorCard(types.elementAt(index)));
+                  }),
+            ),
+          ],
         ),
       ),
     );
@@ -77,21 +74,34 @@ class SectorCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return new Padding(
       padding: const EdgeInsets.all(8.0),
-      child: new Container(
-        height: 40.0,
-        child: Card(
-          elevation: 1.0,
-          child: ListTile(
-            leading: Icon(Icons.apps),
-            title: Text(
-              privateSectorType.type,
-            ),
+      child: Card(
+        elevation: 2.0,
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Row(
+            children: <Widget>[
+              Icon(
+                Icons.apps,
+                color: getRandomColor(),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: 8.0),
+                child: Text(
+                  privateSectorType.type,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              )
+            ],
           ),
         ),
       ),
     );
   }
 }
+
+///////////////
 
 class CountrySelectorPage extends StatefulWidget {
   @override
@@ -130,26 +140,23 @@ class _CountrySelectorPageState extends State<CountrySelectorPage> {
       ),
       body: new Padding(
         padding: const EdgeInsets.all(10.0),
-        child: new Card(
-          elevation: 4.0,
-          child: new Column(
-            children: <Widget>[
-              new Flexible(
-                child: new ListView.builder(
-                    itemCount: countries == null ? 0 : countries.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      return new GestureDetector(
-                          onTap: () {
-                            var xType = countries.elementAt(index);
-                            print(
-                                'CountrySelectorPage.build about to pop ${xType.name}');
-                            Navigator.pop(context, xType);
-                          },
-                          child: new CountryCard(countries.elementAt(index)));
-                    }),
-              ),
-            ],
-          ),
+        child: new Column(
+          children: <Widget>[
+            new Flexible(
+              child: new ListView.builder(
+                  itemCount: countries == null ? 0 : countries.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return new GestureDetector(
+                        onTap: () {
+                          var xType = countries.elementAt(index);
+                          print(
+                              'CountrySelectorPage.build about to pop ${xType.name}');
+                          Navigator.pop(context, xType);
+                        },
+                        child: new CountryCard(countries.elementAt(index)));
+                  }),
+            ),
+          ],
         ),
       ),
     );
@@ -165,15 +172,26 @@ class CountryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return new Padding(
       padding: const EdgeInsets.all(8.0),
-      child: new Container(
-        height: 40.0,
-        child: Card(
-          elevation: 1.0,
-          child: ListTile(
-            leading: Icon(Icons.location_on),
-            title: Text(
-              country.name,
-            ),
+      child: Card(
+        elevation: 2.0,
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Row(
+            children: <Widget>[
+              Icon(
+                Icons.apps,
+                color: getRandomColor(),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: 8.0),
+                child: Text(
+                  country.name,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              )
+            ],
           ),
         ),
       ),
@@ -241,34 +259,8 @@ class SupplierCard extends StatelessWidget {
 
   SupplierCard(this.supplier);
 
-  List<Color> colors = List();
-  Color color;
-  Random rand = Random(new DateTime.now().millisecondsSinceEpoch);
-  void _getColor() {
-    print('SupplierCard._getColor ..........');
-    colors.add(Colors.blue);
-    colors.add(Colors.grey);
-    colors.add(Colors.black);
-    colors.add(Colors.pink);
-    colors.add(Colors.teal);
-    colors.add(Colors.red);
-    colors.add(Colors.green);
-    colors.add(Colors.amber);
-    colors.add(Colors.indigo);
-    colors.add(Colors.lightBlue);
-    colors.add(Colors.lime);
-    colors.add(Colors.deepPurple);
-    colors.add(Colors.deepOrange);
-    colors.add(Colors.brown);
-    colors.add(Colors.cyan);
-    rand = Random(new DateTime.now().millisecondsSinceEpoch);
-    int index = rand.nextInt(colors.length - 1);
-    color = colors.elementAt(index);
-  }
-
   @override
   Widget build(BuildContext context) {
-    _getColor();
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Card(
@@ -279,7 +271,7 @@ class SupplierCard extends StatelessWidget {
             children: <Widget>[
               Icon(
                 Icons.apps,
-                color: color == null ? Colors.blue : color,
+                color: getRandomColor(),
               ),
               Padding(
                 padding: const EdgeInsets.only(left: 8.0),
@@ -296,4 +288,30 @@ class SupplierCard extends StatelessWidget {
       ),
     );
   }
+}
+
+List<Color> _colors = List();
+Random _rand = Random(new DateTime.now().millisecondsSinceEpoch);
+Color getRandomColor() {
+  print('getRandomColor ..........');
+  _colors.clear();
+  _colors.add(Colors.blue);
+  _colors.add(Colors.grey);
+  _colors.add(Colors.black);
+  _colors.add(Colors.pink);
+  _colors.add(Colors.teal);
+  _colors.add(Colors.red);
+  _colors.add(Colors.green);
+  _colors.add(Colors.amber);
+  _colors.add(Colors.indigo);
+  _colors.add(Colors.lightBlue);
+  _colors.add(Colors.lime);
+  _colors.add(Colors.deepPurple);
+  _colors.add(Colors.deepOrange);
+  _colors.add(Colors.brown);
+  _colors.add(Colors.cyan);
+
+  _rand = Random(new DateTime.now().millisecondsSinceEpoch);
+  int index = _rand.nextInt(_colors.length - 1);
+  return _colors.elementAt(index);
 }

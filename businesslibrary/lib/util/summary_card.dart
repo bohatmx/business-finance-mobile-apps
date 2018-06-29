@@ -3,17 +3,10 @@ import 'package:flutter/material.dart';
 ///summary card used in dashboards
 class SummaryCard extends StatelessWidget {
   final int total;
-  final String label, date, lastLabel;
-  final double amount;
+  final String label;
   final TextStyle totalStyle;
 
-  SummaryCard(
-      {this.total,
-      this.totalStyle,
-      this.label,
-      this.date,
-      this.lastLabel,
-      this.amount});
+  SummaryCard({this.total, this.totalStyle, this.label});
   final bigLabel = TextStyle(
     fontWeight: FontWeight.w900,
     fontSize: 20.0,
@@ -23,13 +16,7 @@ class SummaryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var opacity = 1.0;
-    var height = 140.0, cHeight = 60.0, top = 10.0;
-    if (total == 0) {
-      opacity = 0.0;
-      height = 90.0;
-      cHeight = 0.0;
-      top = 5.0;
-    }
+    var height = 90.0, cHeight = 60.0, top = 10.0;
 
     return new Container(
       height: height,
@@ -57,41 +44,6 @@ class SummaryCard extends StatelessWidget {
                       ),
                     ),
                   ],
-                ),
-              ),
-              new Padding(
-                padding:
-                    const EdgeInsets.only(left: 28.0, bottom: 10.0, top: 0.0),
-                child: new Container(
-                  height: cHeight,
-                  child: new Opacity(
-                    opacity: opacity,
-                    child: Row(
-                      children: <Widget>[
-                        Text(
-                          lastLabel,
-                          style: TextStyle(color: Colors.grey),
-                        ),
-                        new Padding(
-                          padding: const EdgeInsets.only(left: 8.0),
-                          child: Text(
-                            date,
-                            style: TextStyle(fontSize: 12.0),
-                          ),
-                        ),
-                        new Padding(
-                          padding: const EdgeInsets.only(left: 8.0),
-                          child: Text(
-                            '$amount',
-                            style: TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.normal,
-                                fontSize: 16.0),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
                 ),
               ),
             ],

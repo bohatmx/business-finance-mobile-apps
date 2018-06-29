@@ -29,6 +29,12 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
 
+  @override
+  initState() {
+    super.initState();
+//    _doWallets();
+  }
+
   void _generateBids() async {
     await Generator.generateBids();
     setState(() {
@@ -71,6 +77,10 @@ class _MyHomePageState extends State<MyHomePage> {
       _counter++;
     });
     await Generator.generateOneConnect();
+    setState(() {
+      _counter++;
+    });
+    await Generator.generateWallets();
     setState(() {
       _counter++;
     });
@@ -166,5 +176,13 @@ class _MyHomePageState extends State<MyHomePage> {
         child: new Icon(Icons.add),
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
+  }
+
+  void _doWallets() async {
+    print('_MyHomePageState._doWallets .........................');
+    await Generator.generateWallets();
+    setState(() {
+      _counter++;
+    });
   }
 }
