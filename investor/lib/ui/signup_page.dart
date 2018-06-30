@@ -1,9 +1,16 @@
-import 'dart:convert';
 import 'dart:math';
 
+import 'package:businesslibrary/api/data_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/api/signup.dart';
+import 'package:businesslibrary/data/delivery_acceptance.dart';
+import 'package:businesslibrary/data/delivery_note.dart';
 import 'package:businesslibrary/data/investor.dart';
+import 'package:businesslibrary/data/invoice.dart';
+import 'package:businesslibrary/data/invoice_bid.dart';
+import 'package:businesslibrary/data/invoice_settlement.dart';
+import 'package:businesslibrary/data/offer.dart';
+import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/data/wallet.dart';
 import 'package:businesslibrary/util/lookups.dart';
@@ -19,7 +26,8 @@ class SignUpPage extends StatefulWidget {
   _SignUpPageState createState() => _SignUpPageState();
 }
 
-class _SignUpPageState extends State<SignUpPage> implements SnackBarListener {
+class _SignUpPageState extends State<SignUpPage>
+    implements SnackBarListener, FCMListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   var name,
       email,
@@ -40,7 +48,7 @@ class _SignUpPageState extends State<SignUpPage> implements SnackBarListener {
   initState() {
     super.initState();
     _debug();
-    _configMessaging();
+    configureMessaging(this);
   }
 
   _debug() {
@@ -57,70 +65,13 @@ class _SignUpPageState extends State<SignUpPage> implements SnackBarListener {
     }
   }
 
-  void _configMessaging() async {
-    print(
-        '_SignUpPageState._configMessaging starting _firebaseMessaging config shit');
-    _firebaseMessaging.configure(
-      onMessage: (Map<String, dynamic> message) async {
-        var messageType = message["messageType"];
-        if (messageType == "WALLET") {
-          print(
-              'Dashboard._configMessaging: ############## receiving WALLET message from FCM');
-          Map map = json.decode(message["json"]);
-          var wallet = new Wallet.fromJson(map);
-          assert(wallet != null);
-          prettyPrint(map, 'Dashboard._configMessaging: wallet:');
-          await SharedPrefs.saveWallet(wallet);
-        }
-        if (messageType == "WALLET_ERROR") {
-          print(
-              'Dashboard._configMessaging: ############## receiving WALLET_ERROR message from FCM');
-//          Map map = json.decode(message["json"]);
-//          acceptance = new DeliveryAcceptance.fromJson(map);
-//          assert(acceptance != null);
-//          prettyPrint(map, 'Dashboard._configMessaging: ');
-//          _scaffoldKey.currentState.hideCurrentSnackBar();
-          AppSnackbar.showErrorSnackbar(
-            scaffoldKey: _scaffoldKey,
-            message: 'Wallet creation failed',
-            actionLabel: 'Error',
-            listener: this,
-          );
-        }
-      },
-      onLaunch: (Map<String, dynamic> message) {},
-      onResume: (Map<String, dynamic> message) {},
-    );
-
-    _firebaseMessaging.requestNotificationPermissions(
-        const IosNotificationSettings(sound: true, badge: true, alert: true));
-
-    _firebaseMessaging.onIosSettingsRegistered
-        .listen((IosNotificationSettings settings) {
-      print("Settings registered: $settings");
-    });
-
-    _firebaseMessaging.getToken().then((String token) async {
-      assert(token != null);
-      var oldToken = await SharedPrefs.getFCMToken();
-      if (token != oldToken) {
-        await SharedPrefs.saveFCMToken(token);
-        //  TODO - update user's token on Firestore
-        print('_SignUpPageState._configMessaging fcm token saved: $token');
-      } else {
-        print(
-            '_SignUpPageState._configMessaging: token has not changed. no need to save');
-      }
-    }).catchError((e) {
-      print('_SignUpPageState._configMessaging ERROR fcmToken $e');
-    });
-  }
-
   _getCountry() async {
     country = await Navigator.push(
       context,
       new MaterialPageRoute(builder: (context) => new CountrySelectorPage()),
     );
+    print(
+        '_SignUpPageState._getCountry - back from selection: ${country.name}');
     setState(() {});
   }
 
@@ -128,11 +79,10 @@ class _SignUpPageState extends State<SignUpPage> implements SnackBarListener {
       fontWeight: FontWeight.bold, color: Colors.black, fontSize: 20.0);
   @override
   Widget build(BuildContext context) {
-    _debug();
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
-        title: Text('Supplier SignUp'),
+        title: Text('Investor SignUp'),
       ),
       body: Form(
         key: _formKey,
@@ -307,6 +257,13 @@ class _SignUpPageState extends State<SignUpPage> implements SnackBarListener {
         password: password,
       );
       print('_SignUpPageState._onSavePressed ${admin.toJson()}');
+      AppSnackbar.showSnackbarWithProgressIndicator(
+        scaffoldKey: _scaffoldKey,
+        message: 'Investor Sign Up ... ',
+        textColor: Colors.lightBlue,
+        backgroundColor: Colors.black,
+      );
+
       SignUp signUp = SignUp(getURL());
       var result = await signUp.signUpInvestor(investor, admin);
 
@@ -389,5 +346,55 @@ class _SignUpPageState extends State<SignUpPage> implements SnackBarListener {
   @override
   onActionPressed(int action) {
     print('_SignUpPageState.onActionPressed .............. yay!');
+  }
+
+  @override
+  onCompanySettlement(CompanyInvoiceSettlement settlement) {}
+
+  @override
+  onDeliveryAcceptance(DeliveryAcceptance deliveryAcceptance) {}
+
+  @override
+  onDeliveryNote(DeliveryNote deliveryNote) {}
+
+  @override
+  onGovtInvoiceSettlement(GovtInvoiceSettlement settlement) {}
+
+  @override
+  onInvestorSettlement(InvestorInvoiceSettlement settlement) {}
+
+  @override
+  onInvoiceBidMessage(InvoiceBid invoiceBid) {}
+
+  @override
+  onInvoiceMessage(Invoice invoice) {}
+
+  @override
+  onOfferMessage(Offer offer) {}
+
+  @override
+  onPurchaseOrderMessage(PurchaseOrder purchaseOrder) {}
+
+  @override
+  onWalletError() {
+    print('_SignUpPageState.onWalletError ......');
+    AppSnackbar.showErrorSnackbar(
+        scaffoldKey: _scaffoldKey,
+        message: 'Wallet creation failed',
+        listener: this,
+        actionLabel: 'CLOSE');
+  }
+
+  @override
+  onWalletMessage(Wallet wallet) async {
+    prettyPrint(wallet.toJson(), 'onWalletMessage ......');
+    await SharedPrefs.saveWallet(wallet);
+    DataAPI api = DataAPI(getURL());
+    await api.addWallet(wallet);
+    AppSnackbar.showSnackbar(
+        scaffoldKey: _scaffoldKey,
+        message: 'Wallet created',
+        textColor: Colors.white,
+        backgroundColor: Colors.teal);
   }
 }

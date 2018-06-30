@@ -1,10 +1,22 @@
+import 'dart:math';
+
+import 'package:businesslibrary/api/data_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/api/signup.dart';
+import 'package:businesslibrary/data/delivery_acceptance.dart';
+import 'package:businesslibrary/data/delivery_note.dart';
 import 'package:businesslibrary/data/govt_entity.dart';
+import 'package:businesslibrary/data/invoice.dart';
+import 'package:businesslibrary/data/invoice_bid.dart';
+import 'package:businesslibrary/data/invoice_settlement.dart';
 import 'package:businesslibrary/data/misc_data.dart';
+import 'package:businesslibrary/data/offer.dart';
+import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/user.dart';
+import 'package:businesslibrary/data/wallet.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/selectors.dart';
+import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/util.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -15,7 +27,8 @@ class SignUpPage extends StatefulWidget {
   _SignUpPageState createState() => _SignUpPageState();
 }
 
-class _SignUpPageState extends State<SignUpPage> {
+class _SignUpPageState extends State<SignUpPage>
+    implements SnackBarListener, FCMListener {
   var name,
       email,
       address,
@@ -28,11 +41,49 @@ class _SignUpPageState extends State<SignUpPage> {
       idNumber;
   final GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
   final FirebaseMessaging _firebaseMessaging = new FirebaseMessaging();
+  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
   String participationId;
   List<DropdownMenuItem> items = List();
   Country country;
   var govtEntityType;
+
+  @override
+  initState() {
+    super.initState();
+    configureMessaging(this);
+    _debug();
+  }
+
+  _getToken() {
+    print('_SignUpPageState._getToken +=======================+++');
+    _firebaseMessaging.getToken().then((String token) async {
+      assert(token != null);
+      var oldToken = await SharedPrefs.getFCMToken();
+      if (token != oldToken) {
+        await SharedPrefs.saveFCMToken(token);
+        print('configureMessaging fcm token saved: $token');
+      } else {
+        print('configureMessaging: token has not changed. no need to save');
+      }
+    }).catchError((e) {
+      print('configureMessaging ERROR fcmToken $e');
+    });
+  }
+
+  _debug() {
+    if (isInDebugMode) {
+      Random rand = new Random(new DateTime.now().millisecondsSinceEpoch);
+      var num = rand.nextInt(100);
+      name = 'Government Entity$num ';
+      adminEmail = 'admin$num@gov.co.za';
+      email = 'info$num@gov.co.za';
+      firstName = 'Thabo Tony$num';
+      lastName = 'Mahume$num';
+      password = 'pass123';
+      country = Country(name: 'South Africa', code: 'ZA');
+    }
+  }
 
   _getCountry() async {
     country = await Navigator.push(
@@ -42,14 +93,21 @@ class _SignUpPageState extends State<SignUpPage> {
     setState(() {});
   }
 
+  var style = TextStyle(
+      fontWeight: FontWeight.bold, color: Colors.black, fontSize: 20.0);
+
   @override
   Widget build(BuildContext context) {
+//    _debug();
     items = List();
     var item1 = DropdownMenuItem(
       value: GovtTypeUtil.National,
       child: Row(
         children: <Widget>[
-          Icon(Icons.apps),
+          Icon(
+            Icons.apps,
+            color: Colors.indigo,
+          ),
           new Padding(
             padding: const EdgeInsets.only(left: 8.0),
             child: Text('National'),
@@ -62,7 +120,10 @@ class _SignUpPageState extends State<SignUpPage> {
       value: GovtTypeUtil.Provincial,
       child: Row(
         children: <Widget>[
-          Icon(Icons.directions_car),
+          Icon(
+            Icons.apps,
+            color: Colors.pink,
+          ),
           new Padding(
             padding: const EdgeInsets.only(left: 8.0),
             child: Text('Provincial'),
@@ -75,7 +136,10 @@ class _SignUpPageState extends State<SignUpPage> {
       value: GovtTypeUtil.Municipality,
       child: Row(
         children: <Widget>[
-          Icon(Icons.directions_car),
+          Icon(
+            Icons.apps,
+            color: Colors.teal,
+          ),
           new Padding(
             padding: const EdgeInsets.only(left: 8.0),
             child: Text('Municipality'),
@@ -86,6 +150,7 @@ class _SignUpPageState extends State<SignUpPage> {
     items.add(item3);
 
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
         title: Text('Government SignUp'),
       ),
@@ -96,7 +161,7 @@ class _SignUpPageState extends State<SignUpPage> {
           child: new Card(
             elevation: 6.0,
             child: new Padding(
-              padding: const EdgeInsets.all(10.0),
+              padding: const EdgeInsets.all(20.0),
               child: ListView(
                 children: <Widget>[
                   new Opacity(
@@ -110,6 +175,8 @@ class _SignUpPageState extends State<SignUpPage> {
                     ),
                   ),
                   TextFormField(
+                    initialValue: name == null ? '' : name,
+                    style: style,
                     decoration: InputDecoration(
                         labelText: 'Organisation Name',
                         hintText: 'Enter organisation name'),
@@ -122,6 +189,8 @@ class _SignUpPageState extends State<SignUpPage> {
                     onSaved: (val) => name = val,
                   ),
                   TextFormField(
+                    initialValue: email == null ? '' : email,
+                    style: style,
                     decoration: InputDecoration(
                       labelText: 'Organisation email',
                     ),
@@ -175,6 +244,8 @@ class _SignUpPageState extends State<SignUpPage> {
                     ),
                   ),
                   TextFormField(
+                    initialValue: firstName == null ? '' : firstName,
+                    style: style,
                     decoration: InputDecoration(
                       labelText: 'First Name',
                     ),
@@ -187,6 +258,8 @@ class _SignUpPageState extends State<SignUpPage> {
                     onSaved: (val) => firstName = val,
                   ),
                   TextFormField(
+                    initialValue: lastName == null ? '' : lastName,
+                    style: style,
                     decoration: InputDecoration(
                       labelText: 'Surname',
                     ),
@@ -199,6 +272,8 @@ class _SignUpPageState extends State<SignUpPage> {
                     onSaved: (val) => lastName = val,
                   ),
                   TextFormField(
+                    initialValue: name == adminEmail ? '' : adminEmail,
+                    style: style,
                     decoration: InputDecoration(
                       labelText: 'Administrator Email',
                     ),
@@ -211,6 +286,8 @@ class _SignUpPageState extends State<SignUpPage> {
                     onSaved: (val) => adminEmail = val,
                   ),
                   TextFormField(
+                    initialValue: password == null ? '' : password,
+                    style: style,
                     decoration: InputDecoration(
                       labelText: 'Password',
                     ),
@@ -226,7 +303,7 @@ class _SignUpPageState extends State<SignUpPage> {
                   ),
                   Column(
                     children: <Widget>[
-                      new GestureDetector(
+                      new InkWell(
                         onTap: _getCountry,
                         child: Text(
                           'Get Country',
@@ -239,7 +316,7 @@ class _SignUpPageState extends State<SignUpPage> {
                           country == null ? '' : country.name,
                           style: TextStyle(
                               color: Colors.black,
-                              fontSize: 20.0,
+                              fontSize: 24.0,
                               fontWeight: FontWeight.w900),
                         ),
                       ),
@@ -275,6 +352,14 @@ class _SignUpPageState extends State<SignUpPage> {
     final form = _formKey.currentState;
     if (form.validate()) {
       form.save();
+      if (govtEntityType == null) {
+        AppSnackbar.showErrorSnackbar(
+            scaffoldKey: _scaffoldKey,
+            message: 'Please select Category',
+            listener: this,
+            actionLabel: 'Close');
+        return;
+      }
       print('GovtEntityForm._onSavePressed: will send submit now ....');
 
       GovtEntity govtEntity = GovtEntity(
@@ -292,6 +377,12 @@ class _SignUpPageState extends State<SignUpPage> {
         password: password,
       );
       print('_SignUpPageState._onSavePressed ${admin.toJson()}');
+      AppSnackbar.showSnackbarWithProgressIndicator(
+        scaffoldKey: _scaffoldKey,
+        message: 'Govt Entity Sign Up ... ',
+        textColor: Colors.lightBlue,
+        backgroundColor: Colors.black,
+      );
       SignUp signUp = SignUp(getURL());
       var result = await signUp.signUpGovtEntity(govtEntity, admin);
       switch (result) {
@@ -332,5 +423,76 @@ class _SignUpPageState extends State<SignUpPage> {
           break;
       }
     }
+  }
+
+  @override
+  onActionPressed(int action) {
+    // TODO: implement onActionPressed
+  }
+
+  @override
+  onCompanySettlement(CompanyInvoiceSettlement settlement) {
+    // TODO: implement onCompanySettlement
+  }
+
+  @override
+  onDeliveryAcceptance(DeliveryAcceptance deliveryAcceptance) {
+    // TODO: implement onDeliveryAcceptance
+  }
+
+  @override
+  onDeliveryNote(DeliveryNote deliveryNote) {
+    // TODO: implement onDeliveryNote
+  }
+
+  @override
+  onGovtInvoiceSettlement(GovtInvoiceSettlement settlement) {
+    // TODO: implement onGovtInvoiceSettlement
+  }
+
+  @override
+  onInvestorSettlement(InvestorInvoiceSettlement settlement) {
+    // TODO: implement onInvestorSettlement
+  }
+
+  @override
+  onInvoiceBidMessage(InvoiceBid invoiceBid) {
+    // TODO: implement onInvoiceBidMessage
+  }
+
+  @override
+  onInvoiceMessage(Invoice invoice) {
+    // TODO: implement onInvoiceMessage
+  }
+
+  @override
+  onOfferMessage(Offer offer) {
+    // TODO: implement onOfferMessage
+  }
+
+  @override
+  onPurchaseOrderMessage(PurchaseOrder purchaseOrder) {
+    // TODO: implement onPurchaseOrderMessage
+  }
+
+  @override
+  onWalletError() {
+    // TODO: implement onWalletError
+  }
+
+  @override
+  onWalletMessage(Wallet wallet) async {
+    print('_SignUpPageState.onWalletMessage');
+    await SharedPrefs.saveWallet(wallet);
+    DataAPI api = DataAPI(getURL());
+    await api.addWallet(wallet);
+    AppSnackbar.showSnackbarWithAction(
+        scaffoldKey: _scaffoldKey,
+        message: 'Wallet created',
+        textColor: Colors.white,
+        backgroundColor: Colors.black,
+        actionLabel: 'OK',
+        listener: this,
+        icon: Icons.done_all);
   }
 }

@@ -1,19 +1,22 @@
 import 'dart:async';
-import 'dart:convert';
 
+import 'package:businesslibrary/api/data_api.dart';
 import 'package:businesslibrary/api/firestore_list_api.dart';
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/delivery_acceptance.dart';
 import 'package:businesslibrary/data/delivery_note.dart';
 import 'package:businesslibrary/data/invoice.dart';
+import 'package:businesslibrary/data/invoice_bid.dart';
 import 'package:businesslibrary/data/invoice_settlement.dart';
+import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
+import 'package:businesslibrary/data/wallet.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:businesslibrary/util/util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:supplierv3/ui/contract_list.dart';
@@ -32,9 +35,8 @@ class Dashboard extends StatefulWidget {
 
 class _DashboardState extends State<Dashboard>
     with TickerProviderStateMixin
-    implements SnackBarListener {
+    implements SnackBarListener, FCMListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
-  final FirebaseMessaging _firebaseMessaging = new FirebaseMessaging();
   static const platform = const MethodChannel('com.oneconnect.files/pdf');
 
   AnimationController animationController;
@@ -64,63 +66,7 @@ class _DashboardState extends State<Dashboard>
 
   void _configMessaging() async {
     supplier = await SharedPrefs.getSupplier();
-    print('Dashboard._configMessaging starting _firebaseMessaging config shit');
-    _firebaseMessaging.configure(
-      onMessage: (Map<String, dynamic> message) {
-        var messageType = message["messageType"];
-        if (messageType == "PURCHASE_ORDER") {
-          print(
-              'Dashboard._configMessaging: ############## receiving PURCHASE_ORDER message from FCM');
-          Map map = json.decode(message["json"]);
-          var po = new PurchaseOrder.fromJson(map);
-          assert(po != null);
-          prettyPrint(map, 'Dashboard._configMessaging: ');
-          _getPOs();
-        }
-        if (messageType == "DELIVERY_ACCEPTANCE") {
-          print(
-              'Dashboard._configMessaging: ############## receiving DELIVERY_ACCEPTANCE message from FCM');
-          Map map = json.decode(message["json"]);
-          acceptance = new DeliveryAcceptance.fromJson(map);
-          assert(acceptance != null);
-          prettyPrint(map, 'Dashboard._configMessaging: ');
-          _scaffoldKey.currentState.hideCurrentSnackBar();
-          AppSnackbar.showSnackbarWithAction(
-              scaffoldKey: _scaffoldKey,
-              message: 'Delivery Note accepted',
-              textColor: Colors.white,
-              backgroundColor: Colors.black,
-              actionLabel: 'INVOICE',
-              listener: this,
-              icon: Icons.done);
-        }
-      },
-      onLaunch: (Map<String, dynamic> message) {},
-      onResume: (Map<String, dynamic> message) {},
-    );
-
-    _firebaseMessaging.requestNotificationPermissions(
-        const IosNotificationSettings(sound: true, badge: true, alert: true));
-
-    _firebaseMessaging.onIosSettingsRegistered
-        .listen((IosNotificationSettings settings) {
-      print("Settings registered: $settings");
-    });
-
-    _firebaseMessaging.getToken().then((String token) async {
-      assert(token != null);
-      var oldToken = await SharedPrefs.getFCMToken();
-      if (token != oldToken) {
-        await SharedPrefs.saveFCMToken(token);
-        //  TODO - update user's token on Firestore
-        print('Dashboard._configMessaging fcm token saved: $token');
-      } else {
-        print(
-            'Dashboard._configMessaging: token has not changed. no need to save');
-      }
-    }).catchError((e) {
-      print('Dashboard._configMessaging ERROR fcmToken $e');
-    });
+    configureMessaging(this);
   }
 
   @override
@@ -132,10 +78,17 @@ class _DashboardState extends State<Dashboard>
   ///get  summaries from Firestore
   _getSummaryData() async {
     prettyPrint(supplier.toJson(), 'Dashboard_getSummaryData: ');
+    AppSnackbar.showSnackbarWithProgressIndicator(
+        scaffoldKey: _scaffoldKey,
+        message: 'Loading dashboard data',
+        textColor: Colors.white,
+        backgroundColor: Colors.black);
     await _getPOs();
     await getDelNotes();
     await _getInvoices();
     await _getSettlements();
+
+    _scaffoldKey.currentState.hideCurrentSnackBar();
   }
 
   Future _getCachedPrefs() async {
@@ -149,11 +102,6 @@ class _DashboardState extends State<Dashboard>
   }
 
   Future _getSettlements() async {
-    AppSnackbar.showSnackbarWithProgressIndicator(
-        scaffoldKey: _scaffoldKey,
-        message: 'Loading fresh settlements data',
-        textColor: Colors.white,
-        backgroundColor: Colors.black);
     investorSettlements =
         await FirestoreListAPI.getSupplierInvestorSettlements(supplier);
     govtSettlements =
@@ -165,15 +113,9 @@ class _DashboardState extends State<Dashboard>
           govtSettlements.length +
           companySettlements.length;
     });
-    _scaffoldKey.currentState.hideCurrentSnackBar();
   }
 
   Future _getInvoices() async {
-    AppSnackbar.showSnackbarWithProgressIndicator(
-        scaffoldKey: _scaffoldKey,
-        message: 'Loading fresh invoices data',
-        textColor: Colors.white,
-        backgroundColor: Colors.black);
     invoices =
         await ListAPI.getInvoices(supplier.documentReference, 'suppliers');
     if (invoices.isNotEmpty) {
@@ -182,35 +124,22 @@ class _DashboardState extends State<Dashboard>
     setState(() {
       totalInvoices = invoices.length;
     });
-    _scaffoldKey.currentState.hideCurrentSnackBar();
   }
 
   Future getDelNotes() async {
-    AppSnackbar.showSnackbarWithProgressIndicator(
-        scaffoldKey: _scaffoldKey,
-        message: 'Loading fresh delivery notes data',
-        textColor: Colors.white,
-        backgroundColor: Colors.black);
     deliveryNotes =
         await ListAPI.getDeliveryNotes(supplier.documentReference, 'suppliers');
     setState(() {
       totalNotes = deliveryNotes.length;
     });
-    _scaffoldKey.currentState.hideCurrentSnackBar();
   }
 
   Future _getPOs() async {
-    AppSnackbar.showSnackbarWithProgressIndicator(
-        scaffoldKey: _scaffoldKey,
-        message: 'Loading fresh PO data',
-        textColor: Colors.white,
-        backgroundColor: Colors.black);
     purchaseOrders = await ListAPI.getPurchaseOrders(
         supplier.documentReference, 'suppliers');
     setState(() {
       totalPOs = purchaseOrders.length;
     });
-    _scaffoldKey.currentState.hideCurrentSnackBar();
   }
 
   Invoice lastInvoice;
@@ -431,5 +360,111 @@ class _DashboardState extends State<Dashboard>
       context,
       new MaterialPageRoute(builder: (context) => new ContractList()),
     );
+  }
+
+  @override
+  onCompanySettlement(CompanyInvoiceSettlement settlement) {
+    AppSnackbar.showSnackbarWithAction(
+        scaffoldKey: _scaffoldKey,
+        message: 'Company Invoice Settlement arrived',
+        textColor: Colors.white,
+        backgroundColor: Colors.black,
+        actionLabel: 'OK',
+        listener: this,
+        icon: Icons.done);
+  }
+
+  @override
+  onDeliveryAcceptance(DeliveryAcceptance deliveryAcceptance) {
+    AppSnackbar.showSnackbarWithAction(
+        scaffoldKey: _scaffoldKey,
+        message: 'Delivery Note accepted by customer',
+        textColor: Colors.white,
+        backgroundColor: Colors.black,
+        actionLabel: 'INVOICE',
+        listener: this,
+        icon: Icons.done);
+  }
+
+  @override
+  onDeliveryNote(DeliveryNote deliveryNote) {}
+
+  @override
+  onGovtInvoiceSettlement(GovtInvoiceSettlement settlement) {
+    AppSnackbar.showSnackbarWithAction(
+        scaffoldKey: _scaffoldKey,
+        message: 'Govt Invoice Settlement arrived',
+        textColor: Colors.white,
+        backgroundColor: Colors.black,
+        actionLabel: 'OK',
+        listener: this,
+        icon: Icons.done);
+  }
+
+  @override
+  onInvestorSettlement(InvestorInvoiceSettlement settlement) {
+    AppSnackbar.showSnackbarWithAction(
+        scaffoldKey: _scaffoldKey,
+        message: 'Investor Invoice Settlement arrived',
+        textColor: Colors.white,
+        backgroundColor: Colors.black,
+        actionLabel: 'OK',
+        listener: this,
+        icon: Icons.done);
+  }
+
+  @override
+  onInvoiceBidMessage(InvoiceBid invoiceBid) {
+    AppSnackbar.showSnackbarWithAction(
+        scaffoldKey: _scaffoldKey,
+        message: 'Invoice Bid received',
+        textColor: Colors.white,
+        backgroundColor: Colors.black,
+        actionLabel: 'Open',
+        listener: this,
+        icon: Icons.done);
+  }
+
+  @override
+  onInvoiceMessage(Invoice invoice) {}
+
+  @override
+  onOfferMessage(Offer offer) {}
+
+  @override
+  onPurchaseOrderMessage(PurchaseOrder purchaseOrder) {
+    AppSnackbar.showSnackbarWithAction(
+        scaffoldKey: _scaffoldKey,
+        message: 'Purchase Order received',
+        textColor: Colors.white,
+        backgroundColor: Colors.black,
+        actionLabel: 'INVOICE',
+        listener: this,
+        icon: Icons.done);
+  }
+
+  @override
+  onWalletError() {
+    AppSnackbar.showErrorSnackbar(
+        scaffoldKey: _scaffoldKey,
+        message: 'Wallet creation failed',
+        listener: this,
+        actionLabel: 'Close');
+  }
+
+  @override
+  onWalletMessage(Wallet wallet) async {
+    prettyPrint(wallet.toJson(), 'onWalletMessage received');
+    await SharedPrefs.saveWallet(wallet);
+    DataAPI api = DataAPI(getURL());
+    await api.addWallet(wallet);
+    AppSnackbar.showSnackbarWithAction(
+        scaffoldKey: _scaffoldKey,
+        message: 'Wallet created',
+        textColor: Colors.white,
+        backgroundColor: Colors.black,
+        actionLabel: 'OK',
+        listener: this,
+        icon: Icons.done);
   }
 }

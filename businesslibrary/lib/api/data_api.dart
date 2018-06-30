@@ -141,6 +141,9 @@ class DataAPI {
   ///
   Future<String> addWallet(Wallet wallet) async {
     print('DataAPI.addWallet ${url + WALLET}');
+    wallet.sourceSeed = null;
+    wallet.encryptedSecret = null;
+    wallet.debug = null;
     try {
       var httpClient = new HttpClient();
       HttpClientRequest mRequest =
@@ -151,6 +154,8 @@ class DataAPI {
       print(
           'DataAPI.addWallet blockchain response status code:  ${mResponse.statusCode}');
       if (mResponse.statusCode == 200) {
+        prettyPrint(
+            wallet.toJson(), 'addWallet - WALLET on blockchain. Yay! ######');
         return wallet.stellarPublicKey;
       } else {
         mResponse.transform(utf8.decoder).listen((contents) {

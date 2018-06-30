@@ -125,7 +125,7 @@ class _CountrySelectorPageState extends State<CountrySelectorPage> {
       countries = await Lookups.getCountries();
     }
     print(
-        'CountrySelectorPage._getTypes types found:countries ${countries.length}');
+        'CountrySelectorPage._getCountries found:countries ${countries.length}');
     setState(() {});
   }
 

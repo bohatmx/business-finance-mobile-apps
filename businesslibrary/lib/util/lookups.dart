@@ -40,6 +40,7 @@ class Lookups {
   }
 
   static Future<List<Country>> getCountries() async {
+    print('Lookups.getCountries ................................');
     List<Country> list = List();
 
     var qs =
@@ -48,10 +49,11 @@ class Lookups {
       return list;
     });
     qs.documents.forEach((doc) {
-      var type = new Country.fromJson(doc.data);
-      list.add(type);
+      var country = new Country.fromJson(doc.data);
+      list.add(country);
     });
 
+    print('Lookups.getCountries ########## found ${list.length}');
     return list;
   }
 
@@ -430,6 +432,10 @@ final Firestore _firestore = Firestore.instance;
 _updateToken(String token) async {
   print('_updateToken #################  update user FCM token');
   var user = await SharedPrefs.getUser();
+  if (user == null) {
+    print('_updateToken - user NULL, no need to update -----');
+    return;
+  }
   var qs = await _firestore
       .collection('users')
       .where('userId', isEqualTo: user.userId)

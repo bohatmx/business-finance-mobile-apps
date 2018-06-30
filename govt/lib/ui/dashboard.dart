@@ -1,17 +1,20 @@
-import 'dart:convert';
-
+import 'package:businesslibrary/api/data_api.dart';
 import 'package:businesslibrary/api/firestore_list_api.dart';
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
+import 'package:businesslibrary/data/delivery_acceptance.dart';
 import 'package:businesslibrary/data/delivery_note.dart';
 import 'package:businesslibrary/data/govt_entity.dart';
 import 'package:businesslibrary/data/invoice.dart';
+import 'package:businesslibrary/data/invoice_bid.dart';
 import 'package:businesslibrary/data/invoice_settlement.dart';
+import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/user.dart';
+import 'package:businesslibrary/data/wallet.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:businesslibrary/util/util.dart';
 import 'package:flutter/material.dart';
 import 'package:govt/ui/delivery_note_list.dart';
 import 'package:govt/ui/invoice_list.dart';
@@ -25,7 +28,7 @@ class Dashboard extends StatefulWidget {
 
 class _DashboardState extends State<Dashboard>
     with TickerProviderStateMixin
-    implements SnackBarListener {
+    implements SnackBarListener, FCMListener {
   static const Payments = 1,
       Invoices = 2,
       PurchaseOrders = 3,
@@ -42,7 +45,6 @@ class _DashboardState extends State<Dashboard>
   User user;
   String fullName;
   int messageReceived;
-  final FirebaseMessaging _firebaseMessaging = new FirebaseMessaging();
   @override
   initState() {
     super.initState();
@@ -53,83 +55,7 @@ class _DashboardState extends State<Dashboard>
     );
     animation = new Tween(begin: 0.0, end: 1.0).animate(animationController);
     _getCachedPrefs();
-    _configMessaging();
-  }
-
-  void _configMessaging() async {
-    print(
-        '_DashboardState._configMessaging starting _firebaseMessaging config shit');
-    _firebaseMessaging.configure(
-      onMessage: (Map<String, dynamic> message) {
-        print(
-            '_DashboardState._configMessaging  ############## Receiving FCM message ....');
-
-        var messageType = message["messageType"];
-        if (messageType == "GOVT_DELIVERY_NOTE" ||
-            messageType == "DELIVERY_NOTE") {
-          print(
-              '_DashboardState._configMessaging; DELIVERY_NOTE message  received');
-          Map map = json.decode(message["json"]);
-          var note = new DeliveryNote.fromJson(map);
-          assert(note != null);
-
-          setState(() {
-            deliveryNotes.insert(0, note);
-          });
-          prettyPrint(note.toJson(), 'FCM message received DeliveryNote: ');
-          messageReceived = DeliveryNotes;
-          AppSnackbar.showSnackbarWithAction(
-              scaffoldKey: _scaffoldKey,
-              message: 'Delivery Note arrived',
-              textColor: Colors.white,
-              backgroundColor: Colors.deepPurple,
-              actionLabel: 'Notes',
-              listener: this,
-              icon: Icons.email);
-        }
-        if (messageType == "GOVT_INVOICE" || messageType == "INVOICE") {
-          print(
-              '_DashboardState._configMessaging; GOVT_INVOICE message  received');
-          Map map = json.decode(message["json"]);
-          var invoice = new Invoice.fromJson(map);
-          assert(invoice != null);
-          prettyPrint(invoice.toJson(), 'FCM message received Invoice: ');
-          setState(() {
-            invoices.insert(0, invoice);
-          });
-          messageReceived = Invoices;
-          AppSnackbar.showSnackbarWithAction(
-              scaffoldKey: _scaffoldKey,
-              message: 'Invoice arrived',
-              textColor: Colors.white,
-              backgroundColor: Colors.deepPurple,
-              actionLabel: 'Invoices',
-              listener: this,
-              icon: Icons.email);
-        }
-      },
-      onLaunch: (Map<String, dynamic> message) {},
-      onResume: (Map<String, dynamic> message) {},
-    );
-
-    _firebaseMessaging.requestNotificationPermissions(
-        const IosNotificationSettings(sound: true, badge: true, alert: true));
-
-    _firebaseMessaging.onIosSettingsRegistered
-        .listen((IosNotificationSettings settings) {
-      print("Settings registered: $settings");
-    });
-
-    _firebaseMessaging.getToken().then((String token) async {
-      assert(token != null);
-      var oldToken = await SharedPrefs.getFCMToken();
-      if (token != oldToken) {
-        await SharedPrefs.saveFCMToken(token);
-        print('_MyHomePageState._configMessaging fcm token saved: $token');
-      }
-    }).catchError((e) {
-      print('_MyHomePageState._configMessaging ERROR fcmToken ');
-    });
+    configureMessaging(this);
   }
 
   @override
@@ -155,11 +81,7 @@ class _DashboardState extends State<Dashboard>
   ///get  summaries from Firestore
   _getPOData() async {
     print('_DashboardState._getPOData ................');
-    AppSnackbar.showSnackbarWithProgressIndicator(
-        scaffoldKey: _scaffoldKey,
-        message: 'Loading fresh PO data',
-        textColor: Colors.white,
-        backgroundColor: Colors.black);
+
     purchaseOrders = await ListAPI.getPurchaseOrders(
         govtEntity.documentReference, 'govtEntities');
     print(
@@ -167,15 +89,9 @@ class _DashboardState extends State<Dashboard>
     setState(() {
       totalPOs = purchaseOrders.length;
     });
-    _scaffoldKey.currentState.hideCurrentSnackBar();
   }
 
   _getInvoices() async {
-    AppSnackbar.showSnackbarWithProgressIndicator(
-        scaffoldKey: _scaffoldKey,
-        message: 'Loading fresh invoice data',
-        textColor: Colors.white,
-        backgroundColor: Colors.black);
     print('_DashboardState._getInvoices ................');
     invoices =
         await ListAPI.getInvoices(govtEntity.documentReference, 'govtEntities');
@@ -187,16 +103,10 @@ class _DashboardState extends State<Dashboard>
       print(
           '_DashboardState._getSummaryData ++++++++++++  invoices: ${invoices.length}');
     });
-    _scaffoldKey.currentState.hideCurrentSnackBar();
   }
 
   _getNotes() async {
     print('_DashboardState._getNotes ......................');
-    AppSnackbar.showSnackbarWithProgressIndicator(
-        scaffoldKey: _scaffoldKey,
-        message: 'Loading fresh delivery note data',
-        textColor: Colors.white,
-        backgroundColor: Colors.black);
     deliveryNotes = await ListAPI.getDeliveryNotes(
         govtEntity.documentReference, 'govtEntities');
     setState(() {
@@ -204,17 +114,10 @@ class _DashboardState extends State<Dashboard>
       print(
           '_DashboardState._getSummaryData ========== deliveryNotes:  ${deliveryNotes.length}');
     });
-    _scaffoldKey.currentState.hideCurrentSnackBar();
   }
 
   _getSettlements() async {
-    AppSnackbar.showSnackbarWithProgressIndicator(
-        scaffoldKey: _scaffoldKey,
-        message: 'Loading fresh settlement data',
-        textColor: Colors.white,
-        backgroundColor: Colors.black);
     govtSettlements = await FirestoreListAPI.getGovtSettlements(govtEntity);
-    _scaffoldKey.currentState.hideCurrentSnackBar();
     setState(() {
       totalPayments = govtSettlements.length;
       print(
@@ -445,5 +348,87 @@ class _DashboardState extends State<Dashboard>
         _onInvoicesTapped();
         break;
     }
+  }
+
+  @override
+  onCompanySettlement(CompanyInvoiceSettlement settlement) {}
+
+  @override
+  onDeliveryAcceptance(DeliveryAcceptance deliveryAcceptance) {}
+
+  @override
+  onDeliveryNote(DeliveryNote deliveryNote) {
+    setState(() {
+      deliveryNotes.insert(0, deliveryNote);
+    });
+    prettyPrint(deliveryNote.toJson(), 'FCM message received DeliveryNote: ');
+    messageReceived = DeliveryNotes;
+    AppSnackbar.showSnackbarWithAction(
+        scaffoldKey: _scaffoldKey,
+        message: 'Delivery Note arrived',
+        textColor: Colors.white,
+        backgroundColor: Colors.deepPurple,
+        actionLabel: 'Notes',
+        listener: this,
+        icon: Icons.email);
+  }
+
+  @override
+  onGovtInvoiceSettlement(GovtInvoiceSettlement settlement) {}
+
+  @override
+  onInvestorSettlement(InvestorInvoiceSettlement settlement) {}
+
+  @override
+  onInvoiceBidMessage(InvoiceBid invoiceBid) {}
+
+  @override
+  onInvoiceMessage(Invoice invoice) {
+    prettyPrint(invoice.toJson(), 'FCM message received Invoice: ');
+    setState(() {
+      invoices.insert(0, invoice);
+    });
+    messageReceived = Invoices;
+    AppSnackbar.showSnackbarWithAction(
+        scaffoldKey: _scaffoldKey,
+        message: 'Invoice arrived',
+        textColor: Colors.white,
+        backgroundColor: Colors.deepPurple,
+        actionLabel: 'Invoices',
+        listener: this,
+        icon: Icons.email);
+  }
+
+  @override
+  onOfferMessage(Offer offer) {}
+
+  @override
+  onPurchaseOrderMessage(PurchaseOrder purchaseOrder) {}
+
+  @override
+  onWalletError() {
+    print('_DashboardState.onWalletError WALLET ERROR ');
+    AppSnackbar.showErrorSnackbar(
+        scaffoldKey: _scaffoldKey,
+        message: 'Wallet creation failed',
+        listener: this,
+        actionLabel: 'Close');
+  }
+
+  @override
+  onWalletMessage(Wallet wallet) async {
+    prettyPrint(wallet.toJson(),
+        'onWalletMessage ... ############### arrived via fcm: ');
+    await SharedPrefs.saveWallet(wallet);
+    DataAPI api = DataAPI(getURL());
+    await api.addWallet(wallet);
+    AppSnackbar.showSnackbarWithAction(
+        scaffoldKey: _scaffoldKey,
+        message: 'Wallet created',
+        textColor: Colors.white,
+        backgroundColor: Colors.deepPurple,
+        actionLabel: 'OK',
+        listener: this,
+        icon: Icons.email);
   }
 }

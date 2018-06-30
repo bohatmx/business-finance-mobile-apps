@@ -320,7 +320,7 @@ class DeliveryNoteCard extends StatelessWidget {
                     Text(
                       deliveryNote.date == null
                           ? ''
-                          : getFormattedLongDate(deliveryNote.date),
+                          : getFormattedDateLong(deliveryNote.date, context),
                       style: TextStyle(
                           fontSize: 16.0, fontWeight: FontWeight.bold),
                     ),

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:businesslibrary/api/data_api.dart';
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/delivery_acceptance.dart';
@@ -15,6 +16,7 @@ import 'package:businesslibrary/data/wallet.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/summary_card.dart';
+import 'package:businesslibrary/util/util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -348,12 +350,15 @@ class _DashboardState extends State<Dashboard>
     prettyPrint(wallet.toJson(), 'Dashboard.onWalletMessage: wallet:');
     var dec = await decrypt(wallet.stellarPublicKey, wallet.encryptedSecret);
     print('_DashboardState.onWalletMessage dec: $dec');
+    await SharedPrefs.saveWallet(wallet);
+    DataAPI api = DataAPI(getURL());
+    await api.addWallet(wallet);
     AppSnackbar.showSnackbarWithAction(
         scaffoldKey: _scaffoldKey,
         message: 'Wallet Created',
         textColor: Colors.white,
         backgroundColor: Colors.black,
-        actionLabel: 'INVOICE',
+        actionLabel: 'OK',
         listener: this,
         icon: Icons.done);
   }
