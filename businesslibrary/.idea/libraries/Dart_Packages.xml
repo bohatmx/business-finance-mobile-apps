@@ -93,6 +93,13 @@
             </list>
           </value>
         </entry>
+        <entry key="flutter_local_notifications">
+          <value>
+            <list>
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/flutter_local_notifications-0.3.3/lib" />
+            </list>
+          </value>
+        </entry>
         <entry key="font_awesome_flutter">
           <value>
             <list>
@@ -227,6 +234,7 @@
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/firebase_messaging-1.0.2/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/firebase_remote_config-0.0.2/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/firebase_storage-0.3.7/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/flutter_local_notifications-0.3.3/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/font_awesome_flutter-6.0.0/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/google_sign_in-3.0.4/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/http-0.11.3+16/lib" />

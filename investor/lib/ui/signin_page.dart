@@ -42,19 +42,22 @@ class _SignInPageState extends State<SignInPage> implements SnackBarListener {
         children: <Widget>[
           Column(
             children: <Widget>[
-              DropdownButton(
-                items: items,
-                hint: Text(
-                  'Select User',
-                  style: TextStyle(color: Colors.white),
+              Container(
+                width: 300.0,
+                child: DropdownButton(
+                  items: items,
+                  hint: Text(
+                    'Select User',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  onChanged: (val) {
+                    print(
+                        '_SignInPageState._getDropdown ################# val: $val');
+                    setState(() {
+                      adminEmail = val;
+                    });
+                  },
                 ),
-                onChanged: (val) {
-                  print(
-                      '_SignInPageState._getDropdown ################# val: $val');
-                  setState(() {
-                    adminEmail = val;
-                  });
-                },
               ),
               new Padding(
                 padding:
@@ -127,7 +130,8 @@ class _SignInPageState extends State<SignInPage> implements SnackBarListener {
               '_SignInPageState.checkResult wallet recovered ${wallet.toJson()}');
           Navigator.push(
             context,
-            new MaterialPageRoute(builder: (context) => new Dashboard()),
+            new MaterialPageRoute(
+                builder: (context) => new Dashboard('Wallet recovered')),
           );
         }
         break;
@@ -184,18 +188,26 @@ class _SignInPageState extends State<SignInPage> implements SnackBarListener {
 
   bool isDebug;
 
-  void _buildUserList() {
-    var item1 = new DropdownMenuItem(
-      child: Text('robert.vdm@fincap.com'),
-      value: 'robert.vdm@fincap.com',
-    );
-    var item2 = new DropdownMenuItem(
-      child: Text('rogers.m@invbrokers.co.za'),
-      value: 'rogers.m@invbrokers.co.za',
-    );
-
-    items.add(item1);
-    items.add(item2);
+  void _buildUserList() async {
+    var users = await ListAPI.getInvestorUsers();
+    users.forEach((user) {
+      var item1 = new DropdownMenuItem(
+        child: Row(
+          children: <Widget>[
+            Icon(
+              Icons.apps,
+              color: Colors.indigo,
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 8.0),
+              child: Text(user.email),
+            ),
+          ],
+        ),
+        value: user.email,
+      );
+      items.add(item1);
+    });
   }
 
   @override

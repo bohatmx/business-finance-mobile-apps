@@ -16,17 +16,15 @@ class Invoice {
       companyDocumentRef,
       supplierContract,
       contractDocumentRef,
-      isOnOffer,
-      isSettled,
       companyInvoiceSettlement,
       offer,
-      valueAddedTax,
-      totalAmount,
       govtInvoiceSettlement,
       supplierName;
+  bool isOnOffer, isSettled;
   String date, datePaymentRequired;
-  String amount, customerName, purchaseOrderNumber;
+  String customerName, purchaseOrderNumber;
   List<String> investorInvoiceSettlements;
+  double amount, totalAmount, valueAddedTax;
 
   Invoice(
       {this.supplier,

@@ -315,3 +315,26 @@ Color getRandomColor() {
   int index = _rand.nextInt(_colors.length - 1);
   return _colors.elementAt(index);
 }
+
+Color getRandomPastelColor() {
+  print('getRandomColor ..........');
+  _colors.clear();
+//  _colors.add(Colors.blue.shade50);
+//  _colors.add(Colors.grey.shade50);
+  _colors.add(Colors.pink.shade50);
+  _colors.add(Colors.teal.shade50);
+//  _colors.add(Colors.red.shade50);
+//  _colors.add(Colors.green.shade50);
+//  _colors.add(Colors.amber.shade50);
+  _colors.add(Colors.indigo.shade50);
+//  _colors.add(Colors.lightBlue.shade50);
+//  _colors.add(Colors.lime.shade50);
+//  _colors.add(Colors.deepPurple.shade50);
+//  _colors.add(Colors.deepOrange.shade50);
+  _colors.add(Colors.brown.shade50);
+//  _colors.add(Colors.cyan.shade50);
+
+  _rand = Random(new DateTime.now().millisecondsSinceEpoch);
+  int index = _rand.nextInt(_colors.length - 1);
+  return _colors.elementAt(index);
+}

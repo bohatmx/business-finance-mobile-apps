@@ -22,6 +22,10 @@ import 'package:govt/ui/purchase_order_list.dart';
 import 'package:govt/ui/summary_card.dart';
 
 class Dashboard extends StatefulWidget {
+  final String message;
+
+  Dashboard(this.message);
+
   @override
   _DashboardState createState() => _DashboardState();
 }
@@ -45,6 +49,7 @@ class _DashboardState extends State<Dashboard>
   User user;
   String fullName;
   int messageReceived;
+  String message;
   @override
   initState() {
     super.initState();
@@ -171,6 +176,17 @@ class _DashboardState extends State<Dashboard>
   String name;
   @override
   Widget build(BuildContext context) {
+    message = widget.message;
+    if (message != null) {
+      AppSnackbar.showSnackbarWithAction(
+          scaffoldKey: _scaffoldKey,
+          message: message,
+          textColor: Colors.white,
+          icon: Icons.done_all,
+          listener: this,
+          actionLabel: 'OK',
+          backgroundColor: Colors.black);
+    }
     return new WillPopScope(
       onWillPop: () async => false,
       child: Scaffold(

@@ -305,7 +305,7 @@ class _SignUpPageState extends State<SignUpPage>
           subscribe(supplier);
           Navigator.push(
             context,
-            new MaterialPageRoute(builder: (context) => new Dashboard()),
+            new MaterialPageRoute(builder: (context) => new Dashboard(null)),
           );
 
           break;

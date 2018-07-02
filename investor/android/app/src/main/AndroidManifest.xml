@@ -16,6 +16,7 @@
         android:name="io.flutter.app.FlutterApplication"
         android:label="investor"
         android:icon="@mipmap/ic_launcher">
+        <receiver android:name=".TapReceiver"/>
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"

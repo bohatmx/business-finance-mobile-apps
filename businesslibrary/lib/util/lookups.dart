@@ -27,6 +27,7 @@ class Lookups {
 
     var qs = await _firestore
         .collection('privateSectorTypes')
+        .orderBy('type')
         .getDocuments()
         .catchError((e) {
       return list;
@@ -316,13 +317,19 @@ configureMessaging(FCMListener listener) async {
       var messageType = message["messageType"];
       if (messageType == "WALLET") {
         print(
-            'configureMessaging: ############## receiving WALLET message from FCM');
+            'configureMessaging: ############## receiving WALLET message from FCM:\n ${message["json"]}');
         Map map = json.decode(message["json"]);
         var wallet = new Wallet.fromJson(map);
-        assert(wallet != null);
-        prettyPrint(map, 'Dashboard._configMessaging: wallet:');
-        await SharedPrefs.saveWallet(wallet);
-        listener.onWalletMessage(wallet);
+        if (wallet != null) {
+          prettyPrint(map, 'configureMessaging: --------> wallet received:');
+          await SharedPrefs.saveWallet(wallet);
+          //get acct from stellar and save in sharedPrefs
+
+          listener.onWalletMessage(wallet);
+        } else {
+          print('configureMessaging ERROR ERROR wallet from FCM is null');
+          listener.onWalletError();
+        }
       }
       if (messageType == "WALLET_ERROR") {
         print(

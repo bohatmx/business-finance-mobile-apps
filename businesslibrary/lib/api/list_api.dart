@@ -11,7 +11,9 @@ import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/supplier_contract.dart';
+import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/data/wallet.dart';
+import 'package:businesslibrary/util/lookups.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ListAPI {
@@ -24,8 +26,66 @@ class ListAPI {
         .where(ownerType, isEqualTo: name)
         .getDocuments();
     Wallet wallet = Wallet.fromJson(qs.documents.first.data);
+    var decrypted =
+        await decrypt(wallet.stellarPublicKey, wallet.encryptedSecret);
+    wallet.secret = decrypted;
     await SharedPrefs.saveWallet(wallet);
     return wallet;
+  }
+
+  static Future<List<User>> getGovtUsers() async {
+    List<User> ulist = await getUsers();
+    List<User> list = List();
+    ulist.forEach((user) {
+      if (user.govtEntity != null) {
+        list.add(user);
+      }
+    });
+    print('ListAPI.getGovtUsers found: ${list.length} ');
+    return list;
+  }
+
+  static Future<List<User>> getInvestorUsers() async {
+    List<User> ulist = await getUsers();
+    List<User> list = List();
+    ulist.forEach((user) {
+      if (user.investor != null) {
+        list.add(user);
+      }
+    });
+    print('ListAPI.getInvestorUsers found: ${list.length} ');
+    return list;
+  }
+
+  static Future<List<User>> getSupplierUsers() async {
+    List<User> ulist = await getUsers();
+    List<User> list = List();
+    ulist.forEach((user) {
+      if (user.supplier != null) {
+        list.add(user);
+      }
+    });
+    print('ListAPI.getSupplierUsers found: ${list.length} ');
+    return list;
+  }
+
+  static Future<List<User>> getUsers() async {
+    List<User> list = List();
+    var qs =
+        await _firestore.collection('users').getDocuments().catchError((e) {
+      print('ListAPI.getUsers $e');
+      return list;
+    });
+    print(
+        'ListAPI.getUsers ########## found in QuerySnapshot: ${qs.documents.length} ');
+    int count = 0;
+    qs.documents.forEach((doc) {
+      count++;
+      list.add(new User.fromJson(doc.data));
+    });
+
+    print('ListAPI.getUsers ########## found in list: ${list.length} ');
+    return list;
   }
 
   static Future<List<InvoiceBid>> getInvoiceBidsByOffer(String offer) async {
@@ -37,7 +97,7 @@ class ListAPI {
         .getDocuments()
         .catchError((e) {
       print('ListAPI.getOfferInvoiceBids $e');
-      return null;
+      return list;
     });
 
     print('ListAPI.getOfferInvoiceBids found: ${qs.documents.length} ');
@@ -59,7 +119,7 @@ class ListAPI {
         .getDocuments()
         .catchError((e) {
       print('ListAPI.getInvestorInvoiceBids $e');
-      return null;
+      return list;
     });
 
     print('ListAPI.getInvestorInvoiceBids found: ${qs.documents.length} ');
@@ -73,6 +133,8 @@ class ListAPI {
 
   static Future<List<Offer>> getOffersByPeriod(
       DateTime startTime, DateTime endTime) async {
+    print(
+        'ListAPI.getOffersByPeriod startTime: ${startTime.toIso8601String()}  endTime: ${endTime.toIso8601String()}');
     List<Offer> list = List();
     var qs = await _firestore
         .collection('invoiceOffers')
@@ -81,13 +143,11 @@ class ListAPI {
         .orderBy('date', descending: true)
         .getDocuments()
         .catchError((e) {
-      print('ListAPI.getSupplierOffers $e');
-      return null;
+      print('ListAPI.getOffersByPeriod $e');
+      return list;
     });
-
-    print('ListAPI.getSupplierOffers found: ${qs.documents.length} ');
-
-    qs.documents.forEach((doc) async {
+    print('ListAPI.getOffersByPeriod found: ${qs.documents.length} ');
+    qs.documents.forEach((doc) {
       list.add(new Offer.fromJson(doc.data));
     });
 
@@ -106,12 +166,12 @@ class ListAPI {
         .getDocuments()
         .catchError((e) {
       print('ListAPI.getSupplierOffers $e');
-      return null;
+      return list;
     });
 
     print('ListAPI.getSupplierOffers found: ${qs.documents.length} ');
 
-    qs.documents.forEach((doc) async {
+    qs.documents.forEach((doc) {
       list.add(new Offer.fromJson(doc.data));
     });
 
@@ -127,12 +187,12 @@ class ListAPI {
         .getDocuments()
         .catchError((e) {
       print('ListAPI.getSupplierOffers $e');
-      return null;
+      return list;
     });
 
     print('ListAPI.getSupplierOffers found: ${qs.documents.length} ');
 
-    qs.documents.forEach((doc) async {
+    qs.documents.forEach((doc) {
       list.add(new Offer.fromJson(doc.data));
     });
 
@@ -152,7 +212,7 @@ class ListAPI {
         .getDocuments()
         .catchError((e) {
       print('ListAPI.getPurchaseOrders  ERROR $e');
-      return null;
+      return list;
     });
     querySnapshot.documents.forEach((doc) {
       var m = new PurchaseOrder.fromJson(doc.data);
@@ -174,7 +234,7 @@ class ListAPI {
         .getDocuments()
         .catchError((e) {
       print('ListAPI.getInvoices $e');
-      return null;
+      return list;
     });
     print('ListAPI.getInvoices ............. ))))))) ${qs.documents.length}');
     qs.documents.forEach((doc) {
@@ -197,7 +257,7 @@ class ListAPI {
         .getDocuments()
         .catchError((e) {
       print('ListAPI.getDeliveryNotes $e');
-      return null;
+      return list;
     });
 
     qs.documents.forEach((doc) {
@@ -221,7 +281,7 @@ class ListAPI {
         .getDocuments()
         .catchError((e) {
       print('ListAPI.getSupplierContracts $e');
-      return null;
+      return list;
     });
 
     qs.documents.forEach((doc) {
@@ -243,7 +303,7 @@ class ListAPI {
         .getDocuments()
         .catchError((e) {
       print('ListAPI.getGovtEntities $e');
-      return null;
+      return list;
     });
 
     qs.documents.forEach((doc) {
@@ -264,7 +324,7 @@ class ListAPI {
         .getDocuments()
         .catchError((e) {
       print('ListAPI.getSuppliersByCountry $e');
-      return null;
+      return list;
     });
 
     qs.documents.forEach((doc) {
@@ -285,7 +345,7 @@ class ListAPI {
         .getDocuments()
         .catchError((e) {
       print('ListAPI.getCompaniesByCountry $e');
-      return null;
+      return list;
     });
 
     qs.documents.forEach((doc) {
@@ -308,7 +368,7 @@ class ListAPI {
         .getDocuments()
         .catchError((e) {
       print('ListAPI.getDeliveryAcceptances $e');
-      return null;
+      return list;
     });
 
     qs.documents.forEach((doc) {
@@ -328,7 +388,7 @@ class ListAPI {
         .getDocuments()
         .catchError((e) {
       print('ListAPI.getSuppliers $e');
-      return null;
+      return list;
     });
 
     qs.documents.forEach((doc) {
@@ -336,6 +396,26 @@ class ListAPI {
     });
 
     print('ListAPI.getSuppliers ############ found: ${list.length}');
+    return list;
+  }
+
+  static Future<List<PrivateSectorType>> getPrivateSectorTypes() async {
+    List<PrivateSectorType> list = List();
+    var qs = await _firestore
+        .collection('privateSectorTypes')
+        .orderBy('type')
+        .getDocuments()
+        .catchError((e) {
+      print('ListAPI.getPrivateSectorTypes $e');
+      return list;
+    });
+
+    print('ListAPI.getPrivateSectorTypes found: ${qs.documents.length} ');
+
+    qs.documents.forEach((doc) {
+      list.add(new PrivateSectorType.fromJson(doc.data));
+    });
+
     return list;
   }
 }

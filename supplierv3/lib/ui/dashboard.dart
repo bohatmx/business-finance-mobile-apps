@@ -27,6 +27,10 @@ import 'package:supplierv3/ui/purchase_order_list.dart';
 import 'package:supplierv3/ui/summary_card.dart';
 
 class Dashboard extends StatefulWidget {
+  final String message;
+
+  Dashboard(this.message);
+
   @override
   _DashboardState createState() => _DashboardState();
   static _DashboardState of(BuildContext context) =>
@@ -38,7 +42,7 @@ class _DashboardState extends State<Dashboard>
     implements SnackBarListener, FCMListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   static const platform = const MethodChannel('com.oneconnect.files/pdf');
-
+  String message;
   AnimationController animationController;
   Animation<double> animation;
   Supplier supplier;
@@ -54,6 +58,7 @@ class _DashboardState extends State<Dashboard>
   @override
   initState() {
     super.initState();
+    initializeNotificationPlugin();
     print('_DashboardState.initState .............. to get summary');
     animationController = AnimationController(
       duration: Duration(milliseconds: 1000),
@@ -62,6 +67,8 @@ class _DashboardState extends State<Dashboard>
     animation = new Tween(begin: 0.0, end: 1.0).animate(animationController);
     _getCachedPrefs();
     _configMessaging();
+    showNotification('Wallet Created',
+        'Your BFN wallet has been created for youu', "payload");
   }
 
   void _configMessaging() async {
@@ -172,6 +179,18 @@ class _DashboardState extends State<Dashboard>
   String name;
   @override
   Widget build(BuildContext context) {
+    message = widget.message;
+    if (message != null) {
+      AppSnackbar.showSnackbarWithAction(
+          scaffoldKey: _scaffoldKey,
+          message: message,
+          textColor: Colors.white,
+          icon: Icons.done_all,
+          listener: this,
+          actionLabel: 'OK',
+          backgroundColor: Colors.black);
+      message = null;
+    }
     return new WillPopScope(
       onWillPop: () async => false,
       child: Scaffold(
@@ -466,5 +485,8 @@ class _DashboardState extends State<Dashboard>
         actionLabel: 'OK',
         listener: this,
         icon: Icons.done);
+
+    showNotification('Wallet Created',
+        'Your BFN wallet has been created for youu', wallet.stellarPublicKey);
   }
 }

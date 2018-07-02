@@ -4,7 +4,7 @@ class PurchaseOrder {
   String supplier, company, govtEntity, user;
   String purchaseOrderId;
   String date, deliveryDateRequired;
-  String amount;
+  double amount;
 
   String description;
   String deliveryAddress;
@@ -84,7 +84,7 @@ class PurchaseOrder {
         'supplierName': supplierName,
         'purchaserName': purchaserName,
       };
-  Map<String, String> toJson() => <String, String>{
+  Map<String, dynamic> toJson() => <String, dynamic>{
         'supplier': supplier,
         'purchaseOrderId': purchaseOrderId,
         'company': company,

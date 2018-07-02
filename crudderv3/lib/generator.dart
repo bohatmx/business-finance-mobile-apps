@@ -312,8 +312,8 @@ class Generator {
 
   static Future<String> _addInvoice(GovtEntity entity, Supplier supplier,
       User user, PurchaseOrder po, DeliveryNote dn) async {
-    double tax = double.parse(po.amount) * 1.15;
-    var total = double.parse(po.amount) + tax;
+    double tax = po.amount * 0.15;
+    var total = po.amount + tax;
     print(
         '\n\nGenerator._addInvoice for ${entity.name} from ${supplier.name} po: ${po.purchaseOrderNumber} \n\n');
     Invoice inv = Invoice();
@@ -323,8 +323,8 @@ class Generator {
     inv.purchaseOrder = NameSpace + 'PurchaseOrder#' + po.purchaseOrderId;
     inv.deliveryNote = NameSpace + 'DeliveryNote#' + dn.deliveryNoteId;
     inv.amount = po.amount;
-    inv.valueAddedTax = '$tax';
-    inv.totalAmount = '$total';
+    inv.valueAddedTax = tax;
+    inv.totalAmount = total;
     inv.date = po.date;
     inv.supplierName = supplier.name;
     inv.supplierDocumentRef = supplier.documentReference;
@@ -338,26 +338,30 @@ class Generator {
       return key;
     }
     prettyPrint(inv.toJson(), 'Generator._addInvoice');
-    _addOffer(inv, user, po, supplier);
+    _addOffer(inv, user, po, supplier, entity);
     return key;
   }
 
-  static Future<String> _addOffer(
-      Invoice invoice, User user, PurchaseOrder po, Supplier supplier) async {
+  static Future<String> _addOffer(Invoice invoice, User user, PurchaseOrder po,
+      Supplier supplier, GovtEntity entity) async {
     print(
         'Generator._addOffer invoice: ${invoice.invoiceNumber} --------------\n\n');
-    double disc = double.parse(_getRandomDiscount());
-    var amt = double.parse(invoice.amount) * (disc / 100);
+    double disc = _getRandomDiscount();
+    var offerAmt = invoice.amount * (disc / 100);
     Offer offer = new Offer(
         supplier: NameSpace + 'Supplier#' + supplier.participantId,
         invoice: NameSpace + 'Invoice#' + invoice.invoiceId,
         user: NameSpace + 'User#' + user.userId,
         purchaseOrder: NameSpace + 'PurchaseOrder#' + po.purchaseOrderId,
-        amount: '$amt',
+        offerAmount: offerAmt,
+        invoiceAmount: invoice.amount,
+        supplierName: supplier.name,
+        customerName: entity.name,
         discountPercent: _getRandomDiscount(),
         startTime: new DateTime.now().toIso8601String(),
-        endTime:
-            new DateTime.now().add(new Duration(days: 14)).toIso8601String(),
+        endTime: new DateTime.now()
+            .add(new Duration(days: _getRandomOfferDays()))
+            .toIso8601String(),
         date: new DateTime.now().toIso8601String(),
         participantId: supplier.participantId,
         privateSectorType: supplier.privateSectorType);
@@ -429,10 +433,10 @@ class Generator {
 
   static List<double> doubles = List();
   static Future<int> _makeBid(Offer offer, Investor inv) async {
-    double offerDiscount = double.parse(offer.discountPercent);
+    double offerDiscount = offer.discountPercent;
     int index = rand.nextInt(doubles.length - 1);
     double investorDiscount = offerDiscount * doubles.elementAt(index);
-    double offerAmt = double.parse(offer.amount);
+    double offerAmt = offer.offerAmount;
     double investorAmt = (offerAmt * (100.0 - investorDiscount)) / 100;
     print(
         'Generator._makeBid offerAmt  $offerAmt offerDiscount: $offerDiscount investorDiscount: $investorDiscount investorAmt: $investorAmt \n\n');
@@ -444,7 +448,7 @@ class Generator {
       reservePercent: '$investorDiscount',
       startTime: offer.startTime,
       endTime: offer.endTime,
-      amount: '$investorAmt',
+      amount: investorAmt,
       participantId: inv.participantId,
     );
 
@@ -484,7 +488,7 @@ class Generator {
     return amt.toStringAsFixed(2);
   }
 
-  static String _getRandomAmount() {
+  static double _getRandomAmount() {
     var x = rand.nextInt(1000);
     if (x == 0) {
       x = 339;
@@ -494,16 +498,24 @@ class Generator {
       amt = amt * 10;
     }
 
-    return amt.toStringAsFixed(2);
+    return amt;
   }
 
-  static String _getRandomDiscount() {
+  static double _getRandomDiscount() {
     var x = rand.nextInt(80);
     if (x < 50) {
       x = 80;
     }
     double amt = x * 1.0;
-    return amt.toStringAsFixed(1);
+    return amt;
+  }
+
+  static int _getRandomOfferDays() {
+    var x = rand.nextInt(21);
+    if (x < 5) {
+      x = 14;
+    }
+    return x;
   }
 
   static Future<int> cleanUp() async {
@@ -1003,17 +1015,5 @@ class Generator {
     }
 
     return 0;
-  }
-
-  static Offer getOffer(DocumentSnapshot doc) {
-    var invoice = new Invoice.fromJson(doc.data);
-    Offer offer = new Offer(
-      invoice: NameSpace + 'Invoice#' + invoice.invoiceId,
-      amount: invoice.amount,
-      discountPercent: _getRandomDiscount(),
-      startTime: new DateTime.now().toIso8601String(),
-      endTime: new DateTime.now().add(new Duration(days: 14)).toIso8601String(),
-    );
-    return offer;
   }
 }

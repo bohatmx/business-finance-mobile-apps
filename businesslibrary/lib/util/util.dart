@@ -44,20 +44,148 @@ TextStyle getTextWhiteSmall() {
   );
 }
 
-//String getFormattedDate(String date) {
-//  DateTime d = DateTime.parse(date);
-//  var format = new DateFormat.yMMMd();
-//  return format.format(d);
-//}
-//
-//String getFormattedLongDate(String date) {
-//  DateTime d = DateTime.parse(date);
-//  var format = new DateFormat.yMMMMEEEEd();
-//  return format.format(d);
-//}
-//
-//String getFormattedAmount(String amount) {
-//  final oCcy = new NumberFormat("#,##0.00", "en_ZA");
-//  double m = double.parse(amount);
-//  return oCcy.format(m);
-//}
+List<DropdownMenuItem<int>> _items = List();
+var bold = TextStyle(fontWeight: FontWeight.bold);
+List<DropdownMenuItem<int>> buildDaysDropDownItems() {
+  var item1 = DropdownMenuItem<int>(
+    value: 7,
+    child: Row(
+      children: <Widget>[
+        Icon(
+          Icons.apps,
+          color: Colors.pink,
+        ),
+        Padding(
+          padding: const EdgeInsets.only(left: 8.0),
+          child: Text(
+            '7 Days Under Review',
+            style: bold,
+          ),
+        ),
+      ],
+    ),
+  );
+  _items.add(item1);
+  var item2 = DropdownMenuItem<int>(
+    value: 14,
+    child: Row(
+      children: <Widget>[
+        Icon(
+          Icons.apps,
+          color: Colors.teal,
+        ),
+        Padding(
+          padding: const EdgeInsets.only(left: 8.0),
+          child: Text(
+            '14 Days Under Review',
+            style: bold,
+          ),
+        ),
+      ],
+    ),
+  );
+  _items.add(item2);
+
+  var item3 = DropdownMenuItem<int>(
+    value: 30,
+    child: Row(
+      children: <Widget>[
+        Icon(
+          Icons.apps,
+          color: Colors.brown,
+        ),
+        Padding(
+          padding: const EdgeInsets.only(left: 8.0),
+          child: Text(
+            '30 Days Under Review',
+            style: bold,
+          ),
+        ),
+      ],
+    ),
+  );
+  _items.add(item3);
+  var item4 = DropdownMenuItem<int>(
+    value: 60,
+    child: Row(
+      children: <Widget>[
+        Icon(
+          Icons.apps,
+          color: Colors.purple,
+        ),
+        Padding(
+          padding: const EdgeInsets.only(left: 8.0),
+          child: Text(
+            '60 Days Under Review',
+            style: bold,
+          ),
+        ),
+      ],
+    ),
+  );
+  _items.add(item4);
+  var item5 = DropdownMenuItem<int>(
+    value: 90,
+    child: Row(
+      children: <Widget>[
+        Icon(
+          Icons.apps,
+          color: Colors.deepOrange,
+        ),
+        Padding(
+          padding: const EdgeInsets.only(left: 8.0),
+          child: Text(
+            '90 Days Under Review',
+            style: bold,
+          ),
+        ),
+      ],
+    ),
+  );
+  _items.add(item5);
+
+  var item6 = DropdownMenuItem<int>(
+    value: 120,
+    child: Row(
+      children: <Widget>[
+        Icon(
+          Icons.apps,
+          color: Colors.blue,
+        ),
+        Padding(
+          padding: const EdgeInsets.only(left: 8.0),
+          child: Text(
+            '120 Days Under Review',
+            style: bold,
+          ),
+        ),
+      ],
+    ),
+  );
+  _items.add(item6);
+  var item7 = DropdownMenuItem<int>(
+    value: 365,
+    child: Row(
+      children: <Widget>[
+        Icon(
+          Icons.apps,
+          color: Colors.grey,
+        ),
+        Padding(
+          padding: const EdgeInsets.only(left: 8.0),
+          child: Text(
+            '365 Days Under Review',
+            style: bold,
+          ),
+        ),
+      ],
+    ),
+  );
+  _items.add(item7);
+
+  return _items;
+}
+
+String _toTwoDigitString(int value) {
+  return value.toString().padLeft(2, '0');
+}

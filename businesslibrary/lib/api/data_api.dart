@@ -980,7 +980,7 @@ class DataAPI {
   Future _updateInvoiceWithOffer(
       QuerySnapshot qs, Offer offer, String invoiceDocId) async {
     Invoice inv = new Invoice.fromJson(qs.documents.first.data);
-    inv.isOnOffer = 'true';
+    inv.isOnOffer = true;
     inv.offer = 'resource:com.oneconnect.biz.Offer#' + offer.offerId;
     //update invoice with offer
     await _firestore
@@ -989,7 +989,7 @@ class DataAPI {
         .collection('invoices')
         .document(invoiceDocId)
         .updateData(inv.toJson());
-    print('DataAPI.makeOffer ******* invoice updated with  offer ');
+    print('DataAPI.makeOffer ******* invoice updated with  offer *****');
     prettyPrint(inv.toJson(), 'updated invoice on  Firestore');
   }
 

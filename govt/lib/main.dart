@@ -51,7 +51,7 @@ class _StartPageState extends State<StartPage> implements SnackBarListener {
       print('_StartPageState.checkUser firebaseUser:  ${firebaseUser.email}');
       await Navigator.push(
         context,
-        new MaterialPageRoute(builder: (context) => new Dashboard()),
+        new MaterialPageRoute(builder: (context) => new Dashboard(null)),
       );
     }
   }
@@ -167,13 +167,13 @@ class _StartPageState extends State<StartPage> implements SnackBarListener {
     print('_StartPageState.onActionPressed +++++++++++++++++ >>>');
     Navigator.push(
       context,
-      new MaterialPageRoute(builder: (context) => new Dashboard()),
+      new MaterialPageRoute(builder: (context) => new Dashboard(null)),
     );
   }
 }
 
 class BackImage extends StatelessWidget {
-  AssetImage _assetImage = AssetImage('assets/fincash.jpg');
+  final AssetImage _assetImage = AssetImage('assets/fincash.jpg');
   @override
   Widget build(BuildContext context) {
     // var m = Image.asset('assets/fincash.jpg', fit: BoxFit.cover,)

@@ -59,7 +59,7 @@ class _StartPageState extends State<StartPage> {
       assert(investor != null);
       await Navigator.push(
         context,
-        new MaterialPageRoute(builder: (context) => new Dashboard()),
+        new MaterialPageRoute(builder: (context) => new Dashboard(null)),
       );
     }
   }
@@ -166,7 +166,7 @@ class _StartPageState extends State<StartPage> {
         'about to go refresh Dashboard: ${po.toJson()}');
     Navigator.push(
       context,
-      new MaterialPageRoute(builder: (context) => new Dashboard()),
+      new MaterialPageRoute(builder: (context) => new Dashboard(null)),
     );
   }
 }

@@ -282,7 +282,7 @@ class _SignUpPageState extends State<SignUpPage>
           subscribe(investor);
           Navigator.push(
             context,
-            new MaterialPageRoute(builder: (context) => new Dashboard()),
+            new MaterialPageRoute(builder: (context) => new Dashboard(null)),
           );
 
           break;
@@ -387,7 +387,8 @@ class _SignUpPageState extends State<SignUpPage>
 
   @override
   onWalletMessage(Wallet wallet) async {
-    prettyPrint(wallet.toJson(), 'onWalletMessage ......');
+    prettyPrint(
+        wallet.toJson(), 'SignUpPage +++++++++++ onWalletMessage ......');
     await SharedPrefs.saveWallet(wallet);
     DataAPI api = DataAPI(getURL());
     await api.addWallet(wallet);

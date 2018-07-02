@@ -10,6 +10,7 @@ import 'package:businesslibrary/data/investor.dart';
 import 'package:businesslibrary/data/procurement_office.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/wallet.dart';
+import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/util.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -35,10 +36,12 @@ class _SignInPageState extends State<SignInPage> implements SnackBarListener {
 
   String participationId;
   List<DropdownMenuItem> items = List();
+  String message;
   @override
   initState() {
     super.initState();
 
+    initializeNotificationPlugin();
     isDebug = isInDebugMode;
     if (isDebug) {
       _buildUserList();
@@ -53,19 +56,22 @@ class _SignInPageState extends State<SignInPage> implements SnackBarListener {
         children: <Widget>[
           Column(
             children: <Widget>[
-              DropdownButton(
-                items: items,
-                hint: Text(
-                  'Select User',
-                  style: TextStyle(color: Colors.white),
+              Container(
+                width: 300.0,
+                child: DropdownButton(
+                  items: items,
+                  hint: Text(
+                    'Select User',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  onChanged: (val) {
+                    print(
+                        '_SignInPageState._getDropdown ################# val: $val');
+                    setState(() {
+                      adminEmail = val;
+                    });
+                  },
                 ),
-                onChanged: (val) {
-                  print(
-                      '_SignInPageState._getDropdown ################# val: $val');
-                  setState(() {
-                    adminEmail = val;
-                  });
-                },
               ),
               new Padding(
                 padding:
@@ -213,11 +219,13 @@ class _SignInPageState extends State<SignInPage> implements SnackBarListener {
           //get wallet
           Wallet wallet = await ListAPI.getWallet('supplier',
               'resource:com.oneconnect.biz.Supplier#' + supplier.participantId);
-          print(
-              '_SignInPageState.checkResult wallet recovered ${wallet.toJson()}');
+          prettyPrint(wallet.toJson(),
+              '_SignInPageState.checkResult wallet recovered: check secret..');
+
           Navigator.push(
             context,
-            new MaterialPageRoute(builder: (context) => new Dashboard()),
+            new MaterialPageRoute(
+                builder: (context) => new Dashboard('Wallet recovered')),
           );
         }
         break;
@@ -279,42 +287,30 @@ class _SignInPageState extends State<SignInPage> implements SnackBarListener {
 
   bool isDebug;
 
-  void _buildUserList() {
-    var item1 = new DropdownMenuItem(
-      child: Text('dmkhize@mkhize.com'),
-      value: 'dmkhize@mkhize.com',
-    );
-    var item2 = new DropdownMenuItem(
-      child: Text('ddlam@dlamini.com'),
-      value: 'ddlam@dlamini.com',
-    );
-    var item3 = new DropdownMenuItem(
-      child: Text('mosesd@femevent.com'),
-      value: 'mosesd@femevent.com',
-    );
-    var item4 = new DropdownMenuItem(
-      child: Text('dkhoza@femevent.com'),
-      value: 'dkhoza@femevent.com',
-    );
-    var item5 = new DropdownMenuItem(
-      child: Text('danielkk@engineers.com'),
-      value: 'danielkk@engineers.com',
-    );
-    var item6 = new DropdownMenuItem(
-      child: Text('petejohn@dhhtransport.com'),
-      value: 'petejohn@dhhtransport.com',
-    );
-    var item7 = new DropdownMenuItem(
-      child: Text('susanoak@zamatransport.com'),
-      value: 'susanoak@zamatransport.com',
-    );
-
-    items.add(item1);
-    items.add(item2);
-    items.add(item3);
-    items.add(item4);
-    items.add(item5);
-    items.add(item6);
-    items.add(item7);
+  void _buildUserList() async {
+    var users = await ListAPI.getSupplierUsers();
+    users.forEach((user) {
+      var item1 = new DropdownMenuItem(
+        child: Row(
+          children: <Widget>[
+            Icon(
+              Icons.apps,
+              color: Colors.indigo,
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 8.0),
+              child: Text(user.email),
+            ),
+          ],
+        ),
+        value: user.email,
+      );
+      items.add(item1);
+    });
   }
+}
+
+@override
+onActionPressed(int action) {
+  // TODO: implement onActionPressed
 }

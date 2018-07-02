@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:businesslibrary/api/data_api.dart';
@@ -388,22 +389,10 @@ class _SignUpPageState extends State<SignUpPage>
       switch (result) {
         case SignUp.Success:
           print('_SignUpPageState._onSavePressed SUCCESS!!!!!!');
-          var govtEntity = await SharedPrefs.getGovEntity();
-          var topic = 'invoices' + govtEntity.documentReference;
-          _firebaseMessaging.subscribeToTopic(topic);
-          var topic2 = 'general';
-          _firebaseMessaging.subscribeToTopic(topic2);
-          var topic3 = 'settlements' + govtEntity.documentReference;
-          _firebaseMessaging.subscribeToTopic(topic3);
-          var topic4 = 'deliveryNotes' + govtEntity.documentReference;
-          _firebaseMessaging.subscribeToTopic(topic4);
-
-          print(
-              '_StartPageState._configMessaging ... ############# subscribed to FCM topics '
-              '\n $topic \n $topic2 \n $topic3 \n $topic4');
+          await subscribeToFCM();
           Navigator.push(
             context,
-            new MaterialPageRoute(builder: (context) => new Dashboard()),
+            new MaterialPageRoute(builder: (context) => new Dashboard(null)),
           );
           break;
         case SignUp.ErrorBlockchain:
@@ -423,6 +412,22 @@ class _SignUpPageState extends State<SignUpPage>
           break;
       }
     }
+  }
+
+  Future subscribeToFCM() async {
+    var govtEntity = await SharedPrefs.getGovEntity();
+    var topic = 'invoices' + govtEntity.documentReference;
+    _firebaseMessaging.subscribeToTopic(topic);
+    var topic2 = 'general';
+    _firebaseMessaging.subscribeToTopic(topic2);
+    var topic3 = 'settlements' + govtEntity.documentReference;
+    _firebaseMessaging.subscribeToTopic(topic3);
+    var topic4 = 'deliveryNotes' + govtEntity.documentReference;
+    _firebaseMessaging.subscribeToTopic(topic4);
+
+    print(
+        '_StartPageState._configMessaging ... ############# subscribed to FCM topics '
+        '\n $topic \n $topic2 \n $topic3 \n $topic4');
   }
 
   @override

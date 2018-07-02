@@ -3,20 +3,19 @@ class Offer {
   String offerId;
   String startTime;
   String endTime;
-  String amount;
-  String discountPercent;
   String invoice, documentReference, privateSectorType;
   String purchaseOrder, participantId;
   String user, date, supplier;
-  String invoiceDocumentRef;
+  String invoiceDocumentRef, supplierName, customerName;
   DateTime dateClosed;
   String supplierDocumentRef, supplierFCMToken;
+  double invoiceAmount, offerAmount, discountPercent;
+
   List<String> invoiceBids;
   Offer(
       {this.offerId,
       this.startTime,
       this.endTime,
-      this.amount,
       this.discountPercent,
       this.invoice,
       this.documentReference,
@@ -27,6 +26,10 @@ class Offer {
       this.supplier,
       this.invoiceBids,
       this.dateClosed,
+      this.supplierName,
+      this.customerName,
+      this.invoiceAmount,
+      this.offerAmount,
       this.supplierFCMToken,
       this.invoiceDocumentRef,
       this.supplierDocumentRef,
@@ -36,7 +39,6 @@ class Offer {
     this.offerId = data['offerId'];
     this.startTime = data['startTime'];
     this.endTime = data['endTime'];
-    this.amount = data['amount'];
     this.discountPercent = data['discountPercent'];
     this.invoice = data['invoice'];
     this.purchaseOrder = data['purchaseOrder'];
@@ -52,13 +54,17 @@ class Offer {
     this.invoiceBids = data['invoiceBids'];
     this.supplierFCMToken = data['supplierFCMToken'];
     this.dateClosed = data['dateClosed'];
+    this.supplierName = data['supplierName'];
+    this.customerName = data['customerName'];
+
+    this.invoiceAmount = data['invoiceAmount'];
+    this.offerAmount = data['offerAmount'];
   }
 
   Map<String, dynamic> toJson() => <String, dynamic>{
         'offerId': offerId,
         'startTime': startTime,
         'endTime': endTime,
-        'amount': amount,
         'discountPercent': discountPercent,
         'invoice': invoice,
         'purchaseOrder': purchaseOrder,
@@ -73,5 +79,9 @@ class Offer {
         'invoiceBids': invoiceBids,
         'supplierFCMToken': supplierFCMToken,
         'dateClosed': dateClosed,
+        'supplierName': supplierName,
+        'customerName': customerName,
+        'invoiceAmount': invoiceAmount,
+        'offerAmount': offerAmount,
       };
 }
