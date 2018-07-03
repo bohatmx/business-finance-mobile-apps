@@ -11,8 +11,9 @@ class StellarCommsUtil {
   static const DEBUG_URL_PREFIX = "https://horizon-testnet.stellar.org/";
   static const PROD_URL_PREFIX = "https://horizon.stellar.org/";
 
-  Future<Account> getAccount(String accountID) async {
+  static Future<Account> getAccount(String accountID) async {
     assert(accountID != null);
+    print('StellarCommsUtil.getAccount &&&&& getting account details ...');
     var url;
     if (isInDebugMode) {
       url = DEBUG_URL_PREFIX;
@@ -47,7 +48,7 @@ class StellarCommsUtil {
   static const LIMIT = 200;
   static const ORDER = "desc";
 
-  Future<dynamic> getPayments(String accountID) async {
+  static Future<List<Record>> getPayments(String accountID) async {
     //GET https://horizon-testnet.stellar.org/payments?limit=5&order=desc
     Map map = new Map();
     map["order"] = "desc";

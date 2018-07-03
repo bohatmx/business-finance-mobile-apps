@@ -41,7 +41,6 @@ class _SignInPageState extends State<SignInPage> implements SnackBarListener {
   initState() {
     super.initState();
 
-    initializeNotificationPlugin();
     isDebug = isInDebugMode;
     if (isDebug) {
       _buildUserList();

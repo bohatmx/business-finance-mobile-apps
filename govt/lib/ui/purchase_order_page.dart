@@ -100,7 +100,7 @@ class _PurchaseOrderPageState extends State<PurchaseOrderPageGovt>
       print('_PurchaseOrderPageState._registerPurchaseOrder ... ${purchaseOrder
               .toJson()}');
       purchaseOrder.date = new DateTime.now().toIso8601String();
-      purchaseOrder.amount = amount;
+      purchaseOrder.amount = double.parse(amount);
       purchaseOrder.purchaseOrderNumber = poNumber;
 
       AppSnackbar.showSnackbarWithProgressIndicator(

@@ -193,7 +193,7 @@ class _DeliveryNotePageState extends State<DeliveryNotePage>
 
   String _getFormattedAmount() {
     final oCcy = new NumberFormat("#,##0.00", "en_ZA");
-    double m = double.parse(_purchaseOrder.amount);
+    double m = _purchaseOrder.amount;
     return oCcy.format(m);
   }
 

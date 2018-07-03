@@ -1,16 +1,15 @@
 import 'package:json_annotation/json_annotation.dart';
 
 part 'Balance.g.dart';
-@JsonSerializable()
 
-class Balance extends Object with _$BalanceSerializerMixin{
+@JsonSerializable()
+class Balance extends Object with _$BalanceSerializerMixin {
   String balance;
   String asset_type;
 
-
   Balance(this.balance, this.asset_type);
-  factory Balance.fromJson(Map<String, dynamic> json) => _$BalanceFromJson(json);
-
+  factory Balance.fromJson(Map<String, dynamic> json) =>
+      _$BalanceFromJson(json);
 
   String getBalance() {
     return this.balance;
@@ -19,7 +18,6 @@ class Balance extends Object with _$BalanceSerializerMixin{
   void setBalance(String balance) {
     this.balance = balance;
   }
-
 
   String getAssetType() {
     return this.asset_type;

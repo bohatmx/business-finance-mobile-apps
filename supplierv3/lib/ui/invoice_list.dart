@@ -255,7 +255,7 @@ class _InvoiceListState extends State<InvoiceList> implements SnackBarListener {
     if (invoices.isNotEmpty) {
       double total = 0.00;
       invoices.forEach((inv) {
-        double amt = double.parse(inv.amount);
+        double amt = inv.amount;
         total += amt;
       });
 
@@ -455,7 +455,7 @@ class InvoiceCard extends StatelessWidget {
 
   String amount;
   String _getFormattedAmt() {
-    amount = getFormattedAmount(invoice.amount, context);
+    amount = '${invoice.amount}';
     print('InvoiceCard._getFormattedAmt $amount');
     return amount;
   }

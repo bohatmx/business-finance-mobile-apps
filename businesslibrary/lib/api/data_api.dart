@@ -140,10 +140,22 @@ class DataAPI {
   /// object should contain valid Stellar public key
   ///
   Future<String> addWallet(Wallet wallet) async {
-    print('DataAPI.addWallet ${url + WALLET}');
-    wallet.sourceSeed = null;
+    print('DataAPI.addWallet %%%%%%%% url: ${url + WALLET}');
+    prettyPrint(wallet.toJson(), 'adding wallet to BFN blockcahain');
+    wallet.sourceSeed = 'N/A';
+
+    await _firestore
+        .collection('wallets')
+        .document(wallet.documentReference)
+        .updateData(wallet.toJson())
+        .catchError((e) {
+      print('DataAPI.addWallet ERROR ERROR ERROR --> $e');
+    });
+    print('DataAPI.addWallet - wallet updated, sourceSeed set to null');
+
     wallet.encryptedSecret = null;
     wallet.debug = null;
+    wallet.sourceSeed = null;
     try {
       var httpClient = new HttpClient();
       HttpClientRequest mRequest =
@@ -184,6 +196,7 @@ class DataAPI {
     });
     print(
         'DataAPI.addWalletToFirestoreForStellar: WALLET added to Firestore: ${ref.documentID}');
+    wallet.documentReference = ref.documentID;
     return ref.documentID;
   }
 

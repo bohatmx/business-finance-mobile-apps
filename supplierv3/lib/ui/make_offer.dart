@@ -312,7 +312,7 @@ class _MakeOfferPageState extends State<MakeOfferPage>
       double offerDiscount = double.parse(discount);
       double investorDiscount = offerDiscount;
 
-      double offerAmt = double.parse(invoice.amount);
+      double offerAmt = invoice.amount;
       double supplierAmt = (offerAmt * (100.0 - investorDiscount)) / 100;
       print('MakeOffer._calculateExpected amt: '
           ' $offerAmt offerDiscount: $offerDiscount investorDiscount: '
@@ -328,13 +328,16 @@ class _MakeOfferPageState extends State<MakeOfferPage>
   _submitOffer() async {
     print(
         'MakeOfferPage._submitOffer ########### invoice: ${invoice.invoiceNumber} --------------\n\n');
+    var disc = double.parse(discount);
+    var offerAmt = (invoice.amount * disc) / 100.0;
     Offer offer = new Offer(
         supplier: NameSpace + 'Supplier#' + supplier.participantId,
         invoice: NameSpace + 'Invoice#' + invoice.invoiceId,
         user: NameSpace + 'User#' + user.userId,
         purchaseOrder: invoice.purchaseOrder,
-        amount: invoice.amount,
-        discountPercent: discount,
+        offerAmount: offerAmt,
+        invoiceAmount: invoice.amount,
+        discountPercent: disc,
         startTime: new DateTime.now().toIso8601String(),
         endTime:
             new DateTime.now().add(new Duration(days: 14)).toIso8601String(),
@@ -531,7 +534,7 @@ class _MakeOfferPageState extends State<MakeOfferPage>
                     Padding(
                       padding: const EdgeInsets.only(left: 8.0),
                       child: Text(
-                        getFormattedAmount(invoice.amount, context),
+                        '${invoice.amount}',
                         style: TextStyle(
                             fontSize: 20.0, fontWeight: FontWeight.bold),
                       ),

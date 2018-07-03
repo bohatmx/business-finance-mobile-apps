@@ -26,9 +26,11 @@ class ListAPI {
         .where(ownerType, isEqualTo: name)
         .getDocuments();
     Wallet wallet = Wallet.fromJson(qs.documents.first.data);
-    var decrypted =
-        await decrypt(wallet.stellarPublicKey, wallet.encryptedSecret);
-    wallet.secret = decrypted;
+    if (wallet.encryptedSecret != null) {
+      var decrypted =
+          await decrypt(wallet.stellarPublicKey, wallet.encryptedSecret);
+      wallet.secret = decrypted;
+    }
     await SharedPrefs.saveWallet(wallet);
     return wallet;
   }

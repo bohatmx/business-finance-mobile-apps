@@ -47,6 +47,9 @@ class Generator {
 
   // ignore: missing_return
   static Future<int> _processWallet() async {
+    if (wallets.isEmpty) {
+      return 1;
+    }
     var wallet = wallets.elementAt(index);
     wallet.debug = null;
     wallet.sourceSeed = null;
@@ -332,9 +335,12 @@ class Generator {
     inv.invoiceNumber = _getRandomInvoiceNumber(supplier);
     inv.purchaseOrderNumber = po.purchaseOrderNumber;
     inv.customerName = entity.name;
+    inv.isSettled = false;
+    inv.isOnOffer = false;
 
     var key = await dataAPI.registerInvoice(inv);
     if (key == '0') {
+      print('Generator._addInvoice ERROR bbad invoice?');
       return key;
     }
     prettyPrint(inv.toJson(), 'Generator._addInvoice');
@@ -348,6 +354,8 @@ class Generator {
         'Generator._addOffer invoice: ${invoice.invoiceNumber} --------------\n\n');
     double disc = _getRandomDiscount();
     var offerAmt = invoice.amount * (disc / 100);
+    print(
+        'Generator._addOffer \n\ninvoiceAmt: ${invoice.amount} discount: $disc offerAmt: $offerAmt \n\n');
     Offer offer = new Offer(
         supplier: NameSpace + 'Supplier#' + supplier.participantId,
         invoice: NameSpace + 'Invoice#' + invoice.invoiceId,
@@ -357,7 +365,7 @@ class Generator {
         invoiceAmount: invoice.amount,
         supplierName: supplier.name,
         customerName: entity.name,
-        discountPercent: _getRandomDiscount(),
+        discountPercent: disc,
         startTime: new DateTime.now().toIso8601String(),
         endTime: new DateTime.now()
             .add(new Duration(days: _getRandomOfferDays()))
@@ -533,6 +541,12 @@ class Generator {
       });
       print(
           'Generator.cleanUp wallets deleted from Firestore ################');
+      var qsx = await fs.collection('walletsFailed').getDocuments();
+      qsx.documents.forEach((doc) async {
+        await doc.reference.delete();
+      });
+      print(
+          'Generator.cleanUp walletsFailed deleted from Firestore ################');
       var qs1 = await fs.collection('oneConnect').getDocuments();
       qs1.documents.forEach((doc) async {
         await doc.reference.delete();

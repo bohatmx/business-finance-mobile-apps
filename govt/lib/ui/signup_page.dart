@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:businesslibrary/api/data_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/api/signup.dart';
 import 'package:businesslibrary/data/delivery_acceptance.dart';
@@ -487,17 +486,20 @@ class _SignUpPageState extends State<SignUpPage>
 
   @override
   onWalletMessage(Wallet wallet) async {
-    print('_SignUpPageState.onWalletMessage');
-    await SharedPrefs.saveWallet(wallet);
-    DataAPI api = DataAPI(getURL());
-    await api.addWallet(wallet);
-    AppSnackbar.showSnackbarWithAction(
-        scaffoldKey: _scaffoldKey,
-        message: 'Wallet created',
-        textColor: Colors.white,
-        backgroundColor: Colors.black,
-        actionLabel: 'OK',
-        listener: this,
-        icon: Icons.done_all);
+    print('_SignUpPageState.onWalletMessage ++++++++++++++ wallet received');
+
+    if (_scaffoldKey.currentState != null) {
+      AppSnackbar.showSnackbarWithAction(
+          scaffoldKey: _scaffoldKey,
+          message: 'Wallet created',
+          textColor: Colors.white,
+          backgroundColor: Colors.black,
+          actionLabel: 'OK',
+          listener: this,
+          icon: Icons.done_all);
+    } else {
+      print(
+          '_SignUpPageState.onWalletMessage _scaffoldKey.currentState = null');
+    }
   }
 }

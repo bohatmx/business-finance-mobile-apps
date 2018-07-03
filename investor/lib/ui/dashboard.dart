@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:businesslibrary/api/data_api.dart';
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/delivery_acceptance.dart';
@@ -17,6 +16,7 @@ import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/summary_card.dart';
 import 'package:businesslibrary/util/util.dart';
+import 'package:businesslibrary/util/wallet_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:investor/ui/offer_list.dart';
@@ -197,8 +197,8 @@ class _DashboardState extends State<Dashboard>
               onPressed: _getSummaryData,
             ),
             IconButton(
-              icon: Icon(Icons.category),
-              onPressed: _toggleView,
+              icon: Icon(Icons.attach_money),
+              onPressed: _goToWalletPage,
             ),
           ],
         ),
@@ -264,15 +264,12 @@ class _DashboardState extends State<Dashboard>
     );
   }
 
-  void _toggleView() {
-    print('_MainPageState._toggleView .... ');
-    if (opacity == 0.0) {
-      opacity = 1.0;
-    } else {
-      opacity = 0.0;
-    }
-
-    setState(() {});
+  void _goToWalletPage() {
+    print('_MainPageState._goToWalletPage .... ');
+    Navigator.push(
+      context,
+      new MaterialPageRoute(builder: (context) => new WalletPage()),
+    );
   }
 
   refresh() {
@@ -350,12 +347,9 @@ class _DashboardState extends State<Dashboard>
 
   @override
   onWalletMessage(Wallet wallet) async {
-    prettyPrint(wallet.toJson(), 'Dashboard.onWalletMessage: @@@@@@@@ wallet:');
-    var dec = await decrypt(wallet.stellarPublicKey, wallet.encryptedSecret);
-    print('_DashboardState.onWalletMessage decrypted secret: $dec');
-    await SharedPrefs.saveWallet(wallet);
-    DataAPI api = DataAPI(getURL());
-    await api.addWallet(wallet);
+    print(
+        '_DashboardState.onWalletMessage  @@@@@@@@ wallet received in dash, cycle COMPLETE!!!!');
+
     AppSnackbar.showSnackbarWithAction(
         scaffoldKey: _scaffoldKey,
         message: 'Wallet Created',

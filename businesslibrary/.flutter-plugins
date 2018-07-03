@@ -1,8 +1,8 @@
 cloud_firestore=/Users/mac/.pub-cache/hosted/pub.dartlang.org/cloud_firestore-0.7.3/
-firebase_auth=/Users/mac/.pub-cache/hosted/pub.dartlang.org/firebase_auth-0.5.11/
+firebase_auth=/Users/mac/.pub-cache/hosted/pub.dartlang.org/firebase_auth-0.5.12/
 firebase_core=/Users/mac/.pub-cache/hosted/pub.dartlang.org/firebase_core-0.2.4/
 firebase_database=/Users/mac/.pub-cache/hosted/pub.dartlang.org/firebase_database-0.4.6/
-firebase_messaging=/Users/mac/.pub-cache/hosted/pub.dartlang.org/firebase_messaging-1.0.2/
+firebase_messaging=/Users/mac/.pub-cache/hosted/pub.dartlang.org/firebase_messaging-1.0.3/
 firebase_remote_config=/Users/mac/.pub-cache/hosted/pub.dartlang.org/firebase_remote_config-0.0.2/
 firebase_storage=/Users/mac/.pub-cache/hosted/pub.dartlang.org/firebase_storage-0.3.7/
 flutter_local_notifications=/Users/mac/.pub-cache/hosted/pub.dartlang.org/flutter_local_notifications-0.3.3/

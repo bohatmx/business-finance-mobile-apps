@@ -11,10 +11,36 @@ import 'package:businesslibrary/data/procurement_office.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/data/wallet.dart';
+import 'package:businesslibrary/stellar/Account.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SharedPrefs {
+  static Future saveAccount(Account account) async {
+    print('SharedPrefs.saveAccount  saving data ........');
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    Map jsonx = account.toJson();
+    var jx = json.encode(jsonx);
+    print(jx);
+    prefs.setString('account', jx);
+    //prefs.commit();
+    print("SharedPrefs.saveAccount =========  data SAVED.........");
+  }
+
+  static Future<Account> getAccount() async {
+    print("SharedPrefs.getAccount =========  getting cached data.........");
+    var prefs = await SharedPreferences.getInstance();
+    var string = prefs.getString('account');
+    if (string == null) {
+      return null;
+    }
+    var jx = json.decode(string);
+    prettyPrint(jx, 'Account from cache: ');
+    var account = new Account.fromJson(jx);
+    return account;
+  }
+
   static Future saveUser(User user) async {
     print('SharedPrefs.saveUser  saving user data ........');
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -280,6 +306,7 @@ class SharedPrefs {
     prefs.setString("wallet", jx);
     //prefs.commit();
     print("SharedPrefs - wallet saved in local prefs....... ");
+    prettyPrint(map, "wallet saved on device: ------> ");
     return null;
   }
 

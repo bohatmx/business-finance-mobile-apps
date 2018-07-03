@@ -43,17 +43,34 @@ class SignUp {
       ErrorBlockchain = 3;
 
   String publicKey, privateKey;
+  RemoteConfig remoteConfig;
   Future<Null> _setupRemoteConfig() async {
-    print(
-        'SignUp.setupRemoteConfig ############ getting RemoteConfig settings');
-    final RemoteConfig remoteConfig = await RemoteConfig.instance;
-    RemoteConfigSettings settings = RemoteConfigSettings(debugMode: true);
-    await remoteConfig.setConfigSettings(settings);
-    await remoteConfig.fetch(expiration: Duration(seconds: 5));
-    await remoteConfig.activateFetched();
-    publicKey = remoteConfig.getString('account_id');
-    privateKey = remoteConfig.getString('private_key');
-    print('SignUp.setupRemoteConfig $publicKey $privateKey ');
+    if (privateKey != null) {
+      return null;
+    }
+
+    try {
+      if (remoteConfig == null) {
+        print(
+            'SignUp.setupRemoteConfig ############ getting RemoteConfig settings and fetching');
+        remoteConfig = await RemoteConfig.instance;
+        var settings = RemoteConfigSettings(debugMode: true);
+        await remoteConfig.setConfigSettings(settings);
+        await remoteConfig.fetch(expiration: Duration(minutes: 5));
+        await remoteConfig.activateFetched();
+      }
+
+      publicKey = remoteConfig.getString('account_id');
+      privateKey = remoteConfig.getString('private_key');
+      print('SignUp.setupRemoteConfig STELLAR KEYS: $publicKey $privateKey ');
+    } catch (e) {
+      print('SignUp._setupRemoteConfig\n\n --------------- ERROR $e \n\n');
+      //throw Exception('Remote Config failed');
+      if (isInDebugMode) {
+        privateKey = 'SCVBNGSMPV3KESG23ZQTSVFKTSP6YIJE7ONBBGSS6SH6IQ7XKSUOVOIO';
+        publicKey = 'GDN4SBSKZI4EUYIOXK5HCFHCZGZYEZTGEUX26V6MVI2BINMDUGR6E5EZ';
+      }
+    }
   }
 
   Future<int> signUpGovtEntity(GovtEntity govtEntity, User admin) async {
@@ -82,7 +99,13 @@ class SignUp {
     await SharedPrefs.saveGovtEntity(govtEntity);
     var wallet = await _getWallet(govtEntity.name);
     wallet.govtEntity = NameSpace + 'GovtEntity#' + govtEntity.participantId;
-    await dataAPI.addWalletToFirestoreForStellar(wallet);
+
+    if (privateKey != null) {
+      await dataAPI.addWalletToFirestoreForStellar(wallet);
+    } else {
+      print(
+          'SignUp.signUpGovtEntity ERROR ERROR - private key unavailable from remoteConfig');
+    }
 
     admin.govtEntity = NameSpace + 'GovtEntity#' + key;
     admin.isAdministrator = 'true';
@@ -96,7 +119,7 @@ class SignUp {
     wallet.debug = isInDebugMode;
     wallet.name = name;
     wallet.fcmToken = await SharedPrefs.getFCMToken();
-    prettyPrint(wallet.toJson(), 'wallet to be created');
+    prettyPrint(wallet.toJson(), 'wallet to be created .............');
     return wallet;
   }
 
@@ -125,7 +148,12 @@ class SignUp {
 
     var wallet = await _getWallet(company.name);
     wallet.company = NameSpace + 'Company#' + company.participantId;
-    await dataAPI.addWalletToFirestoreForStellar(wallet);
+    if (privateKey != null) {
+      await dataAPI.addWalletToFirestoreForStellar(wallet);
+    } else {
+      print(
+          'SignUp.signUpCompany ERROR ERROR - private key unavailable from remoteConfig');
+    }
 
     admin.company = NameSpace + 'Company#' + key;
     admin.isAdministrator = 'true';
@@ -158,7 +186,12 @@ class SignUp {
 
     var wallet = await _getWallet(supplier.name);
     wallet.supplier = NameSpace + 'Supplier#' + supplier.participantId;
-    await dataAPI.addWalletToFirestoreForStellar(wallet);
+    if (privateKey != null) {
+      await dataAPI.addWalletToFirestoreForStellar(wallet);
+    } else {
+      print(
+          'SignUp.signUpSupplier ERROR ERROR - private key unavailable from remoteConfig');
+    }
 
     return await signUp(admin);
   }
@@ -188,7 +221,12 @@ class SignUp {
 
     var wallet = await _getWallet(investor.name);
     wallet.investor = NameSpace + 'Investor#' + investor.participantId;
-    await dataAPI.addWalletToFirestoreForStellar(wallet);
+    if (privateKey != null) {
+      await dataAPI.addWalletToFirestoreForStellar(wallet);
+    } else {
+      print(
+          'SignUp.signUpInvestor ERROR ERROR - private key unavailable from remoteConfig');
+    }
 
     admin.investor = NameSpace + 'Investor#' + key;
     admin.isAdministrator = 'true';
@@ -219,7 +257,12 @@ class SignUp {
 
     var wallet = await _getWallet(auditor.name);
     wallet.auditor = NameSpace + 'Auditor#' + auditor.participantId;
-    await dataAPI.addWalletToFirestoreForStellar(wallet);
+    if (privateKey != null) {
+      await dataAPI.addWalletToFirestoreForStellar(wallet);
+    } else {
+      print(
+          'SignUp.signUpAuditor ERROR ERROR - private key unavailable from remoteConfig');
+    }
 
     admin.auditor = NameSpace + 'Auditor#' + key;
     admin.isAdministrator = 'true';
@@ -253,7 +296,12 @@ class SignUp {
     var wallet = await _getWallet(office.name);
     wallet.procurementOffice =
         NameSpace + 'ProcurementOffice#' + office.participantId;
-    await dataAPI.addWalletToFirestoreForStellar(wallet);
+    if (privateKey != null) {
+      await dataAPI.addWalletToFirestoreForStellar(wallet);
+    } else {
+      print(
+          'SignUp.signUpProcurementOffice ERROR ERROR - private key unavailable from remoteConfig');
+    }
 
     admin.procurementOffice = NameSpace + 'ProcurementOffice#' + key;
     admin.isAdministrator = 'true';
@@ -284,7 +332,12 @@ class SignUp {
 
     var wallet = await _getWallet(bank.name);
     wallet.bank = NameSpace + 'Bank#' + bank.participantId;
-    await dataAPI.addWalletToFirestoreForStellar(wallet);
+    if (privateKey != null) {
+      await dataAPI.addWalletToFirestoreForStellar(wallet);
+    } else {
+      print(
+          'SignUp.signUpBank ERROR ERROR - private key unavailable from remoteConfig');
+    }
 
     admin.bank = NameSpace + 'Bank#' + key;
     admin.isAdministrator = 'true';
@@ -313,7 +366,12 @@ class SignUp {
 
     var wallet = await _getWallet(oneConnect.name);
     wallet.oneConnect = NameSpace + 'OneConnect#' + oneConnect.participantId;
-    await dataAPI.addWalletToFirestoreForStellar(wallet);
+    if (privateKey != null) {
+      await dataAPI.addWalletToFirestoreForStellar(wallet);
+    } else {
+      print(
+          'SignUp.signUpOneConnect ERROR ERROR - private key unavailable from remoteConfig');
+    }
 
     admin.oneConnect = NameSpace + 'OneConnect#' + key;
     admin.isAdministrator = 'true';

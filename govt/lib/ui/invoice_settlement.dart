@@ -123,9 +123,7 @@ class _InvoiceSettlementState extends State<InvoiceSettlementPage>
                       Padding(
                         padding: const EdgeInsets.only(left: 8.0),
                         child: Text(
-                          invoice == null
-                              ? ''
-                              : getFormattedAmount(invoice.amount, context),
+                          invoice == null ? '' : '${invoice.amount}',
                           style: TextStyle(
                               color: Colors.white,
                               fontSize: 28.0,

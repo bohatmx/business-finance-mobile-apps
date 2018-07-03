@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:businesslibrary/api/data_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/delivery_acceptance.dart';
 import 'package:businesslibrary/data/delivery_note.dart';
@@ -11,6 +12,7 @@ import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/data/wallet.dart';
+import 'package:businesslibrary/util/comms.dart';
 import 'package:businesslibrary/util/util.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -317,17 +319,31 @@ configureMessaging(FCMListener listener) async {
       var messageType = message["messageType"];
       if (messageType == "WALLET") {
         print(
-            'configureMessaging: ############## receiving WALLET message from FCM:\n ${message["json"]}');
+            'configureMessaging: \n\n############## receiving WALLET message from FCM:\n ${message["json"]}\n\n');
         Map map = json.decode(message["json"]);
         var wallet = new Wallet.fromJson(map);
         if (wallet != null) {
           prettyPrint(map, 'configureMessaging: --------> wallet received:');
+          wallet.sourceSeed = null;
+          var dec =
+              await decrypt(wallet.stellarPublicKey, wallet.encryptedSecret);
+          wallet.secret = dec;
           await SharedPrefs.saveWallet(wallet);
           //get acct from stellar and save in sharedPrefs
-
+          DataAPI api = DataAPI(getURL());
+          wallet.secret = null;
+          var key = await api.addWallet(wallet);
+          if (key == '0') {
+            print('configureMessaging ERROR blockchain wallet write failed');
+            listener.onWalletError();
+            return;
+          }
+          var acct = await StellarCommsUtil.getAccount(wallet.stellarPublicKey);
+          await SharedPrefs.saveAccount(acct);
+          print('configureMessaging -- about to send wallet via listener');
           listener.onWalletMessage(wallet);
         } else {
-          print('configureMessaging ERROR ERROR wallet from FCM is null');
+          print('configureMessaging: ERROR ERROR wallet from FCM is null');
           listener.onWalletError();
         }
       }
@@ -476,6 +492,9 @@ const PROD_URL =
     'https://us-central1-business-finance-prod.cloudfunctions.net/';
 
 Future<String> encrypt(String accountId, String secret) async {
+  if (accountId == null || secret == null) {
+    return null;
+  }
   print('encrypt ++++++++++++ accountId: $accountId secret: $secret');
 
   var data = {'accountId': accountId, 'secret': secret};
@@ -492,6 +511,9 @@ Future<String> encrypt(String accountId, String secret) async {
 }
 
 Future<String> decrypt(String accountId, String encrypted) async {
+  if (accountId == null || encrypted == null) {
+    return null;
+  }
   print('decrypt -------- accountId: $accountId encrypted: $encrypted');
 
   var data = {'accountId': accountId, 'encrypted': encrypted};

@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:businesslibrary/api/data_api.dart';
 import 'package:businesslibrary/api/firestore_list_api.dart';
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
@@ -16,7 +15,7 @@ import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/data/wallet.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
-import 'package:businesslibrary/util/util.dart';
+import 'package:businesslibrary/util/wallet_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:supplierv3/ui/contract_list.dart';
@@ -58,7 +57,6 @@ class _DashboardState extends State<Dashboard>
   @override
   initState() {
     super.initState();
-    initializeNotificationPlugin();
     print('_DashboardState.initState .............. to get summary');
     animationController = AnimationController(
       duration: Duration(milliseconds: 1000),
@@ -67,8 +65,6 @@ class _DashboardState extends State<Dashboard>
     animation = new Tween(begin: 0.0, end: 1.0).animate(animationController);
     _getCachedPrefs();
     _configMessaging();
-    showNotification('Wallet Created',
-        'Your BFN wallet has been created for youu', "payload");
   }
 
   void _configMessaging() async {
@@ -250,8 +246,8 @@ class _DashboardState extends State<Dashboard>
               onPressed: _getSummaryData,
             ),
             IconButton(
-              icon: Icon(Icons.category),
-              onPressed: _toggleView,
+              icon: Icon(Icons.attach_money),
+              onPressed: _goToWalletPage,
             ),
           ],
         ),
@@ -316,15 +312,12 @@ class _DashboardState extends State<Dashboard>
     );
   }
 
-  void _toggleView() {
-    print('_MainPageState._toggleView .... ');
-    if (opacity == 0.0) {
-      opacity = 1.0;
-    } else {
-      opacity = 0.0;
-    }
-
-    setState(() {});
+  void _goToWalletPage() {
+    print('_MainPageState._goToWalletPage .... ');
+    Navigator.push(
+      context,
+      new MaterialPageRoute(builder: (context) => new WalletPage()),
+    );
   }
 
   void _onInvoiceTapped() {
@@ -473,10 +466,8 @@ class _DashboardState extends State<Dashboard>
 
   @override
   onWalletMessage(Wallet wallet) async {
-    prettyPrint(wallet.toJson(), 'onWalletMessage received');
-    await SharedPrefs.saveWallet(wallet);
-    DataAPI api = DataAPI(getURL());
-    await api.addWallet(wallet);
+    print(
+        '\n\n_DashboardState.onWalletMessage wallet received. cycle is COMLETE!!!\n\n');
     AppSnackbar.showSnackbarWithAction(
         scaffoldKey: _scaffoldKey,
         message: 'Wallet created',
@@ -485,8 +476,5 @@ class _DashboardState extends State<Dashboard>
         actionLabel: 'OK',
         listener: this,
         icon: Icons.done);
-
-    showNotification('Wallet Created',
-        'Your BFN wallet has been created for youu', wallet.stellarPublicKey);
   }
 }

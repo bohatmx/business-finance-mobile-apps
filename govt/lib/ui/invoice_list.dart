@@ -278,7 +278,7 @@ class InvoiceCard extends StatelessWidget {
 
   String amount;
   String _getFormattedAmt() {
-    amount = getFormattedAmount(invoice.amount, context);
+    amount = '${invoice.amount}';
     return amount;
   }
 }

@@ -162,7 +162,7 @@ class PurchaseOrderCard extends StatelessWidget {
                   new Padding(
                     padding: const EdgeInsets.only(left: 8.0),
                     child: Text(
-                      purchaseOrder.amount,
+                      '${purchaseOrder.amount}',
                       style: TextStyle(
                           fontSize: 14.0,
                           fontWeight: FontWeight.bold,

@@ -1,7 +1,5 @@
 import 'dart:math';
 
-import 'package:businesslibrary/api/data_api.dart';
-import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/api/signup.dart';
 import 'package:businesslibrary/data/delivery_acceptance.dart';
 import 'package:businesslibrary/data/delivery_note.dart';
@@ -426,8 +424,20 @@ class _SignUpPageState extends State<SignUpPage>
 
   @override
   onWalletMessage(Wallet wallet) async {
-    await SharedPrefs.saveWallet(wallet);
-    DataAPI api = DataAPI(getURL());
-    await api.addWallet(wallet);
+    prettyPrint(
+        wallet.toJson(), 'SignUpPage +++++++++++ onWalletMessage ......');
+    if (_scaffoldKey.currentState != null) {
+      AppSnackbar.showSnackbar(
+          scaffoldKey: _scaffoldKey,
+          message: 'Wallet created',
+          textColor: Colors.white,
+          backgroundColor: Colors.teal);
+    } else {
+      Navigator.push(
+        context,
+        new MaterialPageRoute(
+            builder: (context) => new Dashboard('Wallet created')),
+      );
+    }
   }
 }

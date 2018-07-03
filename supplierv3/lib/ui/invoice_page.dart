@@ -33,9 +33,10 @@ class _NewInvoicePageState extends State<NewInvoicePage>
   DeliveryAcceptance deliveryAcceptance;
   List<DeliveryAcceptance> deliveryAcceptances;
   User _user;
-  String invoiceNumber, amount;
+  String invoiceNumber;
   Invoice invoice;
   Supplier supplier;
+  double tax, totalAmount, amount;
 
   @override
   void initState() {
@@ -147,6 +148,10 @@ class _NewInvoicePageState extends State<NewInvoicePage>
         customerName: deliveryAcceptance.customerName,
         purchaseOrderNumber: deliveryAcceptance.purchaseOrderNumber,
         amount: amount,
+        valueAddedTax: tax,
+        totalAmount: totalAmount,
+        isOnOffer: false,
+        isSettled: false,
         date: new DateTime.now().toIso8601String(),
       );
 
@@ -266,7 +271,7 @@ class _NewInvoicePageState extends State<NewInvoicePage>
                     padding: const EdgeInsets.only(left: 12.0, right: 12.0),
                     child: TextFormField(
                       style: TextStyle(
-                          fontSize: 24.0,
+                          fontSize: 20.0,
                           fontWeight: FontWeight.bold,
                           color: Colors.red),
                       decoration: InputDecoration(
@@ -279,7 +284,27 @@ class _NewInvoicePageState extends State<NewInvoicePage>
                           return 'Please enter the invoice amount';
                         }
                       },
-                      onSaved: (val) => amount = val,
+                      onSaved: (val) => amount = double.parse(val),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 12.0, right: 12.0),
+                    child: TextFormField(
+                      style: TextStyle(
+                          fontSize: 20.0,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black),
+                      decoration: InputDecoration(
+                        labelText: 'Value Added Tax',
+                      ),
+                      keyboardType: TextInputType.number,
+                      maxLength: 20,
+                      validator: (value) {
+                        if (value.isEmpty) {
+                          return 'Please enter the VAT amount';
+                        }
+                      },
+                      onSaved: (val) => tax = double.parse(val),
                     ),
                   ),
                   Padding(
