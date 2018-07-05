@@ -388,7 +388,7 @@ class _SignUpPageState extends State<SignUpPage>
       switch (result) {
         case SignUp.Success:
           print('_SignUpPageState._onSavePressed SUCCESS!!!!!!');
-          await subscribeToFCM();
+          await _subscribeToFCM();
           Navigator.push(
             context,
             new MaterialPageRoute(builder: (context) => new Dashboard(null)),
@@ -413,7 +413,7 @@ class _SignUpPageState extends State<SignUpPage>
     }
   }
 
-  Future subscribeToFCM() async {
+  Future _subscribeToFCM() async {
     var govtEntity = await SharedPrefs.getGovEntity();
     var topic = 'invoices' + govtEntity.documentReference;
     _firebaseMessaging.subscribeToTopic(topic);
@@ -466,7 +466,15 @@ class _SignUpPageState extends State<SignUpPage>
 
   @override
   onInvoiceMessage(Invoice invoice) {
-    // TODO: implement onInvoiceMessage
+    prettyPrint(invoice.toJson(), 'SignUp - onInvoiceMessage: ');
+    AppSnackbar.showSnackbarWithAction(
+        scaffoldKey: _scaffoldKey,
+        message: 'Invoice arrived',
+        textColor: Colors.white,
+        backgroundColor: Colors.black,
+        actionLabel: 'OK',
+        listener: this,
+        icon: Icons.done_all);
   }
 
   @override

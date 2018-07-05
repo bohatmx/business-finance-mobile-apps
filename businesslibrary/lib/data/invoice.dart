@@ -18,6 +18,8 @@ class Invoice {
       contractDocumentRef,
       companyInvoiceSettlement,
       offer,
+      invoiceAcceptance,
+      deliveryAcceptance,
       govtInvoiceSettlement,
       supplierName;
   bool isOnOffer, isSettled;
@@ -43,6 +45,8 @@ class Invoice {
       this.description,
       this.reference,
       this.date,
+      this.invoiceAcceptance,
+      this.deliveryAcceptance,
       this.totalAmount,
       this.valueAddedTax,
       this.purchaseOrderNumber,
@@ -60,8 +64,24 @@ class Invoice {
       this.amount});
 
   Invoice.fromJson(Map data) {
-    this.totalAmount = data['totalAmount'];
-    this.valueAddedTax = data['valueAddedTax'];
+    try {
+      this.totalAmount = data['totalAmount'];
+    } catch (e) {
+      print('Invoice.fromJson -- ERROR -- totalAmt $e');
+      this.totalAmount = data['totalAmount'] * 1.00;
+    }
+    try {
+      this.valueAddedTax = data['valueAddedTax'];
+    } catch (e) {
+      print('Invoice.fromJson -- ERROR -- tax $e');
+      this.valueAddedTax = data['valueAddedTax'] * 1.00;
+    }
+    try {
+      this.amount = data['amount'];
+    } catch (e) {
+      print('Invoice.fromJson -- ERROR amouunt -- $e');
+      this.amount = data['amount'] * 1.00;
+    }
 
     this.supplier = data['supplier'];
     this.invoiceId = data['invoiceId'];
@@ -76,7 +96,7 @@ class Invoice {
     this.reference = data['reference'];
     this.date = data['date'];
     this.datePaymentRequired = data['datePaymentRequired'];
-    this.amount = data['amount'];
+
     this.documentReference = data['documentReference'];
     this.supplierDocumentRef = data['supplierDocumentRef'];
     this.supplierName = data['supplierName'];
@@ -93,6 +113,8 @@ class Invoice {
     this.govtInvoiceSettlement = data['govtInvoiceSettlement'];
     this.isSettled = data['isSettled'];
     this.investorInvoiceSettlements = data['investorInvoiceSettlements'];
+    this.invoiceAcceptance = data['invoiceAcceptance'];
+    this.deliveryAcceptance = data['deliveryAcceptance'];
   }
 
   Map<String, dynamic> toJson() {
@@ -131,6 +153,8 @@ class Invoice {
     map['govtInvoiceSettlement'] = govtInvoiceSettlement;
     map['isSettled'] = isSettled;
     map['investorInvoiceSettlements'] = investorInvoiceSettlements;
+    map['invoiceAcceptance'] = invoiceAcceptance;
+    map['deliveryAcceptance'] = deliveryAcceptance;
     return map;
   }
 }

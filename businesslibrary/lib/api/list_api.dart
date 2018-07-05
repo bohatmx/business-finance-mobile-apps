@@ -247,6 +247,30 @@ class ListAPI {
     return list;
   }
 
+  static Future<Invoice> getInvoice(
+      String poNumber, String invoiceNumber, String supplierDocumentRef) async {
+    print(
+        'ListAPI.getInvoice ............. poNumber: $poNumber invoiceNumber: $invoiceNumber ');
+    Invoice invoice;
+    var qs = await _firestore
+        .collection('suppliers')
+        .document(supplierDocumentRef)
+        .collection('invoices')
+        .where('purchaseOrderNuumber', isEqualTo: poNumber)
+        .where('invoiceNumber', isEqualTo: invoiceNumber)
+        .getDocuments()
+        .catchError((e) {
+      print('ListAPI.getInvoice $e');
+      return null;
+    });
+    print('ListAPI.getInvoice ............. fouund: ${qs.documents.length}');
+    if (qs.documents.length > 0) {
+      invoice = Invoice.fromJson(qs.documents.first.data);
+    }
+
+    return invoice;
+  }
+
   static Future<List<DeliveryNote>> getDeliveryNotes(
       String documentId, String collection) async {
     print('ListAPI.getDeliveryNotes .......  documentId: $documentId');

@@ -1,14 +1,10 @@
-import 'dart:convert';
-
 import 'package:businesslibrary/api/data_api.dart';
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/delivery_acceptance.dart';
 import 'package:businesslibrary/data/invoice.dart';
-import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
-import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/util.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -42,7 +38,6 @@ class _NewInvoicePageState extends State<NewInvoicePage>
   void initState() {
     super.initState();
     _getCachedPrefs();
-    _configMessaging();
     _getDeliveryAcceptances();
   }
 
@@ -51,75 +46,6 @@ class _NewInvoicePageState extends State<NewInvoicePage>
         supplier.documentReference, 'suppliers');
     print(
         '_NewInvoicePageState._getDeliveryAcceptances deliveryAcceptances: ${deliveryAcceptances.length}');
-  }
-
-  void _configMessaging() async {
-    supplier = await SharedPrefs.getSupplier();
-    print('Dashboard._configMessaging starting _firebaseMessaging config shit');
-    _firebaseMessaging.configure(
-      onMessage: (Map<String, dynamic> message) {
-        var messageType = message["messageType"];
-        if (messageType == "PURCHASE_ORDER") {
-          print(
-              'Dashboard._configMessaging: ############## receiving PURCHASE_ORDER message from FCM');
-          Map map = json.decode(message["json"]);
-          var po = new PurchaseOrder.fromJson(map);
-          assert(po != null);
-          prettyPrint(map, 'Dashboard._configMessaging: ');
-          _scaffoldKey.currentState.hideCurrentSnackBar();
-          AppSnackbar.showSnackbarWithAction(
-              scaffoldKey: _scaffoldKey,
-              message: 'Purchase Order received',
-              textColor: Colors.white,
-              backgroundColor: Colors.black,
-              actionLabel: 'INVOICE',
-              listener: this,
-              icon: Icons.done);
-        }
-        if (messageType == "DELIVERY_ACCEPTANCE") {
-          print(
-              'Dashboard._configMessaging: ############## receiving DELIVERY_ACCEPTANCE message from FCM');
-          Map map = json.decode(message["json"]);
-          var acceptance = new DeliveryAcceptance.fromJson(map);
-          assert(acceptance != null);
-          prettyPrint(map, 'Dashboard._configMessaging: ');
-          _scaffoldKey.currentState.hideCurrentSnackBar();
-          AppSnackbar.showSnackbarWithAction(
-              scaffoldKey: _scaffoldKey,
-              message: 'Delivery Note accepted',
-              textColor: Colors.white,
-              backgroundColor: Colors.black,
-              actionLabel: 'INVOICE',
-              listener: this,
-              icon: Icons.done);
-        }
-      },
-      onLaunch: (Map<String, dynamic> message) {},
-      onResume: (Map<String, dynamic> message) {},
-    );
-
-    _firebaseMessaging.requestNotificationPermissions(
-        const IosNotificationSettings(sound: true, badge: true, alert: true));
-
-    _firebaseMessaging.onIosSettingsRegistered
-        .listen((IosNotificationSettings settings) {
-      print("Settings registered: $settings");
-    });
-
-    _firebaseMessaging.getToken().then((String token) async {
-      assert(token != null);
-      var oldToken = await SharedPrefs.getFCMToken();
-      if (token != oldToken) {
-        await SharedPrefs.saveFCMToken(token);
-        //  TODO - update user's token on Firestore
-        print('Dashboard._configMessaging fcm token saved: $token');
-      } else {
-        print(
-            'Dashboard._configMessaging: token has not changed. no need to save');
-      }
-    }).catchError((e) {
-      print('Dashboard._configMessaging ERROR fcmToken $e');
-    });
   }
 
   _getCachedPrefs() async {
@@ -132,7 +58,7 @@ class _NewInvoicePageState extends State<NewInvoicePage>
     final form = _formKey.currentState;
     if (form.validate()) {
       form.save();
-
+      totalAmount = amount + tax;
       invoice = Invoice(
         invoiceNumber: invoiceNumber,
         user: NameSpace + 'User#' + _user.userId,

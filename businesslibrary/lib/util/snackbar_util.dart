@@ -9,6 +9,7 @@ class AppSnackbar {
       @required Color textColor,
       @required Color backgroundColor}) {
     if (scaffoldKey.currentState == null) {
+      print('AppSnackbar.showSnackbar --- currentState is NULL, quit ..');
       return;
     }
     scaffoldKey.currentState.hideCurrentSnackBar();
@@ -64,6 +65,8 @@ class AppSnackbar {
       @required SnackBarListener listener,
       @required IconData icon}) {
     if (scaffoldKey.currentState == null) {
+      print(
+          'AppSnackbar.showSnackbarWithAction --- currentState is NULL, quit ..');
       return;
     }
     scaffoldKey.currentState.hideCurrentSnackBar();
@@ -101,6 +104,7 @@ class AppSnackbar {
       @required SnackBarListener listener,
       @required String actionLabel}) {
     if (scaffoldKey.currentState == null) {
+      print('AppSnackbar.showErrorSnackbar --- currentState is NULL, quit ..');
       return;
     }
     scaffoldKey.currentState.hideCurrentSnackBar();

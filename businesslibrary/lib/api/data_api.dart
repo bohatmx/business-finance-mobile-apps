@@ -10,6 +10,7 @@ import 'package:businesslibrary/data/delivery_note.dart';
 import 'package:businesslibrary/data/govt_entity.dart';
 import 'package:businesslibrary/data/investor.dart';
 import 'package:businesslibrary/data/invoice.dart';
+import 'package:businesslibrary/data/invoice_acceptance.dart';
 import 'package:businesslibrary/data/invoice_bid.dart';
 import 'package:businesslibrary/data/invoice_settlement.dart';
 import 'package:businesslibrary/data/item.dart';
@@ -47,6 +48,7 @@ class DataAPI {
       REGISTER_DELIVERY_NOTE = 'RegisterDeliveryNote',
       REGISTER_INVOICE = 'RegisterInvoice',
       ACCEPT_DELIVERY = 'AcceptDelivery',
+      ACCEPT_INVOICE = 'AcceptInvoice',
       MAKE_INVOICE_OFFER = 'MakeInvoiceOffer',
       MAKE_INVOICE_BID = 'MakeInvoiceBid',
       MAKE_INVESTOR_SETTLEMENT = 'MakeInvestorInvoiceSettlement',
@@ -850,53 +852,7 @@ class DataAPI {
 
   Future<String> acceptDelivery(DeliveryAcceptance acceptance) async {
     acceptance.acceptanceId = getKey();
-    print('DataAPI.acceptDelivery ....... ${acceptance.toJson()}');
-    String documentId, participantId, path, supplierDocRef, supplierId;
-    if (acceptance.govtEntity != null) {
-      participantId = acceptance.govtEntity.split('#').elementAt(1);
-      path = 'govtEntities';
-    }
-    if (acceptance.company != null) {
-      participantId = acceptance.company.split('#').elementAt(1);
-      path = 'companies';
-    }
-    if (acceptance.supplier != null) {
-      supplierId = acceptance.supplier.split('#').elementAt(1);
-      var path = 'suppliers';
-      var qs = await _firestore
-          .collection(path)
-          .where('participantId', isEqualTo: supplierId)
-          .getDocuments()
-          .catchError((e) {
-        print('DataAPI.acceptDelivery ERROR $e');
-        return '0';
-      });
-      qs.documents.forEach((doc) {
-        supplierDocRef = doc.documentID;
-      });
-    }
-
-    documentId = await _getDocumentId(path, participantId);
-    var ref = await _firestore
-        .collection(path)
-        .document(documentId)
-        .collection('deliveryAcceptances')
-        .add(acceptance.toJson())
-        .catchError((e) {
-      print('DataAPI.acceptDelivery  ERROR $e');
-      return '0';
-    });
-    var ref2 = await _firestore
-        .collection('suppliers')
-        .document(supplierDocRef)
-        .collection('deliveryAcceptances')
-        .add(acceptance.toJson())
-        .catchError((e) {
-      print('DataAPI.acceptDelivery  ERROR $e');
-      return '0';
-    });
-    print('DataAPI.acceptDelivery OWNER added to Firestore: ${ref.path}');
-    print('DataAPI.acceptDelivery SUPPLIER added to Firestore: ${ref2.path}');
+    prettyPrint(acceptance.toJson(), 'DataAPI.acceptDelivery ....... ');
 
     print('DataAPI.acceptDelivery url: ${url + ACCEPT_DELIVERY}');
     prettyPrint(
@@ -913,20 +869,124 @@ class DataAPI {
       print(
           'DataAPI.acceptDelivery blockchain response status code:  ${mResponse.statusCode}');
       if (mResponse.statusCode == 200) {
+        await mirrorDeliveryAcceptance(acceptance);
         return acceptance.acceptanceId;
       } else {
         mResponse.transform(utf8.decoder).listen((contents) {
           print('DataAPI.acceptDelivery ERROR  $contents');
         });
         print('DataAPI.acceptDelivery ERROR  ${mResponse.reasonPhrase}');
-        _deleteFromFirestore(ref, ref2);
         return '0';
       }
     } catch (e) {
       print('DataAPI.acceptDelivery ERROR $e');
-      _deleteFromFirestore(ref, ref2);
       return '0';
     }
+  }
+
+  Future mirrorDeliveryAcceptance(DeliveryAcceptance acceptance) async {
+    String participantId, path;
+    if (acceptance.govtEntity != null) {
+      participantId = acceptance.govtEntity.split('#').elementAt(1);
+      path = 'govtEntities';
+    }
+    if (acceptance.company != null) {
+      participantId = acceptance.company.split('#').elementAt(1);
+      path = 'companies';
+    }
+    String documentId = await _getDocumentId(path, participantId);
+    var ref = await _firestore
+        .collection(path)
+        .document(documentId)
+        .collection('deliveryAcceptances')
+        .add(acceptance.toJson())
+        .catchError((e) {
+      print('DataAPI.mirrorDeliveryAcceptance  ERROR $e');
+      return '0';
+    });
+    var ref2 = await _firestore
+        .collection('suppliers')
+        .document(acceptance.supplierDocumentRef)
+        .collection('deliveryAcceptances')
+        .add(acceptance.toJson())
+        .catchError((e) {
+      print('DataAPI.mirrorDeliveryAcceptance  ERROR $e');
+      return '0';
+    });
+    print(
+        'DataAPI.mirrorDeliveryAcceptance OWNER added to Firestore: ${ref.path}');
+    print(
+        'DataAPI.mirrorDeliveryAcceptance SUPPLIER added to Firestore: ${ref2.path}');
+  }
+
+  Future<String> acceptInvoice(InvoiceAcceptance acceptance) async {
+    acceptance.acceptanceId = getKey();
+    prettyPrint(acceptance.toJson(), 'DataAPI.acceptInvoice ....... ');
+
+    print('DataAPI.acceptInvoice url: ${url + ACCEPT_INVOICE}');
+    prettyPrint(
+        acceptance.toJson(), 'DataAPI.acceptInvoice ... calling BFN ...');
+    try {
+      Map map = acceptance.toJson();
+      var mjson = json.encode(map);
+      var httpClient = new HttpClient();
+      HttpClientRequest mRequest =
+          await httpClient.postUrl(Uri.parse(url + ACCEPT_INVOICE));
+      mRequest.headers.contentType = _contentType;
+      mRequest.write(mjson);
+      HttpClientResponse mResponse = await mRequest.close();
+      print(
+          'DataAPI.acceptInvoice blockchain response status code:  ${mResponse.statusCode}');
+      if (mResponse.statusCode == 200) {
+        await _mirrorInvoiceAcceptance(acceptance);
+        return acceptance.acceptanceId;
+      } else {
+        mResponse.transform(utf8.decoder).listen((contents) {
+          print('DataAPI.acceptInvoice ERROR  $contents');
+        });
+        print('DataAPI.acceptInvoice ERROR  ${mResponse.reasonPhrase}');
+        return '0';
+      }
+    } catch (e) {
+      print('DataAPI.acceptInvoice ERROR $e');
+      return '0';
+    }
+  }
+
+  Future _mirrorInvoiceAcceptance(InvoiceAcceptance acceptance) async {
+    String documentId, participantId, path;
+    if (acceptance.govtEntity != null) {
+      participantId = acceptance.govtEntity.split('#').elementAt(1);
+      path = 'govtEntities';
+    }
+    if (acceptance.company != null) {
+      participantId = acceptance.company.split('#').elementAt(1);
+      path = 'companies';
+    }
+    documentId = await _getDocumentId(path, participantId);
+
+    var ref = await _firestore
+        .collection('suppliers')
+        .document(acceptance.supplierDocumentRef)
+        .collection('invoiceAcceptances')
+        .add(acceptance.toJson())
+        .catchError((e) {
+      print('DataAPI._mirrorInvoiceAcceptance  ERROR $e');
+      return '0';
+    });
+    var ref2 = await _firestore
+        .collection(path)
+        .document(documentId)
+        .collection('invoiceAcceptances')
+        .add(acceptance.toJson())
+        .catchError((e) {
+      print('DataAPI._mirrorInvoiceAcceptance  ERROR $e');
+      return '0';
+    });
+    print(
+        'DataAPI._mirrorInvoiceAcceptance OWNER added to Firestore: ${ref2.path}');
+    print(
+        'DataAPI._mirrorInvoiceAcceptance SUPPLIER added to Firestore: ${ref.path}');
   }
 
   Future<String> makeOffer(Offer offer) async {
@@ -1239,7 +1299,7 @@ class DataAPI {
   static String getKey() {
     var uuid = new Uuid();
     String key = uuid.v1();
-    print('DataAPI.getKey key generated: $key');
+    print('DataAPI.getKey !!!!!!!!!!! - key generated: $key');
     return key;
   }
 }

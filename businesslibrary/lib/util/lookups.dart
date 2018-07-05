@@ -354,10 +354,11 @@ configureMessaging(FCMListener listener) async {
       }
       if (messageType == "PURCHASE_ORDER") {
         print(
-            'configureMessaging: ############## receiving PURCHASE_ORDER message from FCM');
+            'configureMessaging: ############## receiving PURCHASE_ORDER message from FCM ....');
         Map map = json.decode(message["json"]);
         var po = new PurchaseOrder.fromJson(map);
         assert(po != null);
+        print('configureMessaging .... about to tell listener about po');
         listener.onPurchaseOrderMessage(po);
       }
       if (messageType == "DELIVERY_NOTE") {
@@ -374,16 +375,26 @@ configureMessaging(FCMListener listener) async {
         Map map = json.decode(message["json"]);
         var m = new DeliveryAcceptance.fromJson(map);
         assert(m != null);
+        print('configureMessaging #### about to send acceptance via listener');
         listener.onDeliveryAcceptance(m);
       }
+      //
       if (messageType == "INVOICE") {
         print(
-            'configureMessaging: ############## receiving INVOICE message from FCM');
-        Map map = json.decode(message["json"]);
-        var m = new Invoice.fromJson(map);
-        assert(m != null);
-        listener.onInvoiceMessage(m);
+            'configureMessaging: \n\n############## receiving INVOICE from FCM,*** WTF!! and we just stop here???');
+        try {
+          Map map = json.decode(message["json"]);
+          var m = new Invoice.fromJson(map);
+          //assert(m != null);
+          print(
+              'configureMessaging -- about to tell listener about invoice ...');
+          prettyPrint(map, 'received: ++++++++++++++++++++++++=');
+          listener.onInvoiceMessage(m);
+        } catch (e) {
+          print('configureMessaging ERROR $e');
+        }
       }
+      //
       if (messageType == "INVOICE_OFFER") {
         print(
             'configureMessaging: ############## receiving INVOICE_OFFER message from FCM');
@@ -425,8 +436,14 @@ configureMessaging(FCMListener listener) async {
         listener.onCompanySettlement(m);
       }
     },
-    onLaunch: (Map<String, dynamic> message) {},
-    onResume: (Map<String, dynamic> message) {},
+    onLaunch: (Map<String, dynamic> message) {
+      print('configureMessaging onLaunch *********** ');
+      prettyPrint(message, 'message delivered on LAUNCH!');
+    },
+    onResume: (Map<String, dynamic> message) {
+      print('configureMessaging onResume *********** ');
+      prettyPrint(message, 'message delivered on RESUME!');
+    },
   );
 
   _firebaseMessaging.requestNotificationPermissions(

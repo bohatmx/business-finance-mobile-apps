@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:businesslibrary/api/firestore_list_api.dart';
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
@@ -14,6 +16,7 @@ import 'package:businesslibrary/data/wallet.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/wallet_page.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:govt/ui/delivery_note_list.dart';
 import 'package:govt/ui/invoice_list.dart';
@@ -38,6 +41,7 @@ class _DashboardState extends State<Dashboard>
       DeliveryNotes = 4,
       DeliveryAcceptances = 5;
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  FirebaseMessaging _firebaseMessaging = new FirebaseMessaging();
   AnimationController animationController;
   Animation<double> animation;
   GovtEntity govtEntity;
@@ -58,8 +62,30 @@ class _DashboardState extends State<Dashboard>
       vsync: this,
     );
     animation = new Tween(begin: 0.0, end: 1.0).animate(animationController);
-    _getCachedPrefs();
-    configureMessaging(this);
+
+    _messaging();
+  }
+
+  void _messaging() async {
+    await _getCachedPrefs();
+    await configureMessaging(this);
+    _subscribeToFCM();
+  }
+
+  Future _subscribeToFCM() async {
+    var govtEntity = await SharedPrefs.getGovEntity();
+    var topic = 'invoices' + govtEntity.documentReference;
+    _firebaseMessaging.subscribeToTopic(topic);
+    var topic2 = 'general';
+    _firebaseMessaging.subscribeToTopic(topic2);
+    var topic3 = 'settlements' + govtEntity.documentReference;
+    _firebaseMessaging.subscribeToTopic(topic3);
+    var topic4 = 'deliveryNotes' + govtEntity.documentReference;
+    _firebaseMessaging.subscribeToTopic(topic4);
+
+    print(
+        '_StartPageState._configMessaging ... ############# subscribed to FCM topics '
+        '\n $topic \n $topic2 \n $topic3 \n $topic4');
   }
 
   @override
@@ -396,9 +422,11 @@ class _DashboardState extends State<Dashboard>
 
   @override
   onInvoiceMessage(Invoice invoice) {
-    prettyPrint(invoice.toJson(), 'FCM message received Invoice: ');
+    prettyPrint(
+        invoice.toJson(), 'Dashbboard: ------ FCM message received Invoice: ');
     setState(() {
       invoices.insert(0, invoice);
+      totalInvoices = invoices.length;
     });
     messageReceived = Invoices;
     AppSnackbar.showSnackbarWithAction(

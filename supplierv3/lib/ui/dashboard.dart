@@ -68,7 +68,6 @@ class _DashboardState extends State<Dashboard>
   }
 
   void _configMessaging() async {
-    supplier = await SharedPrefs.getSupplier();
     configureMessaging(this);
   }
 
@@ -388,14 +387,20 @@ class _DashboardState extends State<Dashboard>
 
   @override
   onDeliveryAcceptance(DeliveryAcceptance deliveryAcceptance) {
-    AppSnackbar.showSnackbarWithAction(
-        scaffoldKey: _scaffoldKey,
-        message: 'Delivery Note accepted by customer',
-        textColor: Colors.white,
-        backgroundColor: Colors.black,
-        actionLabel: 'INVOICE',
-        listener: this,
-        icon: Icons.done);
+    prettyPrint(deliveryAcceptance.toJson(), 'Dashboard onDeliveryAcceptance:');
+
+    if (_scaffoldKey.currentState != null) {
+      AppSnackbar.showSnackbarWithAction(
+          scaffoldKey: _scaffoldKey,
+          message: 'Delivery Note accepted by customer',
+          textColor: Colors.white,
+          backgroundColor: Colors.black,
+          actionLabel: 'INVOICE',
+          listener: this,
+          icon: Icons.done);
+    } else {
+      print('_DashboardState.onDeliveryAcceptance currentState is NULL');
+    }
   }
 
   @override
@@ -445,6 +450,8 @@ class _DashboardState extends State<Dashboard>
 
   @override
   onPurchaseOrderMessage(PurchaseOrder purchaseOrder) {
+    print('_DashboardState.onPurchaseOrderMessage');
+    prettyPrint(purchaseOrder.toJson(), "received from fcm in dashboard");
     AppSnackbar.showSnackbarWithAction(
         scaffoldKey: _scaffoldKey,
         message: 'Purchase Order received',

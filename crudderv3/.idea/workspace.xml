@@ -2,39 +2,24 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="ee13a624-2909-4df1-b542-b77eab000913" name="Default" comment="tweaked generators IV">
-      <change afterPath="$PROJECT_DIR$/../businesslibrary/lib/util/wallet_page.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../businesslibrary/.flutter-plugins" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/.flutter-plugins" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../businesslibrary/.idea/libraries/Dart_Packages.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/.idea/libraries/Dart_Packages.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../businesslibrary/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/api/data_api.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/api/data_api.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/api/list_api.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/api/list_api.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/api/shared_prefs.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/api/shared_prefs.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/api/signup.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/api/signup.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/stellar/Balance.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/stellar/Balance.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/util/comms.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/util/comms.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/data/invoice.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/data/invoice.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/util/lookups.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/util/lookups.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../businesslibrary/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/pubspec.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/util/snackbar_util.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/util/snackbar_util.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/generator.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/generator.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../govt/android/app/src/main/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../govt/android/app/src/main/AndroidManifest.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../govt/lib/ui/dashboard.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../govt/lib/ui/dashboard.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/lib/ui/invoice_list.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../govt/lib/ui/invoice_list.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/lib/ui/invoice_settlement.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../govt/lib/ui/invoice_settlement.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/lib/ui/purchase_order_list.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../govt/lib/ui/purchase_order_list.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/lib/ui/purchase_order_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../govt/lib/ui/purchase_order_page.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../govt/lib/ui/signup_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../govt/lib/ui/signup_page.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../investor/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../investor/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../investor/lib/ui/dashboard.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../investor/lib/ui/dashboard.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../investor/lib/ui/signup_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../investor/lib/ui/signup_page.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../supplierv3/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../supplierv3/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/lib/main.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../supplierv3/lib/ui/dashboard.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/lib/ui/dashboard.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../supplierv3/lib/ui/delivery_note_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/lib/ui/delivery_note_page.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../supplierv3/lib/ui/delivery_acceptance_list.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/lib/ui/delivery_acceptance_list.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../supplierv3/lib/ui/delivery_note_list.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/lib/ui/delivery_note_list.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../supplierv3/lib/ui/invoice_list.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/lib/ui/invoice_list.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../supplierv3/lib/ui/invoice_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/lib/ui/invoice_page.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../supplierv3/lib/ui/make_offer.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/lib/ui/make_offer.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../supplierv3/lib/ui/purchase_order_list.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/lib/ui/purchase_order_list.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../supplierv3/lib/ui/signin_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/lib/ui/signin_page.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../supplierv3/lib/ui/signup_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/lib/ui/signup_page.dart" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <ignored path="../.gradle/4.4/fileChanges/last-build.bin" />
@@ -298,16 +283,10 @@
         <entry file="file://$PROJECT_DIR$/lib/generator.dart">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="461">
-              <caret line="551" column="37" lean-forward="true" selection-start-line="551" selection-start-column="37" selection-end-line="551" selection-end-column="37" />
+              <caret line="551" column="37" selection-start-line="551" selection-start-column="37" selection-end-line="551" selection-end-column="37" />
               <folding>
                 <element signature="e#0#20#0" expanded="true" />
                 <element signature="e#1561#1893#0" expanded="true" />
-                <element signature="e#1961#2464#0" expanded="true" />
-                <element signature="e#5382#6369#0" expanded="true" />
-                <element signature="e#6475#10383#0" expanded="true" />
-                <element signature="e#11659#12958#0" expanded="true" />
-                <element signature="e#13084#14212#0" expanded="true" />
-                <element signature="e#33316#34467#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -316,7 +295,7 @@
       <file leaf-file-name="arena.dart" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/../../../flutter/packages/flutter/lib/src/gestures/arena.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="89">
+            <state relative-caret-position="1200">
               <caret line="155" column="26" selection-start-line="155" selection-start-column="26" selection-end-line="155" selection-end-column="26" />
             </state>
           </provider>
@@ -325,7 +304,7 @@
       <file leaf-file-name="signup.dart" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/../businesslibrary/lib/api/signup.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="752">
+            <state relative-caret-position="768">
               <caret line="94" column="21" selection-start-line="94" selection-start-column="21" selection-end-line="94" selection-end-column="21" />
             </state>
           </provider>
@@ -391,7 +370,7 @@
   </component>
   <component name="ProjectFrameBounds">
     <option name="x" value="1724" />
-    <option name="y" value="52" />
+    <option name="y" value="51" />
     <option name="width" value="1524" />
     <option name="height" value="980" />
   </component>
@@ -403,8 +382,8 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="PackagesPane" />
+      <pane id="Scope" />
       <pane id="AndroidView" />
       <pane id="ProjectPane">
         <subPane>
@@ -549,7 +528,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="1724" y="52" width="1524" height="980" extended-state="0" />
+    <frame x="1724" y="51" width="1524" height="980" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info anchor="right" id="Palette" order="3" />
@@ -562,7 +541,7 @@
       <window_info anchor="bottom" id="Logcat" order="7" />
       <window_info id="Capture Tool" order="2" />
       <window_info id="Designer" order="2" />
-      <window_info active="true" id="Structure" order="1" sideWeight="0.5160142" side_tool="true" visible="true" weight="0.19500674" />
+      <window_info active="true" id="Structure" order="1" sideWeight="0.51693404" side_tool="true" visible="true" weight="0.19500674" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info id="UI Designer" order="2" />
       <window_info anchor="right" id="Device File Explorer" order="10" side_tool="true" weight="0.32976323" />
@@ -571,11 +550,11 @@
       <window_info anchor="right" id="Palette&#9;" order="6" />
       <window_info id="Image Layers" order="2" />
       <window_info anchor="right" id="Capture Analysis" order="7" />
-      <window_info anchor="bottom" id="Run" order="2" visible="true" weight="0.38618347" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.38618347" />
       <window_info anchor="bottom" id="Version Control" order="7" weight="0.3296582" />
       <window_info anchor="bottom" id="Terminal" order="7" weight="0.3295583" />
       <window_info id="Captures" order="2" />
-      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.48398575" visible="true" weight="0.18353577" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.48306596" visible="true" weight="0.182861" />
       <window_info anchor="right" id="Theme Preview" order="8" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="right" id="Flutter Inspector" order="9" />
@@ -646,12 +625,6 @@
           <folding>
             <element signature="e#0#20#0" expanded="true" />
             <element signature="e#1561#1893#0" expanded="true" />
-            <element signature="e#1961#2464#0" expanded="true" />
-            <element signature="e#5382#6369#0" expanded="true" />
-            <element signature="e#6475#10383#0" expanded="true" />
-            <element signature="e#11659#12958#0" expanded="true" />
-            <element signature="e#13084#14212#0" expanded="true" />
-            <element signature="e#33316#34467#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -670,12 +643,6 @@
           <folding>
             <element signature="e#0#20#0" expanded="true" />
             <element signature="e#1561#1893#0" expanded="true" />
-            <element signature="e#1961#2464#0" expanded="true" />
-            <element signature="e#5382#6369#0" expanded="true" />
-            <element signature="e#6475#10383#0" expanded="true" />
-            <element signature="e#11659#12958#0" expanded="true" />
-            <element signature="e#13084#14212#0" expanded="true" />
-            <element signature="e#33316#34467#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -701,12 +668,6 @@
           <folding>
             <element signature="e#0#20#0" expanded="true" />
             <element signature="e#1561#1893#0" expanded="true" />
-            <element signature="e#1961#2464#0" expanded="true" />
-            <element signature="e#5382#6369#0" expanded="true" />
-            <element signature="e#6475#10383#0" expanded="true" />
-            <element signature="e#11659#12958#0" expanded="true" />
-            <element signature="e#13084#14212#0" expanded="true" />
-            <element signature="e#33316#34467#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -739,12 +700,6 @@
           <folding>
             <element signature="e#0#20#0" expanded="true" />
             <element signature="e#1561#1893#0" expanded="true" />
-            <element signature="e#1961#2464#0" expanded="true" />
-            <element signature="e#5382#6369#0" expanded="true" />
-            <element signature="e#6475#10383#0" expanded="true" />
-            <element signature="e#11659#12958#0" expanded="true" />
-            <element signature="e#13084#14212#0" expanded="true" />
-            <element signature="e#33316#34467#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -770,12 +725,6 @@
           <folding>
             <element signature="e#0#20#0" expanded="true" />
             <element signature="e#1561#1893#0" expanded="true" />
-            <element signature="e#1961#2464#0" expanded="true" />
-            <element signature="e#5382#6369#0" expanded="true" />
-            <element signature="e#6475#10383#0" expanded="true" />
-            <element signature="e#11659#12958#0" expanded="true" />
-            <element signature="e#13084#14212#0" expanded="true" />
-            <element signature="e#33316#34467#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -801,12 +750,6 @@
           <folding>
             <element signature="e#0#20#0" expanded="true" />
             <element signature="e#1561#1893#0" expanded="true" />
-            <element signature="e#1961#2464#0" expanded="true" />
-            <element signature="e#5382#6369#0" expanded="true" />
-            <element signature="e#6475#10383#0" expanded="true" />
-            <element signature="e#11659#12958#0" expanded="true" />
-            <element signature="e#13084#14212#0" expanded="true" />
-            <element signature="e#33316#34467#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -832,12 +775,6 @@
           <folding>
             <element signature="e#0#20#0" expanded="true" />
             <element signature="e#1561#1893#0" expanded="true" />
-            <element signature="e#1961#2464#0" expanded="true" />
-            <element signature="e#5382#6369#0" expanded="true" />
-            <element signature="e#6475#10383#0" expanded="true" />
-            <element signature="e#11659#12958#0" expanded="true" />
-            <element signature="e#13084#14212#0" expanded="true" />
-            <element signature="e#33316#34467#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -856,12 +793,6 @@
           <folding>
             <element signature="e#0#20#0" expanded="true" />
             <element signature="e#1561#1893#0" expanded="true" />
-            <element signature="e#1961#2464#0" expanded="true" />
-            <element signature="e#5382#6369#0" expanded="true" />
-            <element signature="e#6475#10383#0" expanded="true" />
-            <element signature="e#11659#12958#0" expanded="true" />
-            <element signature="e#13084#14212#0" expanded="true" />
-            <element signature="e#33316#34467#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -901,12 +832,6 @@
           <folding>
             <element signature="e#0#20#0" expanded="true" />
             <element signature="e#1561#1893#0" expanded="true" />
-            <element signature="e#1961#2464#0" expanded="true" />
-            <element signature="e#5382#6369#0" expanded="true" />
-            <element signature="e#6475#10383#0" expanded="true" />
-            <element signature="e#11659#12958#0" expanded="true" />
-            <element signature="e#13084#14212#0" expanded="true" />
-            <element signature="e#33316#34467#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -967,12 +892,6 @@
           <folding>
             <element signature="e#0#20#0" expanded="true" />
             <element signature="e#1561#1893#0" expanded="true" />
-            <element signature="e#1961#2464#0" expanded="true" />
-            <element signature="e#5382#6369#0" expanded="true" />
-            <element signature="e#6475#10383#0" expanded="true" />
-            <element signature="e#11659#12958#0" expanded="true" />
-            <element signature="e#13084#14212#0" expanded="true" />
-            <element signature="e#33316#34467#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -1068,7 +987,7 @@
     <entry file="file://$PROJECT_DIR$/lib/util.dart" />
     <entry file="file://$PROJECT_DIR$/../businesslibrary/lib/api/signup.dart">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="752">
+        <state relative-caret-position="768">
           <caret line="94" column="21" selection-start-line="94" selection-start-column="21" selection-end-line="94" selection-end-column="21" />
         </state>
       </provider>
@@ -1082,7 +1001,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/../../../flutter/packages/flutter/lib/src/gestures/arena.dart">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="89">
+        <state relative-caret-position="1200">
           <caret line="155" column="26" selection-start-line="155" selection-start-column="26" selection-end-line="155" selection-end-column="26" />
         </state>
       </provider>
@@ -1090,16 +1009,10 @@
     <entry file="file://$PROJECT_DIR$/lib/generator.dart">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="461">
-          <caret line="551" column="37" lean-forward="true" selection-start-line="551" selection-start-column="37" selection-end-line="551" selection-end-column="37" />
+          <caret line="551" column="37" selection-start-line="551" selection-start-column="37" selection-end-line="551" selection-end-column="37" />
           <folding>
             <element signature="e#0#20#0" expanded="true" />
             <element signature="e#1561#1893#0" expanded="true" />
-            <element signature="e#1961#2464#0" expanded="true" />
-            <element signature="e#5382#6369#0" expanded="true" />
-            <element signature="e#6475#10383#0" expanded="true" />
-            <element signature="e#11659#12958#0" expanded="true" />
-            <element signature="e#13084#14212#0" expanded="true" />
-            <element signature="e#33316#34467#0" expanded="true" />
           </folding>
         </state>
       </provider>
