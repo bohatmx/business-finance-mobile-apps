@@ -64,6 +64,11 @@ class _DashboardState extends State<Dashboard>
     animation = new Tween(begin: 0.0, end: 1.0).animate(animationController);
 
     _messaging();
+    _getCache();
+  }
+
+  _getCache() async {
+    govtEntity = await SharedPrefs.getGovEntity();
   }
 
   void _messaging() async {
@@ -73,7 +78,7 @@ class _DashboardState extends State<Dashboard>
   }
 
   Future _subscribeToFCM() async {
-    var govtEntity = await SharedPrefs.getGovEntity();
+    govtEntity = await SharedPrefs.getGovEntity();
     var topic = 'invoices' + govtEntity.documentReference;
     _firebaseMessaging.subscribeToTopic(topic);
     var topic2 = 'general';
@@ -337,7 +342,11 @@ class _DashboardState extends State<Dashboard>
     print('_MainPageState._goToWalletPage .... ');
     Navigator.push(
       context,
-      new MaterialPageRoute(builder: (context) => new WalletPage()),
+      new MaterialPageRoute(
+          builder: (context) => new WalletPage(
+              name: govtEntity.name,
+              participantId: govtEntity.participantId,
+              type: GovtEntityType)),
     );
   }
 

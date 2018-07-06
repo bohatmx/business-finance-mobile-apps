@@ -62,6 +62,7 @@ class _WalletPageState extends State<WalletPage> implements SnackBarListener {
             preferredSize: Size.fromHeight(120.0)),
       ),
       body: _getBody(),
+      backgroundColor: Colors.brown.shade50,
       floatingActionButton: FloatingActionButton(
         onPressed: _getAccount,
         elevation: 16.0,

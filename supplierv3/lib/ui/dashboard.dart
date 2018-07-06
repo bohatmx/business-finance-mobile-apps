@@ -315,7 +315,11 @@ class _DashboardState extends State<Dashboard>
     print('_MainPageState._goToWalletPage .... ');
     Navigator.push(
       context,
-      new MaterialPageRoute(builder: (context) => new WalletPage()),
+      new MaterialPageRoute(
+          builder: (context) => new WalletPage(
+              name: supplier.name,
+              participantId: supplier.participantId,
+              type: SupplierType)),
     );
   }
 
