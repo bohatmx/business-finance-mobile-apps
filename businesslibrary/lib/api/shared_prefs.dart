@@ -310,6 +310,14 @@ class SharedPrefs {
     return null;
   }
 
+  static Future removeWallet() async {
+    print("SharedPrefs - removing wallet data .........");
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString("wallet", null);
+    print("SharedPrefs - wallet removed from local prefs....... ");
+    return null;
+  }
+
   static void saveThemeIndex(int index) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setInt("themeIndex", index);

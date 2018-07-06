@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/api/signup.dart';
 import 'package:businesslibrary/data/delivery_acceptance.dart';
 import 'package:businesslibrary/data/delivery_note.dart';
@@ -287,68 +288,80 @@ class _SignUpPageState extends State<SignUpPage>
       );
       SignUp signUp = SignUp(getURL());
       var result = await signUp.signUpSupplier(supplier, admin);
+      checkResult(result, supplier);
+    }
+  }
 
-      switch (result) {
-        case SignUp.Success:
-          print('_SignUpPageState._onSavePressed SUCCESS!!!!!!');
+  void checkResult(int result, Supplier supplier) async {
+    switch (result) {
+      case SignUp.Success:
+        print('_SignUpPageState.checkResult SUCCESS!!!!!!');
+        var wallet = await SharedPrefs.getWallet();
+        if (wallet != null) {
           AppSnackbar.showSnackbarWithAction(
               listener: this,
               scaffoldKey: _scaffoldKey,
-              message: 'Supplier Sign Up successful',
+              message: 'Sign Up and Wallet OK',
               textColor: Colors.white,
               backgroundColor: Colors.teal,
               actionLabel: 'Start',
-              icon: Icons.lock_open);
+              icon: Icons.done_all);
 
           subscribe(supplier);
-          Navigator.push(
-            context,
-            new MaterialPageRoute(builder: (context) => new Dashboard(null)),
-          );
+        } else {
+          exit();
+        }
 
-          break;
-        case SignUp.ErrorBlockchain:
-          print('_SignUpPageState._onSavePressed  ErrorBlockchain');
-          AppSnackbar.showErrorSnackbar(
-              listener: this,
-              scaffoldKey: _scaffoldKey,
-              message: 'Blockchain failed to process Sign Up',
-              actionLabel: "Support");
-          break;
-        case SignUp.ErrorMissingOrInvalidData:
-          print('_SignUpPageState._onSavePressed  ErrorMissingOrInvalidData');
-          AppSnackbar.showErrorSnackbar(
-              listener: this,
-              scaffoldKey: _scaffoldKey,
-              message: 'Missing or Invalid data in the form',
-              actionLabel: "Support");
-          break;
-        case SignUp.ErrorFirebaseUserExists:
-          print('_SignUpPageState._onSavePressed  ErrorFirebaseUserExists');
-          AppSnackbar.showErrorSnackbar(
-              listener: this,
-              scaffoldKey: _scaffoldKey,
-              message: 'This user already  exists',
-              actionLabel: "Close");
-          break;
-        case SignUp.ErrorFireStore:
-          print('_SignUpPageState._onSavePressed  ErrorFireStore');
-          AppSnackbar.showErrorSnackbar(
-              listener: this,
-              scaffoldKey: _scaffoldKey,
-              message: 'Database Error',
-              actionLabel: "Support");
-          break;
-        case SignUp.ErrorCreatingFirebaseUser:
-          print('_SignUpPageState._onSavePressed  ErrorCreatingFirebaseUser');
-          AppSnackbar.showErrorSnackbar(
-              listener: this,
-              scaffoldKey: _scaffoldKey,
-              message: 'Database Error',
-              actionLabel: "Support");
-          break;
-      }
+        break;
+      case SignUp.ErrorBlockchain:
+        print('_SignUpPageState._onSavePressed  ErrorBlockchain');
+        AppSnackbar.showErrorSnackbar(
+            listener: this,
+            scaffoldKey: _scaffoldKey,
+            message: 'Blockchain failed to process Sign Up',
+            actionLabel: "Support");
+        break;
+      case SignUp.ErrorMissingOrInvalidData:
+        print('_SignUpPageState._onSavePressed  ErrorMissingOrInvalidData');
+        AppSnackbar.showErrorSnackbar(
+            listener: this,
+            scaffoldKey: _scaffoldKey,
+            message: 'Missing or Invalid data in the form',
+            actionLabel: "Support");
+        break;
+      case SignUp.ErrorFirebaseUserExists:
+        print('_SignUpPageState._onSavePressed  ErrorFirebaseUserExists');
+        AppSnackbar.showErrorSnackbar(
+            listener: this,
+            scaffoldKey: _scaffoldKey,
+            message: 'This user already  exists',
+            actionLabel: "Close");
+        break;
+      case SignUp.ErrorFireStore:
+        print('_SignUpPageState._onSavePressed  ErrorFireStore');
+        AppSnackbar.showErrorSnackbar(
+            listener: this,
+            scaffoldKey: _scaffoldKey,
+            message: 'Database Error',
+            actionLabel: "Support");
+        break;
+      case SignUp.ErrorCreatingFirebaseUser:
+        print('_SignUpPageState._onSavePressed  ErrorCreatingFirebaseUser');
+        AppSnackbar.showErrorSnackbar(
+            listener: this,
+            scaffoldKey: _scaffoldKey,
+            message: 'Database Error',
+            actionLabel: "Support");
+        break;
     }
+  }
+
+  void exit() {
+    Navigator.pop(context);
+    Navigator.push(
+      context,
+      new MaterialPageRoute(builder: (context) => new Dashboard(null)),
+    );
   }
 
   void subscribe(Supplier supplier) {
@@ -369,7 +382,7 @@ class _SignUpPageState extends State<SignUpPage>
 
   @override
   onActionPressed(int action) {
-    print('_SignUpPageState.onActionPressed .............. yay!');
+    exit();
   }
 
   @override

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/wallet.dart';
 import 'package:businesslibrary/stellar/Account.dart';
@@ -8,24 +10,35 @@ import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:flutter/material.dart';
 
 class WalletPage extends StatefulWidget {
+  final String name, participantId;
+  final int type;
+
+  WalletPage(
+      {@required this.name, @required this.participantId, @required this.type});
+
   @override
   _WalletPageState createState() => _WalletPageState();
 }
 
-class _WalletPageState extends State<WalletPage> {
+class _WalletPageState extends State<WalletPage> implements SnackBarListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
-
+  String name, participantId;
+  int type;
   Wallet wallet;
   Account account;
 
   @override
   void initState() {
     super.initState();
-    _getCached();
+    _checkWallet();
   }
 
   @override
   Widget build(BuildContext context) {
+    name = widget.name;
+    participantId = widget.participantId;
+    type = widget.type;
+
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
@@ -60,7 +73,7 @@ class _WalletPageState extends State<WalletPage> {
     );
   }
 
-  void _getAccount() async {
+  Future _getAccount() async {
     print('_WalletPageState._getAccount .......... ${wallet.stellarPublicKey}');
 
     AppSnackbar.showSnackbarWithProgressIndicator(
@@ -72,13 +85,55 @@ class _WalletPageState extends State<WalletPage> {
     account = await StellarCommsUtil.getAccount(wallet.stellarPublicKey);
     _scaffoldKey.currentState.hideCurrentSnackBar();
     setState(() {});
+    return account;
   }
 
-  void _getCached() async {
+  void _checkWallet() async {
     wallet = await SharedPrefs.getWallet();
-    account = await SharedPrefs.getAccount();
-    //get latest balances
-    _getAccount();
+
+    if (wallet == null) {
+      _showDialog();
+    } else {
+      account = await SharedPrefs.getAccount();
+      //get latest balances
+      await _getAccount();
+      setState(() {});
+    }
+  }
+
+  Future _createWallet() async {
+    var result = await createWallet(
+        name: name, participantId: participantId, type: type);
+    if (result == '0') {
+      AppSnackbar.showErrorSnackbar(
+          scaffoldKey: _scaffoldKey,
+          message: 'Wallet failed',
+          listener: this,
+          actionLabel: 'CLOSE');
+    } else {
+      wallet = await SharedPrefs.getWallet();
+      if (wallet != null) {
+        AppSnackbar.showSnackbar(
+            scaffoldKey: _scaffoldKey,
+            message: 'Wallet created OK',
+            textColor: Colors.white,
+            backgroundColor: Colors.teal.shade800);
+        setState(() {});
+      } else {
+        AppSnackbar.showErrorSnackbar(
+            scaffoldKey: _scaffoldKey,
+            message: 'Wallet failed',
+            listener: this,
+            actionLabel: 'CLOSE');
+      }
+    }
+  }
+
+  @override
+  onActionPressed(int action) {
+    if (_scaffoldKey.currentState != null) {
+      _scaffoldKey.currentState.hideCurrentSnackBar();
+    }
   }
 
   Widget _getBody() {
@@ -150,6 +205,58 @@ class _WalletPageState extends State<WalletPage> {
       return '';
     }
     return getFormattedDate(wallet.dateRegistered);
+  }
+
+  void _showDialog() {
+    print('_WalletPageState._showDialog --- ');
+    showDialog(
+        context: context,
+        builder: (_) => new AlertDialog(
+              title: new Text(
+                "Create Wallet",
+                style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).primaryColor),
+              ),
+              content: Container(
+                height: 120.0,
+                child: Column(
+                  children: <Widget>[
+                    Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Text(
+                          'Do you want to create a new BFN Wallet?\nYou need te wallet to move value across the network'),
+                    ),
+                  ],
+                ),
+              ),
+              actions: <Widget>[
+                FlatButton(
+                  child: Text(
+                    'NO',
+                    style: TextStyle(color: Colors.grey),
+                  ),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 20.0),
+                  child: RaisedButton(
+                    onPressed: _createWallet,
+                    elevation: 4.0,
+                    color: Colors.teal.shade400,
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        'Create Wallet',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ));
   }
 }
 

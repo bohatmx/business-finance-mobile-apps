@@ -11,7 +11,6 @@ import 'package:businesslibrary/data/oneconnect.dart';
 import 'package:businesslibrary/data/procurement_office.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
-import 'package:businesslibrary/data/wallet.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/util.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -42,7 +41,9 @@ class SignUp {
       ErrorFireStore = 2,
       ErrorBlockchain = 3;
 
-  String publicKey, privateKey;
+  static String publicKey =
+          'GDN4SBSKZI4EUYIOXK5HCFHCZGZYEZTGEUX26V6MVI2BINMDUGR6E5EZ',
+      privateKey = 'SCVBNGSMPV3KESG23ZQTSVFKTSP6YIJE7ONBBGSS6SH6IQ7XKSUOVOIO';
   RemoteConfig remoteConfig;
   Future<Null> _setupRemoteConfig() async {
     if (privateKey != null) {
@@ -66,10 +67,6 @@ class SignUp {
     } catch (e) {
       print('SignUp._setupRemoteConfig\n\n --------------- ERROR $e \n\n');
       //throw Exception('Remote Config failed');
-      if (isInDebugMode) {
-        privateKey = 'SCVBNGSMPV3KESG23ZQTSVFKTSP6YIJE7ONBBGSS6SH6IQ7XKSUOVOIO';
-        publicKey = 'GDN4SBSKZI4EUYIOXK5HCFHCZGZYEZTGEUX26V6MVI2BINMDUGR6E5EZ';
-      }
     }
   }
 
@@ -97,14 +94,18 @@ class SignUp {
     }
 
     await SharedPrefs.saveGovtEntity(govtEntity);
-    var wallet = await _getWallet(govtEntity.name);
-    wallet.govtEntity = NameSpace + 'GovtEntity#' + govtEntity.participantId;
 
-    if (privateKey != null) {
-      await dataAPI.addWalletToFirestoreForStellar(wallet);
+    //create Stellar wallet
+    if (isInDebugMode) {
+      privateKey = null;
+    }
+    var result = await _doWalletCall(
+        govtEntity.name, govtEntity.participantId, privateKey, GovtEntityType);
+
+    if (result != '0') {
+      print('SignUp.signUpGovtEntity  wallet done');
     } else {
-      print(
-          'SignUp.signUpGovtEntity ERROR ERROR - private key unavailable from remoteConfig');
+      print('SignUp.signUpGovtEntity ERROR ERROR - wallet failed');
     }
 
     admin.govtEntity = NameSpace + 'GovtEntity#' + key;
@@ -112,15 +113,15 @@ class SignUp {
     return await signUp(admin);
   }
 
-  Future<Wallet> _getWallet(String name) async {
-    var wallet = Wallet();
-    wallet.dateRegistered = new DateTime.now().toIso8601String();
-    wallet.sourceSeed = privateKey;
-    wallet.debug = isInDebugMode;
-    wallet.name = name;
-    wallet.fcmToken = await SharedPrefs.getFCMToken();
-    prettyPrint(wallet.toJson(), 'wallet to be created .............');
-    return wallet;
+  Future _doWalletCall(
+      String name, String participantId, String seed, int type) async {
+    var result = await createWallet(
+        name: name, participantId: participantId, type: type, seed: seed);
+    if (result == '0') {
+      await SharedPrefs.removeWallet();
+    }
+
+    return result;
   }
 
   Future<int> signUpCompany(Company company, User admin) async {
@@ -146,13 +147,17 @@ class SignUp {
     }
     await SharedPrefs.saveCompany(company);
 
-    var wallet = await _getWallet(company.name);
-    wallet.company = NameSpace + 'Company#' + company.participantId;
-    if (privateKey != null) {
-      await dataAPI.addWalletToFirestoreForStellar(wallet);
+    //create Stellar wallet
+    if (isInDebugMode) {
+      privateKey = null;
+    }
+    var res = await _doWalletCall(
+        company.name, company.participantId, privateKey, CompanyType);
+
+    if (res != '0') {
+      print('SignUp.signUpCompany govt wallet done');
     } else {
-      print(
-          'SignUp.signUpCompany ERROR ERROR - private key unavailable from remoteConfig');
+      print('SignUp.signUpCompany ERROR ERROR - wallet failed');
     }
 
     admin.company = NameSpace + 'Company#' + key;
@@ -184,15 +189,17 @@ class SignUp {
     admin.supplier = NameSpace + 'Supplier#' + key;
     admin.isAdministrator = 'true';
 
-    var wallet = await _getWallet(supplier.name);
-    wallet.supplier = NameSpace + 'Supplier#' + supplier.participantId;
-    if (privateKey != null) {
-      await dataAPI.addWalletToFirestoreForStellar(wallet);
-    } else {
-      print(
-          'SignUp.signUpSupplier ERROR ERROR - private key unavailable from remoteConfig');
+    //create Stellar wallet
+    if (isInDebugMode) {
+      privateKey = null;
     }
-
+    var res = await _doWalletCall(
+        supplier.name, supplier.participantId, privateKey, SupplierType);
+    if (res != '0') {
+      print('SignUp.signUpSupplier  wallet done');
+    } else {
+      print('SignUp.signUpSupplier ERROR ERROR - wallet failed');
+    }
     return await signUp(admin);
   }
 
@@ -219,15 +226,17 @@ class SignUp {
 
     await SharedPrefs.saveInvestor(investor);
 
-    var wallet = await _getWallet(investor.name);
-    wallet.investor = NameSpace + 'Investor#' + investor.participantId;
-    if (privateKey != null) {
-      await dataAPI.addWalletToFirestoreForStellar(wallet);
-    } else {
-      print(
-          'SignUp.signUpInvestor ERROR ERROR - private key unavailable from remoteConfig');
+    //create Stellar wallet
+    if (isInDebugMode) {
+      privateKey = null;
     }
-
+    var res = await _doWalletCall(
+        investor.name, investor.participantId, privateKey, InvestorType);
+    if (res != '0') {
+      print('SignUp.signUpInvestor wallet done');
+    } else {
+      print('SignUp.signUpInvestor ERROR ERROR - wallet failed');
+    }
     admin.investor = NameSpace + 'Investor#' + key;
     admin.isAdministrator = 'true';
     return await signUp(admin);
@@ -255,13 +264,16 @@ class SignUp {
 
     await SharedPrefs.saveAuditor(auditor);
 
-    var wallet = await _getWallet(auditor.name);
-    wallet.auditor = NameSpace + 'Auditor#' + auditor.participantId;
-    if (privateKey != null) {
-      await dataAPI.addWalletToFirestoreForStellar(wallet);
+    //create Stellar wallet
+    if (isInDebugMode) {
+      privateKey = null;
+    }
+    var res = await _doWalletCall(
+        auditor.name, auditor.participantId, privateKey, AuditorType);
+    if (res != '0') {
+      print('SignUp.signUpAuditor wallet done');
     } else {
-      print(
-          'SignUp.signUpAuditor ERROR ERROR - private key unavailable from remoteConfig');
+      print('SignUp.signUpAuditor ERROR ERROR - wallet failed');
     }
 
     admin.auditor = NameSpace + 'Auditor#' + key;
@@ -293,16 +305,17 @@ class SignUp {
 
     await SharedPrefs.saveProcurementOffice(office);
 
-    var wallet = await _getWallet(office.name);
-    wallet.procurementOffice =
-        NameSpace + 'ProcurementOffice#' + office.participantId;
-    if (privateKey != null) {
-      await dataAPI.addWalletToFirestoreForStellar(wallet);
-    } else {
-      print(
-          'SignUp.signUpProcurementOffice ERROR ERROR - private key unavailable from remoteConfig');
+    //create Stellar wallet
+    if (isInDebugMode) {
+      privateKey = null;
     }
-
+    var res = await _doWalletCall(
+        office.name, office.participantId, privateKey, ProcurementOfficeType);
+    if (res != '0') {
+      print('SignUp.signUpProcurementOffice wallet done');
+    } else {
+      print('SignUp.signUpProcurementOffice ERROR ERROR - wallet failed');
+    }
     admin.procurementOffice = NameSpace + 'ProcurementOffice#' + key;
     admin.isAdministrator = 'true';
     return await signUp(admin);
@@ -330,13 +343,16 @@ class SignUp {
 
     await SharedPrefs.saveBank(bank);
 
-    var wallet = await _getWallet(bank.name);
-    wallet.bank = NameSpace + 'Bank#' + bank.participantId;
-    if (privateKey != null) {
-      await dataAPI.addWalletToFirestoreForStellar(wallet);
+    //create Stellar wallet
+    if (isInDebugMode) {
+      privateKey = null;
+    }
+    var res = await _doWalletCall(
+        bank.name, bank.participantId, privateKey, BankType);
+    if (res != '0') {
+      print('SignUp.signUpBank wallet done');
     } else {
-      print(
-          'SignUp.signUpBank ERROR ERROR - private key unavailable from remoteConfig');
+      print('SignUp.signUpBank ERROR ERROR - wallet failed');
     }
 
     admin.bank = NameSpace + 'Bank#' + key;
@@ -364,13 +380,16 @@ class SignUp {
 
     await SharedPrefs.saveOneConnect(oneConnect);
 
-    var wallet = await _getWallet(oneConnect.name);
-    wallet.oneConnect = NameSpace + 'OneConnect#' + oneConnect.participantId;
-    if (privateKey != null) {
-      await dataAPI.addWalletToFirestoreForStellar(wallet);
+    //create Stellar wallet
+    if (isInDebugMode) {
+      privateKey = null;
+    }
+    var res = await _doWalletCall(
+        oneConnect.name, oneConnect.participantId, privateKey, OneConnectType);
+    if (res != '0') {
+      print('SignUp.signUpOneConnect wallet done');
     } else {
-      print(
-          'SignUp.signUpOneConnect ERROR ERROR - private key unavailable from remoteConfig');
+      print('SignUp.signUpOneConnect ERROR ERROR - wallet failed');
     }
 
     admin.oneConnect = NameSpace + 'OneConnect#' + key;

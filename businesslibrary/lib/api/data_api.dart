@@ -144,16 +144,6 @@ class DataAPI {
   Future<String> addWallet(Wallet wallet) async {
     print('DataAPI.addWallet %%%%%%%% url: ${url + WALLET}');
     prettyPrint(wallet.toJson(), 'adding wallet to BFN blockcahain');
-    wallet.sourceSeed = 'N/A';
-
-    await _firestore
-        .collection('wallets')
-        .document(wallet.documentReference)
-        .updateData(wallet.toJson())
-        .catchError((e) {
-      print('DataAPI.addWallet ERROR ERROR ERROR --> $e');
-    });
-    print('DataAPI.addWallet - wallet updated, sourceSeed set to null');
 
     wallet.encryptedSecret = null;
     wallet.debug = null;
@@ -182,24 +172,6 @@ class DataAPI {
       print('DataAPI.addWallet ERROR $e');
       return '0';
     }
-  }
-
-  /// this wallet record in firestore will start cloud function that creates Stellar wallet
-  /// then addWallet method above puts it on the blockchain
-  ///
-  Future<String> addWalletToFirestoreForStellar(Wallet wallet) async {
-    var ref = await _firestore
-        .collection('wallets')
-        .add(wallet.toJson())
-        .catchError((e) {
-      print(
-          'DataAPI.addWalletToFirestoreForStellar ERROR adding to Firestore $e');
-      return "0";
-    });
-    print(
-        'DataAPI.addWalletToFirestoreForStellar: WALLET added to Firestore: ${ref.documentID}');
-    wallet.documentReference = ref.documentID;
-    return ref.documentID;
   }
 
   Future<String> addCompany(Company company) async {

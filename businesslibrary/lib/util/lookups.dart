@@ -546,3 +546,113 @@ Future<String> decrypt(String accountId, String encrypted) async {
   print('decrypt ############ RESULT: ${result.body}');
   return result.body;
 }
+
+Future<String> createWallet(
+    {@required String name,
+    @required String participantId,
+    @required type,
+    String seed}) async {
+  print('createWallet ............. https function call ...');
+  var debugData = {
+    'debug': 'true',
+  };
+  var prodData = {'debug': 'false', 'sourceSeed': seed};
+  String url;
+  var body;
+  if (isInDebugMode) {
+    url = DEBUG_URL;
+    body = debugData;
+  } else {
+    url = PROD_URL;
+    body = prodData;
+  }
+  url += 'directWallet';
+  http.Response result;
+  Wallet wallet;
+  print('createWallet ------- making the http.post call -----');
+  try {
+    result = await http.post(url, body: body).catchError((e) {
+      print('createWallet ----- ERROR $e');
+      return '0';
+    });
+    print('createWallet - done calling http post');
+    Map map = json.decode(result.body);
+    wallet = Wallet.fromJson(map);
+    wallet.name = name;
+    print('createWallet ############ Status Code: ${result
+            .statusCode} Body: ${result.body}');
+  } catch (e) {
+    print('createWallet ERROR - WALLET failed $e');
+    return '0';
+  }
+
+  var writeResult = await _writeWalletToFirestore(type, wallet, participantId);
+  if (writeResult == '0') {
+    return '0';
+  }
+
+  DataAPI api = DataAPI(getURL());
+  var key = await api.addWallet(wallet);
+  if (key != '0') {
+    prettyPrint(wallet.toJson(),
+        'Wallet created and ready for use: #######################))))))))');
+    return wallet.stellarPublicKey;
+  } else {
+    print('createWallet ERROR  writing wallet to BFN blockchain');
+    return key;
+  }
+}
+
+Future<String> _writeWalletToFirestore(
+    int type, Wallet wallet, String participantId) async {
+  print('_writeWalletToFirestore  type: $type participantId: $participantId');
+  switch (type) {
+    case GovtEntityType:
+      wallet.govtEntity = NameSpace + 'GovtEntity#' + participantId;
+      break;
+    case SupplierType:
+      wallet.supplier = NameSpace + 'Supplier#' + participantId;
+      break;
+    case InvestorType:
+      wallet.investor = NameSpace + 'Investor#' + participantId;
+      break;
+    case ProcurementOfficeType:
+      wallet.procurementOffice =
+          NameSpace + 'ProcurementOffice#' + participantId;
+      break;
+    case AuditorType:
+      wallet.auditor = NameSpace + 'Auditor#' + participantId;
+      break;
+    case BankType:
+      wallet.bank = NameSpace + 'Bank#' + participantId;
+      break;
+    case OneConnectType:
+      wallet.bank = NameSpace + 'OneConnect#' + participantId;
+      break;
+    case CompanyType:
+      wallet.bank = NameSpace + 'Company#' + participantId;
+      break;
+  }
+
+  var ref = await _firestore
+      .collection('wallets')
+      .add(wallet.toJson())
+      .catchError((e) {
+    print('createWallet FAILED to write wallet to Firestore: $e');
+    return '0';
+  });
+  print('createWallet added to Firestore, documentRef: ${ref.documentID}');
+  wallet.documentReference = ref.documentID;
+  await SharedPrefs.saveWallet(wallet);
+  return ref.documentID;
+}
+
+const GovtEntityType = 1,
+    SupplierType = 2,
+    InvestorType = 3,
+    CompanyType = 4,
+    AuditorType = 5,
+    ProcurementOfficeType = 6,
+    BankType = 7,
+    OneConnectType = 8;
+const NameSpace = 'resource:com.oneconnect.biz.';

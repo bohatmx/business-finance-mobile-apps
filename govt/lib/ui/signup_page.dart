@@ -385,32 +385,67 @@ class _SignUpPageState extends State<SignUpPage>
       );
       SignUp signUp = SignUp(getURL());
       var result = await signUp.signUpGovtEntity(govtEntity, admin);
-      switch (result) {
-        case SignUp.Success:
-          print('_SignUpPageState._onSavePressed SUCCESS!!!!!!');
-          await _subscribeToFCM();
-          Navigator.push(
-            context,
-            new MaterialPageRoute(builder: (context) => new Dashboard(null)),
-          );
-          break;
-        case SignUp.ErrorBlockchain:
-          print('_SignUpPageState._onSavePressed  ErrorBlockchain');
-          break;
-        case SignUp.ErrorMissingOrInvalidData:
-          print('_SignUpPageState._onSavePressed  ErrorMissingOrInvalidData');
-          break;
-        case SignUp.ErrorFirebaseUserExists:
-          print('_SignUpPageState._onSavePressed  ErrorFirebaseUserExists');
-          break;
-        case SignUp.ErrorFireStore:
-          print('_SignUpPageState._onSavePressed  ErrorFireStore');
-          break;
-        case SignUp.ErrorCreatingFirebaseUser:
-          print('_SignUpPageState._onSavePressed  ErrorCreatingFirebaseUser');
-          break;
-      }
+      await checkResult(result);
     }
+  }
+
+  Future checkResult(int result) async {
+    switch (result) {
+      case SignUp.Success:
+        print('_SignUpPageState._onSavePressed SUCCESS!!!!!!');
+        await _subscribeToFCM();
+        var wallet = await SharedPrefs.getWallet();
+        if (wallet != null) {
+          AppSnackbar.showSnackbarWithAction(
+              scaffoldKey: _scaffoldKey,
+              message: 'Sign up and wallet OK',
+              textColor: Colors.white,
+              backgroundColor: Colors.teal.shade800,
+              actionLabel: 'DONE',
+              listener: this,
+              icon: Icons.done_all);
+        } else {
+          //TODO - deal with error - wallet NOT on blockchain
+          exit();
+        }
+        break;
+      case SignUp.ErrorBlockchain:
+        print('_SignUpPageState._onSavePressed  ErrorBlockchain');
+        _showSignUpError('Blockchain error');
+        break;
+      case SignUp.ErrorMissingOrInvalidData:
+        print('_SignUpPageState._onSavePressed  ErrorMissingOrInvalidData');
+        _showSignUpError('Missing sign up data');
+        break;
+      case SignUp.ErrorFirebaseUserExists:
+        print('_SignUpPageState._onSavePressed  ErrorFirebaseUserExists');
+        _showSignUpError('User already exists');
+        break;
+      case SignUp.ErrorFireStore:
+        print('_SignUpPageState._onSavePressed  ErrorFireStore');
+        _showSignUpError('Database error');
+        break;
+      case SignUp.ErrorCreatingFirebaseUser:
+        print('_SignUpPageState._onSavePressed  ErrorCreatingFirebaseUser');
+        _showSignUpError('Authentication error');
+        break;
+    }
+  }
+
+  void _showSignUpError(String message) {
+    AppSnackbar.showErrorSnackbar(
+        scaffoldKey: _scaffoldKey,
+        message: message,
+        listener: this,
+        actionLabel: 'CLOSE');
+  }
+
+  void exit() {
+    Navigator.pop(context);
+    Navigator.push(
+      context,
+      new MaterialPageRoute(builder: (context) => new Dashboard(null)),
+    );
   }
 
   Future _subscribeToFCM() async {
@@ -431,7 +466,7 @@ class _SignUpPageState extends State<SignUpPage>
 
   @override
   onActionPressed(int action) {
-    // TODO: implement onActionPressed
+    exit();
   }
 
   @override

@@ -19,10 +19,16 @@ import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/supplier_contract.dart';
 import 'package:businesslibrary/data/user.dart';
-import 'package:businesslibrary/data/wallet.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/util.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+
+class WalletData {
+  String participantId, name;
+  int type;
+
+  WalletData({this.participantId, this.name, this.type});
+}
 
 class Generator {
   static Firestore _fs = Firestore.instance;
@@ -30,41 +36,88 @@ class Generator {
   static Random rand = new Random(new DateTime.now().millisecondsSinceEpoch);
   static DataAPI dataAPI;
 
-  static List<Wallet> wallets = List();
-
+  static List<WalletData> walletDataList = List();
   // ignore: missing_return
   static Future<int> generateWallets() async {
     dataAPI = DataAPI(getURL());
-    var qs = await _fs.collection('wallets').getDocuments();
+    var qs = await _fs.collection('govtEntities').getDocuments();
     qs.documents.forEach((doc) {
-      wallets.add(new Wallet.fromJson(doc.data));
+      var data = new WalletData(
+          participantId: doc.data['participantId'],
+          name: doc.data['name'],
+          type: GovtEntityType);
+      walletDataList.add(data);
     });
+    var qs0 = await _fs.collection('suppliers').getDocuments();
+    qs0.documents.forEach((doc) {
+      var data = new WalletData(
+          participantId: doc.data['participantId'],
+          name: doc.data['name'],
+          type: SupplierType);
+      walletDataList.add(data);
+    });
+
+    var qs1 = await _fs.collection('investors').getDocuments();
+    qs1.documents.forEach((doc) {
+      var data = new WalletData(
+          participantId: doc.data['participantId'],
+          name: doc.data['name'],
+          type: InvestorType);
+      walletDataList.add(data);
+    });
+    var qs2 = await _fs.collection('companies').getDocuments();
+    qs2.documents.forEach((doc) {
+      var data = new WalletData(
+          participantId: doc.data['participantId'],
+          name: doc.data['name'],
+          type: CompanyType);
+      walletDataList.add(data);
+    });
+
+    var qs3 = await _fs.collection('auditors').getDocuments();
+    qs3.documents.forEach((doc) {
+      var data = new WalletData(
+          participantId: doc.data['participantId'],
+          name: doc.data['name'],
+          type: AuditorType);
+      walletDataList.add(data);
+    });
+    var qs4 = await _fs.collection('procurementOffices').getDocuments();
+    qs4.documents.forEach((doc) {
+      var data = new WalletData(
+          participantId: doc.data['participantId'],
+          name: doc.data['name'],
+          type: ProcurementOfficeType);
+      walletDataList.add(data);
+    });
+    var qs5 = await _fs.collection('banks').getDocuments();
+    qs5.documents.forEach((doc) {
+      var data = new WalletData(
+          participantId: doc.data['participantId'],
+          name: doc.data['name'],
+          type: BankType);
+      walletDataList.add(data);
+    });
+
     print(
-        'Generator.generateWallets ###### processing ${wallets.length} wallets .....');
+        'Generator.generateWallets ###### processing ${walletDataList.length} wallets .....');
     index = 0;
     _processWallet();
   }
 
   // ignore: missing_return
   static Future<int> _processWallet() async {
-    if (wallets.isEmpty) {
+    if (walletDataList.isEmpty) {
       return 1;
     }
-    var wallet = wallets.elementAt(index);
-    wallet.debug = null;
-    wallet.sourceSeed = null;
-    wallet.secret = null;
-
-    prettyPrint(wallet.toJson(),
-        'Processing wallet, adding to BFN blockchain, index $index: ');
-    await dataAPI.addWallet(wallet);
-
+    var data = walletDataList.elementAt(index);
+    await createWallet(data.name, data.participantId, data.type);
     index++;
-    if (index < wallets.length) {
+    if (index < walletDataList.length) {
       _processWallet();
     } else {
       print(
-          'Generator.processWallet DONE ####### wallets put on BFN blockchain');
+          'Generator.processWallet DONE ####### wallets put on Firestore #######');
     }
   }
 

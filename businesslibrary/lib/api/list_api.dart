@@ -256,7 +256,7 @@ class ListAPI {
         .collection('suppliers')
         .document(supplierDocumentRef)
         .collection('invoices')
-        .where('purchaseOrderNuumber', isEqualTo: poNumber)
+        .where('purchaseOrderNumber', isEqualTo: poNumber)
         .where('invoiceNumber', isEqualTo: invoiceNumber)
         .getDocuments()
         .catchError((e) {

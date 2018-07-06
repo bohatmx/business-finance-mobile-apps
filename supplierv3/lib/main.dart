@@ -23,7 +23,8 @@ class SupplierApp extends StatelessWidget {
       theme: new ThemeData(
           primarySwatch: Colors.teal,
           accentColor: Colors.deepPurple,
-          fontFamily: 'Raleway'),
+          splashColor: Colors.brown.shade50,
+          fontFamily: 'Roboto'),
       home: new StartPage(title: 'Business Finance App - Supplier'),
     );
   }

@@ -80,10 +80,6 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       _counter++;
     });
-    await Generator.generateWallets();
-    setState(() {
-      _counter++;
-    });
 
     await Generator.generatePurchaseOrders();
     setState(() {
@@ -176,13 +172,5 @@ class _MyHomePageState extends State<MyHomePage> {
         child: new Icon(Icons.add),
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
-  }
-
-  void _doWallets() async {
-    print('_MyHomePageState._doWallets .........................');
-    await Generator.generateWallets();
-    setState(() {
-      _counter++;
-    });
   }
 }
