@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:govt/ui/dashboard.dart';
 import 'package:govt/ui/signin_page.dart';
 import 'package:govt/ui/signup_page.dart';
+import 'package:govt/ui/theme_util.dart';
 
 void main() => runApp(new GovtApp());
 
@@ -16,11 +17,7 @@ class GovtApp extends StatelessWidget {
     return new MaterialApp(
       title: 'FinanceNetwork',
       debugShowCheckedModeBanner: false,
-      theme: new ThemeData(
-        primarySwatch: Colors.pink,
-        accentColor: Colors.teal,
-        fontFamily: 'Raleway',
-      ),
+      theme: getTheme(),
       home: new StartPage(title: 'Business Finance App - Govt'),
     );
   }

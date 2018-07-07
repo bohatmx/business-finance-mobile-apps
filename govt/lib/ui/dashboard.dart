@@ -222,7 +222,7 @@ class _DashboardState extends State<Dashboard>
       child: Scaffold(
         key: _scaffoldKey,
         appBar: AppBar(
-          elevation: 3.0,
+          elevation: 16.0,
           title: Text(
             'BFN - Dashboard',
             style: TextStyle(fontWeight: FontWeight.normal),
@@ -237,14 +237,13 @@ class _DashboardState extends State<Dashboard>
                   children: <Widget>[
                     new Padding(
                       padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        name == null ? 'Organisation' : name,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20.0,
-                          fontWeight: FontWeight.w900,
-                        ),
-                      ),
+                      child: Text(name == null ? 'Organisation' : name,
+                          style: Theme.of(context).primaryTextTheme.title
+//                          color: Colors.white,
+//                          fontSize: 20.0,
+//                          fontWeight: FontWeight.w900,
+//                        ),
+                          ),
                     )
                   ],
                 ),

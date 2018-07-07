@@ -7,6 +7,7 @@ import 'package:businesslibrary/stellar/Balance.dart';
 import 'package:businesslibrary/util/comms.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
+import 'package:businesslibrary/util/util.dart';
 import 'package:flutter/material.dart';
 
 class WalletPage extends StatefulWidget {
@@ -42,7 +43,7 @@ class _WalletPageState extends State<WalletPage> implements SnackBarListener {
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
-        title: Text('Stellar Blockchain Wallet'),
+        title: Text('BFN Blockchain Wallet'),
         elevation: 8.0,
         bottom: PreferredSize(
             child: Padding(
@@ -53,13 +54,13 @@ class _WalletPageState extends State<WalletPage> implements SnackBarListener {
                     wallet == null ? '' : wallet.name,
                     style: TextStyle(
                         color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 24.0),
+                        fontWeight: FontWeight.normal,
+                        fontSize: 22.0),
                   ),
                 ],
               ),
             ),
-            preferredSize: Size.fromHeight(120.0)),
+            preferredSize: Size.fromHeight(80.0)),
       ),
       body: _getBody(),
       backgroundColor: Colors.brown.shade50,
@@ -161,7 +162,10 @@ class _WalletPageState extends State<WalletPage> implements SnackBarListener {
     Balance bb = new Balance('245000.000', 'BFN');
     bb.asset_type = 'BFN';
     bb.balance = '250000.0000';
-    account.balances.add(bb);
+    //todo - only for testing
+    if (isInDebugMode && account.balances.length == 1) {
+      account.balances.add(bb);
+    }
     account.balances.forEach((bal) {
       widgets.add(BalanceCard(bal, context));
     });
@@ -176,7 +180,7 @@ class _WalletPageState extends State<WalletPage> implements SnackBarListener {
                 style: TextStyle(
                     color: Colors.grey,
                     fontWeight: FontWeight.bold,
-                    fontSize: 20.0),
+                    fontSize: 14.0),
               ),
               Padding(
                 padding: const EdgeInsets.only(left: 8.0),
@@ -184,8 +188,8 @@ class _WalletPageState extends State<WalletPage> implements SnackBarListener {
                   _getDate(),
                   style: TextStyle(
                       fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                      fontSize: 24.0),
+                      color: Colors.blueGrey,
+                      fontSize: 18.0),
                 ),
               ),
             ],
@@ -281,7 +285,7 @@ class BalanceCard extends StatelessWidget {
                 padding: const EdgeInsets.only(top: 16.0, bottom: 8.0),
                 child: Icon(
                   Icons.apps,
-                  color: Colors.indigo,
+                  color: Theme.of(context).accentColor,
                 ),
               ),
               Padding(

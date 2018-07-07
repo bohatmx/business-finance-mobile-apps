@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:supplierv3/ui/dashboard.dart';
 import 'package:supplierv3/ui/signin_page.dart';
 import 'package:supplierv3/ui/signup_page.dart';
+import 'package:supplierv3/ui/theme_util.dart';
 
 void main() => runApp(new SupplierApp());
 
@@ -20,11 +21,7 @@ class SupplierApp extends StatelessWidget {
     return new MaterialApp(
       title: 'FinanceNetwork',
       debugShowCheckedModeBanner: false,
-      theme: new ThemeData(
-          primarySwatch: Colors.teal,
-          accentColor: Colors.deepPurple,
-          splashColor: Colors.brown.shade50,
-          fontFamily: 'Raleway'),
+      theme: getTheme(),
       home: new StartPage(title: 'Business Finance App - Supplier'),
     );
   }
