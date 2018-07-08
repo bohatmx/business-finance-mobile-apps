@@ -61,32 +61,8 @@ class _DashboardState extends State<Dashboard>
     );
     animation = new Tween(begin: 0.0, end: 1.0).animate(animationController);
     _getCachedPrefs();
-    _configMessaging();
-    items = buildDaysDropDownItems();
-  }
-
-  void _configMessaging() async {
     configureMessaging(this);
-    basicMessageChannel = BasicMessageChannel(
-        'com.oneconnect.biz.CHANNEL/message', new StringCodec());
-    basicMessageChannel.setMessageHandler((msg) {
-      print('_DashboardState._configMessaging message from Android side: $msg');
-      AppSnackbar.showSnackbarWithAction(
-          scaffoldKey: _scaffoldKey,
-          message: msg,
-          textColor: Colors.white,
-          backgroundColor: Colors.deepPurple,
-          actionLabel: "OK",
-          listener: this,
-          icon: Icons.add_alert);
-    });
-    var parms = {
-      'title': 'Business Finance Network',
-      'content': 'This is a test notification for the investors!!',
-    };
-    final String result = await platform.invokeMethod('setNotification', parms);
-    print('_DashboardState._configMessaging METHOD CALL result: $result');
-    investor = await SharedPrefs.getInvestor();
+    items = buildDaysDropDownItems();
   }
 
   @override
@@ -177,6 +153,7 @@ class _DashboardState extends State<Dashboard>
           icon: Icons.done_all,
           listener: this,
           actionLabel: 'OK',
+          action: 0,
           backgroundColor: Colors.black);
     }
     return new WillPopScope(
@@ -285,11 +262,17 @@ class _DashboardState extends State<Dashboard>
   @override
   onActionPressed(int action) {
     print(
-        '_DashboardState.onActionPressed ..................  start DeliveryAcceptance ==> create invoice');
-    Navigator.push(
-      context,
-      new MaterialPageRoute(builder: (context) => new OfferList()),
-    );
+        '_DashboardState.onActionPressed ..................  action: $action');
+    switch (action) {
+      case 1:
+        Navigator.push(
+          context,
+          new MaterialPageRoute(builder: (context) => new OfferList()),
+        );
+        break;
+      case 2:
+        break;
+    }
   }
 
   void _onPaymentsTapped() {
@@ -328,7 +311,8 @@ class _DashboardState extends State<Dashboard>
         message: 'Offer arrived',
         textColor: Colors.white,
         backgroundColor: Colors.teal,
-        actionLabel: 'INVOICE',
+        actionLabel: 'OK',
+        action: 1,
         listener: this,
         icon: Icons.done);
   }
@@ -361,6 +345,7 @@ class _DashboardState extends State<Dashboard>
         backgroundColor: Colors.black,
         actionLabel: 'OK',
         listener: this,
+        action: 2,
         icon: Icons.done);
   }
 

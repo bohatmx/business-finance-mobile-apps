@@ -627,10 +627,10 @@ Future<String> _writeWalletToFirestore(
       wallet.bank = NameSpace + 'Bank#' + participantId;
       break;
     case OneConnectType:
-      wallet.bank = NameSpace + 'OneConnect#' + participantId;
+      wallet.oneConnect = NameSpace + 'OneConnect#' + participantId;
       break;
     case CompanyType:
-      wallet.bank = NameSpace + 'Company#' + participantId;
+      wallet.company = NameSpace + 'Company#' + participantId;
       break;
   }
 

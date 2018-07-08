@@ -22,6 +22,7 @@ import 'package:govt/ui/delivery_note_list.dart';
 import 'package:govt/ui/invoice_list.dart';
 import 'package:govt/ui/purchase_order_list.dart';
 import 'package:govt/ui/summary_card.dart';
+import 'package:govt/ui/theme_util.dart';
 
 class Dashboard extends StatefulWidget {
   final String message;
@@ -215,6 +216,7 @@ class _DashboardState extends State<Dashboard>
           icon: Icons.done_all,
           listener: this,
           actionLabel: 'OK',
+          action: 0,
           backgroundColor: Colors.black);
     }
     return new WillPopScope(
@@ -237,13 +239,14 @@ class _DashboardState extends State<Dashboard>
                   children: <Widget>[
                     new Padding(
                       padding: const EdgeInsets.all(8.0),
-                      child: Text(name == null ? 'Organisation' : name,
-                          style: Theme.of(context).primaryTextTheme.title
-//                          color: Colors.white,
-//                          fontSize: 20.0,
-//                          fontWeight: FontWeight.w900,
-//                        ),
-                          ),
+                      child: Text(
+                        name == null ? 'Organisation' : name,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 20.0,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
                     )
                   ],
                 ),
@@ -381,16 +384,16 @@ class _DashboardState extends State<Dashboard>
 
   @override
   onActionPressed(int action) {
-    if (messageReceived == null) {
-      print('_DashboardState.onActionPressed ERROR ERROR ');
+    print('_DashboardState.onActionPressed action: $action');
+    if (action == 0) {
+      Navigator.pop(context);
       return;
     }
-    print('_DashboardState.onActionPressed $messageReceived');
-    switch (messageReceived) {
-      case DeliveryNotes:
+    switch (action) {
+      case DeliveryNoteConstant:
         _onDeliveryNotesTapped();
         break;
-      case Invoices:
+      case InvoiceConstant:
         _onInvoicesTapped();
         break;
     }
@@ -416,6 +419,7 @@ class _DashboardState extends State<Dashboard>
         backgroundColor: Colors.deepPurple,
         actionLabel: 'Notes',
         listener: this,
+        action: DeliveryNoteConstant,
         icon: Icons.email);
   }
 
@@ -443,6 +447,7 @@ class _DashboardState extends State<Dashboard>
         textColor: Colors.white,
         backgroundColor: Colors.deepPurple,
         actionLabel: 'Invoices',
+        action: InvoiceConstant,
         listener: this,
         icon: Icons.email);
   }
@@ -475,6 +480,7 @@ class _DashboardState extends State<Dashboard>
         backgroundColor: Colors.deepPurple,
         actionLabel: 'OK',
         listener: this,
+        action: 0,
         icon: Icons.email);
   }
 }

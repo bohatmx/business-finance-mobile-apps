@@ -203,6 +203,7 @@ class _ContractPageState extends State<ContractPage>
           backgroundColor: Colors.black,
           actionLabel: 'Done',
           listener: this,
+          action: 1,
           icon: Icons.done);
       setState(() {
         fileName = null;

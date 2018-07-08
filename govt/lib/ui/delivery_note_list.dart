@@ -105,6 +105,7 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
   @override
   onActionPressed(int action) {
     print('_DeliveryNoteListState.onActionPressed');
+    Navigator.pop(context);
   }
 
   @override
@@ -230,6 +231,7 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
             backgroundColor: Colors.black,
             actionLabel: 'DONE',
             listener: this,
+            action: 0,
             icon: Icons.done);
       }
     } catch (e) {

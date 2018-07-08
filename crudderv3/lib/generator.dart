@@ -111,7 +111,8 @@ class Generator {
       return 1;
     }
     var data = walletDataList.elementAt(index);
-    await createWallet(data.name, data.participantId, data.type);
+    await createWallet(
+        name: data.name, participantId: data.participantId, type: data.type);
     index++;
     if (index < walletDataList.length) {
       _processWallet();

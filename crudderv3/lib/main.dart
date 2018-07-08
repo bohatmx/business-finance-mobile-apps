@@ -1,4 +1,5 @@
 import 'package:crudderv3/generator.dart';
+import 'package:crudderv3/theme_util.dart';
 import 'package:flutter/material.dart';
 
 void main() => runApp(new MyApp());
@@ -8,11 +9,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return new MaterialApp(
       title: 'Flutter Demo',
-      theme: new ThemeData(
-        primaryColor: Colors.pink,
-        accentColor: Colors.teal,
-        primarySwatch: Colors.deepOrange,
-      ),
+      debugShowCheckedModeBanner: false,
+      theme: getTheme(),
       home: new MyHomePage(title: 'Business Finance Network'),
     );
   }
@@ -28,11 +26,10 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
-
+  double opacity;
   @override
   initState() {
     super.initState();
-//    _doWallets();
   }
 
   void _generateBids() async {
@@ -84,6 +81,7 @@ class _MyHomePageState extends State<MyHomePage> {
     await Generator.generatePurchaseOrders();
     setState(() {
       _counter++;
+      opacity = 1.0;
     });
   }
 
@@ -115,12 +113,12 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
       body: new Center(
-        child: new Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            new Padding(
-              padding: const EdgeInsets.all(28.0),
-              child: Card(
+        child: Container(
+          color: Colors.blueGrey.shade50,
+          child: new Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Card(
                 elevation: 4.0,
                 child: new Padding(
                   padding: const EdgeInsets.only(
@@ -130,12 +128,12 @@ class _MyHomePageState extends State<MyHomePage> {
                       Text(
                         'Phase Complete',
                         style: TextStyle(
-                            fontSize: 28.0, fontWeight: FontWeight.w900),
+                            fontSize: 28.0, fontWeight: FontWeight.bold),
                       ),
                       Text(
                         '$_counter',
                         style: TextStyle(
-                            fontSize: 80.0,
+                            fontSize: 60.0,
                             fontWeight: FontWeight.w900,
                             color: Colors.teal),
                       ),
@@ -143,18 +141,31 @@ class _MyHomePageState extends State<MyHomePage> {
                         padding: const EdgeInsets.all(8.0),
                         child: new Container(
                           width: 200.0,
-                          child: RaisedButton(
-                            elevation: 8.0,
-                            onPressed: _generateBids,
-                            color: Colors.pink,
-                            child: new Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Text(
-                                'Generate Bids',
-                                style: TextStyle(
-                                    color: Colors.white, fontSize: 20.0),
+                          child: Opacity(
+                            opacity: opacity == null ? 0.0 : 1.0,
+                            child: RaisedButton(
+                              elevation: 8.0,
+                              onPressed: _generateBids,
+                              color: Colors.pink.shade200,
+                              child: new Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Text(
+                                  'Generate Bids',
+                                  style: TextStyle(
+                                      color: Colors.white, fontSize: 20.0),
+                                ),
                               ),
                             ),
+                          ),
+                        ),
+                      ),
+                      Container(
+                        color: Colors.blueGrey.shade50,
+                        child: Padding(
+                          padding: const EdgeInsets.all(10.0),
+                          child: Text(
+                            'Count should get to 10. Then wait a bit ...',
+                            style: TextStyle(fontSize: 12.0),
                           ),
                         ),
                       ),
@@ -162,14 +173,18 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
+      backgroundColor: Colors.indigo.shade50,
       floatingActionButton: new FloatingActionButton(
         onPressed: _generate,
         tooltip: 'Generate Data',
-        child: new Icon(Icons.add),
+        child: Text(
+          'Start',
+          style: TextStyle(fontSize: 14.0, color: Colors.white),
+        ),
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }

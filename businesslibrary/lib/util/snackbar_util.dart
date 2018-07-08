@@ -63,7 +63,8 @@ class AppSnackbar {
       @required Color backgroundColor,
       @required String actionLabel,
       @required SnackBarListener listener,
-      @required IconData icon}) {
+      @required IconData icon,
+      @required int action}) {
     if (scaffoldKey.currentState == null) {
       print(
           'AppSnackbar.showSnackbarWithAction --- currentState is NULL, quit ..');
@@ -92,7 +93,7 @@ class AppSnackbar {
       action: SnackBarAction(
         label: actionLabel,
         onPressed: () {
-          listener.onActionPressed(Action);
+          listener.onActionPressed(action);
         },
       ),
     ));

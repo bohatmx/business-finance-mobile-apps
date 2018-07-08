@@ -170,6 +170,7 @@ class _InvoiceSettlementState extends State<InvoiceSettlementPage>
         textColor: Colors.white,
         icon: Icons.build,
         listener: this,
+        action: 0,
         actionLabel: 'Close',
         backgroundColor: Colors.red.shade300);
   }

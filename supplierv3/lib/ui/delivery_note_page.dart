@@ -239,6 +239,7 @@ class _DeliveryNotePageState extends State<DeliveryNotePage>
           textColor: Colors.white,
           backgroundColor: Colors.teal.shade800,
           actionLabel: 'DONE',
+          action: 0,
           listener: this,
           icon: Icons.done);
     }

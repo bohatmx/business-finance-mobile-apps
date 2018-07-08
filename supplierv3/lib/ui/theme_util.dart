@@ -15,13 +15,13 @@ ThemeData getTheme() {
     accentIconTheme: IconThemeData(color: Colors.white),
     cardColor: cardColor,
     backgroundColor: back,
-    inputDecorationTheme: InputDecorationTheme(
-      labelStyle: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold),
-      contentPadding: const EdgeInsets.all(8.0),
-      border: OutlineInputBorder(
-          borderSide: BorderSide.none,
-          borderRadius: const BorderRadius.all(Radius.elliptical(2.0, 2.0))),
-    ),
+//    inputDecorationTheme: InputDecorationTheme(
+//      labelStyle: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold),
+//      contentPadding: const EdgeInsets.all(8.0),
+//      border: OutlineInputBorder(
+//          borderSide: BorderSide.none,
+//          borderRadius: const BorderRadius.all(Radius.elliptical(2.0, 2.0))),
+//    ),
     buttonColor: tn,
   );
 

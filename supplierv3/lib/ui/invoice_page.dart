@@ -7,7 +7,6 @@ import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/util.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 
 class NewInvoicePage extends StatefulWidget {
@@ -24,7 +23,6 @@ class _NewInvoicePageState extends State<NewInvoicePage>
     implements SnackBarListener {
   final GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
-  final FirebaseMessaging _firebaseMessaging = new FirebaseMessaging();
 
   DeliveryAcceptance deliveryAcceptance;
   List<DeliveryAcceptance> deliveryAcceptances;
@@ -105,6 +103,7 @@ class _NewInvoicePageState extends State<NewInvoicePage>
             icon: Icons.done,
             listener: this,
             actionLabel: 'DONE',
+            action: 0,
             backgroundColor: Colors.black);
       }
     }

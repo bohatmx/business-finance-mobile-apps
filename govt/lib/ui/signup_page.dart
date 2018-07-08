@@ -21,6 +21,7 @@ import 'package:businesslibrary/util/util.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:govt/ui/dashboard.dart';
+import 'package:govt/ui/theme_util.dart';
 
 class SignUpPage extends StatefulWidget {
   @override
@@ -53,22 +54,6 @@ class _SignUpPageState extends State<SignUpPage>
     super.initState();
     configureMessaging(this);
     _debug();
-  }
-
-  _getToken() {
-    print('_SignUpPageState._getToken +=======================+++');
-    _firebaseMessaging.getToken().then((String token) async {
-      assert(token != null);
-      var oldToken = await SharedPrefs.getFCMToken();
-      if (token != oldToken) {
-        await SharedPrefs.saveFCMToken(token);
-        print('configureMessaging fcm token saved: $token');
-      } else {
-        print('configureMessaging: token has not changed. no need to save');
-      }
-    }).catchError((e) {
-      print('configureMessaging ERROR fcmToken $e');
-    });
   }
 
   _debug() {
@@ -403,6 +388,7 @@ class _SignUpPageState extends State<SignUpPage>
               backgroundColor: Colors.teal.shade800,
               actionLabel: 'DONE',
               listener: this,
+              action: 0,
               icon: Icons.done_all);
         } else {
           //TODO - deal with error - wallet NOT on blockchain
@@ -470,34 +456,22 @@ class _SignUpPageState extends State<SignUpPage>
   }
 
   @override
-  onCompanySettlement(CompanyInvoiceSettlement settlement) {
-    // TODO: implement onCompanySettlement
-  }
+  onCompanySettlement(CompanyInvoiceSettlement settlement) {}
 
   @override
-  onDeliveryAcceptance(DeliveryAcceptance deliveryAcceptance) {
-    // TODO: implement onDeliveryAcceptance
-  }
+  onDeliveryAcceptance(DeliveryAcceptance deliveryAcceptance) {}
 
   @override
-  onDeliveryNote(DeliveryNote deliveryNote) {
-    // TODO: implement onDeliveryNote
-  }
+  onDeliveryNote(DeliveryNote deliveryNote) {}
 
   @override
-  onGovtInvoiceSettlement(GovtInvoiceSettlement settlement) {
-    // TODO: implement onGovtInvoiceSettlement
-  }
+  onGovtInvoiceSettlement(GovtInvoiceSettlement settlement) {}
 
   @override
-  onInvestorSettlement(InvestorInvoiceSettlement settlement) {
-    // TODO: implement onInvestorSettlement
-  }
+  onInvestorSettlement(InvestorInvoiceSettlement settlement) {}
 
   @override
-  onInvoiceBidMessage(InvoiceBid invoiceBid) {
-    // TODO: implement onInvoiceBidMessage
-  }
+  onInvoiceBidMessage(InvoiceBid invoiceBid) {}
 
   @override
   onInvoiceMessage(Invoice invoice) {
@@ -509,23 +483,18 @@ class _SignUpPageState extends State<SignUpPage>
         backgroundColor: Colors.black,
         actionLabel: 'OK',
         listener: this,
+        action: InvoiceConstant,
         icon: Icons.done_all);
   }
 
   @override
-  onOfferMessage(Offer offer) {
-    // TODO: implement onOfferMessage
-  }
+  onOfferMessage(Offer offer) {}
 
   @override
-  onPurchaseOrderMessage(PurchaseOrder purchaseOrder) {
-    // TODO: implement onPurchaseOrderMessage
-  }
+  onPurchaseOrderMessage(PurchaseOrder purchaseOrder) {}
 
   @override
-  onWalletError() {
-    // TODO: implement onWalletError
-  }
+  onWalletError() {}
 
   @override
   onWalletMessage(Wallet wallet) async {
@@ -539,6 +508,7 @@ class _SignUpPageState extends State<SignUpPage>
           backgroundColor: Colors.black,
           actionLabel: 'OK',
           listener: this,
+          action: WalletConstant,
           icon: Icons.done_all);
     } else {
       print(

@@ -368,6 +368,7 @@ class _MakeOfferPageState extends State<MakeOfferPage>
           backgroundColor: Colors.teal.shade800,
           actionLabel: "DONE",
           listener: this,
+          action: 0,
           icon: Icons.done);
     }
   }

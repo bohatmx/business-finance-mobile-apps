@@ -284,6 +284,7 @@ class _SignUpPageState extends State<SignUpPage>
               textColor: Colors.white,
               backgroundColor: Colors.teal,
               actionLabel: 'Start',
+              action: 0,
               icon: Icons.done_all);
 
           subscribe(investor);

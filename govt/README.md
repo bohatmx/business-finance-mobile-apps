@@ -1,4 +1,4 @@
-# govt
+# Government Entity Mobile App
 
 An app  for GovtEntity users
 

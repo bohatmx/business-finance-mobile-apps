@@ -183,6 +183,7 @@ class _DashboardState extends State<Dashboard>
           icon: Icons.done_all,
           listener: this,
           actionLabel: 'OK',
+          action: 0,
           backgroundColor: Colors.black);
       message = null;
     }
@@ -193,7 +194,7 @@ class _DashboardState extends State<Dashboard>
         appBar: AppBar(
           elevation: 3.0,
           title: Text(
-            'BFN - Dashboard',
+            'BFN',
             style: TextStyle(fontWeight: FontWeight.normal),
           ),
           leading: Container(),
@@ -362,11 +363,34 @@ class _DashboardState extends State<Dashboard>
   @override
   onActionPressed(int action) {
     print(
-        '_DashboardState.onActionPressed ..................  start DeliveryAcceptance ==> create invoice');
-    Navigator.push(
-      context,
-      new MaterialPageRoute(builder: (context) => new DeliveryAcceptanceList()),
-    );
+        '_DashboardState.onActionPressed ..................  action: $action');
+
+    switch (action) {
+      case PurchaseOrderConstant:
+        Navigator.push(
+          context,
+          new MaterialPageRoute(
+              builder: (context) => new PurchaseOrderListPage(purchaseOrders)),
+        );
+        break;
+      case DeliveryAcceptanceConstant:
+        Navigator.push(
+          context,
+          new MaterialPageRoute(
+              builder: (context) => new DeliveryAcceptanceList()),
+        );
+        break;
+      case CompanySettlementConstant:
+        break;
+      case InvestorSettlement:
+        break;
+      case InvoiceBidConstant:
+        break;
+      case WalletConstant:
+        break;
+      case GovtSettlement:
+        break;
+    }
   }
 
   void _goToContracts() {
@@ -377,6 +401,13 @@ class _DashboardState extends State<Dashboard>
     );
   }
 
+  static const CompanySettlementConstant = 1,
+      DeliveryAcceptanceConstant = 2,
+      GovtSettlement = 3,
+      PurchaseOrderConstant = 4,
+      InvoiceBidConstant = 5,
+      InvestorSettlement = 6,
+      WalletConstant = 7;
   @override
   onCompanySettlement(CompanyInvoiceSettlement settlement) {
     AppSnackbar.showSnackbarWithAction(
@@ -385,6 +416,7 @@ class _DashboardState extends State<Dashboard>
         textColor: Colors.white,
         backgroundColor: Colors.black,
         actionLabel: 'OK',
+        action: CompanySettlementConstant,
         listener: this,
         icon: Icons.done);
   }
@@ -401,6 +433,7 @@ class _DashboardState extends State<Dashboard>
           backgroundColor: Colors.black,
           actionLabel: 'INVOICE',
           listener: this,
+          action: DeliveryAcceptanceConstant,
           icon: Icons.done);
     } else {
       print('_DashboardState.onDeliveryAcceptance currentState is NULL');
@@ -419,6 +452,7 @@ class _DashboardState extends State<Dashboard>
         backgroundColor: Colors.black,
         actionLabel: 'OK',
         listener: this,
+        action: GovtSettlement,
         icon: Icons.done);
   }
 
@@ -431,6 +465,7 @@ class _DashboardState extends State<Dashboard>
         backgroundColor: Colors.black,
         actionLabel: 'OK',
         listener: this,
+        action: InvestorSettlement,
         icon: Icons.done);
   }
 
@@ -443,6 +478,7 @@ class _DashboardState extends State<Dashboard>
         backgroundColor: Colors.black,
         actionLabel: 'Open',
         listener: this,
+        action: InvoiceBidConstant,
         icon: Icons.done);
   }
 
@@ -456,13 +492,19 @@ class _DashboardState extends State<Dashboard>
   onPurchaseOrderMessage(PurchaseOrder purchaseOrder) {
     print('_DashboardState.onPurchaseOrderMessage');
     prettyPrint(purchaseOrder.toJson(), "received from fcm in dashboard");
+
+    setState(() {
+      purchaseOrders.insert(0, purchaseOrder);
+      totalPOs = purchaseOrders.length;
+    });
     AppSnackbar.showSnackbarWithAction(
         scaffoldKey: _scaffoldKey,
         message: 'Purchase Order received',
         textColor: Colors.white,
         backgroundColor: Colors.black,
-        actionLabel: 'INVOICE',
+        actionLabel: 'OK',
         listener: this,
+        action: PurchaseOrderConstant,
         icon: Icons.done);
   }
 
@@ -486,6 +528,7 @@ class _DashboardState extends State<Dashboard>
         backgroundColor: Colors.black,
         actionLabel: 'OK',
         listener: this,
+        action: WalletConstant,
         icon: Icons.done);
   }
 }
