@@ -148,6 +148,7 @@ class DataAPI {
     wallet.encryptedSecret = null;
     wallet.debug = null;
     wallet.sourceSeed = null;
+    wallet.secret = null;
     try {
       var httpClient = new HttpClient();
       HttpClientRequest mRequest =

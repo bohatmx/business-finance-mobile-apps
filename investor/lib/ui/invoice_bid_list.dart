@@ -248,15 +248,15 @@ class OfferCard extends StatelessWidget {
   final Color color;
 
   OfferCard({this.offer, this.color});
-  var boldStyle = TextStyle(
+  final boldStyle = TextStyle(
     color: Colors.black,
     fontSize: 16.0,
     fontWeight: FontWeight.bold,
   );
-  var amtStyle = TextStyle(
+  final amtStyle = TextStyle(
     color: Colors.teal,
     fontSize: 24.0,
-    fontWeight: FontWeight.w900,
+    fontWeight: FontWeight.bold,
   );
 
   @override
@@ -298,11 +298,11 @@ class OfferCard extends StatelessWidget {
               padding: const EdgeInsets.all(8.0),
               child: Row(
                 children: <Widget>[
-                  Container(width: 70.0, child: Text('Start')),
+                  Container(width: 40.0, child: Text('Start')),
                   Text(
                       offer.startTime == null
                           ? 'Unknown yet'
-                          : getFormattedLongestDate(offer.startTime),
+                          : getFormattedDateLong(offer.startTime, context),
                       style:
                           TextStyle(fontSize: 14.0, color: Colors.deepPurple)),
                 ],
@@ -312,14 +312,14 @@ class OfferCard extends StatelessWidget {
               padding: const EdgeInsets.all(8.0),
               child: Row(
                 children: <Widget>[
-                  Container(width: 70.0, child: Text('End')),
+                  Container(width: 40.0, child: Text('End')),
                   Text(
                       offer.endTime == null
                           ? 'Unknown yet'
-                          : getFormattedLongestDate(offer.endTime),
+                          : getFormattedDateLong(offer.endTime, context),
                       style: TextStyle(
-                          fontSize: 14.0,
-                          color: Colors.red,
+                          fontSize: 18.0,
+                          color: Colors.indigo.shade800,
                           fontWeight: FontWeight.bold)),
                 ],
               ),
@@ -332,7 +332,7 @@ class OfferCard extends StatelessWidget {
                   Text(
                     offer.offerAmount == null
                         ? 'Unknown yet'
-                        : '${offer.offerAmount}',
+                        : getFormattedAmount('${offer.offerAmount}', context),
                     style: amtStyle,
                   ),
                 ],

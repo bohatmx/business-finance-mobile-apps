@@ -90,11 +90,12 @@ class ListAPI {
     return list;
   }
 
-  static Future<List<InvoiceBid>> getInvoiceBidsByOffer(String offer) async {
+  static Future<List<InvoiceBid>> getInvoiceBidsByOffer(Offer offer) async {
     List<InvoiceBid> list = List();
     var qs = await _firestore
+        .collection('invoiceOffers')
+        .document(offer.documentReference)
         .collection('invoiceBids')
-        .where('offer', isEqualTo: offer)
         .orderBy('date', descending: true)
         .getDocuments()
         .catchError((e) {
@@ -150,7 +151,9 @@ class ListAPI {
     });
     print('ListAPI.getOffersByPeriod found: ${qs.documents.length} ');
     qs.documents.forEach((doc) {
-      list.add(new Offer.fromJson(doc.data));
+      var offer = Offer.fromJson(doc.data);
+      offer.documentReference = doc.documentID;
+      list.add(offer);
     });
 
     return list;
@@ -174,7 +177,9 @@ class ListAPI {
     print('ListAPI.getSupplierOffers found: ${qs.documents.length} ');
 
     qs.documents.forEach((doc) {
-      list.add(new Offer.fromJson(doc.data));
+      var offer = Offer.fromJson(doc.data);
+      offer.documentReference = doc.documentID;
+      list.add(offer);
     });
 
     return list;
@@ -195,7 +200,9 @@ class ListAPI {
     print('ListAPI.getSupplierOffers found: ${qs.documents.length} ');
 
     qs.documents.forEach((doc) {
-      list.add(new Offer.fromJson(doc.data));
+      var offer = Offer.fromJson(doc.data);
+      offer.documentReference = doc.documentID;
+      list.add(offer);
     });
 
     return list;

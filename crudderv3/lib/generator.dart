@@ -224,6 +224,8 @@ class Generator {
       startDate: today.toIso8601String(),
       endDate: today.add(new Duration(days: 365)).toIso8601String(),
       estimatedValue: _getRandomContractValue(),
+      contractURL:
+          'https://firebasestorage.googleapis.com/v0/b/business-finance-dev.appspot.com/o/contracts%2FBFN2018-06-24T17%3A29%3A56.708034_42%20%2B.pdf?alt=media&token=ce591d07-3bd7-45b8-a961-499289ac141e',
       description:
           'The best government contract ever agreed upon.  Lots of money to be made by  ${supplier.name}',
     );

@@ -1,19 +1,22 @@
+import 'dart:async';
+
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/investor.dart';
 import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/util/lookups.dart';
-import 'package:businesslibrary/util/selectors.dart';
 import 'package:businesslibrary/util/util.dart';
 import 'package:flutter/material.dart';
 import 'package:investor/ui/invoice_bidder.dart';
 
 class OfferList extends StatefulWidget {
+  static _OfferListState of(BuildContext context) =>
+      context.ancestorStateOfType(const TypeMatcher<_OfferListState>());
   @override
   _OfferListState createState() => _OfferListState();
 }
 
-class _OfferListState extends State<OfferList> {
+class _OfferListState extends State<OfferList> with WidgetsBindingObserver {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   DateTime startTime, endTime;
   List<Offer> offers = List();
@@ -22,8 +25,8 @@ class _OfferListState extends State<OfferList> {
   @override
   void initState() {
     super.initState();
-
-    _getOffers();
+    WidgetsBinding.instance.addObserver(this);
+    getOffers();
     _getCached();
   }
 
@@ -32,8 +35,8 @@ class _OfferListState extends State<OfferList> {
     setState(() {});
   }
 
-  void _getOffers() async {
-    print('_OfferListState._getOffers');
+  void getOffers() async {
+    print('_OfferListState._getOffers .......................');
     if (endTime == null) {
       endTime = DateTime.now();
       startTime = endTime.subtract(Duration(days: 10));
@@ -41,9 +44,9 @@ class _OfferListState extends State<OfferList> {
     offers = await ListAPI.getOffersByPeriod(startTime, endTime);
     print('_OfferListState._getOffers offers in period: ${offers.length}');
     setState(() {});
-    offers.forEach((off) {
-      prettyPrint(off.toJson(), 'Offer:');
-    });
+//    offers.forEach((off) {
+//      prettyPrint(off.toJson(), 'Offer:');
+//    });
   }
 
   _showMenuDialog(Offer offer) {
@@ -99,6 +102,37 @@ class _OfferListState extends State<OfferList> {
                   ],
                 ),
               ),
+            ));
+  }
+
+  _showDetailsDialog(Offer offer) {
+    this.offer = offer;
+    showDialog(
+        context: context,
+        builder: (_) => new AlertDialog(
+              title: new Text(
+                "Offer Actions",
+                style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).primaryColor),
+              ),
+              content: Container(
+                height: 200.0,
+                child: OfferListCard(
+                  offer: offer,
+                  color: Colors.grey.shade50,
+                ),
+              ),
+              actions: <Widget>[
+                FlatButton(
+                  onPressed: _onNoPressed,
+                  child: Text('No'),
+                ),
+                FlatButton(
+                  onPressed: _onInvoiceBidRequired,
+                  child: Text('MAKE INVOICE BID'),
+                ),
+              ],
             ));
   }
 
@@ -193,17 +227,15 @@ class _OfferListState extends State<OfferList> {
           itemBuilder: (BuildContext context, int index) {
             return new InkWell(
               onTap: () {
-                _showMenuDialog(offers.elementAt(index));
+                _showDetailsDialog(offers.elementAt(index));
               },
               child: Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: OfferCard(
-                  offer: offers.elementAt(index),
-                  color: getRandomPastelColor(),
-                ),
+                padding: const EdgeInsets.all(2.0),
+                child: OfferPanel(offers.elementAt(index), index + 1),
               ),
             );
           }),
+      backgroundColor: Colors.indigo.shade50,
     );
   }
 
@@ -256,13 +288,31 @@ class _OfferListState extends State<OfferList> {
   void _onOfferDetails() {
     print('_OfferListState._onOfferDetails');
   }
+
+  void _onNoPressed() {
+    print('_OfferListState._onNoPressed');
+  }
+
+  Future _onInvoiceBidRequired() async {
+    prettyPrint(offer.toJson(), '_OfferListState._onYesPressed....');
+    Navigator.pop(context);
+    bool refresh = await Navigator.push(
+      context,
+      new MaterialPageRoute(builder: (context) => new InvoiceBidder(offer)),
+    );
+    print(
+        '_OfferListState._onInvoiceBidRequired back from Bidder, refresh: $refresh');
+    if (refresh) {
+      getOffers();
+    }
+  }
 }
 
-class OfferCard extends StatelessWidget {
+class OfferListCard extends StatelessWidget {
   final Offer offer;
   final Color color;
 
-  OfferCard({this.offer, this.color});
+  OfferListCard({this.offer, this.color});
   final boldStyle = TextStyle(
     color: Colors.black,
     fontSize: 16.0,
@@ -270,90 +320,151 @@ class OfferCard extends StatelessWidget {
   );
   final amtStyle = TextStyle(
     color: Colors.teal,
-    fontSize: 24.0,
+    fontSize: 18.0,
     fontWeight: FontWeight.w900,
   );
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 3.0,
-      color: color,
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
+    print('OfferListCard.build');
+    return Column(
+      children: <Widget>[
+        Row(
           children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                children: <Widget>[
-                  Container(width: 70.0, child: Text('Supplier')),
-                  Text(
-                      offer.supplierName == null
-                          ? 'Unknown yet'
-                          : offer.supplierName,
-                      style: boldStyle),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                children: <Widget>[
-                  Container(width: 70.0, child: Text('Customer')),
-                  Text(
-                      offer.customerName == null
-                          ? 'Unknown yet'
-                          : offer.customerName,
-                      style: boldStyle),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                children: <Widget>[
-                  Container(width: 70.0, child: Text('Start')),
-                  Text(
-                      offer.startTime == null
-                          ? 'Unknown yet'
-                          : getFormattedLongestDate(offer.startTime),
-                      style:
-                          TextStyle(fontSize: 14.0, color: Colors.deepPurple)),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                children: <Widget>[
-                  Container(width: 70.0, child: Text('End')),
-                  Text(
-                      offer.endTime == null
-                          ? 'Unknown yet'
-                          : getFormattedLongestDate(offer.endTime),
-                      style: TextStyle(
-                          fontSize: 14.0,
-                          color: Colors.red,
-                          fontWeight: FontWeight.bold)),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                children: <Widget>[
-                  Container(width: 70.0, child: Text('Amount')),
-                  Text(
-                    offer.offerAmount == null
-                        ? 'Unknown yet'
-                        : '${offer.offerAmount}',
-                    style: amtStyle,
-                  ),
-                ],
-              ),
-            ),
+            Text(
+                offer.supplierName == null ? 'Unknown yet' : offer.supplierName,
+                style: boldStyle),
           ],
+        ),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Row(
+            children: <Widget>[
+              Container(width: 30.0, child: Text('For')),
+              Text(
+                  offer.customerName == null
+                      ? 'Unknown yet'
+                      : offer.customerName,
+                  style: boldStyle),
+            ],
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(left: 8.0, top: 20.0),
+          child: Row(
+            children: <Widget>[
+              Container(width: 40.0, child: Text('Start')),
+              Text(
+                  offer.startTime == null
+                      ? 'Unknown yet'
+                      : getFormattedLongestDate(offer.startTime),
+                  style: TextStyle(fontSize: 14.0, color: Colors.deepPurple)),
+            ],
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Row(
+            children: <Widget>[
+              Container(width: 40.0, child: Text('End')),
+              Text(
+                  offer.endTime == null
+                      ? 'Unknown yet'
+                      : getFormattedLongestDate(offer.endTime),
+                  style: TextStyle(
+                      fontSize: 14.0,
+                      color: Colors.red,
+                      fontWeight: FontWeight.bold)),
+            ],
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Row(
+            children: <Widget>[
+              Container(width: 70.0, child: Text('Amount')),
+              Text(
+                offer.offerAmount == null
+                    ? 'Unknown yet'
+                    : getFormattedAmount('${offer.offerAmount}', context),
+                style: amtStyle,
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class OfferPanel extends StatelessWidget {
+  final Offer offer;
+  final int number;
+
+  OfferPanel(this.offer, this.number);
+
+  TextStyle getTextStyle() {
+    if (offer.dateClosed == null) {
+      return TextStyle(
+          color: Colors.teal, fontSize: 20.0, fontWeight: FontWeight.bold);
+    } else {
+      return TextStyle(
+          color: Colors.pink, fontSize: 14.0, fontWeight: FontWeight.normal);
+    }
+  }
+
+  String getStatus() {
+    if (offer.dateClosed == null) {
+      return 'Open';
+    } else {
+      return 'Closed';
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: Card(
+        elevation: 1.0,
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Row(
+            children: <Widget>[
+              Container(
+                width: 40.0,
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 8.0),
+                  child: Text(
+                    '$number',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                  ),
+                ),
+              ),
+              Container(
+                width: 60.0,
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 20.0),
+                  child: Text(
+                    getStatus(),
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: 10.0),
+                child: Text(
+                  getFormattedAmount('${offer.offerAmount}', context),
+                  style: TextStyle(
+                      color: Colors.teal,
+                      fontSize: 20.0,
+                      fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
