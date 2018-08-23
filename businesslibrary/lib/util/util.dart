@@ -1,8 +1,14 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
-const DEBUG_URL_HOME = 'http://192.168.86.238:3003/api/'; //FIBRE
-const DEBUG_URL_ROUTER = 'http://192.168.8.237:3003/api/'; //ROUTER
-const RELEASE_URL = 'http://192.168.86.238:3003/api/'; //CLOUD
+const DEBUG_URL_HOME = 'https://bfnrestserver.eu-gb.mybluemix.net/api/'; //FIBRE
+const DEBUG_URL_ROUTER =
+    'https://bfnrestserver.eu-gb.mybluemix.net/api/'; //ROUTER
+const RELEASE_URL = 'https://bfnrestserver.eu-gb.mybluemix.net/api/'; //CLOUD
+////
+//const DEBUG_URL_HOME = 'http://192.168.86.238:3003/api/'; //FIBRE
+//const DEBUG_URL_ROUTER = 'http://192.168.8.237:3003/api/'; //ROUTER
+//const RELEASE_URL = 'http://192.168.86.238:3003/api/'; //CLOUD
 
 String getURL() {
   var url;
@@ -188,4 +194,13 @@ List<DropdownMenuItem<int>> buildDaysDropDownItems() {
 
 String _toTwoDigitString(int value) {
   return value.toString().padLeft(2, '0');
+}
+
+void listen() {
+  CollectionReference reference = Firestore.instance.collection('planets');
+  reference.snapshots().listen((querySnapshot) {
+    querySnapshot.documentChanges.forEach((change) {
+      // Do something with change
+    });
+  });
 }

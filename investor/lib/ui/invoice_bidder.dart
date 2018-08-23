@@ -10,6 +10,7 @@ import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/util.dart';
 import 'package:flutter/material.dart';
 import 'package:investor/ui/invoice_bid_list.dart';
+import 'package:investor/ui/invoice_due_diligence.dart';
 
 class InvoiceBidder extends StatefulWidget {
   final Offer offer;
@@ -33,6 +34,7 @@ class _InvoiceBidderState extends State<InvoiceBidder>
 
     _getCached();
     _buildItems();
+    _getExistingBids();
   }
 
   void _getCached() async {
@@ -43,14 +45,16 @@ class _InvoiceBidderState extends State<InvoiceBidder>
 
   List<InvoiceBid> bids;
   void _getExistingBids() async {
+    prettyPrint(offer.toJson(),
+        '_InvoiceBidderState._getExistingBids .......OFFER.....');
     bids = await ListAPI.getInvoiceBidsByOffer(offer);
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
     offer = widget.offer;
-    _getExistingBids();
-    prettyPrint(offer.toJson(), '_InvoiceBidderState._build .......OFFER.....');
+
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
@@ -64,13 +68,11 @@ class _InvoiceBidderState extends State<InvoiceBidder>
 
   Widget _getBottom() {
     return PreferredSize(
-      preferredSize: Size.fromHeight(80.0),
+      preferredSize: Size.fromHeight(60.0),
       child: Padding(
         padding: const EdgeInsets.only(bottom: 18.0),
         child: Column(
           children: <Widget>[
-            Text(investor == null ? '' : investor.name,
-                style: getTextWhiteSmall()),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: <Widget>[
@@ -107,15 +109,31 @@ class _InvoiceBidderState extends State<InvoiceBidder>
           ),
         ),
         Padding(
-          padding: const EdgeInsets.only(bottom: 12.0),
-          child: Center(
-            child: Text(
-              'Invoice Bid Amount',
-              style: TextStyle(
-                  fontSize: 24.0,
-                  color: Colors.grey,
-                  fontWeight: FontWeight.bold),
-            ),
+          padding: const EdgeInsets.only(bottom: 4.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.only(left: 8.0),
+                child: Text(
+                  'Invoice Due Diligence',
+                  style: TextStyle(
+                      fontSize: 24.0,
+                      color: Colors.grey,
+                      fontWeight: FontWeight.bold),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: 12.0, right: 12.0),
+                child: IconButton(
+                  icon: Icon(
+                    Icons.search,
+                    color: Colors.pink,
+                  ),
+                  onPressed: _onSearch,
+                ),
+              ),
+            ],
           ),
         ),
         Center(
@@ -183,6 +201,28 @@ class _InvoiceBidderState extends State<InvoiceBidder>
   List<DropdownMenuItem<double>> items = List();
   void _buildItems() {
     var item00a = DropdownMenuItem<double>(
+      value: 0.25,
+      child: Row(
+        children: <Widget>[
+          Icon(
+            Icons.apps,
+            color: Colors.green,
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text(
+              '0.25 %',
+              style: TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16.0),
+            ),
+          ),
+        ],
+      ),
+    );
+    items.add(item00a);
+    var item00b = DropdownMenuItem<double>(
       value: 0.5,
       child: Row(
         children: <Widget>[
@@ -203,7 +243,7 @@ class _InvoiceBidderState extends State<InvoiceBidder>
         ],
       ),
     );
-    items.add(item00a);
+    items.add(item00b);
     //
     var item000 = DropdownMenuItem<double>(
       value: 1.0,
@@ -589,27 +629,28 @@ class _InvoiceBidderState extends State<InvoiceBidder>
     print('');
     prettyPrint(offer.toJson(), '_InvoiceBidderState._onMakeBid ............');
     InvoiceBid bid = InvoiceBid(
-      participantId: investor.participantId,
-      user: NameSpace + 'User#' + user.userId,
-      reservePercent: '$percentage',
-      date: new DateTime.now().toIso8601String(),
-      offer: NameSpace + 'Offer#' + offer.offerId,
-      investor: NameSpace + 'Investor#' + investor.participantId,
-      investorName: investor.name,
-      amount: amount,
-      discountPercent: offer.discountPercent,
-      startTime: offer.startTime,
-      endTime: offer.endTime,
-    );
+        participantId: investor.participantId,
+        user: NameSpace + 'User#' + user.userId,
+        reservePercent: '$percentage',
+        date: new DateTime.now().toIso8601String(),
+        offer: NameSpace + 'Offer#' + offer.offerId,
+        investor: NameSpace + 'Investor#' + investor.participantId,
+        investorName: investor.name,
+        amount: amount,
+        discountPercent: offer.discountPercent,
+        startTime: offer.startTime,
+        endTime: offer.endTime,
+        supplierId: offer.supplierDocumentRef);
 
     AppSnackbar.showSnackbarWithProgressIndicator(
         scaffoldKey: _scaffoldKey,
         message: 'Making invoice bid ...',
         textColor: Colors.white,
         backgroundColor: Colors.black);
+
     prettyPrint(bid.toJson(), "invoiceBid about to go : ....");
     var api = DataAPI(getURL());
-    var key = await api.makeInvoiceBid(bid, offer);
+    var key = await api.makeInvoiceBid(bid, offer, investor);
     if (key == '0') {
       AppSnackbar.showErrorSnackbar(
           scaffoldKey: _scaffoldKey,
@@ -626,6 +667,8 @@ class _InvoiceBidderState extends State<InvoiceBidder>
           listener: this,
           icon: Icons.done_all,
           action: 0);
+      bids.insert(0, bid);
+      setState(() {});
     }
   }
 
@@ -633,5 +676,14 @@ class _InvoiceBidderState extends State<InvoiceBidder>
   onActionPressed(int action) {
     //Navigator.pop(context);
     Navigator.pop(context, true);
+  }
+
+  void _onSearch() {
+    print('_InvoiceBidderState._onSearch ================= ');
+    Navigator.push(
+      context,
+      new MaterialPageRoute(
+          builder: (context) => new InvoiceDueDiligence(offer)),
+    );
   }
 }

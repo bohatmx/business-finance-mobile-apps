@@ -409,6 +409,7 @@ class _DashboardState extends State<Dashboard>
   onDeliveryNote(DeliveryNote deliveryNote) {
     setState(() {
       deliveryNotes.insert(0, deliveryNote);
+      totalNotes = deliveryNotes.length;
     });
     prettyPrint(deliveryNote.toJson(), 'FCM message received DeliveryNote: ');
     messageReceived = DeliveryNotes;

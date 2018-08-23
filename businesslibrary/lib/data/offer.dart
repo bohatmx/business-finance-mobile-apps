@@ -4,8 +4,8 @@ class Offer {
   String startTime;
   String endTime;
   String invoice, documentReference, privateSectorType;
-  String purchaseOrder, participantId;
-  String user, date, supplier;
+  String purchaseOrder, participantId, wallet;
+  String user, date, supplier, contractURL;
   String invoiceDocumentRef, supplierName, customerName;
   DateTime dateClosed;
   String supplierDocumentRef, supplierFCMToken;
@@ -30,6 +30,8 @@ class Offer {
       this.customerName,
       this.invoiceAmount,
       this.offerAmount,
+      this.contractURL,
+      this.wallet,
       this.supplierFCMToken,
       this.invoiceDocumentRef,
       this.supplierDocumentRef,
@@ -59,6 +61,8 @@ class Offer {
 
     this.invoiceAmount = data['invoiceAmount'];
     this.offerAmount = data['offerAmount'];
+    this.contractURL = data['contractURL'];
+    this.wallet = data['wallet'];
   }
 
   Map<String, dynamic> toJson() => <String, dynamic>{
@@ -83,5 +87,7 @@ class Offer {
         'customerName': customerName,
         'invoiceAmount': invoiceAmount,
         'offerAmount': offerAmount,
+        'contractURL': contractURL,
+        'wallet': wallet,
       };
 }

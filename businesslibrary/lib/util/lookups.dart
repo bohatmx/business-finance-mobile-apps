@@ -586,11 +586,12 @@ Future<String> createWallet(
     return '0';
   }
 
-  var writeResult = await _writeWalletToFirestore(type, wallet, participantId);
-  if (writeResult == '0') {
+  var walletDocId = await _writeWalletToFirestore(type, wallet, participantId);
+  if (walletDocId == '0') {
     return '0';
   }
 
+  wallet.documentReference = walletDocId;
   DataAPI api = DataAPI(getURL());
   var key = await api.addWallet(wallet);
   if (key != '0') {

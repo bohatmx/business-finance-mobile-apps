@@ -257,51 +257,33 @@ class DeliveryNoteCard extends StatelessWidget {
       elevation: 2.0,
       color: Colors.pink.shade50,
       child: new Padding(
-        padding: const EdgeInsets.all(10.0),
+        padding: const EdgeInsets.all(4.0),
         child: new GestureDetector(
           onTap: _onNoteTapped,
           child: Column(
             children: <Widget>[
-              new Row(
-                children: <Widget>[
-                  new Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Icon(
-                      Icons.apps,
-                      color: Theme.of(context).primaryColor,
-                    ),
-                  ),
-                  Text(
-                    ':',
-                    style: TextStyle(
-                        fontSize: 16.0,
-                        fontWeight: FontWeight.normal,
-                        color: Colors.grey),
-                  ),
-                  Text(
-                    deliveryNote.supplierName == null
-                        ? ''
-                        : deliveryNote.supplierName,
-                    style:
-                        TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
-                  ),
-                ],
-              ),
-              new Padding(
-                padding: const EdgeInsets.only(left: 10.0),
+              Padding(
+                padding: const EdgeInsets.only(left: 0.0, bottom: 16.0),
                 child: new Row(
                   children: <Widget>[
+                    new Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Icon(
+                        Icons.apps,
+                        color: Theme.of(context).primaryColor,
+                      ),
+                    ),
                     Text(
-                      'Purchase Order:',
+                      ':',
                       style: TextStyle(
                           fontSize: 16.0,
                           fontWeight: FontWeight.normal,
-                          color: Colors.grey),
+                          color: Colors.pink),
                     ),
                     Text(
-                      deliveryNote.purchaseOrderNumber == null
+                      deliveryNote.supplierName == null
                           ? ''
-                          : deliveryNote.purchaseOrderNumber,
+                          : deliveryNote.supplierName,
                       style: TextStyle(
                           fontSize: 16.0, fontWeight: FontWeight.bold),
                     ),
@@ -312,19 +294,49 @@ class DeliveryNoteCard extends StatelessWidget {
                 padding: const EdgeInsets.only(left: 10.0),
                 child: new Row(
                   children: <Widget>[
+                    Container(
+                      width: 140.0,
+                      child: Text(
+                        'Purchase Order:',
+                        style: TextStyle(
+                            fontSize: 16.0,
+                            fontWeight: FontWeight.normal,
+                            color: Colors.grey),
+                      ),
+                    ),
                     Text(
-                      'PO Date:',
+                      deliveryNote.purchaseOrderNumber == null
+                          ? ''
+                          : deliveryNote.purchaseOrderNumber,
                       style: TextStyle(
-                          fontSize: 16.0,
-                          fontWeight: FontWeight.normal,
-                          color: Colors.grey),
+                          fontSize: 24.0, fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+              ),
+              new Padding(
+                padding:
+                    const EdgeInsets.only(left: 10.0, top: 16.0, bottom: 12.0),
+                child: new Row(
+                  children: <Widget>[
+                    Container(
+                      width: 140.0,
+                      child: Text(
+                        'PO Date:',
+                        style: TextStyle(
+                            fontSize: 16.0,
+                            fontWeight: FontWeight.normal,
+                            color: Colors.grey),
+                      ),
                     ),
                     Text(
                       deliveryNote.date == null
                           ? ''
-                          : getFormattedDateLong(deliveryNote.date, context),
+                          : getFormattedDate(deliveryNote.date),
                       style: TextStyle(
-                          fontSize: 16.0, fontWeight: FontWeight.bold),
+                          fontSize: 16.0,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.deepOrangeAccent),
                     ),
                   ],
                 ),

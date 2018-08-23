@@ -6,13 +6,12 @@ import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/delivery_acceptance.dart';
 import 'package:businesslibrary/data/delivery_note.dart';
 import 'package:businesslibrary/data/invoice.dart';
+import 'package:businesslibrary/data/invoice_acceptance.dart';
 import 'package:businesslibrary/data/invoice_bid.dart';
 import 'package:businesslibrary/data/invoice_settlement.dart';
-import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
-import 'package:businesslibrary/data/wallet.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/wallet_page.dart';
@@ -21,6 +20,8 @@ import 'package:flutter/services.dart';
 import 'package:supplierv3/ui/contract_list.dart';
 import 'package:supplierv3/ui/delivery_acceptance_list.dart';
 import 'package:supplierv3/ui/delivery_note_list.dart';
+import 'package:supplierv3/ui/fcm_handler.dart';
+import 'package:supplierv3/ui/invoice_bids.dart';
 import 'package:supplierv3/ui/invoice_list.dart';
 import 'package:supplierv3/ui/purchase_order_list.dart';
 import 'package:supplierv3/ui/summary_card.dart';
@@ -32,14 +33,14 @@ class Dashboard extends StatefulWidget {
 
   @override
   _DashboardState createState() => _DashboardState();
-  static _DashboardState of(BuildContext context) =>
-      context.ancestorStateOfType(const TypeMatcher<_DashboardState>());
+//  static _DashboardState of(BuildContext context) =>
+//      context.ancestorStateOfType(const TypeMatcher<_DashboardState>());
 }
 
 class _DashboardState extends State<Dashboard>
     with TickerProviderStateMixin
-    implements SnackBarListener, FCMListener {
-  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+    implements SnackBarListener, FCMessageListener {
+  static GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   static const platform = const MethodChannel('com.oneconnect.files/pdf');
   String message;
   AnimationController animationController;
@@ -63,12 +64,9 @@ class _DashboardState extends State<Dashboard>
       vsync: this,
     );
     animation = new Tween(begin: 0.0, end: 1.0).animate(animationController);
-    _getCachedPrefs();
-    _configMessaging();
-  }
 
-  void _configMessaging() async {
-    configureMessaging(this);
+    configureAppMessaging(this);
+    _getCachedPrefs();
   }
 
   @override
@@ -85,7 +83,7 @@ class _DashboardState extends State<Dashboard>
         message: 'Loading dashboard data',
         textColor: Colors.white,
         backgroundColor: Colors.black);
-    await _getPOs();
+    await getPurchaseOrders();
     await getDelNotes();
     await _getInvoices();
     await _getSettlements();
@@ -136,7 +134,7 @@ class _DashboardState extends State<Dashboard>
     });
   }
 
-  Future _getPOs() async {
+  Future getPurchaseOrders() async {
     purchaseOrders = await ListAPI.getPurchaseOrders(
         supplier.documentReference, 'suppliers');
     setState(() {
@@ -408,127 +406,65 @@ class _DashboardState extends State<Dashboard>
       InvoiceBidConstant = 5,
       InvestorSettlement = 6,
       WalletConstant = 7;
+
   @override
   onCompanySettlement(CompanyInvoiceSettlement settlement) {
-    AppSnackbar.showSnackbarWithAction(
-        scaffoldKey: _scaffoldKey,
-        message: 'Company Invoice Settlement arrived',
-        textColor: Colors.white,
-        backgroundColor: Colors.black,
-        actionLabel: 'OK',
-        action: CompanySettlementConstant,
-        listener: this,
-        icon: Icons.done);
+    // TODO: implement onCompanySettlement
   }
 
   @override
   onDeliveryAcceptance(DeliveryAcceptance deliveryAcceptance) {
-    prettyPrint(deliveryAcceptance.toJson(), 'Dashboard onDeliveryAcceptance:');
-
-    if (_scaffoldKey.currentState != null) {
-      AppSnackbar.showSnackbarWithAction(
-          scaffoldKey: _scaffoldKey,
-          message: 'Delivery Note accepted by customer',
-          textColor: Colors.white,
-          backgroundColor: Colors.black,
-          actionLabel: 'INVOICE',
-          listener: this,
-          action: DeliveryAcceptanceConstant,
-          icon: Icons.done);
-    } else {
-      print('_DashboardState.onDeliveryAcceptance currentState is NULL');
-    }
+    // TODO: implement onDeliveryAcceptance
   }
 
   @override
-  onDeliveryNote(DeliveryNote deliveryNote) {}
-
-  @override
   onGovtInvoiceSettlement(GovtInvoiceSettlement settlement) {
-    AppSnackbar.showSnackbarWithAction(
-        scaffoldKey: _scaffoldKey,
-        message: 'Govt Invoice Settlement arrived',
-        textColor: Colors.white,
-        backgroundColor: Colors.black,
-        actionLabel: 'OK',
-        listener: this,
-        action: GovtSettlement,
-        icon: Icons.done);
+    // TODO: implement onGovtInvoiceSettlement
   }
 
   @override
   onInvestorSettlement(InvestorInvoiceSettlement settlement) {
-    AppSnackbar.showSnackbarWithAction(
-        scaffoldKey: _scaffoldKey,
-        message: 'Investor Invoice Settlement arrived',
-        textColor: Colors.white,
-        backgroundColor: Colors.black,
-        actionLabel: 'OK',
-        listener: this,
-        action: InvestorSettlement,
-        icon: Icons.done);
+    // TODO: implement onInvestorSettlement
   }
 
   @override
-  onInvoiceBidMessage(InvoiceBid invoiceBid) {
-    AppSnackbar.showSnackbarWithAction(
-        scaffoldKey: _scaffoldKey,
-        message: 'Invoice Bid received',
-        textColor: Colors.white,
-        backgroundColor: Colors.black,
-        actionLabel: 'Open',
-        listener: this,
-        action: InvoiceBidConstant,
-        icon: Icons.done);
+  onInvoiceAcceptance(InvoiceAcceptance invoiceAcceptance) {
+    // TODO: implement onInvoiceAcceptance
   }
 
   @override
-  onInvoiceMessage(Invoice invoice) {}
+  onInvoiceBidMessage(InvoiceBid invoiceBid) async {
+    print('_DashboardState.onInvoiceBidMessage ########### should happen????');
 
-  @override
-  onOfferMessage(Offer offer) {}
+    String id = invoiceBid.offer.split("#").elementAt(1);
+    AppSnackbar.showSnackbarWithProgressIndicator(
+        scaffoldKey: _scaffoldKey,
+        message: 'Loading bids',
+        textColor: Colors.lightBlue,
+        backgroundColor: Colors.black);
+    var bag = await ListAPI.getOfferById(id);
+
+    _scaffoldKey.currentState.hideCurrentSnackBar();
+    Navigator.push(
+      context,
+      new MaterialPageRoute(builder: (context) => new InvoiceBids(bag)),
+    );
+  }
 
   @override
   onPurchaseOrderMessage(PurchaseOrder purchaseOrder) {
-    print('_DashboardState.onPurchaseOrderMessage');
-    prettyPrint(purchaseOrder.toJson(), "received from fcm in dashboard");
-
+    AppSnackbar.showSnackbarWithAction(
+        scaffoldKey: _scaffoldKey,
+        message: 'Purchase Order arrived',
+        textColor: Colors.white,
+        backgroundColor: Colors.black,
+        actionLabel: 'OK',
+        listener: this,
+        icon: Icons.message,
+        action: PurchaseOrderConstant);
+    purchaseOrders.insert(0, purchaseOrder);
     setState(() {
-      purchaseOrders.insert(0, purchaseOrder);
       totalPOs = purchaseOrders.length;
     });
-    AppSnackbar.showSnackbarWithAction(
-        scaffoldKey: _scaffoldKey,
-        message: 'Purchase Order received',
-        textColor: Colors.white,
-        backgroundColor: Colors.black,
-        actionLabel: 'OK',
-        listener: this,
-        action: PurchaseOrderConstant,
-        icon: Icons.done);
-  }
-
-  @override
-  onWalletError() {
-    AppSnackbar.showErrorSnackbar(
-        scaffoldKey: _scaffoldKey,
-        message: 'Wallet creation failed',
-        listener: this,
-        actionLabel: 'Close');
-  }
-
-  @override
-  onWalletMessage(Wallet wallet) async {
-    print(
-        '\n\n_DashboardState.onWalletMessage wallet received. cycle is COMLETE!!!\n\n');
-    AppSnackbar.showSnackbarWithAction(
-        scaffoldKey: _scaffoldKey,
-        message: 'Wallet created',
-        textColor: Colors.white,
-        backgroundColor: Colors.black,
-        actionLabel: 'OK',
-        listener: this,
-        action: WalletConstant,
-        icon: Icons.done);
   }
 }

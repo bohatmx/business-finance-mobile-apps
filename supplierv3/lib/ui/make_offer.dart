@@ -14,6 +14,8 @@ class MakeOfferPage extends StatefulWidget {
   final Invoice invoice;
 
   MakeOfferPage(this.invoice);
+  static _MakeOfferPageState of(BuildContext context) =>
+      context.ancestorStateOfType(const TypeMatcher<_MakeOfferPageState>());
 
   @override
   _MakeOfferPageState createState() => _MakeOfferPageState();
@@ -22,7 +24,8 @@ class MakeOfferPage extends StatefulWidget {
 class _MakeOfferPageState extends State<MakeOfferPage>
     implements SnackBarListener {
   static const NameSpace = 'resource:com.oneconnect.biz.';
-  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  static GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+
   Invoice invoice;
   Supplier supplier;
   PurchaseOrder purchaseOrder;
@@ -270,6 +273,40 @@ class _MakeOfferPageState extends State<MakeOfferPage>
       ),
     );
     items.add(item12);
+
+    var item13 = DropdownMenuItem<String>(
+      value: '70.0',
+      child: Row(
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Icon(
+              Icons.apps,
+              color: Colors.red,
+            ),
+          ),
+          Text('70.0 %'),
+        ],
+      ),
+    );
+    items.add(item13);
+
+    var item14 = DropdownMenuItem<String>(
+      value: '80.0',
+      child: Row(
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Icon(
+              Icons.apps,
+              color: Colors.red,
+            ),
+          ),
+          Text('80.0 %'),
+        ],
+      ),
+    );
+    items.add(item14);
   }
 
   _getStartTime() async {
@@ -313,7 +350,7 @@ class _MakeOfferPageState extends State<MakeOfferPage>
       double investorDiscount = offerDiscount;
 
       double offerAmt = invoice.amount;
-      double supplierAmt = (offerAmt * (100.0 - investorDiscount)) / 100;
+      double supplierAmt = (offerAmt * (investorDiscount)) / 100;
       print('MakeOffer._calculateExpected amt: '
           ' $offerAmt offerDiscount: $offerDiscount investorDiscount: '
           '$investorDiscount supplierAmt: $supplierAmt investorAmt: ${offerAmt - supplierAmt} check: ${supplierAmt + (offerAmt - supplierAmt)}\n\n');
@@ -535,7 +572,7 @@ class _MakeOfferPageState extends State<MakeOfferPage>
                     Padding(
                       padding: const EdgeInsets.only(left: 8.0),
                       child: Text(
-                        '${invoice.amount}',
+                        getFormattedAmount('${invoice.amount}', context),
                         style: TextStyle(
                             fontSize: 20.0, fontWeight: FontWeight.bold),
                       ),

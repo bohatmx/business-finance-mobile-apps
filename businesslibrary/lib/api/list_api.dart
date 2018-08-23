@@ -26,7 +26,7 @@ class ListAPI {
         .where(ownerType, isEqualTo: name)
         .getDocuments();
     Wallet wallet = Wallet.fromJson(qs.documents.first.data);
-    if (wallet.encryptedSecret != null) {
+    if (wallet.secret == null) {
       var decrypted =
           await decrypt(wallet.stellarPublicKey, wallet.encryptedSecret);
       wallet.secret = decrypted;
@@ -132,6 +132,38 @@ class ListAPI {
     });
 
     return list;
+  }
+
+  static Future<OfferBag> getOfferById(String id) async {
+    Offer offer;
+    var qs = await _firestore
+        .collection('invoiceOffers')
+        .where('offerId', isEqualTo: id)
+        .getDocuments()
+        .catchError((e) {
+      print('ListAPI.getOfferById $e');
+      return null;
+    });
+    print('ListAPI.getOfferById found offers: ${qs.documents.length} ');
+    offer = Offer.fromJson(qs.documents.first.data);
+
+    var qs1 = await _firestore
+        .collection('invoiceOffers')
+        .document(qs.documents.first.documentID)
+        .collection('invoiceBids')
+        .getDocuments()
+        .catchError((e) {
+      print('ListAPI.getOfferById $e');
+      return null;
+    });
+
+    List<InvoiceBid> bids = List();
+    qs1.documents.forEach((doc) {
+      bids.add(InvoiceBid.fromJson(doc.data));
+    });
+    print('ListAPI.getOfferById found invoice bids: ${qs1.documents.length} ');
+    var bag = OfferBag(offer: offer, invoiceBids: bids);
+    return bag;
   }
 
   static Future<List<Offer>> getOffersByPeriod(
@@ -451,4 +483,11 @@ class ListAPI {
 
     return list;
   }
+}
+
+class OfferBag {
+  Offer offer;
+  List<InvoiceBid> invoiceBids = List();
+
+  OfferBag({this.offer, this.invoiceBids});
 }

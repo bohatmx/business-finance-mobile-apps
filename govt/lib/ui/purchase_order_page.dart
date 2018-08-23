@@ -209,7 +209,7 @@ class _PurchaseOrderPageState extends State<PurchaseOrderPageGovt>
                 child: ListView(
                   children: <Widget>[
                     new Padding(
-                      padding: const EdgeInsets.only(top: 14.0, bottom: 10.0),
+                      padding: const EdgeInsets.only(top: 8.0, bottom: 10.0),
                       child: new Opacity(
                         opacity: 0.4,
                         child: Text(
@@ -225,23 +225,24 @@ class _PurchaseOrderPageState extends State<PurchaseOrderPageGovt>
                       children: <Widget>[
                         new Padding(
                           padding: const EdgeInsets.only(
-                              left: 0.0, right: 0.0, top: 28.0),
+                              left: 0.0, right: 0.0, top: 8.0),
                           child: RaisedButton(
                             onPressed: _getSupplier,
-                            elevation: 2.0,
+                            elevation: 8.0,
                             color: Theme.of(context).primaryColor,
                             child: Text(
-                              'Get Supplier',
+                              'Get Supplier for PO',
                               style: TextStyle(color: Colors.white),
                             ),
                           ),
                         ),
                         new Padding(
-                          padding: const EdgeInsets.only(top: 18.0),
+                          padding:
+                              const EdgeInsets.only(top: 18.0, bottom: 24.0),
                           child: Text(
                             supplier == null ? '' : supplier.name,
                             style: TextStyle(
-                              fontSize: 24.0,
+                              fontSize: 20.0,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -249,6 +250,10 @@ class _PurchaseOrderPageState extends State<PurchaseOrderPageGovt>
                       ],
                     ),
                     TextFormField(
+                      style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 20.0,
+                          fontWeight: FontWeight.bold),
                       decoration: InputDecoration(
                         labelText: 'Purchase Order Number',
                       ),
@@ -261,6 +266,10 @@ class _PurchaseOrderPageState extends State<PurchaseOrderPageGovt>
                       onSaved: (val) => poNumber = val,
                     ),
                     TextFormField(
+                      style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 20.0,
+                          fontWeight: FontWeight.bold),
                       decoration: InputDecoration(
                         labelText: 'Amount',
                       ),

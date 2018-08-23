@@ -22,7 +22,7 @@ class SupplierApp extends StatelessWidget {
       title: 'FinanceNetwork',
       debugShowCheckedModeBanner: false,
       theme: getTheme(),
-      home: new StartPage(title: 'Business Finance App - Supplier'),
+      home: new StartPage(title: 'Business Finance - Supplier'),
     );
   }
 }

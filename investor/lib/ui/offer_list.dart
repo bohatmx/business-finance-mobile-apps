@@ -107,6 +107,7 @@ class _OfferListState extends State<OfferList> with WidgetsBindingObserver {
 
   _showDetailsDialog(Offer offer) {
     this.offer = offer;
+    prettyPrint(offer.toJson(), 'Offer selected %%%%%%%%:');
     showDialog(
         context: context,
         builder: (_) => new AlertDialog(
@@ -300,6 +301,9 @@ class _OfferListState extends State<OfferList> with WidgetsBindingObserver {
       context,
       new MaterialPageRoute(builder: (context) => new InvoiceBidder(offer)),
     );
+    if (refresh == null) {
+      return;
+    }
     print(
         '_OfferListState._onInvoiceBidRequired back from Bidder, refresh: $refresh');
     if (refresh) {

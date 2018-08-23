@@ -1039,10 +1039,25 @@ class DataAPI {
     prettyPrint(inv.toJson(), 'updated invoice on  Firestore');
   }
 
-  Future<String> makeInvoiceBid(InvoiceBid bid, Offer offer) async {
+  Future<String> makeInvoiceBid(
+      InvoiceBid bid, Offer offer, Investor investor) async {
     assert(offer.documentReference != null);
+    assert(investor.documentReference != null);
+
     bid.invoiceBidId = getKey();
     bid.date = new DateTime.now().toIso8601String();
+
+    //add bid to investor's collection
+    var ref0 = await _firestore
+        .collection('investors')
+        .document(investor.documentReference)
+        .collection('invoiceBids')
+        .add(bid.toJson())
+        .catchError((e) {
+      print('DataAPI.makeInvoiceBid ERROR $e');
+      return '0';
+    });
+    //add bid to offer collection
     var ref = await _firestore
         .collection('invoiceOffers')
         .document(offer.documentReference)
@@ -1052,6 +1067,7 @@ class DataAPI {
       print('DataAPI.makeInvoiceBid ERROR $e');
       return '0';
     });
+    print('DataAPI.makeInvoiceBid added to Firestore: ${ref0.path}');
     print('DataAPI.makeInvoiceBid added to Firestore: ${ref.path}');
 
     bid.documentReference = ref.documentID;

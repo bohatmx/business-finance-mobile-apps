@@ -22,7 +22,7 @@ class InvestorApp extends StatelessWidget {
       title: 'FinanceNetwork',
       debugShowCheckedModeBanner: false,
       theme: getTheme(),
-      home: new StartPage(title: 'Business Finance App - Investor'),
+      home: new StartPage(title: 'Business Finance - Investor'),
     );
   }
 }

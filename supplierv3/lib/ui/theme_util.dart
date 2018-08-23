@@ -4,7 +4,7 @@ ThemeData getTheme() {
   ThemeData tData = ThemeData.light();
 
   Color primary = Colors.teal.shade300;
-  Color cardColor = Colors.teal.shade50;
+  Color cardColor = Colors.brown.shade50;
   Color back = Colors.indigo.shade50;
   Color tn = Colors.pink.shade500;
 

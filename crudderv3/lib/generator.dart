@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:businesslibrary/api/data_api.dart';
+import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/signup.dart';
 import 'package:businesslibrary/api/storage_api.dart';
 import 'package:businesslibrary/data/auditor.dart';
@@ -19,6 +20,7 @@ import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/supplier_contract.dart';
 import 'package:businesslibrary/data/user.dart';
+import 'package:businesslibrary/data/wallet.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/util.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -37,90 +39,6 @@ class Generator {
   static DataAPI dataAPI;
 
   static List<WalletData> walletDataList = List();
-  // ignore: missing_return
-  static Future<int> generateWallets() async {
-    dataAPI = DataAPI(getURL());
-    var qs = await _fs.collection('govtEntities').getDocuments();
-    qs.documents.forEach((doc) {
-      var data = new WalletData(
-          participantId: doc.data['participantId'],
-          name: doc.data['name'],
-          type: GovtEntityType);
-      walletDataList.add(data);
-    });
-    var qs0 = await _fs.collection('suppliers').getDocuments();
-    qs0.documents.forEach((doc) {
-      var data = new WalletData(
-          participantId: doc.data['participantId'],
-          name: doc.data['name'],
-          type: SupplierType);
-      walletDataList.add(data);
-    });
-
-    var qs1 = await _fs.collection('investors').getDocuments();
-    qs1.documents.forEach((doc) {
-      var data = new WalletData(
-          participantId: doc.data['participantId'],
-          name: doc.data['name'],
-          type: InvestorType);
-      walletDataList.add(data);
-    });
-    var qs2 = await _fs.collection('companies').getDocuments();
-    qs2.documents.forEach((doc) {
-      var data = new WalletData(
-          participantId: doc.data['participantId'],
-          name: doc.data['name'],
-          type: CompanyType);
-      walletDataList.add(data);
-    });
-
-    var qs3 = await _fs.collection('auditors').getDocuments();
-    qs3.documents.forEach((doc) {
-      var data = new WalletData(
-          participantId: doc.data['participantId'],
-          name: doc.data['name'],
-          type: AuditorType);
-      walletDataList.add(data);
-    });
-    var qs4 = await _fs.collection('procurementOffices').getDocuments();
-    qs4.documents.forEach((doc) {
-      var data = new WalletData(
-          participantId: doc.data['participantId'],
-          name: doc.data['name'],
-          type: ProcurementOfficeType);
-      walletDataList.add(data);
-    });
-    var qs5 = await _fs.collection('banks').getDocuments();
-    qs5.documents.forEach((doc) {
-      var data = new WalletData(
-          participantId: doc.data['participantId'],
-          name: doc.data['name'],
-          type: BankType);
-      walletDataList.add(data);
-    });
-
-    print(
-        'Generator.generateWallets ###### processing ${walletDataList.length} wallets .....');
-    index = 0;
-    _processWallet();
-  }
-
-  // ignore: missing_return
-  static Future<int> _processWallet() async {
-    if (walletDataList.isEmpty) {
-      return 1;
-    }
-    var data = walletDataList.elementAt(index);
-    await createWallet(
-        name: data.name, participantId: data.participantId, type: data.type);
-    index++;
-    if (index < walletDataList.length) {
-      _processWallet();
-    } else {
-      print(
-          'Generator.processWallet DONE ####### wallets put on Firestore #######');
-    }
-  }
 
   static Future<int> generatePurchaseOrders() async {
     print('\n\n\nGenerator.generatePurchaseOrders ....................');
@@ -198,7 +116,10 @@ class Generator {
         '\n\nGenerator._processEntityPurchaseOrders purchase order for GovtEntity:  ${entity.name}  user ${user.firstName} ${user.lastName}');
     list.forEach((supplier) async {
       await _addSupplierContract(entity, user, supplier);
-      var result = await _addSupplierPurchaseOrders(entity, user, supplier);
+      var wallet = await ListAPI.getWallet(
+          'govtEntity', NameSpace + 'GovtEntity#' + entity.participantId);
+      var result =
+          await _addSupplierPurchaseOrders(entity, user, supplier, wallet);
       if (result > 0) {
         print('Generator._processEntityPurchaseOrders ERROR FOUND - quit');
         return result;
@@ -238,7 +159,7 @@ class Generator {
   }
 
   static Future<int> _addSupplierPurchaseOrders(
-      GovtEntity entity, User user, Supplier supplier) async {
+      GovtEntity entity, User user, Supplier supplier, Wallet wallet) async {
     print(
         '\n\n\nGenerator._addSupplierContract for  Supplier:  ${supplier.name} ');
     DateTime today = new DateTime.now();
@@ -262,7 +183,7 @@ class Generator {
       return 9;
     }
     print('Generator._addSupplierPurchaseOrders purchase order done: $key');
-    key = await _addDeliveryNote(entity, user, supplier, po);
+    key = await _addDeliveryNote(entity, user, supplier, po, wallet);
     if (key == '0') {
       return 9;
     }
@@ -276,7 +197,7 @@ class Generator {
       return 9;
     }
     print('Generator._addSupplierPurchaseOrders purchase order done: $key');
-    key = await _addDeliveryNote(entity, user, supplier, po);
+    key = await _addDeliveryNote(entity, user, supplier, po, wallet);
     if (key == '0') {
       return 9;
     }
@@ -290,7 +211,7 @@ class Generator {
       return 9;
     }
     print('Generator._addSupplierPurchaseOrders purchase order done: $key');
-    key = await _addDeliveryNote(entity, user, supplier, po);
+    key = await _addDeliveryNote(entity, user, supplier, po, wallet);
     if (key == '0') {
       return 9;
     }
@@ -304,7 +225,7 @@ class Generator {
       return 9;
     }
     print('Generator._addSupplierPurchaseOrders purchase order done: $key');
-    key = await _addDeliveryNote(entity, user, supplier, po);
+    key = await _addDeliveryNote(entity, user, supplier, po, wallet);
     if (key == '0') {
       return 9;
     }
@@ -318,7 +239,7 @@ class Generator {
       return 9;
     }
     print('Generator._addSupplierPurchaseOrders purchase order done: $key');
-    key = await _addDeliveryNote(entity, user, supplier, po);
+    key = await _addDeliveryNote(entity, user, supplier, po, wallet);
     if (key == '0') {
       return 9;
     }
@@ -332,7 +253,7 @@ class Generator {
       return 9;
     }
     print('Generator._addSupplierPurchaseOrders purchase order done: $key');
-    key = await _addDeliveryNote(entity, user, supplier, po);
+    key = await _addDeliveryNote(entity, user, supplier, po, wallet);
     if (key == '0') {
       return 9;
     }
@@ -342,8 +263,8 @@ class Generator {
     return 0;
   }
 
-  static Future<String> _addDeliveryNote(
-      GovtEntity entity, User user, Supplier supplier, PurchaseOrder po) async {
+  static Future<String> _addDeliveryNote(GovtEntity entity, User user,
+      Supplier supplier, PurchaseOrder po, Wallet wallet) async {
     prettyPrint(po.toJson(), 'Generator._addDeliveryNote for po');
     DeliveryNote dn = DeliveryNote();
     dn.user = NameSpace + 'User#' + user.userId;
@@ -365,12 +286,12 @@ class Generator {
     }
     print('Generator._addDeliveryNote ******************** ${dn.toJson()}');
     prettyPrint(po.toJson(), 'Generator._addDeliveryNote note:');
-    key = await _addInvoice(entity, supplier, user, po, dn);
+    key = await _addInvoice(entity, supplier, user, po, dn, wallet);
     return key;
   }
 
   static Future<String> _addInvoice(GovtEntity entity, Supplier supplier,
-      User user, PurchaseOrder po, DeliveryNote dn) async {
+      User user, PurchaseOrder po, DeliveryNote dn, Wallet wallet) async {
     double tax = po.amount * 0.15;
     var total = po.amount + tax;
     print(
@@ -378,6 +299,7 @@ class Generator {
     Invoice inv = Invoice();
     inv.govtEntity = NameSpace + 'GovtEntity#' + entity.participantId;
     inv.supplier = NameSpace + 'Supplier#' + supplier.participantId;
+    inv.wallet = NameSpace + 'Wallet#' + wallet.stellarPublicKey;
     inv.user = NameSpace + 'User#' + user.userId;
     inv.purchaseOrder = NameSpace + 'PurchaseOrder#' + po.purchaseOrderId;
     inv.deliveryNote = NameSpace + 'DeliveryNote#' + dn.deliveryNoteId;
@@ -393,6 +315,8 @@ class Generator {
     inv.customerName = entity.name;
     inv.isSettled = false;
     inv.isOnOffer = false;
+    inv.contractURL =
+        'https://firebasestorage.googleapis.com/v0/b/business-finance-dev.appspot.com/o/contracts%2FBFN2018-06-24T17%3A29%3A56.708034_42%20%2B.pdf?alt=media&token=ce591d07-3bd7-45b8-a961-499289ac141e';
 
     var key = await dataAPI.registerInvoice(inv);
     if (key == '0') {
@@ -400,12 +324,12 @@ class Generator {
       return key;
     }
     prettyPrint(inv.toJson(), 'Generator._addInvoice');
-    _addOffer(inv, user, po, supplier, entity);
+    _addOffer(inv, user, po, supplier, entity, wallet);
     return key;
   }
 
   static Future<String> _addOffer(Invoice invoice, User user, PurchaseOrder po,
-      Supplier supplier, GovtEntity entity) async {
+      Supplier supplier, GovtEntity entity, Wallet wallet) async {
     print(
         'Generator._addOffer invoice: ${invoice.invoiceNumber} --------------\n\n');
     double disc = _getRandomDiscount();
@@ -417,11 +341,13 @@ class Generator {
         invoice: NameSpace + 'Invoice#' + invoice.invoiceId,
         user: NameSpace + 'User#' + user.userId,
         purchaseOrder: NameSpace + 'PurchaseOrder#' + po.purchaseOrderId,
+        wallet: NameSpace + 'Wallet#' + wallet.stellarPublicKey,
         offerAmount: offerAmt,
         invoiceAmount: invoice.amount,
         supplierName: supplier.name,
         customerName: entity.name,
         discountPercent: disc,
+        contractURL: invoice.contractURL,
         startTime: new DateTime.now().toIso8601String(),
         endTime: new DateTime.now()
             .add(new Duration(days: _getRandomOfferDays()))
@@ -447,15 +373,27 @@ class Generator {
       inv.documentReference = doc.documentID;
       investors.add(inv);
     });
-    doubles.add(1.2);
-    doubles.add(1.3);
-    doubles.add(1.4);
-    doubles.add(1.5);
-    doubles.add(1.6);
-    doubles.add(1.25);
-    doubles.add(1.35);
-    doubles.add(1.15);
-    doubles.add(1.28);
+    doubles.add(0.2);
+    doubles.add(0.25);
+    doubles.add(0.3);
+    doubles.add(0.45);
+    doubles.add(0.4);
+    doubles.add(0.5);
+    doubles.add(0.6);
+    doubles.add(0.25);
+    doubles.add(0.35);
+    doubles.add(0.15);
+    doubles.add(0.28);
+    //
+    doubles.add(1.0);
+    doubles.add(0.025);
+    doubles.add(0.4);
+    doubles.add(0.5);
+    doubles.add(0.6);
+    doubles.add(0.7);
+    doubles.add(0.8);
+    doubles.add(0.9);
+    doubles.add(1.0);
 
     var qs = await _fs.collection('invoiceOffers').getDocuments();
     print('Generator.generateBids qs: ${qs.documents.length} offers found ...');
@@ -464,16 +402,21 @@ class Generator {
       offer.documentReference = doc.documentID;
       offers.add(offer);
     });
+    inv1Wallet = await ListAPI.getWallet('investor',
+        NameSpace + 'Investor#' + investors.elementAt(0).participantId);
+    inv2Wallet = await ListAPI.getWallet('investor',
+        NameSpace + 'Investor#' + investors.elementAt(1).participantId);
     processInvestor1();
     print(
         '\n\n\nGenerator.generateBids generated bids for ${qs.documents.length} invoice offers ######### \n\n');
   }
 
+  static Wallet inv1Wallet, inv2Wallet;
   static List<Offer> offers = List();
   static int index = 0;
   static void processInvestor1() async {
     Investor inv1 = investors.elementAt(0);
-    await _makeBid(offers.elementAt(index), inv1);
+    await _makeBid(offers.elementAt(index), inv1, inv1Wallet);
     index++;
     if (index == offers.length) {
       index = 0;
@@ -484,8 +427,8 @@ class Generator {
   }
 
   static void processInvestor2() async {
-    Investor inv1 = investors.elementAt(1);
-    await _makeBid(offers.elementAt(index), inv1);
+    Investor inv2 = investors.elementAt(1);
+    await _makeBid(offers.elementAt(index), inv2, inv2Wallet);
     index++;
     if (index == offers.length) {
       print(
@@ -496,27 +439,29 @@ class Generator {
   }
 
   static List<double> doubles = List();
-  static Future<int> _makeBid(Offer offer, Investor inv) async {
-    double offerDiscount = offer.discountPercent;
+  static Future<int> _makeBid(Offer offer, Investor inv, Wallet wallet) async {
     int index = rand.nextInt(doubles.length - 1);
-    double investorDiscount = offerDiscount * doubles.elementAt(index);
+    double reservePercent = doubles.elementAt(index);
     double offerAmt = offer.offerAmount;
-    double investorAmt = (offerAmt * (100.0 - investorDiscount)) / 100;
+    double investorAmt = (offerAmt * (reservePercent));
     print(
-        'Generator._makeBid offerAmt  $offerAmt offerDiscount: $offerDiscount investorDiscount: $investorDiscount investorAmt: $investorAmt \n\n');
+        'Generator._makeBid offerAmt  $offerAmt  reservePercent: $reservePercent investorAmt: $investorAmt \n\n');
 
+    var supplierId = offer.supplier.split('#').elementAt(1);
     InvoiceBid bid = new InvoiceBid(
       investor: NameSpace + 'Investor#' + inv.participantId,
       offer: NameSpace + 'Offer#' + offer.offerId,
+      wallet: NameSpace + 'Wallet#' + wallet.stellarPublicKey,
       discountPercent: offer.discountPercent,
-      reservePercent: '$investorDiscount',
+      reservePercent: '$reservePercent',
       startTime: offer.startTime,
       endTime: offer.endTime,
       amount: investorAmt,
+      supplierId: supplierId,
       participantId: inv.participantId,
     );
 
-    var key = await dataAPI.makeInvoiceBid(bid, offer);
+    var key = await dataAPI.makeInvoiceBid(bid, offer, inv);
     if (key == '0') {
       return 1;
     } else {
@@ -843,32 +788,6 @@ class Generator {
           email: 'ddlam@dlamini.com');
       await signUp.signUpSupplier(e2, u2);
 
-      Supplier e3 = new Supplier(
-        name: 'Frannie Event Management',
-        email: 'info@femevent.com',
-        country: 'South Africa',
-        privateSectorType: 'Engineering',
-      );
-      User u3 = new User(
-          firstName: 'Moses',
-          lastName: 'Dlamini',
-          password: 'pass123',
-          email: 'mosesd@femevent.com');
-      await signUp.signUpSupplier(e3, u3);
-
-      Supplier e4 = new Supplier(
-        name: 'Soweto Social Management',
-        email: 'info@femevent.com',
-        country: 'South Africa',
-        privateSectorType: 'Engineering',
-      );
-      User u4 = new User(
-          firstName: 'Daniel',
-          lastName: 'Khoza',
-          password: 'pass123',
-          email: 'dkhoza@femevent.com');
-      await signUp.signUpSupplier(e4, u4);
-
       Supplier e5 = new Supplier(
         name: 'TrebleX Engineering',
         email: 'info@engineers.com',
@@ -895,18 +814,6 @@ class Generator {
           email: 'petejohn@dhhtransport.com');
       await signUp.signUpSupplier(e6, u6);
 
-      Supplier e7 = new Supplier(
-        name: 'Zamas Logistics',
-        email: 'info@zamatransport.com',
-        country: 'South Africa',
-        privateSectorType: 'Industrial',
-      );
-      User u7 = new User(
-          firstName: 'Susan',
-          lastName: 'Oakley-Smith',
-          password: 'pass123',
-          email: 'susanoak@zamatransport.com');
-      await signUp.signUpSupplier(e7, u7);
       print('Generator.generateSuppliers COMPLETED');
     } catch (e) {
       print('Generator.generateSuppliers ERROR $e');

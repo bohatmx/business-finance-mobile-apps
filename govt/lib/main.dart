@@ -18,7 +18,7 @@ class GovtApp extends StatelessWidget {
       title: 'FinanceNetwork',
       debugShowCheckedModeBanner: false,
       theme: getTheme(),
-      home: new StartPage(title: 'Business Finance App - Govt'),
+      home: new StartPage(title: 'Business Finance - Govt'),
     );
   }
 }

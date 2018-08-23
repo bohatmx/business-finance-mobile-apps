@@ -16,6 +16,7 @@ class Invoice {
       companyDocumentRef,
       supplierContract,
       contractDocumentRef,
+      contractURL,
       companyInvoiceSettlement,
       offer,
       invoiceAcceptance,
@@ -61,6 +62,7 @@ class Invoice {
       this.datePaymentRequired,
       this.isOnOffer,
       this.offer,
+      this.contractURL,
       this.amount});
 
   Invoice.fromJson(Map data) {
@@ -115,6 +117,7 @@ class Invoice {
     this.investorInvoiceSettlements = data['investorInvoiceSettlements'];
     this.invoiceAcceptance = data['invoiceAcceptance'];
     this.deliveryAcceptance = data['deliveryAcceptance'];
+    this.contractURL = data['contractURL'];
   }
 
   Map<String, dynamic> toJson() {
@@ -155,6 +158,7 @@ class Invoice {
     map['investorInvoiceSettlements'] = investorInvoiceSettlements;
     map['invoiceAcceptance'] = invoiceAcceptance;
     map['deliveryAcceptance'] = deliveryAcceptance;
+    map['contractURL'] = contractURL;
     return map;
   }
 }

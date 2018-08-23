@@ -214,7 +214,7 @@ class _SignInPageState extends State<SignInPage> implements SnackBarListener {
               message: 'Unable to sign you in as a  Supplier',
               actionLabel: "close");
         } else {
-          subscribeToFCM();
+          _subscribeToFCM();
           //get wallet
           Wallet wallet = await ListAPI.getWallet('supplier',
               'resource:com.oneconnect.biz.Supplier#' + supplier.participantId);
@@ -263,20 +263,17 @@ class _SignInPageState extends State<SignInPage> implements SnackBarListener {
     }
   }
 
-  void subscribeToFCM() {
-    var topic = 'purchaseOrders' + supplier.documentReference;
-    _firebaseMessaging.subscribeToTopic(topic);
-    var topic2 = 'general';
-    _firebaseMessaging.subscribeToTopic(topic2);
-    var topic3 = 'settlements' + supplier.documentReference;
-    _firebaseMessaging.subscribeToTopic(topic3);
-    var topic4 = 'invoiceBids' + supplier.documentReference;
-    _firebaseMessaging.subscribeToTopic(topic4);
-    var topic5 = 'deliveryAcceptances' + supplier.documentReference;
-    _firebaseMessaging.subscribeToTopic(topic5);
-    print(
-        '_SignInState._configMessaging ... ############# subscribed to FCM topics '
-        '\n $topic \n $topic2 \n $topic3 \n $topic4 \n  $topic5');
+  void _subscribeToFCM() {
+    _firebaseMessaging
+        .subscribeToTopic('purchaseOrders' + supplier.documentReference);
+    _firebaseMessaging.subscribeToTopic('general');
+    _firebaseMessaging
+        .subscribeToTopic('settlements' + supplier.documentReference);
+    _firebaseMessaging
+        .subscribeToTopic('invoiceBids' + supplier.documentReference);
+    _firebaseMessaging
+        .subscribeToTopic('deliveryAcceptances' + supplier.documentReference);
+    print('_SignUpPageState._subscribe to 5 topics');
   }
 
   @override
