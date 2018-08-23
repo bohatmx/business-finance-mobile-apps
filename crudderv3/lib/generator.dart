@@ -913,7 +913,7 @@ class Generator {
     SignUp signUp = SignUp(getURL());
     try {
       Auditor e1 = new Auditor(
-          name: 'Great Auditors Inc.',
+          name: 'Fantastic Auditors Inc.',
           email: 'info@auditors.com',
           country: 'South Africa',
           cellphone: '081 555 7745');
