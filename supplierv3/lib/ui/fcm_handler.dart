@@ -1,24 +1,17 @@
-import 'dart:convert';
-
 import 'package:businesslibrary/api/shared_prefs.dart';
-import 'package:businesslibrary/data/delivery_acceptance.dart';
-import 'package:businesslibrary/data/invoice_acceptance.dart';
-import 'package:businesslibrary/data/invoice_bid.dart';
-import 'package:businesslibrary/data/invoice_settlement.dart';
-import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
 abstract class FCMessageListener {
-  onPurchaseOrderMessage(PurchaseOrder purchaseOrder);
-  onDeliveryAcceptance(DeliveryAcceptance deliveryAcceptance);
-  onInvoiceAcceptance(InvoiceAcceptance invoiceAcceptance);
-  onInvoiceBidMessage(InvoiceBid invoiceBid);
-  onGovtInvoiceSettlement(GovtInvoiceSettlement settlement);
-  onInvestorSettlement(InvestorInvoiceSettlement settlement);
-  onCompanySettlement(CompanyInvoiceSettlement settlement);
+  onPurchaseOrderMessage();
+  onDeliveryAcceptance();
+  onInvoiceAcceptance();
+  onInvoiceBidMessage();
+  onGovtInvoiceSettlement();
+  onInvestorSettlement();
+  onCompanySettlement();
 }
 
 configureAppMessaging(FCMessageListener listener) async {
@@ -33,34 +26,31 @@ configureAppMessaging(FCMessageListener listener) async {
       if (messageType == "PURCHASE_ORDER") {
         print(
             'configureMessaging: ############## receiving PURCHASE_ORDER message from FCM ....');
-        Map map = json.decode(message["json"]);
-        var po = new PurchaseOrder.fromJson(map);
-        assert(po != null);
-        print('configureMessaging .... about to tell listener about po');
-        listener.onPurchaseOrderMessage(po);
+        var msg = message["json"];
+        print('configureAppMessaging: ' + msg);
+        try {
+//          Map map = json.decode(message["json"]);
+//          var po = new PurchaseOrder.fromJson(map);
+//          assert(po != null);
+          print('configureMessaging .... about to tell listener about po');
+          listener.onPurchaseOrderMessage();
+        } catch (e) {
+          print('configureAppMessaging EERROR - fcm message bad');
+          print(e);
+        }
       }
 
       if (messageType == "DELIVERY_ACCEPTANCE") {
         print(
             'configureMessaging: ############## receiving DELIVERY_ACCEPTANCE message from FCM');
-        Map map = json.decode(message["json"]);
-        var m = new DeliveryAcceptance.fromJson(map);
-        assert(m != null);
-        print('configureMessaging #### about to send acceptance via listener');
-        listener.onDeliveryAcceptance(m);
+        listener.onDeliveryAcceptance();
       }
       //
       if (messageType == "INVOICE_ACCEPTANCE") {
         print(
             'configureMessaging: \n\n############## receiving INVOICE_ACCEPTANCE from FCM');
         try {
-          Map map = json.decode(message["json"]);
-          var m = new InvoiceAcceptance.fromJson(map);
-          //assert(m != null);
-          print(
-              'configureMessaging -- about to tell listener about invoice ...');
-          prettyPrint(map, 'received: ++++++++++++++++++++++++=');
-          listener.onInvoiceAcceptance(m);
+          listener.onInvoiceAcceptance();
         } catch (e) {
           print('configureMessaging ERROR $e');
         }
@@ -70,36 +60,23 @@ configureAppMessaging(FCMessageListener listener) async {
       if (messageType == "INVOICE_BID") {
         print(
             'configureMessaging: ############## receiving INVOICE_BID message from FCM: $message');
-        Map map = json.decode(message["json"]);
-        prettyPrint(map, 'Invoice Bid received ........');
-        var m = new InvoiceBid.fromJson(map);
-        assert(m != null);
 
-        listener.onInvoiceBidMessage(m);
+        listener.onInvoiceBidMessage();
       }
       if (messageType == "GOVT_INVOICE_SETTLEMENT") {
         print(
             'configureMessaging: ############## receiving GOVT_INVOICE_SETTLEMENT message from FCM');
-        Map map = json.decode(message["json"]);
-        var m = new GovtInvoiceSettlement.fromJson(map);
-        assert(m != null);
-        listener.onGovtInvoiceSettlement(m);
+        listener.onGovtInvoiceSettlement();
       }
       if (messageType == "INVESTOR_INVOICE_SETTLEMENT") {
         print(
             'configureMessaging: ############## receiving INVESTOR_INVOICE_SETTLEMENT message from FCM');
-        Map map = json.decode(message["json"]);
-        var m = new InvestorInvoiceSettlement.fromJson(map);
-        assert(m != null);
-        listener.onInvestorSettlement(m);
+        listener.onInvestorSettlement();
       }
       if (messageType == "COMPANY_INVOICE_SETTLEMENT") {
         print(
             'configureMessaging: ############## receiving COMPANY_INVOICE_SETTLEMENT message from FCM');
-        Map map = json.decode(message["json"]);
-        var m = new CompanyInvoiceSettlement.fromJson(map);
-        assert(m != null);
-        listener.onCompanySettlement(m);
+        listener.onCompanySettlement();
       }
     },
     onLaunch: (Map<String, dynamic> message) {

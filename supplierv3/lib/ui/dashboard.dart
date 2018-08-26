@@ -6,22 +6,21 @@ import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/delivery_acceptance.dart';
 import 'package:businesslibrary/data/delivery_note.dart';
 import 'package:businesslibrary/data/invoice.dart';
-import 'package:businesslibrary/data/invoice_acceptance.dart';
-import 'package:businesslibrary/data/invoice_bid.dart';
 import 'package:businesslibrary/data/invoice_settlement.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
+import 'package:businesslibrary/util/util.dart';
 import 'package:businesslibrary/util/wallet_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:supplierv3/listeners/note_listener.dart';
 import 'package:supplierv3/ui/contract_list.dart';
 import 'package:supplierv3/ui/delivery_acceptance_list.dart';
 import 'package:supplierv3/ui/delivery_note_list.dart';
 import 'package:supplierv3/ui/fcm_handler.dart';
-import 'package:supplierv3/ui/invoice_bids.dart';
 import 'package:supplierv3/ui/invoice_list.dart';
 import 'package:supplierv3/ui/purchase_order_list.dart';
 import 'package:supplierv3/ui/summary_card.dart';
@@ -39,7 +38,7 @@ class Dashboard extends StatefulWidget {
 
 class _DashboardState extends State<Dashboard>
     with TickerProviderStateMixin
-    implements SnackBarListener, FCMessageListener {
+    implements SnackBarListener, FCMessageListener, PurchaseOrderListener {
   static GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   static const platform = const MethodChannel('com.oneconnect.files/pdf');
   String message;
@@ -67,6 +66,8 @@ class _DashboardState extends State<Dashboard>
 
     configureAppMessaging(this);
     _getCachedPrefs();
+
+    listenToWebSocket();
   }
 
   @override
@@ -99,6 +100,7 @@ class _DashboardState extends State<Dashboard>
     name = supplier.name;
     setState(() {});
     _getSummaryData();
+    listenForPurchaseOrder(supplier.documentReference, this);
   }
 
   Future _getSettlements() async {
@@ -408,63 +410,78 @@ class _DashboardState extends State<Dashboard>
       WalletConstant = 7;
 
   @override
-  onCompanySettlement(CompanyInvoiceSettlement settlement) {
+  onCompanySettlement() {
     // TODO: implement onCompanySettlement
   }
 
   @override
-  onDeliveryAcceptance(DeliveryAcceptance deliveryAcceptance) {
+  onDeliveryAcceptance() {
     // TODO: implement onDeliveryAcceptance
   }
 
   @override
-  onGovtInvoiceSettlement(GovtInvoiceSettlement settlement) {
+  onGovtInvoiceSettlement() {
     // TODO: implement onGovtInvoiceSettlement
   }
 
   @override
-  onInvestorSettlement(InvestorInvoiceSettlement settlement) {
+  onInvestorSettlement() {
     // TODO: implement onInvestorSettlement
   }
 
   @override
-  onInvoiceAcceptance(InvoiceAcceptance invoiceAcceptance) {
+  onInvoiceAcceptance() {
     // TODO: implement onInvoiceAcceptance
   }
 
   @override
-  onInvoiceBidMessage(InvoiceBid invoiceBid) async {
+  onInvoiceBidMessage() async {
     print('_DashboardState.onInvoiceBidMessage ########### should happen????');
 
-    String id = invoiceBid.offer.split("#").elementAt(1);
+//    String id = invoiceBid.offer.split("#").elementAt(1);
     AppSnackbar.showSnackbarWithProgressIndicator(
         scaffoldKey: _scaffoldKey,
         message: 'Loading bids',
         textColor: Colors.lightBlue,
         backgroundColor: Colors.black);
-    var bag = await ListAPI.getOfferById(id);
-
-    _scaffoldKey.currentState.hideCurrentSnackBar();
-    Navigator.push(
-      context,
-      new MaterialPageRoute(builder: (context) => new InvoiceBids(bag)),
-    );
+//    var bag = await ListAPI.getOfferById(id);
+//
+//    _scaffoldKey.currentState.hideCurrentSnackBar();
+//    Navigator.push(
+//      context,
+//      new MaterialPageRoute(builder: (context) => new InvoiceBids(bag)),
+//    );
   }
 
   @override
-  onPurchaseOrderMessage(PurchaseOrder purchaseOrder) {
+  onPurchaseOrderMessage() {
+    print('_DashboardState.onPurchaseOrderMessage ==============');
+//    AppSnackbar.showSnackbarWithAction(
+//        scaffoldKey: _scaffoldKey,
+//        message: 'Purchase Order arrived',
+//        textColor: Colors.white,
+//        backgroundColor: Colors.black,
+//        actionLabel: 'OK',
+//        listener: this,
+//        icon: Icons.message,
+//        action: PurchaseOrderConstant);
+//
+//    getPurchaseOrders();
+  }
+
+  @override
+  onPurchaseOrder(PurchaseOrder po) {
+    print('_DashboardState.onPurchaseOrder ......... ${po.toJson()}');
     AppSnackbar.showSnackbarWithAction(
         scaffoldKey: _scaffoldKey,
-        message: 'Purchase Order arrived',
+        message: 'Purchase Order detected',
         textColor: Colors.white,
         backgroundColor: Colors.black,
         actionLabel: 'OK',
         listener: this,
         icon: Icons.message,
         action: PurchaseOrderConstant);
-    purchaseOrders.insert(0, purchaseOrder);
-    setState(() {
-      totalPOs = purchaseOrders.length;
-    });
+
+    getPurchaseOrders();
   }
 }

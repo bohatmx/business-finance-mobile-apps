@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:web_socket_channel/io.dart';
 
 const DEBUG_URL_HOME = 'https://bfnrestv3.eu-gb.mybluemix.net/api/'; //FIBRE
 const DEBUG_URL_ROUTER = 'https://bfnrestv3.eu-gb.mybluemix.net/api/'; //ROUTER
@@ -201,5 +202,16 @@ void listen() {
     querySnapshot.documentChanges.forEach((change) {
       // Do something with change
     });
+  });
+}
+
+final channel =
+    new IOWebSocketChannel.connect("ws://bfnrestv3.eu-gb.mybluemix.net");
+void listenToWebSocket() async {
+  //channel.sink.add("connected!");
+  print(
+      'listenToWebSocket ------- starting  #################################');
+  channel.stream.listen((message) {
+    print('listenToWebSocket ###################: ' + message);
   });
 }

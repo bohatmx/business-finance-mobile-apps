@@ -1,11 +1,7 @@
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
-import 'package:businesslibrary/data/delivery_acceptance.dart';
-import 'package:businesslibrary/data/invoice_acceptance.dart';
 import 'package:businesslibrary/data/invoice_bid.dart';
-import 'package:businesslibrary/data/invoice_settlement.dart';
 import 'package:businesslibrary/data/offer.dart';
-import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/lookups.dart';
@@ -291,43 +287,43 @@ class _InvoiceBidsState extends State<InvoiceBids>
   }
 
   @override
-  onCompanySettlement(CompanyInvoiceSettlement settlement) {
+  onCompanySettlement() {
     print('_InvoiceBidsState.onCompanySettlement');
     _showSnack('Invoice Settlement arrived', Colors.lightGreen);
   }
 
   @override
-  onDeliveryAcceptance(DeliveryAcceptance deliveryAcceptance) {
+  onDeliveryAcceptance() {
     print('_InvoiceBidsState.onDeliveryAcceptance');
     _showSnack('Invoice Settlement arrived', Colors.lightGreen);
   }
 
   @override
-  onGovtInvoiceSettlement(GovtInvoiceSettlement settlement) {
+  onGovtInvoiceSettlement() {
     print('_InvoiceBidsState.onGovtInvoiceSettlement');
     _showSnack('Invoice Settlement arrived', Colors.lightGreen);
   }
 
   @override
-  onInvestorSettlement(InvestorInvoiceSettlement settlement) {
+  onInvestorSettlement() {
     print('_InvoiceBidsState.onInvestorSettlement');
     _showSnack('Invoice Settlement arrived', Colors.lightGreen);
   }
 
   @override
-  onInvoiceAcceptance(InvoiceAcceptance invoiceAcceptance) {
+  onInvoiceAcceptance() {
     print('_InvoiceBidsState.onInvoiceAcceptance');
     _showSnack('Invoice Acceptance arrived', Colors.lightBlue);
   }
 
   @override
-  onInvoiceBidMessage(InvoiceBid invoiceBid) {
+  onInvoiceBidMessage() {
     print('_InvoiceBidsState.onInvoiceBidMessage');
     _showSnack('Invoice Bid arrived', Colors.yellow);
   }
 
   @override
-  onPurchaseOrderMessage(PurchaseOrder purchaseOrder) {
+  onPurchaseOrderMessage() {
     print('_InvoiceBidsState.onPurchaseOrderMessage');
     _showSnack('Purchase Order arrived', Colors.white);
   }
