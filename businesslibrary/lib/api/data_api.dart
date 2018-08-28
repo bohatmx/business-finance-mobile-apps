@@ -1025,7 +1025,7 @@ class DataAPI {
         .document(invoiceDocId)
         .updateData(inv.toJson());
     print('DataAPI.makeOffer ******* invoice updated with  offer *****');
-    prettyPrint(inv.toJson(), 'updated invoice on  Firestore');
+    prettyPrint(inv.toJson(), 'updated invoice with  offer on  Firestore');
   }
 
   Future<String> makeInvoiceBid(
@@ -1059,6 +1059,7 @@ class DataAPI {
           print('DataAPI.makeInvoiceBid ERROR $e');
           return '0';
         });
+        print('DataAPI.makeInvoiceBid added to Firestore: ${ref0.path}');
         //add bid to offer collection
         var ref = await _firestore
             .collection('invoiceOffers')
@@ -1069,7 +1070,7 @@ class DataAPI {
           print('DataAPI.makeInvoiceBid ERROR $e');
           return '0';
         });
-        print('DataAPI.makeInvoiceBid added to Firestore: ${ref0.path}');
+
         print('DataAPI.makeInvoiceBid added to Firestore: ${ref.path}');
 
         bid.documentReference = ref.documentID;
@@ -1088,6 +1089,7 @@ class DataAPI {
   }
 
   Future<String> selectInvoiceBid(InvoiceBid bid) async {
+    //TODO - supplier selects the bid
     return null;
   }
 
@@ -1098,27 +1100,10 @@ class DataAPI {
 
     var investorId = settlement.investor.split('#').elementAt(1);
     var investorDocId = await _getDocumentId('investors', investorId);
-    var ref = await _firestore
-        .collection('investors')
-        .document(investorDocId)
-        .collection('invoiceSettlements')
-        .add(settlement.toJson())
-        .catchError((e) {
-      print('DataAPI.makeInvestorInvoiceSettlement ERROR $e');
-      return '0';
-    });
 
     var supplierId = settlement.supplier.split('#').elementAt(1);
     var supplierDocId = await _getDocumentId('suppliers', supplierId);
-    var ref2 = await _firestore
-        .collection('suppliers')
-        .document(supplierDocId)
-        .collection('invoiceSettlements')
-        .add(settlement.toJson())
-        .catchError((e) {
-      print('DataAPI.makeInvestorInvoiceSettlement ERROR $e');
-      return '0';
-    });
+
     //write settlement to blockchain
     try {
       Map map = settlement.toJson();
@@ -1132,9 +1117,30 @@ class DataAPI {
       print(
           'DataAPI.makeInvestorInvoiceSettlement blockchain response status code:  ${mResponse.statusCode}');
       if (mResponse.statusCode == 200) {
+        var ref = await _firestore
+            .collection('investors')
+            .document(investorDocId)
+            .collection('invoiceSettlements')
+            .add(settlement.toJson())
+            .catchError((e) {
+          print('DataAPI.makeInvestorInvoiceSettlement ERROR $e');
+          return '0';
+        });
+        print(
+            'DataAPI.makeInvestorInvoiceSettlement added to Firestore: ${ref.path}');
+        var ref2 = await _firestore
+            .collection('suppliers')
+            .document(supplierDocId)
+            .collection('invoiceSettlements')
+            .add(settlement.toJson())
+            .catchError((e) {
+          print('DataAPI.makeInvestorInvoiceSettlement ERROR $e');
+          return '0';
+        });
+        print(
+            'DataAPI.makeInvestorInvoiceSettlement added to Firestore: ${ref2.path}');
         return settlement.invoiceSettlementId;
       } else {
-        _deleteFromFirestore(ref, ref2);
         print(
             'DataAPI.makeInvestorInvoiceSettlement ERROR - doc deleted from firestore');
         mResponse.transform(utf8.decoder).listen((contents) {
@@ -1145,7 +1151,6 @@ class DataAPI {
         return '0';
       }
     } catch (e) {
-      _deleteFromFirestore(ref, ref2);
       print('DataAPI.makeInvestorInvoiceSettlement ERROR $e');
       return '0';
     }
@@ -1158,27 +1163,10 @@ class DataAPI {
 
     var investorId = settlement.company.split('#').elementAt(1);
     var investorDocId = await _getDocumentId('companies', investorId);
-    var ref = await _firestore
-        .collection('companies')
-        .document(investorDocId)
-        .collection('invoiceSettlements')
-        .add(settlement.toJson())
-        .catchError((e) {
-      print('DataAPI.makeCompanyInvoiceSettlement ERROR $e');
-      return '0';
-    });
 
     var supplierId = settlement.supplier.split('#').elementAt(1);
     var supplierDocId = await _getDocumentId('suppliers', supplierId);
-    var ref2 = await _firestore
-        .collection('suppliers')
-        .document(supplierDocId)
-        .collection('invoiceSettlements')
-        .add(settlement.toJson())
-        .catchError((e) {
-      print('DataAPI.makeCompanyInvoiceSettlement ERROR $e');
-      return '0';
-    });
+
     //write settlement to blockchain
     try {
       Map map = settlement.toJson();
@@ -1192,9 +1180,30 @@ class DataAPI {
       print(
           'DataAPI.makeCompanyInvoiceSettlement blockchain response status code:  ${mResponse.statusCode}');
       if (mResponse.statusCode == 200) {
+        var ref = await _firestore
+            .collection('companies')
+            .document(investorDocId)
+            .collection('invoiceSettlements')
+            .add(settlement.toJson())
+            .catchError((e) {
+          print('DataAPI.makeCompanyInvoiceSettlement ERROR $e');
+          return '0';
+        });
+        print(
+            'DataAPI.makeCompanyInvoiceSettlement added to Firestore: ${ref.path}');
+        var ref2 = await _firestore
+            .collection('suppliers')
+            .document(supplierDocId)
+            .collection('invoiceSettlements')
+            .add(settlement.toJson())
+            .catchError((e) {
+          print('DataAPI.makeCompanyInvoiceSettlement ERROR $e');
+          return '0';
+        });
+        print(
+            'DataAPI.makeCompanyInvoiceSettlement added to Firestore: ${ref2.path}');
         return settlement.invoiceSettlementId;
       } else {
-        _deleteFromFirestore(ref, ref2);
         print(
             'DataAPI.makeCompanyInvoiceSettlement ERROR - doc deleted from firestore');
         mResponse.transform(utf8.decoder).listen((contents) {
@@ -1205,7 +1214,6 @@ class DataAPI {
         return '0';
       }
     } catch (e) {
-      _deleteFromFirestore(ref, ref2);
       print('DataAPI.makeCompanyInvoiceSettlement ERROR $e');
       return '0';
     }
@@ -1218,27 +1226,10 @@ class DataAPI {
 
     var investorId = settlement.govtEntity.split('#').elementAt(1);
     var investorDocId = await _getDocumentId('govtEntities', investorId);
-    var ref = await _firestore
-        .collection('govtEntities')
-        .document(investorDocId)
-        .collection('invoiceSettlements')
-        .add(settlement.toJson())
-        .catchError((e) {
-      print('DataAPI.makeCompanyInvoiceSettlement ERROR $e');
-      return '0';
-    });
 
     var supplierId = settlement.supplier.split('#').elementAt(1);
     var supplierDocId = await _getDocumentId('suppliers', supplierId);
-    var ref2 = await _firestore
-        .collection('suppliers')
-        .document(supplierDocId)
-        .collection('invoiceSettlements')
-        .add(settlement.toJson())
-        .catchError((e) {
-      print('DataAPI.makeCompanyInvoiceSettlement ERROR $e');
-      return '0';
-    });
+
     //write settlement to blockchain
     try {
       Map map = settlement.toJson();
@@ -1250,24 +1241,44 @@ class DataAPI {
       mRequest.write(mjson);
       HttpClientResponse mResponse = await mRequest.close();
       print(
-          'DataAPI.makeCompanyInvoiceSettlement blockchain response status code:  ${mResponse
+          'DataAPI.makeGovtInvoiceSettlement blockchain response status code:  ${mResponse
               .statusCode}');
       if (mResponse.statusCode == 200) {
+        var ref = await _firestore
+            .collection('govtEntities')
+            .document(investorDocId)
+            .collection('invoiceSettlements')
+            .add(settlement.toJson())
+            .catchError((e) {
+          print('DataAPI.makeGovtInvoiceSettlement ERROR $e');
+          return '0';
+        });
+        print(
+            'DataAPI.makeGovtInvoiceSettlement added to Firestore: ${ref.path}');
+        var ref2 = await _firestore
+            .collection('suppliers')
+            .document(supplierDocId)
+            .collection('invoiceSettlements')
+            .add(settlement.toJson())
+            .catchError((e) {
+          print('DataAPI.makeGovtInvoiceSettlement ERROR $e');
+          return '0';
+        });
+        print(
+            'DataAPI.makeGovtInvoiceSettlement added to Firestore: ${ref2.path}');
         return settlement.invoiceSettlementId;
       } else {
-        _deleteFromFirestore(ref, ref2);
         print(
-            'DataAPI.makeCompanyInvoiceSettlement ERROR - doc deleted from firestore');
+            'DataAPI.makeGovtInvoiceSettlement ERROR - doc deleted from firestore');
         mResponse.transform(utf8.decoder).listen((contents) {
-          print('DataAPI.makeCompanyInvoiceSettlement ERROR  $contents');
+          print('DataAPI.makeGovtInvoiceSettlement ERROR  $contents');
         });
-        print('DataAPI.makeCompanyInvoiceSettlement ERROR  ${mResponse
+        print('DataAPI.makeGovtInvoiceSettlement ERROR  ${mResponse
                 .reasonPhrase}');
         return '0';
       }
     } catch (e) {
-      _deleteFromFirestore(ref, ref2);
-      print('DataAPI.makeCompanyInvoiceSettlement ERROR $e');
+      print('DataAPI.makeGovtInvoiceSettlement ERROR $e');
       return '0';
     }
   }

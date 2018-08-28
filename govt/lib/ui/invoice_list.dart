@@ -1,8 +1,13 @@
+import 'package:businesslibrary/api/data_api.dart';
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/govt_entity.dart';
 import 'package:businesslibrary/data/invoice.dart';
+import 'package:businesslibrary/data/invoice_acceptance.dart';
+import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/lookups.dart';
+import 'package:businesslibrary/util/snackbar_util.dart';
+import 'package:businesslibrary/util/util.dart';
 import 'package:flutter/material.dart';
 import 'package:govt/ui/invoice_settlement.dart';
 
@@ -15,11 +20,13 @@ class InvoiceList extends StatefulWidget {
   _InvoiceListState createState() => _InvoiceListState();
 }
 
-class _InvoiceListState extends State<InvoiceList> {
+class _InvoiceListState extends State<InvoiceList> implements SnackBarListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   GovtEntity entity;
   List<Invoice> invoices;
   Invoice invoice;
+  User user;
+
   @override
   initState() {
     super.initState();
@@ -36,7 +43,39 @@ class _InvoiceListState extends State<InvoiceList> {
 
   _getCached() async {
     entity = await SharedPrefs.getGovEntity();
+    user = await SharedPrefs.getUser();
     setState(() {});
+  }
+
+  void _acceptInvoice() async {
+    print('_InvoiceListState._acceptInvoice');
+    DataAPI api = new DataAPI(getURL());
+
+    var acceptance = new InvoiceAcceptance(
+        supplierName: invoice.supplierName,
+        customerName: entity.name,
+        supplierDocumentRef: invoice.supplierDocumentRef,
+        date: new DateTime.now().toIso8601String(),
+        invoice: 'resource:com.oneconnect.biz.Invoice#${invoice.invoiceId}',
+        govtEntity: 'resource:com.oneconnect.biz.GovtEntity#${entity
+            .participantId}',
+        invoiceNumber: invoice.invoiceNumber,
+        user: 'resource:com.oneconnect.biz.User#${user.userId}');
+
+    String result = await api.acceptInvoice(acceptance);
+    if (result == '0') {
+      AppSnackbar.showErrorSnackbar(
+          scaffoldKey: _scaffoldKey,
+          message: 'Acceptance FAILED',
+          listener: this,
+          actionLabel: 'Close');
+    } else {
+      AppSnackbar.showSnackbar(
+          scaffoldKey: _scaffoldKey,
+          message: 'Invoice accepted',
+          textColor: Colors.lightBlue,
+          backgroundColor: Colors.black);
+    }
   }
 
   void _settleInvoice() {
@@ -108,7 +147,7 @@ class _InvoiceListState extends State<InvoiceList> {
                   itemBuilder: (BuildContext context, int index) {
                     return new InkWell(
                       onTap: () {
-                        _showSettleDialog(invoices.elementAt(index));
+                        _showDialog(invoices.elementAt(index));
                       },
                       child: InvoiceCard(
                         invoice: invoices.elementAt(index),
@@ -123,10 +162,18 @@ class _InvoiceListState extends State<InvoiceList> {
     );
   }
 
-  void _showSettleDialog(Invoice invoice) {
-    prettyPrint(invoice.toJson(), '_showMenuDialog: invoice:');
+  void _showDialog(Invoice invoice) {
+    prettyPrint(invoice.toJson(), '_showDialog: invoice:');
 
     this.invoice = invoice;
+    if (invoice.invoiceAcceptance == null) {
+      showInvoiceAcceptanceDialog();
+    } else {
+      showInvoiceSettlementDialog();
+    }
+  }
+
+  void showInvoiceSettlementDialog() {
     showDialog(
         context: context,
         builder: (_) => new AlertDialog(
@@ -198,6 +245,85 @@ class _InvoiceListState extends State<InvoiceList> {
                 ),
               ],
             ));
+  }
+
+  void showInvoiceAcceptanceDialog() {
+    showDialog(
+        context: context,
+        builder: (_) => new AlertDialog(
+              title: new Text(
+                "Invoice Acceptance",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              content: Container(
+                height: 120.0,
+                child: Column(
+                  children: <Widget>[
+                    new Text("Do you want to accept this Invoice?\n\ "),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 28.0),
+                      child: Row(
+                        children: <Widget>[
+                          Text(
+                            'Invoice Number:',
+                            style: TextStyle(fontSize: 12.0),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 10.0),
+                            child: Text(
+                              '${invoice.invoiceNumber}',
+                              style: TextStyle(
+                                color: Colors.pink,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              actions: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 18.0),
+                  child: FlatButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: Text(
+                      'NO',
+                      style: TextStyle(
+                        fontSize: 16.0,
+                        color: Colors.grey,
+                      ),
+                    ),
+                  ),
+                ),
+                new Padding(
+                  padding: const EdgeInsets.only(
+                      left: 28.0, right: 16.0, bottom: 10.0),
+                  child: RaisedButton(
+                    elevation: 4.0,
+                    onPressed: _acceptInvoice,
+                    color: Colors.teal,
+                    child: Text(
+                      'YES',
+                      style: TextStyle(
+                        fontSize: 16.0,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ));
+  }
+
+  @override
+  onActionPressed(int action) {
+    // TODO: implement onActionPressed
   }
 }
 

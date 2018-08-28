@@ -1,24 +1,19 @@
-import 'dart:async';
-
 import 'package:businesslibrary/api/firestore_list_api.dart';
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
-import 'package:businesslibrary/data/delivery_acceptance.dart';
 import 'package:businesslibrary/data/delivery_note.dart';
 import 'package:businesslibrary/data/govt_entity.dart';
 import 'package:businesslibrary/data/invoice.dart';
-import 'package:businesslibrary/data/invoice_bid.dart';
 import 'package:businesslibrary/data/invoice_settlement.dart';
-import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/user.dart';
-import 'package:businesslibrary/data/wallet.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/wallet_page.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:govt/ui/delivery_note_list.dart';
+import 'package:govt/ui/firestore_listener.dart';
 import 'package:govt/ui/invoice_list.dart';
 import 'package:govt/ui/purchase_order_list.dart';
 import 'package:govt/ui/summary_card.dart';
@@ -35,7 +30,10 @@ class Dashboard extends StatefulWidget {
 
 class _DashboardState extends State<Dashboard>
     with TickerProviderStateMixin
-    implements SnackBarListener, FCMListener {
+    implements
+        SnackBarListener,
+        DeliveryNoteArrivedListener,
+        InvoiceArrivedListener {
   static const Payments = 1,
       Invoices = 2,
       PurchaseOrders = 3,
@@ -65,33 +63,11 @@ class _DashboardState extends State<Dashboard>
     animation = new Tween(begin: 0.0, end: 1.0).animate(animationController);
 
     _messaging();
-    _getCache();
-  }
-
-  _getCache() async {
-    govtEntity = await SharedPrefs.getGovEntity();
+    _getCachedPrefs();
   }
 
   void _messaging() async {
     await _getCachedPrefs();
-    await configureMessaging(this);
-    _subscribeToFCM();
-  }
-
-  Future _subscribeToFCM() async {
-    govtEntity = await SharedPrefs.getGovEntity();
-    var topic = 'invoices' + govtEntity.documentReference;
-    _firebaseMessaging.subscribeToTopic(topic);
-    var topic2 = 'general';
-    _firebaseMessaging.subscribeToTopic(topic2);
-    var topic3 = 'settlements' + govtEntity.documentReference;
-    _firebaseMessaging.subscribeToTopic(topic3);
-    var topic4 = 'deliveryNotes' + govtEntity.documentReference;
-    _firebaseMessaging.subscribeToTopic(topic4);
-
-    print(
-        '_StartPageState._configMessaging ... ############# subscribed to FCM topics '
-        '\n $topic \n $topic2 \n $topic3 \n $topic4');
   }
 
   @override
@@ -106,6 +82,8 @@ class _DashboardState extends State<Dashboard>
     govtEntity = await SharedPrefs.getGovEntity();
     assert(govtEntity != null);
     name = govtEntity.name;
+    listenForDeliveryNote(govtEntity.documentReference, this);
+    listenForInvoice(govtEntity.documentReference, this);
     print(
         '_DashboardState._getSummaryData ....... govt documentId: ${govtEntity.documentReference}');
     setState(() {});
@@ -385,10 +363,7 @@ class _DashboardState extends State<Dashboard>
   @override
   onActionPressed(int action) {
     print('_DashboardState.onActionPressed action: $action');
-    if (action == 0) {
-      Navigator.pop(context);
-      return;
-    }
+
     switch (action) {
       case DeliveryNoteConstant:
         _onDeliveryNotesTapped();
@@ -400,18 +375,13 @@ class _DashboardState extends State<Dashboard>
   }
 
   @override
-  onCompanySettlement(CompanyInvoiceSettlement settlement) {}
-
-  @override
-  onDeliveryAcceptance(DeliveryAcceptance deliveryAcceptance) {}
-
-  @override
-  onDeliveryNote(DeliveryNote deliveryNote) {
+  onDeliveryNoteArrived(DeliveryNote note) {
+    if (deliveryNotes == null) return;
     setState(() {
-      deliveryNotes.insert(0, deliveryNote);
+      deliveryNotes.insert(0, note);
       totalNotes = deliveryNotes.length;
     });
-    prettyPrint(deliveryNote.toJson(), 'FCM message received DeliveryNote: ');
+    prettyPrint(note.toJson(), 'DeliveryNote arrived: ');
     messageReceived = DeliveryNotes;
     AppSnackbar.showSnackbarWithAction(
         scaffoldKey: _scaffoldKey,
@@ -421,67 +391,25 @@ class _DashboardState extends State<Dashboard>
         actionLabel: 'Notes',
         listener: this,
         action: DeliveryNoteConstant,
-        icon: Icons.email);
+        icon: Icons.create);
   }
 
   @override
-  onGovtInvoiceSettlement(GovtInvoiceSettlement settlement) {}
-
-  @override
-  onInvestorSettlement(InvestorInvoiceSettlement settlement) {}
-
-  @override
-  onInvoiceBidMessage(InvoiceBid invoiceBid) {}
-
-  @override
-  onInvoiceMessage(Invoice invoice) {
-    prettyPrint(
-        invoice.toJson(), 'Dashbboard: ------ FCM message received Invoice: ');
+  onInvoiceArrived(Invoice inv) {
     setState(() {
-      invoices.insert(0, invoice);
+      invoices.insert(0, inv);
       totalInvoices = invoices.length;
     });
-    messageReceived = Invoices;
+    prettyPrint(inv.toJson(), 'Invoice arrived: ');
+    messageReceived = DeliveryNotes;
     AppSnackbar.showSnackbarWithAction(
         scaffoldKey: _scaffoldKey,
         message: 'Invoice arrived',
         textColor: Colors.white,
         backgroundColor: Colors.deepPurple,
         actionLabel: 'Invoices',
+        listener: this,
         action: InvoiceConstant,
-        listener: this,
-        icon: Icons.email);
-  }
-
-  @override
-  onOfferMessage(Offer offer) {}
-
-  @override
-  onPurchaseOrderMessage(PurchaseOrder purchaseOrder) {}
-
-  @override
-  onWalletError() {
-    print('_DashboardState.onWalletError WALLET ERROR ');
-    AppSnackbar.showErrorSnackbar(
-        scaffoldKey: _scaffoldKey,
-        message: 'Wallet creation failed',
-        listener: this,
-        actionLabel: 'Close');
-  }
-
-  @override
-  onWalletMessage(Wallet wallet) async {
-    prettyPrint(wallet.toJson(),
-        'onWalletMessage ... ############### arrived via fcm: ');
-
-    AppSnackbar.showSnackbarWithAction(
-        scaffoldKey: _scaffoldKey,
-        message: 'Wallet created',
-        textColor: Colors.white,
-        backgroundColor: Colors.deepPurple,
-        actionLabel: 'OK',
-        listener: this,
-        action: 0,
-        icon: Icons.email);
+        icon: Icons.collections_bookmark);
   }
 }

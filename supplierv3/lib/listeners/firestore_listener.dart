@@ -1,5 +1,6 @@
 import 'package:businesslibrary/data/delivery_acceptance.dart';
 import 'package:businesslibrary/data/invoice_acceptance.dart';
+import 'package:businesslibrary/data/invoice_bid.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -71,6 +72,35 @@ void listenForInvoiceAcceptance(
       var ia = InvoiceAcceptance.fromJson(change.document.data);
       assert(ia != null);
       listener.onInvoiceAcceptance(ia);
+    });
+  });
+}
+
+abstract class InvoiceBidListener {
+  onInvoiceBid(InvoiceBid bid);
+}
+
+void listenForInvoiceBid(String offerId, InvoiceBidListener listener) async {
+  print(
+      '\n\listenForInvoiceBid ########## listening for Invoice Bids ........');
+
+  var qs = await Firestore.instance
+      .collection('invoiceOffers')
+      .where('offerId', isEqualTo: offerId)
+      .getDocuments();
+  String offerDocRef = qs.documents.first.documentID;
+  CollectionReference reference = Firestore.instance
+      .collection('invoiceOffers')
+      .document(offerDocRef)
+      .collection('invoiceBids');
+
+  reference.snapshots().listen((querySnapshot) {
+    querySnapshot.documentChanges.forEach((change) {
+      print(
+          '\n\n###### listenForInvoiceBid: change \n\n ${change.document.data} \n\n');
+      var bid = InvoiceBid.fromJson(change.document.data);
+      assert(bid != null);
+      listener.onInvoiceBid(bid);
     });
   });
 }

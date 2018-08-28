@@ -2,18 +2,22 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="ee13a624-2909-4df1-b542-b77eab000913" name="Default" comment="tweaked generators IV">
-      <change afterPath="$PROJECT_DIR$/../supplierv3/lib/listeners/note_listener.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../businesslibrary/.idea/libraries/Dart_Packages.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/.idea/libraries/Dart_Packages.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../govt/lib/ui/firestore_listener.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../supplierv3/lib/listeners/firestore_listener.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../businesslibrary/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/api/data_api.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/api/data_api.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/util/util.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/util/util.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../businesslibrary/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/pubspec.yaml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../govt/lib/ui/dashboard.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../govt/lib/ui/dashboard.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../govt/lib/ui/invoice_list.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../govt/lib/ui/invoice_list.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../govt/lib/ui/signin_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../govt/lib/ui/signin_page.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../investor/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../investor/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../investor/lib/ui/dashboard.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../investor/lib/ui/dashboard.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../supplierv3/.idea/libraries/Dart_Packages.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/.idea/libraries/Dart_Packages.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../supplierv3/.idea/libraries/Flutter_Plugins.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/.idea/libraries/Flutter_Plugins.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../supplierv3/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../supplierv3/lib/listeners/note_listener.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../investor/lib/ui/firestore_listener.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../supplierv3/lib/ui/dashboard.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/lib/ui/dashboard.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../supplierv3/lib/ui/fcm_handler.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/lib/ui/fcm_handler.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../supplierv3/lib/ui/invoice_bids.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/lib/ui/invoice_bids.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../supplierv3/lib/ui/invoice_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/lib/ui/invoice_page.dart" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <ignored path="../.gradle/4.4/fileChanges/last-build.bin" />
@@ -277,6 +281,7 @@
       <usages-collector id="statistics.file.extensions.open">
         <counts>
           <entry key="gradle" value="1" />
+          <entry key="json" value="1" />
           <entry key="yaml" value="1" />
         </counts>
       </usages-collector>
@@ -289,6 +294,7 @@
       <usages-collector id="statistics.file.types.open">
         <counts>
           <entry key="Groovy" value="1" />
+          <entry key="JSON" value="1" />
           <entry key="YAML" value="1" />
         </counts>
       </usages-collector>
@@ -305,7 +311,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/lib/main.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="464">
+            <state>
               <caret line="89" column="23" selection-start-line="89" selection-start-column="23" selection-end-line="89" selection-end-column="23" />
             </state>
           </provider>
@@ -326,8 +332,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/pubspec.yaml">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="240">
-              <caret line="15" selection-start-line="15" selection-end-line="15" />
+            <state relative-caret-position="48">
+              <caret line="3" column="13" lean-forward="true" selection-start-line="3" selection-start-column="13" selection-end-line="3" selection-end-column="13" />
             </state>
           </provider>
         </entry>
@@ -391,7 +397,7 @@
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" extendedState="1">
+  <component name="ProjectFrameBounds">
     <option name="x" value="1681" />
     <option name="y" value="23" />
     <option name="width" value="1765" />
@@ -536,7 +542,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="1681" y="23" width="1765" height="979" extended-state="1" />
+    <frame x="1681" y="23" width="1765" height="979" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" sideWeight="0.46886447" visible="true" weight="0.14857806" />
@@ -557,11 +563,11 @@
       <window_info anchor="bottom" id="TODO" order="6" />
       <window_info anchor="bottom" id="Dart Analysis" order="7" weight="0.32842582" />
       <window_info anchor="bottom" id="Android Profiler" order="8" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Event Log" order="9" sideWeight="0.20835751" side_tool="true" visible="true" weight="0.42953777" />
+      <window_info anchor="bottom" id="Event Log" order="9" sideWeight="0.5002902" side_tool="true" visible="true" weight="0.24239008" />
       <window_info anchor="bottom" id="Logcat" order="10" />
       <window_info anchor="bottom" id="Version Control" order="11" weight="0.3296582" />
-      <window_info anchor="bottom" id="Terminal" order="12" weight="0.32807216" />
-      <window_info anchor="bottom" id="Messages" order="13" weight="0.24239008" />
+      <window_info anchor="bottom" id="Terminal" order="12" sideWeight="0.4997098" weight="0.32807216" />
+      <window_info active="true" anchor="bottom" id="Messages" order="13" sideWeight="0.4997098" visible="true" weight="0.24239008" />
       <window_info anchor="right" id="Commander" order="0" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
@@ -721,7 +727,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/lib/main.dart">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="464">
+        <state>
           <caret line="89" column="23" selection-start-line="89" selection-start-column="23" selection-end-line="89" selection-end-column="23" />
         </state>
       </provider>
@@ -736,10 +742,15 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/android/app/google-services-prod.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-1718" />
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/pubspec.yaml">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="240">
-          <caret line="15" selection-start-line="15" selection-end-line="15" />
+        <state relative-caret-position="48">
+          <caret line="3" column="13" lean-forward="true" selection-start-line="3" selection-start-column="13" selection-end-line="3" selection-end-column="13" />
         </state>
       </provider>
     </entry>

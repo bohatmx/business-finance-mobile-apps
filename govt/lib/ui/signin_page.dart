@@ -307,5 +307,11 @@ class _SignInPageState extends State<SignInPage> implements SnackBarListener {
   @override
   onActionPressed(int action) {
     print('_SignInPageState.onActionPressed ============= Yay!!');
+    _scaffoldKey.currentState.hideCurrentSnackBar();
+    Navigator.pop(context);
+    Navigator.push(
+      context,
+      new MaterialPageRoute(builder: (context) => new Dashboard(null)),
+    );
   }
 }

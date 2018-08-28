@@ -288,7 +288,7 @@ class _NewInvoicePageState extends State<NewInvoicePage>
                         Padding(
                           padding: const EdgeInsets.only(left: 12.0),
                           child: Text(
-                            supplier == null ? 'WhatTheFuck' : supplier.name,
+                            supplier == null ? '' : supplier.name,
                             style: TextStyle(
                               fontSize: 16.0,
                               fontWeight: FontWeight.normal,

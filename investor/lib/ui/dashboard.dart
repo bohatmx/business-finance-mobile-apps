@@ -5,13 +5,11 @@ import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/delivery_acceptance.dart';
 import 'package:businesslibrary/data/delivery_note.dart';
 import 'package:businesslibrary/data/investor.dart';
-import 'package:businesslibrary/data/invoice.dart';
 import 'package:businesslibrary/data/invoice_bid.dart';
 import 'package:businesslibrary/data/invoice_settlement.dart';
 import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/user.dart';
-import 'package:businesslibrary/data/wallet.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/summary_card.dart';
@@ -19,6 +17,7 @@ import 'package:businesslibrary/util/util.dart';
 import 'package:businesslibrary/util/wallet_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:investor/ui/firestore_listener.dart';
 import 'package:investor/ui/offer_list.dart';
 
 class Dashboard extends StatefulWidget {
@@ -34,7 +33,7 @@ class Dashboard extends StatefulWidget {
 
 class _DashboardState extends State<Dashboard>
     with TickerProviderStateMixin
-    implements SnackBarListener, FCMListener {
+    implements SnackBarListener, OfferListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   static const platform = const MethodChannel('com.oneconnect.biz.CHANNEL');
 
@@ -61,7 +60,7 @@ class _DashboardState extends State<Dashboard>
     );
     animation = new Tween(begin: 0.0, end: 1.0).animate(animationController);
     _getCachedPrefs();
-    configureMessaging(this);
+
     items = buildDaysDropDownItems();
   }
 
@@ -86,6 +85,7 @@ class _DashboardState extends State<Dashboard>
     investor = await SharedPrefs.getInvestor();
     assert(investor != null);
     name = investor.name;
+    listenForOffer(this);
     setState(() {});
     _getSummaryData();
   }
@@ -264,7 +264,7 @@ class _DashboardState extends State<Dashboard>
     print(
         '_DashboardState.onActionPressed ..................  action: $action');
     switch (action) {
-      case 1:
+      case OfferConstant:
         Navigator.push(
           context,
           new MaterialPageRoute(builder: (context) => new OfferList()),
@@ -281,72 +281,6 @@ class _DashboardState extends State<Dashboard>
 
   void _onInvoiceBidsTapped() {
     print('_DashboardState._onInvoiceTapped ...............');
-  }
-
-  @override
-  onCompanySettlement(CompanyInvoiceSettlement settlement) {}
-
-  @override
-  onDeliveryAcceptance(DeliveryAcceptance deliveryAcceptance) {}
-
-  @override
-  onDeliveryNote(DeliveryNote deliveryNote) {}
-
-  @override
-  onGovtInvoiceSettlement(GovtInvoiceSettlement settlement) {}
-
-  @override
-  onInvestorSettlement(InvestorInvoiceSettlement settlement) {}
-
-  @override
-  onInvoiceBidMessage(InvoiceBid invoiceBid) {}
-
-  @override
-  onInvoiceMessage(Invoice invoice) {}
-
-  @override
-  onOfferMessage(Offer offer) {
-    AppSnackbar.showSnackbarWithAction(
-        scaffoldKey: _scaffoldKey,
-        message: 'Offer arrived',
-        textColor: Colors.white,
-        backgroundColor: Colors.teal,
-        actionLabel: 'OK',
-        action: 1,
-        listener: this,
-        icon: Icons.done);
-  }
-
-  @override
-  onPurchaseOrderMessage(PurchaseOrder purchaseOrder) {
-    prettyPrint(purchaseOrder.toJson(), 'po arrived');
-  }
-
-  @override
-  onWalletError() {
-    print('_DashboardState.onWalletError');
-    AppSnackbar.showErrorSnackbar(
-      scaffoldKey: _scaffoldKey,
-      message: 'Wallet creation failed',
-      actionLabel: 'Error',
-      listener: this,
-    );
-  }
-
-  @override
-  onWalletMessage(Wallet wallet) async {
-    print(
-        '_DashboardState.onWalletMessage  @@@@@@@@ wallet received in dash, cycle COMPLETE!!!!');
-
-    AppSnackbar.showSnackbarWithAction(
-        scaffoldKey: _scaffoldKey,
-        message: 'Wallet Created',
-        textColor: Colors.white,
-        backgroundColor: Colors.black,
-        actionLabel: 'OK',
-        listener: this,
-        action: 2,
-        icon: Icons.done);
   }
 
   Widget _getBottom() {
@@ -429,6 +363,30 @@ class _DashboardState extends State<Dashboard>
       context,
       new MaterialPageRoute(builder: (context) => new OfferList()),
     );
+  }
+
+  static const OfferConstant = 1,
+      DeliveryAcceptanceConstant = 2,
+      GovtSettlement = 3,
+      PurchaseOrderConstant = 4,
+      InvoiceBidConstant = 5,
+      InvestorSettlement = 6,
+      WalletConstant = 7,
+      InvoiceAcceptedConstant = 8;
+  Offer offer;
+  @override
+  onOffer(Offer o) {
+    offer = o;
+    prettyPrint(offer.toJson(), '_DashboardState.onOffer');
+    AppSnackbar.showSnackbarWithAction(
+        scaffoldKey: _scaffoldKey,
+        message: 'Invoice Offer arrived',
+        textColor: Colors.white,
+        backgroundColor: Colors.black,
+        actionLabel: 'OK',
+        listener: this,
+        icon: Icons.message,
+        action: OfferConstant);
   }
 }
 
