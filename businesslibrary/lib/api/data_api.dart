@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/auditor.dart';
 import 'package:businesslibrary/data/bank.dart';
@@ -16,6 +17,7 @@ import 'package:businesslibrary/data/invoice_bid.dart';
 import 'package:businesslibrary/data/invoice_settlement.dart';
 import 'package:businesslibrary/data/item.dart';
 import 'package:businesslibrary/data/offer.dart';
+import 'package:businesslibrary/data/offerCancellation.dart';
 import 'package:businesslibrary/data/oneconnect.dart';
 import 'package:businesslibrary/data/procurement_office.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
@@ -52,6 +54,8 @@ class DataAPI {
       ACCEPT_INVOICE = 'AcceptInvoice',
       MAKE_INVOICE_OFFER = 'MakeInvoiceOffer',
       MAKE_INVOICE_BID = 'MakeInvoiceBid',
+      CANCEL_OFFER = 'CancelOffer',
+      UPDATE_PURCHASE_ORDER_CONTRACT = 'UpdatePurchaseOrderContract',
       MAKE_INVESTOR_SETTLEMENT = 'MakeInvestorInvoiceSettlement',
       MAKE_COMPANY_SETTLEMENT = 'MakeCompanyInvoiceSettlement',
       MAKE_GOVT_SETTLEMENT = 'MakeGovtInvoiceSettlement',
@@ -353,17 +357,6 @@ class DataAPI {
     }
 
     contract.contractId = getKey();
-    var ref = await _firestore
-        .collection('suppliers')
-        .document(docId)
-        .collection('supplierContracts')
-        .add(contract.toJson())
-        .catchError((e) {
-      print('DataAPI.addSupplierContract ERROR adding to Firestore $e');
-      return '0';
-    });
-
-    contract.documentReference = ref.documentID;
     contract.date = new DateTime.now().toIso8601String();
 
     print(
@@ -380,12 +373,20 @@ class DataAPI {
       print(
           'DataAPI.addSupplierContract blockchain response status code:  ${mResponse.statusCode}');
       if (mResponse.statusCode == 200) {
+        var ref = await _firestore
+            .collection('suppliers')
+            .document(docId)
+            .collection('supplierContracts')
+            .add(contract.toJson())
+            .catchError((e) {
+          print('DataAPI.addSupplierContract ERROR adding to Firestore $e');
+          return '0';
+        });
         print(
             'DataAPI.addSupplierContract added to Firestore: ${ref.documentID}');
 
         return contract.contractId;
       } else {
-        ref.delete();
         print('DataAPI.addSupplierContract ERROR  ${mResponse.reasonPhrase}');
         mResponse.transform(utf8.decoder).listen((contents) {
           print('DataAPI.addSupplierContract  $contents');
@@ -393,7 +394,6 @@ class DataAPI {
         return "0";
       }
     } catch (e) {
-      ref.delete();
       print('DataAPI.addSupplierContract ERROR $e');
       return '0';
     }
@@ -741,6 +741,9 @@ class DataAPI {
 
   Future<String> registerInvoice(Invoice invoice) async {
     invoice.invoiceId = getKey();
+    invoice.isOnOffer = false;
+    invoice.isSettled = false;
+
     String documentRef, participantId, supplierDocRef, collection;
     if (invoice.govtEntity != null) {
       participantId = invoice.govtEntity.split('#').elementAt(1);
@@ -918,6 +921,8 @@ class DataAPI {
   }
 
   Future _mirrorInvoiceAcceptance(InvoiceAcceptance acceptance) async {
+    //todo - update invoice with acceptance?
+
     String documentId, participantId, path;
     if (acceptance.govtEntity != null) {
       participantId = acceptance.govtEntity.split('#').elementAt(1);
@@ -947,6 +952,35 @@ class DataAPI {
       print('DataAPI._mirrorInvoiceAcceptance  ERROR $e');
       return '0';
     });
+    assert(acceptance.supplierDocumentRef != null);
+    var inv = await ListAPI.getSupplierInvoiceByNumber(
+        acceptance.invoiceNumber, acceptance.supplierDocumentRef);
+    inv.invoiceAcceptance =
+        'resource:com.oneconnect.biz.InvoiceAcceptance#${acceptance.acceptanceId}';
+    await _firestore
+        .collection('suppliers')
+        .document(acceptance.supplierDocumentRef)
+        .collection('invoices')
+        .document(inv.documentReference)
+        .updateData(inv.toJson());
+    print(
+        'DataAPI._mirrorInvoiceAcceptance ******* supplier invoice updated with  acceptance *****');
+    if (inv.govtEntity != null) {
+      assert(inv.govtDocumentRef != null);
+      var govtInv = await ListAPI.getGovtInvoiceByNumber(
+          inv.invoiceNumber, inv.govtDocumentRef);
+      assert(govtInv.govtDocumentRef != null);
+      govtInv.invoiceAcceptance = inv.invoiceAcceptance;
+      await _firestore
+          .collection('govtEntities')
+          .document(inv.govtDocumentRef)
+          .collection('invoices')
+          .document(govtInv.documentReference)
+          .updateData(govtInv.toJson());
+      print(
+          'DataAPI._mirrorInvoiceAcceptance ******* govt invoice updated with  acceptance *****');
+    }
+
     print(
         'DataAPI._mirrorInvoiceAcceptance OWNER added to Firestore: ${ref2.path}');
     print(
@@ -1279,6 +1313,104 @@ class DataAPI {
       }
     } catch (e) {
       print('DataAPI.makeGovtInvoiceSettlement ERROR $e');
+      return '0';
+    }
+  }
+
+  Future<String> updatePurchaseOrderContract(
+      PurchaseOrder po, String contractURL) async {
+    print(
+        'DataAPI.updatePurchaseOrderContract ${url + UPDATE_PURCHASE_ORDER_CONTRACT}');
+    try {
+      Map<String, String> map = Map<String, String>();
+      map['contractURL'] = contractURL;
+      map['purchaseOrder'] =
+          'resource:com.oneconnect.biz.PurchaseOrder#${po.purchaseOrderId}';
+      var mjson = json.encode(map);
+      var httpClient = new HttpClient();
+      HttpClientRequest mRequest = await httpClient
+          .postUrl(Uri.parse(url + UPDATE_PURCHASE_ORDER_CONTRACT));
+      mRequest.headers.contentType = _contentType;
+      mRequest.write(mjson);
+      HttpClientResponse mResponse = await mRequest.close();
+      print(
+          'DataAPI.makeInvoiceBid blockchain response status code:  ${mResponse.statusCode}');
+      if (mResponse.statusCode == 200) {
+        return await updatePO(po, contractURL);
+      } else {
+        mResponse.transform(utf8.decoder).listen((contents) {
+          print('DataAPI.makeInvoiceBid  $contents');
+        });
+        print('DataAPI.makeInvoiceBid ERROR  ${mResponse.reasonPhrase}');
+        return '0';
+      }
+    } catch (e) {
+      print('DataAPI.makeInvoiceBid ERROR $e');
+      return '0';
+    }
+  }
+
+  Future updatePO(PurchaseOrder po, String contractURL) async {
+    var qs = await _firestore
+        .collection('investors')
+        .document(po.supplierDocumentRef)
+        .collection('purchaseOrders')
+        .where('purchaseOrderId', isEqualTo: po.purchaseOrderId)
+        .getDocuments();
+    if (qs.documents.isNotEmpty) {
+      var docID = qs.documents.first.documentID;
+      var doc = qs.documents.first.data;
+      var xx = PurchaseOrder.fromJson(doc);
+      xx.contractURL = contractURL;
+      await _firestore
+          .collection('investors')
+          .document(po.supplierDocumentRef)
+          .collection('purchaseOrders')
+          .document(docID)
+          .setData(xx.toJson())
+          .catchError((e) {
+        print('DataAPI.updatePurchaseOrderContract: ${e} ');
+        return '0';
+      });
+    }
+    return 'poUpdated';
+  }
+
+  Future<String> cancelOffer(OfferCancellation cancellation) async {
+    cancellation.cancellationId = getKey();
+    cancellation.date = DateTime.now().toIso8601String();
+    print('DataAPI.cancelOffer ${url + CANCEL_OFFER}');
+    try {
+      Map map = cancellation.toJson();
+      var mjson = json.encode(map);
+      var httpClient = new HttpClient();
+      HttpClientRequest mRequest =
+          await httpClient.postUrl(Uri.parse(url + CANCEL_OFFER));
+      mRequest.headers.contentType = _contentType;
+      mRequest.write(mjson);
+      HttpClientResponse mResponse = await mRequest.close();
+      print(
+          'DataAPI.cancelOffer blockchain response status code:  ${mResponse.statusCode}');
+      if (mResponse.statusCode == 200) {
+        var ref0 = await _firestore
+            .collection('offersCancelled')
+            .add(cancellation.toJson())
+            .catchError((e) {
+          print('DataAPI.cancelOffer ERROR $e');
+          return '0';
+        });
+        print('DataAPI.cancelOffer added to Firestore: ${ref0.path}');
+
+        return cancellation.cancellationId;
+      } else {
+        mResponse.transform(utf8.decoder).listen((contents) {
+          print('DataAPI.cancelOffer  $contents');
+        });
+        print('DataAPI.cancelOffer ERROR  ${mResponse.reasonPhrase}');
+        return '0';
+      }
+    } catch (e) {
+      print('DataAPI.cancelOffer ERROR $e');
       return '0';
     }
   }

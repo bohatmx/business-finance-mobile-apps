@@ -44,41 +44,41 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       _counter++;
     });
-    await Generator.generateEntities();
-    setState(() {
-      _counter++;
-    });
-    await Generator.generateSuppliers();
-    setState(() {
-      _counter++;
-    });
+//    await Generator.generateEntities();
+//    setState(() {
+//      _counter++;
+//    });
+//    await Generator.generateSuppliers();
+//    setState(() {
+//      _counter++;
+//    });
+//
+//    await Generator.generateInvestors();
+//    setState(() {
+//      _counter++;
+//    });
+//    await Generator.generateProcurementOffice();
+//    setState(() {
+//      _counter++;
+//    });
+//    await Generator.generateBank();
+//    setState(() {
+//      _counter++;
+//    });
+//    await Generator.generateAuditor();
+//    setState(() {
+//      _counter++;
+//    });
+//    await Generator.generateCompanies();
+//    setState(() {
+//      _counter++;
+//    });
+//    await Generator.generateOneConnect();
+//    setState(() {
+//      _counter++;
+//    });
 
-    await Generator.generateInvestors();
-    setState(() {
-      _counter++;
-    });
-    await Generator.generateProcurementOffice();
-    setState(() {
-      _counter++;
-    });
-    await Generator.generateBank();
-    setState(() {
-      _counter++;
-    });
-    await Generator.generateAuditor();
-    setState(() {
-      _counter++;
-    });
-    await Generator.generateCompanies();
-    setState(() {
-      _counter++;
-    });
-    await Generator.generateOneConnect();
-    setState(() {
-      _counter++;
-    });
-
-    await Generator.generatePurchaseOrders();
+//    await Generator.generatePurchaseOrders();
     setState(() {
       _counter++;
       opacity = 1.0;

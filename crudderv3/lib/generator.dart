@@ -570,6 +570,18 @@ class Generator {
         msnap3.documents.forEach((x) async {
           await x.reference.delete();
         });
+
+        var msnap4 = await doc.reference
+            .collection('deliveryAcceptances')
+            .getDocuments();
+        msnap4.documents.forEach((x) async {
+          await x.reference.delete();
+        });
+        var msnap6 =
+            await doc.reference.collection('invoiceAcceptances').getDocuments();
+        msnap6.documents.forEach((x) async {
+          await x.reference.delete();
+        });
         await doc.reference.delete();
       });
       print(
@@ -595,6 +607,17 @@ class Generator {
         msnap4.documents.forEach((x) async {
           await x.reference.delete();
         });
+        var msnap5 = await doc.reference
+            .collection('deliveryAcceptances')
+            .getDocuments();
+        msnap5.documents.forEach((x) async {
+          await x.reference.delete();
+        });
+        var msnap6 =
+            await doc.reference.collection('invoiceAcceptances').getDocuments();
+        msnap6.documents.forEach((x) async {
+          await x.reference.delete();
+        });
         await doc.reference.delete();
       });
       print(
@@ -602,8 +625,15 @@ class Generator {
 
       var qs5 = await fs.collection('investors').getDocuments();
       qs5.documents.forEach((doc) async {
+        var msnap4 =
+            await doc.reference.collection('invoiceBids').getDocuments();
+        msnap4.documents.forEach((x) async {
+          await x.reference.delete();
+        });
+
         await doc.reference.delete();
       });
+
       print(
           'Generator.cleanUp investors deleted from Firestore ######################');
       var qs6 = await fs.collection('procurementOffices').getDocuments();
@@ -626,6 +656,12 @@ class Generator {
         });
         var msnap3 = await doc.reference.collection('invoices').getDocuments();
         msnap3.documents.forEach((x) async {
+          await x.reference.delete();
+        });
+        var msnap4 = await doc.reference
+            .collection('deliveryAcceptances')
+            .getDocuments();
+        msnap4.documents.forEach((x) async {
           await x.reference.delete();
         });
         await doc.reference.delete();

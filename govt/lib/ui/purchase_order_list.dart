@@ -177,4 +177,6 @@ class PurchaseOrderCard extends StatelessWidget {
       ),
     );
   }
+
+  void _uploadPOdoc() {}
 }

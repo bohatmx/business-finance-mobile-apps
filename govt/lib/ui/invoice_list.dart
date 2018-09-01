@@ -35,8 +35,15 @@ class _InvoiceListState extends State<InvoiceList> implements SnackBarListener {
 
   _getInvoices() async {
     print('_InvoiceListState._getInvoices ..........');
+    AppSnackbar.showSnackbar(
+        scaffoldKey: _scaffoldKey,
+        message: 'Looding invoices ...',
+        textColor: Colors.yellow,
+        backgroundColor: Colors.black);
     invoices =
         await ListAPI.getInvoices(entity.documentReference, 'govtEntities');
+
+    _scaffoldKey.currentState.hideCurrentSnackBar();
     print('_InvoiceListState._getInvoices, found: ${invoices.length} ');
     setState(() {});
   }
@@ -51,6 +58,7 @@ class _InvoiceListState extends State<InvoiceList> implements SnackBarListener {
     print('_InvoiceListState._acceptInvoice');
     DataAPI api = new DataAPI(getURL());
 
+    Navigator.pop(context);
     var acceptance = new InvoiceAcceptance(
         supplierName: invoice.supplierName,
         customerName: entity.name,
@@ -70,6 +78,7 @@ class _InvoiceListState extends State<InvoiceList> implements SnackBarListener {
           listener: this,
           actionLabel: 'Close');
     } else {
+      _getInvoices();
       AppSnackbar.showSnackbar(
           scaffoldKey: _scaffoldKey,
           message: 'Invoice accepted',
@@ -92,7 +101,9 @@ class _InvoiceListState extends State<InvoiceList> implements SnackBarListener {
   @override
   Widget build(BuildContext context) {
     invoices = widget.invoices;
-
+    if (invoices == null || invoices.isEmpty) {
+      _getInvoices();
+    }
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
@@ -137,8 +148,8 @@ class _InvoiceListState extends State<InvoiceList> implements SnackBarListener {
             ),
             preferredSize: Size.fromHeight(60.0)),
       ),
-      body: Card(
-        elevation: 4.0,
+      body: Padding(
+        padding: const EdgeInsets.only(top: 12.0),
         child: new Column(
           children: <Widget>[
             new Flexible(
@@ -336,7 +347,7 @@ class InvoiceCard extends StatelessWidget {
   Widget build(BuildContext context) {
     amount = _getFormattedAmt();
     return Padding(
-      padding: const EdgeInsets.only(left: 5.0, right: 5.0, bottom: 2.0),
+      padding: const EdgeInsets.only(left: 5.0, right: 5.0, bottom: 20.0),
       child: Card(
         elevation: 2.0,
         color: Colors.amber.shade50,
@@ -354,7 +365,7 @@ class InvoiceCard extends StatelessWidget {
                 Text(
                   getFormattedLongestDate(invoice.date),
                   style: TextStyle(
-                      color: Colors.blue,
+                      color: Colors.black,
                       fontSize: 16.0,
                       fontWeight: FontWeight.normal),
                 ),
@@ -369,9 +380,9 @@ class InvoiceCard extends StatelessWidget {
                     child: Text(
                       invoice.supplierName,
                       style: TextStyle(
-                          color: Colors.indigo.shade300,
-                          fontSize: 18.0,
-                          fontWeight: FontWeight.w900),
+                          color: Colors.black,
+                          fontSize: 16.0,
+                          fontWeight: FontWeight.bold),
                     ),
                   ),
                 ],
@@ -379,19 +390,54 @@ class InvoiceCard extends StatelessWidget {
             ),
             Padding(
               padding:
-                  const EdgeInsets.only(left: 40.0, bottom: 10.0, top: 10.0),
+                  const EdgeInsets.only(left: 30.0, bottom: 10.0, top: 10.0),
               child: Row(
                 children: <Widget>[
-                  Text('Amount'),
+                  Text(
+                    'Amount',
+                    style: TextStyle(fontSize: 12.0),
+                  ),
                   Padding(
                     padding: const EdgeInsets.only(left: 8.0),
                     child: Text(
-                      amount == null ? '0.00' : amount,
+                      amount == null
+                          ? '0.00'
+                          : getFormattedAmount('$amount', context),
                       style: TextStyle(
-                          fontSize: 20.0,
+                          fontSize: 24.0,
                           fontWeight: FontWeight.bold,
-                          color: Colors.teal),
+                          color: Colors.teal.shade200),
                     ),
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 30.0, bottom: 10.0),
+              child: Row(
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.only(right: 8.0),
+                    child: Text('Accepted'),
+                  ),
+                  Text(
+                    invoice.invoiceAcceptance == null ? 'NO' : 'YES',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 30.0, bottom: 30.0),
+              child: Row(
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.only(right: 8.0),
+                    child: Text('Settled'),
+                  ),
+                  Text(
+                    invoice.isSettled == false ? 'NO' : 'YES',
+                    style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ],
               ),

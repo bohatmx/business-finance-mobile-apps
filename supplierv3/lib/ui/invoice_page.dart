@@ -85,6 +85,19 @@ class _NewInvoicePageState extends State<NewInvoicePage>
           textColor: Colors.white,
           backgroundColor: Colors.black);
 
+      //check for possible duplicate
+      var xx = await ListAPI.getInvoice(invoice.purchaseOrderNumber,
+          invoice.invoiceNumber, invoice.supplierDocumentRef);
+      if (xx != null) {
+        print('DataAPI.registerInvoice - possible DUPLICATE invoice');
+        AppSnackbar.showErrorSnackbar(
+            scaffoldKey: _scaffoldKey,
+            message: 'Error. Possible duplicate invoice',
+            listener: this,
+            actionLabel: 'Check');
+        return;
+      }
+
       DataAPI api = DataAPI(getURL());
       var result = await api.registerInvoice(invoice);
       if (result == '0') {
@@ -148,31 +161,10 @@ class _NewInvoicePageState extends State<NewInvoicePage>
           child: new Card(
             elevation: 6.0,
             child: new Padding(
-              padding: const EdgeInsets.all(10.0),
+              padding:
+                  const EdgeInsets.only(left: 10.0, right: 10.0, bottom: 10.0),
               child: ListView(
                 children: <Widget>[
-                  new Padding(
-                    padding: const EdgeInsets.only(top: 4.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: <Widget>[
-                        Text(
-                          'Invoice Details',
-                          style: TextStyle(
-                              color: Colors.grey,
-                              fontSize: 16.0,
-                              fontWeight: FontWeight.w900),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 100.0),
-                          child: IconButton(
-                            icon: Icon(Icons.done),
-                            onPressed: _onSavePressed,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
                   Padding(
                     padding: const EdgeInsets.only(left: 12.0, right: 12.0),
                     child: TextFormField(
@@ -196,14 +188,14 @@ class _NewInvoicePageState extends State<NewInvoicePage>
                     padding: const EdgeInsets.only(left: 12.0, right: 12.0),
                     child: TextFormField(
                       style: TextStyle(
-                          fontSize: 20.0,
+                          fontSize: 28.0,
                           fontWeight: FontWeight.bold,
-                          color: Colors.red),
+                          color: Colors.black),
                       decoration: InputDecoration(
                         labelText: 'Amount',
                       ),
                       keyboardType: TextInputType.number,
-                      maxLength: 20,
+                      maxLength: 28,
                       validator: (value) {
                         if (value.isEmpty) {
                           return 'Please enter the invoice amount';
@@ -218,7 +210,7 @@ class _NewInvoicePageState extends State<NewInvoicePage>
                       style: TextStyle(
                           fontSize: 20.0,
                           fontWeight: FontWeight.bold,
-                          color: Colors.black),
+                          color: Colors.purple),
                       decoration: InputDecoration(
                         labelText: 'Value Added Tax',
                       ),
@@ -232,10 +224,26 @@ class _NewInvoicePageState extends State<NewInvoicePage>
                       onSaved: (val) => tax = double.parse(val),
                     ),
                   ),
+                  new Padding(
+                    padding: const EdgeInsets.only(
+                        left: 28.0, right: 20.0, top: 10.0),
+                    child: RaisedButton(
+                      elevation: 8.0,
+                      color: Theme.of(context).primaryColor,
+                      onPressed: _onSavePressed,
+                      child: new Padding(
+                        padding: const EdgeInsets.all(12.0),
+                        child: Text(
+                          'Submit Invoice',
+                          style: TextStyle(color: Colors.white, fontSize: 16.0),
+                        ),
+                      ),
+                    ),
+                  ),
                   Padding(
                     padding: const EdgeInsets.only(
                       top: 20.0,
-                      bottom: 12.0,
+                      bottom: 4.0,
                       left: 12.0,
                     ),
                     child: Row(
@@ -249,7 +257,7 @@ class _NewInvoicePageState extends State<NewInvoicePage>
                                 ? ''
                                 : deliveryAcceptance.purchaseOrderNumber,
                             style: TextStyle(
-                              fontSize: 20.0,
+                              fontSize: 16.0,
                               fontWeight: FontWeight.bold,
                               color: Colors.black,
                             ),
@@ -270,9 +278,9 @@ class _NewInvoicePageState extends State<NewInvoicePage>
                                 ? ''
                                 : deliveryAcceptance.customerName,
                             style: TextStyle(
-                              fontSize: 20.0,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.blue,
+                              fontSize: 14.0,
+                              fontWeight: FontWeight.normal,
+                              color: Theme.of(context).primaryColor,
                             ),
                           ),
                         ),
@@ -281,7 +289,7 @@ class _NewInvoicePageState extends State<NewInvoicePage>
                   ),
                   Padding(
                     padding: const EdgeInsets.only(
-                        left: 12.0, right: 12.0, top: 12.0),
+                        left: 12.0, right: 12.0, top: 4.0),
                     child: Row(
                       children: <Widget>[
                         Container(width: 70.0, child: Text('Supplier:')),
@@ -290,7 +298,7 @@ class _NewInvoicePageState extends State<NewInvoicePage>
                           child: Text(
                             supplier == null ? '' : supplier.name,
                             style: TextStyle(
-                              fontSize: 16.0,
+                              fontSize: 14.0,
                               fontWeight: FontWeight.normal,
                               color: Colors.black,
                             ),
@@ -299,22 +307,6 @@ class _NewInvoicePageState extends State<NewInvoicePage>
                       ],
                     ),
                   ),
-                  new Padding(
-                    padding: const EdgeInsets.only(
-                        left: 28.0, right: 20.0, top: 30.0),
-                    child: RaisedButton(
-                      elevation: 8.0,
-                      color: Theme.of(context).primaryColor,
-                      onPressed: _onSavePressed,
-                      child: new Padding(
-                        padding: const EdgeInsets.all(12.0),
-                        child: Text(
-                          'Submit Invoice',
-                          style: TextStyle(color: Colors.white, fontSize: 16.0),
-                        ),
-                      ),
-                    ),
-                  )
                 ],
               ),
             ),

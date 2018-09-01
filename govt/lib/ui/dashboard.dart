@@ -186,17 +186,17 @@ class _DashboardState extends State<Dashboard>
   @override
   Widget build(BuildContext context) {
     message = widget.message;
-    if (message != null) {
-      AppSnackbar.showSnackbarWithAction(
-          scaffoldKey: _scaffoldKey,
-          message: message,
-          textColor: Colors.white,
-          icon: Icons.done_all,
-          listener: this,
-          actionLabel: 'OK',
-          action: 0,
-          backgroundColor: Colors.black);
-    }
+//    if (message != null) {
+//      AppSnackbar.showSnackbarWithAction(
+//          scaffoldKey: _scaffoldKey,
+//          message: message,
+//          textColor: Colors.white,
+//          icon: Icons.done_all,
+//          listener: this,
+//          actionLabel: 'OK',
+//          action: 0,
+//          backgroundColor: Colors.black);
+//    }
     return new WillPopScope(
       onWillPop: () async => false,
       child: Scaffold(

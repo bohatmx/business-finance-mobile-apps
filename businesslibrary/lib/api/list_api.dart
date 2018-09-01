@@ -277,12 +277,115 @@ class ListAPI {
       print('ListAPI.getInvoices $e');
       return list;
     });
-    print('ListAPI.getInvoices ............. ))))))) ${qs.documents.length}');
+    if (qs.documents.isEmpty) {
+      print('ListAPI.getInvoices - no docs found');
+      return list;
+    }
     qs.documents.forEach((doc) {
       list.add(new Invoice.fromJson(doc.data));
     });
 
     print('ListAPI.getInvoices ################## found: ${list.length}');
+    list.forEach((inv) {
+      prettyPrint(
+          inv.toJson(), 'getInvoices, INVOICE NUMBER: ${inv.invoiceNumber}');
+    });
+    return list;
+  }
+
+  static Future<List<Invoice>> getInvoicesOpenForOffers(
+      String documentId, String collection) async {
+    print(
+        'ListAPI.getInvoicesOpenForOffers ............. documentId: $documentId in $collection');
+    List<Invoice> list = List();
+    var qs = await _firestore
+        .collection(collection)
+        .document(documentId)
+        .collection('invoices')
+        .where('offer', isNull: true)
+        .limit(100)
+        .getDocuments()
+        .catchError((e) {
+      print('ListAPI.getInvoicesOpenForOffers $e');
+      return list;
+    });
+
+    if (qs.documents.isEmpty) {
+      print('ListAPI.getInvoicesOpenForOffers - no docs found');
+      return list;
+    }
+
+    qs.documents.forEach((doc) {
+      list.add(new Invoice.fromJson(doc.data));
+    });
+    print(
+        'ListAPI.getInvoicesOpenForOffers ################## found: ${list.length}');
+    list.forEach((inv) {
+      prettyPrint(inv.toJson(),
+          'getInvoicesOpenForOffers INVOICE NUMBER: ${inv.invoiceNumber}');
+    });
+    return list;
+  }
+
+  static Future<List<Invoice>> getInvoicesOnOffer(
+      String documentId, String collection) async {
+    print('ListAPI.getInvoicesOnOffer ............. documentId: $documentId');
+    //type '(dynamic) => List<Invoice>' is not a subtype of type '(Object) => FutureOr<QuerySnapshot>'
+    List<Invoice> list = List();
+    var qs = await _firestore
+        .collection(collection)
+        .document(documentId)
+        .collection('invoices')
+        .where('offer', isGreaterThan: '')
+        .limit(100)
+        .getDocuments()
+        .catchError((e) {
+      print('ListAPI.getInvoicesOnOffer $e');
+      return list;
+    });
+    if (qs.documents.isEmpty) {
+      print('ListAPI.getInvoicesOnOffer - no docs found');
+      return list;
+    }
+
+    qs.documents.forEach((doc) {
+      list.add(new Invoice.fromJson(doc.data));
+    });
+    print(
+        'ListAPI.getInvoicesOnOffer ################## found: ${list.length}');
+    return list;
+  }
+
+  static Future<List<Invoice>> getInvoicesSettled(
+      String documentId, String collection) async {
+    print('ListAPI.getInvoicesSettled ............. documentId: $documentId');
+    List<Invoice> list = List();
+    var qs = await _firestore
+        .collection(collection)
+        .document(documentId)
+        .collection('invoices')
+        .where('isSettled', isEqualTo: 'true')
+        .limit(1000)
+        .orderBy('date', descending: true)
+        .getDocuments()
+        .catchError((e) {
+      print('ListAPI.getInvoicesSettled $e');
+      return list;
+    });
+    if (qs.documents.isEmpty) {
+      print('ListAPI.getInvoicesSettled - no docs found');
+      return list;
+    }
+
+    qs.documents.forEach((doc) {
+      list.add(new Invoice.fromJson(doc.data));
+    });
+    print(
+        'ListAPI.getInvoicesOnOffer ################## found: ${list.length}');
+    list.forEach((inv) {
+      prettyPrint(inv.toJson(),
+          'getInvoicesSettled INVOICE NUMBER: ${inv.invoiceNumber}');
+    });
     return list;
   }
 
@@ -303,11 +406,80 @@ class ListAPI {
       return null;
     });
     print('ListAPI.getInvoice ............. fouund: ${qs.documents.length}');
-    if (qs.documents.length > 0) {
+    if (qs.documents.isNotEmpty) {
       invoice = Invoice.fromJson(qs.documents.first.data);
+      invoice.documentReference = qs.documents.first.documentID;
     }
 
     return invoice;
+  }
+
+  static Future<Invoice> getSupplierInvoiceByNumber(
+      String invoiceNumber, String supplierDocumentRef) async {
+    print(
+        'ListAPI.getSupplierInvoiceByNumber .............  invoiceNumber: $invoiceNumber ');
+    Invoice invoice;
+    var qs = await _firestore
+        .collection('suppliers')
+        .document(supplierDocumentRef)
+        .collection('invoices')
+        .where('invoiceNumber', isEqualTo: invoiceNumber)
+        .getDocuments()
+        .catchError((e) {
+      print('ListAPI.getSupplierInvoiceByNumber $e');
+      return null;
+    });
+    print(
+        'ListAPI.getSupplierInvoiceByNumber ............. fouund: ${qs.documents.length}');
+    if (qs.documents.isNotEmpty) {
+      invoice = Invoice.fromJson(qs.documents.first.data);
+      invoice.documentReference = qs.documents.first.documentID;
+    }
+
+    return invoice;
+  }
+
+  static Future<Invoice> getGovtInvoiceByNumber(
+      String invoiceNumber, String govtDocumentRef) async {
+    print(
+        'ListAPI.getGovtInvoiceByNumber .............  invoiceNumber: $invoiceNumber ');
+    Invoice invoice;
+    var qs = await _firestore
+        .collection('govtEntities')
+        .document(govtDocumentRef)
+        .collection('invoices')
+        .where('invoiceNumber', isEqualTo: invoiceNumber)
+        .getDocuments()
+        .catchError((e) {
+      print('ListAPI.getGovtInvoiceByNumber $e');
+      return null;
+    });
+    print(
+        'ListAPI.getGovtInvoiceByNumber ............. fouund: ${qs.documents.length}');
+    if (qs.documents.isNotEmpty) {
+      invoice = Invoice.fromJson(qs.documents.first.data);
+      invoice.documentReference = qs.documents.first.documentID;
+    }
+
+    return invoice;
+  }
+
+  static Future<Offer> findOfferByInvoice(String invoice) async {
+    var qs = await _firestore
+        .collection('invoiceOffers')
+        .where('invoice',
+            isEqualTo: 'resource:com.oneconnect.biz.Invoice#$invoice')
+        .getDocuments()
+        .catchError((e) {
+      print('ListAPI.getGovtInvoiceByNumber $e');
+      return null;
+    });
+    if (qs.documents.isNotEmpty) {
+      var offer = Offer.fromJson(qs.documents.first.data);
+      return offer;
+    } else {
+      return null;
+    }
   }
 
   static Future<List<DeliveryNote>> getDeliveryNotes(

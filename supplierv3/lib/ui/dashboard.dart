@@ -23,6 +23,7 @@ import 'package:supplierv3/ui/contract_list.dart';
 import 'package:supplierv3/ui/delivery_acceptance_list.dart';
 import 'package:supplierv3/ui/delivery_note_list.dart';
 import 'package:supplierv3/ui/invoice_list.dart';
+import 'package:supplierv3/ui/make_offer.dart';
 import 'package:supplierv3/ui/purchase_order_list.dart';
 import 'package:supplierv3/ui/summary_card.dart';
 
@@ -88,8 +89,8 @@ class _DashboardState extends State<Dashboard>
         message: 'Loading dashboard data',
         textColor: Colors.white,
         backgroundColor: Colors.black);
-    await getPurchaseOrders();
-    await getDelNotes();
+    await _getPurchaseOrders();
+    await _getDelNotes();
     await _getInvoices();
     await _getSettlements();
 
@@ -104,8 +105,10 @@ class _DashboardState extends State<Dashboard>
     name = supplier.name;
     setState(() {});
     _getSummaryData();
+    //
     listenForPurchaseOrder(supplier.documentReference, this);
     listenForDeliveryAcceptance(supplier.documentReference, this);
+    listenForInvoiceAcceptance(supplier.documentReference, this);
   }
 
   Future _getSettlements() async {
@@ -133,7 +136,7 @@ class _DashboardState extends State<Dashboard>
     });
   }
 
-  Future getDelNotes() async {
+  Future _getDelNotes() async {
     deliveryNotes =
         await ListAPI.getDeliveryNotes(supplier.documentReference, 'suppliers');
     setState(() {
@@ -141,7 +144,7 @@ class _DashboardState extends State<Dashboard>
     });
   }
 
-  Future getPurchaseOrders() async {
+  Future _getPurchaseOrders() async {
     purchaseOrders = await ListAPI.getPurchaseOrders(
         supplier.documentReference, 'suppliers');
     setState(() {
@@ -180,18 +183,18 @@ class _DashboardState extends State<Dashboard>
   @override
   Widget build(BuildContext context) {
     message = widget.message;
-    if (message != null) {
-      AppSnackbar.showSnackbarWithAction(
-          scaffoldKey: _scaffoldKey,
-          message: message,
-          textColor: Colors.white,
-          icon: Icons.done_all,
-          listener: this,
-          actionLabel: 'OK',
-          action: 0,
-          backgroundColor: Colors.black);
-      message = null;
-    }
+//    if (message != null) {
+//      AppSnackbar.showSnackbarWithAction(
+//          scaffoldKey: _scaffoldKey,
+//          message: message,
+//          textColor: Colors.white,
+//          icon: Icons.done_all,
+//          listener: this,
+//          actionLabel: 'OK',
+//          action: 0,
+//          backgroundColor: Colors.black);
+//      message = null;
+//    }
     return new WillPopScope(
       onWillPop: () async => false,
       child: Scaffold(
@@ -333,7 +336,7 @@ class _DashboardState extends State<Dashboard>
     print('_MainPageState._onInvoiceTapped ... go  to list of invoices');
     Navigator.push(
       context,
-      new MaterialPageRoute(builder: (context) => new InvoiceList(invoices)),
+      new MaterialPageRoute(builder: (context) => new InvoiceList()),
     );
   }
 
@@ -385,6 +388,9 @@ class _DashboardState extends State<Dashboard>
               builder: (context) => new DeliveryAcceptanceList()),
         );
         break;
+      case InvoiceAcceptedConstant:
+        _startOffer();
+        break;
       case CompanySettlementConstant:
         break;
       case InvestorSettlement:
@@ -396,6 +402,21 @@ class _DashboardState extends State<Dashboard>
       case GovtSettlement:
         break;
     }
+  }
+
+  void _startOffer() async {
+    AppSnackbar.showSnackbar(
+        scaffoldKey: _scaffoldKey,
+        message: 'Loading invoice ...',
+        textColor: Colors.white,
+        backgroundColor: Colors.black);
+    var inv = await ListAPI.getSupplierInvoiceByNumber(
+        invoiceAcceptance.invoiceNumber, supplier.documentReference);
+    _scaffoldKey.currentState.hideCurrentSnackBar();
+    Navigator.push(
+      context,
+      new MaterialPageRoute(builder: (context) => new MakeOfferPage(inv)),
+    );
   }
 
   void _goToContracts() {
@@ -430,7 +451,7 @@ class _DashboardState extends State<Dashboard>
         icon: Icons.message,
         action: PurchaseOrderConstant);
 
-    getPurchaseOrders();
+    _getPurchaseOrders();
   }
 
   DeliveryAcceptance deliveryAcceptance;

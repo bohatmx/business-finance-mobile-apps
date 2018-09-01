@@ -4,6 +4,7 @@ import 'package:businesslibrary/data/delivery_acceptance.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
+import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -20,7 +21,7 @@ class PurchaseOrderListPage extends StatefulWidget {
 }
 
 class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
-    implements SnackBarListener {
+    implements SnackBarListener, POListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   final FirebaseMessaging _firebaseMessaging = new FirebaseMessaging();
   PurchaseOrder purchaseOrder;
@@ -102,13 +103,9 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
               child: new ListView.builder(
                   itemCount: purchaseOrders == null ? 0 : purchaseOrders.length,
                   itemBuilder: (BuildContext context, int index) {
-                    return new InkWell(
-                      onTap: () {
-                        _confirm(purchaseOrders.elementAt(index));
-                      },
-                      child: PurchaseOrderCard(
-                        purchaseOrder: purchaseOrders.elementAt(index),
-                      ),
+                    return PurchaseOrderCard(
+                      purchaseOrder: purchaseOrders.elementAt(index),
+                      listener: this,
                     );
                   }),
             ),
@@ -118,83 +115,75 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
     );
   }
 
-  _confirm(PurchaseOrder order) {
-    purchaseOrder = order;
-    showDialog(
-        context: context,
-        builder: (_) => new AlertDialog(
-              title: new Text(
-                "Task Selection",
-                style: TextStyle(
-                    color: Theme.of(context).primaryColor,
-                    fontSize: 20.0,
-                    fontWeight: FontWeight.bold),
-              ),
-              content: Container(
-                height: 100.0,
-                child: Column(
-                  children: <Widget>[
-                    new Text(
-                        "Do you want  to create a Delivery Note for this Purchase Order?"),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 18.0),
-                      child: Row(
-                        children: <Widget>[
-                          Text(
-                            'PO Number:',
-                            style: TextStyle(color: Colors.grey),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(left: 10.0),
-                            child: Text(
-                              '${order.purchaseOrderNumber}',
-                              style: TextStyle(
-                                color: Colors.pink.shade100,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 20.0,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              actions: <Widget>[
-                FlatButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  child: Text(
-                    'NO',
-                    style: TextStyle(fontSize: 16.0, color: Colors.grey),
-                  ),
-                ),
-                FlatButton(
-                  onPressed: _onDeliveryNote,
-                  child: Text(
-                    'YES',
-                    style: TextStyle(
-                        color: Colors.blue,
-                        fontSize: 16.0,
-                        fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ],
-            ));
-  }
+//  _confirm(PurchaseOrder order) {
+//    purchaseOrder = order;
+//    showDialog(
+//        context: context,
+//        builder: (_) => new AlertDialog(
+//              title: new Text(
+//                "Task Selection",
+//                style: TextStyle(
+//                    color: Theme.of(context).primaryColor,
+//                    fontSize: 20.0,
+//                    fontWeight: FontWeight.bold),
+//              ),
+//              content: Container(
+//                height: 100.0,
+//                child: Column(
+//                  children: <Widget>[
+//                    new Text(
+//                        "Do you want  to create a Delivery Note for this Purchase Order?"),
+//                    Padding(
+//                      padding: const EdgeInsets.only(top: 18.0),
+//                      child: Row(
+//                        children: <Widget>[
+//                          Text(
+//                            'PO Number:',
+//                            style: TextStyle(color: Colors.grey),
+//                          ),
+//                          Padding(
+//                            padding: const EdgeInsets.only(left: 10.0),
+//                            child: Text(
+//                              '${order.purchaseOrderNumber}',
+//                              style: TextStyle(
+//                                color: Colors.pink.shade100,
+//                                fontWeight: FontWeight.bold,
+//                                fontSize: 20.0,
+//                              ),
+//                            ),
+//                          ),
+//                        ],
+//                      ),
+//                    ),
+//                  ],
+//                ),
+//              ),
+//              actions: <Widget>[
+//                FlatButton(
+//                  onPressed: () {
+//                    Navigator.pop(context);
+//                  },
+//                  child: Text(
+//                    'NO',
+//                    style: TextStyle(fontSize: 16.0, color: Colors.grey),
+//                  ),
+//                ),
+//                FlatButton(
+//                  onPressed: _onDeliveryNote,
+//                  child: Text(
+//                    'YES',
+//                    style: TextStyle(
+//                        color: Colors.blue,
+//                        fontSize: 16.0,
+//                        fontWeight: FontWeight.bold),
+//                  ),
+//                ),
+//              ],
+//            ));
+//  }
 
   void _refresh() {
     print('_PurchaseOrderListPageState._refresh ..................');
-  }
-
-  void _onDeliveryNote() {
-    print('_PurchaseOrderListPageState._onDeliveryNote');
-    Navigator.pop(context);
-    Navigator.push(context, new MaterialPageRoute(builder: (context) {
-      return new DeliveryNotePage(purchaseOrder);
-    }));
   }
 
   @override
@@ -216,31 +205,50 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
       );
     }
   }
+
+  @override
+  onCreateDeliveryNote(PurchaseOrder po) {
+    print('_PurchaseOrderListPageState._onDeliveryNote');
+    Navigator.pop(context);
+    Navigator.push(context, new MaterialPageRoute(builder: (context) {
+      return new DeliveryNotePage(po);
+    }));
+  }
+
+  @override
+  onDocumentUpload(PurchaseOrder po) {
+    AppSnackbar.showSnackbar(
+        scaffoldKey: _scaffoldKey,
+        message: 'Upload Under Constructtion',
+        textColor: Colors.white,
+        backgroundColor: Colors.black);
+  }
 }
 
 class PurchaseOrderCard extends StatelessWidget {
   final PurchaseOrder purchaseOrder;
+  final POListener listener;
 
-  PurchaseOrderCard({@required this.purchaseOrder});
+  PurchaseOrderCard({@required this.purchaseOrder, @required this.listener});
 
   @override
   Widget build(BuildContext context) {
     return new Padding(
-      padding: const EdgeInsets.all(8.0),
+      padding: const EdgeInsets.all(4.0),
       child: Card(
-        elevation: 2.0,
-        color: Colors.lightBlue.shade50,
+        elevation: 4.0,
+        color: Colors.brown.shade50,
         child: Column(
           children: <Widget>[
             Padding(
-              padding: const EdgeInsets.only(top: 18.0),
+              padding: const EdgeInsets.only(top: 20.0, bottom: 8.0),
               child: new Row(
                 children: <Widget>[
                   new Padding(
                     padding: const EdgeInsets.only(left: 8.0),
                     child: Icon(
                       Icons.apps,
-                      color: Colors.grey,
+                      color: Colors.purple.shade200,
                     ),
                   ),
                   new Padding(
@@ -252,14 +260,14 @@ class PurchaseOrderCard extends StatelessWidget {
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         color: Colors.black,
-                        fontSize: 20.0,
+                        fontSize: 16.0,
                       ),
                     ),
                   ),
                 ],
               ),
             ),
-            new Padding(
+            Padding(
               padding: const EdgeInsets.only(left: 40.0, bottom: 20.0),
               child: Row(
                 children: <Widget>[
@@ -274,19 +282,78 @@ class PurchaseOrderCard extends StatelessWidget {
                   new Padding(
                     padding: const EdgeInsets.only(left: 8.0),
                     child: Text(
-                      '${purchaseOrder.amount}',
+                      getFormattedAmount('${purchaseOrder.amount}', context),
                       style: TextStyle(
-                          fontSize: 14.0,
-                          fontWeight: FontWeight.bold,
+                          fontSize: 20.0,
+                          fontWeight: FontWeight.w900,
                           color: Colors.teal),
                     ),
                   ),
                 ],
               ),
             ),
+            _getActions(),
           ],
         ),
       ),
     );
   }
+
+  Widget _getActions() {
+    assert(purchaseOrder != null);
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12.0, left: 12.0),
+      child: Row(
+        children: <Widget>[
+          FlatButton(
+            onPressed: _uploadPOdoc,
+            child: Row(
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.only(right: 8.0),
+                  child: Icon(Icons.cloud_upload),
+                ),
+                Text(
+                  'Upload PO',
+                  style: TextStyle(fontSize: 14.0, color: Colors.purple),
+                ),
+              ],
+            ),
+          ),
+          Row(
+            children: <Widget>[
+              FlatButton(
+                onPressed: _createNote,
+                child: Row(
+                  children: <Widget>[
+                    Padding(
+                      padding: const EdgeInsets.only(right: 8.0),
+                      child: Icon(Icons.create),
+                    ),
+                    Text(
+                      'Delivery Note',
+                      style: TextStyle(fontSize: 14.0, color: Colors.purple),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _uploadPOdoc() {
+    listener.onDocumentUpload(purchaseOrder);
+  }
+
+  void _createNote() {
+    listener.onCreateDeliveryNote(purchaseOrder);
+  }
+}
+
+abstract class POListener {
+  onDocumentUpload(PurchaseOrder po);
+  onCreateDeliveryNote(PurchaseOrder po);
 }

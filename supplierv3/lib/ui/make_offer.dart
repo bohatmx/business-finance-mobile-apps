@@ -1,4 +1,5 @@
 import 'package:businesslibrary/api/data_api.dart';
+import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/invoice.dart';
 import 'package:businesslibrary/data/offer.dart';
@@ -30,7 +31,7 @@ class _MakeOfferPageState extends State<MakeOfferPage>
   Supplier supplier;
   PurchaseOrder purchaseOrder;
   User user;
-  String discount;
+  String percentage;
   DateTime startTime = DateTime.now(),
       initialDate = DateTime.now().add(Duration(seconds: 365)),
       endTime = DateTime.now().add(Duration(days: 365));
@@ -52,108 +53,6 @@ class _MakeOfferPageState extends State<MakeOfferPage>
 
   void _setItems() {
     print('_MakeOfferPageState._setItems ................');
-
-    var item = DropdownMenuItem<String>(
-      value: '5.0',
-      child: Row(
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Icon(
-              Icons.apps,
-              color: Colors.grey,
-            ),
-          ),
-          Text('5.0 %'),
-        ],
-      ),
-    );
-    items.add(item);
-
-    var item1 = DropdownMenuItem<String>(
-      value: '7.5',
-      child: Row(
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Icon(
-              Icons.apps,
-              color: Colors.indigo.shade300,
-            ),
-          ),
-          Text('7.5 %'),
-        ],
-      ),
-    );
-    items.add(item1);
-
-    var item2 = DropdownMenuItem<String>(
-      value: '10',
-      child: Row(
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Icon(
-              Icons.apps,
-              color: Colors.indigo.shade300,
-            ),
-          ),
-          Text('10.0 %'),
-        ],
-      ),
-    );
-    items.add(item2);
-
-    var item3 = DropdownMenuItem<String>(
-      value: '12.5',
-      child: Row(
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Icon(
-              Icons.apps,
-              color: Colors.blue,
-            ),
-          ),
-          Text('12.5 %'),
-        ],
-      ),
-    );
-    items.add(item3);
-
-    var item4 = DropdownMenuItem<String>(
-      value: '15.0',
-      child: Row(
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Icon(
-              Icons.apps,
-              color: Colors.blue,
-            ),
-          ),
-          Text('15.0 %'),
-        ],
-      ),
-    );
-    items.add(item4);
-
-    var item5 = DropdownMenuItem<String>(
-      value: '17.5',
-      child: Row(
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Icon(
-              Icons.apps,
-              color: Colors.blue,
-            ),
-          ),
-          Text('17.5 %'),
-        ],
-      ),
-    );
-    items.add(item5);
 
     var item6 = DropdownMenuItem<String>(
       value: '20.0',
@@ -345,27 +244,23 @@ class _MakeOfferPageState extends State<MakeOfferPage>
   }
 
   _calculateExpected() {
-    if (discount != null) {
-      double offerDiscount = double.parse(discount);
-      double investorDiscount = offerDiscount;
+    if (percentage != null) {
+      double offerPercentage = double.parse(percentage);
 
-      double offerAmt = invoice.amount;
-      double supplierAmt = (offerAmt * (investorDiscount)) / 100;
-      print('MakeOffer._calculateExpected amt: '
-          ' $offerAmt offerDiscount: $offerDiscount investorDiscount: '
-          '$investorDiscount supplierAmt: $supplierAmt investorAmt: ${offerAmt - supplierAmt} check: ${supplierAmt + (offerAmt - supplierAmt)}\n\n');
+      double offerAmt = invoice.amount * (offerPercentage / 100);
 
       setState(() {
-        investorAmount = '${offerAmt - supplierAmt}';
-        supplierAmount = '$supplierAmt';
+        investorAmount = '$offerAmt';
       });
     }
   }
 
+  bool submitting;
   _submitOffer() async {
     print(
         'MakeOfferPage._submitOffer ########### invoice: ${invoice.invoiceNumber} --------------\n\n');
-    var disc = double.parse(discount);
+    submitting = true;
+    var disc = double.parse(percentage);
     var offerAmt = (invoice.amount * disc) / 100.0;
     Offer offer = new Offer(
         supplier: NameSpace + 'Supplier#' + supplier.participantId,
@@ -389,6 +284,16 @@ class _MakeOfferPageState extends State<MakeOfferPage>
         message: 'Submitting Invoice Offer',
         textColor: Colors.white,
         backgroundColor: Colors.black);
+
+    var x = await ListAPI.findOfferByInvoice(offer.invoice);
+    if (x != null) {
+      AppSnackbar.showErrorSnackbar(
+          scaffoldKey: _scaffoldKey,
+          message: 'Offer already exists',
+          listener: this,
+          actionLabel: 'Close');
+      return;
+    }
     DataAPI dataAPI = DataAPI(getURL());
     var key = await dataAPI.makeOffer(offer);
     if (key == '0') {
@@ -398,6 +303,7 @@ class _MakeOfferPageState extends State<MakeOfferPage>
           listener: this,
           actionLabel: 'Close');
     } else {
+      submitting = false;
       AppSnackbar.showSnackbarWithAction(
           scaffoldKey: _scaffoldKey,
           message: 'Ivoice Offer suubmitted OK',
@@ -405,11 +311,12 @@ class _MakeOfferPageState extends State<MakeOfferPage>
           backgroundColor: Colors.teal.shade800,
           actionLabel: "DONE",
           listener: this,
-          action: 0,
+          action: OfferSubmitted,
           icon: Icons.done);
     }
   }
 
+  static const OfferSubmitted = 1;
   @override
   Widget build(BuildContext context) {
     invoice = widget.invoice;
@@ -424,29 +331,23 @@ class _MakeOfferPageState extends State<MakeOfferPage>
                   padding: const EdgeInsets.only(bottom: 18.0, left: 10.0),
                   child: Row(
                     children: <Widget>[
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text('Customer:'),
+                      ),
                       Text(
                         invoice.customerName,
                         style: TextStyle(
                             color: Colors.white,
                             fontSize: 20.0,
-                            fontWeight: FontWeight.w900),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 8.0),
-                        child: IconButton(
-                          icon: Icon(
-                            Icons.done,
-                            color: Colors.white,
-                          ),
-                          onPressed: _submitOffer,
-                        ),
+                            fontWeight: FontWeight.bold),
                       ),
                     ],
                   ),
                 )
               ],
             ),
-            preferredSize: Size.fromHeight(40.0)),
+            preferredSize: Size.fromHeight(60.0)),
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -457,9 +358,9 @@ class _MakeOfferPageState extends State<MakeOfferPage>
               Padding(
                 padding: const EdgeInsets.all(10.0),
                 child: Text(
-                  'Invoice Offer Details',
+                  'Period Invoice Offer is OPEN',
                   style: TextStyle(
-                      fontSize: 14.0,
+                      fontSize: 16.0,
                       color: Colors.grey,
                       fontWeight: FontWeight.w900),
                 ),
@@ -503,7 +404,8 @@ class _MakeOfferPageState extends State<MakeOfferPage>
                       width: 110.0,
                       child: RaisedButton(
                         onPressed: _getEndTime,
-                        color: Colors.pink,
+                        elevation: 4.0,
+                        color: Colors.teal.shade800,
                         child: Text(
                           'End Date',
                           style: TextStyle(color: Colors.white, fontSize: 16.0),
@@ -597,19 +499,19 @@ class _MakeOfferPageState extends State<MakeOfferPage>
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.only(left: 28.0, top: 10.0),
+                padding: const EdgeInsets.only(left: 20.0, top: 10.0),
                 child: Row(
                   children: <Widget>[
                     Padding(
-                      padding: const EdgeInsets.only(left: 8.0, right: 20.0),
+                      padding: const EdgeInsets.only(left: 0.0, right: 8.0),
                       child: DropdownButton<String>(
                         items: items,
                         onChanged: _onDiscountTapped,
                         elevation: 16,
                         hint: Text(
-                          'Select Discount',
+                          'Invoice Percentage',
                           style: TextStyle(
-                            fontSize: 16.0,
+                            fontSize: 14.0,
                             fontWeight: FontWeight.bold,
                             color: Colors.blue,
                           ),
@@ -617,11 +519,11 @@ class _MakeOfferPageState extends State<MakeOfferPage>
                       ),
                     ),
                     Text(
-                      discount == null ? '' : discount,
+                      percentage == null ? '' : percentage,
                       style: TextStyle(
                         color: Colors.black,
                         fontWeight: FontWeight.w900,
-                        fontSize: 36.0,
+                        fontSize: 28.0,
                       ),
                     ),
                     Padding(
@@ -643,30 +545,8 @@ class _MakeOfferPageState extends State<MakeOfferPage>
                   children: <Widget>[
                     Padding(
                       padding: const EdgeInsets.all(8.0),
-                      child: Container(
-                          width: 140.0, child: Text('Expected Amount')),
-                    ),
-                    Text(
-                      supplierAmount == null
-                          ? '0.00'
-                          : getFormattedAmount(supplierAmount, context),
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 24.0,
-                        color: Colors.teal,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(left: 10.0, top: 0.0),
-                child: Row(
-                  children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Container(
-                          width: 140.0, child: Text('Investor(s) Amount')),
+                      child:
+                          Container(width: 80.0, child: Text('Offer Amount')),
                     ),
                     Text(
                       investorAmount == null
@@ -674,11 +554,32 @@ class _MakeOfferPageState extends State<MakeOfferPage>
                           : getFormattedAmount(investorAmount, context),
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        fontSize: 16.0,
-                        color: Colors.grey,
+                        fontSize: 28.0,
+                        color: Colors.teal,
                       ),
                     ),
                   ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: 10.0, top: 20.0),
+                child: Padding(
+                  padding: const EdgeInsets.only(
+                      left: 28.0, right: 28.0, bottom: 28.0),
+                  child: Opacity(
+                    opacity: submitting == true ? 0.0 : 1.0,
+                    child: RaisedButton(
+                      elevation: 8.0,
+                      onPressed: _submitOffer,
+                      child: Padding(
+                        padding: const EdgeInsets.all(12.0),
+                        child: Text(
+                          'Submit Offer',
+                          style: TextStyle(color: Colors.white, fontSize: 20.0),
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ],
@@ -690,13 +591,13 @@ class _MakeOfferPageState extends State<MakeOfferPage>
 
   void _onDiscountTapped(String value) {
     print('_MakeOfferPageState._onDiscountTapped value: $value');
-    discount = value;
+    percentage = value;
     _calculateExpected();
   }
 
   @override
   onActionPressed(int action) {
     print('_MakeOfferPageState.onActionPressed');
-    Navigator.pop(context);
+    Navigator.pop(context, true);
   }
 }
