@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
@@ -63,6 +64,10 @@ class _ContractPageState extends State<ContractPage>
     if (entities.length < 70) {
       _buildDropDownItems();
     }
+    if (isInDebugMode) {
+      isDev = true;
+      setState(() {});
+    }
   }
 
   void _getFiles() async {
@@ -91,7 +96,7 @@ class _ContractPageState extends State<ContractPage>
     }
   }
 
-  bool isBusy = false;
+  bool isBusy = false, isDev = true;
   _showNoFilesDialog() {
     showDialog(
         context: context,
@@ -162,6 +167,73 @@ class _ContractPageState extends State<ContractPage>
           actionLabel: 'Close');
     } else {
       _uploadContract();
+    }
+  }
+
+  void _createDummy() async {
+    if (!isInDebugMode) {
+      return;
+    }
+    isDev = true;
+    entities.forEach((e) async {
+      await _uploadDummyContract(e);
+    });
+  }
+
+  Future _uploadDummyContract(GovtEntity entity) async {
+    print('_ContractPageState._uploadContract ############### '
+        '.........  url: $url');
+    SupplierContract c = SupplierContract(
+      estimatedValue: '10000000.00',
+      startDate: DateTime.now().toIso8601String(),
+      endDate: DateTime.now().add(Duration(days: 365)).toIso8601String(),
+      customerName: entity.name,
+      supplierName: supplier.name,
+      supplierDocumentRef: supplier.documentReference,
+      govtEntity:
+          'resource:com.oneconnect.biz.GovtEntity#' + entity.participantId,
+      contractURL:
+          'https://firebasestorage.googleapis.com/v0/b/business-finance-dev.appspot.com/o/contracts%2FBFN2018-06-24T17%3A29%3A56.708034_42%20%2B.pdf?alt=media&token=ce591d07-3bd7-45b8-a961-499289ac141e',
+      user: 'resource:com.oneconnect.biz.User#' + user.userId,
+      date: DateTime.now().toIso8601String(),
+      supplier:
+          'resource:com.oneconnect.biz.Supplier#' + supplier.participantId,
+      description: 'Dummy contract for development',
+    );
+
+    AppSnackbar.showSnackbarWithProgressIndicator(
+        scaffoldKey: _scaffoldKey,
+        message: 'Uploading dummy cooontract',
+        textColor: Colors.white,
+        backgroundColor: Colors.black);
+    DataAPI api = DataAPI(getURL());
+    var res = await api.addSupplierContract(c);
+    isBusy = false;
+    if (res == '0') {
+      isDone = false;
+      AppSnackbar.showErrorSnackbar(
+          scaffoldKey: _scaffoldKey,
+          message: 'Contract upload failed',
+          listener: this,
+          actionLabel: 'Close');
+    } else {
+      isDone = true;
+      AppSnackbar.showSnackbarWithAction(
+          scaffoldKey: _scaffoldKey,
+          message: 'Contract uploaded',
+          textColor: Colors.white,
+          backgroundColor: Colors.black,
+          actionLabel: 'Done',
+          listener: this,
+          action: 1,
+          icon: Icons.done);
+      setState(() {
+        fileName = null;
+        entity = null;
+        contractValue = null;
+        startTime = null;
+        endTime = null;
+      });
     }
   }
 
@@ -335,7 +407,7 @@ class _ContractPageState extends State<ContractPage>
                 ),
               ],
             ),
-            preferredSize: Size.fromHeight(30.0)),
+            preferredSize: Size.fromHeight(80.0)),
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -364,6 +436,16 @@ class _ContractPageState extends State<ContractPage>
                       ),
                     ),
                   ),
+                  Opacity(
+                    opacity: isDev == true ? 1.0 : 0.0,
+                    child: FlatButton(
+                      onPressed: _createDummy,
+                      child: Text(
+                        'Upload dummy contracts for Dev',
+                        style: TextStyle(color: Colors.pink, fontSize: 20.0),
+                      ),
+                    ),
+                  ),
                   Padding(
                     padding: const EdgeInsets.only(top: 10.0, bottom: 10.0),
                     child: Text(
@@ -383,10 +465,11 @@ class _ContractPageState extends State<ContractPage>
                           child: RaisedButton(
                             elevation: 4.0,
                             onPressed: _getStartTime,
+                            color: Theme.of(context).primaryColor,
                             child: Text(
                               'Start Date',
                               style: TextStyle(
-                                color: Colors.blue,
+                                color: Colors.white,
                                 fontSize: 14.0,
                               ),
                             ),
@@ -415,10 +498,11 @@ class _ContractPageState extends State<ContractPage>
                         child: RaisedButton(
                           elevation: 4.0,
                           onPressed: _getEndTime,
+                          color: Theme.of(context).primaryColor,
                           child: Text(
                             'End Date',
                             style: TextStyle(
-                              color: Colors.pink,
+                              color: Colors.white,
                               fontSize: 14.0,
                             ),
                           ),
@@ -662,7 +746,7 @@ class _ContractPageState extends State<ContractPage>
   onActionPressed(int action) {
     print('_ContractPageState.onActionPressed ............');
     if (isDone) {
-      Navigator.pop(context);
+      Navigator.pop(context, true);
     }
   }
 }

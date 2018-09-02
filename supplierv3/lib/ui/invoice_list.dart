@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:businesslibrary/api/data_api.dart';
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/invoice.dart';
+import 'package:businesslibrary/data/invoice_bid.dart';
 import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/data/offerCancellation.dart';
 import 'package:businesslibrary/data/supplier.dart';
@@ -11,8 +14,8 @@ import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/util.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:supplierv3/listeners/firestore_listener.dart';
 import 'package:supplierv3/ui/delivery_acceptance_list.dart';
-import 'package:supplierv3/ui/invoice_page.dart';
 import 'package:supplierv3/ui/make_offer.dart';
 
 class InvoiceList extends StatefulWidget {
@@ -21,16 +24,19 @@ class InvoiceList extends StatefulWidget {
 }
 
 class _InvoiceListState extends State<InvoiceList>
-    implements SnackBarListener, CardListener {
+    implements SnackBarListener, CardListener, InvoiceBidListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   final FirebaseMessaging _firebaseMessaging = new FirebaseMessaging();
   static const MakeOffer = '1', CancelOffer = '2', EditInvoice = '3';
-  List<Invoice> invoicesOpen, invoicesOnOffer, invoicesSettled;
+  List<Invoice> invoicesOpen = List(),
+      invoicesOnOffer = List(),
+      invoicesSettled = List();
   Invoice invoice;
   User user;
   Supplier supplier;
   bool isPurchaseOrder, isInvoice;
   List<DropdownMenuItem<String>> items = List();
+  List<Invoice> invoices;
 
   @override
   void initState() {
@@ -39,147 +45,10 @@ class _InvoiceListState extends State<InvoiceList>
     _getCached();
   }
 
-  _showMenuDialog(Invoice invoice) {
-    this.invoice = invoice;
-    showDialog(
-        context: context,
-        builder: (_) => new AlertDialog(
-              title: new Text(
-                "Invoice Actions",
-                style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).primaryColor),
-              ),
-              content: Container(
-                height: 240.0,
-                child: Column(
-                  children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.only(top: 4.0, bottom: 10.0),
-                      child: Text(
-                        'Invoice Number: ${invoice.invoiceNumber}',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                    _buildItems(),
-                  ],
-                ),
-              ),
-            ));
-  }
-
-  _onInvoiceDetails() {
-    Navigator.push(
-      context,
-      new MaterialPageRoute(
-          builder: (context) => new InvoiceDetailsPage(invoice)),
-    );
-  }
-
-  Widget _buildItems() {
-    var item1 = Padding(
-      padding: const EdgeInsets.only(bottom: 12.0),
-      child: Card(
-        elevation: 4.0,
-        child: InkWell(
-          onTap: _onOffer,
-          child: Row(
-            children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Icon(
-                  Icons.attach_money,
-                  color: Colors.green.shade800,
-                ),
-              ),
-              Text('Make Invoice Offer'),
-            ],
-          ),
-        ),
-      ),
-    );
-    var item2 = Padding(
-      padding: const EdgeInsets.only(bottom: 12.0),
-      child: Card(
-        elevation: 4.0,
-        child: InkWell(
-          onTap: _cancelOffer,
-          child: Row(
-            children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Icon(
-                  Icons.cancel,
-                  color: Colors.red.shade800,
-                ),
-              ),
-              Text('Cancel Invoice Offer'),
-            ],
-          ),
-        ),
-      ),
-    );
-    var item3 = Padding(
-      padding: const EdgeInsets.only(bottom: 12.0),
-      child: Card(
-        elevation: 4.0,
-        child: InkWell(
-          onTap: _onInvoiceDetails,
-          child: Row(
-            children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Icon(
-                  Icons.description,
-                  color: Colors.blue.shade800,
-                ),
-              ),
-              Text('View Invoice Details'),
-            ],
-          ),
-        ),
-      ),
-    );
-
-    if (invoice.offer == null) {
-      return Column(
-        children: <Widget>[
-          item1,
-          item3,
-          Padding(
-            padding: const EdgeInsets.only(top: 16.0),
-            child: FlatButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: Text(
-                'Cancel',
-                style: TextStyle(color: Colors.blue, fontSize: 20.0),
-              ),
-            ),
-          ),
-        ],
-      );
-    } else {
-      return Column(
-        children: <Widget>[
-          item2,
-          item3,
-          Padding(
-            padding: const EdgeInsets.only(top: 16.0),
-            child: FlatButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: Text(
-                'Cancel',
-                style: TextStyle(color: Colors.blue, fontSize: 20.0),
-              ),
-            ),
-          ),
-        ],
-      );
-    }
+  _listenForBids() async {
+    invoicesOnOffer.forEach((i) {
+      listenForInvoiceBid(i.offer.split('#').elementAt(1), this);
+    });
   }
 
   _getCached() async {
@@ -198,18 +67,26 @@ class _InvoiceListState extends State<InvoiceList>
 
     invoicesOpen = await ListAPI.getInvoicesOpenForOffers(
         supplier.documentReference, 'suppliers');
+    invoicesOpen.sort((a, b) => b.date.compareTo(a.date));
+    _calculateOpen();
 
     invoicesOnOffer = await ListAPI.getInvoicesOnOffer(
         supplier.documentReference, 'suppliers');
+    invoicesOnOffer.sort((a, b) => b.date.compareTo(a.date));
+    _listenForBids();
+    _calculateOnOffer();
 
     invoicesSettled = await ListAPI.getInvoicesSettled(
         supplier.documentReference, 'suppliers');
+    invoicesSettled.sort((a, b) => b.date.compareTo(a.date));
+    _calculateSettled();
 
-    _scaffoldKey.currentState.hideCurrentSnackBar();
-    _calculateTotal();
+    if (_scaffoldKey.currentState != null) {
+      _scaffoldKey.currentState.hideCurrentSnackBar();
+    }
   }
 
-  void _calculateTotal() {
+  void _calculateOpen() {
     if (invoicesOpen.isNotEmpty) {
       double total = 0.00;
       invoicesOpen.forEach((inv) {
@@ -217,14 +94,43 @@ class _InvoiceListState extends State<InvoiceList>
         total += amt;
       });
 
-      totalAmount = getFormattedAmount('$total', context);
+      totalOpen = getFormattedAmount('$total', context);
     }
     setState(() {});
   }
 
-  String totalAmount;
+  void _calculateOnOffer() {
+    if (invoicesOnOffer.isNotEmpty) {
+      double total = 0.00;
+      invoicesOnOffer.forEach((inv) {
+        double amt = inv.amount;
+        total += amt;
+      });
+
+      totalOnOffer = getFormattedAmount('$total', context);
+    }
+    setState(() {});
+  }
+
+  void _calculateSettled() {
+    print('_InvoiceListState._calculateSettled');
+    if (invoicesSettled.isNotEmpty) {
+      double total = 0.00;
+      invoicesSettled.forEach((inv) {
+        double amt = inv.amount;
+        total += amt;
+      });
+
+      totalSettled = getFormattedAmount('$total', context);
+      print('totalSettled: $totalSettled');
+    }
+    setState(() {});
+  }
+
+  String totalOpen = '0.00', totalOnOffer = '0.00', totalSettled = '0.00';
   @override
   Widget build(BuildContext context) {
+    print('_InvoiceListState.build');
     return DefaultTabController(
       length: 3,
       child: Scaffold(
@@ -244,19 +150,25 @@ class _InvoiceListState extends State<InvoiceList>
           ],
           bottom: TabBar(tabs: [
             Tab(
-              text: 'On Offer',
+              text: invoicesOpen == null
+                  ? 'Open - 0'
+                  : 'Open - ${invoicesOpen.length}',
             ),
             Tab(
-              text: 'Open',
+              text: invoicesOnOffer == null
+                  ? 'On Offer - 0'
+                  : 'On Offer - ${invoicesOnOffer.length}',
             ),
             Tab(
-              text: 'Settled',
+              text: invoicesSettled == null
+                  ? 'Settled - 0'
+                  : 'Settled - ${invoicesSettled.length}',
             ),
           ]),
         ),
         body: TabBarView(children: [
-          _getOnOfferView(),
           _getOpenView(),
+          _getOnOfferView(),
           _getSettledView(),
         ]),
       ),
@@ -264,8 +176,27 @@ class _InvoiceListState extends State<InvoiceList>
   }
 
   Widget _getOnOfferView() {
+    _calculateOnOffer();
     return Column(
       children: <Widget>[
+        Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Row(
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.only(right: 8.0),
+                child: Text('Total Value'),
+              ),
+              Text(
+                totalOnOffer == null ? '0.00' : totalOnOffer,
+                style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 28.0,
+                    color: Colors.purple),
+              ),
+            ],
+          ),
+        ),
         new Flexible(
           child: new ListView.builder(
               itemCount: invoicesOnOffer == null ? 0 : invoicesOnOffer.length,
@@ -288,8 +219,27 @@ class _InvoiceListState extends State<InvoiceList>
   }
 
   Widget _getOpenView() {
+    _calculateOpen();
     return Column(
       children: <Widget>[
+        Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Row(
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.only(right: 8.0),
+                child: Text('Total Value'),
+              ),
+              Text(
+                totalOpen == null ? '0.00' : totalOpen,
+                style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 28.0,
+                    color: Colors.pink),
+              ),
+            ],
+          ),
+        ),
         new Flexible(
           child: new ListView.builder(
               itemCount: invoicesOpen == null ? 0 : invoicesOpen.length,
@@ -312,7 +262,43 @@ class _InvoiceListState extends State<InvoiceList>
   }
 
   Widget _getSettledView() {
-    return Container();
+    _calculateSettled();
+    return Column(
+      children: <Widget>[
+        Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Row(
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.only(right: 8.0),
+                child: Text('Total Value'),
+              ),
+              Text(
+                totalSettled == null ? '0.00' : totalSettled,
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),
+              ),
+            ],
+          ),
+        ),
+        new Flexible(
+          child: new ListView.builder(
+              itemCount: invoicesSettled == null ? 0 : invoicesSettled.length,
+              itemBuilder: (BuildContext context, int index) {
+                return new GestureDetector(
+                  onTap: () {
+                    _confirm(invoicesSettled.elementAt(index));
+                  },
+                  child: InvoiceCard(
+                    invoice: invoicesSettled.elementAt(index),
+                    context: context,
+                    listener: this,
+                    type: Open,
+                  ),
+                );
+              }),
+        ),
+      ],
+    );
   }
 
   @override
@@ -369,6 +355,7 @@ class _InvoiceListState extends State<InvoiceList>
           listener: this,
           actionLabel: 'CLOSE');
     } else {
+      _getInvoices();
       AppSnackbar.showSnackbar(
           scaffoldKey: _scaffoldKey,
           message: 'Offer cancelled',
@@ -387,7 +374,7 @@ class _InvoiceListState extends State<InvoiceList>
   void _confirm(Invoice elementAt) {}
 
   @override
-  onCardTapped(Invoice invoice, int type) {
+  onCardTapped(Invoice invoice, int type) async {
     print('_InvoiceListState.onCardTapped ...............');
     this.invoice = invoice;
     switch (type) {
@@ -397,9 +384,20 @@ class _InvoiceListState extends State<InvoiceList>
         break;
       case Open:
         print('_InvoiceListState.onCardTapped - invoice open tapped');
+        await _goMakeOffer(invoice);
         break;
       case Settled:
         break;
+    }
+  }
+
+  Future _goMakeOffer(Invoice invoice) async {
+    bool refresh = await Navigator.push(
+      context,
+      new MaterialPageRoute(builder: (context) => new MakeOfferPage(invoice)),
+    );
+    if (refresh != null && refresh) {
+      _getInvoices();
     }
   }
 
@@ -504,6 +502,21 @@ class _InvoiceListState extends State<InvoiceList>
 
   void _ignore() {
     Navigator.pop(context);
+  }
+
+  @override
+  onInvoiceBid(InvoiceBid bid) {
+    prettyPrint(bid.toJson(), 'invoice bid arrived: #########################');
+    var amt = getFormattedAmount('${bid.amount}', context);
+    AppSnackbar.showSnackbarWithAction(
+        scaffoldKey: _scaffoldKey,
+        message: 'Invoice Bid arrived\n${bid.investorName}\n$amt',
+        textColor: Colors.green,
+        backgroundColor: Colors.black,
+        actionLabel: 'VIEW',
+        listener: this,
+        icon: Icons.done_all,
+        action: 3);
   }
 }
 

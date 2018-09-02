@@ -82,7 +82,7 @@ abstract class InvoiceBidListener {
 
 void listenForInvoiceBid(String offerId, InvoiceBidListener listener) async {
   print(
-      '\n\listenForInvoiceBid ########## listening for Invoice Bids ........');
+      '\n\n listenForInvoiceBid ########## listening for Invoice Bids .......: offerId: $offerId  \n\n');
 
   var qs = await Firestore.instance
       .collection('invoiceOffers')

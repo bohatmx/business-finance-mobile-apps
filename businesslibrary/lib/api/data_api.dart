@@ -1400,17 +1400,64 @@ class DataAPI {
           return '0';
         });
         print('DataAPI.cancelOffer added to Firestore: ${ref0.path}');
-
+        var qs = await _firestore
+            .collection('invoiceOffers')
+            .where('offerId',
+                isEqualTo: cancellation.offer.split('#').elementAt(1))
+            .getDocuments();
+        if (qs.documents.isNotEmpty) {
+          var offer = Offer.fromJson(qs.documents.first.data);
+          offer.isCancelled = true;
+          offer.offerCancellation =
+              'resource:com.oneconnect.biz.OfferCancellation#${cancellation.cancellationId}';
+          await _firestore
+              .collection('invoiceOffers')
+              .document(qs.documents.first.documentID)
+              .setData(offer.toJson())
+              .catchError((e) {
+            print('DataAPI.cancelOffer invoiceOffers ERROR $e');
+          });
+          print('DataAPI.cancelOffer - invoiceOffers updated on Firestore');
+          assert(offer.supplierDocumentRef != null);
+          assert(offer.invoice != null);
+          var qs2 = await _firestore
+              .collection('suppliers')
+              .document(offer.supplierDocumentRef)
+              .collection('invoices')
+              .where('invoiceId',
+                  isEqualTo: offer.invoice.split('#').elementAt(1))
+              .getDocuments()
+              .catchError((e) {
+            print('DataAPI.cancelOffer get suppliers/invoices ERROR $e');
+          });
+          if (qs2.documents.isNotEmpty) {
+            var inv = Invoice.fromJson(qs2.documents.first.data);
+            inv.isOnOffer = false;
+            inv.offer = null;
+            var id = qs2.documents.first.documentID;
+            await _firestore
+                .collection('suppliers')
+                .document(offer.supplierDocumentRef)
+                .collection('invoices')
+                .document(id)
+                .setData(inv.toJson())
+                .catchError((e) {
+              print('DataAPI.cancelOffer suppliers setData ERROR $e');
+            });
+            print(
+                'DataAPI.cancelOffer ---- invoice updated, no longer on offer');
+          }
+        }
         return cancellation.cancellationId;
       } else {
         mResponse.transform(utf8.decoder).listen((contents) {
-          print('DataAPI.cancelOffer  $contents');
+          print('DataAPI.cancelOffer ===  $contents');
         });
-        print('DataAPI.cancelOffer ERROR  ${mResponse.reasonPhrase}');
+        print('DataAPI.cancelOffer ERROR ==== ${mResponse.reasonPhrase}');
         return '0';
       }
     } catch (e) {
-      print('DataAPI.cancelOffer ERROR $e');
+      print('DataAPI.cancelOffer wtf ERROR $e');
       return '0';
     }
   }

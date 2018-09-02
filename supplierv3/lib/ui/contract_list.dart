@@ -147,6 +147,10 @@ class _ContractListState extends State<ContractList> {
             icon: Icon(Icons.add),
             onPressed: _onAddNewContract,
           ),
+          IconButton(
+            icon: Icon(Icons.refresh),
+            onPressed: _getCachedPrefs,
+          ),
         ],
       ),
       body: Padding(
@@ -177,11 +181,14 @@ class _ContractListState extends State<ContractList> {
     );
   }
 
-  void _onAddNewContract() {
-    Navigator.push(
+  void _onAddNewContract() async {
+    var res = await Navigator.push(
       context,
       new MaterialPageRoute(builder: (context) => new ContractPage(null)),
     );
+    if (res != null && res) {
+      _getCachedPrefs();
+    }
   }
 
   void _confirm(SupplierContract contract) {

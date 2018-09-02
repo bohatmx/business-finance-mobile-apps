@@ -75,15 +75,15 @@ class _PurchaseOrderPageState extends State<PurchaseOrderPageGovt>
     if (form.validate()) {
       form.save();
       if (govtEntity != null) {
-        purchaseOrder.govtEntity =
-            'com.oneconnect.biz.GovtEntity#' + govtEntity.participantId;
+        purchaseOrder.govtEntity = 'resource:com.oneconnect.biz.GovtEntity#' +
+            govtEntity.participantId;
         purchaseOrder.govtDocumentRef = govtEntity.documentReference;
         purchaseOrder.purchaserName = govtEntity.name;
         label = 'Govt';
       }
       if (company != null) {
         purchaseOrder.company =
-            'com.oneconnect.biz.Company#' + company.participantId;
+            'resource:com.oneconnect.biz.Company#' + company.participantId;
         purchaseOrder.companyDocumentRef = company.documentReference;
         purchaseOrder.purchaserName = company.name;
         label = 'Company';
@@ -91,11 +91,11 @@ class _PurchaseOrderPageState extends State<PurchaseOrderPageGovt>
       if (supplier != null) {
         purchaseOrder.supplierDocumentRef = supplier.documentReference;
         purchaseOrder.supplier =
-            'com.oneconnect.biz.Supplier#' + supplier.participantId;
+            'resource:com.oneconnect.biz.Supplier#' + supplier.participantId;
         purchaseOrder.supplierName = supplier.name;
       }
       if (user != null) {
-        purchaseOrder.user = 'com.oneconnect.biz.User#' + user.userId;
+        purchaseOrder.user = 'resource:com.oneconnect.biz.User#' + user.userId;
       }
       print('_PurchaseOrderPageState._registerPurchaseOrder ... ${purchaseOrder
               .toJson()}');

@@ -4,7 +4,9 @@ import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/delivery_acceptance.dart';
 import 'package:businesslibrary/data/invoice.dart';
 import 'package:businesslibrary/data/supplier.dart';
+import 'package:businesslibrary/data/supplier_contract.dart';
 import 'package:businesslibrary/data/user.dart';
+import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/util.dart';
 import 'package:flutter/material.dart';
@@ -31,6 +33,8 @@ class _NewInvoicePageState extends State<NewInvoicePage>
   Invoice invoice;
   Supplier supplier;
   double tax, totalAmount, amount;
+  List<SupplierContract> contracts;
+  List<DropdownMenuItem<String>> items = List();
 
   @override
   void initState() {
@@ -49,10 +53,11 @@ class _NewInvoicePageState extends State<NewInvoicePage>
   _getCachedPrefs() async {
     _user = await SharedPrefs.getUser();
     supplier = await SharedPrefs.getSupplier();
+    _getContracts();
   }
 
   static const NameSpace = 'resource:com.oneconnect.biz.';
-  void _onSavePressed() async {
+  void _onSubmit() async {
     final form = _formKey.currentState;
     if (form.validate()) {
       form.save();
@@ -79,6 +84,11 @@ class _NewInvoicePageState extends State<NewInvoicePage>
         date: new DateTime.now().toIso8601String(),
       );
 
+      if (contract != null) {
+        invoice.supplierContract =
+            NameSpace + 'SupplierContract#${contract.contractId}';
+        invoice.contractURL = contract.contractURL;
+      }
       AppSnackbar.showSnackbarWithProgressIndicator(
           scaffoldKey: _scaffoldKey,
           message: 'Submitting Invoice ...',
@@ -122,7 +132,50 @@ class _NewInvoicePageState extends State<NewInvoicePage>
     }
   }
 
+  _getContracts() async {
+    print('_NewInvoicePageState._getContracts ..........');
+    prettyPrint(deliveryAcceptance.toJson(), 'deliveryAcceptance:');
+    if (deliveryAcceptance.govtEntity != null) {
+      contracts = await ListAPI.getSupplierGovtContracts(
+          supplier.documentReference, deliveryAcceptance.govtEntity);
+    } else {
+      contracts = await ListAPI.getSupplierCompanyContracts(
+          supplier.documentReference, deliveryAcceptance.company);
+    }
+    if (contracts.isNotEmpty) {
+      _buildContractsDropDown();
+    } else {
+      AppSnackbar.showErrorSnackbar(
+          scaffoldKey: _scaffoldKey,
+          message: 'No contracts  on file',
+          listener: this,
+          actionLabel: 'Upload?');
+    }
+  }
+
+  _buildContractsDropDown() {
+    contracts.forEach((c) {
+      var item6 = DropdownMenuItem<String>(
+        value: c.contractURL,
+        child: Row(
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Icon(
+                Icons.apps,
+                color: Colors.blue,
+              ),
+            ),
+            Text('${c.customerName} - ${c.estimatedValue}'),
+          ],
+        ),
+      );
+      items.add(item6);
+    });
+  }
+
   bool isSuccess = false;
+  String contractURL;
   @override
   Widget build(BuildContext context) {
     deliveryAcceptance = widget.deliveryAcceptance;
@@ -131,7 +184,7 @@ class _NewInvoicePageState extends State<NewInvoicePage>
       appBar: AppBar(
         backgroundColor: Colors.indigo,
         title: Text(
-          'Invoice',
+          'Create Invoice',
           style: TextStyle(fontWeight: FontWeight.normal),
         ),
         bottom: PreferredSize(
@@ -165,12 +218,40 @@ class _NewInvoicePageState extends State<NewInvoicePage>
                   const EdgeInsets.only(left: 10.0, right: 10.0, bottom: 10.0),
               child: ListView(
                 children: <Widget>[
+                  DropdownButton<String>(
+                    items: items,
+                    onChanged: _onContractTapped,
+                    elevation: 16,
+                    hint: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Text(
+                        'Supplier Contract',
+                        style: TextStyle(
+                          fontSize: 20.0,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.blue,
+                        ),
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 20.0),
+                    child: Text(
+                      contract == null
+                          ? ''
+                          : '${contract.customerName} - ${contract.estimatedValue}',
+                      style: TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18.0),
+                    ),
+                  ),
                   Padding(
                     padding: const EdgeInsets.only(left: 12.0, right: 12.0),
                     child: TextFormField(
                       style: TextStyle(
                           fontWeight: FontWeight.bold,
-                          fontSize: 20.0,
+                          fontSize: 18.0,
                           color: Colors.black),
                       decoration: InputDecoration(
                         labelText: 'Invoice Number',
@@ -188,7 +269,7 @@ class _NewInvoicePageState extends State<NewInvoicePage>
                     padding: const EdgeInsets.only(left: 12.0, right: 12.0),
                     child: TextFormField(
                       style: TextStyle(
-                          fontSize: 28.0,
+                          fontSize: 24.0,
                           fontWeight: FontWeight.bold,
                           color: Colors.black),
                       decoration: InputDecoration(
@@ -208,7 +289,7 @@ class _NewInvoicePageState extends State<NewInvoicePage>
                     padding: const EdgeInsets.only(left: 12.0, right: 12.0),
                     child: TextFormField(
                       style: TextStyle(
-                          fontSize: 20.0,
+                          fontSize: 16.0,
                           fontWeight: FontWeight.bold,
                           color: Colors.purple),
                       decoration: InputDecoration(
@@ -230,7 +311,7 @@ class _NewInvoicePageState extends State<NewInvoicePage>
                     child: RaisedButton(
                       elevation: 8.0,
                       color: Theme.of(context).primaryColor,
-                      onPressed: _onSavePressed,
+                      onPressed: _onSubmit,
                       child: new Padding(
                         padding: const EdgeInsets.all(12.0),
                         child: Text(
@@ -322,6 +403,21 @@ class _NewInvoicePageState extends State<NewInvoicePage>
     if (isSuccess) {
       Navigator.pop(context);
     }
+  }
+
+  void _getContract() {
+    print('_NewInvoicePageState._getContract ...');
+  }
+
+  SupplierContract contract;
+  void _onContractTapped(String value) {
+    contracts.forEach((c) {
+      if (value == c.contractURL) {
+        contract = c;
+        setState(() {});
+        return;
+      }
+    });
   }
 }
 

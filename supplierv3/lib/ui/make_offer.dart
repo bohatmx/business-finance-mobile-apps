@@ -6,6 +6,7 @@ import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
+import 'package:businesslibrary/data/wallet.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/util.dart';
@@ -34,16 +35,18 @@ class _MakeOfferPageState extends State<MakeOfferPage>
   String percentage;
   DateTime startTime = DateTime.now(),
       initialDate = DateTime.now().add(Duration(seconds: 365)),
-      endTime = DateTime.now().add(Duration(days: 365));
+      endTime = DateTime.now().add(Duration(days: 14));
   int days;
   List<DropdownMenuItem<String>> items = List();
   List<String> discountStrings = List();
   String supplierAmount, investorAmount;
+  Wallet wallet;
   @override
   initState() {
     super.initState();
     _setItems();
     _getSupplier();
+    _calculateDays();
   }
 
   _getSupplier() async {
@@ -255,13 +258,17 @@ class _MakeOfferPageState extends State<MakeOfferPage>
     }
   }
 
-  bool submitting;
+  bool submitting = false;
   _submitOffer() async {
     print(
         'MakeOfferPage._submitOffer ########### invoice: ${invoice.invoiceNumber} --------------\n\n');
+    if (submitting) {
+      return;
+    }
     submitting = true;
     var disc = double.parse(percentage);
     var offerAmt = (invoice.amount * disc) / 100.0;
+    wallet = await SharedPrefs.getWallet();
     Offer offer = new Offer(
         supplier: NameSpace + 'Supplier#' + supplier.participantId,
         invoice: NameSpace + 'Invoice#' + invoice.invoiceId,
@@ -272,9 +279,14 @@ class _MakeOfferPageState extends State<MakeOfferPage>
         discountPercent: disc,
         startTime: new DateTime.now().toIso8601String(),
         endTime:
-            new DateTime.now().add(new Duration(days: 14)).toIso8601String(),
+            new DateTime.now().add(new Duration(days: days)).toIso8601String(),
         date: new DateTime.now().toIso8601String(),
         participantId: supplier.participantId,
+        customerName: invoice.customerName,
+        wallet: NameSpace + 'Wallet#${wallet.stellarPublicKey}',
+        supplierDocumentRef: supplier.documentReference,
+        supplierName: supplier.name,
+        invoiceDocumentRef: invoice.documentReference,
         privateSectorType: supplier.privateSectorType);
 
     print(
@@ -302,8 +314,9 @@ class _MakeOfferPageState extends State<MakeOfferPage>
           message: 'Invoice Offer failed',
           listener: this,
           actionLabel: 'Close');
-    } else {
       submitting = false;
+    } else {
+      needRefresh = true;
       AppSnackbar.showSnackbarWithAction(
           scaffoldKey: _scaffoldKey,
           message: 'Ivoice Offer suubmitted OK',
@@ -317,6 +330,7 @@ class _MakeOfferPageState extends State<MakeOfferPage>
   }
 
   static const OfferSubmitted = 1;
+  bool needRefresh = false;
   @override
   Widget build(BuildContext context) {
     invoice = widget.invoice;
@@ -598,6 +612,6 @@ class _MakeOfferPageState extends State<MakeOfferPage>
   @override
   onActionPressed(int action) {
     print('_MakeOfferPageState.onActionPressed');
-    Navigator.pop(context, true);
+    Navigator.pop(context, needRefresh);
   }
 }

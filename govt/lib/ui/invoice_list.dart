@@ -59,6 +59,11 @@ class _InvoiceListState extends State<InvoiceList> implements SnackBarListener {
     DataAPI api = new DataAPI(getURL());
 
     Navigator.pop(context);
+    AppSnackbar.showSnackbarWithProgressIndicator(
+        scaffoldKey: _scaffoldKey,
+        message: 'Accepting  invoice ...',
+        textColor: Colors.white,
+        backgroundColor: Colors.black);
     var acceptance = new InvoiceAcceptance(
         supplierName: invoice.supplierName,
         customerName: entity.name,
@@ -71,6 +76,7 @@ class _InvoiceListState extends State<InvoiceList> implements SnackBarListener {
         user: 'resource:com.oneconnect.biz.User#${user.userId}');
 
     String result = await api.acceptInvoice(acceptance);
+    _scaffoldKey.currentState.hideCurrentSnackBar();
     if (result == '0') {
       AppSnackbar.showErrorSnackbar(
           scaffoldKey: _scaffoldKey,

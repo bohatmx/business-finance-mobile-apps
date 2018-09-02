@@ -2,26 +2,21 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="b840dc6a-331e-46d9-b624-92fa4c1707ed" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/../businesslibrary/lib/data/offerCancellation.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../businesslibrary/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/api/data_api.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/api/data_api.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/api/list_api.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/api/list_api.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/data/purchase_order.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/data/purchase_order.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/data/offer.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/data/offer.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../crudderv3/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../crudderv3/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../crudderv3/lib/generator.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../crudderv3/lib/generator.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../crudderv3/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../crudderv3/lib/main.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/lib/ui/dashboard.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../govt/lib/ui/dashboard.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../govt/lib/ui/invoice_list.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../govt/lib/ui/invoice_list.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/lib/ui/purchase_order_list.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../govt/lib/ui/purchase_order_list.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../govt/lib/ui/purchase_order_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../govt/lib/ui/purchase_order_page.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/ui/dashboard.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/ui/dashboard.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../supplierv3/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../supplierv3/lib/ui/dashboard.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/lib/ui/dashboard.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../supplierv3/lib/listeners/firestore_listener.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/lib/listeners/firestore_listener.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../supplierv3/lib/ui/contract_list.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/lib/ui/contract_list.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../supplierv3/lib/ui/contract_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/lib/ui/contract_page.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../supplierv3/lib/ui/invoice_list.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/lib/ui/invoice_list.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../supplierv3/lib/ui/invoice_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/lib/ui/invoice_page.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../supplierv3/lib/ui/make_offer.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/lib/ui/make_offer.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../supplierv3/lib/ui/purchase_order_list.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/lib/ui/purchase_order_list.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../supplierv3/lib/ui/theme_util.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/lib/ui/theme_util.dart" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -332,7 +327,7 @@
     <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" sideWeight="0.3692946" visible="true" weight="0.10807529" />
-      <window_info active="true" id="Structure" order="1" sideWeight="0.6307054" side_tool="true" visible="true" weight="0.18397085" />
+      <window_info id="Structure" order="1" sideWeight="0.6307054" side_tool="true" visible="true" weight="0.18397085" />
       <window_info id="Designer" order="2" />
       <window_info id="Build Variants" order="3" side_tool="true" />
       <window_info id="Image Layers" order="4" />
@@ -342,7 +337,7 @@
       <window_info id="UI Designer" order="8" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info anchor="bottom" id="Run" order="2" visible="true" weight="0.45760745" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.45760745" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />

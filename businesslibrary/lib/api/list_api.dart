@@ -303,6 +303,7 @@ class ListAPI {
         .document(documentId)
         .collection('invoices')
         .where('offer', isNull: true)
+        .orderBy('date', descending: true)
         .limit(100)
         .getDocuments()
         .catchError((e) {
@@ -316,7 +317,9 @@ class ListAPI {
     }
 
     qs.documents.forEach((doc) {
-      list.add(new Invoice.fromJson(doc.data));
+      var inv = Invoice.fromJson(doc.data);
+      inv.documentReference = doc.documentID;
+      list.add(inv);
     });
     print(
         'ListAPI.getInvoicesOpenForOffers ################## found: ${list.length}');
@@ -337,6 +340,7 @@ class ListAPI {
         .document(documentId)
         .collection('invoices')
         .where('offer', isGreaterThan: '')
+//        .orderBy('date', descending: true)
         .limit(100)
         .getDocuments()
         .catchError((e) {
@@ -349,7 +353,9 @@ class ListAPI {
     }
 
     qs.documents.forEach((doc) {
-      list.add(new Invoice.fromJson(doc.data));
+      var inv = Invoice.fromJson(doc.data);
+      inv.documentReference = doc.documentID;
+      list.add(inv);
     });
     print(
         'ListAPI.getInvoicesOnOffer ################## found: ${list.length}');
@@ -365,8 +371,8 @@ class ListAPI {
         .document(documentId)
         .collection('invoices')
         .where('isSettled', isEqualTo: 'true')
-        .limit(1000)
         .orderBy('date', descending: true)
+        .limit(1000)
         .getDocuments()
         .catchError((e) {
       print('ListAPI.getInvoicesSettled $e');
@@ -378,7 +384,9 @@ class ListAPI {
     }
 
     qs.documents.forEach((doc) {
-      list.add(new Invoice.fromJson(doc.data));
+      var inv = Invoice.fromJson(doc.data);
+      inv.documentReference = doc.documentID;
+      list.add(inv);
     });
     print(
         'ListAPI.getInvoicesOnOffer ################## found: ${list.length}');
@@ -526,6 +534,59 @@ class ListAPI {
     });
 
     print('ListAPI.getSupplierContracts ############ found: ${list.length}');
+    return list;
+  }
+
+  static Future<List<SupplierContract>> getSupplierGovtContracts(
+      String supplierDocumentRef, String govtEntity) async {
+    print(
+        'ListAPI.getSupplierGovtContracts .......  supplierDocumentRef: $supplierDocumentRef govtEntity: $govtEntity');
+    List<SupplierContract> list = List();
+    var qs = await _firestore
+        .collection('suppliers')
+        .document(supplierDocumentRef)
+        .collection('supplierContracts')
+        .where('govtEntity', isEqualTo: govtEntity)
+//        .orderBy('date', descending: true)
+        .getDocuments()
+        .catchError((e) {
+      print('ListAPI.getSupplierGovtContracts $e');
+      return list;
+    });
+
+    qs.documents.forEach((doc) {
+      list.add(new SupplierContract.fromJson(doc.data));
+    });
+
+    print(
+        'ListAPI.getSupplierGovtContracts ############ found: ${list.length}');
+    return list;
+  }
+
+  static Future<List<SupplierContract>> getSupplierCompanyContracts(
+      String supplierDocumentRef, String participantId) async {
+    print(
+        'ListAPI.getSupplierCompanyContracts .......  documentId: $supplierDocumentRef');
+    List<SupplierContract> list = List();
+    var qs = await _firestore
+        .collection('suppliers')
+        .document(supplierDocumentRef)
+        .collection('supplierContracts')
+        .where('company',
+            isEqualTo: 'resource:com.oneconnect.biz.Company#$participantId}')
+        .orderBy('date', descending: true)
+        .getDocuments()
+        .catchError((e) {
+      print('ListAPI.getSupplierCompanyContracts $e');
+      return list;
+    });
+
+    qs.documents.forEach((doc) {
+      list.add(new SupplierContract.fromJson(doc.data));
+    });
+
+    print(
+        'ListAPI.getSupplierCompanyContracts ############ found: ${list.length}');
     return list;
   }
 
