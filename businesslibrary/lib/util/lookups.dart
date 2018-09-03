@@ -286,6 +286,12 @@ String getFormattedDate(String date) {
   return format.format(d);
 }
 
+String getFormattedDateHour(String date) {
+  DateTime d = DateTime.parse(date);
+  var format = new DateFormat.Hm();
+  return format.format(d);
+}
+
 String getFormattedLongestDate(String date) {
   DateTime d = DateTime.parse(date);
   var format = new DateFormat.yMMMMEEEEd();

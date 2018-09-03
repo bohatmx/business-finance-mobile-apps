@@ -10,6 +10,7 @@ class DeliveryNote {
       supplier,
       supplierName,
       remarks;
+  double amount, vat, totalAmount;
   String date, dateAccepted;
   String companyDocumentRef, purchaseOrderNumber, customerName;
   String supplierDocumentRef;
@@ -28,6 +29,9 @@ class DeliveryNote {
       this.supplierName,
       this.remarks,
       this.date,
+      this.amount,
+      this.vat,
+      this.totalAmount,
       this.dateAccepted,
       this.purchaseOrderNumber,
       this.customerName,
@@ -56,9 +60,13 @@ class DeliveryNote {
 
     this.purchaseOrderNumber = data['purchaseOrderNumber'];
     this.customerName = data['customerName'];
+
+    this.amount = data['amount'];
+    this.vat = data['vat'];
+    this.totalAmount = data['totalAmount'];
   }
 
-  Map<String, String> toJson() => <String, String>{
+  Map<String, dynamic> toJson() => <String, dynamic>{
         'deliveryNoteId': deliveryNoteId,
         'purchaseOrder': purchaseOrder,
         'company': company,
@@ -77,5 +85,8 @@ class DeliveryNote {
         'companyDocumentRef': companyDocumentRef,
         'purchaseOrderNumber': purchaseOrderNumber,
         'customerName': customerName,
+        'amount': amount,
+        'vat': vat,
+        'totalAmount': totalAmount,
       };
 }

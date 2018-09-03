@@ -5,6 +5,7 @@ import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/investor.dart';
 import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/util/lookups.dart';
+import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/util.dart';
 import 'package:flutter/material.dart';
 import 'package:investor/ui/invoice_bidder.dart';
@@ -26,7 +27,9 @@ class _OfferListState extends State<OfferList> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    getOffers();
+
+    _buildDaysDropDownItems();
+    _getOffers();
     _getCached();
   }
 
@@ -35,74 +38,44 @@ class _OfferListState extends State<OfferList> with WidgetsBindingObserver {
     setState(() {});
   }
 
-  void getOffers() async {
+  void _getOffers() async {
     print('_OfferListState._getOffers .......................');
-    if (endTime == null) {
-      endTime = DateTime.now();
-      startTime = endTime.subtract(Duration(days: 10));
-    }
+    endTime = DateTime.now();
+    startTime = endTime.subtract(Duration(days: _days));
+
+    AppSnackbar.showSnackbarWithProgressIndicator(
+        scaffoldKey: _scaffoldKey,
+        message: 'Loading  Offers ...',
+        textColor: Colors.yellow,
+        backgroundColor: Colors.black);
     offers = await ListAPI.getOffersByPeriod(startTime, endTime);
-    print('_OfferListState._getOffers offers in period: ${offers.length}');
+    print(
+        '_OfferListState._getOffers offers in period: ${offers.length}  over $_days days');
     setState(() {});
-//    offers.forEach((off) {
-//      prettyPrint(off.toJson(), 'Offer:');
-//    });
+    _scaffoldKey.currentState.hideCurrentSnackBar();
   }
 
-  _showMenuDialog(Offer offer) {
+  _checkBid(Offer offer) async {
     this.offer = offer;
-    showDialog(
-        context: context,
-        builder: (_) => new AlertDialog(
-              title: new Text(
-                "Offer Actions",
-                style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).primaryColor),
-              ),
-              content: Container(
-                height: 300.0,
-                child: Column(
-                  children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.only(top: 4.0, bottom: 10.0),
-                      child: Text(
-                        '${offer.supplierName}',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                    Row(
-                      children: <Widget>[
-                        Padding(
-                          padding: const EdgeInsets.only(
-                            top: 4.0,
-                            bottom: 20.0,
-                          ),
-                          child: Text(
-                            'Amount:',
-                            style: TextStyle(
-                                fontWeight: FontWeight.normal, fontSize: 12.0),
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(
-                            left: 8.0,
-                          ),
-                          child: Text(
-                            '${offer.offerAmount}',
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 20.0,
-                                color: Colors.teal),
-                          ),
-                        ),
-                      ],
-                    ),
-                    _buildItems(),
-                  ],
-                ),
-              ),
-            ));
+    AppSnackbar.showSnackbarWithProgressIndicator(
+        scaffoldKey: _scaffoldKey,
+        message: 'Checking bid ...',
+        textColor: Colors.yellow,
+        backgroundColor: Colors.black);
+    var xx = await ListAPI.getInvoiceBidByInvestorOffer(offer, investor);
+    if (xx.isEmpty) {
+      _showDetailsDialog(offer);
+    } else {
+      prettyPrint(
+          xx.first.toJson(), '########### INVOICE BID for investtor/offer');
+      AppSnackbar.showSnackbar(
+          scaffoldKey: _scaffoldKey,
+          message:
+              'You have  a bid on this Offer: ${getFormattedAmount('${offer.offerAmount}', context)}',
+          textColor: Colors.lightGreen,
+          backgroundColor: Colors.black);
+    }
+    _scaffoldKey.currentState.hideCurrentSnackBar();
   }
 
   _showDetailsDialog(Offer offer) {
@@ -214,6 +187,147 @@ class _OfferListState extends State<OfferList> with WidgetsBindingObserver {
     );
   }
 
+  TextStyle white = TextStyle(color: Colors.black, fontSize: 16.0);
+  List<DropdownMenuItem<int>> _buildDaysDropDownItems() {
+    var item1 = DropdownMenuItem<int>(
+      value: 7,
+      child: Row(
+        children: <Widget>[
+          Icon(
+            Icons.apps,
+            color: Colors.pink,
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 8.0),
+            child: Text(
+              '7 Days Under Review',
+              style: bold,
+            ),
+          ),
+        ],
+      ),
+    );
+    items.add(item1);
+    var item2 = DropdownMenuItem<int>(
+      value: 14,
+      child: Row(
+        children: <Widget>[
+          Icon(
+            Icons.apps,
+            color: Colors.teal,
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 8.0),
+            child: Text(
+              '14 Days Under Review',
+              style: bold,
+            ),
+          ),
+        ],
+      ),
+    );
+    items.add(item2);
+
+    var item3 = DropdownMenuItem<int>(
+      value: 30,
+      child: Row(
+        children: <Widget>[
+          Icon(
+            Icons.apps,
+            color: Colors.brown,
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 8.0),
+            child: Text(
+              '30 Days Under Review',
+              style: bold,
+            ),
+          ),
+        ],
+      ),
+    );
+    items.add(item3);
+    var item4 = DropdownMenuItem<int>(
+      value: 60,
+      child: Row(
+        children: <Widget>[
+          Icon(
+            Icons.apps,
+            color: Colors.purple,
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 8.0),
+            child: Text(
+              '60 Days Under Review',
+              style: bold,
+            ),
+          ),
+        ],
+      ),
+    );
+    items.add(item4);
+    var item5 = DropdownMenuItem<int>(
+      value: 90,
+      child: Row(
+        children: <Widget>[
+          Icon(
+            Icons.apps,
+            color: Colors.deepOrange,
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 8.0),
+            child: Text(
+              '90 Days Under Review',
+              style: bold,
+            ),
+          ),
+        ],
+      ),
+    );
+    items.add(item5);
+
+    var item6 = DropdownMenuItem<int>(
+      value: 120,
+      child: Row(
+        children: <Widget>[
+          Icon(
+            Icons.apps,
+            color: Colors.blue,
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 8.0),
+            child: Text(
+              '120 Days Under Review',
+              style: bold,
+            ),
+          ),
+        ],
+      ),
+    );
+    items.add(item6);
+    var item7 = DropdownMenuItem<int>(
+      value: 365,
+      child: Row(
+        children: <Widget>[
+          Icon(
+            Icons.apps,
+            color: Colors.grey,
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 8.0),
+            child: Text(
+              '365 Days Under Review',
+              style: bold,
+            ),
+          ),
+        ],
+      ),
+    );
+    items.add(item7);
+
+    return items;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -221,14 +335,22 @@ class _OfferListState extends State<OfferList> with WidgetsBindingObserver {
       appBar: AppBar(
         title: Text('Invoice Offers'),
         bottom: PreferredSize(
-            child: _getBottom(), preferredSize: Size.fromHeight(50.0)),
+          child: _getBottom(),
+          preferredSize: Size.fromHeight(120.0),
+        ),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.refresh),
+            onPressed: _refresh,
+          ),
+        ],
       ),
       body: new ListView.builder(
           itemCount: offers == null ? 0 : offers.length,
           itemBuilder: (BuildContext context, int index) {
             return new InkWell(
               onTap: () {
-                _showDetailsDialog(offers.elementAt(index));
+                _checkBid(offers.elementAt(index));
               },
               child: Padding(
                 padding: const EdgeInsets.all(2.0),
@@ -240,6 +362,8 @@ class _OfferListState extends State<OfferList> with WidgetsBindingObserver {
     );
   }
 
+  List<DropdownMenuItem<int>> items = List();
+  int _days = 7;
   Widget _getBottom() {
     return Padding(
       padding: const EdgeInsets.only(bottom: 18.0, left: 20.0),
@@ -268,6 +392,15 @@ class _OfferListState extends State<OfferList> with WidgetsBindingObserver {
               ],
             ),
           ),
+          DropdownButton<int>(
+            items: items,
+            value: _days,
+            onChanged: _daysSelected,
+            hint: Text(
+              'Period in Review',
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
         ],
       ),
     );
@@ -292,6 +425,7 @@ class _OfferListState extends State<OfferList> with WidgetsBindingObserver {
 
   void _onNoPressed() {
     print('_OfferListState._onNoPressed');
+    Navigator.pop(context);
   }
 
   Future _onInvoiceBidRequired() async {
@@ -307,8 +441,18 @@ class _OfferListState extends State<OfferList> with WidgetsBindingObserver {
     print(
         '_OfferListState._onInvoiceBidRequired back from Bidder, refresh: $refresh');
     if (refresh) {
-      getOffers();
+      _getOffers();
     }
+  }
+
+  void _refresh() {
+    _getOffers();
+  }
+
+  void _daysSelected(int value) {
+    print('############# _OfferListState._daysSelected : $value');
+    _days = value;
+    _getOffers();
   }
 }
 
@@ -361,7 +505,7 @@ class OfferListCard extends StatelessWidget {
               Text(
                   offer.startTime == null
                       ? 'Unknown yet'
-                      : getFormattedLongestDate(offer.startTime),
+                      : getFormattedDate(offer.startTime),
                   style: TextStyle(fontSize: 14.0, color: Colors.deepPurple)),
             ],
           ),
@@ -374,7 +518,7 @@ class OfferListCard extends StatelessWidget {
               Text(
                   offer.endTime == null
                       ? 'Unknown yet'
-                      : getFormattedLongestDate(offer.endTime),
+                      : getFormattedDate(offer.endTime),
                   style: TextStyle(
                       fontSize: 14.0,
                       color: Colors.red,
@@ -427,44 +571,108 @@ class OfferPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return Padding(
+      padding: const EdgeInsets.only(left: 12.0, right: 12.0),
       child: Card(
-        elevation: 1.0,
+        elevation: 2.0,
         child: Padding(
           padding: const EdgeInsets.all(8.0),
-          child: Row(
+          child: Column(
             children: <Widget>[
-              Container(
-                width: 40.0,
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 8.0),
-                  child: Text(
-                    '$number',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
+              Row(
+                children: <Widget>[
+                  Container(
+                    width: 30.0,
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 8.0),
+                      child: Text(
+                        '$number',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      ),
                     ),
                   ),
-                ),
-              ),
-              Container(
-                width: 60.0,
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 20.0),
-                  child: Text(
-                    getStatus(),
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                  Container(
+                    width: 60.0,
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 0.0),
+                      child: Text(
+                        getStatus(),
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
                   ),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 0.0),
+                    child: Text(
+                      getFormattedDateHour(offer.date),
+                      style: TextStyle(
+                          color: Colors.purple,
+                          fontSize: 16.0,
+                          fontWeight: FontWeight.normal),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 8.0),
+                    child: Text(
+                      getFormattedAmount('${offer.offerAmount}', context),
+                      style: TextStyle(
+                          color: Colors.teal.shade300,
+                          fontSize: 20.0,
+                          fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ],
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: 40.0, top: 20.0),
+                child: Row(
+                  children: <Widget>[
+                    Padding(
+                      padding: const EdgeInsets.only(right: 8.0),
+                      child: Text(
+                        'Supplier',
+                        style: TextStyle(
+                            color: Colors.grey,
+                            fontSize: 10.0,
+                            fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    Text(
+                      offer.supplierName,
+                      style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 14.0,
+                          fontWeight: FontWeight.bold),
+                    ),
+                  ],
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.only(left: 10.0),
-                child: Text(
-                  getFormattedAmount('${offer.offerAmount}', context),
-                  style: TextStyle(
-                      color: Colors.teal,
-                      fontSize: 20.0,
-                      fontWeight: FontWeight.bold),
+                padding:
+                    const EdgeInsets.only(left: 40.0, top: 4.0, bottom: 20.0),
+                child: Row(
+                  children: <Widget>[
+                    Padding(
+                      padding: const EdgeInsets.only(right: 8.0),
+                      child: Text(
+                        'Customer',
+                        style: TextStyle(
+                            color: Colors.grey,
+                            fontSize: 10.0,
+                            fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    Text(
+                      offer.customerName,
+                      style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 14.0,
+                          fontWeight: FontWeight.normal),
+                    ),
+                  ],
                 ),
               ),
             ],

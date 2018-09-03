@@ -47,6 +47,7 @@ class InvoiceBid {
     this.investorName = data['investorName'];
     this.wallet = data['wallet'];
     this.supplierId = data['supplierId'];
+    this.date = data['date'];
   }
   Map<String, dynamic> toJson() => <String, dynamic>{
         'invoiceBidId': invoiceBidId,

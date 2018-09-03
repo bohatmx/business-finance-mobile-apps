@@ -1,8 +1,11 @@
 import 'package:businesslibrary/api/data_api.dart';
+import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/delivery_note.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
+import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
+import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/util.dart';
 import 'package:flutter/material.dart';
@@ -21,8 +24,10 @@ class _DeliveryNotePageState extends State<DeliveryNotePage>
     implements SnackBarListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   PurchaseOrder _purchaseOrder;
+  List<PurchaseOrder> _purchaseOrders;
   User _user;
   String userName;
+  Supplier supplier;
 
   @override
   void initState() {
@@ -32,7 +37,24 @@ class _DeliveryNotePageState extends State<DeliveryNotePage>
 
   _getUser() async {
     _user = await SharedPrefs.getUser();
+    supplier = await SharedPrefs.getSupplier();
     userName = _user.firstName + ' ' + _user.lastName;
+
+    _getPurchaseOrders();
+  }
+
+  _getPurchaseOrders() async {
+    AppSnackbar.showSnackbarWithProgressIndicator(
+        scaffoldKey: _scaffoldKey,
+        message: 'Loading  purchase orders',
+        textColor: Colors.lightBlue,
+        backgroundColor: Colors.black);
+    _purchaseOrders = await ListAPI.getPurchaseOrders(
+        supplier.documentReference, 'suppliers');
+    if (_scaffoldKey.currentState != null) {
+      _scaffoldKey.currentState.hideCurrentSnackBar();
+    }
+    setState(() {});
   }
 
   var styleLabels = TextStyle(
@@ -55,14 +77,56 @@ class _DeliveryNotePageState extends State<DeliveryNotePage>
     fontWeight: FontWeight.w900,
     color: Colors.teal.shade700,
   );
+
+  List<DropdownMenuItem<PurchaseOrder>> items = List();
+  Widget _getPOList() {
+    if (_purchaseOrders == null) {
+      return Container();
+    }
+    ;
+    items.clear();
+    _purchaseOrders.forEach((po) {
+      var item6 = DropdownMenuItem<PurchaseOrder>(
+        value: po,
+        child: Row(
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Icon(
+                Icons.apps,
+                color: Colors.blue,
+              ),
+            ),
+            Text('${po.purchaseOrderNumber} - ${po.amount}'),
+          ],
+        ),
+      );
+      items.add(item6);
+    });
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: DropdownButton<PurchaseOrder>(
+        items: items,
+        onChanged: _onPOpicked,
+        elevation: 8,
+        hint: Text(
+          'Purchase Orders',
+          style: TextStyle(fontSize: 20.0, color: Colors.blue),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    _purchaseOrder = widget.purchaseOrder;
+    if (widget.purchaseOrder != null) {
+      _purchaseOrder = widget.purchaseOrder;
+    }
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
         title: Text(
-          'Delivery Note',
+          'Create Delivery Note',
           style: TextStyle(fontWeight: FontWeight.normal),
         ),
         bottom: PreferredSize(
@@ -70,7 +134,7 @@ class _DeliveryNotePageState extends State<DeliveryNotePage>
           child: new Column(
             children: <Widget>[
               Text(
-                _purchaseOrder.supplierName,
+                _purchaseOrder == null ? '' : _purchaseOrder.supplierName,
                 style: TextStyle(
                     fontWeight: FontWeight.w900,
                     color: Colors.white,
@@ -78,7 +142,7 @@ class _DeliveryNotePageState extends State<DeliveryNotePage>
               ),
               new Container(
                 child: new Padding(
-                  padding: const EdgeInsets.only(bottom: 18.0),
+                  padding: const EdgeInsets.only(bottom: 18.0, top: 10.0),
                   child: Text(
                     userName == null ? '' : userName,
                     style: TextStyle(
@@ -96,26 +160,23 @@ class _DeliveryNotePageState extends State<DeliveryNotePage>
         padding: const EdgeInsets.all(8.0),
         child: Card(
           elevation: 4.0,
-          child: new Padding(
-            padding: const EdgeInsets.only(top: 32.0, bottom: 16.0, left: 16.0),
-            child: Column(
+          child: Padding(
+            padding: const EdgeInsets.only(top: 8.0, bottom: 16.0, left: 20.0),
+            child: ListView(
               children: <Widget>[
-                Text(
-                  'Delivery To:',
-                  style: styleLabels,
-                ),
-                new Padding(
-                  padding: const EdgeInsets.only(top: 18.0),
+                _getPOList(),
+                Padding(
+                  padding: const EdgeInsets.only(top: 10.0, bottom: 20.0),
                   child: Text(
-                    _purchaseOrder.purchaserName,
-                    style: styleBlue,
+                    _purchaseOrder == null ? '' : _purchaseOrder.purchaserName,
+                    style: styleBlack,
                   ),
                 ),
-                new Padding(
-                  padding: const EdgeInsets.only(top: 28.0, bottom: 20.0),
-                  child: new Row(
+                Padding(
+                  padding: const EdgeInsets.only(top: 8.0, bottom: 20.0),
+                  child: Row(
                     children: <Widget>[
-                      new Padding(
+                      Padding(
                         padding: const EdgeInsets.only(right: 8.0),
                         child: Text(
                           'Purchase Order:',
@@ -123,17 +184,19 @@ class _DeliveryNotePageState extends State<DeliveryNotePage>
                         ),
                       ),
                       Text(
-                        _purchaseOrder.purchaseOrderNumber,
+                        _purchaseOrder == null
+                            ? ''
+                            : _purchaseOrder.purchaseOrderNumber,
                         style: styleBlack,
                       ),
                     ],
                   ),
                 ),
-                new Padding(
+                Padding(
                   padding: const EdgeInsets.only(bottom: 10.0),
-                  child: new Row(
+                  child: Row(
                     children: <Widget>[
-                      new Padding(
+                      Padding(
                         padding: const EdgeInsets.only(right: 8.0),
                         child: Text(
                           'PO Date:',
@@ -141,39 +204,85 @@ class _DeliveryNotePageState extends State<DeliveryNotePage>
                         ),
                       ),
                       Text(
-                        _getFormattedDate(),
+                        _purchaseOrder == null ? '' : _getFormattedDate(),
                         style: styleBlack,
                       ),
                     ],
                   ),
                 ),
-                new Padding(
-                  padding: const EdgeInsets.only(top: 28.0),
-                  child: new Row(
+                Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: Row(
                     children: <Widget>[
-                      new Padding(
+                      Padding(
                         padding: const EdgeInsets.only(right: 8.0),
                         child: Text(
-                          'Amount:',
+                          'PO Amount:',
                           style: styleLabels,
                         ),
                       ),
                       Text(
-                        _getFormattedAmount(),
+                        _purchaseOrder == null ? '0.00' : _getFormattedAmount(),
                         style: styleTeal,
                       ),
                     ],
                   ),
                 ),
-                new Padding(
-                  padding: const EdgeInsets.only(top: 60.0),
+                Padding(
+                  padding: const EdgeInsets.only(right: 18.0),
+                  child: TextField(
+                    onChanged: _onAmountChanged,
+                    maxLength: 20,
+                    style: TextStyle(
+                        fontSize: 28.0,
+                        fontWeight: FontWeight.w900,
+                        color: Colors.black),
+                    keyboardType:
+                        TextInputType.numberWithOptions(decimal: true),
+                    decoration: InputDecoration(
+                        labelText: 'Delivery Note Amount',
+                        labelStyle: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.purple,
+                            fontSize: 20.0)),
+                  ),
+                ),
+                Row(
+                  children: <Widget>[
+                    Padding(
+                      padding: const EdgeInsets.only(right: 8.0),
+                      child: Text(
+                        'Delivery Note VAT',
+                        style: TextStyle(color: Colors.grey),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(right: 8.0),
+                      child: Text(
+                        vat == null ? '0.00' : getFormattedAmount(vat, context),
+                        style: TextStyle(
+                            fontSize: 20.0,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.purple),
+                      ),
+                    ),
+                  ],
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(
+                    top: 20.0,
+                    right: 20.0,
+                  ),
                   child: RaisedButton(
                     elevation: 8.0,
-                    color: Colors.red.shade300,
+                    color: Colors.purple.shade500,
                     onPressed: _onSubmit,
-                    child: Text(
-                      'Submit Delivery Note',
-                      style: TextStyle(color: Colors.white),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Text(
+                        'Submit Delivery Note',
+                        style: TextStyle(color: Colors.white),
+                      ),
                     ),
                   ),
                 ),
@@ -202,6 +311,14 @@ class _DeliveryNotePageState extends State<DeliveryNotePage>
   static const NameSpacePO = 'resource:com.oneconnect.biz.PurchaseOrder#';
   void _onSubmit() async {
     print('_DeliveryNotePageState._onSubmit');
+    if (amount == null) {
+      AppSnackbar.showErrorSnackbar(
+          scaffoldKey: _scaffoldKey,
+          message: 'Missing amount',
+          listener: this,
+          actionLabel: 'Fix');
+      return;
+    }
     DataAPI api = new DataAPI(getURL());
     var note = DeliveryNote(
       purchaseOrder: NameSpacePO + _purchaseOrder.purchaseOrderId,
@@ -211,6 +328,9 @@ class _DeliveryNotePageState extends State<DeliveryNotePage>
       date: new DateTime.now().toIso8601String(),
       purchaseOrderNumber: _purchaseOrder.purchaseOrderNumber,
       customerName: _purchaseOrder.purchaserName,
+      amount: double.parse(amount),
+      vat: double.parse(vat),
+      totalAmount: double.parse(totalAmount),
     );
     if (_purchaseOrder.govtEntity != null) {
       note.govtEntity = _purchaseOrder.govtEntity;
@@ -242,12 +362,37 @@ class _DeliveryNotePageState extends State<DeliveryNotePage>
           action: 0,
           listener: this,
           icon: Icons.done);
+      isDone = true;
     }
   }
 
+  bool isDone = false;
   @override
   onActionPressed(int action) {
     print('_DeliveryNotePageState.onActionPressed ............');
-    Navigator.pop(context);
+    Navigator.pop(context, isDone);
+  }
+
+  void _onPOpicked(PurchaseOrder value) {
+    print('_DeliveryNotePageState._onPOpicked: ');
+    prettyPrint(value.toJson(), '_DeliveryNotePageState._onPOpicked: ');
+    _purchaseOrder = value;
+    setState(() {});
+  }
+
+  String amount, vat, totalAmount;
+
+  void _onAmountChanged(String value) {
+    print('_DeliveryNotePageState._amtChanged: $value');
+    amount = value;
+    //todo - internatioonalize
+    double amt = double.parse(amount);
+    double xvat = amt * 0.15;
+    double tot = amt + xvat;
+    vat = xvat.toString();
+    totalAmount = tot.toString();
+    setState(() {});
+    print(
+        '_DeliveryNotePageState._onAmountChanged vat: $vat tottal: $totalAmount');
   }
 }

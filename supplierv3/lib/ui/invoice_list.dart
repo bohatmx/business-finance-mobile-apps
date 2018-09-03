@@ -4,6 +4,7 @@ import 'package:businesslibrary/api/data_api.dart';
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/invoice.dart';
+import 'package:businesslibrary/data/invoice_acceptance.dart';
 import 'package:businesslibrary/data/invoice_bid.dart';
 import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/data/offerCancellation.dart';
@@ -15,7 +16,7 @@ import 'package:businesslibrary/util/util.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:supplierv3/listeners/firestore_listener.dart';
-import 'package:supplierv3/ui/delivery_acceptance_list.dart';
+import 'package:supplierv3/ui/delivery_note_list.dart';
 import 'package:supplierv3/ui/make_offer.dart';
 
 class InvoiceList extends StatefulWidget {
@@ -24,7 +25,11 @@ class InvoiceList extends StatefulWidget {
 }
 
 class _InvoiceListState extends State<InvoiceList>
-    implements SnackBarListener, CardListener, InvoiceBidListener {
+    implements
+        SnackBarListener,
+        CardListener,
+        InvoiceBidListener,
+        InvoiceAcceptanceListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   final FirebaseMessaging _firebaseMessaging = new FirebaseMessaging();
   static const MakeOffer = '1', CancelOffer = '2', EditInvoice = '3';
@@ -49,6 +54,8 @@ class _InvoiceListState extends State<InvoiceList>
     invoicesOnOffer.forEach((i) {
       listenForInvoiceBid(i.offer.split('#').elementAt(1), this);
     });
+
+    listenForInvoiceAcceptance(supplier.documentReference, this);
   }
 
   _getCached() async {
@@ -58,6 +65,7 @@ class _InvoiceListState extends State<InvoiceList>
     _getInvoices();
   }
 
+  bool haveListened = false;
   _getInvoices() async {
     AppSnackbar.showSnackbarWithProgressIndicator(
         scaffoldKey: _scaffoldKey,
@@ -73,7 +81,10 @@ class _InvoiceListState extends State<InvoiceList>
     invoicesOnOffer = await ListAPI.getInvoicesOnOffer(
         supplier.documentReference, 'suppliers');
     invoicesOnOffer.sort((a, b) => b.date.compareTo(a.date));
-    _listenForBids();
+    if (!haveListened) {
+      _listenForBids();
+      haveListened = true;
+    }
     _calculateOnOffer();
 
     invoicesSettled = await ListAPI.getInvoicesSettled(
@@ -90,7 +101,7 @@ class _InvoiceListState extends State<InvoiceList>
     if (invoicesOpen.isNotEmpty) {
       double total = 0.00;
       invoicesOpen.forEach((inv) {
-        double amt = inv.amount;
+        double amt = inv.totalAmount;
         total += amt;
       });
 
@@ -103,7 +114,7 @@ class _InvoiceListState extends State<InvoiceList>
     if (invoicesOnOffer.isNotEmpty) {
       double total = 0.00;
       invoicesOnOffer.forEach((inv) {
-        double amt = inv.amount;
+        double amt = inv.totalAmount;
         total += amt;
       });
 
@@ -117,7 +128,7 @@ class _InvoiceListState extends State<InvoiceList>
     if (invoicesSettled.isNotEmpty) {
       double total = 0.00;
       invoicesSettled.forEach((inv) {
-        double amt = inv.amount;
+        double amt = inv.totalAmount;
         total += amt;
       });
 
@@ -136,7 +147,7 @@ class _InvoiceListState extends State<InvoiceList>
       child: Scaffold(
         key: _scaffoldKey,
         appBar: AppBar(
-          title: Text('Invoices'),
+          title: Text('Invoice Manager'),
           elevation: 8.0,
           actions: <Widget>[
             IconButton(
@@ -235,7 +246,7 @@ class _InvoiceListState extends State<InvoiceList>
                 style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 28.0,
-                    color: Colors.pink),
+                    color: Colors.purple.shade200),
               ),
             ],
           ),
@@ -367,7 +378,9 @@ class _InvoiceListState extends State<InvoiceList>
   void _onInvoiceAdd() {
     Navigator.push(
       context,
-      new MaterialPageRoute(builder: (context) => new DeliveryAcceptanceList()),
+      new MaterialPageRoute(
+          builder: (context) =>
+              new DeliveryNoteList('Tap a Delivery Note to create Invoice')),
     );
   }
 
@@ -392,12 +405,22 @@ class _InvoiceListState extends State<InvoiceList>
   }
 
   Future _goMakeOffer(Invoice invoice) async {
-    bool refresh = await Navigator.push(
-      context,
-      new MaterialPageRoute(builder: (context) => new MakeOfferPage(invoice)),
-    );
-    if (refresh != null && refresh) {
-      _getInvoices();
+    var offX = await ListAPI.getOfferByInvoice(invoice.invoiceId);
+    if (offX == null) {
+      bool refresh = await Navigator.push(
+        context,
+        new MaterialPageRoute(builder: (context) => new MakeOfferPage(invoice)),
+      );
+      if (refresh != null && refresh) {
+        _getInvoices();
+        _listenForBids();
+      }
+    } else {
+      AppSnackbar.showErrorSnackbar(
+          scaffoldKey: _scaffoldKey,
+          message: 'Offer already exists',
+          listener: this,
+          actionLabel: 'Close');
     }
   }
 
@@ -507,16 +530,45 @@ class _InvoiceListState extends State<InvoiceList>
   @override
   onInvoiceBid(InvoiceBid bid) {
     prettyPrint(bid.toJson(), 'invoice bid arrived: #########################');
+
+    DateTime now = DateTime.now();
+    DateTime biddate = DateTime.parse(bid.date);
+    Duration difference = now.difference(biddate);
+    if (difference.inHours > 12) {
+      print(
+          '_InvoiceListState.onInvoiceBid -  IGNORED: older than 12 hours  --------bid done  ${difference.inHours} hours ago.');
+      return;
+    }
     var amt = getFormattedAmount('${bid.amount}', context);
+
     AppSnackbar.showSnackbarWithAction(
         scaffoldKey: _scaffoldKey,
-        message: 'Invoice Bid arrived\n${bid.investorName}\n$amt',
+        message:
+            'Last Invoice Bid arrived\n${bid.investorName}\n$amt  ${getFormattedDateHour(bid.date)}',
         textColor: Colors.green,
         backgroundColor: Colors.black,
         actionLabel: 'VIEW',
         listener: this,
         icon: Icons.done_all,
         action: 3);
+  }
+
+  @override
+  onInvoiceAcceptance(InvoiceAcceptance ia) {
+    prettyPrint(ia.toJson(), '_InvoiceListState.onInvoiceAcceptance');
+    DateTime now = DateTime.now();
+    DateTime biddate = DateTime.parse(ia.date);
+    Duration difference = now.difference(biddate);
+    if (difference.inHours > 1) {
+      print(
+          '_InvoiceListState.onInvoiceAcceptance -  IGNORED: older than 12 hours  --------bid done  ${difference.inHours} hours ago.');
+      return;
+    }
+    AppSnackbar.showSnackbar(
+        scaffoldKey: _scaffoldKey,
+        message: 'Invoice accepted: ${getFormattedDateHour(ia.date)}',
+        textColor: Colors.lightGreen,
+        backgroundColor: Colors.black);
   }
 }
 
@@ -600,7 +652,7 @@ class InvoiceCard extends StatelessWidget {
               ),
               Padding(
                 padding:
-                    const EdgeInsets.only(left: 30.0, bottom: 30.0, top: 10.0),
+                    const EdgeInsets.only(left: 30.0, bottom: 0.0, top: 10.0),
                 child: Row(
                   children: <Widget>[
                     Text('Amount'),
@@ -609,9 +661,30 @@ class InvoiceCard extends StatelessWidget {
                       child: Text(
                         invoice.amount == null ? '0.00' : _getFormattedAmt(),
                         style: TextStyle(
-                            fontSize: 20.0,
+                            fontSize: 28.0,
                             fontWeight: FontWeight.bold,
                             color: Colors.teal),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding:
+                    const EdgeInsets.only(left: 30.0, bottom: 30.0, top: 10.0),
+                child: Row(
+                  children: <Widget>[
+                    Text('Invoice Number'),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 8.0),
+                      child: Text(
+                        invoice.invoiceNumber == null
+                            ? ''
+                            : invoice.invoiceNumber,
+                        style: TextStyle(
+                            fontSize: 20.0,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black),
                       ),
                     ),
                   ],
@@ -625,7 +698,7 @@ class InvoiceCard extends StatelessWidget {
   }
 
   String _getFormattedAmt() {
-    return getFormattedAmount('${invoice.amount}', context);
+    return getFormattedAmount('${invoice.totalAmount}', context);
   }
 
   bool isOffered() {

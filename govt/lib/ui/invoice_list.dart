@@ -51,6 +51,7 @@ class _InvoiceListState extends State<InvoiceList> implements SnackBarListener {
   _getCached() async {
     entity = await SharedPrefs.getGovEntity();
     user = await SharedPrefs.getUser();
+    _getInvoices();
     setState(() {});
   }
 
@@ -106,10 +107,6 @@ class _InvoiceListState extends State<InvoiceList> implements SnackBarListener {
 
   @override
   Widget build(BuildContext context) {
-    invoices = widget.invoices;
-    if (invoices == null || invoices.isEmpty) {
-      _getInvoices();
-    }
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
@@ -456,7 +453,7 @@ class InvoiceCard extends StatelessWidget {
 
   String amount;
   String _getFormattedAmt() {
-    amount = '${invoice.amount}';
+    amount = '${invoice.totalAmount}';
     return amount;
   }
 }

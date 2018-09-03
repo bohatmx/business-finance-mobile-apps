@@ -111,6 +111,14 @@ class _DashboardState extends State<Dashboard>
     listenForInvoiceAcceptance(supplier.documentReference, this);
   }
 
+  _listenForBids() async {
+    invoices.forEach((i) {
+      if (i.isOnOffer && !i.isSettled) {
+        listenForInvoiceBid(i.offer.split('#').elementAt(1), this);
+      }
+    });
+  }
+
   Future _getSettlements() async {
     investorSettlements =
         await FirestoreListAPI.getSupplierInvestorSettlements(supplier);
@@ -134,6 +142,7 @@ class _DashboardState extends State<Dashboard>
     setState(() {
       totalInvoices = invoices.length;
     });
+    _listenForBids();
   }
 
   Future _getDelNotes() async {
@@ -353,8 +362,7 @@ class _DashboardState extends State<Dashboard>
     print('_MainPageState._onDeliveryNotesTapped go to  delivery notes');
     Navigator.push(
       context,
-      new MaterialPageRoute(
-          builder: (context) => new DeliveryNoteList(deliveryNotes)),
+      new MaterialPageRoute(builder: (context) => new DeliveryNoteList(null)),
     );
   }
 
@@ -477,7 +485,7 @@ class _DashboardState extends State<Dashboard>
     invoiceAcceptance = ia;
     AppSnackbar.showSnackbarWithAction(
         scaffoldKey: _scaffoldKey,
-        message: 'Invoice Accepted',
+        message: 'Invoice Accepted: ${ia.invoiceNumber}',
         textColor: Colors.yellow,
         backgroundColor: Colors.black,
         actionLabel: 'OK',

@@ -2,6 +2,7 @@ import 'package:businesslibrary/api/data_api.dart';
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/delivery_acceptance.dart';
+import 'package:businesslibrary/data/delivery_note.dart';
 import 'package:businesslibrary/data/invoice.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/supplier_contract.dart';
@@ -35,12 +36,12 @@ class _NewInvoicePageState extends State<NewInvoicePage>
   double tax, totalAmount, amount;
   List<SupplierContract> contracts;
   List<DropdownMenuItem<String>> items = List();
-
+  DeliveryNote deliveryNote;
+  bool isSubmit = false;
   @override
   void initState() {
     super.initState();
     _getCachedPrefs();
-    _getDeliveryAcceptances();
   }
 
   _getDeliveryAcceptances() async {
@@ -50,14 +51,49 @@ class _NewInvoicePageState extends State<NewInvoicePage>
         '_NewInvoicePageState._getDeliveryAcceptances deliveryAcceptances: ${deliveryAcceptances.length}');
   }
 
+  _getDeliveryNote() async {
+    deliveryNote = await ListAPI.getDeliveryNoteById(
+        deliveryAcceptance.deliveryNote.split('#').elementAt(1),
+        supplier.documentReference,
+        'suppliers');
+
+    editingController.text = '${deliveryNote.amount}';
+    _onAmountChanged('${deliveryNote.amount}');
+    setState(() {});
+  }
+
   _getCachedPrefs() async {
     _user = await SharedPrefs.getUser();
     supplier = await SharedPrefs.getSupplier();
     _getContracts();
+    _getDeliveryNote();
+    _getDeliveryAcceptances();
   }
 
   static const NameSpace = 'resource:com.oneconnect.biz.';
   void _onSubmit() async {
+    if (amount == null || amount == 0) {
+      AppSnackbar.showErrorSnackbar(
+          scaffoldKey: _scaffoldKey,
+          message: 'Please enter amount',
+          listener: this,
+          actionLabel: 'Close');
+      return;
+    }
+    if (contracts.isNotEmpty) {
+      if (contract == null) {
+        AppSnackbar.showErrorSnackbar(
+            scaffoldKey: _scaffoldKey,
+            message: 'Please select appropriate contract',
+            listener: this,
+            actionLabel: 'Close');
+        return;
+      }
+    }
+    if (isSubmit) {
+      return;
+    }
+
     final form = _formKey.currentState;
     if (form.validate()) {
       form.save();
@@ -89,6 +125,7 @@ class _NewInvoicePageState extends State<NewInvoicePage>
             NameSpace + 'SupplierContract#${contract.contractId}';
         invoice.contractURL = contract.contractURL;
       }
+      isSubmit = true;
       AppSnackbar.showSnackbarWithProgressIndicator(
           scaffoldKey: _scaffoldKey,
           message: 'Submitting Invoice ...',
@@ -119,6 +156,9 @@ class _NewInvoicePageState extends State<NewInvoicePage>
             actionLabel: "ERROR ");
       } else {
         isSuccess = true;
+        setState(() {
+          _opacity = 0.0;
+        });
         AppSnackbar.showSnackbarWithAction(
             scaffoldKey: _scaffoldKey,
             message: 'Invoice submitted OK',
@@ -135,6 +175,10 @@ class _NewInvoicePageState extends State<NewInvoicePage>
   _getContracts() async {
     print('_NewInvoicePageState._getContracts ..........');
     prettyPrint(deliveryAcceptance.toJson(), 'deliveryAcceptance:');
+    if (!deliveryAcceptance.govtEntity.contains('resource')) {
+      deliveryAcceptance.govtEntity =
+          'resource:${deliveryAcceptance.govtEntity}';
+    }
     if (deliveryAcceptance.govtEntity != null) {
       contracts = await ListAPI.getSupplierGovtContracts(
           supplier.documentReference, deliveryAcceptance.govtEntity);
@@ -153,6 +197,7 @@ class _NewInvoicePageState extends State<NewInvoicePage>
     }
   }
 
+  TextEditingController editingController = TextEditingController();
   _buildContractsDropDown() {
     contracts.forEach((c) {
       var item6 = DropdownMenuItem<String>(
@@ -176,9 +221,11 @@ class _NewInvoicePageState extends State<NewInvoicePage>
 
   bool isSuccess = false;
   String contractURL;
+  double _opacity;
   @override
   Widget build(BuildContext context) {
     deliveryAcceptance = widget.deliveryAcceptance;
+
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
@@ -187,6 +234,12 @@ class _NewInvoicePageState extends State<NewInvoicePage>
           'Create Invoice',
           style: TextStyle(fontWeight: FontWeight.normal),
         ),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.refresh),
+            onPressed: _getContracts,
+          ),
+        ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(60.0),
           child: new Column(
@@ -241,7 +294,7 @@ class _NewInvoicePageState extends State<NewInvoicePage>
                           ? ''
                           : '${contract.customerName} - ${contract.estimatedValue}',
                       style: TextStyle(
-                          color: Colors.black,
+                          color: Colors.purple,
                           fontWeight: FontWeight.bold,
                           fontSize: 18.0),
                     ),
@@ -267,56 +320,77 @@ class _NewInvoicePageState extends State<NewInvoicePage>
                   ),
                   Padding(
                     padding: const EdgeInsets.only(left: 12.0, right: 12.0),
-                    child: TextFormField(
+                    child: TextField(
+                      controller: editingController,
                       style: TextStyle(
-                          fontSize: 24.0,
+                          fontSize: 28.0,
                           fontWeight: FontWeight.bold,
                           color: Colors.black),
                       decoration: InputDecoration(
                         labelText: 'Amount',
                       ),
-                      keyboardType: TextInputType.number,
-                      maxLength: 28,
-                      validator: (value) {
-                        if (value.isEmpty) {
-                          return 'Please enter the invoice amount';
-                        }
-                      },
-                      onSaved: (val) => amount = double.parse(val),
+                      keyboardType:
+                          TextInputType.numberWithOptions(decimal: true),
+                      maxLength: 20,
+                      onChanged: _onAmountChanged,
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.only(left: 12.0, right: 12.0),
-                    child: TextFormField(
-                      style: TextStyle(
-                          fontSize: 16.0,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.purple),
-                      decoration: InputDecoration(
-                        labelText: 'Value Added Tax',
-                      ),
-                      keyboardType: TextInputType.number,
-                      maxLength: 20,
-                      validator: (value) {
-                        if (value.isEmpty) {
-                          return 'Please enter the VAT amount';
-                        }
-                      },
-                      onSaved: (val) => tax = double.parse(val),
+                    padding: const EdgeInsets.only(left: 12.0, bottom: 8.0),
+                    child: Row(
+                      children: <Widget>[
+                        Padding(
+                          padding: const EdgeInsets.only(right: 8.0),
+                          child: Container(
+                              width: 120.0, child: Text('Value Added Tax')),
+                        ),
+                        Text(
+                          tax == null
+                              ? '0.00'
+                              : getFormattedAmount('$tax', context),
+                          style: TextStyle(
+                              fontSize: 20.0, fontWeight: FontWeight.bold),
+                        ),
+                      ],
                     ),
                   ),
-                  new Padding(
+                  Padding(
+                    padding: const EdgeInsets.only(left: 12.0, bottom: 30.0),
+                    child: Row(
+                      children: <Widget>[
+                        Padding(
+                          padding: const EdgeInsets.only(right: 8.0),
+                          child: Container(
+                              width: 120.0, child: Text('Total Amount')),
+                        ),
+                        Text(
+                          totalAmount == null
+                              ? '0.00'
+                              : getFormattedAmount('$totalAmount', context),
+                          style: TextStyle(
+                              fontSize: 30.0,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.purple),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Padding(
                     padding: const EdgeInsets.only(
                         left: 28.0, right: 20.0, top: 10.0),
-                    child: RaisedButton(
-                      elevation: 8.0,
-                      color: Theme.of(context).primaryColor,
-                      onPressed: _onSubmit,
-                      child: new Padding(
-                        padding: const EdgeInsets.all(12.0),
-                        child: Text(
-                          'Submit Invoice',
-                          style: TextStyle(color: Colors.white, fontSize: 16.0),
+                    child: Opacity(
+                      opacity: _opacity == null ? 1.0 : 0.0,
+                      child: RaisedButton(
+                        elevation: 8.0,
+                        color: Theme.of(context).primaryColor,
+                        onPressed: _onSubmit,
+                        child: new Padding(
+                          padding: const EdgeInsets.all(12.0),
+                          child: Text(
+                            'Submit Invoice',
+                            style:
+                                TextStyle(color: Colors.white, fontSize: 16.0),
+                          ),
                         ),
                       ),
                     ),
@@ -405,10 +479,6 @@ class _NewInvoicePageState extends State<NewInvoicePage>
     }
   }
 
-  void _getContract() {
-    print('_NewInvoicePageState._getContract ...');
-  }
-
   SupplierContract contract;
   void _onContractTapped(String value) {
     contracts.forEach((c) {
@@ -418,6 +488,15 @@ class _NewInvoicePageState extends State<NewInvoicePage>
         return;
       }
     });
+  }
+
+  void _onAmountChanged(String value) {
+    amount = double.parse(value);
+
+    //todo - calc vat using country table
+    tax = amount * 0.15;
+    totalAmount = amount + tax;
+    setState(() {});
   }
 }
 

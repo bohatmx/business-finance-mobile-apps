@@ -1,4 +1,5 @@
 import 'package:businesslibrary/api/data_api.dart';
+import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/delivery_acceptance.dart';
 import 'package:businesslibrary/data/delivery_note.dart';
@@ -20,7 +21,7 @@ class DeliveryNoteList extends StatefulWidget {
 }
 
 class _DeliveryNoteListState extends State<DeliveryNoteList>
-    implements SnackBarListener, DeliveryNoteListener {
+    implements SnackBarListener, DeliveryNoteCardListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   List<Supplier> suppliers;
   List<DeliveryNote> deliveryNotes;
@@ -78,6 +79,9 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
             ],
           ),
         ),
+        actions: <Widget>[
+          IconButton(icon: Icon(Icons.refresh), onPressed: _getDeliveryNotes),
+        ],
       ),
       body: new Padding(
         padding: const EdgeInsets.all(10.0),
@@ -108,13 +112,73 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
     Navigator.pop(context);
   }
 
+  static const Namespace = 'resource:com.oneconnect.biz.';
+  void _acceptDelivery() async {
+    Navigator.pop(context);
+    AppSnackbar.showSnackbarWithProgressIndicator(
+        scaffoldKey: _scaffoldKey,
+        message: 'Submitting Delivery Acceptance ...',
+        textColor: Colors.white,
+        backgroundColor: Colors.black);
+
+    DataAPI api = new DataAPI(getURL());
+    DeliveryAcceptance acceptance = DeliveryAcceptance(
+      date: new DateTime.now().toIso8601String(),
+      supplier: deliveryNote.supplier,
+      supplierDocumentRef: deliveryNote.supplierDocumentRef,
+      companyDocumentRef: deliveryNote.companyDocumentRef,
+      govtDocumentRef: deliveryNote.govtDocumentRef,
+      purchaseOrder: deliveryNote.purchaseOrder,
+      company: deliveryNote.company,
+      govtEntity: deliveryNote.govtEntity,
+      user: Namespace + 'User#' + user.userId,
+      deliveryNote: Namespace + "DeliveryNote#" + deliveryNote.deliveryNoteId,
+      customerName: deliveryNote.customerName,
+      purchaseOrderNumber: deliveryNote.purchaseOrderNumber,
+    );
+
+    prettyPrint(
+        acceptance.toJson(), '_DeliveryNoteListState._acceptDelivery ......');
+    try {
+      var key = await api.acceptDelivery(acceptance);
+      if (key == '0') {
+        AppSnackbar.showErrorSnackbar(
+            scaffoldKey: _scaffoldKey,
+            message: 'Delivery Acceptance failed',
+            listener: this,
+            actionLabel: 'ERROR');
+      } else {
+        AppSnackbar.showSnackbarWithAction(
+            scaffoldKey: _scaffoldKey,
+            message: 'Delivery  Note accepted',
+            textColor: Colors.white,
+            backgroundColor: Colors.black,
+            actionLabel: 'DONE',
+            listener: this,
+            action: 0,
+            icon: Icons.done);
+      }
+    } catch (e) {
+      print('_DeliveryNoteListState._acceptDelivery ERROR $e');
+      AppSnackbar.showErrorSnackbar(
+          scaffoldKey: _scaffoldKey,
+          message: 'Delivery Acceptance failed',
+          listener: this,
+          actionLabel: 'ERROR');
+    }
+  }
+
   @override
-  onDeliveryNoteTapped(DeliveryNote deliveryNote) {
-    this.deliveryNote = deliveryNote;
+  onNoteTapped(DeliveryNote note) {
+    this.deliveryNote = note;
 
     prettyPrint(deliveryNote.toJson(),
         '_DeliveryNoteListState.onDeliveryNoteTapped ...');
 
+    _checkDeliveryNote();
+  }
+
+  void showAcceptDialog() {
     showDialog(
         context: context,
         builder: (_) => new AlertDialog(
@@ -188,172 +252,231 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
             ));
   }
 
-  static const Namespace = 'resource:com.oneconnect.biz.';
-  void _acceptDelivery() async {
-    Navigator.pop(context);
+  void _checkDeliveryNote() async {
     AppSnackbar.showSnackbarWithProgressIndicator(
         scaffoldKey: _scaffoldKey,
-        message: 'Submitting Delivery Acceptance ...',
-        textColor: Colors.white,
+        message: 'Checking Delivery Note ...',
+        textColor: Colors.yellow,
         backgroundColor: Colors.black);
-
-    DataAPI api = new DataAPI(getURL());
-    DeliveryAcceptance acceptance = DeliveryAcceptance(
-      date: new DateTime.now().toIso8601String(),
-      supplier: deliveryNote.supplier,
-      supplierDocumentRef: deliveryNote.supplierDocumentRef,
-      companyDocumentRef: deliveryNote.companyDocumentRef,
-      govtDocumentRef: deliveryNote.govtDocumentRef,
-      purchaseOrder: deliveryNote.purchaseOrder,
-      company: deliveryNote.company,
-      govtEntity: deliveryNote.govtEntity,
-      user: Namespace + 'User#' + user.userId,
-      deliveryNote: Namespace + "DeliveryNote#" + deliveryNote.deliveryNoteId,
-      customerName: deliveryNote.customerName,
-      purchaseOrderNumber: deliveryNote.purchaseOrderNumber,
-    );
-
-    prettyPrint(
-        acceptance.toJson(), '_DeliveryNoteListState._acceptDelivery ......');
-    try {
-      var key = await api.acceptDelivery(acceptance);
-      if (key == '0') {
-        AppSnackbar.showErrorSnackbar(
-            scaffoldKey: _scaffoldKey,
-            message: 'Delivery Acceptance failed',
-            listener: this,
-            actionLabel: 'ERROR');
-      } else {
-        AppSnackbar.showSnackbarWithAction(
-            scaffoldKey: _scaffoldKey,
-            message: 'Delivery  Note accepted',
-            textColor: Colors.white,
-            backgroundColor: Colors.black,
-            actionLabel: 'DONE',
-            listener: this,
-            action: 0,
-            icon: Icons.done);
-      }
-    } catch (e) {
-      print('_DeliveryNoteListState._acceptDelivery ERROR $e');
-      AppSnackbar.showErrorSnackbar(
+    var noteAcceptance = await ListAPI.getDeliveryAcceptanceForNote(
+        deliveryNote.deliveryNoteId,
+        deliveryNote.supplierDocumentRef,
+        'suppliers');
+    _scaffoldKey.currentState.hideCurrentSnackBar();
+    if (noteAcceptance != null) {
+      AppSnackbar.showSnackbar(
           scaffoldKey: _scaffoldKey,
-          message: 'Delivery Acceptance failed',
-          listener: this,
-          actionLabel: 'ERROR');
+          message: 'Delivery note already accepted',
+          textColor: Colors.white,
+          backgroundColor: Colors.black);
+    } else {
+      showAcceptDialog();
     }
+  }
+
+  void _getDeliveryNotes() async {
+    deliveryNotes = await ListAPI.getDeliveryNotes(
+        govtEntity.documentReference, 'govtEntities');
+    setState(() {});
   }
 }
 
 class DeliveryNoteCard extends StatelessWidget {
   final DeliveryNote deliveryNote;
-  final DeliveryNoteListener listener;
+  final DeliveryNoteCardListener listener;
 
   DeliveryNoteCard({@required this.deliveryNote, @required this.listener});
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 2.0,
-      color: Colors.pink.shade50,
-      child: new Padding(
-        padding: const EdgeInsets.all(4.0),
-        child: new GestureDetector(
-          onTap: _onNoteTapped,
-          child: Column(
-            children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.only(left: 0.0, bottom: 16.0),
-                child: new Row(
+    return InkWell(
+      onTap: _onBigTap,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Card(
+          elevation: 4.0,
+          color: Colors.grey.shade50,
+          child: Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Column(
+              children: <Widget>[
+                Row(
                   children: <Widget>[
-                    new Padding(
+                    Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Icon(
-                        Icons.apps,
-                        color: Theme.of(context).primaryColor,
+                        Icons.event,
+                        color: Colors.grey,
                       ),
                     ),
                     Text(
-                      ':',
+                      getFormattedDate(deliveryNote.date),
                       style: TextStyle(
+                          color: Colors.blue,
                           fontSize: 16.0,
-                          fontWeight: FontWeight.normal,
-                          color: Colors.pink),
+                          fontWeight: FontWeight.normal),
                     ),
-                    Text(
-                      deliveryNote.supplierName == null
-                          ? ''
-                          : deliveryNote.supplierName,
-                      style: TextStyle(
-                          fontSize: 16.0, fontWeight: FontWeight.bold),
-                    ),
-                  ],
-                ),
-              ),
-              new Padding(
-                padding: const EdgeInsets.only(left: 10.0),
-                child: new Row(
-                  children: <Widget>[
-                    Container(
-                      width: 140.0,
+                    Padding(
+                      padding: const EdgeInsets.only(left: 8.0),
                       child: Text(
-                        'Purchase Order:',
+                        deliveryNote.customerName,
                         style: TextStyle(
+                            color: Colors.black,
                             fontSize: 16.0,
-                            fontWeight: FontWeight.normal,
-                            color: Colors.grey),
+                            fontWeight: FontWeight.normal),
                       ),
-                    ),
-                    Text(
-                      deliveryNote.purchaseOrderNumber == null
-                          ? ''
-                          : deliveryNote.purchaseOrderNumber,
-                      style: TextStyle(
-                          fontSize: 24.0, fontWeight: FontWeight.bold),
-                    ),
+                    )
                   ],
                 ),
-              ),
-              new Padding(
-                padding:
-                    const EdgeInsets.only(left: 10.0, top: 16.0, bottom: 12.0),
-                child: new Row(
-                  children: <Widget>[
-                    Container(
-                      width: 140.0,
-                      child: Text(
-                        'PO Date:',
-                        style: TextStyle(
-                            fontSize: 16.0,
-                            fontWeight: FontWeight.normal,
-                            color: Colors.grey),
-                      ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 40.0),
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 10.0),
+                    child: Row(
+                      children: <Widget>[
+                        Container(
+                          width: 100.0,
+                          child: Text(
+                            'PO Number',
+                            style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 14.0,
+                                fontWeight: FontWeight.normal),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 8.0),
+                          child: Text(
+                            deliveryNote.purchaseOrderNumber,
+                            style: TextStyle(
+                                color: Colors.purple.shade300,
+                                fontSize: 18.0,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        )
+                      ],
                     ),
-                    Text(
-                      deliveryNote.date == null
-                          ? ''
-                          : getFormattedDate(deliveryNote.date),
-                      style: TextStyle(
-                          fontSize: 16.0,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.deepOrangeAccent),
-                    ),
-                  ],
+                  ),
                 ),
-              ),
-            ],
+                Padding(
+                  padding: const EdgeInsets.only(left: 40.0),
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 8.0),
+                    child: Row(
+                      children: <Widget>[
+                        Container(
+                          width: 100.0,
+                          child: Text(
+                            'Note Amount',
+                            style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 14.0,
+                                fontWeight: FontWeight.normal),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(
+                            left: 8.0,
+                          ),
+                          child: Text(
+                            deliveryNote.amount == null
+                                ? '0.00'
+                                : getFormattedAmount(
+                                    '${deliveryNote.amount}', context),
+                            style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 18.0,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 40.0),
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 8.0),
+                    child: Row(
+                      children: <Widget>[
+                        Container(
+                          width: 100.0,
+                          child: Text(
+                            'Note VAT',
+                            style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 14.0,
+                                fontWeight: FontWeight.normal),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(
+                            left: 8.0,
+                          ),
+                          child: Text(
+                            deliveryNote.vat == null
+                                ? '0.00'
+                                : getFormattedAmount(
+                                    '${deliveryNote.vat}', context),
+                            style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 16.0,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 40.0),
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 20.0),
+                    child: Row(
+                      children: <Widget>[
+                        Container(
+                          width: 100.0,
+                          child: Text(
+                            'Note Total',
+                            style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 14.0,
+                                fontWeight: FontWeight.normal),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(
+                            left: 8.0,
+                          ),
+                          child: Text(
+                            deliveryNote.totalAmount == null
+                                ? '0.00'
+                                : getFormattedAmount(
+                                    '${deliveryNote.totalAmount}', context),
+                            style: TextStyle(
+                                color: Colors.teal,
+                                fontSize: 24.0,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  void _onNoteTapped() {
-    print('DeliveryNoteCard._onNoteTapped: .... ${deliveryNote.toJson()}');
-    listener.onDeliveryNoteTapped(deliveryNote);
+  void _onBigTap() {
+    print('DeliveryNoteCard._onBigTap .........................');
+    listener.onNoteTapped(deliveryNote);
   }
 }
 
-abstract class DeliveryNoteListener {
-  onDeliveryNoteTapped(DeliveryNote deliveryNote);
+abstract class DeliveryNoteCardListener {
+  onNoteTapped(DeliveryNote note);
 }

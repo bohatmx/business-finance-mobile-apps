@@ -5,6 +5,7 @@ import 'package:businesslibrary/data/company.dart';
 import 'package:businesslibrary/data/delivery_acceptance.dart';
 import 'package:businesslibrary/data/delivery_note.dart';
 import 'package:businesslibrary/data/govt_entity.dart';
+import 'package:businesslibrary/data/investor.dart';
 import 'package:businesslibrary/data/invoice.dart';
 import 'package:businesslibrary/data/invoice_bid.dart';
 import 'package:businesslibrary/data/offer.dart';
@@ -105,7 +106,7 @@ class ListAPI {
 
     print('ListAPI.getOfferInvoiceBids found: ${qs.documents.length} ');
 
-    qs.documents.forEach((doc) async {
+    qs.documents.forEach((doc) {
       list.add(new InvoiceBid.fromJson(doc.data));
     });
 
@@ -117,7 +118,8 @@ class ListAPI {
     List<InvoiceBid> list = List();
     var qs = await _firestore
         .collection('invoiceBids')
-        .where('participantId', isEqualTo: participantId)
+        .where('investor',
+            isEqualTo: 'resource:com.oneconnect.biz.Investor#$participantId')
         .orderBy('date', descending: true)
         .getDocuments()
         .catchError((e) {
@@ -127,10 +129,56 @@ class ListAPI {
 
     print('ListAPI.getInvestorInvoiceBids found: ${qs.documents.length} ');
 
-    qs.documents.forEach((doc) async {
+    qs.documents.forEach((doc) {
       list.add(new InvoiceBid.fromJson(doc.data));
     });
 
+    return list;
+  }
+
+  static Future<List<InvoiceBid>> getInvoiceBidByInvestorOffer(
+      Offer offer, Investor investor) async {
+    //resource:com.oneconnect.biz.Investor#4cdc2c70-9620-11e8-c714-174858cf9948
+    //resource:com.oneconnect.biz.Offer#6a4819c0-9620-11e8-fac2-c919ce809955
+
+    print(
+        'ListAPI.getInvoiceBidByInvestorOffer =======> offer.documentReference: ${offer.documentReference} offer.offerId: ${offer.offerId} participantId: ${investor.participantId}');
+    List<InvoiceBid> list = List();
+    var qs = await _firestore
+        .collection('invoiceOffers')
+        .document(offer.documentReference)
+        .collection('invoiceBids')
+        .where('offer',
+            isEqualTo: 'resource:com.oneconnect.biz.Offer#${offer.offerId}')
+        .where('investor',
+            isEqualTo:
+                'resource:com.oneconnect.biz.Investor#${investor.participantId}')
+        .orderBy('date', descending: true)
+        .getDocuments()
+        .catchError((e) {
+      print('ListAPI.getInvoiceBidByInvestorOffer $e');
+      return list;
+    });
+
+    print(
+        'ListAPI.getInvoiceBidByInvestorOffer ######## found: ${qs.documents.length} ');
+    if (qs.documents.isEmpty) {
+      print(
+          'ListAPI.getInvoiceBidByInvestorOffer: qs.documents iisEmpty ----------');
+    } else {
+      print(
+          'ListAPI.getInvoiceBidByInvestorOffer - we have a docuumentt here!!!!!!!');
+    }
+    qs.documents.forEach((doc) {
+      print('########## EACH doc.data:  ${doc.data}');
+      var invoiceBid = InvoiceBid.fromJson(doc.data);
+      invoiceBid.documentReference = doc.documentID;
+      list.add(invoiceBid);
+      prettyPrint(invoiceBid.toJson(),
+          '%%%%% invoice  bid after json, bids in list: ${list.length}');
+    });
+    print(
+        'ListAPI.getInvoiceBidByInvestorOffer ######## found objects: ${list.length} ');
     return list;
   }
 
@@ -145,6 +193,9 @@ class ListAPI {
       return null;
     });
     print('ListAPI.getOfferById found offers: ${qs.documents.length} ');
+    if (qs.documents.isEmpty) {
+      return null;
+    }
     offer = Offer.fromJson(qs.documents.first.data);
 
     var qs1 = await _firestore
@@ -166,6 +217,46 @@ class ListAPI {
     return bag;
   }
 
+  static Future<OfferBag> getOfferByInvoice(String invoiceId) async {
+    Offer offer;
+    var qs = await _firestore
+        .collection('invoiceOffers')
+        .where('invoice',
+            isEqualTo: 'resource:com.oneconnect.biz.Invoice#$invoiceId')
+        .getDocuments()
+        .catchError((e) {
+      print('ListAPI.getOfferByInvoice $e');
+      return null;
+    });
+    print(
+        'ListAPI.getOfferByInvoice ++++++++++++++++ found offers: ${qs.documents.length} ');
+    if (qs.documents.isEmpty) {
+      return null;
+    }
+    offer = Offer.fromJson(qs.documents.first.data);
+
+    var qs1 = await _firestore
+        .collection('invoiceOffers')
+        .document(qs.documents.first.documentID)
+        .collection('invoiceBids')
+        .getDocuments()
+        .catchError((e) {
+      print('ListAPI.getOfferByInvoice $e');
+      return null;
+    });
+
+    List<InvoiceBid> bids = List();
+    qs1.documents.forEach((doc) {
+      bids.add(InvoiceBid.fromJson(doc.data));
+    });
+    print(
+        'ListAPI.getOfferByInvoice @@@@@@@@@@@@@ found invoice bids: ${qs1.documents.length} ');
+
+    var bag = OfferBag(offer: offer, invoiceBids: bids);
+    bag.doPrint();
+    return bag;
+  }
+
   static Future<List<Offer>> getOffersByPeriod(
       DateTime startTime, DateTime endTime) async {
     print(
@@ -173,15 +264,18 @@ class ListAPI {
     List<Offer> list = List();
     var qs = await _firestore
         .collection('invoiceOffers')
-        .where('date', isGreaterThanOrEqualTo: startTime.toIso8601String())
-        .where('date', isLessThanOrEqualTo: endTime.toIso8601String())
-        .orderBy('date', descending: true)
+        .where('startTime', isGreaterThanOrEqualTo: startTime.toIso8601String())
+        .where('startTime', isLessThanOrEqualTo: endTime.toIso8601String())
+        .orderBy('startTime', descending: true)
         .getDocuments()
         .catchError((e) {
       print('ListAPI.getOffersByPeriod $e');
       return list;
     });
     print('ListAPI.getOffersByPeriod found: ${qs.documents.length} ');
+    if (qs.documents.isEmpty) {
+      return list;
+    }
     qs.documents.forEach((doc) {
       var offer = Offer.fromJson(doc.data);
       offer.documentReference = doc.documentID;
@@ -422,6 +516,33 @@ class ListAPI {
     return invoice;
   }
 
+  static Future<Invoice> getInvoiceByDeliveryNote(
+      String deliveryNoteId, String supplierDocumentRef) async {
+    print(
+        'ListAPI.getInvoiceByDeliveryNote ............. deliveryNoteId: $deliveryNoteId  ');
+    Invoice invoice;
+    var qs = await _firestore
+        .collection('suppliers')
+        .document(supplierDocumentRef)
+        .collection('invoices')
+        .where('deliveryNote',
+            isEqualTo:
+                'resource:com.oneconnect.biz.DeliveryNote#$deliveryNoteId')
+        .getDocuments()
+        .catchError((e) {
+      print('ListAPI.getInvoiceByDeliveryNote $e');
+      return null;
+    });
+    print(
+        'ListAPI.getInvoiceByDeliveryNote ............. fouund: ${qs.documents.length}');
+    if (qs.documents.isNotEmpty) {
+      invoice = Invoice.fromJson(qs.documents.first.data);
+      invoice.documentReference = qs.documents.first.documentID;
+    }
+
+    return invoice;
+  }
+
   static Future<Invoice> getSupplierInvoiceByNumber(
       String invoiceNumber, String supplierDocumentRef) async {
     print(
@@ -511,6 +632,31 @@ class ListAPI {
 
     print('ListAPI.getDeliveryNotes ############ found: ${list.length}');
     return list;
+  }
+
+  static Future<DeliveryNote> getDeliveryNoteById(
+      String deliveryNoteId, String documentId, String collection) async {
+    print(
+        'ListAPI.getDeliveryNoteById .......  documentId: $documentId deliveryNoteId: $deliveryNoteId');
+    DeliveryNote dn;
+    var qs = await _firestore
+        .collection(collection)
+        .document(documentId)
+        .collection('deliveryNotes')
+        .where('deliveryNoteId', isEqualTo: deliveryNoteId)
+        .getDocuments()
+        .catchError((e) {
+      print('ListAPI.getDeliveryNoteById $e');
+      return dn;
+    });
+
+    if (qs.documents.isNotEmpty) {
+      dn = DeliveryNote.fromJson(qs.documents.first.data);
+    }
+
+    print(
+        'ListAPI.getDeliveryNoteById ############ found: ${qs.documents.length}');
+    return dn;
   }
 
   static Future<List<SupplierContract>> getSupplierContracts(
@@ -677,6 +823,34 @@ class ListAPI {
     return list;
   }
 
+  static Future<DeliveryAcceptance> getDeliveryAcceptanceForNote(
+      String deliveryNoteId, String documentId, String collection) async {
+    print(
+        'ListAPI.getDeliveryAcceptanceForNote .......  documentId: $documentId deliveryNoteId: $deliveryNoteId');
+    DeliveryAcceptance da;
+    ;
+    var qs = await _firestore
+        .collection(collection)
+        .document(documentId)
+        .collection('deliveryAcceptances')
+        .where('deliveryNote',
+            isEqualTo:
+                'resource:com.oneconnect.biz.DeliveryNote#$deliveryNoteId')
+        .getDocuments()
+        .catchError((e) {
+      print('ListAPI.getDeliveryAcceptanceForNote $e');
+      return da;
+    });
+
+    if (qs.documents.isNotEmpty) {
+      da = DeliveryAcceptance.fromJson(qs.documents.first.data);
+    }
+
+    print(
+        'ListAPI.getDeliveryAcceptanceForNote ############ found: ${qs.documents.length}');
+    return da;
+  }
+
   static Future<List<Supplier>> getSuppliers() async {
     print('ListAPI.getSuppliers .......  ');
     List<Supplier> list = List();
@@ -723,4 +897,10 @@ class OfferBag {
   List<InvoiceBid> invoiceBids = List();
 
   OfferBag({this.offer, this.invoiceBids});
+  doPrint() {
+    prettyPrint(offer.toJson(), '######## OFFER:');
+    invoiceBids.forEach((m) {
+      prettyPrint(m.toJson(), '%%%%%%%%% BID:');
+    });
+  }
 }

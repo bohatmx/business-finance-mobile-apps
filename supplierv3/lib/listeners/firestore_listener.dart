@@ -39,7 +39,7 @@ void listenForPurchaseOrder(
 void listenForDeliveryAcceptance(
     String supplierDocRef, DeliveryAcceptanceListener listener) async {
   print(
-      '\n\listenForDeliveryAcceptance ########## listening for Delivery Acceptance ........');
+      '\n\n listenForDeliveryAcceptance ########## listening for Delivery Acceptance ........\n\n');
   CollectionReference reference = Firestore.instance
       .collection('suppliers')
       .document(supplierDocRef)

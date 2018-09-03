@@ -377,10 +377,7 @@ class _DashboardState extends State<Dashboard>
   @override
   onDeliveryNoteArrived(DeliveryNote note) {
     if (deliveryNotes == null) return;
-    setState(() {
-      deliveryNotes.insert(0, note);
-      totalNotes = deliveryNotes.length;
-    });
+
     prettyPrint(note.toJson(), 'DeliveryNote arrived: ');
     messageReceived = DeliveryNotes;
     AppSnackbar.showSnackbarWithAction(
@@ -392,14 +389,11 @@ class _DashboardState extends State<Dashboard>
         listener: this,
         action: DeliveryNoteConstant,
         icon: Icons.create);
+    _getNotes();
   }
 
   @override
   onInvoiceArrived(Invoice inv) {
-    setState(() {
-      invoices.insert(0, inv);
-      totalInvoices = invoices.length;
-    });
     prettyPrint(inv.toJson(), 'Invoice arrived: ');
     messageReceived = DeliveryNotes;
     AppSnackbar.showSnackbarWithAction(
@@ -411,5 +405,6 @@ class _DashboardState extends State<Dashboard>
         listener: this,
         action: InvoiceConstant,
         icon: Icons.collections_bookmark);
+    _getInvoices();
   }
 }
