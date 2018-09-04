@@ -81,9 +81,7 @@ class ListAPI {
     });
     print(
         'ListAPI.getUsers ########## found in QuerySnapshot: ${qs.documents.length} ');
-    int count = 0;
     qs.documents.forEach((doc) {
-      count++;
       list.add(new User.fromJson(doc.data));
     });
 
@@ -829,7 +827,7 @@ class ListAPI {
     print(
         'ListAPI.getDeliveryAcceptanceForNote .......  documentId: $documentId deliveryNoteId: $deliveryNoteId');
     DeliveryAcceptance da;
-    ;
+
     var qs = await _firestore
         .collection(collection)
         .document(documentId)

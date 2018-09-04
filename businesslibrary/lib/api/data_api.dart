@@ -596,14 +596,6 @@ class DataAPI {
     }
   }
 
-  Future _deleteFromFirestore(
-      DocumentReference ref, DocumentReference ref2) async {
-    await ref.delete();
-    await ref2.delete();
-    print('DataAPI._deleteFromFirestore record deleted: ${ref.documentID}');
-    print('DataAPI._deleteFromFirestore record deleted: ${ref2.documentID}');
-  }
-
   Future<String> _getDocumentId(String collection, String participantId) async {
     var documentId;
     var querySnapshot = await _firestore
@@ -1397,7 +1389,7 @@ class DataAPI {
           .document(docID)
           .setData(xx.toJson())
           .catchError((e) {
-        print('DataAPI.updatePurchaseOrderContract: ${e} ');
+        print('DataAPI.updatePurchaseOrderContract: $e ');
         return '0';
       });
     }
