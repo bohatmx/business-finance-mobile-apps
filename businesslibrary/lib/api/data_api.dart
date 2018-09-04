@@ -880,6 +880,34 @@ class DataAPI {
       print('DataAPI.mirrorDeliveryAcceptance  ERROR $e');
       return '0';
     });
+    var qs = await _firestore
+        .collection('suppliers')
+        .document(acceptance.supplierDocumentRef)
+        .collection('invoices')
+        .where('invoice', isEqualTo: acceptance.invoice)
+        .getDocuments()
+        .catchError((e) {
+      print('DataAPI.mirrorDeliveryAcceptance  ERROR $e');
+      return '0';
+    });
+    if (qs.documents.isNotEmpty) {
+      var inv = Invoice.fromJson(qs.documents.first.data);
+      inv.documentReference = qs.documents.first.documentID;
+      inv.deliveryAcceptance =
+          'resource:com.oneconnect.biz.DeliveryAcceptance#${acceptance.acceptanceId}';
+      await _firestore
+          .collection('suppliers')
+          .document(acceptance.supplierDocumentRef)
+          .collection('invoices')
+          .document(qs.documents.first.documentID)
+          .setData(inv.toJson())
+          .catchError((e) {
+        print('DataAPI.mirrorDeliveryAcceptance  ERROR $e');
+        return '0';
+      });
+      print(
+          'DataAPI.mirrorDeliveryAcceptance invoice updated with deliveryAcceptance ');
+    }
     print(
         'DataAPI.mirrorDeliveryAcceptance OWNER added to Firestore: ${ref.path}');
     print(

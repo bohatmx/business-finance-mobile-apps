@@ -117,6 +117,8 @@ class _NewInvoicePageState extends State<NewInvoicePage>
         totalAmount: totalAmount,
         isOnOffer: false,
         isSettled: false,
+        deliveryAcceptance:
+            NameSpace + 'DeliveryAcceptance#${deliveryAcceptance.acceptanceId}',
         date: new DateTime.now().toIso8601String(),
       );
 

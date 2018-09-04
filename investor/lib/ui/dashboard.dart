@@ -12,6 +12,7 @@ import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
+import 'package:businesslibrary/util/styles.dart';
 import 'package:businesslibrary/util/summary_card.dart';
 import 'package:businesslibrary/util/util.dart';
 import 'package:businesslibrary/util/wallet_page.dart';
@@ -115,7 +116,6 @@ class _DashboardState extends State<Dashboard>
     }
     invoiceBids.forEach((n) {
       totalInvoiceBidAmount += n.amount;
-      prettyPrint(n.toJson(), '_DashboardState._getInvoiceBids: bid:');
     });
   }
 
@@ -384,6 +384,14 @@ class _DashboardState extends State<Dashboard>
   onOffer(Offer o) {
     offer = o;
     prettyPrint(offer.toJson(), '_DashboardState.onOffer');
+    DateTime now = DateTime.now();
+    DateTime date = DateTime.parse(o.date);
+    Duration difference = now.difference(date);
+    if (difference.inHours > 1) {
+      print(
+          'onOffer -  IGNORED: older than 1 hours  --------bid done  ${difference.inHours} hours ago.');
+      return;
+    }
     AppSnackbar.showSnackbarWithAction(
         scaffoldKey: _scaffoldKey,
         message: 'Invoice Offer arrived',
@@ -465,7 +473,7 @@ class InvoiceBidSummaryCard extends StatelessWidget {
                         totalBidAmount == null
                             ? '0.00'
                             : getFormattedAmount('$totalBidAmount', context),
-                        style: totalStyleTeal,
+                        style: Styles.tealBoldReallyLarge,
                       ),
                     ),
                   ],
@@ -485,7 +493,7 @@ class InvoiceBidSummaryCard extends StatelessWidget {
                       padding: const EdgeInsets.only(left: 10.0, right: 10.0),
                       child: Text(
                         bids == null ? '0' : '${bids.length}',
-                        style: totalStyleBlack,
+                        style: Styles.blackBoldReallyLarge,
                       ),
                     ),
                   ],

@@ -62,7 +62,7 @@ class SharedPrefs {
     }
 
     var jx = json.decode(string);
-    prettyPrint(jx, 'User from cache: ');
+//    prettyPrint(jx, 'User from cache: ');
     User account = new User.fromJson(jx);
     return account;
   }
@@ -87,7 +87,7 @@ class SharedPrefs {
       return null;
     }
     var jx = json.decode(string);
-    prettyPrint(jx, 'GovtEntity from cache: ');
+//    prettyPrint(jx, 'GovtEntity from cache: ');
     GovtEntity govtEntity = new GovtEntity.fromJson(jx);
     return govtEntity;
   }
@@ -136,7 +136,7 @@ class SharedPrefs {
       return null;
     }
     var jx = json.decode(string);
-    prettyPrint(jx, 'Supplier from cache: ');
+//    prettyPrint(jx, 'Supplier from cache: ');
     Supplier supplier = new Supplier.fromJson(jx);
     return supplier;
   }
@@ -233,7 +233,7 @@ class SharedPrefs {
       return null;
     }
     var jx = json.decode(string);
-    prettyPrint(jx, 'Investor from cache: ');
+//    prettyPrint(jx, 'Investor from cache: ');
     Investor investor = new Investor.fromJson(jx);
     return investor;
   }

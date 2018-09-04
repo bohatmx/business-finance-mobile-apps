@@ -11,7 +11,7 @@ class Offer {
   String supplierDocumentRef, supplierFCMToken;
   double invoiceAmount, offerAmount, discountPercent;
   bool isCancelled;
-
+  String sector, sectorName;
   List<String> invoiceBids;
   Offer(
       {this.offerId,
@@ -38,6 +38,8 @@ class Offer {
       this.supplierFCMToken,
       this.invoiceDocumentRef,
       this.supplierDocumentRef,
+      this.sector,
+      this.sectorName,
       this.user});
 
   Offer.fromJson(Map data) {
@@ -68,6 +70,9 @@ class Offer {
     this.wallet = data['wallet'];
     this.isCancelled = data['isCancelled'];
     this.offerCancellation = data['offerCancellation'];
+
+    this.sector = data['sector'];
+    this.sectorName = data['sectorName'];
   }
 
   Map<String, dynamic> toJson() => <String, dynamic>{
@@ -96,5 +101,7 @@ class Offer {
         'wallet': wallet,
         'isCancelled': isCancelled,
         'offerCancellation': offerCancellation,
+        'sector': sector,
+        'sectorName': sectorName,
       };
 }
