@@ -114,13 +114,14 @@ class ListAPI {
   }
 
   static Future<List<InvoiceBid>> getInvoiceBidsByInvestor(
-      String participantId) async {
+      String documentReference) async {
+    print(
+        'ListAPI.getInvoiceBidsByInvestor ========= documentReference: $documentReference');
     List<InvoiceBid> list = List();
     var qs = await _firestore
+        .collection('investors')
+        .document(documentReference)
         .collection('invoiceBids')
-        .where('investor',
-            isEqualTo: 'resource:com.oneconnect.biz.Investor#$participantId')
-        .orderBy('date', descending: true)
         .getDocuments()
         .catchError((e) {
       print('ListAPI.getInvestorInvoiceBids $e');

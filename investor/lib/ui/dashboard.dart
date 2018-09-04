@@ -102,7 +102,8 @@ class _DashboardState extends State<Dashboard>
         backgroundColor: Colors.black);
 
     invoiceBids =
-        await ListAPI.getInvoiceBidsByInvestor(investor.participantId);
+        await ListAPI.getInvoiceBidsByInvestor(investor.documentReference);
+    print('_DashboardState._getInvoiceBids +++++++ ${invoiceBids.length}');
     if (invoiceBids.isNotEmpty) {
       lastInvoiceBid = invoiceBids.last;
     }
@@ -112,6 +113,10 @@ class _DashboardState extends State<Dashboard>
     if (_scaffoldKey.currentState != null) {
       _scaffoldKey.currentState.hideCurrentSnackBar();
     }
+    invoiceBids.forEach((n) {
+      totalInvoiceBidAmount += n.amount;
+      prettyPrint(n.toJson(), '_DashboardState._getInvoiceBids: bid:');
+    });
   }
 
   InvoiceBid lastInvoiceBid;
@@ -119,6 +124,7 @@ class _DashboardState extends State<Dashboard>
   DeliveryNote lastNote;
 
   int totalInvoiceBids, totalOffers, totalNotes, totalPayments;
+  double totalInvoiceBidAmount = 0.00;
   final invoiceStyle = TextStyle(
     fontWeight: FontWeight.w900,
     fontSize: 28.0,
@@ -215,7 +221,7 @@ class _DashboardState extends State<Dashboard>
                       onTap: _onPaymentsTapped,
                       child: SummaryCard(
                         total: totalPayments == null ? 0 : totalPayments,
-                        label: 'Payments',
+                        label: 'Bids Settled',
                         totalStyle: paymentStyle,
                       ),
                     ),
@@ -402,7 +408,7 @@ class InvoiceBidSummaryCard extends StatelessWidget {
   );
   final smallLabel = TextStyle(
     fontWeight: FontWeight.bold,
-    fontSize: 16.0,
+    fontSize: 14.0,
     color: Colors.grey,
   );
   final totalStyle = TextStyle(
@@ -417,11 +423,17 @@ class InvoiceBidSummaryCard extends StatelessWidget {
   );
   final totalStyleTeal = TextStyle(
     fontWeight: FontWeight.w900,
-    fontSize: 20.0,
+    fontSize: 28.0,
     color: Colors.teal,
   );
+  double totalBidAmount = 0.00;
+  int numberOfBids = 0;
   @override
   Widget build(BuildContext context) {
+    bids.forEach((m) {
+      totalBidAmount += m.amount;
+    });
+    print('InvoiceBidSummaryCard.build totalBidAmount: $totalBidAmount');
     return Container(
       height: 200.0,
       child: new Padding(
@@ -444,13 +456,15 @@ class InvoiceBidSummaryCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
                     Text(
-                      'Open Invoice Bids',
+                      'Total Value',
                       style: smallLabel,
                     ),
                     Padding(
                       padding: const EdgeInsets.only(left: 10.0, right: 10.0),
                       child: Text(
-                        '10,000,000.00',
+                        totalBidAmount == null
+                            ? '0.00'
+                            : getFormattedAmount('$totalBidAmount', context),
                         style: totalStyleTeal,
                       ),
                     ),
@@ -464,13 +478,13 @@ class InvoiceBidSummaryCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
                     Text(
-                      'Settled Invoice Bids',
+                      'Number of Bids',
                       style: smallLabel,
                     ),
                     Padding(
                       padding: const EdgeInsets.only(left: 10.0, right: 10.0),
                       child: Text(
-                        '99,000,000.00',
+                        bids == null ? '0' : '${bids.length}',
                         style: totalStyleBlack,
                       ),
                     ),

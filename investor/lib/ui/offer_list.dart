@@ -49,6 +49,9 @@ class _OfferListState extends State<OfferList> with WidgetsBindingObserver {
         textColor: Colors.yellow,
         backgroundColor: Colors.black);
     offers = await ListAPI.getOffersByPeriod(startTime, endTime);
+    offers.forEach((p) {
+      prettyPrint(p.toJson(), '_OfferListState._getOffers: ');
+    });
     print(
         '_OfferListState._getOffers offers in period: ${offers.length}  over $_days days');
     setState(() {});
@@ -641,7 +644,7 @@ class OfferPanel extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      offer.supplierName,
+                      offer.supplierName == null ? '' : offer.supplierName,
                       style: TextStyle(
                           color: Colors.black,
                           fontSize: 14.0,
@@ -666,7 +669,7 @@ class OfferPanel extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      offer.customerName,
+                      offer.customerName == null ? '' : offer.customerName,
                       style: TextStyle(
                           color: Colors.black,
                           fontSize: 14.0,
