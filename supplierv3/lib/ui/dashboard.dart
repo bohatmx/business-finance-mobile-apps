@@ -449,6 +449,14 @@ class _DashboardState extends State<Dashboard>
   onPurchaseOrder(PurchaseOrder po) {
     prettyPrint(po.toJson(), '_DashboardState.onPurchaseOrder');
     purchaseOrder = po;
+    var now = DateTime.now();
+    var date = DateTime.parse(po.date);
+    var difference = now.difference(date);
+    if (difference.inHours > 1) {
+      print(
+          'onPurchaseOrder -  IGNORED: older than 1 hours  --------bid done  ${difference.inHours} hours ago.');
+      return;
+    }
     AppSnackbar.showSnackbarWithAction(
         scaffoldKey: _scaffoldKey,
         message: 'Purchase Order arrived',
@@ -467,6 +475,14 @@ class _DashboardState extends State<Dashboard>
   onDeliveryAcceptance(DeliveryAcceptance da) {
     prettyPrint(da.toJson(), '_DashboardState.onDeliveryAcceptance');
     deliveryAcceptance = da;
+    var now = DateTime.now();
+    var date = DateTime.parse(da.date);
+    var difference = now.difference(date);
+    if (difference.inHours > 1) {
+      print(
+          'onDeliveryAcceptance-  IGNORED: older than 1 hours  --------bid done  ${difference.inHours} hours ago.');
+      return;
+    }
     AppSnackbar.showSnackbarWithAction(
         scaffoldKey: _scaffoldKey,
         message: 'Delivery Note Accepted',
@@ -483,6 +499,14 @@ class _DashboardState extends State<Dashboard>
   onInvoiceAcceptance(InvoiceAcceptance ia) {
     prettyPrint(ia.toJson(), '_DashboardState.onInvoiceAcceptance');
     invoiceAcceptance = ia;
+    var now = DateTime.now();
+    var date = DateTime.parse(ia.date);
+    var difference = now.difference(date);
+    if (difference.inHours > 1) {
+      print(
+          '_InvoiceListState.onInvoiceBid -  IGNORED: older than 1 hours  --------bid done  ${difference.inHours} hours ago.');
+      return;
+    }
     AppSnackbar.showSnackbarWithAction(
         scaffoldKey: _scaffoldKey,
         message: 'Invoice Accepted: ${ia.invoiceNumber}',
@@ -498,6 +522,14 @@ class _DashboardState extends State<Dashboard>
   @override
   onInvoiceBid(InvoiceBid bid) {
     prettyPrint(bid.toJson(), '_DashboardState.onInvoiceAcceptance');
+    var now = DateTime.now();
+    var date = DateTime.parse(bid.date);
+    var difference = now.difference(date);
+    if (difference.inHours > 1) {
+      print(
+          '.onInvoiceBid -  IGNORED: older than 1 hours  --------bid done  ${difference.inHours} hours ago.');
+      return;
+    }
     invoiceBid = bid;
     AppSnackbar.showSnackbarWithAction(
         scaffoldKey: _scaffoldKey,
