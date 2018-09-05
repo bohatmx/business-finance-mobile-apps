@@ -6,6 +6,7 @@ import 'package:businesslibrary/data/bank.dart';
 import 'package:businesslibrary/data/company.dart';
 import 'package:businesslibrary/data/govt_entity.dart';
 import 'package:businesslibrary/data/investor.dart';
+import 'package:businesslibrary/data/investor_profile.dart';
 import 'package:businesslibrary/data/oneconnect.dart';
 import 'package:businesslibrary/data/procurement_office.dart';
 import 'package:businesslibrary/data/supplier.dart';
@@ -90,6 +91,32 @@ class SharedPrefs {
 //    prettyPrint(jx, 'GovtEntity from cache: ');
     GovtEntity govtEntity = new GovtEntity.fromJson(jx);
     return govtEntity;
+  }
+
+  static Future saveInvestorProfile(InvestorProfile profile) async {
+    print('SharedPrefs.saveInvestorProfile  saving data ........');
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    Map jsonx = profile.toJson();
+    var jx = json.encode(jsonx);
+    print(jx);
+    prefs.setString('profile', jx);
+    //prefs.commit();
+    print("SharedPrefs.saveInvestorProfile =========  data SAVED.........");
+  }
+
+  static Future<InvestorProfile> getInvestorProfile() async {
+    print(
+        "SharedPrefs.getInvestorProfile =========  getting cached data.........");
+    var prefs = await SharedPreferences.getInstance();
+    var string = prefs.getString('profile');
+    if (string == null) {
+      return null;
+    }
+    var jx = json.decode(string);
+//    prettyPrint(jx, 'InvestorProfile from cache: ');
+    InvestorProfile investorProfile = InvestorProfile.fromJson(jx);
+    return investorProfile;
   }
 
   static Future saveCompany(Company company) async {
@@ -230,10 +257,12 @@ class SharedPrefs {
     var prefs = await SharedPreferences.getInstance();
     var string = prefs.getString('investor');
     if (string == null) {
+      print('SharedPrefs.getInvestor  --------------- NO Investor here!');
       return null;
     }
+
     var jx = json.decode(string);
-//    prettyPrint(jx, 'Investor from cache: ');
+    prettyPrint(jx, 'Investor from cache: ');
     Investor investor = new Investor.fromJson(jx);
     return investor;
   }

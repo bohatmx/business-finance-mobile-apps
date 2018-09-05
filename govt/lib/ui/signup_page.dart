@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:businesslibrary/api/data_api.dart';
+import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/api/signup.dart';
 import 'package:businesslibrary/data/delivery_acceptance.dart';
@@ -12,6 +14,7 @@ import 'package:businesslibrary/data/invoice_settlement.dart';
 import 'package:businesslibrary/data/misc_data.dart';
 import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
+import 'package:businesslibrary/data/sector.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/data/wallet.dart';
 import 'package:businesslibrary/util/lookups.dart';
@@ -54,6 +57,7 @@ class _SignUpPageState extends State<SignUpPage>
     super.initState();
     configureMessaging(this);
     _debug();
+    _checkSectors();
   }
 
   _debug() {
@@ -77,6 +81,16 @@ class _SignUpPageState extends State<SignUpPage>
     );
     setState(() {});
   }
+
+  void _checkSectors() async {
+    sectors = await ListAPI.getSectors();
+    if (sectors.isEmpty) {
+      var api = DataAPI(getURL());
+      api.addSectors();
+    }
+  }
+
+  List<Sector> sectors;
 
   var style = TextStyle(
       fontWeight: FontWeight.bold, color: Colors.black, fontSize: 20.0);

@@ -1,5 +1,7 @@
 import 'dart:math';
 
+import 'package:businesslibrary/api/data_api.dart';
+import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/api/signup.dart';
 import 'package:businesslibrary/data/delivery_acceptance.dart';
@@ -10,6 +12,7 @@ import 'package:businesslibrary/data/invoice_bid.dart';
 import 'package:businesslibrary/data/invoice_settlement.dart';
 import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
+import 'package:businesslibrary/data/sector.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/data/wallet.dart';
 import 'package:businesslibrary/util/lookups.dart';
@@ -48,6 +51,7 @@ class _SignUpPageState extends State<SignUpPage>
     super.initState();
     _debug();
     configureMessaging(this);
+    _checkSectors();
   }
 
   _debug() {
@@ -218,7 +222,7 @@ class _SignUpPageState extends State<SignUpPage>
                     child: RaisedButton(
                       elevation: 8.0,
                       color: Theme.of(context).accentColor,
-                      onPressed: _onSavePressed,
+                      onPressed: _onSubmit,
                       child: new Padding(
                         padding: const EdgeInsets.all(12.0),
                         child: Text(
@@ -237,7 +241,7 @@ class _SignUpPageState extends State<SignUpPage>
     );
   }
 
-  void _onSavePressed() async {
+  void _onSubmit() async {
     final form = _formKey.currentState;
     if (form.validate()) {
       form.save();
@@ -336,6 +340,16 @@ class _SignUpPageState extends State<SignUpPage>
         break;
     }
   }
+
+  void _checkSectors() async {
+    sectors = await ListAPI.getSectors();
+    if (sectors.isEmpty) {
+      var api = DataAPI(getURL());
+      api.addSectors();
+    }
+  }
+
+  List<Sector> sectors;
 
   void exit() {
     Navigator.pop(context);

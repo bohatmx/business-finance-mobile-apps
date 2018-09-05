@@ -11,6 +11,7 @@ import 'package:businesslibrary/data/delivery_acceptance.dart';
 import 'package:businesslibrary/data/delivery_note.dart';
 import 'package:businesslibrary/data/govt_entity.dart';
 import 'package:businesslibrary/data/investor.dart';
+import 'package:businesslibrary/data/investor_profile.dart';
 import 'package:businesslibrary/data/invoice.dart';
 import 'package:businesslibrary/data/invoice_acceptance.dart';
 import 'package:businesslibrary/data/invoice_bid.dart';
@@ -21,6 +22,7 @@ import 'package:businesslibrary/data/offerCancellation.dart';
 import 'package:businesslibrary/data/oneconnect.dart';
 import 'package:businesslibrary/data/procurement_office.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
+import 'package:businesslibrary/data/sector.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/supplier_contract.dart';
 import 'package:businesslibrary/data/user.dart';
@@ -59,6 +61,8 @@ class DataAPI {
       MAKE_INVESTOR_SETTLEMENT = 'MakeInvestorInvoiceSettlement',
       MAKE_COMPANY_SETTLEMENT = 'MakeCompanyInvoiceSettlement',
       MAKE_GOVT_SETTLEMENT = 'MakeGovtInvoiceSettlement',
+      INVESTOR__PROFILE = 'InvestorProfile',
+      SECTOR = 'Sector',
       INVESTOR = 'Investor';
   static const ErrorFirestore = 1, ErrorBlockchain = 2, Success = 0;
 
@@ -146,9 +150,96 @@ class DataAPI {
     }
   }
 
-  /// Stellar wallet already in firestore? YES.
-  /// object should contain valid Stellar public key
-  ///
+  Future<String> addSectors() async {
+    await addSector(Sector(sectorId: getKey(), sectorName: 'Public Sector'));
+    await addSector(Sector(sectorId: getKey(), sectorName: 'Automotive'));
+    await addSector(Sector(sectorId: getKey(), sectorName: 'Construction'));
+    await addSector(Sector(sectorId: getKey(), sectorName: 'Engineering'));
+    await addSector(Sector(sectorId: getKey(), sectorName: 'Retail'));
+    await addSector(Sector(sectorId: getKey(), sectorName: 'Home Services'));
+    await addSector(Sector(sectorId: getKey(), sectorName: 'Transport'));
+    await addSector(Sector(sectorId: getKey(), sectorName: 'Logistics'));
+    await addSector(Sector(sectorId: getKey(), sectorName: 'Services'));
+    await addSector(Sector(sectorId: getKey(), sectorName: 'Agricultural'));
+    await addSector(Sector(sectorId: getKey(), sectorName: 'Real Estate'));
+    await addSector(Sector(sectorId: getKey(), sectorName: 'Technology'));
+  }
+
+  Future<String> addSector(Sector sector) async {
+    sector.sectorId = getKey();
+    print('DataAPI.addSector %%%%%%%% url: ${url + SECTOR}');
+    prettyPrint(sector.toJson(), 'adding sector to BFN blockchain');
+
+    try {
+      var httpClient = new HttpClient();
+      HttpClientRequest mRequest =
+          await httpClient.postUrl(Uri.parse(url + SECTOR));
+      mRequest.headers.contentType = _contentType;
+      mRequest.write(json.encode(sector.toJson()));
+      HttpClientResponse mResponse = await mRequest.close();
+      print(
+          'DataAPI.addSector blockchain response status code:  ${mResponse.statusCode}');
+      if (mResponse.statusCode == 200) {
+        var ref = _firestore
+            .collection('sectors')
+            .add(sector.toJson())
+            .catchError((e) {
+          print('DataAPI.addSector ERROR $e');
+        });
+        print('DataAPI.addSector sector added ${sector.toJson()}');
+        return sector.sectorId;
+      } else {
+        mResponse.transform(utf8.decoder).listen((contents) {
+          print('DataAPI.addSector  $contents');
+        });
+        print('DataAPI.addSector ERROR  ${mResponse.reasonPhrase}');
+        return "0";
+      }
+    } catch (e) {
+      print('DataAPI.addSector ERROR $e');
+      return '0';
+    }
+  }
+
+  Future<String> addInvestorProfile(InvestorProfile profile) async {
+    profile.profileId = getKey();
+    profile.date = DateTime.now().toIso8601String();
+    print('DataAPI.addSector %%%%%%%% url: ${url + INVESTOR__PROFILE}');
+    prettyPrint(profile.toJson(),
+        '########################## adding addInvestorProfile to BFN blockchain');
+
+    try {
+      var httpClient = new HttpClient();
+      HttpClientRequest mRequest =
+          await httpClient.postUrl(Uri.parse(url + INVESTOR__PROFILE));
+      mRequest.headers.contentType = _contentType;
+      mRequest.write(json.encode(profile.toJson()));
+      HttpClientResponse mResponse = await mRequest.close();
+      print(
+          'DataAPI.addInvestorProfile blockchain response status code:  ${mResponse.statusCode}');
+      if (mResponse.statusCode == 200) {
+        var ref = await _firestore
+            .collection('investorProfiles')
+            .add(profile.toJson())
+            .catchError((e) {
+          print('DataAPI.addInvestorProfile ERROR $e');
+        });
+        print('DataAPI.addInvestorProfile sector added ${ref.path}');
+        SharedPrefs.saveInvestorProfile(profile);
+        return profile.profileId;
+      } else {
+        mResponse.transform(utf8.decoder).listen((contents) {
+          print('DataAPI.addInvestorProfile  $contents');
+        });
+        print('DataAPI.addInvestorProfile ERROR  ${mResponse.reasonPhrase}');
+        return "0";
+      }
+    } catch (e) {
+      print('DataAPI.addInvestorProfile ERROR $e');
+      return '0';
+    }
+  }
+
   Future<String> addWallet(Wallet wallet) async {
     print('DataAPI.addWallet %%%%%%%% url: ${url + WALLET}');
     prettyPrint(wallet.toJson(), 'adding wallet to BFN blockcahain');
@@ -167,8 +258,6 @@ class DataAPI {
       print(
           'DataAPI.addWallet blockchain response status code:  ${mResponse.statusCode}');
       if (mResponse.statusCode == 200) {
-        prettyPrint(
-            wallet.toJson(), 'addWallet - WALLET on blockchain. Yay! ######');
         return wallet.stellarPublicKey;
       } else {
         mResponse.transform(utf8.decoder).listen((contents) {
@@ -554,8 +643,7 @@ class DataAPI {
       mRequest.write(json.encode(purchaseOrder.toJson()));
       HttpClientResponse mResponse = await mRequest.close();
       print(
-          'DataAPI.registerPurchaseOrder blockchain response status code:  ${mResponse
-              .statusCode}');
+          'DataAPI.registerPurchaseOrder blockchain response status code:  ${mResponse.statusCode}');
       if (mResponse.statusCode == 200) {
         ///write govt or company po
         var ref = await _firestore
@@ -767,8 +855,7 @@ class DataAPI {
       mRequest.write(json.encode(invoice.toJson()));
       HttpClientResponse mResponse = await mRequest.close();
       print(
-          'DataAPI.registerInvoice blockchain response status code:  ${mResponse
-              .statusCode}');
+          'DataAPI.registerInvoice blockchain response status code:  ${mResponse.statusCode}');
       if (mResponse.statusCode == 200) {
         var ref = await _firestore
             .collection(collection)
@@ -1295,8 +1382,7 @@ class DataAPI {
       mRequest.write(mjson);
       HttpClientResponse mResponse = await mRequest.close();
       print(
-          'DataAPI.makeGovtInvoiceSettlement blockchain response status code:  ${mResponse
-              .statusCode}');
+          'DataAPI.makeGovtInvoiceSettlement blockchain response status code:  ${mResponse.statusCode}');
       if (mResponse.statusCode == 200) {
         var ref = await _firestore
             .collection('govtEntities')
@@ -1327,8 +1413,8 @@ class DataAPI {
         mResponse.transform(utf8.decoder).listen((contents) {
           print('DataAPI.makeGovtInvoiceSettlement ERROR  $contents');
         });
-        print('DataAPI.makeGovtInvoiceSettlement ERROR  ${mResponse
-                .reasonPhrase}');
+        print(
+            'DataAPI.makeGovtInvoiceSettlement ERROR  ${mResponse.reasonPhrase}');
         return '0';
       }
     } catch (e) {

@@ -1,9 +1,11 @@
 import 'dart:async';
 
+import 'package:businesslibrary/api/data_api.dart';
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/api/signin.dart';
 import 'package:businesslibrary/data/govt_entity.dart';
+import 'package:businesslibrary/data/sector.dart';
 import 'package:businesslibrary/data/wallet.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/util.dart';
@@ -32,6 +34,7 @@ class _SignInPageState extends State<SignInPage> implements SnackBarListener {
   void initState() {
     super.initState();
     _buildUserList();
+    _checkSectors();
   }
 
   void _buildUserList() async {
@@ -214,6 +217,15 @@ class _SignInPageState extends State<SignInPage> implements SnackBarListener {
     }
   }
 
+  void _checkSectors() async {
+    sectors = await ListAPI.getSectors();
+    if (sectors.isEmpty) {
+      var api = DataAPI(getURL());
+      api.addSectors();
+    }
+  }
+
+  List<Sector> sectors;
   Future _checkResult(int result) async {
     switch (result) {
       case SignIn.Success:

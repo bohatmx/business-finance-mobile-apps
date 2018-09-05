@@ -6,10 +6,12 @@ import 'package:businesslibrary/data/delivery_acceptance.dart';
 import 'package:businesslibrary/data/delivery_note.dart';
 import 'package:businesslibrary/data/govt_entity.dart';
 import 'package:businesslibrary/data/investor.dart';
+import 'package:businesslibrary/data/investor_profile.dart';
 import 'package:businesslibrary/data/invoice.dart';
 import 'package:businesslibrary/data/invoice_bid.dart';
 import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
+import 'package:businesslibrary/data/sector.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/supplier_contract.dart';
 import 'package:businesslibrary/data/user.dart';
@@ -885,6 +887,47 @@ class ListAPI {
 
     qs.documents.forEach((doc) {
       list.add(new PrivateSectorType.fromJson(doc.data));
+    });
+
+    return list;
+  }
+
+  static Future<List<InvestorProfile>> getProfile(String participantId) async {
+    List<InvestorProfile> list = List();
+    var qs = await _firestore
+        .collection('investorProfiles')
+        .where('investor',
+            isEqualTo: 'resource:com.oneconnect.biz.Investor#$participantId')
+        .getDocuments()
+        .catchError((e) {
+      print('ListAPI.getProfile $e');
+      return list;
+    });
+
+    print('ListAPI.getProfile found: ${qs.documents.length} ');
+
+    qs.documents.forEach((doc) {
+      list.add(new InvestorProfile.fromJson(doc.data));
+    });
+
+    return list;
+  }
+
+  static Future<List<Sector>> getSectors() async {
+    List<Sector> list = List();
+    var qs = await _firestore
+        .collection('sectors')
+        .orderBy('sectorName')
+        .getDocuments()
+        .catchError((e) {
+      print('ListAPI.getSectors $e');
+      return list;
+    });
+
+    print('ListAPI.getSectors found: ${qs.documents.length} ');
+
+    qs.documents.forEach((doc) {
+      list.add(new Sector.fromJson(doc.data));
     });
 
     return list;

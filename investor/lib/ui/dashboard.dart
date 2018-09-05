@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:businesslibrary/api/data_api.dart';
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/delivery_acceptance.dart';
@@ -9,6 +10,7 @@ import 'package:businesslibrary/data/invoice_bid.dart';
 import 'package:businesslibrary/data/invoice_settlement.dart';
 import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
+import 'package:businesslibrary/data/sector.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
@@ -20,6 +22,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:investor/ui/firestore_listener.dart';
 import 'package:investor/ui/offer_list.dart';
+import 'package:investor/ui/profile.dart';
 
 class Dashboard extends StatefulWidget {
   @override
@@ -63,8 +66,18 @@ class _DashboardState extends State<Dashboard>
     _getCachedPrefs();
 
     items = buildDaysDropDownItems();
+    _checkSectors();
   }
 
+  void _checkSectors() async {
+    sectors = await ListAPI.getSectors();
+    if (sectors.isEmpty) {
+      var api = DataAPI(getURL());
+      api.addSectors();
+    }
+  }
+
+  List<Sector> sectors;
   @override
   void dispose() {
     animationController.dispose();
@@ -169,12 +182,16 @@ class _DashboardState extends State<Dashboard>
         appBar: AppBar(
           elevation: 3.0,
           title: Text(
-            'BFN - Dashboard',
+            'BFN',
             style: TextStyle(fontWeight: FontWeight.normal),
           ),
           leading: Container(),
           bottom: _getBottom(),
           actions: <Widget>[
+            IconButton(
+              icon: Icon(Icons.account_circle),
+              onPressed: _onProfileRequested,
+            ),
             IconButton(
               icon: Icon(Icons.refresh),
               onPressed: _getSummaryData,
@@ -304,7 +321,7 @@ class _DashboardState extends State<Dashboard>
                   style: TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.w900,
-                    fontSize: 20.0,
+                    fontSize: 16.0,
                   ),
                 ),
               )
@@ -401,6 +418,14 @@ class _DashboardState extends State<Dashboard>
         listener: this,
         icon: Icons.message,
         action: OfferConstant);
+  }
+
+  void _onProfileRequested() {
+    print('_DashboardState._onProfileRequested');
+    Navigator.push(
+      context,
+      new MaterialPageRoute(builder: (context) => new ProfilePage()),
+    );
   }
 }
 

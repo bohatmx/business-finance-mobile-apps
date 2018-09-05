@@ -8,7 +8,7 @@ class Styles {
   );
   static TextStyle greyLabelMedium = TextStyle(
     fontWeight: FontWeight.bold,
-    fontSize: 16.0,
+    fontSize: 20.0,
     color: Colors.grey,
   );
   static TextStyle greyLabelLarge = TextStyle(
@@ -23,12 +23,12 @@ class Styles {
   );
   static TextStyle yellowBoldMedium = TextStyle(
     fontWeight: FontWeight.bold,
-    fontSize: 16.0,
+    fontSize: 20.0,
     color: Colors.yellow,
   );
   static TextStyle yellowMedium = TextStyle(
     fontWeight: FontWeight.normal,
-    fontSize: 16.0,
+    fontSize: 20.0,
     color: Colors.yellow,
   );
   static TextStyle yellowBoldLarge = TextStyle(
@@ -59,12 +59,12 @@ class Styles {
   );
   static TextStyle blackBoldMedium = TextStyle(
     fontWeight: FontWeight.bold,
-    fontSize: 16.0,
+    fontSize: 20.0,
     color: Colors.black,
   );
   static TextStyle blackMedium = TextStyle(
     fontWeight: FontWeight.normal,
-    fontSize: 16.0,
+    fontSize: 20.0,
     color: Colors.black,
   );
   static TextStyle blackBoldLarge = TextStyle(
@@ -96,12 +96,12 @@ class Styles {
   );
   static TextStyle pinkBoldMedium = TextStyle(
     fontWeight: FontWeight.bold,
-    fontSize: 16.0,
+    fontSize: 20.0,
     color: Colors.pink,
   );
   static TextStyle pinkMedium = TextStyle(
     fontWeight: FontWeight.normal,
-    fontSize: 16.0,
+    fontSize: 20.0,
     color: Colors.pink,
   );
   static TextStyle pinkBoldLarge = TextStyle(
@@ -132,12 +132,12 @@ class Styles {
   );
   static TextStyle purpleBoldMedium = TextStyle(
     fontWeight: FontWeight.bold,
-    fontSize: 16.0,
+    fontSize: 20.0,
     color: Colors.purple,
   );
   static TextStyle purpleMedium = TextStyle(
     fontWeight: FontWeight.normal,
-    fontSize: 16.0,
+    fontSize: 20.0,
     color: Colors.purple,
   );
   static TextStyle purpleBoldLarge = TextStyle(
@@ -168,12 +168,12 @@ class Styles {
   );
   static TextStyle blueBoldMedium = TextStyle(
     fontWeight: FontWeight.bold,
-    fontSize: 16.0,
+    fontSize: 20.0,
     color: Colors.blue,
   );
   static TextStyle blueMedium = TextStyle(
     fontWeight: FontWeight.normal,
-    fontSize: 16.0,
+    fontSize: 20.0,
     color: Colors.blue,
   );
   static TextStyle blueBoldLarge = TextStyle(
@@ -204,12 +204,12 @@ class Styles {
   );
   static TextStyle brownBoldMedium = TextStyle(
     fontWeight: FontWeight.bold,
-    fontSize: 16.0,
+    fontSize: 20.0,
     color: Colors.brown,
   );
   static TextStyle brownMedium = TextStyle(
     fontWeight: FontWeight.normal,
-    fontSize: 16.0,
+    fontSize: 20.0,
     color: Colors.brown,
   );
   static TextStyle brownBoldLarge = TextStyle(
@@ -240,12 +240,12 @@ class Styles {
   );
   static TextStyle whiteBoldMedium = TextStyle(
     fontWeight: FontWeight.bold,
-    fontSize: 16.0,
+    fontSize: 20.0,
     color: Colors.white,
   );
   static TextStyle whiteMedium = TextStyle(
     fontWeight: FontWeight.normal,
-    fontSize: 16.0,
+    fontSize: 20.0,
     color: Colors.white,
   );
   static TextStyle whiteBoldLarge = TextStyle(
@@ -276,12 +276,12 @@ class Styles {
   );
   static TextStyle tealBoldMedium = TextStyle(
     fontWeight: FontWeight.bold,
-    fontSize: 16.0,
+    fontSize: 20.0,
     color: Colors.teal,
   );
   static TextStyle tealMedium = TextStyle(
     fontWeight: FontWeight.normal,
-    fontSize: 16.0,
+    fontSize: 20.0,
     color: Colors.teal,
   );
   static TextStyle tealBoldLarge = TextStyle(

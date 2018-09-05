@@ -29,10 +29,12 @@ class InvestorProfile {
     this.investor = data['investor'];
     this.sectors = data['sectors'];
     this.investor = data['investor'];
+    this.date = data['date'];
   }
   Map<String, dynamic> toJson() => <String, dynamic>{
         'profileId': profileId,
         'name': name,
+        'date': date,
         'maxInvestableAmount': maxInvestableAmount,
         'cellphone': cellphone,
         'maxInvoiceAmount': maxInvoiceAmount,

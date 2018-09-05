@@ -2,6 +2,7 @@ class Sector {
   String sectorId, sectorName, description;
 
   Sector({this.sectorId, this.sectorName, this.description});
+
   Sector.fromJson(Map data) {
     this.sectorId = data['sectorId'];
     this.sectorName = data['sectorName'];

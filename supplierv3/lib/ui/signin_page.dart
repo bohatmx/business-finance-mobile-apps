@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:businesslibrary/api/data_api.dart';
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/api/signin.dart';
@@ -8,6 +9,7 @@ import 'package:businesslibrary/data/bank.dart';
 import 'package:businesslibrary/data/govt_entity.dart';
 import 'package:businesslibrary/data/investor.dart';
 import 'package:businesslibrary/data/procurement_office.dart';
+import 'package:businesslibrary/data/sector.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/wallet.dart';
 import 'package:businesslibrary/util/lookups.dart';
@@ -45,8 +47,18 @@ class _SignInPageState extends State<SignInPage> implements SnackBarListener {
     if (isDebug) {
       _buildUserList();
     }
+    _checkSectors();
   }
 
+  void _checkSectors() async {
+    sectors = await ListAPI.getSectors();
+    if (sectors.isEmpty) {
+      var api = DataAPI(getURL());
+      api.addSectors();
+    }
+  }
+
+  List<Sector> sectors;
   var sectorType;
   Widget _getPreferredSize() {
     return PreferredSize(
