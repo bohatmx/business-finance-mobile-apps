@@ -261,29 +261,26 @@ class SupplierCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Card(
-        elevation: 2.0,
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Row(
-            children: <Widget>[
-              Icon(
-                Icons.apps,
-                color: getRandomColor(),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(left: 8.0),
-                child: Text(
-                  supplier.name,
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                  ),
+    return Card(
+      elevation: 2.0,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Row(
+          children: <Widget>[
+            Icon(
+              Icons.apps,
+              color: getRandomColor(),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 8.0),
+              child: Text(
+                supplier.name,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
                 ),
-              )
-            ],
-          ),
+              ),
+            )
+          ],
         ),
       ),
     );
@@ -293,7 +290,6 @@ class SupplierCard extends StatelessWidget {
 List<Color> _colors = List();
 Random _rand = Random(new DateTime.now().millisecondsSinceEpoch);
 Color getRandomColor() {
-  print('getRandomColor ..........');
   _colors.clear();
   _colors.add(Colors.blue);
   _colors.add(Colors.grey);

@@ -111,11 +111,12 @@ class SharedPrefs {
     var prefs = await SharedPreferences.getInstance();
     var string = prefs.getString('profile');
     if (string == null) {
+      print('SharedPrefs.getInvestorProfile is NULL');
       return null;
     }
     var jx = json.decode(string);
-//    prettyPrint(jx, 'InvestorProfile from cache: ');
-    InvestorProfile investorProfile = InvestorProfile.fromJson(jx);
+    prettyPrint(jx, 'InvestorProfile from cache: ');
+    var investorProfile = InvestorProfile.fromJson(jx);
     return investorProfile;
   }
 

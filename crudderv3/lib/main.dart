@@ -2,6 +2,9 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:businesslibrary/api/data_api.dart';
+import 'package:businesslibrary/api/signup.dart';
+import 'package:businesslibrary/data/supplier.dart';
+import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/util.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:crudderv3/theme_util.dart';
@@ -329,7 +332,7 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       backgroundColor: Colors.indigo.shade50,
       floatingActionButton: new FloatingActionButton(
-        onPressed: _cleanFirestoreUp,
+        onPressed: _generateSuppliers,
         tooltip: 'Generate Data',
         child: Text(
           'Start',
@@ -337,5 +340,172 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
+  }
+
+  static Future<int> _generateSuppliers() async {
+    print('Generator.generateSuppliers ............');
+    SignUp signUp = SignUp(getURL());
+    try {
+      Supplier e1 = new Supplier(
+        name: 'Mkhize Electrical',
+        email: 'info@mkhize.com',
+        country: 'South Africa',
+        privateSectorType: 'Engineering',
+      );
+      User u1 = new User(
+          firstName: 'David',
+          lastName: 'Mkhize',
+          password: 'pass123',
+          email: 'dmkhize@mkhize.com');
+      await signUp.signUpSupplier(e1, u1);
+
+      Supplier e2 = new Supplier(
+        name: 'Dlamini Contractors',
+        email: 'info@dlamini.com',
+        country: 'South Africa',
+        privateSectorType: 'Engineering',
+      );
+      User u2 = new User(
+          firstName: 'Moses',
+          lastName: 'Dlamini',
+          password: 'pass123',
+          email: 'ddlam@dlamini.com');
+      await signUp.signUpSupplier(e2, u2);
+
+      Supplier e5 = new Supplier(
+        name: 'TrebleX Engineering',
+        email: 'info@engineers.com',
+        country: 'South Africa',
+        privateSectorType: 'Engineering',
+      );
+      User u5 = new User(
+          firstName: 'Daniel',
+          lastName: 'Khoza',
+          password: 'pass123',
+          email: 'danielkk@engineers.com');
+      await signUp.signUpSupplier(e5, u5);
+
+      Supplier e6 = new Supplier(
+        name: 'DHH Transport Logistics',
+        email: 'info@dhhtransport.com',
+        country: 'South Africa',
+        privateSectorType: 'Engineering',
+      );
+      User u6 = new User(
+          firstName: 'Peter',
+          lastName: 'Johnson',
+          password: 'pass123',
+          email: 'petejohn@dhhtransport.com');
+      await signUp.signUpSupplier(e6, u6);
+
+      Supplier e7 = new Supplier(
+        name: 'FX Super Logistics',
+        email: 'info@fxtransport.com',
+        country: 'South Africa',
+        privateSectorType: 'Engineering',
+      );
+      User u7 = new User(
+          firstName: 'Samuel',
+          lastName: 'Mathebula',
+          password: 'pass123',
+          email: 'sam@dhhtransport.com');
+      await signUp.signUpSupplier(e7, u7);
+
+      Supplier e8 = new Supplier(
+        name: 'Davids Rolling Logistics',
+        email: 'info@dhhtransport.com',
+        country: 'South Africa',
+        privateSectorType: 'Engineering',
+      );
+      User u8 = new User(
+          firstName: 'Thomas',
+          lastName: 'Johnson',
+          password: 'pass123',
+          email: 'petejohn@dhhtransport.com');
+      await signUp.signUpSupplier(e8, u8);
+
+      Supplier e9 = new Supplier(
+        name: 'Pope Transport Logistics',
+        email: 'info@dhhtransport.com',
+        country: 'South Africa',
+        privateSectorType: 'Engineering',
+      );
+      User u9 = new User(
+          firstName: 'Daniel',
+          lastName: 'Johnson',
+          password: 'pass123',
+          email: 'petejohn@dhhtransport.com');
+      await signUp.signUpSupplier(e9, u9);
+
+      Supplier e10 = new Supplier(
+        name: 'Naidoo Transport Logistics',
+        email: 'info@dhhtransport.com',
+        country: 'South Africa',
+        privateSectorType: 'Engineering',
+      );
+      User u10 = new User(
+          firstName: 'Sithwell',
+          lastName: 'Johnson',
+          password: 'pass123',
+          email: 'petejohn@dhhtransport.com');
+      await signUp.signUpSupplier(e10, u10);
+
+      Supplier e11 = new Supplier(
+        name: 'Green Logistics',
+        email: 'info@dhhtransport.com',
+        country: 'South Africa',
+        privateSectorType: 'Engineering',
+      );
+      User u11 = new User(
+          firstName: 'Evelyn',
+          lastName: 'Johnson',
+          password: 'pass123',
+          email: 'eve@dhhtransport.com');
+      await signUp.signUpSupplier(e11, u11);
+
+      Supplier e12 = new Supplier(
+        name: 'Wendywood Transporters',
+        email: 'info@dhhtransport.com',
+        country: 'South Africa',
+        privateSectorType: 'Engineering',
+      );
+      User u12 = new User(
+          firstName: 'Mary',
+          lastName: 'Johnson',
+          password: 'pass123',
+          email: 'eve@dhhtransport.com');
+      await signUp.signUpSupplier(e12, u12);
+      Supplier e13 = new Supplier(
+        name: 'Xavier TTransport',
+        email: 'info@dhhtransport.com',
+        country: 'South Africa',
+        privateSectorType: 'Engineering',
+      );
+      User u13 = new User(
+          firstName: 'Xavier',
+          lastName: 'Johnson',
+          password: 'pass123',
+          email: 'eve@dhhtransport.com');
+      await signUp.signUpSupplier(e13, u13);
+
+      Supplier e14 = new Supplier(
+        name: 'Danielson Logistics',
+        email: 'info@dhhtransport.com',
+        country: 'South Africa',
+        privateSectorType: 'Engineering',
+      );
+      User u14 = new User(
+          firstName: 'dan',
+          lastName: 'Johnson',
+          password: 'pass123',
+          email: 'eve@dhhtransport.com');
+      await signUp.signUpSupplier(e14, u14);
+      print('Generator.generateSuppliers COMPLETED');
+    } catch (e) {
+      print('Generator.generateSuppliers ERROR $e');
+      return 1;
+    }
+
+    return 0;
   }
 }

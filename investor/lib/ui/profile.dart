@@ -9,6 +9,7 @@ import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:businesslibrary/util/util.dart';
 import 'package:flutter/material.dart';
+import 'package:investor/ui/supplier_list_page.dart';
 
 class ProfilePage extends StatefulWidget {
   @override
@@ -33,13 +34,25 @@ class _ProfilePageState extends State<ProfilePage> implements SnackBarListener {
   void _getCachedData() async {
     print('_ProfilePageState._getCachedData ................................');
     investor = await SharedPrefs.getInvestor();
-    profile = await SharedPrefs.getInvestorProfile();
 
-    //prettyPrint(investor.toJson(), 'investor from cache ................');
-    // print('_ProfilePageState._getCachedData ########################### ...');
     controller1.text = '1000.00';
-    controller1.text = '50.00';
+    controller2.text = '50.00';
     setState(() {});
+
+//    profile = await SharedPrefs.getInvestorProfile();
+    if (profile == null) {
+      AppSnackbar.showErrorSnackbar(
+          scaffoldKey: _scaffoldKey,
+          message: 'profile is null',
+          listener: this,
+          actionLabel: 'cloose');
+    } else {
+      AppSnackbar.showSnackbar(
+          scaffoldKey: _scaffoldKey,
+          message: 'profile fouund',
+          textColor: Styles.white,
+          backgroundColor: Styles.black);
+    }
   }
 
   void _getLookups() async {
@@ -307,7 +320,13 @@ class _ProfilePageState extends State<ProfilePage> implements SnackBarListener {
           ),
         ),
         _getSectorDropDown(),
-        _getSupplierDropDown(),
+        FlatButton(
+          onPressed: _onSuppliers,
+          child: Text(
+            'Manage Suppliers',
+            style: Styles.blueMedium,
+          ),
+        ),
         Padding(
           padding: const EdgeInsets.all(28.0),
           child: RaisedButton(
@@ -449,5 +468,12 @@ class _ProfilePageState extends State<ProfilePage> implements SnackBarListener {
     setState(() {});
     print(
         '_ProfilePageState._onDeleteSupplier - deleted supplier: ${supplier.toJson()}');
+  }
+
+  void _onSuppliers() {
+    Navigator.push(
+      context,
+      new MaterialPageRoute(builder: (context) => new SupplierListPage()),
+    );
   }
 }
