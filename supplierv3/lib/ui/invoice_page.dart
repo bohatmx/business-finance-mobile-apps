@@ -176,7 +176,8 @@ class _NewInvoicePageState extends State<NewInvoicePage>
 
   _getContracts() async {
     print('_NewInvoicePageState._getContracts ..........');
-    prettyPrint(deliveryAcceptance.toJson(), 'deliveryAcceptance:');
+    prettyPrint(
+        deliveryAcceptance.toJson(), '_getContracts: deliveryAcceptance:');
     if (!deliveryAcceptance.govtEntity.contains('resource')) {
       deliveryAcceptance.govtEntity =
           'resource:${deliveryAcceptance.govtEntity}';
@@ -188,9 +189,7 @@ class _NewInvoicePageState extends State<NewInvoicePage>
       contracts = await ListAPI.getSupplierCompanyContracts(
           supplier.documentReference, deliveryAcceptance.company);
     }
-    if (contracts.isNotEmpty) {
-      _buildContractsDropDown();
-    } else {
+    if (contracts.isEmpty) {
       AppSnackbar.showErrorSnackbar(
           scaffoldKey: _scaffoldKey,
           message: 'No contracts  on file',
@@ -200,7 +199,10 @@ class _NewInvoicePageState extends State<NewInvoicePage>
   }
 
   TextEditingController editingController = TextEditingController();
-  _buildContractsDropDown() {
+  Widget _buildContractsDropDown() {
+    if (contracts == null || contracts.isEmpty) {
+      return Container();
+    }
     contracts.forEach((c) {
       var item6 = DropdownMenuItem<String>(
         value: c.contractURL,
@@ -219,6 +221,22 @@ class _NewInvoicePageState extends State<NewInvoicePage>
       );
       items.add(item6);
     });
+    return DropdownButton<String>(
+      items: items,
+      onChanged: _onContractTapped,
+      elevation: 16,
+      hint: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Text(
+          'Supplier Contract',
+          style: TextStyle(
+            fontSize: 20.0,
+            fontWeight: FontWeight.bold,
+            color: Colors.blue,
+          ),
+        ),
+      ),
+    );
   }
 
   bool isSuccess = false;
@@ -273,22 +291,7 @@ class _NewInvoicePageState extends State<NewInvoicePage>
                   const EdgeInsets.only(left: 10.0, right: 10.0, bottom: 10.0),
               child: ListView(
                 children: <Widget>[
-                  DropdownButton<String>(
-                    items: items,
-                    onChanged: _onContractTapped,
-                    elevation: 16,
-                    hint: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Text(
-                        'Supplier Contract',
-                        style: TextStyle(
-                          fontSize: 20.0,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.blue,
-                        ),
-                      ),
-                    ),
-                  ),
+                  _buildContractsDropDown(),
                   Padding(
                     padding: const EdgeInsets.only(left: 20.0),
                     child: Text(

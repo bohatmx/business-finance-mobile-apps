@@ -287,7 +287,8 @@ class _MakeOfferPageState extends State<MakeOfferPage>
         supplierDocumentRef: supplier.documentReference,
         supplierName: supplier.name,
         invoiceDocumentRef: invoice.documentReference,
-        privateSectorType: supplier.privateSectorType);
+        sector: supplier.sector,
+        sectorName: supplier.sectorName);
 
     print(
         '_MakeOfferPageState._submitOffer about to open snackbar ===================>');

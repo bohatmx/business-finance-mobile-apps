@@ -208,6 +208,7 @@ class DataAPI {
   Future<String> addAutoTradeOrder(AutoTradeOrder order) async {
     order.autoTradeOrderId = getKey();
     order.date = DateTime.now().toIso8601String();
+    order.isCancelled = false;
     print('DataAPI.addAutoTradeOrder %%%%%%%% url: ${url + AUTO_TRADE_ORDER}');
     prettyPrint(order.toJson(),
         '########################## adding addAutoTradeOrder to BFN blockchain');
@@ -1274,6 +1275,8 @@ class DataAPI {
   Future<String> makeOffer(Offer offer) async {
     offer.offerId = getKey();
     offer.date = new DateTime.now().toIso8601String();
+    offer.isOpen = true;
+    offer.isCancelled = false;
 
     var supplierId = offer.supplier.split('#').elementAt(1);
     var invoiceId = offer.invoice.split('#').elementAt(1);
@@ -1353,6 +1356,7 @@ class DataAPI {
 
     bid.invoiceBidId = getKey();
     bid.date = new DateTime.now().toIso8601String();
+    bid.isSettled = false;
 
     print('DataAPI.makeInvoiceBid ${url + MAKE_INVOICE_BID}');
     try {
@@ -1691,6 +1695,7 @@ class DataAPI {
         if (qs.documents.isNotEmpty) {
           var offer = Offer.fromJson(qs.documents.first.data);
           offer.isCancelled = true;
+          offer.isOpen = false;
           offer.offerCancellation =
               'resource:com.oneconnect.biz.OfferCancellation#${cancellation.cancellationId}';
           await _firestore

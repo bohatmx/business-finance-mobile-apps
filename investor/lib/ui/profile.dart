@@ -5,7 +5,6 @@ import 'package:businesslibrary/data/investor.dart';
 import 'package:businesslibrary/data/investor_profile.dart';
 import 'package:businesslibrary/data/sector.dart';
 import 'package:businesslibrary/data/supplier.dart';
-import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:businesslibrary/util/util.dart';
@@ -30,9 +29,10 @@ class _ProfilePageState extends State<ProfilePage> implements SnackBarListener {
   @override
   initState() {
     super.initState();
-    _getLookups();
+    _getCachedData();
   }
 
+  int numberOfSuppliers = 0, numberOfSectors = 0;
   void _getCachedData() async {
     print('_ProfilePageState._getCachedData ................................');
     investor = await SharedPrefs.getInvestor();
@@ -43,25 +43,26 @@ class _ProfilePageState extends State<ProfilePage> implements SnackBarListener {
           scaffoldKey: _scaffoldKey,
           message: 'Profile does not exist',
           listener: this,
-          actionLabel: 'cloose');
+          actionLabel: 'close');
     } else {
-      controllerMaxInvestable.text =
-          getFormattedAmount('${profile.maxInvestableAmount}', context);
-      controllerMaxInvoice.text =
-          getFormattedAmount('${profile.maxInvoiceAmount}', context);
+      controllerMaxInvestable.text = '${profile.maxInvestableAmount}';
+      controllerMaxInvoice.text = '${profile.maxInvoiceAmount}';
       maxInvestableAmount = profile.maxInvestableAmount;
       maxInvoiceAmount = profile.maxInvoiceAmount;
+      if (profile.suppliers != null) {
+        numberOfSuppliers = profile.suppliers.length;
+      }
+      if (profile.sectors != null) {
+        numberOfSectors = profile.sectors.length;
+      }
+
       setState(() {});
       AppSnackbar.showSnackbar(
           scaffoldKey: _scaffoldKey,
-          message: 'profile fouund',
-          textColor: Styles.white,
+          message: 'Profile found',
+          textColor: Styles.lightGreen,
           backgroundColor: Styles.black);
     }
-  }
-
-  void _getLookups() async {
-    _getCachedData();
   }
 
   @override
@@ -78,7 +79,12 @@ class _ProfilePageState extends State<ProfilePage> implements SnackBarListener {
     }
   }
 
-  _showAutoTradeDialog() {
+  _showAutoTradeDialog() async {
+    var order = await SharedPrefs.getAutoTradeOrder();
+    if (order != null) {
+      Navigator.pop(context);
+      return;
+    }
     showDialog(
         context: context,
         builder: (_) => new AlertDialog(
@@ -120,6 +126,7 @@ class _ProfilePageState extends State<ProfilePage> implements SnackBarListener {
   }
 
   _onSubmit() async {
+    print('_ProfilePageState._onSubmit ........................');
     if (controllerMaxInvestable.text.isEmpty) {
       AppSnackbar.showErrorSnackbar(
           scaffoldKey: _scaffoldKey,
@@ -143,20 +150,30 @@ class _ProfilePageState extends State<ProfilePage> implements SnackBarListener {
             'resource:com.oneconnect.biz.Investor#${investor.participantId}',
       );
     }
-    profile.maxInvestableAmount = double.parse(controllerMaxInvestable.text);
-    profile.maxInvoiceAmount = double.parse(controllerMaxInvoice.text);
+    try {
+      profile.maxInvestableAmount = double.parse(controllerMaxInvestable.text);
+      profile.maxInvoiceAmount = double.parse(controllerMaxInvoice.text);
+    } catch (e) {
+      print('_ProfilePageState._onSubmit $e');
+    }
     List<String> sectorStrings = List();
-    selectedSectors.forEach((sec) {
-      sectorStrings.add('resource:com.oneconnect.biz.Sector#${sec.sectorId}');
-    });
+
+    if (selectedSectors != null) {
+      selectedSectors.forEach((sec) {
+        sectorStrings.add('resource:com.oneconnect.biz.Sector#${sec.sectorId}');
+      });
+      profile.sectors = sectorStrings;
+    }
 
     List<String> suppStrings = List();
-    selectedSuppliers.forEach((sec) {
-      suppStrings
-          .add('resource:com.oneconnect.biz.Supplier#${sec.participantId}');
-    });
-    profile.sectors = sectorStrings;
-    profile.suppliers = suppStrings;
+    if (selectedSuppliers != null) {
+      selectedSuppliers.forEach((sec) {
+        suppStrings
+            .add('resource:com.oneconnect.biz.Supplier#${sec.participantId}');
+      });
+      profile.suppliers = suppStrings;
+    }
+
     var api = DataAPI(getURL());
     AppSnackbar.showSnackbarWithProgressIndicator(
         scaffoldKey: _scaffoldKey,
@@ -254,7 +271,9 @@ class _ProfilePageState extends State<ProfilePage> implements SnackBarListener {
             Padding(
               padding: const EdgeInsets.only(left: 8.0),
               child: Text(
-                selectedSectors == null ? '0' : '${selectedSectors.length}',
+                selectedSectors == null
+                    ? '$numberOfSectors'
+                    : '${selectedSectors.length}',
                 style: Styles.tealBoldReallyLarge,
               ),
             ),
@@ -276,7 +295,9 @@ class _ProfilePageState extends State<ProfilePage> implements SnackBarListener {
             Padding(
               padding: const EdgeInsets.only(left: 8.0),
               child: Text(
-                selectedSuppliers == null ? '0' : '${selectedSuppliers.length}',
+                selectedSuppliers == null
+                    ? '$numberOfSuppliers'
+                    : '${selectedSuppliers.length}',
                 style: Styles.pinkBoldReallyLarge,
               ),
             ),
@@ -290,8 +311,8 @@ class _ProfilePageState extends State<ProfilePage> implements SnackBarListener {
           padding: const EdgeInsets.all(28.0),
           child: RaisedButton(
             onPressed: _onSubmit,
-            elevation: 8.0,
-            color: profile.profileId == null ? Styles.pink : Styles.blue,
+            elevation: 16.0,
+            color: profile.profileId == null ? Styles.pink : Styles.purple,
             child: Padding(
               padding: const EdgeInsets.all(10.0),
               child: Text(
@@ -334,103 +355,8 @@ class _ProfilePageState extends State<ProfilePage> implements SnackBarListener {
     );
   }
 
-  List<Supplier> selectedSuppliers = List();
-  List<Sector> selectedSectors = List();
-
-  void _onSupplierSelected(Supplier value) {
-    print('_ProfilePageState._onSupplierSelected selected: ${value.toJson()}');
-
-    print('Suppliers selected: ${selectedSuppliers.length}');
-    setState(() {
-      selectedSuppliers.add(value);
-    });
-  }
-
-  void _onSectorSelected(Sector value) {
-    print('_ProfilePageState._onSectorSelected selected: ${value.toJson()}');
-
-    print('Sector selected: ${selectedSectors.length}');
-    setState(() {
-      selectedSectors.add(value);
-    });
-  }
-
-  _showSelectedSectors() {
-    if (selectedSectors.isEmpty) return;
-    showDialog(
-        context: context,
-        builder: (_) => new AlertDialog(
-              title: new Text(
-                "Tap to Remove Sector",
-                style: Styles.greyLabelMedium,
-              ),
-              content: Container(
-                height: 200.0,
-                child: ListView.builder(
-                    itemCount:
-                        selectedSectors == null ? 0 : selectedSectors.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      return new InkWell(
-                        onTap: () {
-                          _onDeleteSector(selectedSectors.elementAt(index));
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.all(12.0),
-                          child: Text(
-                              '${selectedSectors.elementAt(index).sectorName}'),
-                        ),
-                      );
-                    }),
-              ),
-            ));
-  }
-
-  _showSelectedSuppliers() {
-    if (selectedSuppliers.isEmpty) return;
-    showDialog(
-        context: context,
-        builder: (_) => new AlertDialog(
-              title: new Text(
-                "Tap to Remove Supplier",
-                style: Styles.greyLabelMedium,
-              ),
-              content: Container(
-                height: 200.0,
-                child: ListView.builder(
-                    itemCount: selectedSuppliers == null
-                        ? 0
-                        : selectedSuppliers.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      return new InkWell(
-                        onTap: () {
-                          _onDeleteSupplier(selectedSuppliers.elementAt(index));
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.all(12.0),
-                          child: Text(
-                              '${selectedSuppliers.elementAt(index).name}'),
-                        ),
-                      );
-                    }),
-              ),
-            ));
-  }
-
-  _onDeleteSector(Sector sec) {
-    selectedSectors.remove(sec);
-    Navigator.pop(context);
-    setState(() {});
-    print(
-        '_ProfilePageState._onDeleteSector - deleted sector: ${sec.toJson()}');
-  }
-
-  _onDeleteSupplier(Supplier supplier) {
-    selectedSuppliers.remove(supplier);
-    Navigator.pop(context);
-    setState(() {});
-    print(
-        '_ProfilePageState._onDeleteSupplier - deleted supplier: ${supplier.toJson()}');
-  }
+  List<Supplier> selectedSuppliers;
+  List<Sector> selectedSectors;
 
   void _goToSectorList() async {
     if (profile == null) {
@@ -491,13 +417,13 @@ class _ProfilePageState extends State<ProfilePage> implements SnackBarListener {
   void _onInvestableAmountChanged(String value) {
     maxInvestableAmount = double.parse(value);
     print(
-        '_ProfilePageState._onInvestableAmountChanged maxInvesttale: $maxInvestableAmount');
+        '_ProfilePageState._onInvestableAmountChanged maxInvestableAmount: $maxInvestableAmount');
   }
 
   void _onInvoiceAmountChanged(String value) {
     maxInvoiceAmount = double.parse(value);
     print(
-        '_ProfilePageState._onInvoiceAmountChanged maxInvoiice:  $maxInvoiceAmount');
+        '_ProfilePageState._onInvoiceAmountChanged maxInvoiceAmount:  $maxInvoiceAmount');
   }
 
   void _onNoAutoTrade() {

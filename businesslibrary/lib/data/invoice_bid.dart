@@ -9,6 +9,7 @@ class InvoiceBid {
   String investor, date, participantId;
   String user, documentReference, supplierId;
   String invoiceBidAcceptance, investorName;
+  bool isSettled;
 
   InvoiceBid(
       {this.invoiceBidId,
@@ -23,6 +24,7 @@ class InvoiceBid {
       this.investorName,
       this.date,
       this.wallet,
+      this.isSettled,
       this.supplierId,
       this.supplierFCMToken,
       this.participantId,
@@ -48,6 +50,7 @@ class InvoiceBid {
     this.wallet = data['wallet'];
     this.supplierId = data['supplierId'];
     this.date = data['date'];
+    this.isSettled = data['isSettled'];
   }
   Map<String, dynamic> toJson() => <String, dynamic>{
         'invoiceBidId': invoiceBidId,
@@ -67,5 +70,6 @@ class InvoiceBid {
         'investorName': investorName,
         'wallet': wallet,
         'supplierId': supplierId,
+        'isSettled': isSettled,
       };
 }

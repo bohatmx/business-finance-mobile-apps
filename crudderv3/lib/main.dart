@@ -44,8 +44,9 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
   }
 
-  void _cleanFirestoreUp() async {
+  void _start() async {
     await cleanUp();
+    await _generateSuppliers();
     setState(() {
       _counter++;
     });
@@ -270,6 +271,14 @@ class _MyHomePageState extends State<MyHomePage> {
       qs12.documents.forEach((doc) async {
         doc.reference.delete();
       });
+      var qs13 = await fs.collection('autoTradeOrders').getDocuments();
+      qs13.documents.forEach((doc) async {
+        doc.reference.delete();
+      });
+      var qs14 = await fs.collection('investorProfiles').getDocuments();
+      qs14.documents.forEach((doc) async {
+        doc.reference.delete();
+      });
 
       print(
           'Generator.cleanUp invoiceOffers and invoiceBids deleted from Firestore and FirebaseStorage ##############');
@@ -332,7 +341,7 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       backgroundColor: Colors.indigo.shade50,
       floatingActionButton: new FloatingActionButton(
-        onPressed: _generateSuppliers,
+        onPressed: _start,
         tooltip: 'Generate Data',
         child: Text(
           'Start',
@@ -342,7 +351,7 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  static Future<int> _generateSuppliers() async {
+  Future<int> _generateSuppliers() async {
     print('Generator.generateSuppliers ............');
     SignUp signUp = SignUp(getURL());
     try {
@@ -408,12 +417,12 @@ class _MyHomePageState extends State<MyHomePage> {
           firstName: 'Samuel',
           lastName: 'Mathebula',
           password: 'pass123',
-          email: 'sam@dhhtransport.com');
+          email: 'sam@fxtransport.com');
       await signUp.signUpSupplier(e7, u7);
 
       Supplier e8 = new Supplier(
         name: 'Davids Rolling Logistics',
-        email: 'info@dhhtransport.com',
+        email: 'info@rolliin.com',
         country: 'South Africa',
         privateSectorType: 'Engineering',
       );
@@ -421,12 +430,12 @@ class _MyHomePageState extends State<MyHomePage> {
           firstName: 'Thomas',
           lastName: 'Johnson',
           password: 'pass123',
-          email: 'petejohn@dhhtransport.com');
+          email: 'tom@rolliin.com');
       await signUp.signUpSupplier(e8, u8);
 
       Supplier e9 = new Supplier(
         name: 'Pope Transport Logistics',
-        email: 'info@dhhtransport.com',
+        email: 'info@pope.com',
         country: 'South Africa',
         privateSectorType: 'Engineering',
       );
@@ -434,12 +443,12 @@ class _MyHomePageState extends State<MyHomePage> {
           firstName: 'Daniel',
           lastName: 'Johnson',
           password: 'pass123',
-          email: 'petejohn@dhhtransport.com');
+          email: 'xman@pope.com');
       await signUp.signUpSupplier(e9, u9);
 
       Supplier e10 = new Supplier(
         name: 'Naidoo Transport Logistics',
-        email: 'info@dhhtransport.com',
+        email: 'info@naidoo.com',
         country: 'South Africa',
         privateSectorType: 'Engineering',
       );
@@ -447,12 +456,12 @@ class _MyHomePageState extends State<MyHomePage> {
           firstName: 'Sithwell',
           lastName: 'Johnson',
           password: 'pass123',
-          email: 'petejohn@dhhtransport.com');
+          email: 'pete@naidoo.com');
       await signUp.signUpSupplier(e10, u10);
 
       Supplier e11 = new Supplier(
         name: 'Green Logistics',
-        email: 'info@dhhtransport.com',
+        email: 'info@greenlogs.com',
         country: 'South Africa',
         privateSectorType: 'Engineering',
       );
@@ -460,12 +469,12 @@ class _MyHomePageState extends State<MyHomePage> {
           firstName: 'Evelyn',
           lastName: 'Johnson',
           password: 'pass123',
-          email: 'eve@dhhtransport.com');
+          email: 'eve@greenlogs.com');
       await signUp.signUpSupplier(e11, u11);
 
       Supplier e12 = new Supplier(
         name: 'Wendywood Transporters',
-        email: 'info@dhhtransport.com',
+        email: 'info@wendywood.com',
         country: 'South Africa',
         privateSectorType: 'Engineering',
       );
@@ -473,11 +482,11 @@ class _MyHomePageState extends State<MyHomePage> {
           firstName: 'Mary',
           lastName: 'Johnson',
           password: 'pass123',
-          email: 'eve@dhhtransport.com');
+          email: 'mary@wendywood.com');
       await signUp.signUpSupplier(e12, u12);
       Supplier e13 = new Supplier(
         name: 'Xavier TTransport',
-        email: 'info@dhhtransport.com',
+        email: 'info@xavier.com',
         country: 'South Africa',
         privateSectorType: 'Engineering',
       );
@@ -485,7 +494,7 @@ class _MyHomePageState extends State<MyHomePage> {
           firstName: 'Xavier',
           lastName: 'Johnson',
           password: 'pass123',
-          email: 'eve@dhhtransport.com');
+          email: 'xavier@xavier.com');
       await signUp.signUpSupplier(e13, u13);
 
       Supplier e14 = new Supplier(
@@ -498,7 +507,7 @@ class _MyHomePageState extends State<MyHomePage> {
           firstName: 'dan',
           lastName: 'Johnson',
           password: 'pass123',
-          email: 'eve@dhhtransport.com');
+          email: 'danj@logs.com');
       await signUp.signUpSupplier(e14, u14);
       print('Generator.generateSuppliers COMPLETED');
     } catch (e) {

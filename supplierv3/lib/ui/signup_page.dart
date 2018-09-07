@@ -1,7 +1,5 @@
 import 'dart:math';
 
-import 'package:businesslibrary/api/data_api.dart';
-import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/api/signup.dart';
 import 'package:businesslibrary/data/delivery_acceptance.dart';
@@ -45,33 +43,34 @@ class _SignUpPageState extends State<SignUpPage>
   final FirebaseMessaging _firebaseMessaging = new FirebaseMessaging();
   String participationId;
 
-  PrivateSectorType sectorType;
+  Sector sector;
   Country country;
+  TextEditingController ctrlName = TextEditingController();
+
   @override
   initState() {
     super.initState();
     _debug();
-    configureMessaging(this);
-    _checkSectors();
   }
 
-  _debug() {
+  _debug() async {
     if (isInDebugMode) {
       Random rand = new Random(new DateTime.now().millisecondsSinceEpoch);
-      var num = rand.nextInt(100);
-      name = 'Services Supplier$num Pty Ltd';
+      var num = rand.nextInt(1000);
+      name = 'Logistic Services $num';
       adminEmail = 'admin$num@supplier$num.co.za';
       email = 'sales$num@supplier$num.co.za';
-      firstName = 'William$num';
-      lastName = 'Johnson$num';
+      firstName = 'William $num';
+      lastName = 'Johnson';
       password = 'pass123';
       country = Country(name: 'South Africa', code: 'ZA');
-      sectorType = PrivateSectorType(type: 'Services');
+
+      setState(() {});
     }
   }
 
   _getSector() async {
-    sectorType = await Navigator.push(
+    sector = await Navigator.push(
       context,
       new MaterialPageRoute(builder: (context) => new SectorSelectorPage()),
     );
@@ -86,18 +85,11 @@ class _SignUpPageState extends State<SignUpPage>
     setState(() {});
   }
 
-  void _checkSectors() async {
-    sectors = await ListAPI.getSectors();
-    if (sectors.isEmpty) {
-      var api = DataAPI(getURL());
-      api.addSectors();
-    }
-  }
-
   List<Sector> sectors;
 
   var style = TextStyle(
       color: Colors.black, fontSize: 20.0, fontWeight: FontWeight.bold);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -115,13 +107,6 @@ class _SignUpPageState extends State<SignUpPage>
               padding: const EdgeInsets.all(20.0),
               child: ListView(
                 children: <Widget>[
-                  Text(
-                    'Organisation Details',
-                    style: TextStyle(
-                        color: Colors.grey,
-                        fontSize: 16.0,
-                        fontWeight: FontWeight.w900),
-                  ),
                   TextFormField(
                     initialValue: name == null ? '' : name,
                     style: style,
@@ -243,7 +228,7 @@ class _SignUpPageState extends State<SignUpPage>
                         ),
                       ),
                       Text(
-                        sectorType == null ? '' : sectorType.type,
+                        sector == null ? '' : sector.sectorName,
                         style: TextStyle(
                             fontSize: 20.0, fontWeight: FontWeight.w900),
                       ),
@@ -283,7 +268,8 @@ class _SignUpPageState extends State<SignUpPage>
         name: name,
         email: email,
         country: country.name,
-        privateSectorType: sectorType.type,
+        sector: 'resource:com.oneconnect.biz.Sector#${sector.sectorId}',
+        sectorName: sector.sectorName,
         dateRegistered: DateTime.now().toIso8601String(),
       );
       print('_SignUpPageState._onSavePressed ${supplier.toJson()}');

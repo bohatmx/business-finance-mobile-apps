@@ -12,6 +12,7 @@ import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
+import 'package:businesslibrary/util/styles.dart';
 import 'package:businesslibrary/util/util.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -73,6 +74,9 @@ class _InvoiceListState extends State<InvoiceList>
         textColor: Colors.white,
         backgroundColor: Colors.black);
 
+    totalOnOffer = '0.00';
+    totalOpen = '0.00';
+    totalSettled = '0.00';
     invoicesOpen = await ListAPI.getInvoicesOpenForOffers(
         supplier.documentReference, 'suppliers');
     invoicesOpen.sort((a, b) => b.date.compareTo(a.date));
@@ -191,11 +195,13 @@ class _InvoiceListState extends State<InvoiceList>
     return Column(
       children: <Widget>[
         Padding(
-          padding: const EdgeInsets.all(12.0),
+          padding: const EdgeInsets.only(left: 40.0, top: 20.0),
           child: Row(
             children: <Widget>[
               Padding(
-                padding: const EdgeInsets.only(right: 8.0),
+                padding: const EdgeInsets.only(
+                  right: 10.0,
+                ),
                 child: Text('Total Value'),
               ),
               Text(
@@ -216,11 +222,14 @@ class _InvoiceListState extends State<InvoiceList>
                   onTap: () {
                     _confirm(invoicesOnOffer.elementAt(index));
                   },
-                  child: InvoiceCard(
-                    invoice: invoicesOnOffer.elementAt(index),
-                    context: context,
-                    listener: this,
-                    type: OnOffer,
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: InvoiceCard(
+                      invoice: invoicesOnOffer.elementAt(index),
+                      context: context,
+                      listener: this,
+                      type: OnOffer,
+                    ),
                   ),
                 );
               }),
@@ -234,11 +243,11 @@ class _InvoiceListState extends State<InvoiceList>
     return Column(
       children: <Widget>[
         Padding(
-          padding: const EdgeInsets.all(12.0),
+          padding: const EdgeInsets.only(left: 40.0, top: 20.0),
           child: Row(
             children: <Widget>[
               Padding(
-                padding: const EdgeInsets.only(right: 8.0),
+                padding: const EdgeInsets.only(right: 8.0, left: 20.0),
                 child: Text('Total Value'),
               ),
               Text(
@@ -259,11 +268,14 @@ class _InvoiceListState extends State<InvoiceList>
                   onTap: () {
                     _confirm(invoicesOpen.elementAt(index));
                   },
-                  child: InvoiceCard(
-                    invoice: invoicesOpen.elementAt(index),
-                    context: context,
-                    listener: this,
-                    type: Open,
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: InvoiceCard(
+                      invoice: invoicesOpen.elementAt(index),
+                      context: context,
+                      listener: this,
+                      type: Open,
+                    ),
                   ),
                 );
               }),
@@ -277,7 +289,7 @@ class _InvoiceListState extends State<InvoiceList>
     return Column(
       children: <Widget>[
         Padding(
-          padding: const EdgeInsets.all(12.0),
+          padding: const EdgeInsets.only(left: 40.0, top: 20.0),
           child: Row(
             children: <Widget>[
               Padding(
@@ -299,11 +311,14 @@ class _InvoiceListState extends State<InvoiceList>
                   onTap: () {
                     _confirm(invoicesSettled.elementAt(index));
                   },
-                  child: InvoiceCard(
-                    invoice: invoicesSettled.elementAt(index),
-                    context: context,
-                    listener: this,
-                    type: Open,
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: InvoiceCard(
+                      invoice: invoicesSettled.elementAt(index),
+                      context: context,
+                      listener: this,
+                      type: Open,
+                    ),
                   ),
                 );
               }),
@@ -405,7 +420,24 @@ class _InvoiceListState extends State<InvoiceList>
   }
 
   Future _goMakeOffer(Invoice invoice) async {
+    //check for acceptance
+
+    if (invoice.invoiceAcceptance == null) {
+      AppSnackbar.showSnackbar(
+          scaffoldKey: _scaffoldKey,
+          message: 'The invoice has not been accepted yet',
+          textColor: Styles.yellow,
+          backgroundColor: Styles.black);
+      return;
+    }
+    AppSnackbar.showSnackbarWithProgressIndicator(
+        scaffoldKey: _scaffoldKey,
+        message: 'Checking ...',
+        textColor: Styles.white,
+        backgroundColor: Styles.black);
+
     var offX = await ListAPI.getOfferByInvoice(invoice.invoiceId);
+    _scaffoldKey.currentState.hideCurrentSnackBar();
     if (offX == null) {
       bool refresh = await Navigator.push(
         context,
@@ -569,6 +601,7 @@ class _InvoiceListState extends State<InvoiceList>
         message: 'Invoice accepted: ${getFormattedDateHour(ia.date)}',
         textColor: Colors.lightGreen,
         backgroundColor: Colors.black);
+    _getInvoices();
   }
 }
 
@@ -604,20 +637,20 @@ class InvoiceCard extends StatelessWidget {
       child: GestureDetector(
         onTap: _process,
         child: Card(
-          elevation: 2.0,
+          elevation: 4.0,
           color: _getColor(),
           child: Column(
             children: <Widget>[
               Padding(
                 padding:
-                    const EdgeInsets.only(left: 8.0, right: 20.0, top: 30.0),
+                    const EdgeInsets.only(left: 8.0, right: 20.0, top: 20.0),
                 child: Row(
                   children: <Widget>[
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Icon(
                         Icons.description,
-                        color: Colors.grey,
+                        color: Colors.purple,
                       ),
                     ),
                     Text(
