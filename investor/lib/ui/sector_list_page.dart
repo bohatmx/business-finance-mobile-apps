@@ -1,66 +1,68 @@
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/data/investor_profile.dart';
-import 'package:businesslibrary/data/supplier.dart';
+import 'package:businesslibrary/data/sector.dart';
+import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/selectors.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:flutter/material.dart';
 
-class SupplierListPage extends StatefulWidget {
+class SectorListPage extends StatefulWidget {
   final InvestorProfile profile;
 
-  const SupplierListPage({this.profile});
+  const SectorListPage({this.profile});
   @override
-  _SupplierListPageState createState() => _SupplierListPageState();
+  _SectorListPageState createState() => _SectorListPageState();
 }
 
-class _SupplierListPageState extends State<SupplierListPage>
+class _SectorListPageState extends State<SectorListPage>
     implements SnackBarListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
-  List<Supplier> suppliers, selectedSuppliers = List();
+  List<Sector> sectors, selectedSectors = List();
   InvestorProfile profile;
   @override
   void initState() {
     super.initState();
-    _getSuppliers();
+    _getSectors();
   }
 
-  void _getSuppliers() async {
-    suppliers = await ListAPI.getSuppliers();
-
-    if (profile.suppliers != null && profile.suppliers.isNotEmpty) {
-      profile.suppliers.forEach((supp) {
-        suppliers.forEach((s) {
-          if (s.participantId == supp.split('#').elementAt(1)) {
-            selectedSuppliers.add(s);
-          }
+  void _getSectors() async {
+    sectors = await ListAPI.getSectors();
+    if (profile != null) {
+      prettyPrint(profile.toJson(), '_getSectors profile');
+      if (profile.sectors != null && profile.sectors.isNotEmpty) {
+        profile.sectors.forEach((supp) {
+          sectors.forEach((s) {
+            if (s.sectorId == supp.split('#').elementAt(1)) {
+              selectedSectors.add(s);
+            }
+          });
         });
-      });
+      }
     }
-
     print(
-        '_SupplierListPageState._getSuppliers selectedSuppliers: ${selectedSuppliers.length}');
+        '_SectorListPageState._getSectors selectedSectors: ${selectedSectors.length}');
     setState(() {});
   }
 
-  _onDeleteSupplier(Supplier supplier) {
-    selectedSuppliers.remove(supplier);
+  _onDeleteSector(Sector sector) {
+    selectedSectors.remove(sector);
     Navigator.pop(context);
     setState(() {});
     print(
-        '_ProfilePageState._onDeleteSupplier - deleted supplier: ${supplier.toJson()}');
+        '_ProfilePageState._onDeleteSector - deleted supplier: ${sector.toJson()}');
     AppSnackbar.showSnackbar(
         scaffoldKey: _scaffoldKey,
-        message: '${supplier.name} removed from list',
+        message: '${sector.sectorName} removed from list',
         textColor: Styles.white,
         backgroundColor: Styles.black);
   }
 
-  _showSelectedSuppliers() {
-    if (selectedSuppliers.isEmpty) {
+  _showSelectedSectors() {
+    if (selectedSectors.isEmpty) {
       AppSnackbar.showErrorSnackbar(
           scaffoldKey: _scaffoldKey,
-          message: 'No suppliers in your profile',
+          message: 'No sectors in your profile',
           listener: this,
           actionLabel: 'CLOSE');
       return;
@@ -71,13 +73,13 @@ class _SupplierListPageState extends State<SupplierListPage>
               title: Column(
                 children: <Widget>[
                   Text(
-                    "Investor Supplier List",
+                    "Investor Sector List",
                     style: Styles.tealBoldMedium,
                   ),
                   Padding(
                     padding: const EdgeInsets.only(top: 8.0),
                     child: Text(
-                      "Tap to Remove Supplier",
+                      "Tap to Remove Sector",
                       style: Styles.pinkBoldSmall,
                     ),
                   ),
@@ -86,13 +88,12 @@ class _SupplierListPageState extends State<SupplierListPage>
               content: Container(
                 height: 200.0,
                 child: ListView.builder(
-                    itemCount: selectedSuppliers == null
-                        ? 0
-                        : selectedSuppliers.length,
+                    itemCount:
+                        selectedSectors == null ? 0 : selectedSectors.length,
                     itemBuilder: (BuildContext context, int index) {
                       return new InkWell(
                         onTap: () {
-                          _onDeleteSupplier(selectedSuppliers.elementAt(index));
+                          _onDeleteSector(selectedSectors.elementAt(index));
                         },
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
@@ -108,7 +109,7 @@ class _SupplierListPageState extends State<SupplierListPage>
                               Flexible(
                                 child: Container(
                                   child: Text(
-                                    '${selectedSuppliers.elementAt(index).name}',
+                                    '${selectedSectors.elementAt(index).sectorName}',
                                     overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
@@ -143,7 +144,7 @@ class _SupplierListPageState extends State<SupplierListPage>
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
-        title: Text('BFN Investor Suppliers'),
+        title: Text('BFN Investor Sectors'),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(80.0),
           child: Padding(
@@ -158,9 +159,9 @@ class _SupplierListPageState extends State<SupplierListPage>
                   ),
                 ),
                 FlatButton(
-                  onPressed: _showSelectedSuppliers,
+                  onPressed: _showSelectedSectors,
                   child: Text(
-                    'View Selected Suppliers',
+                    'View Selected Sectors',
                     style: Styles.whiteMedium,
                   ),
                 ),
@@ -175,15 +176,15 @@ class _SupplierListPageState extends State<SupplierListPage>
           children: <Widget>[
             new Flexible(
               child: new ListView.builder(
-                  itemCount: suppliers == null ? 0 : suppliers.length,
+                  itemCount: sectors == null ? 0 : sectors.length,
                   itemBuilder: (BuildContext context, int index) {
                     return new GestureDetector(
                         onTap: () {
-                          if (suppliers.isNotEmpty) {
-                            _onSelected(suppliers.elementAt(index));
+                          if (sectors.isNotEmpty) {
+                            _onSelected(sectors.elementAt(index));
                           }
                         },
-                        child: new SupplierCard(suppliers.elementAt(index)));
+                        child: new SectorCard(sectors.elementAt(index)));
                   }),
             ),
           ],
@@ -192,7 +193,7 @@ class _SupplierListPageState extends State<SupplierListPage>
       floatingActionButton: FloatingActionButton(
         onPressed: _onFinish,
         elevation: 8.0,
-        backgroundColor: Styles.pink,
+        backgroundColor: Styles.purple,
         child: Icon(Icons.done),
       ),
     );
@@ -200,17 +201,17 @@ class _SupplierListPageState extends State<SupplierListPage>
 
   _onFinish() {
     print(
-        '_SupplierListPageState._onFinish selectedSuppliers: ${selectedSuppliers.length}');
-    Navigator.pop(context, selectedSuppliers);
+        '_SectorListPageState._onFinish selectedSectors: ${selectedSectors.length}');
+    Navigator.pop(context, selectedSectors);
   }
 
-  _showRemoveDialog(Supplier supplier) {
-    this.supplier = supplier;
+  _showRemoveDialog(Sector sector) {
+    this.sector = sector;
     showDialog(
         context: context,
         builder: (_) => new AlertDialog(
               title: new Text(
-                "Supplier Removal",
+                "Sector Removal",
                 style:
                     TextStyle(fontWeight: FontWeight.bold, color: Styles.pink),
               ),
@@ -218,7 +219,7 @@ class _SupplierListPageState extends State<SupplierListPage>
                 child: Container(
                   height: 60.0,
                   child: Text(
-                    'Do you want to remove ${supplier.name} from your supplier list?',
+                    'Do you want to remove ${sector.sectorName} from your sector list?',
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
@@ -229,7 +230,7 @@ class _SupplierListPageState extends State<SupplierListPage>
                   child: Text('No'),
                 ),
                 FlatButton(
-                  onPressed: _onRemoveSupplier,
+                  onPressed: _onRemoveSector,
                   child: Text(
                     'REMOVE',
                     style: Styles.pinkBoldMedium,
@@ -239,14 +240,14 @@ class _SupplierListPageState extends State<SupplierListPage>
             ));
   }
 
-  Supplier supplier;
-  _showAddDialog(Supplier supplier) {
-    this.supplier = supplier;
+  Sector sector;
+  _showAddDialog(Sector supplier) {
+    this.sector = supplier;
     showDialog(
         context: context,
         builder: (_) => new AlertDialog(
               title: new Text(
-                "Supplier Addition",
+                "Sector Addition",
                 style: TextStyle(
                     fontWeight: FontWeight.bold,
                     color: Theme.of(context).primaryColor),
@@ -254,7 +255,7 @@ class _SupplierListPageState extends State<SupplierListPage>
               content: Container(
                 height: 60.0,
                 child: Text(
-                    'Do you want to add ${supplier.name} to your supplier list?'),
+                    'Do you want to add ${supplier.sectorName} to your sector list?'),
               ),
               actions: <Widget>[
                 FlatButton(
@@ -262,26 +263,26 @@ class _SupplierListPageState extends State<SupplierListPage>
                   child: Text('No'),
                 ),
                 FlatButton(
-                  onPressed: _onAddSupplier,
+                  onPressed: _onAddSector,
                   child: Text('ADD SUPPLIER'),
                 ),
               ],
             ));
   }
 
-  _onSelected(Supplier supplier) {
-    print('_SupplierListPageState._onSelected selectted ${supplier.name}');
+  _onSelected(Sector sector) {
+    print('_SectorListPageState._onSelected selectted ${sector.sectorName}');
     bool isFound = false;
-    selectedSuppliers.forEach((supp) {
-      if (supplier.participantId == supp.participantId) {
+    selectedSectors.forEach((supp) {
+      if (sector.sectorId == supp.sectorId) {
         isFound = true;
         ;
       }
     });
     if (isFound) {
-      _showRemoveDialog(supplier);
+      _showRemoveDialog(sector);
     } else {
-      _showAddDialog(supplier);
+      _showAddDialog(sector);
     }
   }
 
@@ -289,19 +290,19 @@ class _SupplierListPageState extends State<SupplierListPage>
     Navigator.pop(context);
   }
 
-  _onRemoveSupplier() {
+  _onRemoveSector() {
     Navigator.pop(context);
-    selectedSuppliers.remove(supplier);
+    selectedSectors.remove(sector);
     print(
-        '_SupplierListPageState._onRemoveSupplier removed: ${supplier.name} selectedSuppliers: ${selectedSuppliers.length}');
+        '_SectorListPageState._onRemoveSector removed: ${sector.sectorName} selectedSectors: ${selectedSectors.length}');
     //setState(() {});
   }
 
-  _onAddSupplier() {
+  _onAddSector() {
     Navigator.pop(context);
-    selectedSuppliers.add(supplier);
+    selectedSectors.add(sector);
     print(
-        '_SupplierListPageState._onAddSupplier added supplier: ${supplier.name} selectedSuppliers: ${selectedSuppliers.length}');
+        '_SectorListPageState._onAddSector added sector: ${sector.sectorName} selectedSectors: ${selectedSectors.length}');
     //setState(() {});
   }
 }

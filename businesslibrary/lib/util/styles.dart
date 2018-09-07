@@ -313,4 +313,6 @@ class Styles {
   static Color brown = Colors.brown;
   static Color pink = Colors.pink;
   static Color teal = Colors.teal;
+  static Color purple = Colors.purple;
+  static Color blue = Colors.blue;
 }

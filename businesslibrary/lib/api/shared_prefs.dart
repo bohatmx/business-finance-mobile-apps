@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:businesslibrary/data/auditor.dart';
+import 'package:businesslibrary/data/auto_trade_order.dart';
 import 'package:businesslibrary/data/bank.dart';
 import 'package:businesslibrary/data/company.dart';
 import 'package:businesslibrary/data/govt_entity.dart';
@@ -99,9 +100,7 @@ class SharedPrefs {
 
     Map jsonx = profile.toJson();
     var jx = json.encode(jsonx);
-    print(jx);
     prefs.setString('profile', jx);
-    //prefs.commit();
     print("SharedPrefs.saveInvestorProfile =========  data SAVED.........");
   }
 
@@ -114,10 +113,53 @@ class SharedPrefs {
       print('SharedPrefs.getInvestorProfile is NULL');
       return null;
     }
-    var jx = json.decode(string);
-    prettyPrint(jx, 'InvestorProfile from cache: ');
-    var investorProfile = InvestorProfile.fromJson(jx);
-    return investorProfile;
+    try {
+      var jx = json.decode(string);
+      prettyPrint(jx, 'InvestorProfile ********** from cache: ');
+      var investorProfile = InvestorProfile.fromJson(jx);
+      return investorProfile;
+    } catch (e) {
+      print('SharedPrefs.getInvestorProfile ERROR $e');
+      return null;
+    }
+  }
+
+  static Future saveAutoTradeOrder(AutoTradeOrder order) async {
+    print('SharedPrefs.saveAutoTradeOrder  saving data ........');
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    Map jsonx = order.toJson();
+    var jx = json.encode(jsonx);
+    prefs.setString('autoTradeOrder', jx);
+    print("SharedPrefs.AutoTradeOrder =========  data SAVED.........");
+  }
+
+  static Future removeAutoTradeOrder() async {
+    print('SharedPrefs.removeAutoTradeOrder  removing data ........');
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    prefs.setString('autoTradeOrder', null);
+    print("SharedPrefs.AutoTradeOrder =========  data REMOOOVED.........");
+  }
+
+  static Future<AutoTradeOrder> getAutoTradeOrder() async {
+    print(
+        "SharedPrefs.getAutoTradeOrder =========  getting cached data.........");
+    var prefs = await SharedPreferences.getInstance();
+    var string = prefs.getString('autoTradeOrder');
+    if (string == null) {
+      print('SharedPrefs.getAutoTradeOrder is NULL');
+      return null;
+    }
+    try {
+      var jx = json.decode(string);
+      prettyPrint(jx, 'AutoTradeOrder ********** from cache: ');
+      var order = AutoTradeOrder.fromJson(jx);
+      return order;
+    } catch (e) {
+      print('SharedPrefs.getAutoTradeOrder ERROR $e');
+      return null;
+    }
   }
 
   static Future saveCompany(Company company) async {

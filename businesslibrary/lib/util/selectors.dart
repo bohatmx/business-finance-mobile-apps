@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:businesslibrary/api/list_api.dart';
+import 'package:businesslibrary/data/sector.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:flutter/material.dart';
@@ -13,21 +14,17 @@ class SectorSelectorPage extends StatefulWidget {
 class _SectorSelectorPageState extends State<SectorSelectorPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
-  List<PrivateSectorType> types;
+  List<Sector> sectors;
   @override
   initState() {
     super.initState();
-    _getTypes();
+    _getSectors();
   }
 
-  _getTypes() async {
-    types = await Lookups.getTypes();
-    if (types.isEmpty) {
-      await Lookups.storePrivateSectorTypes();
-      types = await Lookups.getTypes();
-    }
+  _getSectors() async {
+    sectors = await ListAPI.getSectors();
 
-    print('SectorSelectorPage._getTypes types found: ${types.length}');
+    print('SectorSelectorPage._getTypes types found: ${sectors.length}');
     setState(() {});
   }
 
@@ -46,16 +43,16 @@ class _SectorSelectorPageState extends State<SectorSelectorPage> {
           children: <Widget>[
             new Flexible(
               child: new ListView.builder(
-                  itemCount: types == null ? 0 : types.length,
+                  itemCount: sectors == null ? 0 : sectors.length,
                   itemBuilder: (BuildContext context, int index) {
                     return new GestureDetector(
                         onTap: () {
-                          var xType = types.elementAt(index);
+                          var xType = sectors.elementAt(index);
                           print(
-                              'SectorSelectorPage.build about to pop ${xType.type}');
+                              'SectorSelectorPage.build about to pop ${xType.sectorName}');
                           Navigator.pop(context, xType);
                         },
-                        child: new SectorCard(types.elementAt(index)));
+                        child: new SectorCard(sectors.elementAt(index)));
                   }),
             ),
           ],
@@ -66,35 +63,32 @@ class _SectorSelectorPageState extends State<SectorSelectorPage> {
 }
 
 class SectorCard extends StatelessWidget {
-  final PrivateSectorType privateSectorType;
+  final Sector sector;
 
-  SectorCard(this.privateSectorType);
+  SectorCard(this.sector);
 
   @override
   Widget build(BuildContext context) {
-    return new Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Card(
-        elevation: 2.0,
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Row(
-            children: <Widget>[
-              Icon(
-                Icons.apps,
-                color: getRandomColor(),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(left: 8.0),
-                child: Text(
-                  privateSectorType.type,
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                  ),
+    return Card(
+      elevation: 2.0,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Row(
+          children: <Widget>[
+            Icon(
+              Icons.apps,
+              color: getRandomColor(),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 8.0),
+              child: Text(
+                sector.sectorName,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
                 ),
-              )
-            ],
-          ),
+              ),
+            )
+          ],
         ),
       ),
     );

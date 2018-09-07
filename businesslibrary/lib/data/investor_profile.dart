@@ -22,14 +22,25 @@ class InvestorProfile {
   InvestorProfile.fromJson(Map data) {
     this.profileId = data['profileId'];
     this.name = data['name'];
+    this.maxInvestableAmount = data['maxInvestableAmount'];
     this.maxInvoiceAmount = data['maxInvoiceAmount'];
     this.cellphone = data['cellphone'];
     this.investor = data['investor'];
     this.email = data['email'];
     this.investor = data['investor'];
-    this.sectors = data['sectors'];
-    this.investor = data['investor'];
+//    this.sectors = data['sectors'];
+//    this.suppliers = data['suppliers'];
     this.date = data['date'];
+    List list = data['sectors'];
+    this.sectors = List();
+    list.forEach((s) {
+      this.sectors.add(s);
+    });
+    List list2 = data['suppliers'];
+    this.suppliers = List();
+    list2.forEach((s) {
+      this.suppliers.add(s);
+    });
   }
   Map<String, dynamic> toJson() => <String, dynamic>{
         'profileId': profileId,

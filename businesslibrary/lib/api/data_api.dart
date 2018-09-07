@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/auditor.dart';
+import 'package:businesslibrary/data/auto_trade_order.dart';
 import 'package:businesslibrary/data/bank.dart';
 import 'package:businesslibrary/data/company.dart';
 import 'package:businesslibrary/data/delivery_acceptance.dart';
@@ -62,6 +63,9 @@ class DataAPI {
       MAKE_COMPANY_SETTLEMENT = 'MakeCompanyInvoiceSettlement',
       MAKE_GOVT_SETTLEMENT = 'MakeGovtInvoiceSettlement',
       INVESTOR__PROFILE = 'InvestorProfile',
+      UPDATE_INVESTOR__PROFILE = 'UpdateInvestorProfile',
+      AUTO_TRADE_ORDER = 'AutoTradeOrder',
+      CANCEL_AUTO_TRADE_ORDER = 'CancelAutoTradeOrder',
       SECTOR = 'Sector',
       INVESTOR = 'Investor';
   static const ErrorFirestore = 1, ErrorBlockchain = 2, Success = 0;
@@ -201,6 +205,111 @@ class DataAPI {
     }
   }
 
+  Future<String> addAutoTradeOrder(AutoTradeOrder order) async {
+    order.autoTradeOrderId = getKey();
+    order.date = DateTime.now().toIso8601String();
+    print('DataAPI.addAutoTradeOrder %%%%%%%% url: ${url + AUTO_TRADE_ORDER}');
+    prettyPrint(order.toJson(),
+        '########################## adding addAutoTradeOrder to BFN blockchain');
+
+    try {
+      var httpClient = new HttpClient();
+      HttpClientRequest mRequest =
+          await httpClient.postUrl(Uri.parse(url + AUTO_TRADE_ORDER));
+      mRequest.headers.contentType = _contentType;
+      mRequest.write(json.encode(order.toJson()));
+      HttpClientResponse mResponse = await mRequest.close();
+      print(
+          'DataAPI.addAutoTradeOrder blockchain response status code:  ${mResponse.statusCode}');
+      if (mResponse.statusCode == 200) {
+        var ref = await _firestore
+            .collection('autoTradeOrders')
+            .add(order.toJson())
+            .catchError((e) {
+          print('DataAPI.addAutoTradeOrder ERROR $e');
+        });
+        print('DataAPI.addAutoTradeOrder order added ${ref.path}');
+        SharedPrefs.saveAutoTradeOrder(order);
+        return order.autoTradeOrderId;
+      } else {
+        mResponse.transform(utf8.decoder).listen((contents) {
+          print('DataAPI.addAutoTradeOrder  $contents');
+        });
+        print('DataAPI.addAutoTradeOrder ERROR  ${mResponse.reasonPhrase}');
+        return "0";
+      }
+    } catch (e) {
+      print('DataAPI.addAutoTradeOrder ERROR $e');
+      return '0';
+    }
+  }
+
+  Future<String> cancelAutoTradeOrder(
+      String autoTradeOrderId, String investorId) async {
+    var map = Map<String, String>();
+    map['autoTradeOrderId'] = autoTradeOrderId;
+    map['investorId'] = investorId;
+
+    print(
+        'DataAPI.cancelAutoTradeOrder %%%%%%%% url: ${url + CANCEL_AUTO_TRADE_ORDER}');
+    prettyPrint(map,
+        '########################## adding cancelAutoTradeOrder to BFN blockchain');
+
+    try {
+      var httpClient = new HttpClient();
+      HttpClientRequest mRequest =
+          await httpClient.postUrl(Uri.parse(url + CANCEL_AUTO_TRADE_ORDER));
+      mRequest.headers.contentType = _contentType;
+      mRequest.write(json.encode(map));
+      HttpClientResponse mResponse = await mRequest.close();
+      print(
+          'DataAPI.cancelAutoTradeOrder blockchain response status code:  ${mResponse.statusCode}');
+      if (mResponse.statusCode == 200) {
+        map['date'] = DateTime.now().toIso8601String();
+        await _firestore
+            .collection('cancelledAutoTradeOrders')
+            .add(map)
+            .catchError((e) {
+          print('DataAPI.cancelAutoTradeOrder ERROR $e');
+        });
+        var qs = await _firestore
+            .collection('autoTradeOrders')
+            .where('autoTradeOrderId', isEqualTo: autoTradeOrderId)
+            .getDocuments()
+            .catchError((e) {
+          print('DataAPI.cancelAutoTradeOrder ERROR $e');
+        });
+
+        if (qs.documents.isNotEmpty) {
+          var data = qs.documents.first.data;
+          var order = AutoTradeOrder.fromJson(data);
+          order.dateCancelled = DateTime.now().toIso8601String();
+          await _firestore
+              .collection('autoTradeOrders')
+              .document(qs.documents.first.documentID)
+              .setData(order.toJson())
+              .catchError((e) {
+            print('DataAPI.cancelAutoTradeOrder ERROR $e');
+          });
+          print(
+              'DataAPI.cancelAutoTradeOrder autoTradeOrder pdated with cancel');
+        }
+
+        SharedPrefs.removeAutoTradeOrder();
+        return autoTradeOrderId;
+      } else {
+        mResponse.transform(utf8.decoder).listen((contents) {
+          print('DataAPI.cancelAutoTradeOrder  $contents');
+        });
+        print('DataAPI.cancelAutoTradeOrder ERROR  ${mResponse.reasonPhrase}');
+        return "0";
+      }
+    } catch (e) {
+      print('DataAPI.cancelAutoTradeOrder ERROR $e');
+      return '0';
+    }
+  }
+
   Future<String> addInvestorProfile(InvestorProfile profile) async {
     profile.profileId = getKey();
     profile.date = DateTime.now().toIso8601String();
@@ -236,6 +345,74 @@ class DataAPI {
       }
     } catch (e) {
       print('DataAPI.addInvestorProfile ERROR $e');
+      return '0';
+    }
+  }
+
+  Future<String> updateInvestorProfile(InvestorProfile profile) async {
+    profile.date = DateTime.now().toIso8601String();
+    print('DataAPI.addSector %%%%%%%% url: ${url + UPDATE_INVESTOR__PROFILE}');
+    prettyPrint(profile.toJson(),
+        '########################## updating InvestorProfile on BFN blockchain');
+
+    //edit sectors and suppliers and send only the ids
+//    var suppliers = List<String>();
+//    var sectors = List<String>();
+//    profile.suppliers.forEach((s) {
+//      suppliers.add(s.split('#').elementAt(1));
+//    });
+//    profile.sectors.forEach((s) {
+//      sectors.add(s.split('#').elementAt(1));
+//    });
+//    var map = Map<String, dynamic>();
+//    map['profileId'] = profile.profileId;
+//    map['name'] = profile.name;
+//    map['date'] = DateTime.now().toIso8601String();
+//    map['maxInvestableAmount'] = profile.maxInvestableAmount;
+//    map['maxInvoiceAmount'] = profile.maxInvoiceAmount;
+//    map['investor'] = profile.investor;
+//    map['suppliers'] = suppliers;
+//    map['sectors'] = sectors;
+//    print('DataAPI.updateInvestorProfile UPDATE this: $map');
+    try {
+      var httpClient = new HttpClient();
+      HttpClientRequest mRequest =
+          await httpClient.postUrl(Uri.parse(url + UPDATE_INVESTOR__PROFILE));
+      mRequest.headers.contentType = _contentType;
+      mRequest.write(json.encode(profile.toJson()));
+      HttpClientResponse mResponse = await mRequest.close();
+      print(
+          'DataAPI.updateInvestorProfile blockchain response status code:  ${mResponse.statusCode}');
+      if (mResponse.statusCode == 200) {
+        var qs = await _firestore
+            .collection('investorProfiles')
+            .where('profileId', isEqualTo: profile.profileId)
+            .getDocuments()
+            .catchError((e) {
+          print('DataAPI.updateInvestorProfile ERROR $e');
+        });
+        if (qs.documents.isNotEmpty) {
+          var id = qs.documents.first.documentID;
+          await _firestore
+              .collection('investorProfiles')
+              .document(id)
+              .setData(profile.toJson())
+              .catchError((e) {
+            print('DataAPI.updateInvestorProfile ERROR $e');
+          });
+          print('DataAPI.updateInvestorProfile profile updated');
+          SharedPrefs.saveInvestorProfile(profile);
+        }
+        return profile.profileId;
+      } else {
+        mResponse.transform(utf8.decoder).listen((contents) {
+          print('DataAPI.updateInvestorProfile  $contents');
+        });
+        print('DataAPI.updateInvestorProfile ERROR  ${mResponse.reasonPhrase}');
+        return "0";
+      }
+    } catch (e) {
+      print('DataAPI.updateInvestorProfile ERROR $e');
       return '0';
     }
   }

@@ -8,6 +8,7 @@ class Supplier extends BaseParticipant {
   String description;
   String address, dateRegistered;
   String privateSectorType, country;
+  bool isSelected;
 
   Supplier(
       {this.participantId,
@@ -19,7 +20,8 @@ class Supplier extends BaseParticipant {
       this.documentReference,
       this.country,
       this.dateRegistered,
-      this.privateSectorType});
+      this.privateSectorType,
+      this.isSelected});
 
   static const Technology = "TECHNOLOGY",
       Retail = "RETAIL",
