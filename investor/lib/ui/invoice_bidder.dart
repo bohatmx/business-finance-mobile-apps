@@ -629,7 +629,6 @@ class _InvoiceBidderState extends State<InvoiceBidder>
     print('');
     prettyPrint(offer.toJson(), '_InvoiceBidderState._onMakeBid ............');
     InvoiceBid bid = InvoiceBid(
-        participantId: investor.participantId,
         user: NameSpace + 'User#' + user.userId,
         reservePercent: '$percentage',
         date: new DateTime.now().toIso8601String(),

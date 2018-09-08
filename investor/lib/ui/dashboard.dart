@@ -175,6 +175,7 @@ class _DashboardState extends State<Dashboard>
         key: _scaffoldKey,
         appBar: AppBar(
           elevation: 3.0,
+//          backgroundColor: Colors.indigo.shade400,
           title: Text(
             'BFN',
             style: TextStyle(fontWeight: FontWeight.normal),
@@ -212,7 +213,7 @@ class _DashboardState extends State<Dashboard>
             new Opacity(
               opacity: opacity,
               child: new Padding(
-                padding: const EdgeInsets.only(top: 10.0),
+                padding: const EdgeInsets.only(top: 4.0),
                 child: ListView(
                   children: <Widget>[
                     Padding(
@@ -537,7 +538,7 @@ class InvoiceBidSummaryCard extends StatelessWidget {
     });
     print('InvoiceBidSummaryCard.build totalBidAmount: $totalBidAmount');
     return Container(
-      height: 200.0,
+      height: 140.0,
       child: new Padding(
         padding: const EdgeInsets.all(12.0),
         child: Card(
@@ -545,10 +546,10 @@ class InvoiceBidSummaryCard extends StatelessWidget {
           child: Column(
             children: <Widget>[
               Padding(
-                padding: const EdgeInsets.only(top: 16.0, bottom: 16.0),
+                padding: const EdgeInsets.only(top: 12.0, bottom: 2.0),
                 child: Text(
                   'Your Invoice Bids',
-                  style: bigLabel,
+                  style: Styles.greyLabelSmall,
                 ),
               ),
               new Padding(
@@ -567,7 +568,7 @@ class InvoiceBidSummaryCard extends StatelessWidget {
                         totalBidAmount == null
                             ? '0.00'
                             : getFormattedAmount('$totalBidAmount', context),
-                        style: Styles.tealBoldReallyLarge,
+                        style: Styles.tealBoldLarge,
                       ),
                     ),
                   ],
@@ -587,7 +588,7 @@ class InvoiceBidSummaryCard extends StatelessWidget {
                       padding: const EdgeInsets.only(left: 10.0, right: 10.0),
                       child: Text(
                         bids == null ? '0' : '${bids.length}',
-                        style: Styles.blackBoldReallyLarge,
+                        style: Styles.blackBoldLarge,
                       ),
                     ),
                   ],

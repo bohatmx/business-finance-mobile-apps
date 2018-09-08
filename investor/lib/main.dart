@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:investor/ui/dashboard.dart';
 import 'package:investor/ui/signin_page.dart';
 import 'package:investor/ui/signup_page.dart';
+import 'package:investor/ui/theme_util.dart';
 
 void main() => runApp(new InvestorApp());
 
@@ -20,7 +21,7 @@ class InvestorApp extends StatelessWidget {
     return new MaterialApp(
       title: 'FinanceNetwork',
       debugShowCheckedModeBanner: false,
-//      theme: getTheme(),
+      theme: getTheme(),
       home: new StartPage(title: 'Business Finance - Investor'),
     );
   }

@@ -1,29 +1,30 @@
 class InvestorAutoTradeSession {
-  String profileId;
-  String autoTradeOrderId;
+  String sessionId, order, profile;
   int sessionBids;
-  double sessionTotal, maxSessionInvestment;
+  int sessionTotal, maxSessionInvestment;
   List<String> offers;
   List<String> bids;
-  DateTime date;
+  String date;
 
   InvestorAutoTradeSession(
-      {this.profileId,
-      this.autoTradeOrderId,
+      {this.sessionId,
       this.sessionBids,
       this.sessionTotal,
       this.bids,
       this.date,
+      this.profile,
+      this.order,
       this.maxSessionInvestment,
       this.offers});
 
   InvestorAutoTradeSession.fromJson(Map data) {
-    this.profileId = data['profileId'];
-    this.autoTradeOrderId = data['autoTradeOrderId'];
+    this.sessionId = data['sessionId'];
     this.sessionBids = data['sessionBids'];
     this.sessionTotal = data['sessionTotal'];
     this.maxSessionInvestment = data['maxSessionInvestment'];
     this.date = data['date'];
+    this.profile = data['profile'];
+    this.order = data['order'];
     this.offers = List();
     List list = data['offers'];
     list.forEach((s) {
@@ -36,13 +37,14 @@ class InvestorAutoTradeSession {
     });
   }
   Map<String, dynamic> toJson() => <String, dynamic>{
-        'profileId': profileId,
-        'autoTradeOrderId': autoTradeOrderId,
+        'sessionId': sessionId,
         'sessionBids': sessionBids,
         'sessionTotal': sessionTotal,
         'maxSessionInvestment': maxSessionInvestment,
         'offers': offers,
         'bids': bids,
         'date': date,
+        'profile': profile,
+        'order': order,
       };
 }
