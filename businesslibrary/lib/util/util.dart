@@ -1,3 +1,8 @@
+import 'dart:convert';
+
+import 'package:businesslibrary/api/data_api.dart';
+import 'package:businesslibrary/data/investor_auto_trades_event.dart';
+import 'package:businesslibrary/util/lookups.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:web_socket_channel/io.dart';
@@ -213,5 +218,27 @@ void listenToWebSocket() async {
       'listenToWebSocket ------- starting  #################################');
   channel.stream.listen((message) {
     print('listenToWebSocket ###################: ' + message);
+  });
+}
+
+void listenForExecuteInvestorAutoTradesEvent() async {
+  print(
+      'listenForExecuteInvestorAutoTradesEvent ------- starting  #################################');
+  channel.stream.listen((message) {
+    print(
+        '\n\n\n############# listenForExecuteInvestorAutoTradesEvent WebSocket  ###################: \n\n\n' +
+            message);
+    try {
+      var data = json.decode(message);
+      var event = ExecuteInvestorAutoTradesEvent.fromJson(data);
+      prettyPrint(event.toJson(), 'ExecuteInvestorAutoTradesEvent: ');
+      var api = DataAPI(getURL());
+      event.offers.forEach((off) async {
+        //todo - close offer inside this bid
+        await api.closeOfferOnFirestore(off.split('#').elementAt(1));
+      });
+    } catch (e) {
+      print('listenForExecuteInvestorAutoTradesEvent ERROR $e');
+    }
   });
 }

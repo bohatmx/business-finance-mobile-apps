@@ -65,6 +65,8 @@ class DataAPI {
       INVESTOR__PROFILE = 'InvestorProfile',
       UPDATE_INVESTOR__PROFILE = 'UpdateInvestorProfile',
       AUTO_TRADE_ORDER = 'AutoTradeOrder',
+      EXECUTE_INVESTOR_AUTO_TRADE_ORDERS = 'ExecuteInvestorAutoTrades',
+      EXECUTE_ALL_AUTO_TRADE_ORDERS = 'ExecuteAllAutoTrades',
       CANCEL_AUTO_TRADE_ORDER = 'CancelAutoTradeOrder',
       SECTOR = 'Sector',
       INVESTOR = 'Investor';
@@ -307,6 +309,45 @@ class DataAPI {
       }
     } catch (e) {
       print('DataAPI.cancelAutoTradeOrder ERROR $e');
+      return '0';
+    }
+  }
+
+  Future<String> executeInvestorAutoTrades(String autoTradeOrderId,
+      String profileId, double maxSessionInvestment) async {
+    var map = Map<String, dynamic>();
+    map['autoTradeOrderId'] = autoTradeOrderId;
+    map['profileId'] = profileId;
+    map['maxSessionInvestment'] = maxSessionInvestment;
+    map['sessionId'] = getKey();
+
+    print(
+        'DataAPI.executeInvestorAutoTrades %%%%%%%% url: ${url + EXECUTE_INVESTOR_AUTO_TRADE_ORDERS}');
+    prettyPrint(map,
+        '########################## adding executeInvestorAutoTrades to BFN blockchain');
+
+    try {
+      var httpClient = new HttpClient();
+      HttpClientRequest mRequest = await httpClient
+          .postUrl(Uri.parse(url + EXECUTE_INVESTOR_AUTO_TRADE_ORDERS));
+      mRequest.headers.contentType = _contentType;
+      mRequest.write(json.encode(map));
+      HttpClientResponse mResponse = await mRequest.close();
+      print(
+          'DataAPI.executeInvestorAutoTrades blockchain response status code:  ${mResponse.statusCode}');
+      if (mResponse.statusCode == 200) {
+        //todo - update offers on Firestore that may have been closed by auto trading
+        return autoTradeOrderId;
+      } else {
+        mResponse.transform(utf8.decoder).listen((contents) {
+          print('DataAPI.executeInvestorAutoTrades  $contents');
+        });
+        print(
+            'DataAPI.executeInvestorAutoTrades ERROR  ${mResponse.reasonPhrase}');
+        return "0";
+      }
+    } catch (e) {
+      print('DataAPI.executeInvestorAutoTrades ERROR $e');
       return '0';
     }
   }
@@ -1329,6 +1370,34 @@ class DataAPI {
       }
     } catch (e) {
       print('DataAPI.MakeOffer ERROR $e');
+      return '0';
+    }
+  }
+
+  Future<String> closeOfferOnFirestore(String offerId) async {
+    print('DataAPI.closeOfferOnFirestore - update offer');
+    var qs = await _firestore
+        .collection('invoiceOffers')
+        .where('offerId', isEqualTo: offerId)
+        .getDocuments()
+        .catchError((e) {
+      print('DataAPI.closeOfferOnFirestore ERROR $e');
+      return '0';
+    });
+    if (qs.documents.isNotEmpty) {
+      var m = Offer.fromJson(qs.documents.first.data);
+      m.isOpen = false;
+      await _firestore
+          .collection('invoiceOffers')
+          .document(qs.documents.first.documentID)
+          .setData(m.toJson())
+          .catchError((e) {
+        print('DataAPI.closeOfferOnFirestore $e');
+        return '0';
+      });
+      print('DataAPI.closeOfferOnFirestore ########## offers closed');
+      return 'cool';
+    } else {
       return '0';
     }
   }

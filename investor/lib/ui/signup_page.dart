@@ -57,12 +57,12 @@ class _SignUpPageState extends State<SignUpPage>
   _debug() {
     if (isInDebugMode) {
       Random rand = new Random(new DateTime.now().millisecondsSinceEpoch);
-      var num = rand.nextInt(100);
-      name = 'Finance Investors$num LLC';
+      var num = rand.nextInt(10000);
+      name = 'Finance $num LLC';
       adminEmail = 'admin$num@brokers.co.za';
       email = 'sales$num@brokers.co.za';
-      firstName = 'Luke John$num';
-      lastName = 'Cage$num';
+      firstName = 'Luke Fanyana ';
+      lastName = 'Khoza $num';
       password = 'pass123';
       country = Country(name: 'South Africa', code: 'ZA');
     }

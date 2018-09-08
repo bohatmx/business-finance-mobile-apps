@@ -6,6 +6,7 @@ import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/delivery_acceptance.dart';
 import 'package:businesslibrary/data/delivery_note.dart';
 import 'package:businesslibrary/data/investor.dart';
+import 'package:businesslibrary/data/investor_profile.dart';
 import 'package:businesslibrary/data/invoice_bid.dart';
 import 'package:businesslibrary/data/invoice_settlement.dart';
 import 'package:businesslibrary/data/offer.dart';
@@ -67,6 +68,7 @@ class _DashboardState extends State<Dashboard>
 
     items = buildDaysDropDownItems();
     _checkSectors();
+    listenForExecuteInvestorAutoTradesEvent();
   }
 
   void _checkSectors() async {
@@ -97,6 +99,7 @@ class _DashboardState extends State<Dashboard>
     user = await SharedPrefs.getUser();
     fullName = user.firstName + ' ' + user.lastName;
     investor = await SharedPrefs.getInvestor();
+
     assert(investor != null);
     name = investor.name;
     listenForOffer(this);
@@ -397,6 +400,7 @@ class _DashboardState extends State<Dashboard>
       WalletConstant = 7,
       InvoiceAcceptedConstant = 8;
   Offer offer;
+  InvestorProfile profile;
   @override
   onOffer(Offer o) {
     offer = o;

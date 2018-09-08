@@ -264,7 +264,7 @@ class _SectorListPageState extends State<SectorListPage>
                 ),
                 FlatButton(
                   onPressed: _onAddSector,
-                  child: Text('ADD SUPPLIER'),
+                  child: Text('ADD SECTOR'),
                 ),
               ],
             ));

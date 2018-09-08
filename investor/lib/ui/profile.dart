@@ -36,14 +36,10 @@ class _ProfilePageState extends State<ProfilePage> implements SnackBarListener {
   void _getCachedData() async {
     print('_ProfilePageState._getCachedData ................................');
     investor = await SharedPrefs.getInvestor();
-
+    assert(investor != null);
     profile = await SharedPrefs.getInvestorProfile();
     if (profile == null) {
-      AppSnackbar.showErrorSnackbar(
-          scaffoldKey: _scaffoldKey,
-          message: 'Profile does not exist',
-          listener: this,
-          actionLabel: 'close');
+      setState(() {});
     } else {
       controllerMaxInvestable.text = '${profile.maxInvestableAmount}';
       controllerMaxInvoice.text = '${profile.maxInvoiceAmount}';
@@ -57,11 +53,6 @@ class _ProfilePageState extends State<ProfilePage> implements SnackBarListener {
       }
 
       setState(() {});
-      AppSnackbar.showSnackbar(
-          scaffoldKey: _scaffoldKey,
-          message: 'Profile found',
-          textColor: Styles.lightGreen,
-          backgroundColor: Styles.black);
     }
   }
 
@@ -210,10 +201,8 @@ class _ProfilePageState extends State<ProfilePage> implements SnackBarListener {
 
   String email;
   double maxInvestableAmount, maxInvoiceAmount;
-  TextEditingController controllerMaxInvestable =
-      TextEditingController(text: '87.08');
-  TextEditingController controllerMaxInvoice =
-      TextEditingController(text: '66.99');
+  TextEditingController controllerMaxInvestable = TextEditingController();
+  TextEditingController controllerMaxInvoice = TextEditingController();
 
   Widget _getForm() {
     if (investor == null) {
@@ -312,11 +301,11 @@ class _ProfilePageState extends State<ProfilePage> implements SnackBarListener {
           child: RaisedButton(
             onPressed: _onSubmit,
             elevation: 16.0,
-            color: profile.profileId == null ? Styles.pink : Styles.purple,
+            color: _setColor(),
             child: Padding(
               padding: const EdgeInsets.all(10.0),
               child: Text(
-                profile.profileId == null ? 'Submit Profile' : 'Update Profile',
+                _setButton(),
                 style: Styles.whiteMedium,
               ),
             ),
@@ -324,6 +313,30 @@ class _ProfilePageState extends State<ProfilePage> implements SnackBarListener {
         ),
       ],
     );
+  }
+
+  Color _setColor() {
+    if (profile == null) {
+      return Styles.pink;
+    } else {
+      if (profile.profileId == null) {
+        return Styles.pink;
+      } else {
+        return Styles.purple;
+      }
+    }
+  }
+
+  String _setButton() {
+    if (profile == null) {
+      return 'Submit Profile';
+    } else {
+      if (profile.profileId == null) {
+        return 'Submit Profile';
+      } else {
+        return 'Update Profile';
+      }
+    }
   }
 
   Widget _getBottom() {
