@@ -192,18 +192,7 @@ class _DashboardState extends State<Dashboard>
   @override
   Widget build(BuildContext context) {
     message = widget.message;
-//    if (message != null) {
-//      AppSnackbar.showSnackbarWithAction(
-//          scaffoldKey: _scaffoldKey,
-//          message: message,
-//          textColor: Colors.white,
-//          icon: Icons.done_all,
-//          listener: this,
-//          actionLabel: 'OK',
-//          action: 0,
-//          backgroundColor: Colors.black);
-//      message = null;
-//    }
+
     return new WillPopScope(
       onWillPop: () async => false,
       child: Scaffold(
@@ -216,7 +205,7 @@ class _DashboardState extends State<Dashboard>
           ),
           leading: Container(),
           bottom: PreferredSize(
-            preferredSize: const Size.fromHeight(80.0),
+            preferredSize: const Size.fromHeight(110.0),
             child: new Column(
               children: <Widget>[
                 Row(
@@ -541,4 +530,6 @@ class _DashboardState extends State<Dashboard>
         icon: Icons.message,
         action: InvoiceBidConstant);
   }
+
+  void _confirmAuto() {}
 }

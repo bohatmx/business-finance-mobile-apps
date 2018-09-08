@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:businesslibrary/api/data_api.dart';
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
+import 'package:businesslibrary/data/auto_trade_order.dart';
 import 'package:businesslibrary/data/delivery_acceptance.dart';
 import 'package:businesslibrary/data/delivery_note.dart';
 import 'package:businesslibrary/data/investor.dart';
@@ -167,17 +168,7 @@ class _DashboardState extends State<Dashboard>
   @override
   Widget build(BuildContext context) {
     message = widget.message;
-//    if (message != null) {
-//      AppSnackbar.showSnackbarWithAction(
-//          scaffoldKey: _scaffoldKey,
-//          message: message,
-//          textColor: Colors.white,
-//          icon: Icons.done_all,
-//          listener: this,
-//          actionLabel: 'OK',
-//          action: 0,
-//          backgroundColor: Colors.black);
-//    }
+
     return new WillPopScope(
       onWillPop: () async => false,
       child: Scaffold(
@@ -311,7 +302,7 @@ class _DashboardState extends State<Dashboard>
 
   Widget _getBottom() {
     return PreferredSize(
-      preferredSize: const Size.fromHeight(60.0),
+      preferredSize: const Size.fromHeight(100.0),
       child: new Column(
         children: <Widget>[
           Row(
@@ -330,24 +321,99 @@ class _DashboardState extends State<Dashboard>
               )
             ],
           ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              new Padding(
-                padding: const EdgeInsets.only(top: 0.0, bottom: 20.0),
-                child: Text(
-                  fullName == null ? 'user' : fullName,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.normal,
-                  ),
-                ),
-              )
-            ],
+//          Row(
+//            mainAxisAlignment: MainAxisAlignment.center,
+//            children: <Widget>[
+//              new Padding(
+//                padding: const EdgeInsets.only(top: 0.0, bottom: 20.0),
+//                child: Text(
+//                  fullName == null ? 'user' : fullName,
+//                  style: TextStyle(
+//                    color: Colors.white,
+//                    fontWeight: FontWeight.normal,
+//                  ),
+//                ),
+//              )
+//            ],
+//          ),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 12.0),
+            child: FlatButton(
+              onPressed: _confirmAuto,
+              child: Text(
+                'Start AUTO TRADES',
+                style: Styles.whiteBoldMedium,
+              ),
+            ),
           ),
         ],
       ),
     );
+  }
+
+  _confirmAuto() {
+    showDialog(
+        context: context,
+        builder: (_) => new AlertDialog(
+              title: new Text(
+                "Auto Trade Confirmation",
+                style: Styles.pinkBoldMedium,
+              ),
+              content: Container(
+                height: 140.0,
+                child: Text(
+                  'Do you  want to start an Auto Trade Session?  The network will make automatic invoice offers on your behalf based on your profile.',
+                  style: Styles.blackMedium,
+                ),
+              ),
+              actions: <Widget>[
+                FlatButton(onPressed: _onNoAutoTrade, child: Text('NO')),
+                FlatButton(onPressed: _onAutoTrade, child: Text('YES')),
+              ],
+            ));
+  }
+
+  _onNoAutoTrade() {
+    Navigator.pop(context);
+  }
+
+  AutoTradeOrder order;
+  InvestorProfile profile;
+
+  _onAutoTrade() async {
+    Navigator.pop(context);
+    AppSnackbar.showSnackbarWithProgressIndicator(
+        scaffoldKey: _scaffoldKey,
+        message: 'Starting AUTO TRADE session',
+        textColor: Styles.yellow,
+        backgroundColor: Styles.purple);
+    order = await SharedPrefs.getAutoTradeOrder();
+    profile = await SharedPrefs.getInvestorProfile();
+    if (profile == null) {
+      //todo go to sett up
+      return;
+    }
+    if (order == null) {
+      //todo go to sett up
+      return;
+    }
+
+    var api = DataAPI(getURL());
+    var res = await api.executeInvestorAutoTrades(
+        order.autoTradeOrderId, profile.profileId, profile.maxInvestableAmount);
+    if (res == '0') {
+      AppSnackbar.showErrorSnackbar(
+          scaffoldKey: _scaffoldKey,
+          message: 'Failed to start AUTO TRADE',
+          listener: this,
+          actionLabel: 'close');
+    } else {
+      AppSnackbar.showSnackbar(
+          scaffoldKey: _scaffoldKey,
+          message: 'AUTO TRADE started OK',
+          textColor: Styles.lightGreen,
+          backgroundColor: Styles.black);
+    }
   }
 
   int _days = 7;
@@ -400,7 +466,6 @@ class _DashboardState extends State<Dashboard>
       WalletConstant = 7,
       InvoiceAcceptedConstant = 8;
   Offer offer;
-  InvestorProfile profile;
   @override
   onOffer(Offer o) {
     offer = o;

@@ -2,19 +2,12 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="b840dc6a-331e-46d9-b624-92fa4c1707ed" name="Default" comment="added auto trade order + ui">
-      <change afterPath="$PROJECT_DIR$/../businesslibrary/lib/data/investor_auto_trades_event.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../businesslibrary/lib/data/investor_auto_trades_session.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../businesslibrary/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/api/data_api.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/api/data_api.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/data/invoice_bid.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/data/invoice_bid.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/util/util.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/util/util.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../crudderv3/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../crudderv3/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/ui/dashboard.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/ui/dashboard.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/ui/profile.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/ui/profile.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/ui/sector_list_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/ui/sector_list_page.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/ui/signup_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/ui/signup_page.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../supplierv3/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../supplierv3/lib/ui/dashboard.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/lib/ui/dashboard.dart" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -42,28 +35,28 @@
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
         <counts>
-          <entry key="dart" value="23" />
+          <entry key="dart" value="24" />
           <entry key="gradle" value="1" />
           <entry key="yaml" value="1" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="dart" value="8005" />
+          <entry key="dart" value="8415" />
           <entry key="gradle" value="1" />
           <entry key="txt" value="112" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
         <counts>
-          <entry key="Dart" value="23" />
+          <entry key="Dart" value="24" />
           <entry key="Groovy" value="1" />
           <entry key="YAML" value="1" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="Dart" value="8005" />
+          <entry key="Dart" value="8415" />
           <entry key="Groovy" value="1" />
           <entry key="PLAIN_TEXT" value="112" />
         </counts>
@@ -75,11 +68,18 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/lib/ui/dashboard.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="316">
-              <caret line="67" selection-start-line="67" selection-end-line="67" />
+            <state relative-caret-position="62">
+              <caret line="59" column="2" selection-start-line="59" selection-start-column="2" selection-end-line="59" selection-end-column="2" />
               <folding>
                 <element signature="e#0#20#0" expanded="true" />
+                <element signature="e#2263#2641#0" expanded="true" />
                 <element signature="e#3173#3452#0" expanded="true" />
+                <element signature="e#5035#8284#0" expanded="true" />
+                <element signature="e#9333#10508#0" expanded="true" />
+                <element signature="e#9680#9696#0" />
+                <element signature="e#10531#11236#0" expanded="true" />
+                <element signature="e#11257#11290#0" expanded="true" />
+                <element signature="e#11453#12172#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -115,10 +115,10 @@
       <find>SharedPrefs.getInvestor</find>
       <find>ProfilePageState._getCachedData</find>
       <find>investor from cache</find>
-      <find>showDialog</find>
       <find>getRandomColor</find>
       <find>Supplier</find>
       <find>_onInvestableAmountChanged</find>
+      <find>showDialog</find>
     </findStrings>
     <replaceStrings>
       <replace>89.0</replace>
@@ -212,7 +212,7 @@
   </component>
   <component name="PropertiesComponent">
     <property name="android.sdk.path" value="$USER_HOME$/Library/Android/sdk" />
-    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1536417968076" />
+    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1536433754220" />
     <property name="dart.analysis.tool.window.force.activate" value="false" />
     <property name="io.flutter.reload.alreadyRun" value="true" />
     <property name="settings.editor.selected.configurable" value="flutter.settings" />
@@ -354,7 +354,6 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="1704" y="29" width="1689" height="953" extended-state="0" />
-    <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" sideWeight="0.51046026" visible="true" weight="0.14814815" />
       <window_info id="Structure" order="1" sideWeight="0.48953974" side_tool="true" visible="true" weight="0.14146934" />
@@ -367,7 +366,7 @@
       <window_info id="UI Designer" order="8" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.37049943" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.38559815" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.39953542" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -703,13 +702,30 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/../businesslibrary/lib/api/data_api.dart">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="960">
+          <caret line="316" column="59" lean-forward="true" selection-start-line="316" selection-start-column="59" selection-end-line="316" selection-end-column="59" />
+          <folding>
+            <element signature="e#12447#13883#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/lib/ui/dashboard.dart">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="316">
-          <caret line="67" selection-start-line="67" selection-end-line="67" />
+        <state relative-caret-position="62">
+          <caret line="59" column="2" selection-start-line="59" selection-start-column="2" selection-end-line="59" selection-end-column="2" />
           <folding>
             <element signature="e#0#20#0" expanded="true" />
+            <element signature="e#2263#2641#0" expanded="true" />
             <element signature="e#3173#3452#0" expanded="true" />
+            <element signature="e#5035#8284#0" expanded="true" />
+            <element signature="e#9333#10508#0" expanded="true" />
+            <element signature="e#9680#9696#0" />
+            <element signature="e#10531#11236#0" expanded="true" />
+            <element signature="e#11257#11290#0" expanded="true" />
+            <element signature="e#11453#12172#0" expanded="true" />
           </folding>
         </state>
       </provider>

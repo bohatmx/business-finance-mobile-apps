@@ -6,7 +6,7 @@ class InvoiceBid {
   double amount;
   double discountPercent;
   String offer, supplierFCMToken, wallet;
-  String investor, date, participantId, autoTradeOrder;
+  String investor, date, autoTradeOrder;
   String user, documentReference, supplierId;
   String invoiceBidAcceptance, investorName;
   bool isSettled;
@@ -28,7 +28,6 @@ class InvoiceBid {
       this.isSettled,
       this.supplierId,
       this.supplierFCMToken,
-      this.participantId,
       this.documentReference,
       this.invoiceBidAcceptance});
 
@@ -45,7 +44,6 @@ class InvoiceBid {
     this.invoiceBidAcceptance = data['invoiceBidAcceptance'];
     this.documentReference = data['documentReference'];
     this.user = data['user'];
-    this.participantId = data['participantId'];
     this.supplierFCMToken = data['supplierFCMToken'];
     this.investorName = data['investorName'];
     this.wallet = data['wallet'];
@@ -67,7 +65,6 @@ class InvoiceBid {
         'date': date,
         'invoiceBidAcceptance': invoiceBidAcceptance,
         'documentReference': documentReference,
-        'participantId': participantId,
         'supplierFCMToken': supplierFCMToken,
         'investorName': investorName,
         'wallet': wallet,
