@@ -5,6 +5,7 @@ import 'package:businesslibrary/data/investor.dart';
 import 'package:businesslibrary/data/invoice_bid.dart';
 import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/data/user.dart';
+import 'package:businesslibrary/data/wallet.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/util.dart';
@@ -28,6 +29,7 @@ class _InvoiceBidderState extends State<InvoiceBidder>
   Investor investor;
   Offer offer;
   User user;
+  Wallet wallet;
   @override
   void initState() {
     super.initState();
@@ -40,6 +42,7 @@ class _InvoiceBidderState extends State<InvoiceBidder>
   void _getCached() async {
     investor = await SharedPrefs.getInvestor();
     user = await SharedPrefs.getUser();
+    wallet = await SharedPrefs.getWallet();
     setState(() {});
   }
 
@@ -630,7 +633,7 @@ class _InvoiceBidderState extends State<InvoiceBidder>
     prettyPrint(offer.toJson(), '_InvoiceBidderState._onMakeBid ............');
     InvoiceBid bid = InvoiceBid(
         user: NameSpace + 'User#' + user.userId,
-        reservePercent: '$percentage',
+        reservePercent: percentage,
         date: new DateTime.now().toIso8601String(),
         offer: NameSpace + 'Offer#' + offer.offerId,
         investor: NameSpace + 'Investor#' + investor.participantId,
@@ -639,6 +642,7 @@ class _InvoiceBidderState extends State<InvoiceBidder>
         discountPercent: offer.discountPercent,
         startTime: offer.startTime,
         endTime: offer.endTime,
+        wallet: NameSpace + 'Wallet#${wallet.stellarPublicKey}',
         supplierId: offer.supplierDocumentRef);
 
     AppSnackbar.showSnackbarWithProgressIndicator(

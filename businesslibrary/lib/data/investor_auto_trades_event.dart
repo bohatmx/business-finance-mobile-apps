@@ -1,44 +1,20 @@
-class ExecuteInvestorAutoTradesEvent {
-  String profileId;
-  String autoTradeOrderId;
-  int sessionBids;
-  double sessionTotal, maxSessionInvestment;
-  List<String> offers;
-  List<String> bids;
+import 'package:businesslibrary/data/investor_auto_trades_session.dart';
 
-  ExecuteInvestorAutoTradesEvent(
-      {this.profileId,
-      this.autoTradeOrderId,
-      this.sessionBids,
-      this.sessionTotal,
-      this.bids,
-      this.maxSessionInvestment,
-      this.offers});
+class ExecuteInvestorAutoTradesEvent {
+  String $class;
+  InvestorAutoTradeSession session;
+
+  ExecuteInvestorAutoTradesEvent({
+    this.$class,
+    this.session,
+  });
 
   ExecuteInvestorAutoTradesEvent.fromJson(Map data) {
-    this.profileId = data['profileId'];
-    this.autoTradeOrderId = data['autoTradeOrderId'];
-    this.sessionBids = data['sessionBids'];
-    this.sessionTotal = data['sessionTotal'];
-    this.maxSessionInvestment = data['maxSessionInvestment'];
-    this.offers = List();
-    List list = data['offers'];
-    list.forEach((s) {
-      this.offers.add(s);
-    });
-    this.bids = List();
-    List listm = data['bids'];
-    listm.forEach((s) {
-      this.bids.add(s);
-    });
+    this.$class = data['\$class'];
+    this.session = data['session'];
   }
   Map<String, dynamic> toJson() => <String, dynamic>{
-        'profileId': profileId,
-        'autoTradeOrderId': autoTradeOrderId,
-        'sessionBids': sessionBids,
-        'sessionTotal': sessionTotal,
-        'maxSessionInvestment': maxSessionInvestment,
-        'offers': offers,
-        'bids': bids,
+        '\$class': $class,
+        'session': session,
       };
 }

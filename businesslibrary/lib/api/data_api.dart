@@ -335,13 +335,14 @@ class DataAPI {
       HttpClientResponse mResponse = await mRequest.close();
       print(
           'DataAPI.executeInvestorAutoTrades blockchain response status code:  ${mResponse.statusCode}');
+      mResponse.transform(utf8.decoder).listen((contents) {
+        print(
+            'DataAPI.executeInvestorAutoTrades contents,\n\n ------------------------------------ response from auto trades:\n\n $contents');
+      });
       if (mResponse.statusCode == 200) {
         //todo - update offers on Firestore that may have been closed by auto trading
         return autoTradeOrderId;
       } else {
-        mResponse.transform(utf8.decoder).listen((contents) {
-          print('DataAPI.executeInvestorAutoTrades  $contents');
-        });
         print(
             'DataAPI.executeInvestorAutoTrades ERROR  ${mResponse.reasonPhrase}');
         return "0";
@@ -1110,7 +1111,6 @@ class DataAPI {
       }
     } catch (e) {
       print('DataAPI.registerInvoice ERROR $e');
-      print('DataAPI.registerInvoice Firestore invoice deleted');
       return '0';
     }
   }
@@ -1317,7 +1317,6 @@ class DataAPI {
     offer.offerId = getKey();
     offer.date = new DateTime.now().toIso8601String();
     offer.isOpen = true;
-    offer.isCancelled = false;
 
     var supplierId = offer.supplier.split('#').elementAt(1);
     var invoiceId = offer.invoice.split('#').elementAt(1);

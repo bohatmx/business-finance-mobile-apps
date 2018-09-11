@@ -1,14 +1,17 @@
 import 'package:businesslibrary/api/data_api.dart';
+import 'package:businesslibrary/api/file_util.dart';
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/invoice.dart';
 import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
+import 'package:businesslibrary/data/sector.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/data/wallet.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
+import 'package:businesslibrary/util/styles.dart';
 import 'package:businesslibrary/util/util.dart';
 import 'package:flutter/material.dart';
 
@@ -41,12 +44,59 @@ class _MakeOfferPageState extends State<MakeOfferPage>
   List<String> discountStrings = List();
   String supplierAmount, investorAmount;
   Wallet wallet;
+  Sector sector;
+  List<Sector> sectors = List();
   @override
   initState() {
     super.initState();
     _setItems();
     _getSupplier();
     _calculateDays();
+    _getSectors();
+  }
+
+  _getSectors() async {
+    sectors = await FileUtil.getSector();
+    setState(() {});
+    if (sectors == null) {
+      sectors = await ListAPI.getSectors();
+      if (sectors.isNotEmpty) {
+        await FileUtil.saveSectors(Sectors(sectors));
+        setState(() {});
+      }
+    }
+  }
+
+  List<DropdownMenuItem<Sector>> sectorItems = List();
+  Widget _buildDropDown() {
+    if (sectors == null || sectors.isEmpty) {
+      return Container();
+    }
+    sectors.forEach((s) {
+      var item = DropdownMenuItem<Sector>(
+        value: s,
+        child: Row(
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Icon(
+                Icons.apps,
+                color: Colors.blue,
+              ),
+            ),
+            Text('${s.sectorName}'),
+          ],
+        ),
+      );
+      sectorItems.add(item);
+    });
+    return DropdownButton(
+        items: sectorItems,
+        hint: Text(
+          'Select Customer Sector',
+          style: Styles.whiteBoldMedium,
+        ),
+        onChanged: _onSector);
   }
 
   _getSupplier() async {
@@ -209,6 +259,38 @@ class _MakeOfferPageState extends State<MakeOfferPage>
       ),
     );
     items.add(item14);
+    var item15 = DropdownMenuItem<String>(
+      value: '90.0',
+      child: Row(
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Icon(
+              Icons.apps,
+              color: Colors.red,
+            ),
+          ),
+          Text('90.0 %'),
+        ],
+      ),
+    );
+    items.add(item15);
+    var item16 = DropdownMenuItem<String>(
+      value: '100.0',
+      child: Row(
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Icon(
+              Icons.apps,
+              color: Colors.red,
+            ),
+          ),
+          Text('100.0 %'),
+        ],
+      ),
+    );
+    items.add(item16);
   }
 
   _getStartTime() async {
@@ -265,6 +347,14 @@ class _MakeOfferPageState extends State<MakeOfferPage>
     if (submitting) {
       return;
     }
+    if (sector == null) {
+      AppSnackbar.showErrorSnackbar(
+          scaffoldKey: _scaffoldKey,
+          message: 'Please select Customer Sector',
+          listener: this,
+          actionLabel: 'Close');
+      return;
+    }
     submitting = true;
     var disc = double.parse(percentage);
     var offerAmt = (invoice.amount * disc) / 100.0;
@@ -287,8 +377,8 @@ class _MakeOfferPageState extends State<MakeOfferPage>
         supplierDocumentRef: supplier.documentReference,
         supplierName: supplier.name,
         invoiceDocumentRef: invoice.documentReference,
-        sector: supplier.sector,
-        sectorName: supplier.sectorName);
+        sector: NameSpace + 'Sector#${sector.sectorId}',
+        sectorName: sector.sectorName);
 
     print(
         '_MakeOfferPageState._submitOffer about to open snackbar ===================>');
@@ -342,27 +432,17 @@ class _MakeOfferPageState extends State<MakeOfferPage>
         bottom: PreferredSize(
             child: Column(
               children: <Widget>[
+                _buildDropDown(),
                 Padding(
-                  padding: const EdgeInsets.only(bottom: 18.0, left: 10.0),
-                  child: Row(
-                    children: <Widget>[
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text('Customer:'),
-                      ),
-                      Text(
-                        invoice.customerName,
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 20.0,
-                            fontWeight: FontWeight.bold),
-                      ),
-                    ],
+                  padding: const EdgeInsets.only(bottom: 20.0),
+                  child: Text(
+                    sector == null ? '' : sector.sectorName,
+                    style: Styles.whiteBoldLarge,
                   ),
-                )
+                ),
               ],
             ),
-            preferredSize: Size.fromHeight(60.0)),
+            preferredSize: Size.fromHeight(80.0)),
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -371,13 +451,11 @@ class _MakeOfferPageState extends State<MakeOfferPage>
           child: ListView(
             children: <Widget>[
               Padding(
-                padding: const EdgeInsets.all(10.0),
+                padding:
+                    const EdgeInsets.only(left: 28.0, bottom: 8.0, top: 8.0),
                 child: Text(
-                  'Period Invoice Offer is OPEN',
-                  style: TextStyle(
-                      fontSize: 16.0,
-                      color: Colors.grey,
-                      fontWeight: FontWeight.w900),
+                  invoice.customerName,
+                  style: Styles.greyLabelMedium,
                 ),
               ),
               Row(
@@ -449,9 +527,9 @@ class _MakeOfferPageState extends State<MakeOfferPage>
                     Text(
                       days == null ? '0' : '$days',
                       style: TextStyle(
-                          fontSize: 60.0,
+                          fontSize: 40.0,
                           fontWeight: FontWeight.w900,
-                          color: Colors.teal),
+                          color: Colors.purple.shade700),
                     ),
                     Padding(
                       padding: const EdgeInsets.only(left: 18.0, top: 8.0),
@@ -586,6 +664,7 @@ class _MakeOfferPageState extends State<MakeOfferPage>
                     child: RaisedButton(
                       elevation: 8.0,
                       onPressed: _submitOffer,
+                      color: Colors.indigo.shade300,
                       child: Padding(
                         padding: const EdgeInsets.all(12.0),
                         child: Text(
@@ -614,5 +693,10 @@ class _MakeOfferPageState extends State<MakeOfferPage>
   onActionPressed(int action) {
     print('_MakeOfferPageState.onActionPressed');
     Navigator.pop(context, needRefresh);
+  }
+
+  void _onSector(Sector value) {
+    sector = value;
+    setState(() {});
   }
 }

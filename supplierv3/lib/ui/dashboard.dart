@@ -530,6 +530,4 @@ class _DashboardState extends State<Dashboard>
         icon: Icons.message,
         action: InvoiceBidConstant);
   }
-
-  void _confirmAuto() {}
 }

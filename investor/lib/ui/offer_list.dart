@@ -565,7 +565,7 @@ class OfferPanel extends StatelessWidget {
   }
 
   String getStatus() {
-    if (offer.dateClosed == null) {
+    if (offer.isOpen == true) {
       return 'Open';
     } else {
       return 'Closed';

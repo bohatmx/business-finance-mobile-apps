@@ -3,7 +3,7 @@ class Offer {
   String offerId;
   String startTime;
   String endTime, offerCancellation;
-  String invoice, documentReference, privateSectorType;
+  String invoice, documentReference;
   String purchaseOrder, participantId, wallet;
   String user, date, supplier, contractURL;
   String invoiceDocumentRef, supplierName, customerName;
@@ -22,7 +22,6 @@ class Offer {
       this.documentReference,
       this.date,
       this.participantId,
-      this.privateSectorType,
       this.purchaseOrder,
       this.supplier,
       this.invoiceBids,
@@ -54,7 +53,6 @@ class Offer {
     this.date = data['date'];
     this.participantId = data['participantId'];
     this.documentReference = data['documentReference'];
-    this.privateSectorType = data['privateSectorType'];
 
     this.invoiceDocumentRef = data['invoiceDocumentRef'];
     this.supplierDocumentRef = data['supplierDocumentRef'];
@@ -88,7 +86,6 @@ class Offer {
         'date': date,
         'documentReference': documentReference,
         'participantId': participantId,
-        'privateSectorType': privateSectorType,
         'invoiceDocumentRef': invoiceDocumentRef,
         'supplierDocumentRef': supplierDocumentRef,
         'supplier': supplier,

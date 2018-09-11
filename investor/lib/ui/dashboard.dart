@@ -7,6 +7,7 @@ import 'package:businesslibrary/data/auto_trade_order.dart';
 import 'package:businesslibrary/data/delivery_acceptance.dart';
 import 'package:businesslibrary/data/delivery_note.dart';
 import 'package:businesslibrary/data/investor.dart';
+import 'package:businesslibrary/data/investor_auto_trades_session.dart';
 import 'package:businesslibrary/data/investor_profile.dart';
 import 'package:businesslibrary/data/invoice_bid.dart';
 import 'package:businesslibrary/data/invoice_settlement.dart';
@@ -22,6 +23,7 @@ import 'package:businesslibrary/util/util.dart';
 import 'package:businesslibrary/util/wallet_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:investor/socket_listener.dart';
 import 'package:investor/ui/firestore_listener.dart';
 import 'package:investor/ui/offer_list.dart';
 import 'package:investor/ui/profile.dart';
@@ -39,7 +41,7 @@ class Dashboard extends StatefulWidget {
 
 class _DashboardState extends State<Dashboard>
     with TickerProviderStateMixin
-    implements SnackBarListener, OfferListener {
+    implements SnackBarListener, OfferListener, InvestorAutoTradeListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   static const platform = const MethodChannel('com.oneconnect.biz.CHANNEL');
 
@@ -69,7 +71,7 @@ class _DashboardState extends State<Dashboard>
 
     items = buildDaysDropDownItems();
     _checkSectors();
-    listenForExecuteInvestorAutoTradesEvent();
+    TradeUtil.listenForExecuteInvestorAutoTradesEvent(this);
   }
 
   void _checkSectors() async {
@@ -496,6 +498,19 @@ class _DashboardState extends State<Dashboard>
       context,
       new MaterialPageRoute(builder: (context) => new ProfilePage()),
     );
+  }
+
+  @override
+  onAutoTradeComplete(InvestorAutoTradeSession session) {
+    print(
+        '_DashboardState.onAutoTradeComplete - #### receiving auto trade session');
+    if (profile.profileId == session.profile.split('#').elementAt(1)) {
+      AppSnackbar.showSnackbar(
+          scaffoldKey: _scaffoldKey,
+          message: 'Auto Trade complete, bids made ${session.sessionBids}',
+          textColor: Styles.lightGreen,
+          backgroundColor: Styles.black);
+    }
   }
 }
 

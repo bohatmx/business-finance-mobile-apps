@@ -1,7 +1,7 @@
 class InvestorAutoTradeSession {
   String sessionId, order, profile;
   int sessionBids;
-  int sessionTotal, maxSessionInvestment;
+  double sessionTotal, maxSessionInvestment;
   List<String> offers;
   List<String> bids;
   String date;
@@ -20,8 +20,18 @@ class InvestorAutoTradeSession {
   InvestorAutoTradeSession.fromJson(Map data) {
     this.sessionId = data['sessionId'];
     this.sessionBids = data['sessionBids'];
-    this.sessionTotal = data['sessionTotal'];
-    this.maxSessionInvestment = data['maxSessionInvestment'];
+
+    if (data['sessionTotal'] is int) {
+      this.sessionTotal = data['sessionTotal'] * 1.0;
+    } else {
+      this.sessionTotal = data['sessionTotal'];
+    }
+    if (data['maxSessionInvestment'] is int) {
+      this.maxSessionInvestment = data['maxSessionInvestment'] * 1.0;
+    } else {
+      this.maxSessionInvestment = data['maxSessionInvestment'];
+    }
+
     this.date = data['date'];
     this.profile = data['profile'];
     this.order = data['order'];

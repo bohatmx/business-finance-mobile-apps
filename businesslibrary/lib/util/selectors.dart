@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:businesslibrary/api/file_util.dart';
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/data/sector.dart';
 import 'package:businesslibrary/data/supplier.dart';
@@ -22,10 +23,16 @@ class _SectorSelectorPageState extends State<SectorSelectorPage> {
   }
 
   _getSectors() async {
-    sectors = await ListAPI.getSectors();
+    sectors = await FileUtil.getSector();
 
-    print('SectorSelectorPage._getTypes types found: ${sectors.length}');
     setState(() {});
+    if (sectors == null) {
+      sectors = await ListAPI.getSectors();
+      if (sectors.isNotEmpty) {
+        await FileUtil.saveSectors(Sectors(sectors));
+        setState(() {});
+      }
+    }
   }
 
   String sectorType;
@@ -47,10 +54,10 @@ class _SectorSelectorPageState extends State<SectorSelectorPage> {
                   itemBuilder: (BuildContext context, int index) {
                     return new GestureDetector(
                         onTap: () {
-                          var xType = sectors.elementAt(index);
+                          var sector = sectors.elementAt(index);
                           print(
-                              'SectorSelectorPage.build about to pop ${xType.sectorName}');
-                          Navigator.pop(context, xType);
+                              'SectorSelectorPage.build about to pop ${sector.sectorName}');
+                          Navigator.pop(context, sector);
                         },
                         child: new SectorCard(sectors.elementAt(index)));
                   }),

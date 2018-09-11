@@ -1,8 +1,3 @@
-import 'dart:convert';
-
-import 'package:businesslibrary/api/data_api.dart';
-import 'package:businesslibrary/data/investor_auto_trades_session.dart';
-import 'package:businesslibrary/util/lookups.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:web_socket_channel/io.dart';
@@ -225,25 +220,3 @@ void listenToWebSocket() async {
 {"$class":"com.oneconnect.biz.ExecuteInvestorAutoTradesEvent","session":{"$class":"com.oneconnect.biz.InvestorAutoTradeSession","sessionId":"4822eae0-9620-11e8-cfb3-f1822a307d2e","date":"2018-09-08T19:42:14.616Z","sessionBids":0,"sessionTotal":0,"maxSessionInvestment":12500000,"order":"resource:com.oneconnect.biz.AutoTradeOrder#a4e04a10-9620-11e8-8d4d-bd99de9308a9","profile":"resource:com.oneconnect.biz.InvestorProfile#924a7240-9620-11e8-9eea-65183e9eec26","bids":[],"offers":[]},"eventId":"d3e1f09bdac7f11de97bd06a6dde3d1c6389c3eb5210545d1989790c9817a7d4#0","timestamp":"2018-09-08T19:42:14.288Z"}
 I/flutter (21367): listenForExecuteInvestorAutoTradesEvent ERROR NoSuchMethodError: The method 'forEach' was called on null.
  */
-void listenForExecuteInvestorAutoTradesEvent() async {
-  print(
-      'listenForExecuteInvestorAutoTradesEvent ------- starting  #################################');
-  channel.stream.listen((message) {
-    print(
-        '\n\n\n############# listenForExecuteInvestorAutoTradesEvent WebSocket  ###################: \n\n\n' +
-            message);
-    try {
-      var data = json.decode(message);
-      var m = data['session'];
-      var session = InvestorAutoTradeSession.fromJson(m);
-      prettyPrint(session.toJson(),
-          'InvestorAutoTradeSession ===============> from web socket: ');
-      var api = DataAPI(getURL());
-      session.offers.forEach((off) async {
-        await api.closeOfferOnFirestore(off.split('#').elementAt(1));
-      });
-    } catch (e) {
-      print('listenForExecuteInvestorAutoTradesEvent ERROR $e');
-    }
-  });
-}
