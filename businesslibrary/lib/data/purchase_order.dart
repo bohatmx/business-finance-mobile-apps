@@ -49,7 +49,7 @@ class PurchaseOrder {
     this.user = data['user'];
     this.date = data['date'];
     this.deliveryDateRequired = data['deliveryDateRequired'];
-    this.amount = data['amount'];
+    this.amount = data['amount'] * 1.0;
     this.description = data['description'];
     this.deliveryAddress = data['deliveryAddress'];
     this.reference = data['reference'];
@@ -65,28 +65,28 @@ class PurchaseOrder {
     this.items = List();
   }
 
-  Map<String, dynamic> toJsonWithDynamic() => <String, dynamic>{
-        'supplier': supplier,
-        'purchaseOrderId': purchaseOrderId,
-        'company': company,
-        'govtEntity': govtEntity,
-        'user': user,
-        'date': date,
-        'deliveryDateRequired': deliveryDateRequired,
-        'amount': amount,
-        'description': description,
-        'deliveryAddress': deliveryAddress,
-        'reference': reference,
-        'purchaseOrderNumber': purchaseOrderNumber,
-        'purchaseOrderURL': purchaseOrderURL,
-        'documentReference': documentReference,
-        'supplierDocumentRef': supplierDocumentRef,
-        'govtDocumentRef': govtDocumentRef,
-        'companyDocumentRef': companyDocumentRef,
-        'supplierName': supplierName,
-        'purchaserName': purchaserName,
-        'contractURL': contractURL,
-      };
+//  Map<String, dynamic> toJsonWithDynamic() => <String, dynamic>{
+//        'supplier': supplier,
+//        'purchaseOrderId': purchaseOrderId,
+//        'company': company,
+//        'govtEntity': govtEntity,
+//        'user': user,
+//        'date': date,
+//        'deliveryDateRequired': deliveryDateRequired,
+//        'amount': amount,
+//        'description': description,
+//        'deliveryAddress': deliveryAddress,
+//        'reference': reference,
+//        'purchaseOrderNumber': purchaseOrderNumber,
+//        'purchaseOrderURL': purchaseOrderURL,
+//        'documentReference': documentReference,
+//        'supplierDocumentRef': supplierDocumentRef,
+//        'govtDocumentRef': govtDocumentRef,
+//        'companyDocumentRef': companyDocumentRef,
+//        'supplierName': supplierName,
+//        'purchaserName': purchaserName,
+//        'contractURL': contractURL,
+//      };
   Map<String, dynamic> toJson() => <String, dynamic>{
         'supplier': supplier,
         'purchaseOrderId': purchaseOrderId,

@@ -32,15 +32,20 @@ class InvestorProfile {
 //    this.suppliers = data['suppliers'];
     this.date = data['date'];
     List list = data['sectors'];
+
     this.sectors = List();
-    list.forEach((s) {
-      this.sectors.add(s);
-    });
+    if (list != null) {
+      list.forEach((s) {
+        this.sectors.add(s);
+      });
+    }
     List list2 = data['suppliers'];
     this.suppliers = List();
-    list2.forEach((s) {
-      this.suppliers.add(s);
-    });
+    if (list2 != null) {
+      list2.forEach((s) {
+        this.suppliers.add(s);
+      });
+    }
   }
   Map<String, dynamic> toJson() => <String, dynamic>{
         'profileId': profileId,

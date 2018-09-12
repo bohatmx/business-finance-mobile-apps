@@ -2,7 +2,7 @@ class AutoTradeOrder {
   String autoTradeOrderId;
   String date;
   String investorName;
-  String dateCancelled;
+  String dateCancelled, wallet;
   String investorProfile, user, investor;
   bool isCancelled;
   AutoTradeOrder(
@@ -12,6 +12,7 @@ class AutoTradeOrder {
       this.investorName,
       this.dateCancelled,
       this.isCancelled,
+      this.wallet,
       this.investorProfile,
       this.user});
 
@@ -24,6 +25,7 @@ class AutoTradeOrder {
     this.user = data['user'];
     this.investor = data['investor'];
     this.isCancelled = data['isCancelled'];
+    this.wallet = data['wallet'];
   }
   Map<String, dynamic> toJson() => <String, dynamic>{
         'autoTradeOrderId': autoTradeOrderId,
@@ -34,5 +36,6 @@ class AutoTradeOrder {
         'user': user,
         'investor': investor,
         'isCancelled': isCancelled,
+        'wallet': wallet,
       };
 }

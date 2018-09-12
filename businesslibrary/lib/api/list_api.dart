@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:businesslibrary/api/shared_prefs.dart';
+import 'package:businesslibrary/data/auto_trade_order.dart';
 import 'package:businesslibrary/data/company.dart';
 import 'package:businesslibrary/data/delivery_acceptance.dart';
 import 'package:businesslibrary/data/delivery_note.dart';
@@ -325,6 +326,28 @@ class ListAPI {
     });
 
     print('ListAPI.getSupplierOffers found: ${qs.documents.length} ');
+
+    qs.documents.forEach((doc) {
+      var offer = Offer.fromJson(doc.data);
+      offer.documentReference = doc.documentID;
+      list.add(offer);
+    });
+
+    return list;
+  }
+
+  static Future<List<Offer>> getOpenOffers() async {
+    List<Offer> list = List();
+    var qs = await _firestore
+        .collection('invoiceOffers')
+        .where('isOpen', isEqualTo: true)
+        .getDocuments()
+        .catchError((e) {
+      print('ListAPI.getOpenOffers $e');
+      return list;
+    });
+
+    print('ListAPI.getOpenOffers found: ${qs.documents.length} ');
 
     qs.documents.forEach((doc) {
       var offer = Offer.fromJson(doc.data);
@@ -869,6 +892,46 @@ class ListAPI {
     });
 
     print('ListAPI.getSuppliers ############ found: ${list.length}');
+    return list;
+  }
+
+  static Future<List<InvestorProfile>> getInvestorProfiles() async {
+    print('ListAPI.getInvestorProfiles .....................................');
+    List<InvestorProfile> list = List();
+    var qs = await _firestore
+        .collection('investorProfiles')
+        .getDocuments()
+        .catchError((e) {
+      print('ListAPI.getInvestorProfiles $e');
+      return list;
+    });
+
+    if (qs.documents.isNotEmpty) {
+      qs.documents.forEach((doc) {
+        list.add(new InvestorProfile.fromJson(doc.data));
+      });
+    }
+
+    print('ListAPI.getInvestorProfiles ############ found: ${list.length}');
+    return list;
+  }
+
+  static Future<List<AutoTradeOrder>> getAutoTradeOrders() async {
+    print('ListAPI.getAutoTradeOrders .......  ');
+    List<AutoTradeOrder> list = List();
+    var qs = await _firestore
+        .collection('autoTradeOrders')
+        .getDocuments()
+        .catchError((e) {
+      print('ListAPI.getAutoTradeOrders $e');
+      return list;
+    });
+
+    qs.documents.forEach((doc) {
+      list.add(new AutoTradeOrder.fromJson(doc.data));
+    });
+
+    print('ListAPI.getAutoTradeOrders ############ found: ${list.length}');
     return list;
   }
 

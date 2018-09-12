@@ -61,9 +61,9 @@ class DeliveryNote {
     this.purchaseOrderNumber = data['purchaseOrderNumber'];
     this.customerName = data['customerName'];
 
-    this.amount = data['amount'];
-    this.vat = data['vat'];
-    this.totalAmount = data['totalAmount'];
+    this.amount = data['amount'] * 1.00;
+    this.vat = data['vat'] * 1.00;
+    this.totalAmount = data['totalAmount'] * 1.00;
   }
 
   Map<String, dynamic> toJson() => <String, dynamic>{

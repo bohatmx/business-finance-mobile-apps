@@ -643,6 +643,7 @@ class _InvoiceBidderState extends State<InvoiceBidder>
         startTime: offer.startTime,
         endTime: offer.endTime,
         wallet: NameSpace + 'Wallet#${wallet.stellarPublicKey}',
+        isSettled: false,
         supplierId: offer.supplierDocumentRef);
 
     AppSnackbar.showSnackbarWithProgressIndicator(

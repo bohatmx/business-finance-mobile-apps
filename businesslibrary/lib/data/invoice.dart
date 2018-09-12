@@ -66,24 +66,9 @@ class Invoice {
       this.amount});
 
   Invoice.fromJson(Map data) {
-    try {
-      this.totalAmount = data['totalAmount'];
-    } catch (e) {
-      print('Invoice.fromJson -- ERROR -- totalAmt $e');
-      this.totalAmount = data['totalAmount'] * 1.00;
-    }
-    try {
-      this.valueAddedTax = data['valueAddedTax'];
-    } catch (e) {
-      print('Invoice.fromJson -- ERROR -- tax $e');
-      this.valueAddedTax = data['valueAddedTax'] * 1.00;
-    }
-    try {
-      this.amount = data['amount'];
-    } catch (e) {
-      print('Invoice.fromJson -- ERROR amouunt -- $e');
-      this.amount = data['amount'] * 1.00;
-    }
+    this.totalAmount = data['totalAmount'] * 1.00;
+    this.valueAddedTax = data['valueAddedTax'] * 1.00;
+    this.amount = data['amount'] * 1.00;
 
     this.supplier = data['supplier'];
     this.invoiceId = data['invoiceId'];

@@ -71,11 +71,6 @@ class _ProfilePageState extends State<ProfilePage> implements SnackBarListener {
   }
 
   _showAutoTradeDialog() async {
-    var order = await SharedPrefs.getAutoTradeOrder();
-    if (order != null) {
-      Navigator.pop(context);
-      return;
-    }
     showDialog(
         context: context,
         builder: (_) => new AlertDialog(
@@ -86,7 +81,7 @@ class _ProfilePageState extends State<ProfilePage> implements SnackBarListener {
               content: Container(
                 height: 200.0,
                 child: Text(
-                    'Do you  want to set up an Auto Trade Order?  The network will make automatic invoice offers on your behalf if you want to.'),
+                    'Do you  want to set up or update an Auto Trade Order?  The network will make automatic invoice offers on your behalf if you want to.'),
               ),
               actions: <Widget>[
                 FlatButton(onPressed: _onNoAutoTrade, child: Text('NO')),
@@ -443,25 +438,38 @@ class _ProfilePageState extends State<ProfilePage> implements SnackBarListener {
     Navigator.pop(context);
   }
 
+  static const Namespace = 'resource:com.oneconnect.biz.';
   void _onAutoTrade() async {
     Navigator.pop(context);
     var user = await SharedPrefs.getUser();
-    var order = AutoTradeOrder(
-      date: DateTime.now().toIso8601String(),
-      investorName: investor.name,
-      investorProfile:
-          'resource:com.oneconnect.biz.InvestorProfile#${profile.profileId}',
-      investor:
-          'resource:com.oneconnect.biz.Investor#${investor.participantId}',
-      user: 'resource:com.oneconnect.biz.User#${user.userId}',
-    );
+    var wallet = await SharedPrefs.getWallet();
+    var orderCached = await SharedPrefs.getAutoTradeOrder();
+    AutoTradeOrder order;
+    if (orderCached != null) {
+      order = orderCached;
+      order.wallet = Namespace + 'Wallet#${wallet.stellarPublicKey}';
+    } else {
+      order = AutoTradeOrder(
+          date: DateTime.now().toIso8601String(),
+          investorName: investor.name,
+          investorProfile: Namespace + 'InvestorProfile#${profile.profileId}',
+          investor: Namespace + 'Investor#${investor.participantId}',
+          user: Namespace + 'User#${user.userId}',
+          wallet: Namespace + 'Wallet#${wallet.stellarPublicKey}');
+    }
     var api = DataAPI(getURL());
     AppSnackbar.showSnackbarWithProgressIndicator(
         scaffoldKey: _scaffoldKey,
         message: 'Saving Auto Trade Order',
         textColor: Styles.yellow,
         backgroundColor: Styles.black);
-    var res = await api.addAutoTradeOrder(order);
+
+    var res;
+    if (orderCached != null) {
+      res = await api.updateAutoTradeOrder(order);
+    } else {
+      res = await api.addAutoTradeOrder(order);
+    }
     if (res == '0') {
       AppSnackbar.showErrorSnackbar(
           scaffoldKey: _scaffoldKey,

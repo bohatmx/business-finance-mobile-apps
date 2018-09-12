@@ -5,75 +5,92 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="80b8d4ed-f360-4af7-bada-dfcc0519f100" name="Default" comment="added auto order executtioon">
-      <change afterPath="$PROJECT_DIR$/../investor/lib/socket_listener.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../monitor/.idea/libraries/Dart_Packages.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../monitor/.idea/libraries/Flutter_Plugins.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../monitor/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../monitor/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../monitor/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../monitor/assets/fin3.jpeg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../monitor/assets/fincash.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../monitor/fonts/Raleway-Black.ttf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../monitor/fonts/Raleway-BlackItalic.ttf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../monitor/fonts/Raleway-Bold.ttf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../monitor/fonts/Raleway-BoldItalic.ttf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../monitor/fonts/Raleway-ExtraBold.ttf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../monitor/fonts/Raleway-ExtraBoldItalic.ttf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../monitor/fonts/Raleway-ExtraLight.ttf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../monitor/fonts/Raleway-ExtraLightItalic.ttf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../monitor/fonts/Raleway-Italic.ttf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../monitor/fonts/Raleway-Light.ttf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../monitor/fonts/Raleway-LightItalic.ttf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../monitor/fonts/Raleway-Medium.ttf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../monitor/fonts/Raleway-MediumItalic.ttf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../monitor/fonts/Raleway-Regular.ttf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../monitor/fonts/Raleway-SemiBold.ttf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../monitor/fonts/Raleway-SemiBoldItalic.ttf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../monitor/fonts/Raleway-Thin.ttf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../monitor/fonts/Raleway-ThinItalic.ttf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../monitor/fonts/Roboto-Black.ttf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../monitor/fonts/Roboto-BlackItalic.ttf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../monitor/fonts/Roboto-Bold.ttf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../monitor/fonts/Roboto-BoldItalic.ttf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../monitor/fonts/Roboto-Italic.ttf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../monitor/fonts/Roboto-Light.ttf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../monitor/fonts/Roboto-LightItalic.ttf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../monitor/fonts/Roboto-Medium.ttf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../monitor/fonts/Roboto-MediumItalic.ttf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../monitor/fonts/Roboto-Regular.ttf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../monitor/fonts/Roboto-Thin.ttf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../monitor/fonts/Roboto-ThinItalic.ttf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../monitor/fonts/Rubik-Black.ttf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../monitor/fonts/Rubik-BlackItalic.ttf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../monitor/fonts/Rubik-Bold.ttf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../monitor/fonts/Rubik-BoldItalic.ttf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../monitor/fonts/Rubik-Italic.ttf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../monitor/fonts/Rubik-Light.ttf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../monitor/fonts/Rubik-LightItalic.ttf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../monitor/fonts/Rubik-Medium.ttf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../monitor/fonts/Rubik-MediumItalic.ttf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../monitor/fonts/Rubik-Regular.ttf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../monitor/fonts/Xerox Sans Serif Narrow Bold.ttf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../monitor/lib/local_util.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../monitor/lib/ui/offers.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../monitor/lib/ui/trading.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../monitor/monitor.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../monitor/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../monitor/.idea/libraries/Dart_SDK.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../monitor/.idea/libraries/Flutter_for_Android.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../monitor/.idea/modules.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../monitor/.idea/runConfigurations/main_dart.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../monitor/.metadata" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../monitor/README.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../monitor/android/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../monitor/android/app/build.gradle" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../monitor/android/app/google-services.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../monitor/android/app/src/main/AndroidManifest.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../monitor/android/app/src/main/java/com/oneconnect/monitor/MainActivity.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../monitor/android/app/src/main/res/drawable/launch_background.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../monitor/android/app/src/main/res/mipmap-hdpi/ic_launcher.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../monitor/android/app/src/main/res/mipmap-mdpi/ic_launcher.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../monitor/android/app/src/main/res/mipmap-xhdpi/ic_launcher.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../monitor/android/app/src/main/res/mipmap-xxhdpi/ic_launcher.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../monitor/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../monitor/android/app/src/main/res/values/styles.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../monitor/android/build.gradle" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../monitor/android/gradle.properties" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../monitor/android/gradle/wrapper/gradle-wrapper.jar" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../monitor/android/gradle/wrapper/gradle-wrapper.properties" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../monitor/android/gradlew" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../monitor/android/gradlew.bat" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../monitor/android/settings.gradle" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../monitor/ios/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../monitor/ios/Flutter/AppFrameworkInfo.plist" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../monitor/ios/Flutter/Debug.xcconfig" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../monitor/ios/Flutter/Release.xcconfig" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../monitor/ios/Podfile" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../monitor/ios/Runner.xcodeproj/project.pbxproj" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../monitor/ios/Runner.xcodeproj/project.xcworkspace/contents.xcworkspacedata" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../monitor/ios/Runner.xcodeproj/xcshareddata/xcschemes/Runner.xcscheme" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../monitor/ios/Runner.xcworkspace/contents.xcworkspacedata" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../monitor/ios/Runner/AppDelegate.swift" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../monitor/ios/Runner/Assets.xcassets/AppIcon.appiconset/Contents.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../monitor/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-1024x1024@1x.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../monitor/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-20x20@1x.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../monitor/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-20x20@2x.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../monitor/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-20x20@3x.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../monitor/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-29x29@1x.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../monitor/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-29x29@2x.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../monitor/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-29x29@3x.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../monitor/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-40x40@1x.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../monitor/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-40x40@2x.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../monitor/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-40x40@3x.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../monitor/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-60x60@2x.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../monitor/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-60x60@3x.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../monitor/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-76x76@1x.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../monitor/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-76x76@2x.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../monitor/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-83.5x83.5@2x.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../monitor/ios/Runner/Assets.xcassets/LaunchImage.imageset/Contents.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../monitor/ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImage.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../monitor/ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImage@2x.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../monitor/ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImage@3x.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../monitor/ios/Runner/Assets.xcassets/LaunchImage.imageset/README.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../monitor/ios/Runner/Base.lproj/LaunchScreen.storyboard" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../monitor/ios/Runner/Base.lproj/Main.storyboard" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../monitor/ios/Runner/Info.plist" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../monitor/ios/Runner/Runner-Bridging-Header.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../monitor/lib/main.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../monitor/lib/ui/theme_util.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../monitor/monitor_android.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../monitor/pubspec.yaml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../monitor/test/widget_test.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../businesslibrary/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/api/data_api.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/api/data_api.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/api/file_util.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/api/file_util.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/data/investor_auto_trades_event.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/data/investor_auto_trades_event.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/data/investor_auto_trades_session.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/data/investor_auto_trades_session.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/data/invoice_bid.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/data/invoice_bid.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/api/list_api.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/api/list_api.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/data/auto_trade_order.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/data/auto_trade_order.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/data/delivery_note.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/data/delivery_note.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/data/investor_auto_trades_event.dart" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/data/investor_auto_trades_session.dart" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/data/investor_profile.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/data/investor_profile.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/data/invoice.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/data/invoice.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/data/offer.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/data/offer.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/util/selectors.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/util/selectors.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/util/util.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/util/util.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/data/purchase_order.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/data/purchase_order.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../crudderv3/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../crudderv3/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../crudderv3/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../crudderv3/lib/main.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../investor/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../investor/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../investor/lib/socket_listener.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../investor/lib/socket_listener.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../investor/lib/ui/dashboard.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../investor/lib/ui/dashboard.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../investor/lib/ui/invoice_bidder.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../investor/lib/ui/invoice_bidder.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../investor/lib/ui/offer_list.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../investor/lib/ui/offer_list.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../investor/lib/ui/profile.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../investor/lib/ui/profile.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../monitor/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../monitor/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/ui/dashboard.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/ui/dashboard.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/ui/make_offer.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/ui/make_offer.dart" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <ignored path="../.gradle/4.4/fileChanges/last-build.bin" />
@@ -327,7 +344,8 @@
           <entry key="project.open.time.54" value="1" />
           <entry key="project.open.time.56" value="1" />
           <entry key="project.open.time.59" value="1" />
-          <entry key="project.opened" value="10" />
+          <entry key="project.open.time.83" value="1" />
+          <entry key="project.opened" value="11" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
@@ -365,33 +383,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/lib/ui/dashboard.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="259">
+            <state relative-caret-position="320">
               <caret line="47" column="26" selection-start-line="47" selection-start-column="26" selection-end-line="47" selection-end-column="26" />
-              <folding>
-                <element signature="e#2711#3081#0" expanded="true" />
-                <element signature="e#3112#3173#0" expanded="true" />
-                <element signature="e#3230#3676#0" expanded="true" />
-                <element signature="e#3705#4159#0" expanded="true" />
-                <element signature="e#4180#4343#0" expanded="true" />
-                <element signature="e#4372#4819#0" expanded="true" />
-                <element signature="e#4845#5106#0" expanded="true" />
-                <element signature="e#5132#5311#0" expanded="true" />
-                <element signature="e#5343#5524#0" expanded="true" />
-                <element signature="e#6206#10496#0" expanded="true" />
-                <element signature="e#10523#10822#0" expanded="true" />
-                <element signature="e#10850#11041#0" expanded="true" />
-                <element signature="e#11076#11300#0" expanded="true" />
-                <element signature="e#11334#11534#0" expanded="true" />
-                <element signature="e#11563#11632#0" expanded="true" />
-                <element signature="e#11646#11772#0" expanded="true" />
-                <element signature="e#11816#12668#0" expanded="true" />
-                <element signature="e#12691#13176#0" expanded="true" />
-                <element signature="e#13202#13373#0" expanded="true" />
-                <element signature="e#13719#14443#0" expanded="true" />
-                <element signature="e#14544#15260#0" expanded="true" />
-                <element signature="e#15357#16095#0" expanded="true" />
-                <element signature="e#16165#16858#0" expanded="true" />
-              </folding>
             </state>
           </provider>
         </entry>
@@ -400,7 +393,7 @@
         <entry file="file://$PROJECT_DIR$/android/app/build.gradle">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="399">
-              <caret line="57" column="12" lean-forward="true" selection-start-line="57" selection-end-line="57" selection-end-column="46" />
+              <caret line="57" column="12" selection-start-line="57" selection-end-line="57" selection-end-column="46" />
               <folding>
                 <element signature="e#571#1327#0" expanded="true" />
                 <element signature="e#675#1068#0" expanded="true" />
@@ -410,44 +403,20 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/android/build.gradle">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="80">
-              <caret line="8" column="37" selection-start-line="8" selection-start-column="7" selection-end-line="8" selection-end-column="56" />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/lib/ui/make_offer.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="14">
+            <state relative-caret-position="1104">
               <caret line="353" column="25" selection-start-line="353" selection-start-column="25" selection-end-line="353" selection-end-column="25" />
-              <folding>
-                <element signature="e#1668#1755#0" expanded="true" />
-                <element signature="e#1894#2067#0" expanded="true" />
-                <element signature="e#2350#2922#0" expanded="true" />
-                <element signature="e#2761#2860#0" expanded="true" />
-                <element signature="e#6992#7271#0" expanded="true" />
-                <element signature="e#7373#7654#0" expanded="true" />
-                <element signature="e#7675#7829#0" expanded="true" />
-                <element signature="e#7854#8088#0" expanded="true" />
-                <element signature="e#10878#21263#0" expanded="true" />
-                <element signature="e#21538#21543#0" expanded="true" />
-              </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/../businesslibrary/lib/util/util.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="278">
-              <caret line="222" selection-start-line="222" selection-end-line="222" />
-              <folding>
-                <element signature="e#4850#5090#0" expanded="true" />
-              </folding>
+            <state relative-caret-position="47">
+              <caret line="35" selection-start-line="35" selection-end-line="35" />
             </state>
           </provider>
         </entry>
@@ -455,7 +424,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/../businesslibrary/lib/api/file_util.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="284">
+            <state relative-caret-position="592">
               <caret line="62" column="26" selection-start-line="62" selection-start-column="26" selection-end-line="62" selection-end-column="26" />
               <folding>
                 <element signature="e#300#806#0" expanded="true" />
@@ -467,7 +436,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/lib/ui/invoice_list.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="205">
+            <state relative-caret-position="960">
               <caret line="339" column="14" selection-start-line="337" selection-start-column="3" selection-end-line="341" selection-end-column="6" />
               <folding>
                 <element signature="e#0#20#0" expanded="true" />
@@ -593,25 +562,14 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="AndroidView" />
       <pane id="PackagesPane" />
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
             <path>
               <item name="supplierv3" type="b2602c69:ProjectViewProjectNode" />
               <item name="supplierv3" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="supplierv3" type="b2602c69:ProjectViewProjectNode" />
-              <item name="supplierv3" type="462c0819:PsiDirectoryNode" />
-              <item name="android" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="supplierv3" type="b2602c69:ProjectViewProjectNode" />
-              <item name="supplierv3" type="462c0819:PsiDirectoryNode" />
-              <item name="android" type="462c0819:PsiDirectoryNode" />
-              <item name="app" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="supplierv3" type="b2602c69:ProjectViewProjectNode" />
@@ -634,12 +592,12 @@
           <select />
         </subPane>
       </pane>
-      <pane id="AndroidView" />
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
     <property name="android.sdk.path" value="$USER_HOME$/Library/Android/sdk" />
-    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1536636647102" />
+    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1536748135526" />
     <property name="dart.analysis.tool.window.force.activate" value="false" />
     <property name="io.flutter.reload.alreadyRun" value="true" />
     <property name="settings.editor.selected.configurable" value="dart.settings" />
@@ -796,9 +754,10 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="1680" y="30" width="1797" height="979" extended-state="0" />
+    <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.52690166" visible="true" weight="0.16182336" />
-      <window_info id="Structure" order="1" sideWeight="0.47309834" side_tool="true" visible="true" weight="0.14472935" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.52416354" visible="true" weight="0.16068377" />
+      <window_info id="Structure" order="1" sideWeight="0.47583643" side_tool="true" visible="true" weight="0.14529915" />
       <window_info id="Designer" order="2" />
       <window_info id="Build Variants" order="3" sideWeight="0.5203956" side_tool="true" weight="0.25656688" />
       <window_info id="Image Layers" order="4" />
@@ -808,14 +767,14 @@
       <window_info id="UI Designer" order="8" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32844242" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.8119658" visible="true" weight="0.416009" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.811396" visible="true" weight="0.416009" />
       <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.74529916" weight="0.3990981" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" />
       <window_info anchor="bottom" id="Dart Analysis" order="7" sideWeight="0.4991453" weight="0.32807216" />
       <window_info anchor="bottom" id="Android Profiler" order="8" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Event Log" order="9" sideWeight="0.18803419" side_tool="true" visible="true" weight="0.416009" />
+      <window_info anchor="bottom" id="Event Log" order="9" sideWeight="0.18860398" side_tool="true" visible="true" weight="0.416009" />
       <window_info anchor="bottom" id="Logcat" order="10" sideWeight="0.4993895" weight="0.32918552" />
       <window_info anchor="bottom" id="Version Control" order="11" weight="0.32936978" />
       <window_info anchor="bottom" id="Terminal" order="12" sideWeight="0.4980057" weight="0.37767756" />
@@ -1023,11 +982,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="252">
           <caret line="293" lean-forward="true" selection-start-line="293" selection-end-line="293" />
-          <folding>
-            <element signature="e#8580#8686#0" expanded="true" />
-            <element signature="e#8729#8832#0" expanded="true" />
-            <element signature="e#8908#9200#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1091,29 +1045,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/lib/ui/invoice_list.dart">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="205">
-          <caret line="339" column="14" selection-start-line="337" selection-start-column="3" selection-end-line="341" selection-end-column="6" />
-          <folding>
-            <element signature="e#0#20#0" expanded="true" />
-            <element signature="n#!!block;n#InvoiceList#0" />
-            <element signature="e#2319#3376#0" expanded="true" />
-            <element signature="e#4469#5685#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../businesslibrary/lib/api/file_util.dart">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="284">
-          <caret line="62" column="26" selection-start-line="62" selection-start-column="26" selection-end-line="62" selection-end-column="26" />
-          <folding>
-            <element signature="e#300#806#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/../businesslibrary/lib/util/selectors.dart">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="240">
@@ -1132,75 +1063,39 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/lib/ui/make_offer.dart">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="14">
-          <caret line="353" column="25" selection-start-line="353" selection-start-column="25" selection-end-line="353" selection-end-column="25" />
-          <folding>
-            <element signature="e#1668#1755#0" expanded="true" />
-            <element signature="e#1894#2067#0" expanded="true" />
-            <element signature="e#2350#2922#0" expanded="true" />
-            <element signature="e#2761#2860#0" expanded="true" />
-            <element signature="e#6992#7271#0" expanded="true" />
-            <element signature="e#7373#7654#0" expanded="true" />
-            <element signature="e#7675#7829#0" expanded="true" />
-            <element signature="e#7854#8088#0" expanded="true" />
-            <element signature="e#10878#21263#0" expanded="true" />
-            <element signature="e#21538#21543#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../businesslibrary/lib/util/util.dart">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="278">
-          <caret line="222" selection-start-line="222" selection-end-line="222" />
-          <folding>
-            <element signature="e#4850#5090#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/lib/ui/dashboard.dart">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="259">
+        <state relative-caret-position="320">
           <caret line="47" column="26" selection-start-line="47" selection-start-column="26" selection-end-line="47" selection-end-column="26" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lib/ui/make_offer.dart">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1104">
+          <caret line="353" column="25" selection-start-line="353" selection-start-column="25" selection-end-line="353" selection-end-column="25" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../businesslibrary/lib/api/file_util.dart">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="592">
+          <caret line="62" column="26" selection-start-line="62" selection-start-column="26" selection-end-line="62" selection-end-column="26" />
           <folding>
-            <element signature="e#2711#3081#0" expanded="true" />
-            <element signature="e#3112#3173#0" expanded="true" />
-            <element signature="e#3230#3676#0" expanded="true" />
-            <element signature="e#3705#4159#0" expanded="true" />
-            <element signature="e#4180#4343#0" expanded="true" />
-            <element signature="e#4372#4819#0" expanded="true" />
-            <element signature="e#4845#5106#0" expanded="true" />
-            <element signature="e#5132#5311#0" expanded="true" />
-            <element signature="e#5343#5524#0" expanded="true" />
-            <element signature="e#6206#10496#0" expanded="true" />
-            <element signature="e#10523#10822#0" expanded="true" />
-            <element signature="e#10850#11041#0" expanded="true" />
-            <element signature="e#11076#11300#0" expanded="true" />
-            <element signature="e#11334#11534#0" expanded="true" />
-            <element signature="e#11563#11632#0" expanded="true" />
-            <element signature="e#11646#11772#0" expanded="true" />
-            <element signature="e#11816#12668#0" expanded="true" />
-            <element signature="e#12691#13176#0" expanded="true" />
-            <element signature="e#13202#13373#0" expanded="true" />
-            <element signature="e#13719#14443#0" expanded="true" />
-            <element signature="e#14544#15260#0" expanded="true" />
-            <element signature="e#15357#16095#0" expanded="true" />
-            <element signature="e#16165#16858#0" expanded="true" />
+            <element signature="e#300#806#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/android/app/build.gradle">
+    <entry file="file://$PROJECT_DIR$/lib/ui/invoice_list.dart">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="399">
-          <caret line="57" column="12" lean-forward="true" selection-start-line="57" selection-end-line="57" selection-end-column="46" />
+        <state relative-caret-position="960">
+          <caret line="339" column="14" selection-start-line="337" selection-start-column="3" selection-end-line="341" selection-end-column="6" />
           <folding>
-            <element signature="e#571#1327#0" expanded="true" />
-            <element signature="e#675#1068#0" expanded="true" />
-            <element signature="e#1374#1794#0" expanded="true" />
+            <element signature="e#0#20#0" expanded="true" />
+            <element signature="n#!!block;n#InvoiceList#0" />
+            <element signature="e#2319#3376#0" expanded="true" />
+            <element signature="e#4469#5685#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -1209,6 +1104,25 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="80">
           <caret line="8" column="37" selection-start-line="8" selection-start-column="7" selection-end-line="8" selection-end-column="56" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/android/app/build.gradle">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="399">
+          <caret line="57" column="12" selection-start-line="57" selection-end-line="57" selection-end-column="46" />
+          <folding>
+            <element signature="e#571#1327#0" expanded="true" />
+            <element signature="e#675#1068#0" expanded="true" />
+            <element signature="e#1374#1794#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../businesslibrary/lib/util/util.dart">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="47">
+          <caret line="35" selection-start-line="35" selection-end-line="35" />
         </state>
       </provider>
     </entry>

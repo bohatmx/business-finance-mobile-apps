@@ -46,7 +46,7 @@ class Offer {
     this.offerId = data['offerId'];
     this.startTime = data['startTime'];
     this.endTime = data['endTime'];
-    this.discountPercent = data['discountPercent'];
+    this.discountPercent = data['discountPercent'] * 1.00;
     this.invoice = data['invoice'];
     this.purchaseOrder = data['purchaseOrder'];
     this.user = data['user'];
@@ -63,8 +63,8 @@ class Offer {
     this.supplierName = data['supplierName'];
     this.customerName = data['customerName'];
 
-    this.invoiceAmount = data['invoiceAmount'];
-    this.offerAmount = data['offerAmount'];
+    this.invoiceAmount = data['invoiceAmount'] * 1.00;
+    this.offerAmount = data['offerAmount'] * 1.00;
     this.contractURL = data['contractURL'];
     this.wallet = data['wallet'];
     this.isCancelled = data['isCancelled'];

@@ -7,7 +7,6 @@ import 'package:businesslibrary/data/auto_trade_order.dart';
 import 'package:businesslibrary/data/delivery_acceptance.dart';
 import 'package:businesslibrary/data/delivery_note.dart';
 import 'package:businesslibrary/data/investor.dart';
-import 'package:businesslibrary/data/investor_auto_trades_session.dart';
 import 'package:businesslibrary/data/investor_profile.dart';
 import 'package:businesslibrary/data/invoice_bid.dart';
 import 'package:businesslibrary/data/invoice_settlement.dart';
@@ -23,7 +22,6 @@ import 'package:businesslibrary/util/util.dart';
 import 'package:businesslibrary/util/wallet_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:investor/socket_listener.dart';
 import 'package:investor/ui/firestore_listener.dart';
 import 'package:investor/ui/offer_list.dart';
 import 'package:investor/ui/profile.dart';
@@ -41,7 +39,7 @@ class Dashboard extends StatefulWidget {
 
 class _DashboardState extends State<Dashboard>
     with TickerProviderStateMixin
-    implements SnackBarListener, OfferListener, InvestorAutoTradeListener {
+    implements SnackBarListener, OfferListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   static const platform = const MethodChannel('com.oneconnect.biz.CHANNEL');
 
@@ -71,7 +69,6 @@ class _DashboardState extends State<Dashboard>
 
     items = buildDaysDropDownItems();
     _checkSectors();
-    TradeUtil.listenForExecuteInvestorAutoTradesEvent(this);
   }
 
   void _checkSectors() async {
@@ -83,6 +80,7 @@ class _DashboardState extends State<Dashboard>
   }
 
   List<Sector> sectors;
+
   @override
   void dispose() {
     animationController.dispose();
@@ -167,6 +165,7 @@ class _DashboardState extends State<Dashboard>
 
   double opacity = 1.0;
   String name;
+
   @override
   Widget build(BuildContext context) {
     message = widget.message;
@@ -305,7 +304,7 @@ class _DashboardState extends State<Dashboard>
 
   Widget _getBottom() {
     return PreferredSize(
-      preferredSize: const Size.fromHeight(100.0),
+      preferredSize: const Size.fromHeight(60.0),
       child: new Column(
         children: <Widget>[
           Row(
@@ -318,107 +317,19 @@ class _DashboardState extends State<Dashboard>
                   style: TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.w900,
-                    fontSize: 16.0,
+                    fontSize: 20.0,
                   ),
                 ),
               )
             ],
-          ),
-//          Row(
-//            mainAxisAlignment: MainAxisAlignment.center,
-//            children: <Widget>[
-//              new Padding(
-//                padding: const EdgeInsets.only(top: 0.0, bottom: 20.0),
-//                child: Text(
-//                  fullName == null ? 'user' : fullName,
-//                  style: TextStyle(
-//                    color: Colors.white,
-//                    fontWeight: FontWeight.normal,
-//                  ),
-//                ),
-//              )
-//            ],
-//          ),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 12.0),
-            child: FlatButton(
-              onPressed: _confirmAuto,
-              child: Text(
-                'Start AUTO TRADES',
-                style: Styles.whiteBoldMedium,
-              ),
-            ),
           ),
         ],
       ),
     );
   }
 
-  _confirmAuto() {
-    showDialog(
-        context: context,
-        builder: (_) => new AlertDialog(
-              title: new Text(
-                "Auto Trade Confirmation",
-                style: Styles.pinkBoldMedium,
-              ),
-              content: Container(
-                height: 140.0,
-                child: Text(
-                  'Do you  want to start an Auto Trade Session?  The network will make automatic invoice offers on your behalf based on your profile.',
-                  style: Styles.blackMedium,
-                ),
-              ),
-              actions: <Widget>[
-                FlatButton(onPressed: _onNoAutoTrade, child: Text('NO')),
-                FlatButton(onPressed: _onAutoTrade, child: Text('YES')),
-              ],
-            ));
-  }
-
-  _onNoAutoTrade() {
-    Navigator.pop(context);
-  }
-
   AutoTradeOrder order;
   InvestorProfile profile;
-
-  _onAutoTrade() async {
-    Navigator.pop(context);
-    AppSnackbar.showSnackbarWithProgressIndicator(
-        scaffoldKey: _scaffoldKey,
-        message: 'Starting AUTO TRADE session',
-        textColor: Styles.yellow,
-        backgroundColor: Styles.purple);
-    order = await SharedPrefs.getAutoTradeOrder();
-    profile = await SharedPrefs.getInvestorProfile();
-    if (profile == null) {
-      //todo go to sett up
-      return;
-    }
-    if (order == null) {
-      //todo go to sett up
-      return;
-    }
-
-    var api = DataAPI(getURL());
-    var res = await api.executeInvestorAutoTrades(
-        order.autoTradeOrderId, profile.profileId, profile.maxInvestableAmount);
-    if (res == '0') {
-      AppSnackbar.showErrorSnackbar(
-          scaffoldKey: _scaffoldKey,
-          message: 'Failed to start AUTO TRADE',
-          listener: this,
-          actionLabel: 'close');
-    } else {
-      AppSnackbar.showSnackbar(
-          scaffoldKey: _scaffoldKey,
-          message: 'AUTO TRADE started OK',
-          textColor: Styles.lightGreen,
-          backgroundColor: Styles.black);
-    }
-  }
-
   int _days = 7;
 
   List<DropdownMenuItem<int>> items = List();
@@ -442,6 +353,7 @@ class _DashboardState extends State<Dashboard>
   }
 
   DateTime startTime, endTime;
+
   Future _getOffers() async {
     print('_DashboardState._getOffers ................');
     endTime = DateTime.now();
@@ -469,6 +381,7 @@ class _DashboardState extends State<Dashboard>
       WalletConstant = 7,
       InvoiceAcceptedConstant = 8;
   Offer offer;
+
   @override
   onOffer(Offer o) {
     offer = o;
@@ -498,19 +411,6 @@ class _DashboardState extends State<Dashboard>
       context,
       new MaterialPageRoute(builder: (context) => new ProfilePage()),
     );
-  }
-
-  @override
-  onAutoTradeComplete(InvestorAutoTradeSession session) {
-    print(
-        '_DashboardState.onAutoTradeComplete - #### receiving auto trade session');
-    if (profile.profileId == session.profile.split('#').elementAt(1)) {
-      AppSnackbar.showSnackbar(
-          scaffoldKey: _scaffoldKey,
-          message: 'Auto Trade complete, bids made ${session.sessionBids}',
-          textColor: Styles.lightGreen,
-          backgroundColor: Styles.black);
-    }
   }
 }
 

@@ -42,6 +42,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   initState() {
     super.initState();
+    _start();
   }
 
   void _start() async {
@@ -359,7 +360,6 @@ class _MyHomePageState extends State<MyHomePage> {
         name: 'Mkhize Electrical',
         email: 'info@mkhize.com',
         country: 'South Africa',
-        privateSectorType: 'Engineering',
       );
       User u1 = new User(
           firstName: 'David',
@@ -372,7 +372,6 @@ class _MyHomePageState extends State<MyHomePage> {
         name: 'Dlamini Contractors',
         email: 'info@dlamini.com',
         country: 'South Africa',
-        privateSectorType: 'Engineering',
       );
       User u2 = new User(
           firstName: 'Moses',
@@ -385,7 +384,6 @@ class _MyHomePageState extends State<MyHomePage> {
         name: 'TrebleX Engineering',
         email: 'info@engineers.com',
         country: 'South Africa',
-        privateSectorType: 'Engineering',
       );
       User u5 = new User(
           firstName: 'Daniel',
@@ -398,7 +396,6 @@ class _MyHomePageState extends State<MyHomePage> {
         name: 'DHH Transport Logistics',
         email: 'info@dhhtransport.com',
         country: 'South Africa',
-        privateSectorType: 'Engineering',
       );
       User u6 = new User(
           firstName: 'Peter',
@@ -411,7 +408,6 @@ class _MyHomePageState extends State<MyHomePage> {
         name: 'FX Super Logistics',
         email: 'info@fxtransport.com',
         country: 'South Africa',
-        privateSectorType: 'Engineering',
       );
       User u7 = new User(
           firstName: 'Samuel',
@@ -424,7 +420,6 @@ class _MyHomePageState extends State<MyHomePage> {
         name: 'Davids Rolling Logistics',
         email: 'info@rolliin.com',
         country: 'South Africa',
-        privateSectorType: 'Engineering',
       );
       User u8 = new User(
           firstName: 'Thomas',
@@ -437,7 +432,6 @@ class _MyHomePageState extends State<MyHomePage> {
         name: 'Pope Transport Logistics',
         email: 'info@pope.com',
         country: 'South Africa',
-        privateSectorType: 'Engineering',
       );
       User u9 = new User(
           firstName: 'Daniel',
@@ -450,7 +444,6 @@ class _MyHomePageState extends State<MyHomePage> {
         name: 'Naidoo Transport Logistics',
         email: 'info@naidoo.com',
         country: 'South Africa',
-        privateSectorType: 'Engineering',
       );
       User u10 = new User(
           firstName: 'Sithwell',
@@ -463,7 +456,6 @@ class _MyHomePageState extends State<MyHomePage> {
         name: 'Green Logistics',
         email: 'info@greenlogs.com',
         country: 'South Africa',
-        privateSectorType: 'Engineering',
       );
       User u11 = new User(
           firstName: 'Evelyn',
@@ -476,7 +468,6 @@ class _MyHomePageState extends State<MyHomePage> {
         name: 'Wendywood Transporters',
         email: 'info@wendywood.com',
         country: 'South Africa',
-        privateSectorType: 'Engineering',
       );
       User u12 = new User(
           firstName: 'Mary',
@@ -488,7 +479,6 @@ class _MyHomePageState extends State<MyHomePage> {
         name: 'Xavier TTransport',
         email: 'info@xavier.com',
         country: 'South Africa',
-        privateSectorType: 'Engineering',
       );
       User u13 = new User(
           firstName: 'Xavier',
@@ -501,7 +491,6 @@ class _MyHomePageState extends State<MyHomePage> {
         name: 'Danielson Logistics',
         email: 'info@dhhtransport.com',
         country: 'South Africa',
-        privateSectorType: 'Engineering',
       );
       User u14 = new User(
           firstName: 'dan',
