@@ -5,10 +5,10 @@
       <change beforePath="$PROJECT_DIR$/../businesslibrary/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../crudderv3/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../crudderv3/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../investor/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../investor/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../investor/lib/ui/dashboard.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../investor/lib/ui/dashboard.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/main.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../supplierv3/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../supplierv3/lib/ui/make_offer.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/lib/ui/make_offer.dart" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -42,17 +42,17 @@
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="dart" value="2782" />
+          <entry key="dart" value="2795" />
           <entry key="gradle" value="6" />
-          <entry key="txt" value="52" />
+          <entry key="txt" value="71" />
           <entry key="yaml" value="2" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="Dart" value="2782" />
+          <entry key="Dart" value="2795" />
           <entry key="Groovy" value="6" />
-          <entry key="PLAIN_TEXT" value="52" />
+          <entry key="PLAIN_TEXT" value="71" />
           <entry key="YAML" value="2" />
         </counts>
       </usages-collector>
@@ -63,14 +63,15 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/lib/main.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="74">
-              <caret line="103" column="46" selection-start-line="103" selection-start-column="46" selection-end-line="103" selection-end-column="46" />
+            <state relative-caret-position="264">
+              <caret line="90" lean-forward="true" selection-start-line="90" selection-end-line="90" />
               <folding>
                 <element signature="e#0#20#0" expanded="true" />
                 <element signature="e#1065#1793#0" expanded="true" />
                 <element signature="e#2797#2894#0" expanded="true" />
                 <element signature="e#1917#2369#0" expanded="true" />
                 <element signature="e#3264#3883#0" expanded="true" />
+                <element signature="e#3032#4287#0" expanded="true" />
                 <element signature="e#4065#5536#0" expanded="true" />
                 <element signature="e#3933#3988#0" expanded="true" />
                 <element signature="e#4012#4668#0" expanded="true" />
@@ -218,7 +219,7 @@
   </component>
   <component name="PropertiesComponent">
     <property name="android.sdk.path" value="$USER_HOME$/Library/Android/sdk" />
-    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1536816958290" />
+    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1536820860596" />
     <property name="dart.analysis.tool.window.force.activate" value="false" />
     <property name="io.flutter.reload.alreadyRun" value="true" />
     <property name="settings.editor.selected.configurable" value="Console" />
@@ -267,12 +268,18 @@
       <option name="project" value="LOCAL" />
       <updated>1536789342798</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="refactored offer total amount">
+      <created>1536817056304</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1536817056305</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="ToolWindowManager">
     <frame x="2003" y="23" width="1581" height="1007" extended-state="0" />
-    <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" sideWeight="0.5196629" visible="true" weight="0.12020793" />
       <window_info id="Structure" order="1" sideWeight="0.48033708" side_tool="true" visible="true" weight="0.11046134" />
@@ -285,7 +292,7 @@
       <window_info id="UI Designer" order="8" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.8622951" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.66775954" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -316,7 +323,8 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="added monitor app" />
     <MESSAGE value="refactored auto trading - monitor" />
-    <option name="LAST_COMMIT_MESSAGE" value="refactored auto trading - monitor" />
+    <MESSAGE value="refactored offer total amount" />
+    <option name="LAST_COMMIT_MESSAGE" value="refactored offer total amount" />
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/pubspec.yaml">
@@ -423,14 +431,15 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/lib/main.dart">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="74">
-          <caret line="103" column="46" selection-start-line="103" selection-start-column="46" selection-end-line="103" selection-end-column="46" />
+        <state relative-caret-position="264">
+          <caret line="90" lean-forward="true" selection-start-line="90" selection-end-line="90" />
           <folding>
             <element signature="e#0#20#0" expanded="true" />
             <element signature="e#1065#1793#0" expanded="true" />
             <element signature="e#2797#2894#0" expanded="true" />
             <element signature="e#1917#2369#0" expanded="true" />
             <element signature="e#3264#3883#0" expanded="true" />
+            <element signature="e#3032#4287#0" expanded="true" />
             <element signature="e#4065#5536#0" expanded="true" />
             <element signature="e#3933#3988#0" expanded="true" />
             <element signature="e#4012#4668#0" expanded="true" />

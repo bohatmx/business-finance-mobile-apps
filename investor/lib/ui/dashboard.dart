@@ -90,10 +90,15 @@ class _DashboardState extends State<Dashboard>
   ///get  summaries from Firestore
   _getSummaryData() async {
     prettyPrint(investor.toJson(), 'Dashboard_getSummaryData: ');
-
+    AppSnackbar.showSnackbarWithProgressIndicator(
+        scaffoldKey: _scaffoldKey,
+        message: 'Loading fresh data ...',
+        textColor: Colors.white,
+        backgroundColor: Colors.black);
     await _getOffers();
     await _getInvoiceBids();
     await _getSettlements();
+    _scaffoldKey.currentState.hideCurrentSnackBar();
   }
 
   Future _getCachedPrefs() async {
@@ -113,15 +118,10 @@ class _DashboardState extends State<Dashboard>
   }
 
   Future _getInvoiceBids() async {
-    AppSnackbar.showSnackbarWithProgressIndicator(
-        scaffoldKey: _scaffoldKey,
-        message: 'Loading fresh invoiceBid data',
-        textColor: Colors.white,
-        backgroundColor: Colors.black);
-
     invoiceBids =
         await ListAPI.getInvoiceBidsByInvestor(investor.documentReference);
     print('_DashboardState._getInvoiceBids +++++++ ${invoiceBids.length}');
+    _scaffoldKey.currentState.hideCurrentSnackBar();
     if (invoiceBids.isNotEmpty) {
       lastInvoiceBid = invoiceBids.last;
     }
@@ -403,6 +403,8 @@ class _DashboardState extends State<Dashboard>
         listener: this,
         icon: Icons.message,
         action: OfferConstant);
+
+    _getSummaryData();
   }
 
   void _onProfileRequested() {

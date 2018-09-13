@@ -81,8 +81,8 @@ class _MyHomePageState extends State<MyHomePage>
   }
 
   _start() async {
-    print('_MyHomePageState._start ..... Timer.periodic(Duration(seconds: 60)');
-    Timer.periodic(Duration(seconds: 60), (count) async {
+    print('_MyHomePageState._start ..... Timer.periodic(Duration((minutes: 2)');
+    Timer.periodic(Duration(minutes: 2), (count) async {
       _index = 0;
       _offers = await ListAPI.getOpenOffers();
       _doTradesForAll();
@@ -105,7 +105,7 @@ class _MyHomePageState extends State<MyHomePage>
               textColor: Styles.yellow,
               backgroundColor: Styles.black);
           print(
-              '_MyHomePageState._doTradesForAll - no open offers found. will try in 60 seconds: ${DateTime.now().toIso8601String()}');
+              '_MyHomePageState._doTradesForAll - no open offers found. will try in 2 minutes: ${DateTime.now().toIso8601String()}');
         } else {
           _doTradesForAll();
           return;
