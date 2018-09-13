@@ -332,7 +332,7 @@ class _MakeOfferPageState extends State<MakeOfferPage>
     if (percentage != null) {
       double offerPercentage = double.parse(percentage);
 
-      double offerAmt = invoice.amount * (offerPercentage / 100);
+      double offerAmt = invoice.totalAmount * (offerPercentage / 100);
 
       setState(() {
         investorAmount = '$offerAmt';
@@ -357,7 +357,7 @@ class _MakeOfferPageState extends State<MakeOfferPage>
     }
     submitting = true;
     var disc = double.parse(percentage);
-    var offerAmt = (invoice.amount * disc) / 100.0;
+    var offerAmt = (invoice.totalAmount * disc) / 100.0;
     wallet = await SharedPrefs.getWallet();
     Offer offer = new Offer(
         supplier: NameSpace + 'Supplier#' + supplier.participantId,
@@ -365,7 +365,7 @@ class _MakeOfferPageState extends State<MakeOfferPage>
         user: NameSpace + 'User#' + user.userId,
         purchaseOrder: invoice.purchaseOrder,
         offerAmount: offerAmt,
-        invoiceAmount: invoice.amount,
+        invoiceAmount: invoice.totalAmount,
         discountPercent: disc,
         startTime: new DateTime.now().toIso8601String(),
         endTime:
@@ -567,7 +567,7 @@ class _MakeOfferPageState extends State<MakeOfferPage>
                     Padding(
                       padding: const EdgeInsets.only(left: 8.0),
                       child: Text(
-                        getFormattedAmount('${invoice.amount}', context),
+                        getFormattedAmount('${invoice.totalAmount}', context),
                         style: TextStyle(
                             fontSize: 20.0, fontWeight: FontWeight.bold),
                       ),
