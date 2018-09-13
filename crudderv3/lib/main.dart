@@ -47,6 +47,9 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _start() async {
     await cleanUp();
+    setState(() {
+      _counter++;
+    });
     await _generateSuppliers();
     setState(() {
       _counter++;
@@ -57,6 +60,8 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       _counter++;
     });
+    print(
+        '_MyHomePageState._start  #####################################  COOMPLETED!');
   }
 
   Future<int> cleanUp() async {

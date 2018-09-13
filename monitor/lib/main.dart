@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:businesslibrary/api/data_api.dart';
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/data/auto_trade_order.dart';
 import 'package:businesslibrary/data/delivery_acceptance.dart';
@@ -13,7 +12,6 @@ import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
-import 'package:businesslibrary/util/util.dart';
 import 'package:flutter/material.dart';
 import 'package:monitor/local_util.dart';
 import 'package:monitor/ui/theme_util.dart';
@@ -41,7 +39,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage>
-    implements BlockchainListener, SnackBarListener {
+    implements BlockchainListener, SnackBarListener, AutoTradeListener {
   static const NUMBER_OF_BIDS_TO_MAKE = 2;
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   List<AutoTradeOrder> _orders;
@@ -52,7 +50,7 @@ class _MyHomePageState extends State<MyHomePage>
   @override
   void initState() {
     super.initState();
-    BlockchainUtil.listenForBlockchainEvents(this);
+//    BlockchainUtil.listenForBlockchainEvents(this);
     _getLists();
   }
 
@@ -82,113 +80,54 @@ class _MyHomePageState extends State<MyHomePage>
 
   _start() async {
     print('_MyHomePageState._start ..... Timer.periodic(Duration((minutes: 2)');
-    Timer.periodic(Duration(minutes: 2), (count) async {
+    Timer.periodic(Duration(minutes: 1), (count) async {
       _index = 0;
+      _orders = await ListAPI.getAutoTradeOrders();
+      _profiles = await ListAPI.getInvestorProfiles();
       _offers = await ListAPI.getOpenOffers();
-      _doTradesForAll();
+      _orders.shuffle();
+      if (_offers.isEmpty) {
+        AppSnackbar.showSnackbar(
+            scaffoldKey: _scaffoldKey,
+            message: 'No open offers available',
+            textColor: Styles.white,
+            backgroundColor: Styles.black);
+        return;
+      }
+      if (_orders.isNotEmpty && _profiles.isNotEmpty && _offers.isNotEmpty) {
+        var z = AutoTradeExecutionBuilder();
+        z.executeAutoTrades(_orders, _profiles, _offers, this);
+      }
     });
   }
 
-  int offerIndex = 0;
-
-  _doTradesForAll() async {
-    print(
-        '_MyHomePageState._doTradesForAll ############## ..... index: $_index ############');
-    if (_index < _orders.length) {
-      if (_offers.isEmpty) {
-        _offers = await ListAPI.getOpenOffers();
-        _index = 0;
-        if (_offers.isEmpty) {
-          AppSnackbar.showSnackbar(
-              scaffoldKey: _scaffoldKey,
-              message: 'No Open Offers found',
-              textColor: Styles.yellow,
-              backgroundColor: Styles.black);
-          print(
-              '_MyHomePageState._doTradesForAll - no open offers found. will try in 2 minutes: ${DateTime.now().toIso8601String()}');
-        } else {
-          _doTradesForAll();
-          return;
-        }
-      }
-      var profileId =
-          _orders.elementAt(_index).investorProfile.split('#').elementAt(1);
-      InvestorProfile profile;
-      _profiles.forEach((p) {
-        if (profileId == p.profileId) {
-          profile = p;
-        }
-      });
-
-      if (profile != null) {
-        await _executeTrade(
-            _orders.elementAt(_index), profile, _offers.elementAt(0));
-        _index++;
-        _doTradesForAll();
-      }
-    } else {
-      if (_offers.isNotEmpty) {
-        _index = 0;
-        _doTradesForAll();
-      }
-    }
+  @override
+  onComplete(int count) {
+    print('_MyHomePageState.onComplete ......... proocessed; $count');
+    AppSnackbar.showSnackbar(
+        scaffoldKey: _scaffoldKey,
+        message: 'Auto Trades completed. Processed $count',
+        textColor: Styles.lightGreen,
+        backgroundColor: Styles.black);
   }
 
-  static const Namespace = 'resource:com.oneconnect.biz.';
-  _executeTrade(
-      AutoTradeOrder order, InvestorProfile profile, Offer offer) async {
-    var now = DateTime.now();
-    print(
-        '_MyHomePageState._executeTrade ................. : ${DateTime.now().toIso8601String()}');
-
-    AppSnackbar.showSnackbarWithProgressIndicator(
+  @override
+  onError(int count) {
+    print('_MyHomePageState.onError ....ERROR ERROOR..... proocessed; $count');
+    AppSnackbar.showErrorSnackbar(
         scaffoldKey: _scaffoldKey,
-        message: 'Trading: ${profile.name}',
-        textColor: Styles.white,
-        backgroundColor: Styles.black);
-
-    var api = DataAPI(getURL());
-
-    var bid = InvoiceBid(
-      offer: Namespace + 'Offer#${offer.offerId}',
-      investor: profile.investor,
-      autoTradeOrder: Namespace + 'AutoTradeOrder#${order.autoTradeOrderId}',
-      amount: offer.offerAmount,
-      discountPercent: 100.0,
-      startTime: DateTime.now().toIso8601String(),
-      endTime: DateTime.now().toIso8601String(),
-      isSettled: false,
-      reservePercent: 100.0,
-      investorName: profile.name,
-      wallet: order.wallet,
-    );
-    var res = await api.makeInvoiceAutoBid(
-      bid: bid,
-      offer: offer,
-      order: order,
-    );
-    _scaffoldKey.currentState.hideCurrentSnackBar();
-    if (res == '0') {
-      AppSnackbar.showErrorSnackbar(
-          scaffoldKey: _scaffoldKey,
-          message: 'Failed to start AUTO TRADE',
-          listener: this,
-          actionLabel: 'close');
-    } else {
-      _offers.remove(offer);
-      print(
-          '_MyHomePageState._executeTrade - _offers.removed _offers: ${_offers.length}');
-    }
-
-    var done = DateTime.now();
-    var diff = done.difference(now).inSeconds;
-    print(
-        '_MyHomePageState._executeTrade \n\n\n++++++++++++++  AUTO TRADE executed - elapsed: $diff seconds for trade\n\n\n');
+        message: 'Auto Trades ERROR. Processed $count',
+        listener: this,
+        actionLabel: 'close');
   }
 
   void _restart() async {
     await _getLists();
     setState(() {});
+    if (_orders.isNotEmpty && _profiles.isNotEmpty && _offers.isNotEmpty) {
+      var z = AutoTradeExecutionBuilder();
+      z.executeAutoTrades(_orders, _profiles, _offers, this);
+    }
   }
 
   Widget _getBottom() {
@@ -237,7 +176,7 @@ class _MyHomePageState extends State<MyHomePage>
                 child: Column(
                   children: <Widget>[
                     Padding(
-                      padding: const EdgeInsets.all(16.0),
+                      padding: const EdgeInsets.all(20.0),
                       child: Row(
                         children: <Widget>[
                           Text(
@@ -249,6 +188,24 @@ class _MyHomePageState extends State<MyHomePage>
                             child: Text(
                               _orders == null ? '0' : '${_orders.length}',
                               style: Styles.pinkBoldReallyLarge,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Row(
+                        children: <Widget>[
+                          Text(
+                            'Open Invoice Offers',
+                            style: Styles.greyLabelLarge,
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 8.0),
+                            child: Text(
+                              _offers == null ? '0' : '${_offers.length}',
+                              style: Styles.blueBoldReallyLarge,
                             ),
                           ),
                         ],

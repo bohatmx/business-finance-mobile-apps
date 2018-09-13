@@ -12,7 +12,7 @@ class AppSnackbar {
       print('AppSnackbar.showSnackbar --- currentState is NULL, quit ..');
       return;
     }
-    scaffoldKey.currentState.hideCurrentSnackBar();
+    scaffoldKey.currentState.removeCurrentSnackBar();
     scaffoldKey.currentState.showSnackBar(new SnackBar(
       content: new Text(
         message,
@@ -31,17 +31,17 @@ class AppSnackbar {
     if (scaffoldKey.currentState == null) {
       return;
     }
-    scaffoldKey.currentState.hideCurrentSnackBar();
+    scaffoldKey.currentState.removeCurrentSnackBar();
     scaffoldKey.currentState.showSnackBar(new SnackBar(
       content: new Row(
         children: <Widget>[
           new Padding(
-            padding: const EdgeInsets.only(left: 8.0, right: 20.0),
+            padding: const EdgeInsets.only(left: 8.0, right: 8.0),
             child: new Container(
-              height: 40.0,
-              width: 40.0,
+              height: 20.0,
+              width: 20.0,
               child: CircularProgressIndicator(
-                strokeWidth: 4.0,
+                strokeWidth: 2.0,
               ),
             ),
           ),
@@ -70,7 +70,7 @@ class AppSnackbar {
           'AppSnackbar.showSnackbarWithAction --- currentState is NULL, quit ..');
       return;
     }
-    scaffoldKey.currentState.hideCurrentSnackBar();
+    scaffoldKey.currentState.removeCurrentSnackBar();
     scaffoldKey.currentState.showSnackBar(new SnackBar(
       content: new Row(
         children: <Widget>[
@@ -108,7 +108,7 @@ class AppSnackbar {
       print('AppSnackbar.showErrorSnackbar --- currentState is NULL, quit ..');
       return;
     }
-    scaffoldKey.currentState.hideCurrentSnackBar();
+    scaffoldKey.currentState.removeCurrentSnackBar();
     var snackbar = new SnackBar(
       content: new Text(
         message,

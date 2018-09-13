@@ -6,6 +6,7 @@
       <w>firestore</w>
       <w>mjson</w>
       <w>oneconnect</w>
+      <w>snackbar</w>
     </words>
   </dictionary>
 </component>
