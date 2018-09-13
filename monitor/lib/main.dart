@@ -86,6 +86,7 @@ class _MyHomePageState extends State<MyHomePage>
       _profiles = await ListAPI.getInvestorProfiles();
       _offers = await ListAPI.getOpenOffers();
       _orders.shuffle();
+
       if (_offers.isEmpty) {
         AppSnackbar.showSnackbar(
             scaffoldKey: _scaffoldKey,
@@ -94,6 +95,7 @@ class _MyHomePageState extends State<MyHomePage>
             backgroundColor: Styles.black);
         return;
       }
+      _offers.sort((a, b) => b.offerAmount.compareTo(a.offerAmount));
       if (_orders.isNotEmpty && _profiles.isNotEmpty && _offers.isNotEmpty) {
         var z = AutoTradeExecutionBuilder();
         z.executeAutoTrades(_orders, _profiles, _offers, this);
