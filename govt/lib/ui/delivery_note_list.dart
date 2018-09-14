@@ -275,8 +275,15 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
   }
 
   void _getDeliveryNotes() async {
+    AppSnackbar.showSnackbarWithProgressIndicator(
+        scaffoldKey: _scaffoldKey,
+        message: 'Getting Delivery Notes',
+        textColor: Colors.white,
+        backgroundColor: Colors.black);
+
     deliveryNotes = await ListAPI.getDeliveryNotes(
         govtEntity.documentReference, 'govtEntities');
+    _scaffoldKey.currentState.removeCurrentSnackBar();
     setState(() {});
   }
 }

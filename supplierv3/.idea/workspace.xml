@@ -5,16 +5,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="80b8d4ed-f360-4af7-bada-dfcc0519f100" name="Default" comment="added auto order executtioon">
-      <change afterPath="$PROJECT_DIR$/../businesslibrary/lib/api/auto_trade.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../businesslibrary/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/api/data_api.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/api/data_api.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/api/list_api.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/api/list_api.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/api/shared_prefs.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/api/shared_prefs.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/api/auto_trade.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/api/auto_trade.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../govt/lib/ui/delivery_note_list.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../govt/lib/ui/delivery_note_list.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../investor/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../investor/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../monitor/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../monitor/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../monitor/lib/local_util.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../monitor/lib/local_util.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../monitor/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../monitor/lib/main.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/ui/make_offer.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/ui/make_offer.dart" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <ignored path="../.gradle/4.4/fileChanges/last-build.bin" />
@@ -283,7 +280,7 @@
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="dart" value="12710" />
+          <entry key="dart" value="12748" />
           <entry key="gradle" value="2" />
           <entry key="txt" value="236" />
         </counts>
@@ -297,11 +294,12 @@
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="Dart" value="12710" />
+          <entry key="Dart" value="12748" />
           <entry key="Groovy" value="2" />
           <entry key="PLAIN_TEXT" value="236" />
         </counts>
       </usages-collector>
+      <usages-collector id="statistics.vcs.git.usages" />
     </session>
   </component>
   <component name="FileEditorManager">
@@ -332,8 +330,12 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/lib/ui/make_offer.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="180">
-              <caret line="331" column="29" selection-start-line="331" selection-start-column="29" selection-end-line="331" selection-end-column="29" />
+            <state relative-caret-position="219">
+              <caret line="615" column="56" lean-forward="true" selection-start-line="615" selection-start-column="56" selection-end-line="615" selection-end-column="56" />
+              <folding>
+                <element signature="e#8177#8416#0" expanded="true" />
+                <element signature="e#8462#11265#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -385,7 +387,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>_InvoicePageState</find>
       <find>showDial</find>
       <find>Helper.</find>
       <find>PrettyPrint.</find>
@@ -415,6 +416,7 @@
       <find>MakeOfferPage</find>
       <find>Nav</find>
       <find>DropdownMenuItem</find>
+      <find>Percentage</find>
     </findStrings>
     <replaceStrings>
       <replace>InvoicePage</replace>
@@ -1020,8 +1022,12 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/lib/ui/make_offer.dart">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="180">
-          <caret line="331" column="29" selection-start-line="331" selection-start-column="29" selection-end-line="331" selection-end-column="29" />
+        <state relative-caret-position="219">
+          <caret line="615" column="56" lean-forward="true" selection-start-line="615" selection-start-column="56" selection-end-line="615" selection-end-column="56" />
+          <folding>
+            <element signature="e#8177#8416#0" expanded="true" />
+            <element signature="e#8462#11265#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

@@ -203,6 +203,7 @@ class AutoTradeExecutionBuilder {
             '***** New York!!!, we are GOOD. Like fantastic? BID ON BLOCKCHAIN!!!!\n\n\n');
         bidCount++;
         index++;
+        listener.onInvoiceAutoBid(bid);
       }
       _controlInvoiceBids();
     }).catchError((e) {
@@ -216,4 +217,5 @@ class AutoTradeExecutionBuilder {
 abstract class AutoTradeListener {
   onComplete(int count);
   onError(int count);
+  onInvoiceAutoBid(InvoiceBid bid);
 }

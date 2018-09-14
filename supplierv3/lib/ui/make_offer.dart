@@ -355,6 +355,14 @@ class _MakeOfferPageState extends State<MakeOfferPage>
           actionLabel: 'Close');
       return;
     }
+    if (percentage == null || percentage == 0) {
+      AppSnackbar.showErrorSnackbar(
+          scaffoldKey: _scaffoldKey,
+          message: 'Please select Offer Percentage',
+          listener: this,
+          actionLabel: 'Close');
+      return;
+    }
     submitting = true;
     var disc = double.parse(percentage);
     var offerAmt = (invoice.totalAmount * disc) / 100.0;
@@ -602,7 +610,7 @@ class _MakeOfferPageState extends State<MakeOfferPage>
                         onChanged: _onDiscountTapped,
                         elevation: 16,
                         hint: Text(
-                          'Invoice Percentage',
+                          'Offer Percentage',
                           style: TextStyle(
                             fontSize: 14.0,
                             fontWeight: FontWeight.bold,

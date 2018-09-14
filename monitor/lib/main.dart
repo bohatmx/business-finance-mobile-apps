@@ -12,6 +12,7 @@ import 'package:businesslibrary/data/invoice_acceptance.dart';
 import 'package:businesslibrary/data/invoice_bid.dart';
 import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
+import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:flutter/material.dart';
@@ -73,7 +74,7 @@ class _MyHomePageState extends State<MyHomePage>
     _profiles = await ListAPI.getInvestorProfiles();
     _offers = await ListAPI.getOpenOffers();
     _scaffoldKey.currentState.hideCurrentSnackBar();
-    _getMinutes();
+    await _getMinutes();
     _index = 0;
     if (_orders.isNotEmpty && _profiles.isNotEmpty) {
       _start();
@@ -87,26 +88,39 @@ class _MyHomePageState extends State<MyHomePage>
     }
   }
 
+  Timer timer;
   _start() async {
     print(
         '_MyHomePageState._start ..... Timer.periodic(Duration((minutes: $minutes) time: ${DateTime.now().toIso8601String()}');
-    Timer.periodic(Duration(minutes: minutes), (count) async {
+    if (timer != null) {
+      if (timer.isActive) {
+        timer.cancel();
+        print(
+            '_MyHomePageState._start -------- TIMER cancelled. timer.tick: ${timer.tick}');
+      }
+    }
+    timer = Timer.periodic(Duration(minutes: minutes), (mTimer) async {
       print(
-          '_MyHomePageState._start:\n\n\n TIMER tripping - starting AUTO TRADE cycle .......time: ${DateTime.now().toIso8601String()}....\n\n');
+          '_MyHomePageState._start:\n\n\n TIMER tripping - starting AUTO TRADE cycle .......time: '
+          '${DateTime.now().toIso8601String()}.  mTimer.tick: ${mTimer.tick}...\n\n');
       _index = 0;
-      _orders = await ListAPI.getAutoTradeOrders();
-      _profiles = await ListAPI.getInvestorProfiles();
       _offers = await ListAPI.getOpenOffers();
-      _orders.shuffle();
-
-      if (_offers.isEmpty) {
-        AppSnackbar.showSnackbar(
-            scaffoldKey: _scaffoldKey,
-            message: 'No open offers available',
-            textColor: Styles.white,
-            backgroundColor: Styles.black);
+      if (_offers.isNotEmpty) {
+        _orders = await ListAPI.getAutoTradeOrders();
+        _profiles = await ListAPI.getInvestorProfiles();
+        _orders.shuffle();
+      } else {
+        print('_MyHomePageState._start ***************'
+            ' No open offers available. Will try again in $minutes minutes');
+        setState(() {
+          bids.clear();
+          amount = '0.00';
+          count = '0';
+          time = getFormattedDateHour(DateTime.now().toIso8601String());
+        });
         return;
       }
+
       _offers.sort((a, b) => b.offerAmount.compareTo(a.offerAmount));
       if (_orders.isNotEmpty && _profiles.isNotEmpty && _offers.isNotEmpty) {
         var z = AutoTradeExecutionBuilder();
@@ -115,22 +129,46 @@ class _MyHomePageState extends State<MyHomePage>
     });
   }
 
+  List<InvoiceBid> bids = List();
+  @override
+  onInvoiceAutoBid(InvoiceBid bid) {
+    this.bids.add(bid);
+    print(
+        '_MyHomePageState.onInvoiceBid -- telling the folks back home we invested in an Offer ))))) ${bid.amount}');
+    AppSnackbar.showSnackbarWithAction(
+        scaffoldKey: _scaffoldKey,
+        message:
+            'Invoice Bid made: ${getFormattedDateHour(DateTime.now().toIso8601String())}'
+            '\n\n${bid.amount} reserve: ${bid.reservePercent} %',
+        textColor: Styles.lightGreen,
+        listener: this,
+        actionLabel: '',
+        action: 7,
+        backgroundColor: Colors.teal.shade900);
+  }
+
+  String time, count, amount;
   @override
   onComplete(int count) {
-    print('_MyHomePageState.onComplete ......... proocessed; $count');
-    AppSnackbar.showSnackbar(
-        scaffoldKey: _scaffoldKey,
-        message: 'Auto Trades completed. Processed $count',
-        textColor: Styles.lightGreen,
-        backgroundColor: Styles.black);
+    print(
+        '_MyHomePageState.onComplete ......... processed; $count timer.tick: ${timer.tick} bids: ${bids.length}');
+    double t = 0.00;
+    bids.forEach((m) {
+      t += m.amount;
+    });
+    amount = '${getFormattedAmount('$t', context)}';
+    this.count = '$count';
+    time = getFormattedDateHour(DateTime.now().toIso8601String());
+    setState(() {});
   }
 
   @override
   onError(int count) {
-    print('_MyHomePageState.onError ....ERROR ERROOR..... proocessed; $count');
+    print(
+        '_MyHomePageState.onError ....ERROR ERROOR..... processed; $count timer.tick: ${timer.tick}');
     AppSnackbar.showErrorSnackbar(
         scaffoldKey: _scaffoldKey,
-        message: 'Auto Trades ERROR. Processed $count',
+        message: 'Auto Trades ERROR. Processed OK: $count',
         listener: this,
         actionLabel: 'close');
   }
@@ -153,9 +191,9 @@ class _MyHomePageState extends State<MyHomePage>
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               new Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: const EdgeInsets.only(bottom: 28.0),
                 child: Text(
-                  'OneConnect BFN',
+                  'OneConnect - BFN',
                   style: TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
@@ -175,94 +213,151 @@ class _MyHomePageState extends State<MyHomePage>
   Widget build(BuildContext context) {
     return new Scaffold(
       key: _scaffoldKey,
-      appBar: new AppBar(
-        title: new Text('Business Finance Network'),
+      appBar: AppBar(
+        title: Text('Business Finance Network'),
         bottom: _getBottom(),
       ),
-      body: new Center(
-        child: new Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: Card(
-                elevation: 4.0,
-                color: Colors.orange.shade50,
-                child: Column(
-                  children: <Widget>[
-                    Column(
-                      children: <Widget>[
-                        Padding(
-                          padding: const EdgeInsets.only(top: 12.0),
-                          child: Text(
-                            'Automatic Trade every',
-                            style: Styles.greyLabelLarge,
+      body: ListView(
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Card(
+              elevation: 4.0,
+              color: Colors.orange.shade50,
+              child: Column(
+                children: <Widget>[
+                  Column(
+                    children: <Widget>[
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8.0),
+                        child: Text(
+                          'Automatic Trade every',
+                          style: Styles.greyLabelMedium,
+                        ),
+                      ),
+                      Padding(
+                        padding:
+                            const EdgeInsets.only(left: 60.0, right: 100.0),
+                        child: TextField(
+                          controller: controller,
+                          keyboardType: TextInputType.numberWithOptions(),
+                          onChanged: _onMinutesChanged,
+                          maxLength: 3,
+                          style: Styles.purpleBoldLarge,
+                          decoration: InputDecoration(
+                            icon: Icon(Icons.access_time),
+                            labelText: 'Minutes',
                           ),
                         ),
+                      ),
+                    ],
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 2.0, left: 20.0),
+                    child: Row(
+                      children: <Widget>[
+                        Text(
+                          'Auto Trade Orders',
+                          style: Styles.greyLabelMedium,
+                        ),
                         Padding(
-                          padding:
-                              const EdgeInsets.only(left: 60.0, right: 100.0),
-                          child: TextField(
-                            controller: controller,
-                            keyboardType: TextInputType.numberWithOptions(),
-                            onChanged: _onMinutesChanged,
-                            maxLength: 3,
-                            style: Styles.purpleBoldLarge,
-                            decoration: InputDecoration(
-                              icon: Icon(Icons.access_time),
-                              labelText: 'Minutes',
-                            ),
+                          padding: const EdgeInsets.only(left: 8.0),
+                          child: Text(
+                            _orders == null ? '0' : '${_orders.length}',
+                            style: Styles.pinkBoldReallyLarge,
                           ),
                         ),
                       ],
                     ),
-                    Padding(
-                      padding: const EdgeInsets.all(20.0),
-                      child: Row(
-                        children: <Widget>[
-                          Text(
-                            'Auto Trade Orders',
-                            style: Styles.greyLabelLarge,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(
+                        top: 10.0, left: 20.0, bottom: 20.0),
+                    child: Row(
+                      children: <Widget>[
+                        Text(
+                          'Open Invoice Offers',
+                          style: Styles.greyLabelMedium,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 8.0),
+                          child: Text(
+                            _offers == null ? '0' : '${_offers.length}',
+                            style: Styles.blueBoldReallyLarge,
                           ),
-                          Padding(
-                            padding: const EdgeInsets.only(left: 8.0),
-                            child: Text(
-                              _orders == null ? '0' : '${_orders.length}',
-                              style: Styles.pinkBoldReallyLarge,
-                            ),
-                          ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                    Padding(
-                      padding: const EdgeInsets.all(20.0),
-                      child: Row(
-                        children: <Widget>[
-                          Text(
-                            'Open Invoice Offers',
-                            style: Styles.greyLabelLarge,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 12.0, right: 12.0),
+            child: Card(
+              elevation: 8.0,
+              color: Colors.purple.shade50,
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  children: <Widget>[
+                    Row(
+                      children: <Widget>[
+                        Text(
+                          'Last Session',
+                          style: Styles.greyLabelMedium,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 18.0),
+                          child: Text(
+                            time == null ? '00:00' : time,
+                            style: Styles.purpleBoldLarge,
                           ),
-                          Padding(
-                            padding: const EdgeInsets.only(left: 8.0),
-                            child: Text(
-                              _offers == null ? '0' : '${_offers.length}',
-                              style: Styles.blueBoldReallyLarge,
-                            ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: <Widget>[
+                        Text(
+                          'Amount',
+                          style: Styles.greyLabelMedium,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 8.0),
+                          child: Text(
+                            amount == null ? '0.00' : amount,
+                            style: Styles.tealBoldLarge,
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: <Widget>[
+                        Text(
+                          'Bids Executed',
+                          style: Styles.greyLabelMedium,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 8.0),
+                          child: Text(
+                            count == null ? '0' : count,
+                            style: Styles.pinkBoldLarge,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
-      floatingActionButton: new FloatingActionButton(
+      floatingActionButton: FloatingActionButton(
         onPressed: _restart,
         tooltip: 'Restart',
-        child: new Icon(Icons.repeat),
+        child: Icon(Icons.repeat),
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
@@ -312,9 +407,10 @@ class _MyHomePageState extends State<MyHomePage>
     SharedPrefs.saveMinutes(minutes);
     AppSnackbar.showSnackbar(
         scaffoldKey: _scaffoldKey,
-        message: 'Reset timer to $minutes minutes',
+        message: 'Trading Timer set to $minutes minutes',
         textColor: Styles.white,
-        backgroundColor: Styles.purple);
+        backgroundColor: Styles.black);
+
     _start();
   }
 }
