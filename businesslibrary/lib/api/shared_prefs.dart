@@ -350,6 +350,21 @@ class SharedPrefs {
     return token;
   }
 
+  static Future saveMinutes(int minutes) async {
+    print("SharedPrefs saving minutes ..........");
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setInt("minutes", minutes);
+
+    print("FCM minutes saved in cache prefs: $minutes");
+  }
+
+  static Future<int> getMinutes() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var minutes = prefs.getInt("minutes");
+    print("SharedPrefs - FCM minutes from prefs: $minutes");
+    return minutes;
+  }
+
   static Future<Wallet> getWallet() async {
     print("SharedPrefs - getting wallet data ..........");
 

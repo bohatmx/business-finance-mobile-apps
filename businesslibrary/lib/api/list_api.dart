@@ -347,7 +347,8 @@ class ListAPI {
       return list;
     });
 
-    print('ListAPI.getOpenOffers found: ${qs.documents.length} ');
+    print(
+        'ListAPI.getOpenOffers +++++++ offers found: ${qs.documents.length} ');
 
     qs.documents.forEach((doc) {
       var offer = Offer.fromJson(doc.data);
@@ -896,7 +897,6 @@ class ListAPI {
   }
 
   static Future<List<InvestorProfile>> getInvestorProfiles() async {
-    print('ListAPI.getInvestorProfiles .....................................');
     List<InvestorProfile> list = List();
     var qs = await _firestore
         .collection('investorProfiles')
@@ -917,7 +917,6 @@ class ListAPI {
   }
 
   static Future<List<AutoTradeOrder>> getAutoTradeOrders() async {
-    print('ListAPI.getAutoTradeOrders .......  ');
     List<AutoTradeOrder> list = List();
     var qs = await _firestore
         .collection('autoTradeOrders')

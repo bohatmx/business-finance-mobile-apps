@@ -1,6 +1,8 @@
 import 'dart:async';
 
+import 'package:businesslibrary/api/auto_trade.dart';
 import 'package:businesslibrary/api/list_api.dart';
+import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/auto_trade_order.dart';
 import 'package:businesslibrary/data/delivery_acceptance.dart';
 import 'package:businesslibrary/data/delivery_note.dart';
@@ -54,6 +56,13 @@ class _MyHomePageState extends State<MyHomePage>
     _getLists();
   }
 
+  int minutes = 10;
+  _getMinutes() async {
+    minutes = await SharedPrefs.getMinutes();
+    controller.text = '$minutes';
+    setState(() {});
+  }
+
   _getLists() async {
     AppSnackbar.showSnackbarWithProgressIndicator(
         scaffoldKey: _scaffoldKey,
@@ -64,7 +73,7 @@ class _MyHomePageState extends State<MyHomePage>
     _profiles = await ListAPI.getInvestorProfiles();
     _offers = await ListAPI.getOpenOffers();
     _scaffoldKey.currentState.hideCurrentSnackBar();
-
+    _getMinutes();
     _index = 0;
     if (_orders.isNotEmpty && _profiles.isNotEmpty) {
       _start();
@@ -79,8 +88,11 @@ class _MyHomePageState extends State<MyHomePage>
   }
 
   _start() async {
-    print('_MyHomePageState._start ..... Timer.periodic(Duration((minutes: 2)');
-    Timer.periodic(Duration(minutes: 1), (count) async {
+    print(
+        '_MyHomePageState._start ..... Timer.periodic(Duration((minutes: $minutes) time: ${DateTime.now().toIso8601String()}');
+    Timer.periodic(Duration(minutes: minutes), (count) async {
+      print(
+          '_MyHomePageState._start:\n\n\n TIMER tripping - starting AUTO TRADE cycle .......time: ${DateTime.now().toIso8601String()}....\n\n');
       _index = 0;
       _orders = await ListAPI.getAutoTradeOrders();
       _profiles = await ListAPI.getInvestorProfiles();
@@ -158,6 +170,7 @@ class _MyHomePageState extends State<MyHomePage>
     );
   }
 
+  TextEditingController controller = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
@@ -177,6 +190,32 @@ class _MyHomePageState extends State<MyHomePage>
                 color: Colors.orange.shade50,
                 child: Column(
                   children: <Widget>[
+                    Column(
+                      children: <Widget>[
+                        Padding(
+                          padding: const EdgeInsets.only(top: 12.0),
+                          child: Text(
+                            'Automatic Trade every',
+                            style: Styles.greyLabelLarge,
+                          ),
+                        ),
+                        Padding(
+                          padding:
+                              const EdgeInsets.only(left: 60.0, right: 100.0),
+                          child: TextField(
+                            controller: controller,
+                            keyboardType: TextInputType.numberWithOptions(),
+                            onChanged: _onMinutesChanged,
+                            maxLength: 3,
+                            style: Styles.purpleBoldLarge,
+                            decoration: InputDecoration(
+                              icon: Icon(Icons.access_time),
+                              labelText: 'Minutes',
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                     Padding(
                       padding: const EdgeInsets.all(20.0),
                       child: Row(
@@ -266,5 +305,16 @@ class _MyHomePageState extends State<MyHomePage>
   @override
   onActionPressed(int action) {
     // TODO: implement onActionPressed
+  }
+
+  void _onMinutesChanged(String value) {
+    minutes = int.parse(value);
+    SharedPrefs.saveMinutes(minutes);
+    AppSnackbar.showSnackbar(
+        scaffoldKey: _scaffoldKey,
+        message: 'Reset timer to $minutes minutes',
+        textColor: Styles.white,
+        backgroundColor: Styles.purple);
+    _start();
   }
 }

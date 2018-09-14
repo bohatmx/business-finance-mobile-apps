@@ -1495,6 +1495,7 @@ class DataAPI {
     bid.invoiceBidId = getKey();
     bid.date = new DateTime.now().toIso8601String();
     bid.isSettled = false;
+    prettyPrint(bid.toJson(), 'makeInvoiceAutoBid, bid, check autoTradeOrder');
 
     print('DataAPI.makeInvoiceAutoBid ${url + MAKE_INVOICE_BID}');
     try {
