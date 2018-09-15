@@ -95,6 +95,7 @@ class AutoTradeExecutionBuilder {
     _controlInvoiceBids();
   }
 
+  ///set  up the list of trades to execute
   void _buildExecutionList(List<AutoTradeOrder> orders, List<Offer> offers) {
     print(
         'AutoTradeExecutionBuilder._buildExecutionList .... offers: ${offers.length} '
@@ -102,22 +103,8 @@ class AutoTradeExecutionBuilder {
     orders.forEach((order) {
       try {
         var offer = offers.elementAt(0);
-        var key = order.wallet.split('#').elementAt(1);
-        //see if account exits in list
-        var acct;
-        accounts.forEach((acc) {
-          if (acc.account_id == key) {
-            acct = acc;
-          }
-        });
-        if (acct == null) {
-          print(
-              '\n\n\nAutoTradeExecutionBuilder._buildExecutionList: ERROR no Account \n\n\n');
-          throw Error();
-        } else {
-          var t = ExecutionUnit(offer: offer, order: order, account: acct);
-          executionUnitList.add(t);
-        }
+        var t = ExecutionUnit(offer: offer, order: order);
+        executionUnitList.add(t);
         offers.remove(offer);
         print(
             'AutoTradeExecutionBuilder._buildExecutionList ----- executionUnitList : '

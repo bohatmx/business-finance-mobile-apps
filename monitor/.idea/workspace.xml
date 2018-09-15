@@ -2,13 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="8dad5fd6-5597-4773-ba4f-53b845122283" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/../businesslibrary/.idea/libraries/Dart_Packages.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/.idea/libraries/Dart_Packages.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../businesslibrary/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/api/auto_trade.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/api/auto_trade.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/util/comms.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/util/comms.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../investor/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../investor/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/main.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../supplierv3/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/.idea/workspace.xml" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
@@ -46,17 +43,17 @@
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="dart" value="9148" />
+          <entry key="dart" value="9191" />
           <entry key="gradle" value="6" />
-          <entry key="txt" value="254" />
+          <entry key="txt" value="285" />
           <entry key="yaml" value="2" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="Dart" value="9148" />
+          <entry key="Dart" value="9191" />
           <entry key="Groovy" value="6" />
-          <entry key="PLAIN_TEXT" value="254" />
+          <entry key="PLAIN_TEXT" value="285" />
           <entry key="YAML" value="2" />
         </counts>
       </usages-collector>
@@ -88,14 +85,13 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/../businesslibrary/lib/api/auto_trade.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="43">
-              <caret line="53" column="3" lean-forward="true" selection-start-line="53" selection-start-column="3" selection-end-line="53" selection-end-column="3" />
+            <state relative-caret-position="-1134">
+              <caret line="106" lean-forward="true" selection-start-line="106" selection-end-line="106" />
               <folding>
                 <element signature="e#0#51#0" expanded="true" />
                 <element signature="e#1541#1731#0" expanded="true" />
                 <element signature="e#1808#2299#0" expanded="true" />
                 <element signature="e#2320#2847#0" expanded="true" />
-                <element signature="e#2925#4022#0" expanded="true" />
                 <element signature="e#3775#4149#0" expanded="true" />
                 <element signature="e#4514#8092#0" expanded="true" />
                 <element signature="e#8251#9501#0" expanded="true" />
@@ -268,7 +264,7 @@
   </component>
   <component name="PropertiesComponent">
     <property name="android.sdk.path" value="$USER_HOME$/Library/Android/sdk" />
-    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1537027111901" />
+    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1537035742537" />
     <property name="dart.analysis.tool.window.force.activate" value="false" />
     <property name="io.flutter.reload.alreadyRun" value="true" />
     <property name="settings.editor.selected.configurable" value="Console" />
@@ -362,7 +358,14 @@
       <option name="project" value="LOCAL" />
       <updated>1536959584773</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="upgraded auto order execution api - added stellar acct check">
+      <created>1537027358894</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1537027358895</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -379,7 +382,7 @@
       <window_info id="UI Designer" order="8" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.895082" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.79016393" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.08743169" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -416,7 +419,8 @@
     <MESSAGE value="fixed auto trading - added slickness :) :)" />
     <MESSAGE value="added timer minutes input for controlling auto trades" />
     <MESSAGE value="upgraded auto order execution ui" />
-    <option name="LAST_COMMIT_MESSAGE" value="upgraded auto order execution ui" />
+    <MESSAGE value="upgraded auto order execution api - added stellar acct check" />
+    <option name="LAST_COMMIT_MESSAGE" value="upgraded auto order execution api - added stellar acct check" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -604,14 +608,13 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/../businesslibrary/lib/api/auto_trade.dart">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="43">
-          <caret line="53" column="3" lean-forward="true" selection-start-line="53" selection-start-column="3" selection-end-line="53" selection-end-column="3" />
+        <state relative-caret-position="-1134">
+          <caret line="106" lean-forward="true" selection-start-line="106" selection-end-line="106" />
           <folding>
             <element signature="e#0#51#0" expanded="true" />
             <element signature="e#1541#1731#0" expanded="true" />
             <element signature="e#1808#2299#0" expanded="true" />
             <element signature="e#2320#2847#0" expanded="true" />
-            <element signature="e#2925#4022#0" expanded="true" />
             <element signature="e#3775#4149#0" expanded="true" />
             <element signature="e#4514#8092#0" expanded="true" />
             <element signature="e#8251#9501#0" expanded="true" />
