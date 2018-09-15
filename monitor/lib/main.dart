@@ -12,6 +12,7 @@ import 'package:businesslibrary/data/invoice_acceptance.dart';
 import 'package:businesslibrary/data/invoice_bid.dart';
 import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
+import 'package:businesslibrary/util/comms.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
@@ -57,9 +58,12 @@ class _MyHomePageState extends State<MyHomePage>
     _getLists();
   }
 
-  int minutes = 10;
+  int minutes = 1;
   _getMinutes() async {
     minutes = await SharedPrefs.getMinutes();
+    if (minutes == null || minutes == 0) {
+      minutes = 10;
+    }
     controller.text = '$minutes';
     setState(() {});
   }
@@ -174,12 +178,17 @@ class _MyHomePageState extends State<MyHomePage>
   }
 
   void _restart() async {
-    await _getLists();
-    setState(() {});
-    if (_orders.isNotEmpty && _profiles.isNotEmpty && _offers.isNotEmpty) {
-      var z = AutoTradeExecutionBuilder();
-      z.executeAutoTrades(_orders, _profiles, _offers, this);
-    }
+//    await _getLists();
+//    setState(() {});
+//    if (_orders.isNotEmpty && _profiles.isNotEmpty && _offers.isNotEmpty) {
+//      var z = AutoTradeExecutionBuilder();
+//      z.executeAutoTrades(_orders, _profiles, _offers, this);
+//    }
+    StellarCommsUtil.getAccount(
+            'GCOP26XGHTJ4HCWRRHK7NV6XOVHODTYA5ITU3QHXJKKCK7IIEBNP6GCP')
+        .then((acct) {
+      print('_MyHomePageState._restart: ${acct.toJson()}');
+    });
   }
 
   Widget _getBottom() {
@@ -404,6 +413,14 @@ class _MyHomePageState extends State<MyHomePage>
 
   void _onMinutesChanged(String value) {
     minutes = int.parse(value);
+    if (minutes == 0) {
+      AppSnackbar.showErrorSnackbar(
+          scaffoldKey: _scaffoldKey,
+          message: 'Zero is not valid for trade frequency',
+          listener: this,
+          actionLabel: 'close');
+      return;
+    }
     SharedPrefs.saveMinutes(minutes);
     AppSnackbar.showSnackbar(
         scaffoldKey: _scaffoldKey,

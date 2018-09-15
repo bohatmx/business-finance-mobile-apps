@@ -3,6 +3,9 @@ import 'package:businesslibrary/data/auto_trade_order.dart';
 import 'package:businesslibrary/data/investor_profile.dart';
 import 'package:businesslibrary/data/invoice_bid.dart';
 import 'package:businesslibrary/data/offer.dart';
+import 'package:businesslibrary/stellar/Account.dart';
+import 'package:businesslibrary/stellar/Balance.dart';
+import 'package:businesslibrary/util/comms.dart';
 import 'package:businesslibrary/util/util.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:meta/meta.dart';
@@ -14,11 +17,15 @@ class ExecutionUnit {
   AutoTradeOrder order;
   InvestorProfile profile;
   Offer offer;
+  Account account;
 
   static const Success = 0, ErrorInvalidTrade = 1, ErrorBadBid = 2;
 
   ExecutionUnit(
-      {@required this.order, @required this.profile, @required this.offer});
+      {@required this.order,
+      @required this.profile,
+      @required this.offer,
+      @required this.account});
 }
 
 ///Manage the auto buying of offers by investors
@@ -27,55 +34,103 @@ class AutoTradeExecutionBuilder {
   DataAPI api = DataAPI(getURL());
   AutoTradeListener listener;
   final Firestore _firestore = Firestore.instance;
+  List<AutoTradeOrder> orders;
+  int bidCount = 0;
+  int index = 0;
+  List<Account> accounts = List();
+  List<InvestorProfile> profiles;
+  List<Offer> offers;
 
-  List<ExecutionUnit> executeAutoTrades(
-      List<AutoTradeOrder> orders,
-      List<InvestorProfile> profiles,
-      List<Offer> offers,
-      AutoTradeListener listener) {
+  executeAutoTrades(List<AutoTradeOrder> orders, List<InvestorProfile> profiles,
+      List<Offer> offers, AutoTradeListener listener) {
     this.listener = listener;
+    this.orders = orders;
+    this.offers = offers;
+    this.profiles = profiles;
+
     executionUnitList = List();
+    index = 0;
+    _buildAccountList();
+  }
 
-    while (offers.isNotEmpty) {
-      _doOrderBuild(orders, offers);
+  ///get Stellar accounts for checking balances
+  void _buildAccountList() async {
+    if (index < orders.length) {
+      var acc = await StellarCommsUtil.getAccount(
+          orders.elementAt(index).wallet.split('#').elementAt(1));
+      accounts.add(acc);
+      index++;
+      print(
+          'AutoTradeExecutionBuilder.controlAccounts - account found ${acc.account_id}');
+      _buildAccountList();
+    } else {
+      print(
+          '\n\nAutoTradeExecutionBuilder.controlAccounts: done getting Stellar accts: ${accounts.length}');
+      doTheWork();
     }
+  }
 
+  ///add profiles and accounts to execution list
+  void doTheWork() {
+    print(
+        'AutoTradeExecutionBuilder.doTheWork .............................. \n\n');
+    while (offers.isNotEmpty) {
+      _buildExecutionList(orders, offers);
+    }
     executionUnitList.forEach((exec) {
-      InvestorProfile profile;
       profiles.forEach((p) {
         if (exec.order.investorProfile.split('#').elementAt(1) == p.profileId) {
-          profile = p;
+          exec.profile = p;
         }
       });
-      exec.profile = profile;
+
+      accounts.forEach((acc) {
+        if (acc.account_id == exec.order.wallet.split('#').elementAt(1)) {
+          exec.account = acc;
+        }
+      });
     });
 
     index = 0;
     _controlInvoiceBids();
   }
 
-  void _doOrderBuild(List<AutoTradeOrder> orders, List<Offer> offers) {
+  void _buildExecutionList(List<AutoTradeOrder> orders, List<Offer> offers) {
     print(
-        'AutoTradeExecutionBuilder._doOrderBuild .... offers: ${offers.length} executionUnitList : ${executionUnitList.length}  ');
+        'AutoTradeExecutionBuilder._buildExecutionList .... offers: ${offers.length} '
+        'executionUnitList : ${executionUnitList.length}  ');
     orders.forEach((order) {
       try {
         var offer = offers.elementAt(0);
-        var t = ExecutionUnit(offer: offer, order: order);
-        executionUnitList.add(t);
+        var key = order.wallet.split('#').elementAt(1);
+        //see if account exits in list
+        var acct;
+        accounts.forEach((acc) {
+          if (acc.account_id == key) {
+            acct = acc;
+          }
+        });
+        if (acct == null) {
+          print(
+              '\n\n\nAutoTradeExecutionBuilder._buildExecutionList: ERROR no Account \n\n\n');
+          throw Error();
+        } else {
+          var t = ExecutionUnit(offer: offer, order: order, account: acct);
+          executionUnitList.add(t);
+        }
         offers.remove(offer);
         print(
-            'AutoTradeExecutionBuilder._doOrderBuild ----- executionUnitList : ${executionUnitList.length}  offers: ${offers.length}');
+            'AutoTradeExecutionBuilder._buildExecutionList ----- executionUnitList : '
+            '${executionUnitList.length}  offers: ${offers.length}');
       } catch (e) {
-        print('AutoTradeExecutionBuilder._doOrderBuild ERROR : $e');
+        print('AutoTradeExecutionBuilder._buildExecutionList ERROR : $e');
       }
     });
   }
 
-  int index = 0;
-
   void _controlInvoiceBids() {
     if (index < executionUnitList.length) {
-      _doInvoiceBid(executionUnitList.elementAt(index));
+      _validateInvoiceBid(executionUnitList.elementAt(index));
     } else {
       print(
           '\n\n\AutoTradeExecutionBuilder.control @@@@@@@@@ WE ARE DONE\n\n\n');
@@ -88,13 +143,14 @@ class AutoTradeExecutionBuilder {
   }
 
   ///validate the potential bid via profile settings and then write bid to BFN
-  _doInvoiceBid(ExecutionUnit exec) {
+  _validateInvoiceBid(ExecutionUnit exec) {
     print(
-        'AutoTradeExecutionBuilder._doInvoiceBid .......:  #### offer amt: ${exec.offer.offerAmount} for ${exec.profile.name}');
+        'AutoTradeExecutionBuilder._validateInvoiceBid .......:  #### offer amt: ${exec.offer.offerAmount} for ${exec.profile.name}');
     bool validInvAmount = false,
         validSec = false,
         validSupp = false,
-        validTotal = false;
+        validTotal = false,
+        validAccountBalance = false;
     double total = 0.00;
 
     //get investor and then their open bids, check total amount
@@ -154,8 +210,27 @@ class AutoTradeExecutionBuilder {
         } else {
           validSupp = true;
         }
+        //todo - check account balance covers the total open ids - for now, assume balance is valid
+        validAccountBalance = true;
         //
-        if (validSec && validSupp && validInvAmount && validTotal) {
+        print(
+            'AutoTradeExecutionBuilder._validateInvoiceBid ... checking stellar account balance');
+        List<Balance> balances = exec.account.balances;
+        balances.forEach((m) {
+          if (m.asset_type.contains('BFN')) {
+            var bal = double.parse(m.balance);
+            if (bal >= total) {
+              validAccountBalance = true;
+            }
+          }
+        });
+
+        //
+        if (validSec &&
+            validSupp &&
+            validInvAmount &&
+            validTotal &&
+            validAccountBalance) {
           print(
               'AutoTradeExecutionBuilder._doInvoiceBid @@@@@@@@@@ Hooray!!! trade is  VALID ####################### writing bid ....');
           writeBid(exec);
@@ -210,8 +285,6 @@ class AutoTradeExecutionBuilder {
       print('AutoTradeExecutionBuilder._doInvoiceBid $e');
     });
   }
-
-  int bidCount = 0;
 }
 
 abstract class AutoTradeListener {

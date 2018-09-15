@@ -111,4 +111,44 @@ class StellarCommsUtil {
       return exception;
     }
   }
+
+  static Future<Account> getAccountNotAsync(String accountID) async {
+    assert(accountID != null);
+    print(
+        'StellarCommsUtil.getAccountNotAsync &&&&& getting account details ...');
+    var url;
+    if (isInDebugMode) {
+      url = DEBUG_URL_PREFIX;
+    } else {
+      url = PROD_URL_PREFIX;
+    }
+    url += "accounts/" + accountID;
+    print("account url: " + url);
+    var httpClient = new HttpClient();
+
+    Account acct;
+    httpClient.getUrl(Uri.parse(url)).then((request) {
+      request.close().then((response) {
+        var statusCode = response.statusCode;
+        print(
+            "StellarCommsUtil.getAccountNotAsync:  ****************** Stellar HTTP status code: $statusCode");
+        if (response.statusCode == 200) {
+          response.transform(utf8.decoder).join().then((jx) {
+            Map data = json.decode(jx);
+            acct = new Account.fromJson(data);
+            print(
+                "StellarCommsUtil.getAccountNotAsync: ****************  Stellar Account from network:"
+                "\n\n ${data['account_id']}");
+            prettyPrint(
+                data, 'Details of Stellar Account: ################ &&: ');
+            return acct;
+          });
+        } else {
+          var msg = 'Bad Stellar HTTP status code: ${response.statusCode}';
+          print(msg);
+          throw (msg);
+        }
+      });
+    });
+  }
 }
