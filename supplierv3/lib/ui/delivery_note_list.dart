@@ -153,7 +153,9 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
     //todo - find acceptance and invoice for this note
     deliveryAcceptance = await ListAPI.getDeliveryAcceptanceForNote(
         note.deliveryNoteId, supplier.documentReference, 'suppliers');
-
+    if (_scaffoldKey.currentState != null) {
+      _scaffoldKey.currentState.removeCurrentSnackBar();
+    }
     Invoice inv;
     if (deliveryAcceptance == null) {
       print('_DeliveryNoteListState.onNoteTapped accept is null');
@@ -165,12 +167,18 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
     } else {
       print(
           '_DeliveryNoteListState.onNoteTapped: this note is accepted. checking invoice');
-      //todo - find invoice for this acceptance
+      AppSnackbar.showSnackbarWithProgressIndicator(
+          scaffoldKey: _scaffoldKey,
+          message: 'Checking Invoice ...',
+          textColor: Colors.yellow,
+          backgroundColor: Colors.black);
       inv = await ListAPI.getInvoiceByDeliveryNote(
           deliveryAcceptance.deliveryNote.split('#').elementAt(1),
           supplier.documentReference);
+      if (_scaffoldKey.currentState != null) {
+        _scaffoldKey.currentState.removeCurrentSnackBar();
+      }
       if (inv == null) {
-        //todo - has been accepted bt invoice not created yet
         _showDialog();
       } else {
         AppSnackbar.showSnackbar(
@@ -178,10 +186,8 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
             message: 'Invoice is already created ${inv.invoiceNumber}',
             textColor: Colors.green,
             backgroundColor: Colors.black);
+        return;
       }
-    }
-    if (_scaffoldKey.currentState != null) {
-      _scaffoldKey.currentState.hideCurrentSnackBar();
     }
   }
 
@@ -275,11 +281,11 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
     _scaffoldKey.currentState.hideCurrentSnackBar();
     AppSnackbar.showSnackbarWithAction(
         scaffoldKey: _scaffoldKey,
-        message: 'Delivery Note accepttance arrived',
+        message: 'Delivery acceptance arrived',
         textColor: Colors.yellow,
         action: 5,
         listener: this,
-        actionLabel: 'Refresh',
+        actionLabel: 'OK',
         icon: Icons.done_all,
         backgroundColor: Colors.black);
   }

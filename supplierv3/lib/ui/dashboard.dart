@@ -498,8 +498,8 @@ class _DashboardState extends State<Dashboard>
     }
     AppSnackbar.showSnackbarWithAction(
         scaffoldKey: _scaffoldKey,
-        message: 'Invoice Accepted: ${ia.invoiceNumber}',
-        textColor: Colors.yellow,
+        message: 'Invoice Accepted',
+        textColor: Colors.lightGreen,
         backgroundColor: Colors.black,
         actionLabel: 'OK',
         listener: this,

@@ -4,13 +4,17 @@ import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/delivery_acceptance.dart';
 import 'package:businesslibrary/data/delivery_note.dart';
 import 'package:businesslibrary/data/invoice.dart';
+import 'package:businesslibrary/data/invoice_acceptance.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/supplier_contract.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
+import 'package:businesslibrary/util/styles.dart';
 import 'package:businesslibrary/util/util.dart';
 import 'package:flutter/material.dart';
+import 'package:supplierv3/listeners/firestore_listener.dart';
+import 'package:supplierv3/ui/make_offer.dart';
 
 class NewInvoicePage extends StatefulWidget {
   final DeliveryAcceptance deliveryAcceptance;
@@ -23,7 +27,10 @@ class NewInvoicePage extends StatefulWidget {
 
 ///
 class _NewInvoicePageState extends State<NewInvoicePage>
-    implements SnackBarListener {
+    implements
+        SnackBarListener,
+        DeliveryAcceptanceListener,
+        InvoiceAcceptanceListener {
   final GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
@@ -68,6 +75,8 @@ class _NewInvoicePageState extends State<NewInvoicePage>
     _getContracts();
     _getDeliveryNote();
     _getDeliveryAcceptances();
+
+    listenForDeliveryAcceptance(supplier.documentReference, this);
   }
 
   static const NameSpace = 'resource:com.oneconnect.biz.';
@@ -346,8 +355,7 @@ class _NewInvoicePageState extends State<NewInvoicePage>
                       children: <Widget>[
                         Padding(
                           padding: const EdgeInsets.only(right: 8.0),
-                          child: Container(
-                              width: 120.0, child: Text('Value Added Tax')),
+                          child: Container(width: 40.0, child: Text('VAT')),
                         ),
                         Text(
                           tax == null
@@ -365,8 +373,7 @@ class _NewInvoicePageState extends State<NewInvoicePage>
                       children: <Widget>[
                         Padding(
                           padding: const EdgeInsets.only(right: 8.0),
-                          child: Container(
-                              width: 120.0, child: Text('Total Amount')),
+                          child: Container(width: 40.0, child: Text('Total')),
                         ),
                         Text(
                           totalAmount == null
@@ -479,8 +486,18 @@ class _NewInvoicePageState extends State<NewInvoicePage>
   @override
   onActionPressed(int action) {
     print('_NewInvoicePageState.onActionPressed');
-    if (isSuccess) {
-      Navigator.pop(context);
+    switch (action) {
+      case 1:
+        Navigator.pop(context);
+        Navigator.push(
+          context,
+          new MaterialPageRoute(
+              builder: (context) => new MakeOfferPage(invoice)),
+        );
+        break;
+      default:
+        Navigator.pop(context);
+        break;
     }
   }
 
@@ -502,6 +519,31 @@ class _NewInvoicePageState extends State<NewInvoicePage>
     tax = amount * 0.15;
     totalAmount = amount + tax;
     setState(() {});
+  }
+
+  DeliveryAcceptance daArrived;
+  @override
+  onDeliveryAcceptance(DeliveryAcceptance da) {
+    daArrived = da;
+    AppSnackbar.showSnackbar(
+        scaffoldKey: _scaffoldKey,
+        message: 'Delivery Accepted',
+        textColor: Styles.white,
+        backgroundColor: Styles.black);
+  }
+
+  InvoiceAcceptance invoiceAcceptance;
+  @override
+  onInvoiceAcceptance(InvoiceAcceptance ia) {
+    invoiceAcceptance = ia;
+    AppSnackbar.showSnackbarWithAction(
+        scaffoldKey: _scaffoldKey,
+        message: 'Invoice Accepted',
+        textColor: Styles.lightGreen,
+        icon: Icons.done,
+        action: 1,
+        actionLabel: 'OK',
+        backgroundColor: Styles.black);
   }
 }
 

@@ -343,9 +343,15 @@ class _DeliveryNotePageState extends State<DeliveryNotePage>
     ///check invoices made oon this PO
     double total = 0.00;
     invoices.forEach((m) {
+      print(
+          '_DeliveryNotePageState._onSubmit ++++++++++++ adding ${m.amount} to total: $total');
       total += m.amount;
     });
+    print(
+        '_DeliveryNotePageState._onSubmit ++++++++++++ adding $amount to total: $total');
     total += double.parse(amount);
+    print(
+        '_DeliveryNotePageState._onSubmit ++++++++++++ total $total > purchaseOrder.amount:  ${_purchaseOrder.amount}');
     if (total > _purchaseOrder.amount) {
       AppSnackbar.showErrorSnackbar(
           scaffoldKey: _scaffoldKey,

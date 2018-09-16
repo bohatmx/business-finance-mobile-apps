@@ -235,7 +235,7 @@ class _DashboardState extends State<Dashboard>
                       child: SummaryCard(
                         total: totalPayments == null ? 0 : totalPayments,
                         label: 'Bids Settled',
-                        totalStyle: paymentStyle,
+                        totalStyle: Styles.blueBoldReallyLarge,
                       ),
                     ),
                     new InkWell(
