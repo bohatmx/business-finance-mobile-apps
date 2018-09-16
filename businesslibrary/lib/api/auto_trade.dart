@@ -224,11 +224,15 @@ class AutoTradeExecutionBuilder {
         } else {
           print(
               'AutoTradeExecutionBuilder._doInvoiceBid @@@@@@@@@@ Fuck!!! trade is  NOT VALID #######################');
-          return 7;
+          listener.onInvalidTrade(exec);
+          index++;
+          _controlInvoiceBids();
         }
       }).catchError((e) {
         print('AutoTradeExecutionBuilder._doInvoiceBid ERROR $e');
-        return 9;
+        listener.onError(bidCount);
+        index = executionUnitList.length;
+        _controlInvoiceBids();
       });
     });
   }
@@ -270,6 +274,9 @@ class AutoTradeExecutionBuilder {
       _controlInvoiceBids();
     }).catchError((e) {
       print('AutoTradeExecutionBuilder._doInvoiceBid $e');
+      listener.onError(bidCount);
+      index = executionUnitList.length;
+      _controlInvoiceBids();
     });
   }
 }
@@ -278,4 +285,5 @@ abstract class AutoTradeListener {
   onComplete(int count);
   onError(int count);
   onInvoiceAutoBid(InvoiceBid bid);
+  onInvalidTrade(ExecutionUnit exec);
 }

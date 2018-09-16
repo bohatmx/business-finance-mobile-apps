@@ -58,15 +58,43 @@ class _SignUpPageState extends State<SignUpPage>
     if (isInDebugMode) {
       Random rand = new Random(new DateTime.now().millisecondsSinceEpoch);
       var num = rand.nextInt(10000);
-      name = 'TopFeeders $num LLC';
-      adminEmail = 'admin$num@brokers.co.za';
-      email = 'sales$num@brokers.co.za';
-      firstName = 'Mark';
-      lastName = 'Smith $num';
+      name = '${investors.elementAt(rand.nextInt(investors.length - 1))}';
+      adminEmail = 'admin$num@gov.co.za';
+      email = 'info$num@gov.co.za';
+      firstName =
+          '${firstNames.elementAt(rand.nextInt(firstNames.length - 1))}';
+      lastName = '${lastNames.elementAt(rand.nextInt(lastNames.length - 1))}';
       password = 'pass123';
       country = Country(name: 'South Africa', code: 'ZA');
     }
   }
+
+  List<String> firstNames = [
+    'Mark',
+    'Jonathan',
+    'David',
+    'Jennifer',
+    'Catherine',
+    'Henry'
+  ];
+  List<String> lastNames = [
+    'Jones',
+    'van der Merwe',
+    'Franklin',
+    'Henderson',
+    'Samuels',
+    'Bergh',
+    'Davidson',
+  ];
+  List<String> investors = [
+    'Invoice Financiers',
+    'Black Ox Capital',
+    'Finance LLC',
+    'SME Investors LLC',
+    'TradeFinance Pty Ltd',
+    'Finance Gurus LLC',
+    'African Financial Services',
+  ];
 
   _getCountry() async {
     country = await Navigator.push(

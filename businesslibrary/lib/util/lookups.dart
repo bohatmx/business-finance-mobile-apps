@@ -275,6 +275,12 @@ String getFormattedDateMedium(String date, BuildContext context) {
   return cc.formatMediumDate(DateTime.parse(date));
 }
 
+String getFormattedDateShort(String date, BuildContext context) {
+  DateTime d = DateTime.parse(date);
+  var format = new DateFormat.yMd();
+  return format.format(d);
+}
+
 String getFormattedDateLong(String date, BuildContext context) {
   var cc = MaterialLocalizations.of(context);
   return cc.formatFullDate(DateTime.parse(date));
@@ -585,8 +591,8 @@ Future<String> createWallet(
     Map map = json.decode(result.body);
     wallet = Wallet.fromJson(map);
     wallet.name = name;
-    print('createWallet ############ Status Code: ${result
-            .statusCode} Body: ${result.body}');
+    print(
+        'createWallet ############ Status Code: ${result.statusCode} Body: ${result.body}');
   } catch (e) {
     print('createWallet ERROR - WALLET failed $e');
     return '0';

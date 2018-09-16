@@ -223,7 +223,7 @@ class _InvoiceListState extends State<InvoiceList>
                     _confirm(invoicesOnOffer.elementAt(index));
                   },
                   child: Padding(
-                    padding: const EdgeInsets.all(12.0),
+                    padding: const EdgeInsets.all(0.0),
                     child: InvoiceCard(
                       invoice: invoicesOnOffer.elementAt(index),
                       context: context,
@@ -269,7 +269,7 @@ class _InvoiceListState extends State<InvoiceList>
                     _confirm(invoicesOpen.elementAt(index));
                   },
                   child: Padding(
-                    padding: const EdgeInsets.all(12.0),
+                    padding: const EdgeInsets.all(0.0),
                     child: InvoiceCard(
                       invoice: invoicesOpen.elementAt(index),
                       context: context,
@@ -330,20 +330,6 @@ class _InvoiceListState extends State<InvoiceList>
   @override
   onActionPressed(int action) {
     print('_InvoiceListState.onActionPressed');
-  }
-
-  static const NameSpace = 'resource:com.oneconnect.biz.';
-  void _onOffer() async {
-    print('_InvoiceListState._onOffer');
-    Navigator.pop(context);
-    var isOffered = await Navigator.push(
-      context,
-      new MaterialPageRoute(builder: (context) => new MakeOfferPage(invoice)),
-    );
-    if (isOffered) {
-      print('_InvoiceListState._onOffer; invoice offered, refreshing ...');
-      _getInvoices();
-    }
   }
 
   void _cancelOffer() async {
@@ -632,8 +618,8 @@ class InvoiceCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(
-          left: 12.0, right: 12.0, bottom: 12.0, top: 12.0),
+      padding:
+          const EdgeInsets.only(left: 4.0, right: 4.0, bottom: 4.0, top: 4.0),
       child: GestureDetector(
         onTap: _process,
         child: Card(

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class Styles {
   static TextStyle greyLabelSmall = TextStyle(
     fontWeight: FontWeight.bold,
-    fontSize: 12.0,
+    fontSize: 14.0,
     color: Colors.grey,
   );
   static TextStyle greyLabelMedium = TextStyle(
@@ -18,7 +18,7 @@ class Styles {
   );
   static TextStyle yellowBoldSmall = TextStyle(
     fontWeight: FontWeight.bold,
-    fontSize: 12.0,
+    fontSize: 14.0,
     color: Colors.yellow,
   );
   static TextStyle yellowBoldMedium = TextStyle(
@@ -54,7 +54,7 @@ class Styles {
   /////
   static TextStyle blackBoldSmall = TextStyle(
     fontWeight: FontWeight.bold,
-    fontSize: 12.0,
+    fontSize: 14.0,
     color: Colors.black,
   );
   static TextStyle blackBoldMedium = TextStyle(
@@ -91,7 +91,7 @@ class Styles {
   ////////
   static TextStyle pinkBoldSmall = TextStyle(
     fontWeight: FontWeight.bold,
-    fontSize: 12.0,
+    fontSize: 14.0,
     color: Colors.pink,
   );
   static TextStyle pinkBoldMedium = TextStyle(
@@ -127,7 +127,7 @@ class Styles {
   /////////
   static TextStyle purpleBoldSmall = TextStyle(
     fontWeight: FontWeight.bold,
-    fontSize: 12.0,
+    fontSize: 14.0,
     color: Colors.purple,
   );
   static TextStyle purpleBoldMedium = TextStyle(
@@ -163,7 +163,7 @@ class Styles {
   ///////
   static TextStyle blueBoldSmall = TextStyle(
     fontWeight: FontWeight.bold,
-    fontSize: 12.0,
+    fontSize: 14.0,
     color: Colors.blue,
   );
   static TextStyle blueBoldMedium = TextStyle(
@@ -199,7 +199,7 @@ class Styles {
   ////
   static TextStyle brownBoldSmall = TextStyle(
     fontWeight: FontWeight.bold,
-    fontSize: 12.0,
+    fontSize: 14.0,
     color: Colors.brown,
   );
   static TextStyle brownBoldMedium = TextStyle(
@@ -235,7 +235,7 @@ class Styles {
   ///////
   static TextStyle whiteBoldSmall = TextStyle(
     fontWeight: FontWeight.bold,
-    fontSize: 12.0,
+    fontSize: 14.0,
     color: Colors.white,
   );
   static TextStyle whiteBoldMedium = TextStyle(
@@ -271,7 +271,7 @@ class Styles {
   /////
   static TextStyle tealBoldSmall = TextStyle(
     fontWeight: FontWeight.bold,
-    fontSize: 12.0,
+    fontSize: 14.0,
     color: Colors.teal,
   );
   static TextStyle tealBoldMedium = TextStyle(

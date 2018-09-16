@@ -63,16 +63,35 @@ class _SignUpPageState extends State<SignUpPage>
   _debug() {
     if (isInDebugMode) {
       Random rand = new Random(new DateTime.now().millisecondsSinceEpoch);
-      var num = rand.nextInt(100);
-      name = 'Government Entity$num ';
+      var num = rand.nextInt(1000);
+      name = '${entities.elementAt(rand.nextInt(entities.length - 1))}';
       adminEmail = 'admin$num@gov.co.za';
       email = 'info$num@gov.co.za';
-      firstName = 'Thabo Tony$num';
-      lastName = 'Mahume$num';
+      firstName =
+          '${firstNames.elementAt(rand.nextInt(firstNames.length - 1))}';
+      lastName = '${lastNames.elementAt(rand.nextInt(lastNames.length - 1))}';
       password = 'pass123';
       country = Country(name: 'South Africa', code: 'ZA');
     }
   }
+
+  List<String> firstNames = ['Maria', 'Jonathan', 'David', 'Thabiso', 'Fikile'];
+  List<String> lastNames = [
+    'Nkosi',
+    'Maluleke',
+    'Hanyane',
+    'Mokoena',
+    'Chauke'
+  ];
+  List<String> entities = [
+    'Dept of Public Works',
+    'Dept of Health',
+    'Dept of Transport',
+    'Dept of Education',
+    'Dept of Communications',
+    'Dept of Finance',
+    'Dept of Social Services',
+  ];
 
   _getCountry() async {
     country = await Navigator.push(

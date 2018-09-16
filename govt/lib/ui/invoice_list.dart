@@ -71,8 +71,8 @@ class _InvoiceListState extends State<InvoiceList> implements SnackBarListener {
         supplierDocumentRef: invoice.supplierDocumentRef,
         date: new DateTime.now().toIso8601String(),
         invoice: 'resource:com.oneconnect.biz.Invoice#${invoice.invoiceId}',
-        govtEntity: 'resource:com.oneconnect.biz.GovtEntity#${entity
-            .participantId}',
+        govtEntity:
+            'resource:com.oneconnect.biz.GovtEntity#${entity.participantId}',
         invoiceNumber: invoice.invoiceNumber,
         user: 'resource:com.oneconnect.biz.User#${user.userId}');
 
@@ -350,102 +350,157 @@ class InvoiceCard extends StatelessWidget {
   Widget build(BuildContext context) {
     amount = _getFormattedAmt();
     return Padding(
-      padding: const EdgeInsets.only(left: 5.0, right: 5.0, bottom: 20.0),
+      padding: const EdgeInsets.only(left: 16.0, right: 16.0, bottom: 20.0),
       child: Card(
-        elevation: 2.0,
+        elevation: 4.0,
         color: Colors.amber.shade50,
-        child: Column(
-          children: <Widget>[
-            Row(
-              children: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Icon(
-                    Icons.description,
-                    color: Colors.grey,
-                  ),
-                ),
-                Text(
-                  getFormattedLongestDate(invoice.date),
-                  style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 16.0,
-                      fontWeight: FontWeight.normal),
-                ),
-              ],
-            ),
-            Padding(
-              padding: const EdgeInsets.only(left: 24.0),
-              child: Row(
-                children: <Widget>[
-                  Padding(
-                    padding: const EdgeInsets.only(left: 8.0),
-                    child: Text(
-                      invoice.supplierName,
+        child: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Column(
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.only(top: 8.0),
+                child: Row(
+                  children: <Widget>[
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Icon(
+                        Icons.description,
+                        color: Colors.grey,
+                      ),
+                    ),
+                    Text(
+                      getFormattedLongestDate(invoice.date),
                       style: TextStyle(
                           color: Colors.black,
                           fontSize: 16.0,
-                          fontWeight: FontWeight.bold),
+                          fontWeight: FontWeight.normal),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-            Padding(
-              padding:
-                  const EdgeInsets.only(left: 30.0, bottom: 10.0, top: 10.0),
-              child: Row(
-                children: <Widget>[
-                  Text(
-                    'Amount',
-                    style: TextStyle(fontSize: 12.0),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 8.0),
-                    child: Text(
-                      amount == null
-                          ? '0.00'
-                          : getFormattedAmount('$amount', context),
-                      style: TextStyle(
-                          fontSize: 24.0,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.teal.shade200),
+              Padding(
+                padding: const EdgeInsets.only(left: 24.0, top: 8.0),
+                child: Row(
+                  children: <Widget>[
+                    Padding(
+                      padding: const EdgeInsets.only(left: 8.0),
+                      child: Text(
+                        invoice.supplierName,
+                        style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 16.0,
+                            fontWeight: FontWeight.bold),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(left: 30.0, bottom: 10.0),
-              child: Row(
-                children: <Widget>[
-                  Padding(
-                    padding: const EdgeInsets.only(right: 8.0),
-                    child: Text('Accepted'),
-                  ),
-                  Text(
-                    invoice.invoiceAcceptance == null ? 'NO' : 'YES',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ],
+              Padding(
+                padding:
+                    const EdgeInsets.only(left: 30.0, bottom: 10.0, top: 10.0),
+                child: Row(
+                  children: <Widget>[
+                    Container(
+                      width: 80.0,
+                      child: Text(
+                        'Amount',
+                        style: TextStyle(fontSize: 12.0),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 8.0),
+                      child: Text(
+                        amount == null
+                            ? '0.00'
+                            : getFormattedAmount('$amount', context),
+                        style: TextStyle(
+                            fontSize: 24.0,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.teal.shade200),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(left: 30.0, bottom: 30.0),
-              child: Row(
-                children: <Widget>[
-                  Padding(
-                    padding: const EdgeInsets.only(right: 8.0),
-                    child: Text('Settled'),
-                  ),
-                  Text(
-                    invoice.isSettled == false ? 'NO' : 'YES',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ],
+              Padding(
+                padding:
+                    const EdgeInsets.only(left: 30.0, bottom: 10.0, top: 0.0),
+                child: Row(
+                  children: <Widget>[
+                    Container(
+                      width: 80.0,
+                      child: Text(
+                        'Invoice No:',
+                        style: TextStyle(fontSize: 12.0),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 8.0),
+                      child: Text(
+                        invoice == null ? '0.00' : invoice.invoiceNumber,
+                        style: TextStyle(
+                            fontSize: 16.0,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.blue),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+              Padding(
+                padding:
+                    const EdgeInsets.only(left: 30.0, bottom: 10.0, top: 10.0),
+                child: Row(
+                  children: <Widget>[
+                    Padding(
+                      padding: const EdgeInsets.only(right: 8.0),
+                      child: Text('Accepted'),
+                    ),
+                    Text(
+                      invoice.invoiceAcceptance == null ? 'NO' : 'YES',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 18.0),
+                      child: Opacity(
+                        opacity: invoice.invoiceAcceptance == null ? 0.0 : 1.0,
+                        child: Icon(
+                          Icons.done,
+                          color: Colors.purple,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: 30.0, bottom: 30.0),
+                child: Row(
+                  children: <Widget>[
+                    Padding(
+                      padding: const EdgeInsets.only(right: 8.0),
+                      child: Text('Settled'),
+                    ),
+                    Text(
+                      invoice.isSettled == false ? 'NO' : 'YES',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 18.0),
+                      child: Opacity(
+                        opacity: invoice.isSettled == true ? 1.0 : 0.0,
+                        child: Icon(
+                          Icons.done,
+                          color: Colors.teal,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

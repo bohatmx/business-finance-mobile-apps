@@ -12,7 +12,6 @@ import 'package:businesslibrary/data/invoice_acceptance.dart';
 import 'package:businesslibrary/data/invoice_bid.dart';
 import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
-import 'package:businesslibrary/util/comms.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
@@ -116,12 +115,6 @@ class _MyHomePageState extends State<MyHomePage>
       } else {
         print('_MyHomePageState._start ***************'
             ' No open offers available. Will try again in $minutes minutes');
-        setState(() {
-          bids.clear();
-          amount = '0.00';
-          count = '0';
-          time = getFormattedDateHour(DateTime.now().toIso8601String());
-        });
         return;
       }
 
@@ -139,29 +132,24 @@ class _MyHomePageState extends State<MyHomePage>
     this.bids.add(bid);
     print(
         '_MyHomePageState.onInvoiceBid -- telling the folks back home we invested in an Offer ))))) ${bid.amount}');
-    AppSnackbar.showSnackbarWithAction(
-        scaffoldKey: _scaffoldKey,
-        message:
-            'Invoice Bid made: ${getFormattedDateHour(DateTime.now().toIso8601String())}'
-            '\n\n${bid.amount} reserve: ${bid.reservePercent} %',
-        textColor: Styles.lightGreen,
-        listener: this,
-        actionLabel: '',
-        action: 7,
-        backgroundColor: Colors.teal.shade900);
+    summarize();
   }
 
   String time, count, amount;
   @override
   onComplete(int count) {
     print(
-        '_MyHomePageState.onComplete ......... processed; $count timer.tick: ${timer.tick} bids: ${bids.length}');
+        '_MyHomePageState.onComplete ......... processed; $count timer.tick: ${timer.tick} bids: ${bids.length} offers: ${_offers.length}');
+    summarize();
+  }
+
+  void summarize() {
     double t = 0.00;
     bids.forEach((m) {
       t += m.amount;
     });
     amount = '${getFormattedAmount('$t', context)}';
-    this.count = '$count';
+    this.count = '${bids.length}';
     time = getFormattedDateHour(DateTime.now().toIso8601String());
     setState(() {});
   }
@@ -178,22 +166,19 @@ class _MyHomePageState extends State<MyHomePage>
   }
 
   void _restart() async {
-//    await _getLists();
-//    setState(() {});
-//    if (_orders.isNotEmpty && _profiles.isNotEmpty && _offers.isNotEmpty) {
-//      var z = AutoTradeExecutionBuilder();
-//      z.executeAutoTrades(_orders, _profiles, _offers, this);
-//    }
-    StellarCommsUtil.getAccount(
-            'GCOP26XGHTJ4HCWRRHK7NV6XOVHODTYA5ITU3QHXJKKCK7IIEBNP6GCP')
-        .then((acct) {
-      print('_MyHomePageState._restart: ${acct.toJson()}');
-    });
+    await _getLists();
+    setState(() {});
+    print(
+        '\n\n_MyHomePageState._restart ....startting auto trades ........... offers: ${_offers.length}\n\n');
+    if (_orders.isNotEmpty && _profiles.isNotEmpty && _offers.isNotEmpty) {
+      var z = AutoTradeExecutionBuilder();
+      z.executeAutoTrades(_orders, _profiles, _offers, this);
+    }
   }
 
   Widget _getBottom() {
     return PreferredSize(
-      preferredSize: const Size.fromHeight(100.0),
+      preferredSize: const Size.fromHeight(60.0),
       child: new Column(
         children: <Widget>[
           Row(
@@ -311,14 +296,24 @@ class _MyHomePageState extends State<MyHomePage>
                 padding: const EdgeInsets.all(20.0),
                 child: Column(
                   children: <Widget>[
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 18.0),
+                      child: Text(
+                        'Auto Trading Session',
+                        style: Styles.greyLabelMedium,
+                      ),
+                    ),
                     Row(
                       children: <Widget>[
-                        Text(
-                          'Last Session',
-                          style: Styles.greyLabelMedium,
+                        Container(
+                          width: 80.0,
+                          child: Text(
+                            'Time: ',
+                            style: Styles.greyLabelSmall,
+                          ),
                         ),
                         Padding(
-                          padding: const EdgeInsets.only(left: 18.0),
+                          padding: const EdgeInsets.only(left: 2.0),
                           child: Text(
                             time == null ? '00:00' : time,
                             style: Styles.purpleBoldLarge,
@@ -328,12 +323,15 @@ class _MyHomePageState extends State<MyHomePage>
                     ),
                     Row(
                       children: <Widget>[
-                        Text(
-                          'Amount',
-                          style: Styles.greyLabelMedium,
+                        Container(
+                          width: 80.0,
+                          child: Text(
+                            'Amount:',
+                            style: Styles.greyLabelSmall,
+                          ),
                         ),
                         Padding(
-                          padding: const EdgeInsets.only(left: 8.0),
+                          padding: const EdgeInsets.only(left: 2.0),
                           child: Text(
                             amount == null ? '0.00' : amount,
                             style: Styles.tealBoldLarge,
@@ -343,12 +341,15 @@ class _MyHomePageState extends State<MyHomePage>
                     ),
                     Row(
                       children: <Widget>[
-                        Text(
-                          'Bids Executed',
-                          style: Styles.greyLabelMedium,
+                        Container(
+                          width: 80.0,
+                          child: Text(
+                            'Trades: ',
+                            style: Styles.greyLabelSmall,
+                          ),
                         ),
                         Padding(
-                          padding: const EdgeInsets.only(left: 8.0),
+                          padding: const EdgeInsets.only(left: 2.0),
                           child: Text(
                             count == null ? '0' : count,
                             style: Styles.pinkBoldLarge,
@@ -429,5 +430,20 @@ class _MyHomePageState extends State<MyHomePage>
         backgroundColor: Styles.black);
 
     _start();
+  }
+
+  ExecutionUnit exec;
+  @override
+  onInvalidTrade(ExecutionUnit exec) {
+    this.exec = exec;
+    AppSnackbar.showSnackbarWithAction(
+        scaffoldKey: _scaffoldKey,
+        message: 'Invalid trade encountered',
+        textColor: Styles.white,
+        backgroundColor: Styles.purple,
+        actionLabel: 'Details',
+        listener: this,
+        icon: Icons.clear,
+        action: 99);
   }
 }

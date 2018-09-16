@@ -12,10 +12,6 @@ import 'package:businesslibrary/util/util.dart';
 import 'package:flutter/material.dart';
 
 class DeliveryNoteList extends StatefulWidget {
-  final List<DeliveryNote> deliveryNotes;
-
-  DeliveryNoteList(this.deliveryNotes);
-
   @override
   _DeliveryNoteListState createState() => _DeliveryNoteListState();
 }
@@ -36,12 +32,11 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
   _getCachedPrefs() async {
     user = await SharedPrefs.getUser();
     govtEntity = await SharedPrefs.getGovEntity();
+    _getDeliveryNotes();
   }
 
   @override
   Widget build(BuildContext context) {
-    deliveryNotes = widget.deliveryNotes;
-
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
@@ -309,15 +304,15 @@ class DeliveryNoteCard extends StatelessWidget {
               children: <Widget>[
                 Row(
                   children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Icon(
-                        Icons.event,
-                        color: Colors.grey,
-                      ),
-                    ),
+//                    Padding(
+//                      padding: const EdgeInsets.all(8.0),
+//                      child: Icon(
+//                        Icons.event,
+//                        color: Colors.grey,
+//                      ),
+//                    ),
                     Text(
-                      getFormattedDate(deliveryNote.date),
+                      getFormattedDateShort(deliveryNote.date, context),
                       style: TextStyle(
                           color: Colors.blue,
                           fontSize: 16.0,
@@ -326,7 +321,7 @@ class DeliveryNoteCard extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.only(left: 8.0),
                       child: Text(
-                        deliveryNote.customerName,
+                        deliveryNote.supplierName,
                         style: TextStyle(
                             color: Colors.black,
                             fontSize: 16.0,
@@ -336,9 +331,9 @@ class DeliveryNoteCard extends StatelessWidget {
                   ],
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(left: 40.0),
+                  padding: const EdgeInsets.only(left: 0.0),
                   child: Padding(
-                    padding: const EdgeInsets.only(bottom: 10.0),
+                    padding: const EdgeInsets.only(bottom: 10.0, top: 10.0),
                     child: Row(
                       children: <Widget>[
                         Container(
@@ -352,7 +347,7 @@ class DeliveryNoteCard extends StatelessWidget {
                           ),
                         ),
                         Padding(
-                          padding: const EdgeInsets.only(left: 8.0),
+                          padding: const EdgeInsets.only(left: 0.0),
                           child: Text(
                             deliveryNote.purchaseOrderNumber,
                             style: TextStyle(
@@ -366,7 +361,7 @@ class DeliveryNoteCard extends StatelessWidget {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(left: 40.0),
+                  padding: const EdgeInsets.only(left: 0.0),
                   child: Padding(
                     padding: const EdgeInsets.only(bottom: 8.0),
                     child: Row(
@@ -401,7 +396,7 @@ class DeliveryNoteCard extends StatelessWidget {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(left: 40.0),
+                  padding: const EdgeInsets.only(left: 0.0),
                   child: Padding(
                     padding: const EdgeInsets.only(bottom: 8.0),
                     child: Row(
@@ -436,7 +431,7 @@ class DeliveryNoteCard extends StatelessWidget {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(left: 40.0),
+                  padding: const EdgeInsets.only(left: 0.0),
                   child: Padding(
                     padding: const EdgeInsets.only(bottom: 20.0),
                     child: Row(

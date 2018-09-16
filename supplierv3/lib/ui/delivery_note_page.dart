@@ -2,11 +2,13 @@ import 'package:businesslibrary/api/data_api.dart';
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/delivery_note.dart';
+import 'package:businesslibrary/data/invoice.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
+import 'package:businesslibrary/util/styles.dart';
 import 'package:businesslibrary/util/util.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -91,7 +93,7 @@ class _DeliveryNotePageState extends State<DeliveryNotePage>
         child: Row(
           children: <Widget>[
             Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.all(4.0),
               child: Icon(
                 Icons.apps,
                 color: Colors.blue,
@@ -166,14 +168,14 @@ class _DeliveryNotePageState extends State<DeliveryNotePage>
               children: <Widget>[
                 _getPOList(),
                 Padding(
-                  padding: const EdgeInsets.only(top: 10.0, bottom: 20.0),
+                  padding: const EdgeInsets.only(top: 0.0, bottom: 10.0),
                   child: Text(
                     _purchaseOrder == null ? '' : _purchaseOrder.purchaserName,
                     style: styleBlack,
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(top: 8.0, bottom: 20.0),
+                  padding: const EdgeInsets.only(top: 0.0, bottom: 10.0),
                   child: Row(
                     children: <Widget>[
                       Padding(
@@ -193,7 +195,7 @@ class _DeliveryNotePageState extends State<DeliveryNotePage>
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(bottom: 10.0),
+                  padding: const EdgeInsets.only(bottom: 2.0),
                   child: Row(
                     children: <Widget>[
                       Padding(
@@ -224,6 +226,24 @@ class _DeliveryNotePageState extends State<DeliveryNotePage>
                       Text(
                         _purchaseOrder == null ? '0.00' : _getFormattedAmount(),
                         style: styleTeal,
+                      ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: Row(
+                    children: <Widget>[
+                      Padding(
+                        padding: const EdgeInsets.only(right: 8.0),
+                        child: Text(
+                          'Total Invoiced:',
+                          style: styleLabels,
+                        ),
+                      ),
+                      Text(
+                        totalPOInvoiceAmt == null ? '0.00' : totalPOInvoiceAmt,
+                        style: styleBlue,
                       ),
                     ],
                   ),
@@ -319,6 +339,21 @@ class _DeliveryNotePageState extends State<DeliveryNotePage>
           actionLabel: 'Fix');
       return;
     }
+
+    ///check invoices made oon this PO
+    double total = 0.00;
+    invoices.forEach((m) {
+      total += m.amount;
+    });
+    total += double.parse(amount);
+    if (total > _purchaseOrder.amount) {
+      AppSnackbar.showErrorSnackbar(
+          scaffoldKey: _scaffoldKey,
+          message: 'Purchase Order amount exceeded',
+          listener: this,
+          actionLabel: 'close');
+      return;
+    }
     DataAPI api = new DataAPI(getURL());
     var note = DeliveryNote(
       purchaseOrder: NameSpacePO + _purchaseOrder.purchaseOrderId,
@@ -367,16 +402,36 @@ class _DeliveryNotePageState extends State<DeliveryNotePage>
   }
 
   bool isDone = false;
+  List<Invoice> invoices = List();
+  String totalPOInvoiceAmt;
   @override
   onActionPressed(int action) {
     print('_DeliveryNotePageState.onActionPressed ............');
     Navigator.pop(context, isDone);
   }
 
-  void _onPOpicked(PurchaseOrder value) {
+  void _onPOpicked(PurchaseOrder value) async {
     print('_DeliveryNotePageState._onPOpicked: ');
     prettyPrint(value.toJson(), '_DeliveryNotePageState._onPOpicked: ');
     _purchaseOrder = value;
+    AppSnackbar.showSnackbarWithProgressIndicator(
+        scaffoldKey: _scaffoldKey,
+        message: 'Gettting PO invoices ...',
+        textColor: Styles.lightBlue,
+        backgroundColor: Styles.black);
+    invoices = await ListAPI.getInvoicesByPurchaseOrder(
+        _purchaseOrder.purchaseOrderId, supplier.documentReference);
+    _scaffoldKey.currentState.removeCurrentSnackBar();
+    double total = 0.00;
+    invoices.forEach((m) {
+      print(
+          '_DeliveryNotePageState._onPOpicked adding ${m.amount} to total: $total PO: ${_purchaseOrder.purchaseOrderNumber}');
+      total += m.amount;
+    });
+    totalPOInvoiceAmt = '${getFormattedAmount('$total', context)}';
+
+    print('_DeliveryNotePageState._onPOpicked - invoices for PurchaseOrder:'
+        '${_purchaseOrder.purchaseOrderNumber}, invoices: ${invoices.length} total: $totalPOInvoiceAmt');
     setState(() {});
   }
 
@@ -385,7 +440,7 @@ class _DeliveryNotePageState extends State<DeliveryNotePage>
   void _onAmountChanged(String value) {
     print('_DeliveryNotePageState._amtChanged: $value');
     amount = value;
-    //todo - internatioonalize
+    //todo - internationalize
     double amt = double.parse(amount);
     double xvat = amt * 0.15;
     double tot = amt + xvat;

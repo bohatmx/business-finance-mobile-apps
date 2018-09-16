@@ -351,8 +351,7 @@ class _DashboardState extends State<Dashboard>
     print('_MainPageState._onDeliveryNotesTapped go to  delivery notes');
     Navigator.push(
       context,
-      new MaterialPageRoute(
-          builder: (context) => new DeliveryNoteList(deliveryNotes)),
+      new MaterialPageRoute(builder: (context) => new DeliveryNoteList()),
     );
   }
 

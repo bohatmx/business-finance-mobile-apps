@@ -311,7 +311,7 @@ class _DashboardState extends State<Dashboard>
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               new Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: const EdgeInsets.only(bottom: 28.0),
                 child: Text(
                   name == null ? 'Organisation' : name,
                   style: TextStyle(

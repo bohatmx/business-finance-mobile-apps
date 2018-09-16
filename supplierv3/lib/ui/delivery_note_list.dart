@@ -208,7 +208,7 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
                     color: Theme.of(context).primaryColor),
               ),
               content: Container(
-                height: 80.0,
+                height: 120.0,
                 child: Column(
                   children: <Widget>[
                     Padding(
@@ -294,25 +294,25 @@ class DeliveryNoteCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(8.0),
+      padding: const EdgeInsets.all(2.0),
       child: Card(
         elevation: 4.0,
         color: Colors.grey.shade50,
         child: Padding(
-          padding: const EdgeInsets.all(12.0),
+          padding: const EdgeInsets.all(16.0),
           child: Column(
             children: <Widget>[
               Row(
                 children: <Widget>[
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Icon(
-                      Icons.event,
-                      color: Colors.grey,
-                    ),
-                  ),
+//                  Padding(
+//                    padding: const EdgeInsets.all(8.0),
+//                    child: Icon(
+//                      Icons.event,
+//                      color: Colors.grey,
+//                    ),
+//                  ),
                   Text(
-                    getFormattedDate(deliveryNote.date),
+                    getFormattedDateShort(deliveryNote.date, context),
                     style: TextStyle(
                         color: Colors.blue,
                         fontSize: 16.0,
@@ -331,7 +331,7 @@ class DeliveryNoteCard extends StatelessWidget {
                 ],
               ),
               Padding(
-                padding: const EdgeInsets.only(left: 40.0),
+                padding: const EdgeInsets.only(left: 0.0, top: 20.0),
                 child: Padding(
                   padding: const EdgeInsets.only(bottom: 10.0),
                   child: Row(
@@ -361,7 +361,7 @@ class DeliveryNoteCard extends StatelessWidget {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.only(left: 40.0),
+                padding: const EdgeInsets.only(left: 0.0),
                 child: Padding(
                   padding: const EdgeInsets.only(bottom: 8.0),
                   child: Row(
@@ -396,7 +396,7 @@ class DeliveryNoteCard extends StatelessWidget {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.only(left: 40.0),
+                padding: const EdgeInsets.only(left: 0.0),
                 child: Padding(
                   padding: const EdgeInsets.only(bottom: 8.0),
                   child: Row(
@@ -431,7 +431,7 @@ class DeliveryNoteCard extends StatelessWidget {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.only(left: 40.0),
+                padding: const EdgeInsets.only(left: 0.0),
                 child: Padding(
                   padding: const EdgeInsets.only(bottom: 20.0),
                   child: Row(

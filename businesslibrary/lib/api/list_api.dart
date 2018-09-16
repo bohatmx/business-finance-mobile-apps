@@ -541,6 +541,36 @@ class ListAPI {
     return invoice;
   }
 
+  static Future<List<Invoice>> getInvoicesByPurchaseOrder(
+      String purchaseOrderId, String supplierDocumentRef) async {
+    print(
+        'ListAPI.getInvoicesByPurchaseOrder ............. deliveryNoteId: $purchaseOrderId  ');
+    List<Invoice> invoices = List();
+    var qs = await _firestore
+        .collection('suppliers')
+        .document(supplierDocumentRef)
+        .collection('invoices')
+        .where('purchaseOrder',
+            isEqualTo:
+                'resource:com.oneconnect.biz.PurchaseOrder#$purchaseOrderId')
+        .getDocuments()
+        .catchError((e) {
+      print('ListAPI.getInvoicesByPurchaseOrder $e');
+      return invoices;
+    });
+    print(
+        'ListAPI.getInvoicesByPurchaseOrder ............. fouund: ${qs.documents.length}');
+    if (qs.documents.isNotEmpty) {
+      qs.documents.forEach((doc) {
+        var invoice = Invoice.fromJson(doc.data);
+        invoice.documentReference = qs.documents.first.documentID;
+        invoices.add(invoice);
+      });
+    }
+
+    return invoices;
+  }
+
   static Future<Invoice> getInvoiceByDeliveryNote(
       String deliveryNoteId, String supplierDocumentRef) async {
     print(
