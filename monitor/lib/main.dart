@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:collection';
 
 import 'package:businesslibrary/api/auto_trade.dart';
 import 'package:businesslibrary/api/list_api.dart';
@@ -17,6 +18,7 @@ import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:flutter/material.dart';
 import 'package:monitor/local_util.dart';
+import 'package:monitor/ui/journal.dart';
 import 'package:monitor/ui/theme_util.dart';
 
 void main() => runApp(new MyApp());
@@ -27,6 +29,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return new MaterialApp(
       title: 'Flutter Demo',
+      debugShowCheckedModeBanner: false,
       theme: getTheme(),
       home: new MyHomePage(title: 'Flutter Demo Home Page'),
     );
@@ -48,7 +51,7 @@ class _MyHomePageState extends State<MyHomePage>
   List<AutoTradeOrder> _orders;
   List<InvestorProfile> _profiles;
   List<Offer> _offers;
-  int _index = 0;
+  AutoTradeExecutionBuilder autoTradeExecutionBuilder;
 
   @override
   void initState() {
@@ -78,7 +81,7 @@ class _MyHomePageState extends State<MyHomePage>
     _offers = await ListAPI.getOpenOffers();
     _scaffoldKey.currentState.hideCurrentSnackBar();
     await _getMinutes();
-    _index = 0;
+
     if (_orders.isNotEmpty && _profiles.isNotEmpty) {
       _start();
     } else {
@@ -106,7 +109,7 @@ class _MyHomePageState extends State<MyHomePage>
       print(
           '_MyHomePageState._start:\n\n\n TIMER tripping - starting AUTO TRADE cycle .......time: '
           '${DateTime.now().toIso8601String()}.  mTimer.tick: ${mTimer.tick}...\n\n');
-      _index = 0;
+
       _offers = await ListAPI.getOpenOffers();
       if (_offers.isNotEmpty) {
         _orders = await ListAPI.getAutoTradeOrders();
@@ -120,12 +123,14 @@ class _MyHomePageState extends State<MyHomePage>
 
       _offers.sort((a, b) => b.offerAmount.compareTo(a.offerAmount));
       if (_orders.isNotEmpty && _profiles.isNotEmpty && _offers.isNotEmpty) {
-        var z = AutoTradeExecutionBuilder();
-        z.executeAutoTrades(_orders, _profiles, _offers, this);
+        autoTradeExecutionBuilder = AutoTradeExecutionBuilder();
+        autoTradeExecutionBuilder.executeAutoTrades(
+            _orders, _profiles, _offers, this);
       }
     });
   }
 
+  int _index = 0;
   List<InvoiceBid> bids = List();
   @override
   onInvoiceAutoBid(InvoiceBid bid) {
@@ -289,102 +294,107 @@ class _MyHomePageState extends State<MyHomePage>
           ),
           Padding(
             padding: const EdgeInsets.only(left: 12.0, right: 12.0),
-            child: Card(
-              elevation: 8.0,
-              color: Colors.purple.shade50,
-              child: Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: Column(
-                  children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 8.0),
-                      child: Text(
-                        'Auto Trading Session',
-                        style: Styles.greyLabelMedium,
-                      ),
-                    ),
-                    Row(
-                      children: <Widget>[
-                        Container(
-                          width: 80.0,
-                          child: Text(
-                            'Time: ',
-                            style: Styles.greyLabelSmall,
-                          ),
+            child: GestureDetector(
+              onTap: _onSessionTapped,
+              child: Card(
+                elevation: 8.0,
+                color: Colors.purple.shade50,
+                child: Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: Column(
+                    children: <Widget>[
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 8.0),
+                        child: Text(
+                          'Auto Trading Session',
+                          style: Styles.greyLabelMedium,
                         ),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 2.0),
-                          child: Text(
-                            time == null ? '00:00' : time,
-                            style: Styles.purpleBoldLarge,
+                      ),
+                      Row(
+                        children: <Widget>[
+                          Container(
+                            width: 80.0,
+                            child: Text(
+                              'Time: ',
+                              style: Styles.greyLabelSmall,
+                            ),
                           ),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 2.0),
+                            child: Text(
+                              time == null ? '00:00' : time,
+                              style: Styles.purpleBoldLarge,
+                            ),
+                          ),
+                        ],
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 4.0),
+                        child: Row(
+                          children: <Widget>[
+                            Container(
+                              width: 80.0,
+                              child: Text(
+                                'Amount:',
+                                style: Styles.greyLabelSmall,
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(left: 2.0),
+                              child: Text(
+                                amount == null ? '0.00' : amount,
+                                style: Styles.tealBoldLarge,
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 4.0),
-                      child: Row(
-                        children: <Widget>[
-                          Container(
-                            width: 80.0,
-                            child: Text(
-                              'Amount:',
-                              style: Styles.greyLabelSmall,
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(left: 2.0),
-                            child: Text(
-                              amount == null ? '0.00' : amount,
-                              style: Styles.tealBoldLarge,
-                            ),
-                          ),
-                        ],
                       ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 2.0, bottom: 2.0),
-                      child: Row(
-                        children: <Widget>[
-                          Container(
-                            width: 80.0,
-                            child: Text(
-                              'Trades: ',
-                              style: Styles.greyLabelSmall,
+                      Padding(
+                        padding: const EdgeInsets.only(top: 2.0, bottom: 2.0),
+                        child: Row(
+                          children: <Widget>[
+                            Container(
+                              width: 80.0,
+                              child: Text(
+                                'Trades: ',
+                                style: Styles.greyLabelSmall,
+                              ),
                             ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(left: 2.0),
-                            child: Text(
-                              count == null ? '0' : count,
-                              style: Styles.pinkBoldLarge,
+                            Padding(
+                              padding: const EdgeInsets.only(left: 2.0),
+                              child: Text(
+                                count == null ? '0' : count,
+                                style: Styles.pinkBoldLarge,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 0.0, bottom: 10.0),
-                      child: Row(
-                        children: <Widget>[
-                          Container(
-                            width: 80.0,
-                            child: Text(
-                              'Invalid: ',
-                              style: Styles.greyLabelSmall,
+                      Padding(
+                        padding: const EdgeInsets.only(top: 0.0, bottom: 10.0),
+                        child: Row(
+                          children: <Widget>[
+                            Container(
+                              width: 80.0,
+                              child: Text(
+                                'Invalid: ',
+                                style: Styles.greyLabelSmall,
+                              ),
                             ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(left: 2.0),
-                            child: Text(
-                              count == null ? '0' : count,
-                              style: Styles.blueBoldLarge,
+                            Padding(
+                              padding: const EdgeInsets.only(left: 2.0),
+                              child: Text(
+                                invalidUnits == null
+                                    ? '0'
+                                    : '${invalidUnits.length}',
+                                style: Styles.blueBoldLarge,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -460,17 +470,33 @@ class _MyHomePageState extends State<MyHomePage>
   }
 
   ExecutionUnit exec;
+  List<ExecutionUnit> invalidUnits = List();
+  HashMap<String, ExecutionUnit> map = HashMap<String, ExecutionUnit>();
   @override
   onInvalidTrade(ExecutionUnit exec) {
     this.exec = exec;
-    AppSnackbar.showSnackbarWithAction(
-        scaffoldKey: _scaffoldKey,
-        message: 'Invalid trade encountered',
-        textColor: Styles.white,
-        backgroundColor: Styles.purple,
-        actionLabel: 'Details',
-        listener: this,
-        icon: Icons.clear,
-        action: 99);
+    map['${exec.order.autoTradeOrderId}-${exec.offer.offerId}'] = exec;
+    invalidUnits.clear();
+    map.forEach((key, ex) {
+      invalidUnits.add(ex);
+    });
+
+    summarize();
+  }
+
+  void _onSessionTapped() {
+    if (bids.isEmpty && invalidUnits.isEmpty) {
+      AppSnackbar.showErrorSnackbar(
+          scaffoldKey: _scaffoldKey,
+          message: 'No session details available',
+          listener: this,
+          actionLabel: 'OK');
+      return;
+    }
+    Navigator.push(
+      context,
+      new MaterialPageRoute(
+          builder: (context) => new JournalPage(bids, invalidUnits)),
+    );
   }
 }

@@ -63,9 +63,9 @@ class _NewInvoicePageState extends State<NewInvoicePage>
         deliveryAcceptance.deliveryNote.split('#').elementAt(1),
         supplier.documentReference,
         'suppliers');
-
-    editingController.text = '${deliveryNote.amount}';
-    _onAmountChanged('${deliveryNote.amount}');
+//todo - calc vat using country table #####################
+    tax = deliveryNote.amount * 0.15;
+    totalAmount = deliveryNote.amount + tax;
     setState(() {});
   }
 
@@ -77,18 +77,11 @@ class _NewInvoicePageState extends State<NewInvoicePage>
     _getDeliveryAcceptances();
 
     listenForDeliveryAcceptance(supplier.documentReference, this);
+    listenForInvoiceAcceptance(supplier.documentReference, this);
   }
 
   static const NameSpace = 'resource:com.oneconnect.biz.';
   void _onSubmit() async {
-    if (amount == null || amount == 0) {
-      AppSnackbar.showErrorSnackbar(
-          scaffoldKey: _scaffoldKey,
-          message: 'Please enter amount',
-          listener: this,
-          actionLabel: 'Close');
-      return;
-    }
     if (contracts.isNotEmpty) {
       if (contract == null) {
         AppSnackbar.showErrorSnackbar(
@@ -106,7 +99,7 @@ class _NewInvoicePageState extends State<NewInvoicePage>
     final form = _formKey.currentState;
     if (form.validate()) {
       form.save();
-      totalAmount = amount + tax;
+      totalAmount = deliveryNote.amount + tax;
       invoice = Invoice(
         invoiceNumber: invoiceNumber,
         user: NameSpace + 'User#' + _user.userId,
@@ -121,7 +114,7 @@ class _NewInvoicePageState extends State<NewInvoicePage>
         supplierName: supplier.name,
         customerName: deliveryAcceptance.customerName,
         purchaseOrderNumber: deliveryAcceptance.purchaseOrderNumber,
-        amount: amount,
+        amount: deliveryNote.amount,
         valueAddedTax: tax,
         totalAmount: totalAmount,
         isOnOffer: false,
@@ -318,7 +311,7 @@ class _NewInvoicePageState extends State<NewInvoicePage>
                     child: TextFormField(
                       style: TextStyle(
                           fontWeight: FontWeight.bold,
-                          fontSize: 18.0,
+                          fontSize: 24.0,
                           color: Colors.black),
                       decoration: InputDecoration(
                         labelText: 'Invoice Number',
@@ -333,24 +326,26 @@ class _NewInvoicePageState extends State<NewInvoicePage>
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.only(left: 12.0, right: 12.0),
-                    child: TextField(
-                      controller: editingController,
-                      style: TextStyle(
-                          fontSize: 28.0,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black),
-                      decoration: InputDecoration(
-                        labelText: 'Amount',
-                      ),
-                      keyboardType:
-                          TextInputType.numberWithOptions(decimal: true),
-                      maxLength: 20,
-                      onChanged: _onAmountChanged,
+                    padding: const EdgeInsets.only(top: 18.0),
+                    child: Row(
+                      children: <Widget>[
+                        Padding(
+                          padding: const EdgeInsets.only(right: 8.0),
+                          child: Text('Amount'),
+                        ),
+                        Text(
+                          deliveryNote == null
+                              ? '0.00'
+                              : getFormattedAmount(
+                                  '${deliveryNote.amount}', context),
+                          style: Styles.blackBoldReallyLarge,
+                        ),
+                      ],
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.only(left: 12.0, bottom: 8.0),
+                    padding: const EdgeInsets.only(
+                        left: 12.0, bottom: 8.0, top: 10.0),
                     child: Row(
                       children: <Widget>[
                         Padding(
@@ -368,7 +363,7 @@ class _NewInvoicePageState extends State<NewInvoicePage>
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.only(left: 12.0, bottom: 30.0),
+                    padding: const EdgeInsets.only(left: 12.0, bottom: 10.0),
                     child: Row(
                       children: <Widget>[
                         Padding(
@@ -512,15 +507,6 @@ class _NewInvoicePageState extends State<NewInvoicePage>
     });
   }
 
-  void _onAmountChanged(String value) {
-    amount = double.parse(value);
-
-    //todo - calc vat using country table
-    tax = amount * 0.15;
-    totalAmount = amount + tax;
-    setState(() {});
-  }
-
   DeliveryAcceptance daArrived;
   @override
   onDeliveryAcceptance(DeliveryAcceptance da) {
@@ -543,6 +529,7 @@ class _NewInvoicePageState extends State<NewInvoicePage>
         icon: Icons.done,
         action: 1,
         actionLabel: 'OK',
+        listener: this,
         backgroundColor: Styles.black);
   }
 }

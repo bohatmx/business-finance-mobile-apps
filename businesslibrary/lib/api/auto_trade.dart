@@ -18,6 +18,7 @@ class ExecutionUnit {
   InvestorProfile profile;
   Offer offer;
   Account account;
+  DateTime date;
 
   static const Success = 0, ErrorInvalidTrade = 1, ErrorBadBid = 2;
 
@@ -25,6 +26,7 @@ class ExecutionUnit {
       {@required this.order,
       @required this.profile,
       @required this.offer,
+      this.date,
       @required this.account});
 }
 
@@ -103,7 +105,7 @@ class AutoTradeExecutionBuilder {
     orders.forEach((order) {
       try {
         var offer = offers.elementAt(0);
-        var t = ExecutionUnit(offer: offer, order: order);
+        var t = ExecutionUnit(offer: offer, order: order, date: DateTime.now());
         executionUnitList.add(t);
         offers.remove(offer);
         print(

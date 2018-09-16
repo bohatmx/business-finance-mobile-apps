@@ -1,6 +1,7 @@
 import 'package:businesslibrary/api/data_api.dart';
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
+import 'package:businesslibrary/data/delivery_acceptance.dart';
 import 'package:businesslibrary/data/delivery_note.dart';
 import 'package:businesslibrary/data/invoice.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
@@ -12,6 +13,8 @@ import 'package:businesslibrary/util/styles.dart';
 import 'package:businesslibrary/util/util.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:supplierv3/listeners/firestore_listener.dart';
+import 'package:supplierv3/ui/invoice_page.dart';
 
 class DeliveryNotePage extends StatefulWidget {
   final PurchaseOrder purchaseOrder;
@@ -23,7 +26,7 @@ class DeliveryNotePage extends StatefulWidget {
 }
 
 class _DeliveryNotePageState extends State<DeliveryNotePage>
-    implements SnackBarListener {
+    implements SnackBarListener, DeliveryAcceptanceListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   PurchaseOrder _purchaseOrder;
   List<PurchaseOrder> _purchaseOrders;
@@ -41,7 +44,7 @@ class _DeliveryNotePageState extends State<DeliveryNotePage>
     _user = await SharedPrefs.getUser();
     supplier = await SharedPrefs.getSupplier();
     userName = _user.firstName + ' ' + _user.lastName;
-
+    listenForDeliveryAcceptance(supplier.documentReference, this);
     _getPurchaseOrders();
   }
 
@@ -132,7 +135,7 @@ class _DeliveryNotePageState extends State<DeliveryNotePage>
           style: TextStyle(fontWeight: FontWeight.normal),
         ),
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(80.0),
+          preferredSize: const Size.fromHeight(40.0),
           child: new Column(
             children: <Widget>[
               Text(
@@ -219,7 +222,7 @@ class _DeliveryNotePageState extends State<DeliveryNotePage>
                       Padding(
                         padding: const EdgeInsets.only(right: 8.0),
                         child: Text(
-                          'PO Amount:',
+                          'PO Amt:',
                           style: styleLabels,
                         ),
                       ),
@@ -413,7 +416,19 @@ class _DeliveryNotePageState extends State<DeliveryNotePage>
   @override
   onActionPressed(int action) {
     print('_DeliveryNotePageState.onActionPressed ............');
-    Navigator.pop(context, isDone);
+
+    switch (action) {
+      case 1:
+        Navigator.push(
+          context,
+          new MaterialPageRoute(
+              builder: (context) => new NewInvoicePage(deliveryAcceptance)),
+        );
+        break;
+      default:
+        Navigator.pop(context, isDone);
+        break;
+    }
   }
 
   void _onPOpicked(PurchaseOrder value) async {
@@ -455,5 +470,20 @@ class _DeliveryNotePageState extends State<DeliveryNotePage>
     setState(() {});
     print(
         '_DeliveryNotePageState._onAmountChanged vat: $vat tottal: $totalAmount');
+  }
+
+  DeliveryAcceptance deliveryAcceptance;
+  @override
+  onDeliveryAcceptance(DeliveryAcceptance da) {
+    deliveryAcceptance = da;
+    AppSnackbar.showSnackbarWithAction(
+        scaffoldKey: _scaffoldKey,
+        message: 'Delivery Acceptance arrived',
+        textColor: Styles.white,
+        backgroundColor: Styles.blue,
+        actionLabel: 'OK',
+        listener: this,
+        icon: Icons.done,
+        action: 1);
   }
 }
