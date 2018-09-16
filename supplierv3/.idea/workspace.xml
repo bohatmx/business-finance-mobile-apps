@@ -4,17 +4,13 @@
     <option name="TOOL_WINDOW_CONFIGURED_FILTER" value="Show only selected application" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="80b8d4ed-f360-4af7-bada-dfcc0519f100" name="Default" comment="added auto order executtioon">
+    <list default="true" id="80b8d4ed-f360-4af7-bada-dfcc0519f100" name="Default" comment="in the flow - delivery note to auto-trade woorrking!!!">
       <change beforePath="$PROJECT_DIR$/../businesslibrary/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../crudderv3/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../crudderv3/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../investor/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../investor/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../investor/lib/ui/dashboard.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../investor/lib/ui/dashboard.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../monitor/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../monitor/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../monitor/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../monitor/lib/main.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/ui/dashboard.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/ui/dashboard.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/ui/delivery_note_list.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/ui/delivery_note_list.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/ui/delivery_note_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/ui/delivery_note_page.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/ui/invoice_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/ui/invoice_page.dart" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <ignored path="../.gradle/4.4/fileChanges/last-build.bin" />
@@ -286,7 +282,7 @@
         <counts>
           <entry key="dart" value="13608" />
           <entry key="gradle" value="2" />
-          <entry key="txt" value="236" />
+          <entry key="txt" value="294" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
@@ -300,7 +296,7 @@
         <counts>
           <entry key="Dart" value="13608" />
           <entry key="Groovy" value="2" />
-          <entry key="PLAIN_TEXT" value="236" />
+          <entry key="PLAIN_TEXT" value="294" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.vcs.git.usages" />
@@ -320,8 +316,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/lib/ui/invoice_page.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="577">
-              <caret line="375" column="51" selection-start-line="375" selection-start-column="51" selection-end-line="375" selection-end-column="51" />
+            <state relative-caret-position="337">
+              <caret line="360" column="37" lean-forward="true" selection-start-line="360" selection-start-column="37" selection-end-line="360" selection-end-column="37" />
             </state>
           </provider>
         </entry>
@@ -639,7 +635,14 @@
       <option name="project" value="LOCAL" />
       <updated>1536418272160</updated>
     </task>
-    <option name="localTasksCounter" value="14" />
+    <task id="LOCAL-00014" summary="in the flow - delivery note to auto-trade woorrking!!!">
+      <created>1537090605986</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1537090605987</updated>
+    </task>
+    <option name="localTasksCounter" value="15" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -700,7 +703,8 @@
     <MESSAGE value="refactored control of firestore listeners" />
     <MESSAGE value="refactored coordination flow between apps" />
     <MESSAGE value="added auto order executtioon" />
-    <option name="LAST_COMMIT_MESSAGE" value="added auto order executtioon" />
+    <MESSAGE value="in the flow - delivery note to auto-trade woorrking!!!" />
+    <option name="LAST_COMMIT_MESSAGE" value="in the flow - delivery note to auto-trade woorrking!!!" />
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/test/widget_test.dart">
@@ -947,6 +951,14 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="171">
           <caret line="340" column="5" selection-start-line="340" selection-start-column="5" selection-end-line="340" selection-end-column="5" />
+          <folding>
+            <element signature="e#1154#1198#0" expanded="true" />
+            <element signature="e#1213#1395#0" expanded="true" />
+            <element signature="e#1420#1871#0" expanded="true" />
+            <element signature="e#2418#3313#0" expanded="true" />
+            <element signature="e#12426#12604#0" expanded="true" />
+            <element signature="e#12680#13067#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -973,8 +985,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/lib/ui/invoice_page.dart">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="577">
-          <caret line="375" column="51" selection-start-line="375" selection-start-column="51" selection-end-line="375" selection-end-column="51" />
+        <state relative-caret-position="337">
+          <caret line="360" column="37" lean-forward="true" selection-start-line="360" selection-start-column="37" selection-end-line="360" selection-end-column="37" />
         </state>
       </provider>
     </entry>

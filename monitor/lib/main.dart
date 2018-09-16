@@ -223,7 +223,7 @@ class _MyHomePageState extends State<MyHomePage>
                   Column(
                     children: <Widget>[
                       Padding(
-                        padding: const EdgeInsets.only(top: 8.0),
+                        padding: const EdgeInsets.only(top: 4.0),
                         child: Text(
                           'Automatic Trade every',
                           style: Styles.greyLabelMedium,
@@ -266,7 +266,7 @@ class _MyHomePageState extends State<MyHomePage>
                   ),
                   Padding(
                     padding: const EdgeInsets.only(
-                        top: 10.0, left: 20.0, bottom: 20.0),
+                        top: 4.0, left: 20.0, bottom: 10.0),
                     child: Row(
                       children: <Widget>[
                         Text(
@@ -322,7 +322,7 @@ class _MyHomePageState extends State<MyHomePage>
                       ],
                     ),
                     Padding(
-                      padding: const EdgeInsets.only(top: 8.0),
+                      padding: const EdgeInsets.only(top: 4.0),
                       child: Row(
                         children: <Widget>[
                           Container(
@@ -343,7 +343,7 @@ class _MyHomePageState extends State<MyHomePage>
                       ),
                     ),
                     Padding(
-                      padding: const EdgeInsets.only(top: 2.0, bottom: 10.0),
+                      padding: const EdgeInsets.only(top: 2.0, bottom: 2.0),
                       child: Row(
                         children: <Widget>[
                           Container(
@@ -358,6 +358,27 @@ class _MyHomePageState extends State<MyHomePage>
                             child: Text(
                               count == null ? '0' : count,
                               style: Styles.pinkBoldLarge,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 0.0, bottom: 10.0),
+                      child: Row(
+                        children: <Widget>[
+                          Container(
+                            width: 80.0,
+                            child: Text(
+                              'Invalid: ',
+                              style: Styles.greyLabelSmall,
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 2.0),
+                            child: Text(
+                              count == null ? '0' : count,
+                              style: Styles.blueBoldLarge,
                             ),
                           ),
                         ],
