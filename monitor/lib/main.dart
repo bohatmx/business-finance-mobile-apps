@@ -293,11 +293,11 @@ class _MyHomePageState extends State<MyHomePage>
               elevation: 8.0,
               color: Colors.purple.shade50,
               child: Padding(
-                padding: const EdgeInsets.all(20.0),
+                padding: const EdgeInsets.all(10.0),
                 child: Column(
                   children: <Widget>[
                     Padding(
-                      padding: const EdgeInsets.only(bottom: 18.0),
+                      padding: const EdgeInsets.only(bottom: 8.0),
                       child: Text(
                         'Auto Trading Session',
                         style: Styles.greyLabelMedium,
@@ -321,41 +321,47 @@ class _MyHomePageState extends State<MyHomePage>
                         ),
                       ],
                     ),
-                    Row(
-                      children: <Widget>[
-                        Container(
-                          width: 80.0,
-                          child: Text(
-                            'Amount:',
-                            style: Styles.greyLabelSmall,
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: Row(
+                        children: <Widget>[
+                          Container(
+                            width: 80.0,
+                            child: Text(
+                              'Amount:',
+                              style: Styles.greyLabelSmall,
+                            ),
                           ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 2.0),
-                          child: Text(
-                            amount == null ? '0.00' : amount,
-                            style: Styles.tealBoldLarge,
+                          Padding(
+                            padding: const EdgeInsets.only(left: 2.0),
+                            child: Text(
+                              amount == null ? '0.00' : amount,
+                              style: Styles.tealBoldLarge,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                    Row(
-                      children: <Widget>[
-                        Container(
-                          width: 80.0,
-                          child: Text(
-                            'Trades: ',
-                            style: Styles.greyLabelSmall,
+                    Padding(
+                      padding: const EdgeInsets.only(top: 2.0, bottom: 10.0),
+                      child: Row(
+                        children: <Widget>[
+                          Container(
+                            width: 80.0,
+                            child: Text(
+                              'Trades: ',
+                              style: Styles.greyLabelSmall,
+                            ),
                           ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 2.0),
-                          child: Text(
-                            count == null ? '0' : count,
-                            style: Styles.pinkBoldLarge,
+                          Padding(
+                            padding: const EdgeInsets.only(left: 2.0),
+                            child: Text(
+                              count == null ? '0' : count,
+                              style: Styles.pinkBoldLarge,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ],
                 ),
