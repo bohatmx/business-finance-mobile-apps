@@ -28,6 +28,28 @@ class ExecutionUnit {
       @required this.offer,
       this.date,
       @required this.account});
+  ExecutionUnit.fromJson(Map data) {
+    var map1 = data['order'];
+    this.order = AutoTradeOrder.fromJson(map1);
+
+    var map2 = data['profile'];
+    this.profile = InvestorProfile.fromJson(map2);
+
+    var map3 = data['offer'];
+    this.offer = Offer.fromJson(map3);
+
+    var map4 = data['account'];
+    this.account = Account.fromJson(map4);
+
+    this.date = data['date'];
+  }
+  Map<String, dynamic> toJson() => <String, dynamic>{
+        'order': order,
+        'profile': profile,
+        'date': date,
+        'offer': offer,
+        'account': account,
+      };
 }
 
 ///Manage the auto buying of offers by investors

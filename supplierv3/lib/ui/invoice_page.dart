@@ -525,12 +525,12 @@ class _NewInvoicePageState extends State<NewInvoicePage>
     AppSnackbar.showSnackbarWithAction(
         scaffoldKey: _scaffoldKey,
         message: 'Invoice Accepted',
-        textColor: Styles.lightGreen,
+        textColor: Styles.white,
         icon: Icons.done,
         action: 1,
         actionLabel: 'OK',
         listener: this,
-        backgroundColor: Styles.black);
+        backgroundColor: Colors.teal.shade600);
   }
 }
 

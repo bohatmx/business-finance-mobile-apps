@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:collection';
 
 import 'package:businesslibrary/api/auto_trade.dart';
+import 'package:businesslibrary/api/file_util.dart';
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/auto_trade_order.dart';
@@ -133,10 +134,25 @@ class _MyHomePageState extends State<MyHomePage>
   int _index = 0;
   List<InvoiceBid> bids = List();
   @override
-  onInvoiceAutoBid(InvoiceBid bid) {
+  onInvoiceAutoBid(InvoiceBid bid) async {
     this.bids.add(bid);
     print(
         '_MyHomePageState.onInvoiceBid -- telling the folks back home we invested in an Offer ))))) ${bid.amount}');
+    try {
+      List<InvoiceBid> mbids = await FileUtil.getInvoiceBids();
+      if (mbids == null) {
+        mbids = List();
+      }
+      bids.forEach((m) {
+        mbids.insert(0, m);
+      });
+      bids.sort((a, b) => b.date.compareTo(a.date));
+      var x = InvoiceBids(bids);
+      await FileUtil.saveInvoiceBids(x);
+    } catch (e) {
+      print('_MyHomePageState.onInvalidTrade  FILE PROBLEM $e');
+    }
+
     summarize();
   }
 
@@ -473,13 +489,27 @@ class _MyHomePageState extends State<MyHomePage>
   List<ExecutionUnit> invalidUnits = List();
   HashMap<String, ExecutionUnit> map = HashMap<String, ExecutionUnit>();
   @override
-  onInvalidTrade(ExecutionUnit exec) {
+  onInvalidTrade(ExecutionUnit exec) async {
     this.exec = exec;
     map['${exec.order.autoTradeOrderId}-${exec.offer.offerId}'] = exec;
     invalidUnits.clear();
     map.forEach((key, ex) {
       invalidUnits.add(ex);
     });
+
+    try {
+      List<ExecutionUnit> mUnits = await FileUtil.getExecutionUnits();
+      if (mUnits == null) {
+        mUnits = List();
+      }
+      invalidUnits.forEach((m) {
+        mUnits.insert(0, m);
+      });
+      mUnits.sort((a, b) => b.date.compareTo(a.date));
+      await FileUtil.saveExecutionUnits(ExecutionUnits(mUnits));
+    } catch (e) {
+      print('_MyHomePageState.onInvalidTrade  FILE PROBLEM $e');
+    }
 
     summarize();
   }
@@ -496,7 +526,10 @@ class _MyHomePageState extends State<MyHomePage>
     Navigator.push(
       context,
       new MaterialPageRoute(
-          builder: (context) => new JournalPage(bids, invalidUnits)),
+          builder: (context) => new JournalPage(
+                bids: bids,
+                units: invalidUnits,
+              )),
     );
   }
 }

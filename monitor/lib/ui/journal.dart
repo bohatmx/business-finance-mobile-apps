@@ -1,6 +1,7 @@
 import 'dart:collection';
 
 import 'package:businesslibrary/api/auto_trade.dart';
+import 'package:businesslibrary/api/file_util.dart';
 import 'package:businesslibrary/data/invoice_bid.dart';
 import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/util/lookups.dart';
@@ -11,7 +12,7 @@ class JournalPage extends StatefulWidget {
   final List<InvoiceBid> bids;
   final List<ExecutionUnit> units;
 
-  JournalPage(this.bids, this.units);
+  JournalPage({this.bids, this.units});
 
   @override
   _JournalPageState createState() => _JournalPageState();
@@ -23,12 +24,27 @@ class _JournalPageState extends State<JournalPage> {
   double totalInvalidAmount = 0.00;
   int totalBids = 0;
   int totalInvalids = 0;
+  List<InvoiceBid> bids;
+  List<ExecutionUnit> units;
+  @override
+  initState() {
+    super.initState();
+    // _getData();
+  }
+
+  _getData() async {
+    bids = await FileUtil.getInvoiceBids();
+    units = await FileUtil.getExecutionUnits();
+
+    _calcInvalids();
+    setState(() {});
+  }
 
   Widget _getBidView() {
     return Column(
       children: <Widget>[
         Padding(
-          padding: const EdgeInsets.only(left: 40.0, top: 20.0),
+          padding: const EdgeInsets.only(left: 20.0, top: 10.0),
           child: Row(
             children: <Widget>[
               Padding(
@@ -39,24 +55,39 @@ class _JournalPageState extends State<JournalPage> {
                 totalBidAmount == null
                     ? '0.00'
                     : getFormattedAmount('$totalBidAmount', context),
-                style: Styles.purpleBoldReallyLarge,
+                style: Styles.purpleBoldLarge,
+              ),
+            ],
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(left: 20.0, top: 4.0),
+          child: Row(
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.only(right: 8.0),
+                child: Text('Total Bids'),
+              ),
+              Text(
+                '${bids.length}',
+                style: Styles.blackBoldMedium,
               ),
             ],
           ),
         ),
         new Flexible(
           child: new ListView.builder(
-              itemCount: widget.bids == null ? 0 : widget.bids.length,
+              itemCount: bids == null ? 0 : bids.length,
               itemBuilder: (BuildContext context, int index) {
                 return new GestureDetector(
                   onTap: () {
-                    _showBidDetail(widget.bids.elementAt(index));
+                    _showBidDetail(bids.elementAt(index));
                   },
                   child: Padding(
                     padding: const EdgeInsets.only(
                         top: 4.0, bottom: 4.0, left: 12.0, right: 12.0),
                     child: InvoiceBidCard(
-                      bid: widget.bids.elementAt(index),
+                      bid: bids.elementAt(index),
                     ),
                   ),
                 );
@@ -72,7 +103,7 @@ class _JournalPageState extends State<JournalPage> {
       child: Column(
         children: <Widget>[
           Padding(
-            padding: const EdgeInsets.only(left: 20.0, top: 20.0),
+            padding: const EdgeInsets.only(left: 20.0, top: 0.0),
             child: Row(
               children: <Widget>[
                 Padding(
@@ -88,19 +119,34 @@ class _JournalPageState extends State<JournalPage> {
               ],
             ),
           ),
+          Padding(
+            padding: const EdgeInsets.only(left: 20.0, top: 4.0),
+            child: Row(
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.only(right: 8.0),
+                  child: Text('Total Bids'),
+                ),
+                Text(
+                  '${units.length}',
+                  style: Styles.blueBoldMedium,
+                ),
+              ],
+            ),
+          ),
           new Flexible(
             child: new ListView.builder(
-                itemCount: widget.units == null ? 0 : widget.units.length,
+                itemCount: units == null ? 0 : units.length,
                 itemBuilder: (BuildContext context, int index) {
                   return new GestureDetector(
                     onTap: () {
-                      _showInvalidDetail(widget.units.elementAt(index));
+                      _showInvalidDetail(units.elementAt(index));
                     },
                     child: Padding(
                       padding: const EdgeInsets.only(
                           top: 4.0, bottom: 4.0, left: 12.0, right: 12.0),
                       child: ExecUnitCard(
-                        unit: widget.units.elementAt(index),
+                        unit: units.elementAt(index),
                       ),
                     ),
                   );
@@ -113,21 +159,25 @@ class _JournalPageState extends State<JournalPage> {
 
   void _calcInvalids() {
     var map = HashMap<String, Offer>();
-    widget.units.forEach((m) {
+    units.forEach((m) {
       map['${m.offer.offerId}'] = m.offer;
     });
+    totalInvalidAmount = 0.00;
+    totalBidAmount = 0.00;
+
     map.forEach((key, off) {
       totalInvalidAmount += off.offerAmount;
     });
-    widget.bids.forEach((m) {
+    bids.forEach((m) {
       totalBidAmount += m.amount;
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    bids = widget.bids;
+    units = widget.units;
     _calcInvalids();
-
     return DefaultTabController(
       length: 3,
       child: Scaffold(
@@ -137,7 +187,7 @@ class _JournalPageState extends State<JournalPage> {
             'Trade Session Monitor',
             style: Styles.whiteBoldMedium,
           ),
-          elevation: 8.0,
+          elevation: 16.0,
           bottom: TabBar(tabs: [
             Tab(
               text: 'Bids Executed',
@@ -267,8 +317,9 @@ class ExecUnitCard extends StatelessWidget {
                   Text('Investor', style: Styles.greyLabelSmall),
                   Padding(
                     padding: const EdgeInsets.only(left: 8.0),
-                    child:
-                        Text(unit.profile.name, style: Styles.blackBoldMedium),
+                    child: Text(unit.profile.name,
+                        style: TextStyle(
+                            color: Colors.grey.shade600, fontSize: 20.0)),
                   ),
                 ],
               ),
