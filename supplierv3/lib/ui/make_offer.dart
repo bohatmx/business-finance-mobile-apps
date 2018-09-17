@@ -104,195 +104,6 @@ class _MakeOfferPageState extends State<MakeOfferPage>
     user = await SharedPrefs.getUser();
   }
 
-  void _setItems() {
-    print('_MakeOfferPageState._setItems ................');
-
-    var item6 = DropdownMenuItem<String>(
-      value: '20.0',
-      child: Row(
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Icon(
-              Icons.apps,
-              color: Colors.blue,
-            ),
-          ),
-          Text('20.0 %'),
-        ],
-      ),
-    );
-    items.add(item6);
-
-    var item7 = DropdownMenuItem<String>(
-      value: '25.0',
-      child: Row(
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Icon(
-              Icons.apps,
-              color: Colors.purple,
-            ),
-          ),
-          Text('25.0 %'),
-        ],
-      ),
-    );
-    items.add(item7);
-
-    var item8 = DropdownMenuItem<String>(
-      value: '30.0',
-      child: Row(
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Icon(
-              Icons.apps,
-              color: Colors.purple,
-            ),
-          ),
-          Text('30.0 %'),
-        ],
-      ),
-    );
-    items.add(item8);
-
-    var item9 = DropdownMenuItem<String>(
-      value: '35.0',
-      child: Row(
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Icon(
-              Icons.apps,
-              color: Colors.red,
-            ),
-          ),
-          Text('35.0 %'),
-        ],
-      ),
-    );
-    items.add(item9);
-
-    var item10 = DropdownMenuItem<String>(
-      value: '40.0',
-      child: Row(
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Icon(
-              Icons.apps,
-              color: Colors.red,
-            ),
-          ),
-          Text('40.0 %'),
-        ],
-      ),
-    );
-    items.add(item10);
-
-    var item11 = DropdownMenuItem<String>(
-      value: '50.0',
-      child: Row(
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Icon(
-              Icons.apps,
-              color: Colors.red,
-            ),
-          ),
-          Text('50.0 %'),
-        ],
-      ),
-    );
-    items.add(item11);
-
-    var item12 = DropdownMenuItem<String>(
-      value: '60.0',
-      child: Row(
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Icon(
-              Icons.apps,
-              color: Colors.red,
-            ),
-          ),
-          Text('60.0 %'),
-        ],
-      ),
-    );
-    items.add(item12);
-
-    var item13 = DropdownMenuItem<String>(
-      value: '70.0',
-      child: Row(
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Icon(
-              Icons.apps,
-              color: Colors.red,
-            ),
-          ),
-          Text('70.0 %'),
-        ],
-      ),
-    );
-    items.add(item13);
-
-    var item14 = DropdownMenuItem<String>(
-      value: '80.0',
-      child: Row(
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Icon(
-              Icons.apps,
-              color: Colors.red,
-            ),
-          ),
-          Text('80.0 %'),
-        ],
-      ),
-    );
-    items.add(item14);
-    var item15 = DropdownMenuItem<String>(
-      value: '90.0',
-      child: Row(
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Icon(
-              Icons.apps,
-              color: Colors.red,
-            ),
-          ),
-          Text('90.0 %'),
-        ],
-      ),
-    );
-    items.add(item15);
-    var item16 = DropdownMenuItem<String>(
-      value: '100.0',
-      child: Row(
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Icon(
-              Icons.apps,
-              color: Colors.red,
-            ),
-          ),
-          Text('100.0 %'),
-        ],
-      ),
-    );
-    items.add(item16);
-  }
-
   _getStartTime() async {
     startTime = await showDatePicker(
       context: context,
@@ -331,6 +142,7 @@ class _MakeOfferPageState extends State<MakeOfferPage>
   _calculateExpected() {
     if (percentage != null) {
       double offerPercentage = double.parse(percentage);
+      offerPercentage = 100.0 - offerPercentage;
 
       double offerAmt = invoice.totalAmount * (offerPercentage / 100);
 
@@ -365,7 +177,8 @@ class _MakeOfferPageState extends State<MakeOfferPage>
     }
     submitting = true;
     var disc = double.parse(percentage);
-    var offerAmt = (invoice.totalAmount * disc) / 100.0;
+
+    var offerAmt = (invoice.totalAmount * (100.0 - disc)) / 100.0;
     wallet = await SharedPrefs.getWallet();
     Offer offer = new Offer(
         supplier: NameSpace + 'Supplier#' + supplier.participantId,
@@ -610,7 +423,7 @@ class _MakeOfferPageState extends State<MakeOfferPage>
                         onChanged: _onDiscountTapped,
                         elevation: 16,
                         hint: Text(
-                          'Offer Percentage',
+                          'Invoice Discount',
                           style: TextStyle(
                             fontSize: 14.0,
                             fontWeight: FontWeight.bold,
@@ -706,5 +519,498 @@ class _MakeOfferPageState extends State<MakeOfferPage>
   void _onSector(Sector value) {
     sector = value;
     setState(() {});
+  }
+
+  void _setItems() {
+    print('_MakeOfferPageState._setItems ................');
+
+    var item6 = DropdownMenuItem<String>(
+      value: '1.0',
+      child: Row(
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Icon(
+              Icons.apps,
+              color: Colors.blue,
+            ),
+          ),
+          Text('1.0 %'),
+        ],
+      ),
+    );
+    items.add(item6);
+
+    var item7 = DropdownMenuItem<String>(
+      value: '2.0',
+      child: Row(
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Icon(
+              Icons.apps,
+              color: Colors.purple,
+            ),
+          ),
+          Text('2.0 %'),
+        ],
+      ),
+    );
+    items.add(item7);
+
+    var item8 = DropdownMenuItem<String>(
+      value: '3.0',
+      child: Row(
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Icon(
+              Icons.apps,
+              color: Colors.purple,
+            ),
+          ),
+          Text('3.0 %'),
+        ],
+      ),
+    );
+    items.add(item8);
+
+    var item9 = DropdownMenuItem<String>(
+      value: '4.0',
+      child: Row(
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Icon(
+              Icons.apps,
+              color: Colors.red,
+            ),
+          ),
+          Text('4.0 %'),
+        ],
+      ),
+    );
+    items.add(item9);
+
+    var item10 = DropdownMenuItem<String>(
+      value: '5.0',
+      child: Row(
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Icon(
+              Icons.apps,
+              color: Colors.red,
+            ),
+          ),
+          Text('5.0 %'),
+        ],
+      ),
+    );
+    items.add(item10);
+
+    var item11 = DropdownMenuItem<String>(
+      value: '6.0',
+      child: Row(
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Icon(
+              Icons.apps,
+              color: Colors.red,
+            ),
+          ),
+          Text('6.0 %'),
+        ],
+      ),
+    );
+    items.add(item11);
+
+    var item12 = DropdownMenuItem<String>(
+      value: '7.0',
+      child: Row(
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Icon(
+              Icons.apps,
+              color: Colors.red,
+            ),
+          ),
+          Text('7.0 %'),
+        ],
+      ),
+    );
+    items.add(item12);
+
+    var item13 = DropdownMenuItem<String>(
+      value: '8.0',
+      child: Row(
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Icon(
+              Icons.apps,
+              color: Colors.red,
+            ),
+          ),
+          Text('8.0 %'),
+        ],
+      ),
+    );
+    items.add(item13);
+
+    var item14 = DropdownMenuItem<String>(
+      value: '9.0',
+      child: Row(
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Icon(
+              Icons.apps,
+              color: Colors.red,
+            ),
+          ),
+          Text('9.0 %'),
+        ],
+      ),
+    );
+    items.add(item14);
+    var item15 = DropdownMenuItem<String>(
+      value: '10.0',
+      child: Row(
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Icon(
+              Icons.apps,
+              color: Colors.red,
+            ),
+          ),
+          Text('10.0 %'),
+        ],
+      ),
+    );
+    items.add(item15);
+    var item16 = DropdownMenuItem<String>(
+      value: '11.0',
+      child: Row(
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Icon(
+              Icons.apps,
+              color: Colors.red,
+            ),
+          ),
+          Text('11.0 %'),
+        ],
+      ),
+    );
+    items.add(item16);
+    var item17 = DropdownMenuItem<String>(
+      value: '12.0',
+      child: Row(
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Icon(
+              Icons.apps,
+              color: Colors.red,
+            ),
+          ),
+          Text('12.0 %'),
+        ],
+      ),
+    );
+    items.add(item17);
+    var item18 = DropdownMenuItem<String>(
+      value: '13.0',
+      child: Row(
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Icon(
+              Icons.apps,
+              color: Colors.red,
+            ),
+          ),
+          Text('13.0 %'),
+        ],
+      ),
+    );
+    items.add(item18);
+    var item19 = DropdownMenuItem<String>(
+      value: '14.0',
+      child: Row(
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Icon(
+              Icons.apps,
+              color: Colors.red,
+            ),
+          ),
+          Text('14.0 %'),
+        ],
+      ),
+    );
+    items.add(item19);
+    var x1 = DropdownMenuItem<String>(
+      value: '15.0',
+      child: Row(
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Icon(
+              Icons.apps,
+              color: Colors.red,
+            ),
+          ),
+          Text('15.0 %'),
+        ],
+      ),
+    );
+    items.add(x1);
+    var x2 = DropdownMenuItem<String>(
+      value: '16.0',
+      child: Row(
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Icon(
+              Icons.apps,
+              color: Colors.red,
+            ),
+          ),
+          Text('16.0 %'),
+        ],
+      ),
+    );
+    items.add(x2);
+    var x3 = DropdownMenuItem<String>(
+      value: '17.0',
+      child: Row(
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Icon(
+              Icons.apps,
+              color: Colors.red,
+            ),
+          ),
+          Text('17.0 %'),
+        ],
+      ),
+    );
+    items.add(x3);
+    var x4 = DropdownMenuItem<String>(
+      value: '18.0',
+      child: Row(
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Icon(
+              Icons.apps,
+              color: Colors.red,
+            ),
+          ),
+          Text('18.0 %'),
+        ],
+      ),
+    );
+    items.add(x4);
+    var x5 = DropdownMenuItem<String>(
+      value: '19.0',
+      child: Row(
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Icon(
+              Icons.apps,
+              color: Colors.red,
+            ),
+          ),
+          Text('19.0 %'),
+        ],
+      ),
+    );
+    items.add(x5);
+    var x6 = DropdownMenuItem<String>(
+      value: '20.0',
+      child: Row(
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Icon(
+              Icons.apps,
+              color: Colors.red,
+            ),
+          ),
+          Text('20.0 %'),
+        ],
+      ),
+    );
+    items.add(x6);
+    var x7 = DropdownMenuItem<String>(
+      value: '21.0',
+      child: Row(
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Icon(
+              Icons.apps,
+              color: Colors.red,
+            ),
+          ),
+          Text('21.0 %'),
+        ],
+      ),
+    );
+    items.add(x7);
+    var x8 = DropdownMenuItem<String>(
+      value: '22.0',
+      child: Row(
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Icon(
+              Icons.apps,
+              color: Colors.red,
+            ),
+          ),
+          Text('22.0 %'),
+        ],
+      ),
+    );
+    items.add(x8);
+    var x9 = DropdownMenuItem<String>(
+      value: '23.0',
+      child: Row(
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Icon(
+              Icons.apps,
+              color: Colors.red,
+            ),
+          ),
+          Text('23.0 %'),
+        ],
+      ),
+    );
+    items.add(x9);
+    var z1 = DropdownMenuItem<String>(
+      value: '24.0',
+      child: Row(
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Icon(
+              Icons.apps,
+              color: Colors.red,
+            ),
+          ),
+          Text('24.0 %'),
+        ],
+      ),
+    );
+    items.add(z1);
+    var z2 = DropdownMenuItem<String>(
+      value: '25.0',
+      child: Row(
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Icon(
+              Icons.apps,
+              color: Colors.red,
+            ),
+          ),
+          Text('25.0 %'),
+        ],
+      ),
+    );
+    items.add(z2);
+    var z3 = DropdownMenuItem<String>(
+      value: '26.0',
+      child: Row(
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Icon(
+              Icons.apps,
+              color: Colors.red,
+            ),
+          ),
+          Text('26.0 %'),
+        ],
+      ),
+    );
+    items.add(z3);
+    var z4 = DropdownMenuItem<String>(
+      value: '27.0',
+      child: Row(
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Icon(
+              Icons.apps,
+              color: Colors.red,
+            ),
+          ),
+          Text('27.0 %'),
+        ],
+      ),
+    );
+    items.add(z4);
+    var z5 = DropdownMenuItem<String>(
+      value: '28.0',
+      child: Row(
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Icon(
+              Icons.apps,
+              color: Colors.red,
+            ),
+          ),
+          Text('28.0 %'),
+        ],
+      ),
+    );
+    items.add(z5);
+    var z6 = DropdownMenuItem<String>(
+      value: '29.0',
+      child: Row(
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Icon(
+              Icons.apps,
+              color: Colors.red,
+            ),
+          ),
+          Text('29.0 %'),
+        ],
+      ),
+    );
+    items.add(z6);
+    var z7 = DropdownMenuItem<String>(
+      value: '30.0',
+      child: Row(
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Icon(
+              Icons.apps,
+              color: Colors.red,
+            ),
+          ),
+          Text('30.0 %'),
+        ],
+      ),
+    );
+    items.add(z7);
   }
 }

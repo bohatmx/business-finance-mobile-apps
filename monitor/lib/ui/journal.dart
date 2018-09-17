@@ -246,7 +246,23 @@ class InvoiceBidCard extends StatelessWidget {
               ],
             ),
             Padding(
-              padding: const EdgeInsets.only(top: 10.0),
+              padding: const EdgeInsets.only(top: 8.0),
+              child: Row(
+                children: <Widget>[
+                  Text('Bid Time', style: Styles.greyLabelSmall),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 8.0),
+                    child: Text(
+                        bid.date == null
+                            ? '0.00'
+                            : getFormattedDateHour('${bid.date}'),
+                        style: Styles.purpleBoldSmall),
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 16.0),
               child: Row(
                 children: <Widget>[
                   Text('Investor', style: Styles.greyLabelSmall),
@@ -311,7 +327,23 @@ class ExecUnitCard extends StatelessWidget {
               ],
             ),
             Padding(
-              padding: const EdgeInsets.only(top: 10.0),
+              padding: const EdgeInsets.only(top: 8.0),
+              child: Row(
+                children: <Widget>[
+                  Text('Bid Time', style: Styles.greyLabelSmall),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 8.0),
+                    child: Text(
+                        unit.date == null
+                            ? '0.00'
+                            : getFormattedDateHour('${unit.date}'),
+                        style: Styles.purpleBoldSmall),
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 20.0),
               child: Row(
                 children: <Widget>[
                   Text('Investor', style: Styles.greyLabelSmall),

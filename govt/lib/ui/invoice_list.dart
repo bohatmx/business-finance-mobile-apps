@@ -380,7 +380,7 @@ class InvoiceCard extends StatelessWidget {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.only(left: 24.0, top: 8.0),
+                padding: const EdgeInsets.only(left: 24.0, top: 16.0),
                 child: Row(
                   children: <Widget>[
                     Padding(
@@ -398,7 +398,7 @@ class InvoiceCard extends StatelessWidget {
               ),
               Padding(
                 padding:
-                    const EdgeInsets.only(left: 30.0, bottom: 10.0, top: 10.0),
+                    const EdgeInsets.only(left: 30.0, bottom: 4.0, top: 8.0),
                 child: Row(
                   children: <Widget>[
                     Container(
@@ -425,7 +425,7 @@ class InvoiceCard extends StatelessWidget {
               ),
               Padding(
                 padding:
-                    const EdgeInsets.only(left: 30.0, bottom: 10.0, top: 0.0),
+                    const EdgeInsets.only(left: 30.0, bottom: 10.0, top: 4.0),
                 child: Row(
                   children: <Widget>[
                     Container(
@@ -450,7 +450,7 @@ class InvoiceCard extends StatelessWidget {
               ),
               Padding(
                 padding:
-                    const EdgeInsets.only(left: 30.0, bottom: 10.0, top: 10.0),
+                    const EdgeInsets.only(left: 30.0, bottom: 0.0, top: 10.0),
                 child: Row(
                   children: <Widget>[
                     Padding(
@@ -475,7 +475,7 @@ class InvoiceCard extends StatelessWidget {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.only(left: 30.0, bottom: 30.0),
+                padding: const EdgeInsets.only(left: 30.0, bottom: 10.0),
                 child: Row(
                   children: <Widget>[
                     Padding(

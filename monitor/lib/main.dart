@@ -158,9 +158,10 @@ class _MyHomePageState extends State<MyHomePage>
 
   String time, count, amount;
   @override
-  onComplete(int count) {
+  onComplete(int count) async {
     print(
         '_MyHomePageState.onComplete ......... processed; $count timer.tick: ${timer.tick} bids: ${bids.length} offers: ${_offers.length}');
+    _offers = await ListAPI.getOpenOffers();
     summarize();
   }
 
@@ -380,7 +381,7 @@ class _MyHomePageState extends State<MyHomePage>
                               padding: const EdgeInsets.only(left: 2.0),
                               child: Text(
                                 count == null ? '0' : count,
-                                style: Styles.pinkBoldLarge,
+                                style: Styles.blackBoldLarge,
                               ),
                             ),
                           ],
@@ -403,7 +404,7 @@ class _MyHomePageState extends State<MyHomePage>
                                 invalidUnits == null
                                     ? '0'
                                     : '${invalidUnits.length}',
-                                style: Styles.blueBoldLarge,
+                                style: Styles.pinkBoldLarge,
                               ),
                             ),
                           ],

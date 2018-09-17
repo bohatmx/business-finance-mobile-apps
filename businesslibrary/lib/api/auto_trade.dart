@@ -67,6 +67,10 @@ class AutoTradeExecutionBuilder {
 
   executeAutoTrades(List<AutoTradeOrder> orders, List<InvestorProfile> profiles,
       List<Offer> offers, AutoTradeListener listener) {
+    assert(orders != null && orders.isNotEmpty);
+    assert(profiles != null && profiles.isNotEmpty);
+    assert(offers != null && offers.isNotEmpty);
+
     this.listener = listener;
     this.orders = orders;
     this.offers = offers;
