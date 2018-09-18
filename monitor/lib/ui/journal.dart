@@ -49,13 +49,13 @@ class _JournalPageState extends State<JournalPage> {
             children: <Widget>[
               Padding(
                 padding: const EdgeInsets.only(right: 8.0),
-                child: Text('Total Amount'),
+                child: Text('Total'),
               ),
               Text(
                 totalBidAmount == null
                     ? '0.00'
                     : getFormattedAmount('$totalBidAmount', context),
-                style: Styles.purpleBoldLarge,
+                style: Styles.purpleBoldReallyLarge,
               ),
             ],
           ),
@@ -108,13 +108,13 @@ class _JournalPageState extends State<JournalPage> {
               children: <Widget>[
                 Padding(
                   padding: const EdgeInsets.only(right: 8.0),
-                  child: Text('Total Amount'),
+                  child: Text('Total'),
                 ),
                 Text(
                   totalInvalidAmount == null
                       ? '0.00'
                       : getFormattedAmount('$totalInvalidAmount', context),
-                  style: Styles.pinkBoldLarge,
+                  style: Styles.pinkBoldReallyLarge,
                 ),
               ],
             ),
@@ -144,7 +144,7 @@ class _JournalPageState extends State<JournalPage> {
                     },
                     child: Padding(
                       padding: const EdgeInsets.only(
-                          top: 4.0, bottom: 4.0, left: 12.0, right: 12.0),
+                          top: 4.0, bottom: 4.0, left: 4.0, right: 4.0),
                       child: ExecUnitCard(
                         unit: units.elementAt(index),
                       ),
@@ -241,7 +241,7 @@ class InvoiceBidCard extends StatelessWidget {
                       bid.date == null
                           ? '0.00'
                           : getFormattedDateLong('${bid.date}', context),
-                      style: Styles.blueBoldSmall),
+                      style: Styles.blackBoldSmall),
                 ),
               ],
             ),
@@ -319,10 +319,9 @@ class ExecUnitCard extends StatelessWidget {
                   padding: const EdgeInsets.only(left: 8.0),
                   child: Text(
                       unit.date == null
-                          ? getFormattedDateShort(
-                              DateTime.now().toIso8601String(), context)
-                          : getFormattedDateShort('${unit.date}', context),
-                      style: Styles.blueMedium),
+                          ? getFormattedDate(DateTime.now().toIso8601String())
+                          : getFormattedDateLong('${unit.date}', context),
+                      style: Styles.blueBoldSmall),
                 ),
               ],
             ),
