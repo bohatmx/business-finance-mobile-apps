@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:businesslibrary/api/data_api.dart';
+import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/auto_trade_order.dart';
 import 'package:businesslibrary/data/investor.dart';
@@ -22,6 +25,7 @@ class _ProfilePageState extends State<ProfilePage> implements SnackBarListener {
   final _formKey = GlobalKey<FormState>();
 
   InvestorProfile profile;
+  AutoTradeOrder order;
   Investor investor;
   List<Supplier> suppliers;
   List<Sector> sectors;
@@ -30,6 +34,7 @@ class _ProfilePageState extends State<ProfilePage> implements SnackBarListener {
   initState() {
     super.initState();
     _getCachedData();
+    _setItems();
   }
 
   int numberOfSuppliers = 0, numberOfSectors = 0;
@@ -37,30 +42,45 @@ class _ProfilePageState extends State<ProfilePage> implements SnackBarListener {
     print('_ProfilePageState._getCachedData ................................');
     investor = await SharedPrefs.getInvestor();
     assert(investor != null);
+    setState(() {});
     profile = await SharedPrefs.getInvestorProfile();
-    if (profile == null) {
-      setState(() {});
+    order = await SharedPrefs.getAutoTradeOrder();
+    if (profile == null || order == null) {
+      print('_ProfilePageState._getCachedData profile == null');
+      await _getProfileFromFirestore();
     } else {
-      controllerMaxInvestable.text = '${profile.maxInvestableAmount}';
-      controllerMaxInvoice.text = '${profile.maxInvoiceAmount}';
-      maxInvestableAmount = profile.maxInvestableAmount;
-      maxInvoiceAmount = profile.maxInvoiceAmount;
-      if (profile.suppliers != null) {
-        numberOfSuppliers = profile.suppliers.length;
-      }
-      if (profile.sectors != null) {
-        numberOfSectors = profile.sectors.length;
-      }
-
-      setState(() {});
+      _setFields();
     }
+  }
+
+  _setFields() {
+    controllerMaxInvestable.text = '${profile.maxInvestableAmount}';
+    controllerMaxInvoice.text = '${profile.maxInvoiceAmount}';
+    maxInvestableAmount = profile.maxInvestableAmount;
+    maxInvoiceAmount = profile.maxInvoiceAmount;
+    if (profile.suppliers != null) {
+      numberOfSuppliers = profile.suppliers.length;
+    }
+    if (profile.sectors != null) {
+      numberOfSectors = profile.sectors.length;
+    }
+    if (profile.minimumDiscount != null) {
+      minimum = profile.minimumDiscount;
+    } else {
+      minimum = 0.0;
+    }
+    setState(() {});
   }
 
   @override
   onActionPressed(int action) {
     switch (action) {
       case 3:
-        _showAutoTradeDialog();
+        if (order == null) {
+          _showAutoTradeDialog();
+        } else {
+          Navigator.pop(context);
+        }
         break;
       case 4:
         Navigator.pop(context);
@@ -129,6 +149,14 @@ class _ProfilePageState extends State<ProfilePage> implements SnackBarListener {
           actionLabel: 'OK');
       return;
     }
+    if (minimum == null) {
+      AppSnackbar.showErrorSnackbar(
+          scaffoldKey: _scaffoldKey,
+          message: 'Please enter minimum invoice discount ',
+          listener: this,
+          actionLabel: 'OK');
+      return;
+    }
     if (profile == null) {
       profile = InvestorProfile(
         name: investor.name,
@@ -137,6 +165,7 @@ class _ProfilePageState extends State<ProfilePage> implements SnackBarListener {
       );
     }
     try {
+      profile.minimumDiscount = minimum;
       profile.maxInvestableAmount = double.parse(controllerMaxInvestable.text);
       profile.maxInvoiceAmount = double.parse(controllerMaxInvoice.text);
     } catch (e) {
@@ -208,9 +237,29 @@ class _ProfilePageState extends State<ProfilePage> implements SnackBarListener {
     return ListView(
       children: <Widget>[
         Padding(
-          padding: const EdgeInsets.all(20.0),
+          padding: const EdgeInsets.only(top: 10.0, left: 20.0, right: 20.0),
           child: Column(
             children: <Widget>[
+              Row(
+                children: <Widget>[
+                  DropdownButton<String>(
+                    items: items,
+                    onChanged: _onMinimumChanged,
+                    elevation: 4,
+                    hint: Text(
+                      'Minimum Discount',
+                      style: Styles.blueMedium,
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 8.0),
+                    child: Text(
+                      minimum == null ? '' : '$minimum %',
+                      style: Styles.blackBoldLarge,
+                    ),
+                  ),
+                ],
+              ),
               TextField(
                 keyboardType: TextInputType.numberWithOptions(decimal: true),
                 decoration: InputDecoration(
@@ -334,9 +383,28 @@ class _ProfilePageState extends State<ProfilePage> implements SnackBarListener {
     }
   }
 
+  Future _getProfileFromFirestore() async {
+    AppSnackbar.showSnackbarWithProgressIndicator(
+        scaffoldKey: _scaffoldKey,
+        message: 'Loading profile ...',
+        textColor: Styles.white,
+        backgroundColor: Styles.black);
+    profile = await ListAPI.getInvestorProfile(investor.participantId);
+    order = await ListAPI.getAutoTradeOrder(investor.participantId);
+    _scaffoldKey.currentState.removeCurrentSnackBar();
+
+    if (profile != null) {
+      await SharedPrefs.saveInvestorProfile(profile);
+      _setFields();
+    }
+    if (order != null) {
+      await SharedPrefs.saveAutoTradeOrder(order);
+    }
+  }
+
   Widget _getBottom() {
     return PreferredSize(
-      preferredSize: const Size.fromHeight(60.0),
+      preferredSize: const Size.fromHeight(40.0),
       child: new Column(
         children: <Widget>[
           Row(
@@ -350,7 +418,7 @@ class _ProfilePageState extends State<ProfilePage> implements SnackBarListener {
                     investor == null ? 'Organisation' : investor.name,
                     style: TextStyle(
                       color: Colors.white,
-                      fontWeight: FontWeight.normal,
+                      fontWeight: FontWeight.bold,
                       fontSize: 20.0,
                     ),
                   ),
@@ -483,8 +551,172 @@ class _ProfilePageState extends State<ProfilePage> implements SnackBarListener {
           textColor: Styles.yellow,
           backgroundColor: Styles.black,
           listener: this,
+          actionLabel: 'OK',
           icon: Icons.done_all,
           action: 4);
     }
+  }
+
+  double minimum;
+  List<DropdownMenuItem<String>> items = List();
+  void _setItems() {
+    print('_MakeOfferPageState._setItems ................');
+
+    var item7 = DropdownMenuItem<String>(
+      value: '2.0',
+      child: Row(
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Icon(
+              Icons.apps,
+              color: Colors.purple,
+            ),
+          ),
+          Text('2 %'),
+        ],
+      ),
+    );
+    items.add(item7);
+
+    var item8 = DropdownMenuItem<String>(
+      value: '3.0',
+      child: Row(
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Icon(
+              Icons.apps,
+              color: Colors.purple,
+            ),
+          ),
+          Text('3 %'),
+        ],
+      ),
+    );
+    items.add(item8);
+
+    var item9 = DropdownMenuItem<String>(
+      value: '4.0',
+      child: Row(
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Icon(
+              Icons.apps,
+              color: Colors.red,
+            ),
+          ),
+          Text('4 %'),
+        ],
+      ),
+    );
+    items.add(item9);
+
+    var item10 = DropdownMenuItem<String>(
+      value: '5.0',
+      child: Row(
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Icon(
+              Icons.apps,
+              color: Colors.red,
+            ),
+          ),
+          Text('5 %'),
+        ],
+      ),
+    );
+    items.add(item10);
+
+    var item11 = DropdownMenuItem<String>(
+      value: '6.0',
+      child: Row(
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Icon(
+              Icons.apps,
+              color: Colors.red,
+            ),
+          ),
+          Text('6 %'),
+        ],
+      ),
+    );
+    items.add(item11);
+
+    var item12 = DropdownMenuItem<String>(
+      value: '7.0',
+      child: Row(
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Icon(
+              Icons.apps,
+              color: Colors.red,
+            ),
+          ),
+          Text('7 %'),
+        ],
+      ),
+    );
+    items.add(item12);
+
+    var item13 = DropdownMenuItem<String>(
+      value: '8.0',
+      child: Row(
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Icon(
+              Icons.apps,
+              color: Colors.red,
+            ),
+          ),
+          Text('8 %'),
+        ],
+      ),
+    );
+    items.add(item13);
+
+    var item14 = DropdownMenuItem<String>(
+      value: '9.0',
+      child: Row(
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Icon(
+              Icons.apps,
+              color: Colors.red,
+            ),
+          ),
+          Text('9 %'),
+        ],
+      ),
+    );
+    items.add(item14);
+    var item15 = DropdownMenuItem<String>(
+      value: '10.0',
+      child: Row(
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Icon(
+              Icons.apps,
+              color: Colors.red,
+            ),
+          ),
+          Text('10 %'),
+        ],
+      ),
+    );
+    items.add(item15);
+  }
+
+  void _onMinimumChanged(String value) {
+    minimum = double.parse(value);
+    setState(() {});
   }
 }

@@ -364,7 +364,8 @@ class DataAPI {
   Future<String> addInvestorProfile(InvestorProfile profile) async {
     profile.profileId = getKey();
     profile.date = DateTime.now().toIso8601String();
-    print('DataAPI.addSector %%%%%%%% url: ${url + INVESTOR__PROFILE}');
+    print(
+        'DataAPI.addInvestorProfile %%%%%%%% url: ${url + INVESTOR__PROFILE}');
     prettyPrint(profile.toJson(),
         '########################## adding addInvestorProfile to BFN blockchain');
 
@@ -402,29 +403,11 @@ class DataAPI {
 
   Future<String> updateInvestorProfile(InvestorProfile profile) async {
     profile.date = DateTime.now().toIso8601String();
-    print('DataAPI.addSector %%%%%%%% url: ${url + UPDATE_INVESTOR__PROFILE}');
+    print(
+        'DataAPI.updateInvestorProfile %%%%%%%% url: ${url + UPDATE_INVESTOR__PROFILE}');
     prettyPrint(profile.toJson(),
         '########################## updating InvestorProfile on BFN blockchain');
 
-    //edit sectors and suppliers and send only the ids
-//    var suppliers = List<String>();
-//    var sectors = List<String>();
-//    profile.suppliers.forEach((s) {
-//      suppliers.add(s.split('#').elementAt(1));
-//    });
-//    profile.sectors.forEach((s) {
-//      sectors.add(s.split('#').elementAt(1));
-//    });
-//    var map = Map<String, dynamic>();
-//    map['profileId'] = profile.profileId;
-//    map['name'] = profile.name;
-//    map['date'] = DateTime.now().toIso8601String();
-//    map['maxInvestableAmount'] = profile.maxInvestableAmount;
-//    map['maxInvoiceAmount'] = profile.maxInvoiceAmount;
-//    map['investor'] = profile.investor;
-//    map['suppliers'] = suppliers;
-//    map['sectors'] = sectors;
-//    print('DataAPI.updateInvestorProfile UPDATE this: $map');
     try {
       var httpClient = new HttpClient();
       HttpClientRequest mRequest =

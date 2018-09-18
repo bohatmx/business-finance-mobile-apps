@@ -165,6 +165,7 @@ class AutoTradeExecutionBuilder {
         validSec = false,
         validSupp = false,
         validTotal = false,
+        validMinimumDiscount = false,
         validAccountBalance = false;
     double total = 0.00;
 
@@ -213,6 +214,12 @@ class AutoTradeExecutionBuilder {
         } else {
           validSec = true;
         }
+        if (exec.profile.minimumDiscount == null) {
+          exec.profile.minimumDiscount = 1.0;
+        }
+        if (exec.profile.minimumDiscount <= exec.offer.discountPercent) {
+          validMinimumDiscount = true;
+        }
         //
         //check if profile has supplier filters
         if (exec.profile.suppliers != null &&
@@ -245,6 +252,7 @@ class AutoTradeExecutionBuilder {
             validSupp &&
             validInvAmount &&
             validTotal &&
+            validMinimumDiscount &&
             validAccountBalance) {
           print(
               'AutoTradeExecutionBuilder._doInvoiceBid @@@@@@@@@@ Hooray!!! trade is  VALID ####################### writing bid ....');

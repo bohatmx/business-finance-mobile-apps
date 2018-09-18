@@ -402,7 +402,7 @@ class InvoiceCard extends StatelessWidget {
                 child: Row(
                   children: <Widget>[
                     Container(
-                      width: 80.0,
+                      width: 70.0,
                       child: Text(
                         'Amount',
                         style: TextStyle(fontSize: 12.0),
@@ -425,11 +425,11 @@ class InvoiceCard extends StatelessWidget {
               ),
               Padding(
                 padding:
-                    const EdgeInsets.only(left: 30.0, bottom: 10.0, top: 4.0),
+                    const EdgeInsets.only(left: 30.0, bottom: 10.0, top: 0.0),
                 child: Row(
                   children: <Widget>[
                     Container(
-                      width: 80.0,
+                      width: 70.0,
                       child: Text(
                         'Invoice No:',
                         style: TextStyle(fontSize: 12.0),
@@ -450,7 +450,7 @@ class InvoiceCard extends StatelessWidget {
               ),
               Padding(
                 padding:
-                    const EdgeInsets.only(left: 30.0, bottom: 0.0, top: 10.0),
+                    const EdgeInsets.only(left: 30.0, bottom: 0.0, top: 4.0),
                 child: Row(
                   children: <Widget>[
                     Padding(

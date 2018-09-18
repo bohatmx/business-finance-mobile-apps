@@ -942,8 +942,48 @@ class ListAPI {
       });
     }
 
-    print('ListAPI.getInvestorProfiles ############ found: ${list.length}');
     return list;
+  }
+
+  static Future<InvestorProfile> getInvestorProfile(
+      String participantId) async {
+    InvestorProfile profile;
+    var qs = await _firestore
+        .collection('investorProfiles')
+        .where('investor',
+            isEqualTo: 'resource:com.oneconnect.biz.Investor#$participantId')
+        .getDocuments()
+        .catchError((e) {
+      print('ListAPI.getInvestorProfiles $e');
+      return null;
+    });
+
+    if (qs.documents.isNotEmpty) {
+      profile = InvestorProfile.fromJson(qs.documents.first.data);
+      prettyPrint(profile.toJson(), 'getInvestorProfile');
+    }
+
+    return profile;
+  }
+
+  static Future<AutoTradeOrder> getAutoTradeOrder(String participantId) async {
+    AutoTradeOrder order;
+    var qs = await _firestore
+        .collection('autoTradeOrders')
+        .where('participantId',
+            isEqualTo: 'resource:com.oneconnect.biz.Investor#$participantId')
+        .getDocuments()
+        .catchError((e) {
+      print('ListAPI.getAutoTradeOrder $e');
+      return null;
+    });
+
+    if (qs.documents.isNotEmpty) {
+      order = AutoTradeOrder.fromJson(qs.documents.first.data);
+      prettyPrint(order.toJson(), 'ListAPI.getAutoTradeOrder ');
+    }
+
+    return order;
   }
 
   static Future<List<AutoTradeOrder>> getAutoTradeOrders() async {

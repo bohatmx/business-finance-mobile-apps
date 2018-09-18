@@ -4,6 +4,7 @@ class InvestorProfile {
   String cellphone;
   String email, date;
   double maxInvestableAmount, maxInvoiceAmount;
+  double minimumDiscount;
   String investor;
   List<String> sectors, suppliers;
 
@@ -15,6 +16,7 @@ class InvestorProfile {
       this.date,
       this.sectors,
       this.suppliers,
+      this.minimumDiscount,
       this.maxInvestableAmount,
       this.maxInvoiceAmount,
       this.investor});
@@ -28,8 +30,8 @@ class InvestorProfile {
     this.investor = data['investor'];
     this.email = data['email'];
     this.investor = data['investor'];
-//    this.sectors = data['sectors'];
-//    this.suppliers = data['suppliers'];
+    this.minimumDiscount = data['minimumDiscount'];
+
     this.date = data['date'];
     List list = data['sectors'];
 
@@ -58,5 +60,6 @@ class InvestorProfile {
         'investor': investor,
         'sectors': sectors,
         'suppliers': suppliers,
+        'minimumDiscount': minimumDiscount,
       };
 }

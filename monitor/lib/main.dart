@@ -74,7 +74,7 @@ class _MyHomePageState extends State<MyHomePage>
   _getLists() async {
     AppSnackbar.showSnackbarWithProgressIndicator(
         scaffoldKey: _scaffoldKey,
-        message: 'Refreshing lists ...',
+        message: 'Loading data for trades ...',
         textColor: Styles.white,
         backgroundColor: Styles.black);
     _orders = await ListAPI.getAutoTradeOrders();
@@ -111,6 +111,8 @@ class _MyHomePageState extends State<MyHomePage>
           '_MyHomePageState._start:\n\n\n TIMER tripping - starting AUTO TRADE cycle .......time: '
           '${DateTime.now().toIso8601String()}.  mTimer.tick: ${mTimer.tick}...\n\n');
 
+      _showProgress = true;
+      setState(() {});
       _offers = await ListAPI.getOpenOffers();
       if (_offers.isNotEmpty) {
         _orders = await ListAPI.getAutoTradeOrders();
@@ -162,6 +164,7 @@ class _MyHomePageState extends State<MyHomePage>
     print(
         '_MyHomePageState.onComplete ......... processed; $count timer.tick: ${timer.tick} bids: ${bids.length} offers: ${_offers.length}');
     _offers = await ListAPI.getOpenOffers();
+    _showProgress = false;
     summarize();
   }
 
@@ -188,6 +191,8 @@ class _MyHomePageState extends State<MyHomePage>
   }
 
   void _restart() async {
+    _showProgress = true;
+    setState(() {});
     await _getLists();
     setState(() {});
     print(
@@ -195,6 +200,9 @@ class _MyHomePageState extends State<MyHomePage>
     if (_orders.isNotEmpty && _profiles.isNotEmpty && _offers.isNotEmpty) {
       var z = AutoTradeExecutionBuilder();
       z.executeAutoTrades(_orders, _profiles, _offers, this);
+    } else {
+      _showProgress = false;
+      setState(() {});
     }
   }
 
@@ -225,6 +233,7 @@ class _MyHomePageState extends State<MyHomePage>
   }
 
   TextEditingController controller = TextEditingController();
+  bool _showProgress = true;
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
@@ -322,9 +331,24 @@ class _MyHomePageState extends State<MyHomePage>
                     children: <Widget>[
                       Padding(
                         padding: const EdgeInsets.only(bottom: 8.0),
-                        child: Text(
-                          'Auto Trading Session',
-                          style: Styles.greyLabelMedium,
+                        child: Row(
+                          children: <Widget>[
+                            Text(
+                              _showProgress == true
+                                  ? ''
+                                  : 'Auto Trading Session',
+                              style: Styles.greyLabelMedium,
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(
+                                _showProgress == false
+                                    ? ''
+                                    : 'Auto Trade running...',
+                                style: Styles.blueMedium,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                       Row(
