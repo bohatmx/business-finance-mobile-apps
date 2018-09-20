@@ -8,6 +8,7 @@ import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
+import 'package:businesslibrary/util/styles.dart';
 import 'package:businesslibrary/util/util.dart';
 import 'package:flutter/material.dart';
 
@@ -40,7 +41,7 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
-        title: Text('Delivery Notes'),
+        title: Text('Delivery Notes', style: Styles.whiteBoldMedium),
         bottom: PreferredSize(
           preferredSize: new Size.fromHeight(40.0),
           child: Column(
@@ -64,8 +65,8 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
                         deliveryNotes == null ? '0' : '${deliveryNotes.length}',
                         style: TextStyle(
                             color: Colors.white,
-                            fontSize: 28.0,
-                            fontWeight: FontWeight.w900),
+                            fontSize: 20.0,
+                            fontWeight: FontWeight.normal),
                       ),
                     )
                   ],
@@ -294,23 +295,16 @@ class DeliveryNoteCard extends StatelessWidget {
     return InkWell(
       onTap: _onBigTap,
       child: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.only(left: 8.0, right: 8.0, bottom: 4.0),
         child: Card(
           elevation: 4.0,
-          color: Colors.grey.shade50,
+          color: Colors.grey.shade200,
           child: Padding(
-            padding: const EdgeInsets.all(12.0),
+            padding: const EdgeInsets.all(16.0),
             child: Column(
               children: <Widget>[
                 Row(
                   children: <Widget>[
-//                    Padding(
-//                      padding: const EdgeInsets.all(8.0),
-//                      child: Icon(
-//                        Icons.event,
-//                        color: Colors.grey,
-//                      ),
-//                    ),
                     Text(
                       getFormattedDateShort(deliveryNote.date, context),
                       style: TextStyle(

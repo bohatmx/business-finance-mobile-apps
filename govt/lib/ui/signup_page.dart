@@ -43,6 +43,7 @@ class _SignUpPageState extends State<SignUpPage>
       password,
       adminCellphone,
       idNumber;
+  bool autoAccept = false;
   final GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
   final FirebaseMessaging _firebaseMessaging = new FirebaseMessaging();
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
@@ -71,6 +72,7 @@ class _SignUpPageState extends State<SignUpPage>
           '${firstNames.elementAt(rand.nextInt(firstNames.length - 1))}';
       lastName = '${lastNames.elementAt(rand.nextInt(lastNames.length - 1))}';
       password = 'pass123';
+      autoAccept = true;
       country = Country(name: 'South Africa', code: 'ZA');
     }
   }
@@ -248,6 +250,11 @@ class _SignUpPageState extends State<SignUpPage>
                       )
                     ],
                   ),
+                  Row(
+                    children: <Widget>[
+                      Switch(value: false, onChanged: _autoChanged),
+                    ],
+                  ),
                   new Padding(
                     padding: const EdgeInsets.only(top: 14.0),
                     child: new Opacity(
@@ -385,6 +392,7 @@ class _SignUpPageState extends State<SignUpPage>
         email: email,
         country: country.name,
         govtEntityType: govtEntityType,
+        allowAutoAccept: autoAccept,
         dateRegistered: DateTime.now().toIso8601String(),
       );
       print('_SignUpPageState._onSavePressed ${govtEntity.toJson()}');
@@ -547,5 +555,10 @@ class _SignUpPageState extends State<SignUpPage>
       print(
           '_SignUpPageState.onWalletMessage _scaffoldKey.currentState = null');
     }
+  }
+
+  void _autoChanged(bool value) {
+    autoAccept = value;
+    setState(() {});
   }
 }

@@ -44,6 +44,7 @@ class _DeliveryNotePageState extends State<DeliveryNotePage>
     _user = await SharedPrefs.getUser();
     supplier = await SharedPrefs.getSupplier();
     userName = _user.firstName + ' ' + _user.lastName;
+
     listenForDeliveryAcceptance(supplier.documentReference, this);
     _getPurchaseOrders();
   }
@@ -419,6 +420,7 @@ class _DeliveryNotePageState extends State<DeliveryNotePage>
 
     switch (action) {
       case 1:
+        Navigator.pop(context);
         Navigator.push(
           context,
           new MaterialPageRoute(

@@ -307,6 +307,9 @@ Color getRandomColor() {
   _colors.add(Colors.deepOrange);
   _colors.add(Colors.brown);
   _colors.add(Colors.cyan);
+  _colors.add(Colors.teal);
+  _colors.add(Colors.red);
+  _colors.add(Colors.green);
 
   _rand = Random(new DateTime.now().millisecondsSinceEpoch);
   int index = _rand.nextInt(_colors.length - 1);

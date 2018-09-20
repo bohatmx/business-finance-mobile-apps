@@ -68,7 +68,7 @@ class _PurchaseOrderPageState extends State<PurchaseOrderPageGovt>
     setState(() {});
   }
 
-  _registerPurchaseOrder() async {
+  _submitPurchaseOrder() async {
     print('_PurchaseOrderPageState._registerPurchaseOrder .........');
     Navigator.pop(context);
     final form = _formKey.currentState;
@@ -97,8 +97,8 @@ class _PurchaseOrderPageState extends State<PurchaseOrderPageGovt>
       if (user != null) {
         purchaseOrder.user = 'resource:com.oneconnect.biz.User#' + user.userId;
       }
-      print('_PurchaseOrderPageState._registerPurchaseOrder ... ${purchaseOrder
-              .toJson()}');
+      print(
+          '_PurchaseOrderPageState._registerPurchaseOrder ... ${purchaseOrder.toJson()}');
       purchaseOrder.date = new DateTime.now().toIso8601String();
       purchaseOrder.amount = double.parse(amount);
       purchaseOrder.purchaseOrderNumber = poNumber;
@@ -108,6 +108,8 @@ class _PurchaseOrderPageState extends State<PurchaseOrderPageGovt>
           message: 'Registering purchase order',
           textColor: Colors.white,
           backgroundColor: Colors.deepPurple.shade700);
+      //todo - check if this PO exists
+
       DataAPI api = DataAPI(widget.url);
       var key = await api.registerPurchaseOrder(purchaseOrder);
       _scaffoldKey.currentState.hideCurrentSnackBar();
@@ -118,11 +120,17 @@ class _PurchaseOrderPageState extends State<PurchaseOrderPageGovt>
             message: 'Error submitting purchase order',
             actionLabel: 'close');
       } else {
-        AppSnackbar.showSnackbar(
+        AppSnackbar.showSnackbarWithAction(
             scaffoldKey: _scaffoldKey,
             message: 'Purchase Order registered',
             textColor: Colors.white,
+            actionLabel: 'Done',
+            listener: this,
+            icon: Icons.done,
+            action: 1,
             backgroundColor: Colors.teal.shade700);
+
+        Navigator.pop(context);
       }
     }
   }
@@ -144,7 +152,7 @@ class _PurchaseOrderPageState extends State<PurchaseOrderPageGovt>
                 new Padding(
                   padding: const EdgeInsets.only(left: 28.0, right: 16.0),
                   child: FlatButton(
-                    onPressed: _registerPurchaseOrder,
+                    onPressed: _submitPurchaseOrder,
                     child: Text(
                       'YES',
                       style: style,
@@ -316,5 +324,10 @@ class _PurchaseOrderPageState extends State<PurchaseOrderPageGovt>
   @override
   onActionPressed(int action) {
     print('_PurchaseOrderPageState.onActionPressed .......... Yay!!');
+    switch (action) {
+      case 1:
+        Navigator.pop(context);
+        break;
+    }
   }
 }

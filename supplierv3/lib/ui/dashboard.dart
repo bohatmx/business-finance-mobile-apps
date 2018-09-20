@@ -9,12 +9,12 @@ import 'package:businesslibrary/data/invoice.dart';
 import 'package:businesslibrary/data/invoice_acceptance.dart';
 import 'package:businesslibrary/data/invoice_bid.dart';
 import 'package:businesslibrary/data/invoice_settlement.dart';
+import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
-import 'package:businesslibrary/util/util.dart';
 import 'package:businesslibrary/util/wallet_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -53,6 +53,7 @@ class _DashboardState extends State<Dashboard>
   Animation<double> animation;
   Supplier supplier;
   List<Invoice> invoices;
+  List<Offer> openOffers;
   List<DeliveryNote> deliveryNotes;
   List<PurchaseOrder> purchaseOrders;
   List<InvestorInvoiceSettlement> investorSettlements;
@@ -72,7 +73,6 @@ class _DashboardState extends State<Dashboard>
     animation = new Tween(begin: 0.0, end: 1.0).animate(animationController);
 
     _getCachedPrefs();
-    listenToWebSocket();
   }
 
   @override
@@ -93,6 +93,7 @@ class _DashboardState extends State<Dashboard>
     await _getDelNotes();
     await _getInvoices();
     await _getSettlements();
+    await _getOffers();
 
     _scaffoldKey.currentState.hideCurrentSnackBar();
   }
@@ -112,10 +113,9 @@ class _DashboardState extends State<Dashboard>
   }
 
   _listenForBids() async {
-    invoices.forEach((i) {
-      if (i.isOnOffer && !i.isSettled) {
-        listenForInvoiceBid(i.offer.split('#').elementAt(1), this);
-      }
+    openOffers = await ListAPI.getOpenOffersBySupplier(supplier.participantId);
+    openOffers.forEach((i) {
+      listenForInvoiceBid(i.offerId, this);
     });
   }
 
@@ -151,6 +151,11 @@ class _DashboardState extends State<Dashboard>
     setState(() {
       totalNotes = deliveryNotes.length;
     });
+  }
+
+  Future _getOffers() async {
+    openOffers = await ListAPI.getOffersBySupplier(supplier.participantId);
+    setState(() {});
   }
 
   Future _getPurchaseOrders() async {
@@ -273,7 +278,7 @@ class _DashboardState extends State<Dashboard>
             new Opacity(
               opacity: opacity,
               child: new Padding(
-                padding: const EdgeInsets.only(top: 20.0),
+                padding: const EdgeInsets.only(top: 10.0),
                 child: ListView(
                   children: <Widget>[
                     new GestureDetector(
@@ -308,6 +313,14 @@ class _DashboardState extends State<Dashboard>
                         totalStyle: delNoteStyle,
                       ),
                     ),
+                    new GestureDetector(
+                      onTap: _onDeliveryNotesTapped,
+                      child: SummaryCard(
+                        total: openOffers.length,
+                        label: 'Invoice Offers',
+                        totalStyle: poStyle,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -318,6 +331,7 @@ class _DashboardState extends State<Dashboard>
     );
   }
 
+  List<Offer> offers = List();
   void _goToWalletPage() {
     print('_MainPageState._goToWalletPage .... ');
     Navigator.push(
@@ -467,7 +481,7 @@ class _DashboardState extends State<Dashboard>
     var now = DateTime.now();
     var date = DateTime.parse(da.date);
     var difference = now.difference(date);
-    if (difference.inHours > 1) {
+    if (difference.inSeconds > 30) {
       print(
           'onDeliveryAcceptance-  IGNORED: older than 1 hours  --------bid done  ${difference.inHours} hours ago.');
       return;
@@ -491,7 +505,7 @@ class _DashboardState extends State<Dashboard>
     var now = DateTime.now();
     var date = DateTime.parse(ia.date);
     var difference = now.difference(date);
-    if (difference.inHours > 1) {
+    if (difference.inSeconds > 30) {
       print(
           '_InvoiceListState.onInvoiceBid -  IGNORED: older than 1 hours  --------bid done  ${difference.inHours} hours ago.');
       return;

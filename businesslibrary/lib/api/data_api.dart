@@ -821,6 +821,7 @@ class DataAPI {
   ///
   Future<String> registerPurchaseOrder(PurchaseOrder purchaseOrder) async {
     assert(purchaseOrder.purchaserName != null);
+
     purchaseOrder.purchaseOrderId = getKey();
     print(
         'DataAPI.registerPurchaseOrder ... starting purchase: ${purchaseOrder.toJson()}');
@@ -1108,9 +1109,8 @@ class DataAPI {
 
   Future<String> acceptDelivery(DeliveryAcceptance acceptance) async {
     acceptance.acceptanceId = getKey();
-    prettyPrint(acceptance.toJson(), 'DataAPI.acceptDelivery ....... ');
 
-    print('DataAPI.acceptDelivery url: ${url + ACCEPT_DELIVERY}');
+    print('\n\nDataAPI.acceptDelivery url: ${url + ACCEPT_DELIVERY}');
     prettyPrint(
         acceptance.toJson(), 'DataAPI.acceptDelivery ... calling BFN ...');
     try {
@@ -1205,7 +1205,6 @@ class DataAPI {
 
   Future<String> acceptInvoice(InvoiceAcceptance acceptance) async {
     acceptance.acceptanceId = getKey();
-    prettyPrint(acceptance.toJson(), 'DataAPI.acceptInvoice ....... ');
 
     print('DataAPI.acceptInvoice url: ${url + ACCEPT_INVOICE}');
     prettyPrint(

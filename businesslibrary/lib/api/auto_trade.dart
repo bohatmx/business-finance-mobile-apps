@@ -76,6 +76,8 @@ class AutoTradeExecutionBuilder {
     this.offers = offers;
     this.profiles = profiles;
 
+    offers.sort((a, b) => b.discountPercent.compareTo(a.discountPercent));
+
     executionUnitList = List();
     index = 0;
     _buildAccountList();

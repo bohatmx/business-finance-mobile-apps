@@ -455,7 +455,7 @@ class InvoiceBidSummaryCard extends StatelessWidget {
     });
     print('InvoiceBidSummaryCard.build totalBidAmount: $totalBidAmount');
     return Container(
-      height: 140.0,
+      height: 160.0,
       child: new Padding(
         padding: const EdgeInsets.all(12.0),
         child: Card(
@@ -492,7 +492,7 @@ class InvoiceBidSummaryCard extends StatelessWidget {
                 ),
               ),
               Padding(
-                padding: EdgeInsets.only(top: 8.0),
+                padding: EdgeInsets.only(top: 12.0, bottom: 12.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   crossAxisAlignment: CrossAxisAlignment.center,

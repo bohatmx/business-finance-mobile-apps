@@ -7,7 +7,8 @@ class Company extends BaseParticipant {
   String email;
   String description, documentReference;
   String address, dateRegistered;
-  String privateSectorType, country;
+  String sector, country;
+  bool allowAutoAccept;
 
   Company(
       {this.participantId,
@@ -17,40 +18,35 @@ class Company extends BaseParticipant {
       this.description,
       this.address,
       this.country,
+      this.allowAutoAccept,
       this.dateRegistered,
       this.documentReference,
-      this.privateSectorType});
-
-  static const Technology = "TECHNOLOGY",
-      Retail = "RETAIL",
-      Industrial = 'INDUSTRIAL',
-      Agricultural = 'AGRICULTURAL',
-      Informal = 'INFORMAL_TRADE',
-      Construction = 'CONSTRUCTION',
-      FinancialServices = 'FINANCIAL_SERVICES',
-      Education = 'EDUCATIONAL';
+      this.sector});
 
   Company.fromJson(Map data) {
     this.participantId = data['participantId'];
     this.name = data['name'];
     this.description = data['description'];
-    this.privateSectorType = data['privateSectorType'];
+    this.sector = data['sector'];
     this.cellphone = data['cellphone'];
     this.address = data['address'];
     this.email = data['address'];
     this.country = data['country'];
     this.dateRegistered = data['dateRegistered'];
     this.documentReference = data['documentReference'];
+    this.allowAutoAccept = data['allowAutoAccept'];
   }
-  Map<String, String> toJson() => <String, String>{
+  Map<String, dynamic> toJson() => <String, dynamic>{
         'participantId': participantId,
         'name': name,
         'description': description,
-        'privateSectorType': privateSectorType,
+        'privateSectorType': sector,
         'cellphone': cellphone,
         'address': address,
         'email': email,
         'country': country,
+        'sector': sector,
+        'allowAutoAccept': allowAutoAccept,
         'dateRegistered': dateRegistered,
         'documentReference': documentReference,
       };

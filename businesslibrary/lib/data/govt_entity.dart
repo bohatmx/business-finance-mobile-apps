@@ -7,8 +7,8 @@ class GovtEntity extends BaseParticipant {
   String email;
   String description, documentReference;
   String address, dateRegistered;
-
   String govtEntityType, country;
+  bool allowAutoAccept;
 
   GovtEntity(
       {this.participantId,
@@ -18,6 +18,7 @@ class GovtEntity extends BaseParticipant {
       this.description,
       this.address,
       this.country,
+      this.allowAutoAccept,
       this.documentReference,
       this.dateRegistered,
       this.govtEntityType});
@@ -37,9 +38,10 @@ class GovtEntity extends BaseParticipant {
     this.country = data['country'];
     this.dateRegistered = data['dateRegistered'];
     this.documentReference = data['documentReference'];
+    this.allowAutoAccept = data['allowAutoAccept'];
   }
 
-  Map<String, String> toJson() => <String, String>{
+  Map<String, dynamic> toJson() => <String, dynamic>{
         'participantId': participantId,
         'name': name,
         'description': description,
@@ -50,5 +52,6 @@ class GovtEntity extends BaseParticipant {
         'country': country,
         'dateRegistered': dateRegistered,
         'documentReference': documentReference,
+        'allowAutoAccept': allowAutoAccept,
       };
 }

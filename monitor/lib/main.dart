@@ -242,206 +242,23 @@ class _MyHomePageState extends State<MyHomePage>
         title: Text('Business Finance Network'),
         bottom: _getBottom(),
       ),
-      body: ListView(
+      body: Stack(
         children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: Card(
-              elevation: 4.0,
-              color: Colors.orange.shade50,
-              child: Column(
-                children: <Widget>[
-                  Column(
-                    children: <Widget>[
-                      Padding(
-                        padding: const EdgeInsets.only(top: 4.0),
-                        child: Text(
-                          'Automatic Trade every',
-                          style: Styles.greyLabelMedium,
-                        ),
-                      ),
-                      Padding(
-                        padding:
-                            const EdgeInsets.only(left: 60.0, right: 100.0),
-                        child: TextField(
-                          controller: controller,
-                          keyboardType: TextInputType.numberWithOptions(),
-                          onChanged: _onMinutesChanged,
-                          maxLength: 3,
-                          style: Styles.purpleBoldLarge,
-                          decoration: InputDecoration(
-                            icon: Icon(Icons.access_time),
-                            labelText: 'Minutes',
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 2.0, left: 20.0),
-                    child: Row(
-                      children: <Widget>[
-                        Text(
-                          'Auto Trade Orders',
-                          style: Styles.greyLabelMedium,
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 8.0),
-                          child: Text(
-                            _orders == null ? '0' : '${_orders.length}',
-                            style: Styles.pinkBoldReallyLarge,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(
-                        top: 4.0, left: 20.0, bottom: 10.0),
-                    child: Row(
-                      children: <Widget>[
-                        Text(
-                          'Open Invoice Offers',
-                          style: Styles.greyLabelMedium,
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 8.0),
-                          child: Text(
-                            _offers == null ? '0' : '${_offers.length}',
-                            style: Styles.blueBoldReallyLarge,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 12.0, right: 12.0),
-            child: GestureDetector(
-              onTap: _onSessionTapped,
-              child: Card(
-                elevation: 8.0,
-                color: Colors.purple.shade50,
-                child: Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: Column(
-                    children: <Widget>[
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 8.0),
-                        child: Row(
-                          children: <Widget>[
-                            Text(
-                              _showProgress == true
-                                  ? ''
-                                  : 'Auto Trading Session',
-                              style: Styles.greyLabelMedium,
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Text(
-                                _showProgress == false
-                                    ? ''
-                                    : 'Auto Trade running...',
-                                style: Styles.blueMedium,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Row(
-                        children: <Widget>[
-                          Container(
-                            width: 80.0,
-                            child: Text(
-                              'Time: ',
-                              style: Styles.greyLabelSmall,
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(left: 2.0),
-                            child: Text(
-                              time == null ? '00:00' : time,
-                              style: Styles.purpleBoldLarge,
-                            ),
-                          ),
-                        ],
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 4.0),
-                        child: Row(
-                          children: <Widget>[
-                            Container(
-                              width: 80.0,
-                              child: Text(
-                                'Amount:',
-                                style: Styles.greyLabelSmall,
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(left: 2.0),
-                              child: Text(
-                                amount == null ? '0.00' : amount,
-                                style: Styles.tealBoldLarge,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 2.0, bottom: 2.0),
-                        child: Row(
-                          children: <Widget>[
-                            Container(
-                              width: 80.0,
-                              child: Text(
-                                'Trades: ',
-                                style: Styles.greyLabelSmall,
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(left: 2.0),
-                              child: Text(
-                                count == null ? '0' : count,
-                                style: Styles.blackBoldLarge,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 0.0, bottom: 10.0),
-                        child: Row(
-                          children: <Widget>[
-                            Container(
-                              width: 80.0,
-                              child: Text(
-                                'Invalid: ',
-                                style: Styles.greyLabelSmall,
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(left: 2.0),
-                              child: Text(
-                                invalidUnits == null
-                                    ? '0'
-                                    : '${invalidUnits.length}',
-                                style: Styles.pinkBoldLarge,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
+          Opacity(
+            opacity: 0.3,
+            child: Container(
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage('assets/fincash.jpg'),
+                  fit: BoxFit.cover,
                 ),
               ),
             ),
           ),
+          _getBody(),
         ],
       ),
+
       floatingActionButton: FloatingActionButton(
         onPressed: _restart,
         tooltip: 'Restart',
@@ -555,6 +372,206 @@ class _MyHomePageState extends State<MyHomePage>
                 bids: bids,
                 units: invalidUnits,
               )),
+    );
+  }
+
+  Widget _getBody() {
+    return ListView(
+      children: <Widget>[
+        Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Card(
+            elevation: 4.0,
+            color: Colors.orange.shade50,
+            child: Column(
+              children: <Widget>[
+                Column(
+                  children: <Widget>[
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4.0),
+                      child: Text(
+                        'Automatic Trade every',
+                        style: Styles.greyLabelMedium,
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 60.0, right: 100.0),
+                      child: TextField(
+                        controller: controller,
+                        keyboardType: TextInputType.numberWithOptions(),
+                        onChanged: _onMinutesChanged,
+                        maxLength: 3,
+                        style: Styles.purpleBoldLarge,
+                        decoration: InputDecoration(
+                          icon: Icon(Icons.access_time),
+                          labelText: 'Minutes',
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 2.0, left: 20.0),
+                  child: Row(
+                    children: <Widget>[
+                      Text(
+                        'Auto Trade Orders',
+                        style: Styles.greyLabelMedium,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 8.0),
+                        child: Text(
+                          _orders == null ? '0' : '${_orders.length}',
+                          style: Styles.pinkBoldReallyLarge,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding:
+                      const EdgeInsets.only(top: 4.0, left: 20.0, bottom: 10.0),
+                  child: Row(
+                    children: <Widget>[
+                      Text(
+                        'Open Invoice Offers',
+                        style: Styles.greyLabelMedium,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 8.0),
+                        child: Text(
+                          _offers == null ? '0' : '${_offers.length}',
+                          style: Styles.blueBoldReallyLarge,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(left: 12.0, right: 12.0),
+          child: GestureDetector(
+            onTap: _onSessionTapped,
+            child: Card(
+              elevation: 8.0,
+              color: Colors.purple.shade50,
+              child: Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: Column(
+                  children: <Widget>[
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8.0),
+                      child: Row(
+                        children: <Widget>[
+                          Text(
+                            _showProgress == true ? '' : 'Auto Trading Session',
+                            style: Styles.greyLabelMedium,
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text(
+                              _showProgress == false
+                                  ? ''
+                                  : 'Auto Trade running...',
+                              style: Styles.blueBoldMedium,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Row(
+                      children: <Widget>[
+                        Container(
+                          width: 80.0,
+                          child: Text(
+                            'Time: ',
+                            style: Styles.greyLabelSmall,
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 2.0),
+                          child: Text(
+                            time == null ? '00:00' : time,
+                            style: Styles.purpleBoldLarge,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4.0),
+                      child: Row(
+                        children: <Widget>[
+                          Container(
+                            width: 80.0,
+                            child: Text(
+                              'Amount:',
+                              style: Styles.greyLabelSmall,
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 2.0),
+                            child: Text(
+                              amount == null ? '0.00' : amount,
+                              style: Styles.tealBoldLarge,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 2.0, bottom: 2.0),
+                      child: Row(
+                        children: <Widget>[
+                          Container(
+                            width: 80.0,
+                            child: Text(
+                              'Trades: ',
+                              style: Styles.greyLabelSmall,
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 2.0),
+                            child: Text(
+                              count == null ? '0' : count,
+                              style: Styles.blackBoldLarge,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 0.0, bottom: 10.0),
+                      child: Row(
+                        children: <Widget>[
+                          Container(
+                            width: 80.0,
+                            child: Text(
+                              'Invalid: ',
+                              style: Styles.greyLabelSmall,
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 2.0),
+                            child: Text(
+                              invalidUnits == null
+                                  ? '0'
+                                  : '${invalidUnits.length}',
+                              style: Styles.pinkBoldLarge,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

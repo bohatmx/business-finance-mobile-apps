@@ -314,18 +314,45 @@ class ListAPI {
   }
 
   static Future<List<Offer>> getOffersBySupplier(String supplierId) async {
+    print('ListAPI.getOffersBySupplier ---------------supplierId: $supplierId');
     List<Offer> list = List();
     var qs = await _firestore
         .collection('invoiceOffers')
-        .where('participantId', isEqualTo: supplierId)
+        .where('supplier',
+            isEqualTo: 'resource:com.oneconnect.biz.Supplier#$supplierId')
         .orderBy('date', descending: true)
         .getDocuments()
         .catchError((e) {
-      print('ListAPI.getSupplierOffers $e');
+      print('ListAPI.getOffersBySupplier $e');
       return list;
     });
 
-    print('ListAPI.getSupplierOffers found: ${qs.documents.length} ');
+    print('ListAPI.getOffersBySupplier found: ${qs.documents.length} ');
+
+    qs.documents.forEach((doc) {
+      var offer = Offer.fromJson(doc.data);
+      offer.documentReference = doc.documentID;
+      list.add(offer);
+    });
+
+    return list;
+  }
+
+  static Future<List<Offer>> getOpenOffersBySupplier(String supplierId) async {
+    List<Offer> list = List();
+    var qs = await _firestore
+        .collection('invoiceOffers')
+        .where('isOpen', isEqualTo: true)
+        .where('supplier',
+            isEqualTo: 'resource:com.oneconnect.biz.Supplier#$supplierId')
+        .getDocuments()
+        .catchError((e) {
+      print('ListAPI.getOpenOffersBySupplier $e');
+      return list;
+    });
+
+    print(
+        'ListAPI.getOpenOffersBySupplier +++++++ open offers found: ${qs.documents.length} ');
 
     qs.documents.forEach((doc) {
       var offer = Offer.fromJson(doc.data);
@@ -405,10 +432,6 @@ class ListAPI {
     });
 
     print('ListAPI.getInvoices ################## found: ${list.length}');
-    list.forEach((inv) {
-      prettyPrint(
-          inv.toJson(), 'getInvoices, INVOICE NUMBER: ${inv.invoiceNumber}');
-    });
     return list;
   }
 

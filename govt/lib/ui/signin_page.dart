@@ -240,7 +240,6 @@ class _SignInPageState extends State<SignInPage> implements SnackBarListener {
               message: 'Unable to sign you in as a Government Entity',
               actionLabel: "close");
         } else {
-          _subscribeToFCM();
           //get wallet
           Wallet wallet = await ListAPI.getWallet(
               'govtEntity',
@@ -299,21 +298,6 @@ class _SignInPageState extends State<SignInPage> implements SnackBarListener {
             actionLabel: "Close");
         break;
     }
-  }
-
-  void _subscribeToFCM() {
-    var topic2 = 'general';
-    _firebaseMessaging.subscribeToTopic(topic2);
-    var topic3 = 'settlements' + govtEntity.documentReference;
-    _firebaseMessaging.subscribeToTopic(topic3);
-    var topic4 = 'deliveryNotes' + govtEntity.documentReference;
-    _firebaseMessaging.subscribeToTopic(topic4);
-    var topic0 = 'invoices' + govtEntity.documentReference;
-    _firebaseMessaging.subscribeToTopic(topic0);
-    print(
-        '_SignInPageState._onSavePressed ... ############# subscribed to FCM topics '
-        '\n $topic0 \n $topic2 \n $topic3 \n $topic4');
-    //get wallet
   }
 
   @override

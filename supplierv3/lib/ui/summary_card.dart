@@ -9,21 +9,20 @@ class SummaryCard extends StatelessWidget {
   SummaryCard({this.total, this.totalStyle, this.label});
   final bigLabel = TextStyle(
     fontWeight: FontWeight.w900,
-    fontSize: 20.0,
+    fontSize: 18.0,
     color: Colors.grey,
   );
 
   @override
   Widget build(BuildContext context) {
-    var opacity = 1.0;
-    var height = 90.0, cHeight = 60.0, top = 10.0;
+    var height = 70.0, top = 4.0;
 
     return new Container(
       height: height,
       child: new Padding(
-        padding: const EdgeInsets.all(12.0),
+        padding: const EdgeInsets.only(left: 28.0, right: 28.0, bottom: 12.0),
         child: Card(
-          elevation: 6.0,
+          elevation: 4.0,
           child: Column(
             children: <Widget>[
               new Padding(

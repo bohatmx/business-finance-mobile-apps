@@ -10,6 +10,7 @@ import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/data/wallet.dart';
 import 'package:businesslibrary/util/lookups.dart';
+import 'package:businesslibrary/util/selectors.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:businesslibrary/util/util.dart';
@@ -532,10 +533,10 @@ class _MakeOfferPageState extends State<MakeOfferPage>
             padding: const EdgeInsets.all(8.0),
             child: Icon(
               Icons.apps,
-              color: Colors.blue,
+              color: getRandomColor(),
             ),
           ),
-          Text('1.0 %'),
+          Text('1 %'),
         ],
       ),
     );
@@ -549,10 +550,10 @@ class _MakeOfferPageState extends State<MakeOfferPage>
             padding: const EdgeInsets.all(8.0),
             child: Icon(
               Icons.apps,
-              color: Colors.purple,
+              color: getRandomColor(),
             ),
           ),
-          Text('2.0 %'),
+          Text('2 %'),
         ],
       ),
     );
@@ -566,10 +567,10 @@ class _MakeOfferPageState extends State<MakeOfferPage>
             padding: const EdgeInsets.all(8.0),
             child: Icon(
               Icons.apps,
-              color: Colors.purple,
+              color: getRandomColor(),
             ),
           ),
-          Text('3.0 %'),
+          Text('3 %'),
         ],
       ),
     );
@@ -583,10 +584,10 @@ class _MakeOfferPageState extends State<MakeOfferPage>
             padding: const EdgeInsets.all(8.0),
             child: Icon(
               Icons.apps,
-              color: Colors.red,
+              color: getRandomColor(),
             ),
           ),
-          Text('4.0 %'),
+          Text('4 %'),
         ],
       ),
     );
@@ -600,10 +601,10 @@ class _MakeOfferPageState extends State<MakeOfferPage>
             padding: const EdgeInsets.all(8.0),
             child: Icon(
               Icons.apps,
-              color: Colors.red,
+              color: getRandomColor(),
             ),
           ),
-          Text('5.0 %'),
+          Text('5 %'),
         ],
       ),
     );
@@ -617,10 +618,10 @@ class _MakeOfferPageState extends State<MakeOfferPage>
             padding: const EdgeInsets.all(8.0),
             child: Icon(
               Icons.apps,
-              color: Colors.red,
+              color: getRandomColor(),
             ),
           ),
-          Text('6.0 %'),
+          Text('6 %'),
         ],
       ),
     );
@@ -634,10 +635,10 @@ class _MakeOfferPageState extends State<MakeOfferPage>
             padding: const EdgeInsets.all(8.0),
             child: Icon(
               Icons.apps,
-              color: Colors.red,
+              color: getRandomColor(),
             ),
           ),
-          Text('7.0 %'),
+          Text('7 %'),
         ],
       ),
     );
@@ -651,10 +652,10 @@ class _MakeOfferPageState extends State<MakeOfferPage>
             padding: const EdgeInsets.all(8.0),
             child: Icon(
               Icons.apps,
-              color: Colors.red,
+              color: getRandomColor(),
             ),
           ),
-          Text('8.0 %'),
+          Text('8 %'),
         ],
       ),
     );
@@ -668,10 +669,10 @@ class _MakeOfferPageState extends State<MakeOfferPage>
             padding: const EdgeInsets.all(8.0),
             child: Icon(
               Icons.apps,
-              color: Colors.red,
+              color: getRandomColor(),
             ),
           ),
-          Text('9.0 %'),
+          Text('9 %'),
         ],
       ),
     );
@@ -684,10 +685,10 @@ class _MakeOfferPageState extends State<MakeOfferPage>
             padding: const EdgeInsets.all(8.0),
             child: Icon(
               Icons.apps,
-              color: Colors.red,
+              color: getRandomColor(),
             ),
           ),
-          Text('10.0 %'),
+          Text('10 %'),
         ],
       ),
     );
@@ -700,10 +701,10 @@ class _MakeOfferPageState extends State<MakeOfferPage>
             padding: const EdgeInsets.all(8.0),
             child: Icon(
               Icons.apps,
-              color: Colors.red,
+              color: getRandomColor(),
             ),
           ),
-          Text('11.0 %'),
+          Text('11 %'),
         ],
       ),
     );
@@ -716,10 +717,10 @@ class _MakeOfferPageState extends State<MakeOfferPage>
             padding: const EdgeInsets.all(8.0),
             child: Icon(
               Icons.apps,
-              color: Colors.red,
+              color: getRandomColor(),
             ),
           ),
-          Text('12.0 %'),
+          Text('12 %'),
         ],
       ),
     );
@@ -732,10 +733,10 @@ class _MakeOfferPageState extends State<MakeOfferPage>
             padding: const EdgeInsets.all(8.0),
             child: Icon(
               Icons.apps,
-              color: Colors.red,
+              color: getRandomColor(),
             ),
           ),
-          Text('13.0 %'),
+          Text('13 %'),
         ],
       ),
     );
@@ -748,10 +749,10 @@ class _MakeOfferPageState extends State<MakeOfferPage>
             padding: const EdgeInsets.all(8.0),
             child: Icon(
               Icons.apps,
-              color: Colors.red,
+              color: getRandomColor(),
             ),
           ),
-          Text('14.0 %'),
+          Text('14 %'),
         ],
       ),
     );
@@ -764,10 +765,10 @@ class _MakeOfferPageState extends State<MakeOfferPage>
             padding: const EdgeInsets.all(8.0),
             child: Icon(
               Icons.apps,
-              color: Colors.red,
+              color: getRandomColor(),
             ),
           ),
-          Text('15.0 %'),
+          Text('15 %'),
         ],
       ),
     );
@@ -780,10 +781,10 @@ class _MakeOfferPageState extends State<MakeOfferPage>
             padding: const EdgeInsets.all(8.0),
             child: Icon(
               Icons.apps,
-              color: Colors.red,
+              color: getRandomColor(),
             ),
           ),
-          Text('16.0 %'),
+          Text('16 %'),
         ],
       ),
     );
@@ -796,10 +797,10 @@ class _MakeOfferPageState extends State<MakeOfferPage>
             padding: const EdgeInsets.all(8.0),
             child: Icon(
               Icons.apps,
-              color: Colors.red,
+              color: getRandomColor(),
             ),
           ),
-          Text('17.0 %'),
+          Text('17 %'),
         ],
       ),
     );
@@ -812,10 +813,10 @@ class _MakeOfferPageState extends State<MakeOfferPage>
             padding: const EdgeInsets.all(8.0),
             child: Icon(
               Icons.apps,
-              color: Colors.red,
+              color: getRandomColor(),
             ),
           ),
-          Text('18.0 %'),
+          Text('18 %'),
         ],
       ),
     );
@@ -828,10 +829,10 @@ class _MakeOfferPageState extends State<MakeOfferPage>
             padding: const EdgeInsets.all(8.0),
             child: Icon(
               Icons.apps,
-              color: Colors.red,
+              color: getRandomColor(),
             ),
           ),
-          Text('19.0 %'),
+          Text('19 %'),
         ],
       ),
     );
@@ -844,173 +845,13 @@ class _MakeOfferPageState extends State<MakeOfferPage>
             padding: const EdgeInsets.all(8.0),
             child: Icon(
               Icons.apps,
-              color: Colors.red,
+              color: getRandomColor(),
             ),
           ),
-          Text('20.0 %'),
+          Text('20 %'),
         ],
       ),
     );
     items.add(x6);
-    var x7 = DropdownMenuItem<String>(
-      value: '21.0',
-      child: Row(
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Icon(
-              Icons.apps,
-              color: Colors.red,
-            ),
-          ),
-          Text('21.0 %'),
-        ],
-      ),
-    );
-    items.add(x7);
-    var x8 = DropdownMenuItem<String>(
-      value: '22.0',
-      child: Row(
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Icon(
-              Icons.apps,
-              color: Colors.red,
-            ),
-          ),
-          Text('22.0 %'),
-        ],
-      ),
-    );
-    items.add(x8);
-    var x9 = DropdownMenuItem<String>(
-      value: '23.0',
-      child: Row(
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Icon(
-              Icons.apps,
-              color: Colors.red,
-            ),
-          ),
-          Text('23.0 %'),
-        ],
-      ),
-    );
-    items.add(x9);
-    var z1 = DropdownMenuItem<String>(
-      value: '24.0',
-      child: Row(
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Icon(
-              Icons.apps,
-              color: Colors.red,
-            ),
-          ),
-          Text('24.0 %'),
-        ],
-      ),
-    );
-    items.add(z1);
-    var z2 = DropdownMenuItem<String>(
-      value: '25.0',
-      child: Row(
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Icon(
-              Icons.apps,
-              color: Colors.red,
-            ),
-          ),
-          Text('25.0 %'),
-        ],
-      ),
-    );
-    items.add(z2);
-    var z3 = DropdownMenuItem<String>(
-      value: '26.0',
-      child: Row(
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Icon(
-              Icons.apps,
-              color: Colors.red,
-            ),
-          ),
-          Text('26.0 %'),
-        ],
-      ),
-    );
-    items.add(z3);
-    var z4 = DropdownMenuItem<String>(
-      value: '27.0',
-      child: Row(
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Icon(
-              Icons.apps,
-              color: Colors.red,
-            ),
-          ),
-          Text('27.0 %'),
-        ],
-      ),
-    );
-    items.add(z4);
-    var z5 = DropdownMenuItem<String>(
-      value: '28.0',
-      child: Row(
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Icon(
-              Icons.apps,
-              color: Colors.red,
-            ),
-          ),
-          Text('28.0 %'),
-        ],
-      ),
-    );
-    items.add(z5);
-    var z6 = DropdownMenuItem<String>(
-      value: '29.0',
-      child: Row(
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Icon(
-              Icons.apps,
-              color: Colors.red,
-            ),
-          ),
-          Text('29.0 %'),
-        ],
-      ),
-    );
-    items.add(z6);
-    var z7 = DropdownMenuItem<String>(
-      value: '30.0',
-      child: Row(
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Icon(
-              Icons.apps,
-              color: Colors.red,
-            ),
-          ),
-          Text('30.0 %'),
-        ],
-      ),
-    );
-    items.add(z7);
   }
 }

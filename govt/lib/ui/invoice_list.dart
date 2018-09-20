@@ -6,7 +6,9 @@ import 'package:businesslibrary/data/invoice.dart';
 import 'package:businesslibrary/data/invoice_acceptance.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/lookups.dart';
+import 'package:businesslibrary/util/selectors.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
+import 'package:businesslibrary/util/styles.dart';
 import 'package:businesslibrary/util/util.dart';
 import 'package:flutter/material.dart';
 import 'package:govt/ui/invoice_settlement.dart';
@@ -110,7 +112,10 @@ class _InvoiceListState extends State<InvoiceList> implements SnackBarListener {
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
-        title: Text('Invoices'),
+        title: Text(
+          'Invoices',
+          style: Styles.blackBoldMedium,
+        ),
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.refresh),
@@ -139,8 +144,8 @@ class _InvoiceListState extends State<InvoiceList> implements SnackBarListener {
                           invoices == null ? '0' : '${invoices.length}',
                           style: TextStyle(
                             color: Colors.white,
-                            fontSize: 30.0,
-                            fontWeight: FontWeight.w900,
+                            fontSize: 20.0,
+                            fontWeight: FontWeight.normal,
                           ),
                         ),
                       ),
@@ -350,7 +355,7 @@ class InvoiceCard extends StatelessWidget {
   Widget build(BuildContext context) {
     amount = _getFormattedAmt();
     return Padding(
-      padding: const EdgeInsets.only(left: 16.0, right: 16.0, bottom: 20.0),
+      padding: const EdgeInsets.only(left: 12.0, right: 12.0, bottom: 4.0),
       child: Card(
         elevation: 4.0,
         color: Colors.amber.shade50,
@@ -366,7 +371,7 @@ class InvoiceCard extends StatelessWidget {
                       padding: const EdgeInsets.all(8.0),
                       child: Icon(
                         Icons.description,
-                        color: Colors.grey,
+                        color: getRandomColor(),
                       ),
                     ),
                     Text(

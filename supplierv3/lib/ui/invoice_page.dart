@@ -326,7 +326,7 @@ class _NewInvoicePageState extends State<NewInvoicePage>
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.only(top: 18.0),
+                    padding: const EdgeInsets.only(top: 18.0, left: 20.0),
                     child: Row(
                       children: <Widget>[
                         Padding(

@@ -9,9 +9,11 @@ import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
+import 'package:businesslibrary/util/styles.dart';
 import 'package:businesslibrary/util/wallet_page.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:govt/ui/acceptance.dart';
 import 'package:govt/ui/delivery_note_list.dart';
 import 'package:govt/ui/firestore_listener.dart';
 import 'package:govt/ui/invoice_list.dart';
@@ -52,6 +54,7 @@ class _DashboardState extends State<Dashboard>
   String fullName;
   int messageReceived;
   String message;
+  bool listenersStarted = false;
   @override
   initState() {
     super.initState();
@@ -62,12 +65,7 @@ class _DashboardState extends State<Dashboard>
     );
     animation = new Tween(begin: 0.0, end: 1.0).animate(animationController);
 
-    _messaging();
     _getCachedPrefs();
-  }
-
-  void _messaging() async {
-    await _getCachedPrefs();
   }
 
   @override
@@ -82,8 +80,15 @@ class _DashboardState extends State<Dashboard>
     govtEntity = await SharedPrefs.getGovEntity();
     assert(govtEntity != null);
     name = govtEntity.name;
-    listenForDeliveryNote(govtEntity.documentReference, this);
-    listenForInvoice(govtEntity.documentReference, this);
+    //todo - remove after dev
+    govtEntity.allowAutoAccept = true;
+
+    if (!listenersStarted) {
+      listenForDeliveryNote(govtEntity.documentReference, this);
+      listenForInvoice(govtEntity.documentReference, this);
+      listenersStarted = true;
+      print('_DashboardState._getCachedPrefs listeners started ......');
+    }
     print(
         '_DashboardState._getSummaryData ....... govt documentId: ${govtEntity.documentReference}');
     setState(() {});
@@ -186,17 +191,6 @@ class _DashboardState extends State<Dashboard>
   @override
   Widget build(BuildContext context) {
     message = widget.message;
-//    if (message != null) {
-//      AppSnackbar.showSnackbarWithAction(
-//          scaffoldKey: _scaffoldKey,
-//          message: message,
-//          textColor: Colors.white,
-//          icon: Icons.done_all,
-//          listener: this,
-//          actionLabel: 'OK',
-//          action: 0,
-//          backgroundColor: Colors.black);
-//    }
     return new WillPopScope(
       onWillPop: () async => false,
       child: Scaffold(
@@ -342,8 +336,7 @@ class _DashboardState extends State<Dashboard>
     print('_MainPageState._onPurchaseOrdersTapped  go to list of pos');
     Navigator.push(
       context,
-      new MaterialPageRoute(
-          builder: (context) => new PurchaseOrderListPage(purchaseOrders)),
+      new MaterialPageRoute(builder: (context) => new PurchaseOrderListPage()),
     );
   }
 
@@ -374,9 +367,7 @@ class _DashboardState extends State<Dashboard>
   }
 
   @override
-  onDeliveryNoteArrived(DeliveryNote note) {
-    if (deliveryNotes == null) return;
-
+  onDeliveryNoteArrived(DeliveryNote note) async {
     prettyPrint(note.toJson(), 'DeliveryNote arrived: ');
     messageReceived = DeliveryNotes;
     AppSnackbar.showSnackbarWithAction(
@@ -388,11 +379,24 @@ class _DashboardState extends State<Dashboard>
         listener: this,
         action: DeliveryNoteConstant,
         icon: Icons.create);
+
+    if (govtEntity.allowAutoAccept != null) {
+      if (govtEntity.allowAutoAccept) {
+        var res = await Accept.sendAcceptance(note, user);
+        if (res != '0') {
+          AppSnackbar.showSnackbar(
+              scaffoldKey: _scaffoldKey,
+              message: 'Delivery Note accepted',
+              textColor: Styles.white,
+              backgroundColor: Styles.black);
+        }
+      }
+    }
     _getNotes();
   }
 
   @override
-  onInvoiceArrived(Invoice inv) {
+  onInvoiceArrived(Invoice inv) async {
     prettyPrint(inv.toJson(), 'Invoice arrived: ');
     messageReceived = DeliveryNotes;
     AppSnackbar.showSnackbarWithAction(
@@ -404,6 +408,20 @@ class _DashboardState extends State<Dashboard>
         listener: this,
         action: InvoiceConstant,
         icon: Icons.collections_bookmark);
+
     _getInvoices();
+
+    if (govtEntity.allowAutoAccept != null) {
+      if (govtEntity.allowAutoAccept) {
+        var res = await Accept.sendInvoiceAcceptance(inv, user);
+        if (res != '0') {
+          AppSnackbar.showSnackbar(
+              scaffoldKey: _scaffoldKey,
+              message: 'Invoice accepted',
+              textColor: Styles.lightGreen,
+              backgroundColor: Styles.black);
+        }
+      }
+    }
   }
 }
