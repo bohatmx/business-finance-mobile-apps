@@ -357,7 +357,10 @@ class _OfferListState extends State<OfferList> with WidgetsBindingObserver {
               },
               child: Padding(
                 padding: const EdgeInsets.all(2.0),
-                child: OfferPanel(offers.elementAt(index), index + 1),
+                child: OfferPanel(
+                    offer: offers.elementAt(index),
+                    number: index + 1,
+                    color: Colors.indigo.shade50),
               ),
             );
           }),
@@ -551,8 +554,9 @@ class OfferListCard extends StatelessWidget {
 class OfferPanel extends StatelessWidget {
   final Offer offer;
   final int number;
+  final Color color;
 
-  OfferPanel(this.offer, this.number);
+  OfferPanel({this.offer, this.number, this.color});
 
   TextStyle getTextStyle() {
     if (offer.dateClosed == null) {
@@ -577,9 +581,10 @@ class OfferPanel extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(left: 12.0, right: 12.0),
       child: Card(
-        elevation: 2.0,
+        elevation: 3.0,
+        color: color == null ? Colors.white : color,
         child: Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: const EdgeInsets.all(10.0),
           child: Column(
             children: <Widget>[
               Row(
@@ -630,7 +635,7 @@ class OfferPanel extends StatelessWidget {
                 ],
               ),
               Padding(
-                padding: const EdgeInsets.only(left: 40.0, top: 20.0),
+                padding: const EdgeInsets.only(left: 20.0, top: 20.0),
                 child: Row(
                   children: <Widget>[
                     Padding(
@@ -655,7 +660,7 @@ class OfferPanel extends StatelessWidget {
               ),
               Padding(
                 padding:
-                    const EdgeInsets.only(left: 40.0, top: 4.0, bottom: 20.0),
+                    const EdgeInsets.only(left: 20.0, top: 4.0, bottom: 20.0),
                 child: Row(
                   children: <Widget>[
                     Padding(

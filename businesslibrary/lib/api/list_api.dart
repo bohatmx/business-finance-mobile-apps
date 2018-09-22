@@ -338,6 +338,29 @@ class ListAPI {
     return list;
   }
 
+  static Future<Offer> checkOfferByInvoice(String invoiceId) async {
+    print('ListAPI.checkOfferByInvoice ---------------supplierId: $invoiceId');
+    Offer offer;
+    var qs = await _firestore
+        .collection('invoiceOffers')
+        .where('invoice',
+            isEqualTo: 'resource:com.oneconnect.biz.Invoice#$invoiceId')
+        .getDocuments()
+        .catchError((e) {
+      print('ListAPI.checkOfferByInvoice $e');
+      return offer;
+    });
+
+    print('ListAPI.checkOfferByInvoice found: ${qs.documents.length} ');
+
+    qs.documents.forEach((doc) {
+      offer = Offer.fromJson(doc.data);
+      offer.documentReference = doc.documentID;
+    });
+
+    return offer;
+  }
+
   static Future<List<Offer>> getOpenOffersBySupplier(String supplierId) async {
     List<Offer> list = List();
     var qs = await _firestore

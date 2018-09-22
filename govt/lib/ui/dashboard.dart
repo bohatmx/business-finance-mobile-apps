@@ -380,19 +380,23 @@ class _DashboardState extends State<Dashboard>
         action: DeliveryNoteConstant,
         icon: Icons.create);
 
-    if (govtEntity.allowAutoAccept != null) {
-      if (govtEntity.allowAutoAccept) {
-        var res = await Accept.sendAcceptance(note, user);
-        if (res != '0') {
-          AppSnackbar.showSnackbar(
-              scaffoldKey: _scaffoldKey,
-              message: 'Delivery Note accepted',
-              textColor: Styles.white,
-              backgroundColor: Styles.black);
-        }
-      }
+//    if (govtEntity.allowAutoAccept != null) {
+//      if (govtEntity.allowAutoAccept) {
+//        var res = await Accept.sendAcceptance(note, user);
+//        if (res != '0') {
+//          AppSnackbar.showSnackbar(
+//              scaffoldKey: _scaffoldKey,
+//              message: 'Delivery Note accepted',
+//              textColor: Styles.white,
+//              backgroundColor: Styles.black);
+//        }
+//      }
+//    }
+    if (deliveryNotes == null) {
+      deliveryNotes = List();
     }
-    _getNotes();
+    deliveryNotes.insert(0, note);
+    setState(() {});
   }
 
   @override

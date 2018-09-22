@@ -11,6 +11,7 @@ import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:businesslibrary/util/util.dart';
 import 'package:flutter/material.dart';
+import 'package:govt/ui/firestore_listener.dart';
 
 class DeliveryNoteList extends StatefulWidget {
   @override
@@ -18,7 +19,10 @@ class DeliveryNoteList extends StatefulWidget {
 }
 
 class _DeliveryNoteListState extends State<DeliveryNoteList>
-    implements SnackBarListener, DeliveryNoteCardListener {
+    implements
+        SnackBarListener,
+        DeliveryNoteCardListener,
+        DeliveryNoteArrivedListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   List<Supplier> suppliers;
   List<DeliveryNote> deliveryNotes;
@@ -33,6 +37,7 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
   _getCachedPrefs() async {
     user = await SharedPrefs.getUser();
     govtEntity = await SharedPrefs.getGovEntity();
+    listenForDeliveryNote(govtEntity.documentReference, this);
     _getDeliveryNotes();
   }
 
@@ -280,6 +285,15 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
     deliveryNotes = await ListAPI.getDeliveryNotes(
         govtEntity.documentReference, 'govtEntities');
     _scaffoldKey.currentState.removeCurrentSnackBar();
+    setState(() {});
+  }
+
+  @override
+  onDeliveryNoteArrived(DeliveryNote note) {
+    if (deliveryNotes == null) {
+      deliveryNotes = List();
+    }
+    deliveryNotes.insert(0, note);
     setState(() {});
   }
 }

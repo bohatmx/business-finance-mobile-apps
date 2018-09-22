@@ -176,7 +176,22 @@ class _MakeOfferPageState extends State<MakeOfferPage>
           actionLabel: 'Close');
       return;
     }
+    //todo - check if offer already exists
+    var off = await ListAPI.checkOfferByInvoice(invoice.invoiceId);
+    if (off != null) {
+      AppSnackbar.showErrorSnackbar(
+          scaffoldKey: _scaffoldKey,
+          message: 'Offer already exists',
+          listener: this,
+          actionLabel: 'Close');
+      return;
+    }
     submitting = true;
+    AppSnackbar.showSnackbarWithProgressIndicator(
+        scaffoldKey: _scaffoldKey,
+        message: 'Submitting Invoice Offer ...',
+        textColor: Colors.white,
+        backgroundColor: Colors.black);
     var disc = double.parse(percentage);
 
     var offerAmt = (invoice.totalAmount * (100.0 - disc)) / 100.0;
@@ -204,11 +219,6 @@ class _MakeOfferPageState extends State<MakeOfferPage>
 
     print(
         '_MakeOfferPageState._submitOffer about to open snackbar ===================>');
-    AppSnackbar.showSnackbarWithProgressIndicator(
-        scaffoldKey: _scaffoldKey,
-        message: 'Submitting Invoice Offer',
-        textColor: Colors.white,
-        backgroundColor: Colors.black);
 
     var x = await ListAPI.findOfferByInvoice(offer.invoice);
     if (x != null) {

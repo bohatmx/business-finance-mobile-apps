@@ -33,7 +33,8 @@ class _InvoiceBidderState extends State<InvoiceBidder>
   @override
   void initState() {
     super.initState();
-
+    print(
+        '_InvoiceBidderState.initState ==================================>>>');
     _getCached();
     _buildItems();
     _getExistingBids();
@@ -49,44 +50,109 @@ class _InvoiceBidderState extends State<InvoiceBidder>
   List<InvoiceBid> bids;
   void _getExistingBids() async {
     prettyPrint(offer.toJson(),
-        '_InvoiceBidderState._getExistingBids .......OFFER.....');
+        '_InvoiceBidderState._getExistingBids ...... for this OFFER.....');
     bids = await ListAPI.getInvoiceBidsByOffer(offer);
+    _calculateTotal();
     setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
-    offer = widget.offer;
-
+    if (offer == null) {
+      offer = widget.offer;
+      _getExistingBids();
+    }
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
         title: Text('Make Invoice Bid'),
         elevation: 8.0,
         bottom: _getBottom(),
+        actions: <Widget>[
+          IconButton(icon: Icon(Icons.refresh), onPressed: _getExistingBids),
+        ],
       ),
       body: _getBody(),
     );
   }
 
+  double totalAmtBid = 0.00;
+  double totalPercBid = 0.00;
+  _calculateTotal() {
+    totalAmtBid = 0.00;
+    totalPercBid = 0.00;
+    bids.forEach((m) {
+      totalAmtBid += m.amount;
+      totalPercBid += m.reservePercent;
+    });
+    setState(() {});
+  }
+
   Widget _getBottom() {
     return PreferredSize(
-      preferredSize: Size.fromHeight(60.0),
+      preferredSize: Size.fromHeight(110.0),
       child: Padding(
-        padding: const EdgeInsets.only(bottom: 18.0),
+        padding: const EdgeInsets.only(bottom: 12.0),
         child: Column(
           children: <Widget>[
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: <Widget>[
                 Text(
-                  'Existing Bids: ',
+                  'Existing Bids for Offer: ',
+                  style: TextStyle(color: Colors.white),
+                ),
+                Row(
+                  children: <Widget>[
+                    Padding(
+                      padding: const EdgeInsets.only(left: 14.0, right: 10.0),
+                      child: Text(
+                        bids == null ? '0' : '${bids.length}',
+                        style: TextStyle(
+                            color: Colors.indigo.shade800,
+                            fontSize: 24.0,
+                            fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 8.0),
+                      child: Row(
+                        children: <Widget>[
+                          Text(
+                            'Perc:',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                          Padding(
+                            padding:
+                                const EdgeInsets.only(left: 8.0, right: 10.0),
+                            child: Text(
+                              totalPercBid == null ? '0 %' : '$totalPercBid %',
+                              style: TextStyle(
+                                  color: Colors.indigo.shade800,
+                                  fontSize: 24.0,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: <Widget>[
+                Text(
+                  'Total Amount Bid: ',
                   style: TextStyle(color: Colors.white),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(12.0),
                   child: Text(
-                    bids == null ? '0' : '${bids.length}',
+                    totalAmtBid == null
+                        ? '0.00'
+                        : '${getFormattedAmount('$totalAmtBid', context)}',
                     style: TextStyle(
                         color: Colors.indigo.shade800,
                         fontSize: 24.0,
@@ -105,14 +171,14 @@ class _InvoiceBidderState extends State<InvoiceBidder>
     return ListView(
       children: <Widget>[
         Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: const EdgeInsets.only(left: 12.0, right: 12.0),
           child: OfferCard(
             offer: offer,
             color: Colors.indigo.shade50,
           ),
         ),
         Padding(
-          padding: const EdgeInsets.only(bottom: 4.0),
+          padding: const EdgeInsets.only(bottom: 0.0),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: <Widget>[
@@ -121,7 +187,7 @@ class _InvoiceBidderState extends State<InvoiceBidder>
                 child: Text(
                   'Invoice Due Diligence',
                   style: TextStyle(
-                      fontSize: 24.0,
+                      fontSize: 20.0,
                       color: Colors.grey,
                       fontWeight: FontWeight.bold),
                 ),
@@ -143,18 +209,15 @@ class _InvoiceBidderState extends State<InvoiceBidder>
           child: DropdownButton<double>(
             items: items,
             elevation: 8,
-            hint: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Text(
-                'Bid Percentage',
-                style: TextStyle(fontSize: 20.0),
-              ),
+            hint: Text(
+              'Bid Percentage',
+              style: TextStyle(fontSize: 20.0),
             ),
             onChanged: _onChanged,
           ),
         ),
         Padding(
-          padding: const EdgeInsets.only(left: 36.0, top: 12.0),
+          padding: const EdgeInsets.only(left: 36.0, top: 0.0),
           child: Row(
             children: <Widget>[
               Text(
@@ -181,7 +244,7 @@ class _InvoiceBidderState extends State<InvoiceBidder>
           ),
         ),
         Padding(
-          padding: const EdgeInsets.only(left: 36.0, right: 36.0, top: 12.0),
+          padding: const EdgeInsets.only(left: 36.0, right: 36.0, top: 4.0),
           child: RaisedButton(
             onPressed: _onMakeBid,
             elevation: 8.0,
@@ -259,7 +322,7 @@ class _InvoiceBidderState extends State<InvoiceBidder>
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Text(
-              '1.0 %',
+              '1%',
               style: TextStyle(
                   color: Colors.black,
                   fontWeight: FontWeight.bold,
@@ -350,7 +413,7 @@ class _InvoiceBidderState extends State<InvoiceBidder>
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Text(
-              '10.0 %',
+              '10 %',
               style: TextStyle(
                   color: Colors.black,
                   fontWeight: FontWeight.bold,
@@ -373,7 +436,7 @@ class _InvoiceBidderState extends State<InvoiceBidder>
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Text(
-              '15.0 %',
+              '15 %',
               style: TextStyle(
                   color: Colors.black,
                   fontWeight: FontWeight.bold,
@@ -396,7 +459,7 @@ class _InvoiceBidderState extends State<InvoiceBidder>
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Text(
-              '20.0 %',
+              '20 %',
               style: TextStyle(
                   color: Colors.black,
                   fontWeight: FontWeight.bold,
@@ -419,7 +482,7 @@ class _InvoiceBidderState extends State<InvoiceBidder>
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Text(
-              '25.0 %',
+              '25 %',
               style: TextStyle(
                   color: Colors.black,
                   fontWeight: FontWeight.bold,
@@ -442,7 +505,7 @@ class _InvoiceBidderState extends State<InvoiceBidder>
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Text(
-              '30.0 %',
+              '30 %',
               style: TextStyle(
                   color: Colors.black,
                   fontWeight: FontWeight.bold,
@@ -465,7 +528,7 @@ class _InvoiceBidderState extends State<InvoiceBidder>
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Text(
-              '40.0 %',
+              '40 %',
               style: TextStyle(
                   color: Colors.black,
                   fontWeight: FontWeight.bold,
@@ -488,7 +551,7 @@ class _InvoiceBidderState extends State<InvoiceBidder>
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Text(
-              '50.0 %',
+              '50 %',
               style: TextStyle(
                   color: Colors.black,
                   fontWeight: FontWeight.bold,
@@ -511,7 +574,7 @@ class _InvoiceBidderState extends State<InvoiceBidder>
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Text(
-              '60.0 %',
+              '60 %',
               style: TextStyle(
                   color: Colors.black,
                   fontWeight: FontWeight.bold,
@@ -534,7 +597,7 @@ class _InvoiceBidderState extends State<InvoiceBidder>
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Text(
-              '70.0 %',
+              '70 %',
               style: TextStyle(
                   color: Colors.black,
                   fontWeight: FontWeight.bold,
@@ -557,7 +620,7 @@ class _InvoiceBidderState extends State<InvoiceBidder>
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Text(
-              '80.0 %',
+              '80 %',
               style: TextStyle(
                   color: Colors.black,
                   fontWeight: FontWeight.bold,
@@ -580,7 +643,7 @@ class _InvoiceBidderState extends State<InvoiceBidder>
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Text(
-              '90.0 %',
+              '90 %',
               style: TextStyle(
                   color: Colors.black,
                   fontWeight: FontWeight.bold,
@@ -603,7 +666,7 @@ class _InvoiceBidderState extends State<InvoiceBidder>
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Text(
-              '100.0 %',
+              '100  %',
               style: TextStyle(
                   color: Colors.black,
                   fontWeight: FontWeight.bold,
@@ -652,7 +715,6 @@ class _InvoiceBidderState extends State<InvoiceBidder>
         textColor: Colors.white,
         backgroundColor: Colors.black);
 
-    prettyPrint(bid.toJson(), "invoiceBid about to go : ....");
     var api = DataAPI(getURL());
     var key = await api.makeInvoiceBid(bid, offer, investor);
     if (key == '0') {
@@ -671,8 +733,8 @@ class _InvoiceBidderState extends State<InvoiceBidder>
           listener: this,
           icon: Icons.done_all,
           action: 0);
-      bids.insert(0, bid);
-      setState(() {});
+
+      _getExistingBids();
     }
   }
 

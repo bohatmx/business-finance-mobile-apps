@@ -53,7 +53,7 @@ class _DashboardState extends State<Dashboard>
   Animation<double> animation;
   Supplier supplier;
   List<Invoice> invoices;
-  List<Offer> openOffers;
+  List<Offer> openOffers = List();
   List<DeliveryNote> deliveryNotes;
   List<PurchaseOrder> purchaseOrders;
   List<InvestorInvoiceSettlement> investorSettlements;

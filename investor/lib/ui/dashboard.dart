@@ -24,6 +24,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:investor/ui/firestore_listener.dart';
 import 'package:investor/ui/offer_list.dart';
+import 'package:investor/ui/offers_and_bids.dart';
 import 'package:investor/ui/profile.dart';
 
 class Dashboard extends StatefulWidget {
@@ -219,15 +220,11 @@ class _DashboardState extends State<Dashboard>
                   children: <Widget>[
                     Padding(
                       padding: const EdgeInsets.only(left: 28.0),
-                      child: Row(
-                        children: <Widget>[
-                          DropdownButton<int>(
-                            items: items,
-                            value: _days,
-                            elevation: 4,
-                            onChanged: _onDropDownChanged,
-                          ),
-                        ],
+                      child: DropdownButton<int>(
+                        items: items,
+                        value: _days,
+                        elevation: 4,
+                        onChanged: _onDropDownChanged,
                       ),
                     ),
                     new InkWell(
@@ -300,6 +297,10 @@ class _DashboardState extends State<Dashboard>
 
   void _onInvoiceBidsTapped() {
     print('_DashboardState._onInvoiceTapped ...............');
+    Navigator.push(
+      context,
+      new MaterialPageRoute(builder: (context) => new OffersAndBids()),
+    );
   }
 
   Widget _getBottom() {
@@ -330,7 +331,7 @@ class _DashboardState extends State<Dashboard>
 
   AutoTradeOrder order;
   InvestorProfile profile;
-  int _days = 7;
+  int _days = 30;
 
   List<DropdownMenuItem<int>> items = List();
 
