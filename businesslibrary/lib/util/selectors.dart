@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:math';
 
 import 'package:businesslibrary/api/file_util.dart';
@@ -310,9 +311,28 @@ Color getRandomColor() {
   _colors.add(Colors.teal);
   _colors.add(Colors.red);
   _colors.add(Colors.green);
+  _colors.add(Colors.blue);
+  _colors.add(Colors.grey);
+  _colors.add(Colors.black);
+  _colors.add(Colors.pink);
+  _colors.add(Colors.teal);
+  _colors.add(Colors.red);
+  _colors.add(Colors.green);
+  _colors.add(Colors.amber);
+  _colors.add(Colors.indigo);
+  _colors.add(Colors.lightBlue);
+  _colors.add(Colors.lime);
+  _colors.add(Colors.deepPurple);
+  _colors.add(Colors.deepOrange);
+  _colors.add(Colors.brown);
+  _colors.add(Colors.cyan);
+  _colors.add(Colors.teal);
+  _colors.add(Colors.red);
+  _colors.add(Colors.green);
 
-  _rand = Random(new DateTime.now().millisecondsSinceEpoch);
+  _rand = Random(DateTime.now().millisecondsSinceEpoch * _rand.nextInt(5));
   int index = _rand.nextInt(_colors.length - 1);
+  sleep(const Duration(milliseconds: 2));
   return _colors.elementAt(index);
 }
 

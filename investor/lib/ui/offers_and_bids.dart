@@ -42,19 +42,6 @@ class _OffersAndBidsState extends State<OffersAndBids> {
     _getData();
   }
 
-  void _onDropDownChanged(int value) async {
-    print('_DashboardState._onDropDownChanged ..... value: $value');
-    setState(() {
-      days = value;
-    });
-
-    AppSnackbar.showSnackbarWithProgressIndicator(
-        scaffoldKey: _scaffoldKey,
-        message: 'Loading $_days days data ...',
-        textColor: Colors.white,
-        backgroundColor: Colors.black);
-  }
-
   void _getData() async {
     AppSnackbar.showSnackbarWithProgressIndicator(
         scaffoldKey: _scaffoldKey,
@@ -68,6 +55,10 @@ class _OffersAndBidsState extends State<OffersAndBids> {
       _scaffoldKey.currentState.removeCurrentSnackBar();
     }
 
+    settledBids.clear();
+    unsettledBids.clear();
+    totalSettled = 0.00;
+    totalUnsettled = 0.00;
     s.forEach((m) {
       if (m.isSettled) {
         settledBids.add(m);
@@ -77,6 +68,7 @@ class _OffersAndBidsState extends State<OffersAndBids> {
         totalUnsettled += m.amount;
       }
     });
+    totalOpenOffers = 0.00;
     openOffers.forEach((f) {
       totalOpenOffers += f.offerAmount;
     });
@@ -87,6 +79,7 @@ class _OffersAndBidsState extends State<OffersAndBids> {
   double totalSettled = 0.00;
   double totalOpenOffers = 0.00;
   int days = 30;
+
   Widget _createUnsettledBids() {
     print(
         '\n\n_OfferListsState._createUnsettledBids ####################################\n\n');
@@ -297,16 +290,16 @@ class _OffersAndBidsState extends State<OffersAndBids> {
         appBar: AppBar(
           title: Text(
             'Offers and Bids',
-            style: Styles.whiteBoldMedium,
+            style: Styles.whiteMedium,
           ),
           elevation: 16.0,
           bottom: PreferredSize(
-            preferredSize: Size.fromHeight(120.0),
+            preferredSize: Size.fromHeight(100.0),
             child: Column(
               children: <Widget>[
                 Text(
                   investor == null ? '' : '${investor.name}',
-                  style: Styles.whiteMedium,
+                  style: Styles.whiteBoldMedium,
                 ),
                 TabBar(tabs: [
                   Tab(
@@ -410,8 +403,41 @@ class _OffersAndBidsState extends State<OffersAndBids> {
   }
 
   Offer offer;
-  void _showOfferDialog(Offer offer) {
+
+  void _showOfferDialog(Offer offer) async {
     print('_OffersAndBidsState._showOfferDialog ======= \n\n${offer.toJson()}');
+    AppSnackbar.showSnackbarWithProgressIndicator(
+        scaffoldKey: _scaffoldKey,
+        message: 'Checking auto trade running',
+        textColor: Styles.yellow,
+        backgroundColor: Styles.black);
+
+    var isRunning = await ListAPI.checkLatestAutoTradeStart();
+    _scaffoldKey.currentState.removeCurrentSnackBar();
+
+    if (isRunning) {
+      AppSnackbar.showSnackbar(
+          scaffoldKey: _scaffoldKey,
+          message: 'Auto trade running. Try again in a few minutes',
+          textColor: Styles.white,
+          backgroundColor: Styles.black);
+      return;
+    }
+    var bids = await ListAPI.getInvoiceBidsByOffer(offer);
+    var t = 0.00;
+    bids.forEach((m) {
+      t += m.reservePercent;
+    });
+    print(
+        '_OffersAndBidsState._showOfferDialog ------------ percentage bids on offer: $t');
+    if (t >= 100.0) {
+      AppSnackbar.showSnackbar(
+          scaffoldKey: _scaffoldKey,
+          message: 'Offer has been filled. Cannot be bid on',
+          textColor: Styles.lightBlue,
+          backgroundColor: Styles.black);
+      return;
+    }
     this.offer = offer;
     showDialog(
         context: context,
@@ -478,14 +504,31 @@ class _OffersAndBidsState extends State<OffersAndBids> {
     Navigator.pop(context);
   }
 
-  _startBid() {
+  _startBid() async {
     print(
         '\n\n_OffersAndBidsState._startBid ..............................\n\n${offer.toJson()}\n\n');
-    Navigator.pop(context);
-    Navigator.push(
-      context,
-      new MaterialPageRoute(builder: (context) => new InvoiceBidder(offer)),
-    );
+
+    AppSnackbar.showSnackbarWithProgressIndicator(
+        scaffoldKey: _scaffoldKey,
+        message: 'Checking auto trade running',
+        textColor: Styles.yellow,
+        backgroundColor: Styles.black);
+    var isRunning = await ListAPI.checkLatestAutoTradeStart();
+    _scaffoldKey.currentState.removeCurrentSnackBar();
+
+    if (!isRunning) {
+      Navigator.pop(context);
+      Navigator.push(
+        context,
+        new MaterialPageRoute(builder: (context) => new InvoiceBidder(offer)),
+      );
+    } else {
+      AppSnackbar.showSnackbar(
+          scaffoldKey: _scaffoldKey,
+          message: 'Trading system busy. Try later',
+          textColor: Styles.white,
+          backgroundColor: Styles.black);
+    }
   }
 }
 

@@ -123,6 +123,7 @@ class ListAPI {
         .collection('investors')
         .document(documentReference)
         .collection('invoiceBids')
+        .orderBy('date', descending: true)
         .getDocuments()
         .catchError((e) {
       print('ListAPI.getInvestorInvoiceBids $e');
@@ -407,6 +408,28 @@ class ListAPI {
     });
 
     return list;
+  }
+
+  ///check if auto trade is running
+  static Future<bool> checkLatestAutoTradeStart() async {
+    try {
+      var qs = await _firestore
+          .collection('autoTradeStarts')
+          .where('dateEnded', isNull: true)
+          .getDocuments()
+          .catchError((e) {
+        print('DataAPI.addAutoTradeStart ERROR adding to Firestore $e');
+        return '0';
+      });
+      if (qs.documents.isNotEmpty) {
+        return true;
+      } else {
+        return false;
+      }
+    } catch (e) {
+      print('DataAPI.addAutoTradeStart ERROR $e');
+      return false;
+    }
   }
 
   static Future<List<PurchaseOrder>> getPurchaseOrders(

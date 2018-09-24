@@ -218,15 +218,15 @@ class _DashboardState extends State<Dashboard>
                 padding: const EdgeInsets.only(top: 4.0),
                 child: ListView(
                   children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.only(left: 28.0),
-                      child: DropdownButton<int>(
-                        items: items,
-                        value: _days,
-                        elevation: 4,
-                        onChanged: _onDropDownChanged,
-                      ),
-                    ),
+//                    Padding(
+//                      padding: const EdgeInsets.only(left: 28.0),
+//                      child: DropdownButton<int>(
+//                        items: items,
+//                        value: _days,
+//                        elevation: 4,
+//                        onChanged: _onDropDownChanged,
+//                      ),
+//                    ),
                     new InkWell(
                       onTap: _onPaymentsTapped,
                       child: SummaryCard(
@@ -239,7 +239,7 @@ class _DashboardState extends State<Dashboard>
                       onTap: _onOffersTapped,
                       child: SummaryCard(
                         total: totalOffers == null ? 0 : totalOffers,
-                        label: 'Invoice Offers',
+                        label: 'Open Invoice Offers',
                         totalStyle: invoiceStyle,
                       ),
                     ),
@@ -353,13 +353,9 @@ class _DashboardState extends State<Dashboard>
     }
   }
 
-  DateTime startTime, endTime;
-
   Future _getOffers() async {
     print('_DashboardState._getOffers ................');
-    endTime = DateTime.now();
-    startTime = DateTime.now().subtract(Duration(days: _days));
-    offers = await ListAPI.getOffersByPeriod(startTime, endTime);
+    offers = await ListAPI.getOpenOffers();
     setState(() {
       totalOffers = offers.length;
     });
@@ -415,12 +411,6 @@ class _DashboardState extends State<Dashboard>
       new MaterialPageRoute(builder: (context) => new ProfilePage()),
     );
   }
-}
-
-class InvoiceBidSummaryCard extends StatelessWidget {
-  final List<InvoiceBid> bids;
-
-  InvoiceBidSummaryCard(this.bids);
 
   final bigLabel = TextStyle(
     fontWeight: FontWeight.w900,
@@ -447,6 +437,13 @@ class InvoiceBidSummaryCard extends StatelessWidget {
     fontSize: 28.0,
     color: Colors.teal,
   );
+}
+
+class InvoiceBidSummaryCard extends StatelessWidget {
+  final List<InvoiceBid> bids;
+
+  InvoiceBidSummaryCard(this.bids);
+
   double totalBidAmount = 0.00;
   int numberOfBids = 0;
   @override
@@ -460,14 +457,14 @@ class InvoiceBidSummaryCard extends StatelessWidget {
       child: new Padding(
         padding: const EdgeInsets.all(12.0),
         child: Card(
-          elevation: 6.0,
+          elevation: 8.0,
           child: Column(
             children: <Widget>[
               Padding(
                 padding: const EdgeInsets.only(top: 12.0, bottom: 2.0),
                 child: Text(
-                  'Your Invoice Bids',
-                  style: Styles.greyLabelSmall,
+                  'Your Unsettled Invoice Bids',
+                  style: Styles.greyLabelMedium,
                 ),
               ),
               new Padding(
@@ -478,7 +475,7 @@ class InvoiceBidSummaryCard extends StatelessWidget {
                   children: <Widget>[
                     Text(
                       'Total Value',
-                      style: smallLabel,
+                      style: Styles.greyLabelSmall,
                     ),
                     Padding(
                       padding: const EdgeInsets.only(left: 10.0, right: 10.0),
@@ -500,7 +497,7 @@ class InvoiceBidSummaryCard extends StatelessWidget {
                   children: <Widget>[
                     Text(
                       'Number of Bids',
-                      style: smallLabel,
+                      style: Styles.greyLabelSmall,
                     ),
                     Padding(
                       padding: const EdgeInsets.only(left: 10.0, right: 10.0),

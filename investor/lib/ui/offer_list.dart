@@ -6,6 +6,7 @@ import 'package:businesslibrary/data/investor.dart';
 import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
+import 'package:businesslibrary/util/styles.dart';
 import 'package:businesslibrary/util/util.dart';
 import 'package:flutter/material.dart';
 import 'package:investor/ui/invoice_bidder.dart';
@@ -84,6 +85,16 @@ class _OfferListState extends State<OfferList> with WidgetsBindingObserver {
   _showDetailsDialog(Offer offer) {
     this.offer = offer;
     prettyPrint(offer.toJson(), 'Offer selected %%%%%%%%:');
+    if (offer.isOpen == false) {
+      print(
+          '_OfferListState._showDetailsDialog offer.isOpen == false ... ignore');
+      AppSnackbar.showSnackbar(
+          scaffoldKey: _scaffoldKey,
+          message: 'Offer is closed',
+          textColor: Styles.white,
+          backgroundColor: Styles.black);
+      return;
+    }
     showDialog(
         context: context,
         builder: (_) => new AlertDialog(
@@ -113,95 +124,133 @@ class _OfferListState extends State<OfferList> with WidgetsBindingObserver {
             ));
   }
 
-  Widget _buildItems() {
-    var item1 = Card(
-      elevation: 4.0,
-      child: InkWell(
-        onTap: _onInvoiceBid,
-        child: Row(
-          children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Icon(
-                Icons.attach_money,
-                color: Colors.green.shade800,
-              ),
-            ),
-            Text('Make Invoice Bid'),
-          ],
-        ),
-      ),
-    );
-    var item2 = Card(
-      elevation: 4.0,
-      child: InkWell(
-        onTap: _cancelBid,
-        child: Row(
-          children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Icon(
-                Icons.cancel,
-                color: Colors.red.shade800,
-              ),
-            ),
-            Text('Cancel Invoice Bid'),
-          ],
-        ),
-      ),
-    );
-    var item3 = Card(
-      elevation: 4.0,
-      child: InkWell(
-        onTap: _onOfferDetails,
-        child: Row(
-          children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Icon(
-                Icons.description,
-                color: Colors.blue.shade800,
-              ),
-            ),
-            Text('Check Invoice Details'),
-          ],
-        ),
-      ),
-    );
-
-    return Column(
-      children: <Widget>[
-        item1,
-        item2,
-        item3,
-        Padding(
-          padding: const EdgeInsets.only(top: 16.0),
-          child: FlatButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            child: Text(
-              'Cancel',
-              style: TextStyle(color: Colors.blue, fontSize: 20.0),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
+//  Widget _buildItems() {
+//    var item1 = Card(
+//      elevation: 4.0,
+//      child: InkWell(
+//        onTap: _onInvoiceBid,
+//        child: Row(
+//          children: <Widget>[
+//            Padding(
+//              padding: const EdgeInsets.all(8.0),
+//              child: Icon(
+//                Icons.attach_money,
+//                color: Colors.green.shade800,
+//              ),
+//            ),
+//            Text('Make Invoice Bid'),
+//          ],
+//        ),
+//      ),
+//    );
+//    var item2 = Card(
+//      elevation: 4.0,
+//      child: InkWell(
+//        onTap: _cancelBid,
+//        child: Row(
+//          children: <Widget>[
+//            Padding(
+//              padding: const EdgeInsets.all(8.0),
+//              child: Icon(
+//                Icons.cancel,
+//                color: Colors.red.shade800,
+//              ),
+//            ),
+//            Text('Cancel Invoice Bid'),
+//          ],
+//        ),
+//      ),
+//    );
+//    var item3 = Card(
+//      elevation: 4.0,
+//      child: InkWell(
+//        onTap: _onOfferDetails,
+//        child: Row(
+//          children: <Widget>[
+//            Padding(
+//              padding: const EdgeInsets.all(8.0),
+//              child: Icon(
+//                Icons.description,
+//                color: Colors.blue.shade800,
+//              ),
+//            ),
+//            Text('Check Invoice Details'),
+//          ],
+//        ),
+//      ),
+//    );
+//
+//    return Column(
+//      children: <Widget>[
+//        item1,
+//        item2,
+//        item3,
+//        Padding(
+//          padding: const EdgeInsets.only(top: 16.0),
+//          child: FlatButton(
+//            onPressed: () {
+//              Navigator.pop(context);
+//            },
+//            child: Text(
+//              'Cancel',
+//              style: TextStyle(color: Colors.blue, fontSize: 20.0),
+//            ),
+//          ),
+//        ),
+//      ],
+//    );
+//  }
 
   TextStyle white = TextStyle(color: Colors.black, fontSize: 16.0);
   List<DropdownMenuItem<int>> _buildDaysDropDownItems() {
+    var item0 = DropdownMenuItem<int>(
+      value: 1,
+      child: Row(
+        children: <Widget>[
+          Icon(
+            Icons.apps,
+            color: Colors.black,
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 12.0),
+            child: Text(
+              '1 Day Under Review',
+              style: bold,
+            ),
+          ),
+        ],
+      ),
+    );
+    items.add(item0);
+    var itema = DropdownMenuItem<int>(
+      value: 3,
+      child: Row(
+        children: <Widget>[
+          Icon(
+            Icons.apps,
+            color: Colors.black,
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 12.0),
+            child: Text(
+              '3 Days Under Review',
+              style: bold,
+            ),
+          ),
+        ],
+      ),
+    );
+    items.add(itema);
     var item1 = DropdownMenuItem<int>(
       value: 7,
       child: Row(
         children: <Widget>[
           Icon(
             Icons.apps,
-            color: Colors.pink,
+            color: Colors.black,
           ),
           Padding(
-            padding: const EdgeInsets.only(left: 8.0),
+            padding: const EdgeInsets.only(left: 12.0),
             child: Text(
               '7 Days Under Review',
               style: bold,
@@ -220,7 +269,7 @@ class _OfferListState extends State<OfferList> with WidgetsBindingObserver {
             color: Colors.teal,
           ),
           Padding(
-            padding: const EdgeInsets.only(left: 8.0),
+            padding: const EdgeInsets.only(left: 12.0),
             child: Text(
               '14 Days Under Review',
               style: bold,
@@ -240,7 +289,7 @@ class _OfferListState extends State<OfferList> with WidgetsBindingObserver {
             color: Colors.brown,
           ),
           Padding(
-            padding: const EdgeInsets.only(left: 8.0),
+            padding: const EdgeInsets.only(left: 12.0),
             child: Text(
               '30 Days Under Review',
               style: bold,
@@ -259,7 +308,7 @@ class _OfferListState extends State<OfferList> with WidgetsBindingObserver {
             color: Colors.purple,
           ),
           Padding(
-            padding: const EdgeInsets.only(left: 8.0),
+            padding: const EdgeInsets.only(left: 12.0),
             child: Text(
               '60 Days Under Review',
               style: bold,
@@ -278,7 +327,7 @@ class _OfferListState extends State<OfferList> with WidgetsBindingObserver {
             color: Colors.deepOrange,
           ),
           Padding(
-            padding: const EdgeInsets.only(left: 8.0),
+            padding: const EdgeInsets.only(left: 12.0),
             child: Text(
               '90 Days Under Review',
               style: bold,
@@ -298,7 +347,7 @@ class _OfferListState extends State<OfferList> with WidgetsBindingObserver {
             color: Colors.blue,
           ),
           Padding(
-            padding: const EdgeInsets.only(left: 8.0),
+            padding: const EdgeInsets.only(left: 12.0),
             child: Text(
               '120 Days Under Review',
               style: bold,
@@ -317,7 +366,7 @@ class _OfferListState extends State<OfferList> with WidgetsBindingObserver {
             color: Colors.grey,
           ),
           Padding(
-            padding: const EdgeInsets.only(left: 8.0),
+            padding: const EdgeInsets.only(left: 12.0),
             child: Text(
               '365 Days Under Review',
               style: bold,
@@ -385,7 +434,7 @@ class _OfferListState extends State<OfferList> with WidgetsBindingObserver {
               mainAxisAlignment: MainAxisAlignment.end,
               children: <Widget>[
                 Text(
-                  'Open Invoice Offers',
+                  'Invoice Offers',
                   style: getTextWhiteSmall(),
                 ),
                 Padding(

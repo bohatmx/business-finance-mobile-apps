@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/auditor.dart';
+import 'package:businesslibrary/data/auto_start_stop.dart';
 import 'package:businesslibrary/data/auto_trade_order.dart';
 import 'package:businesslibrary/data/bank.dart';
 import 'package:businesslibrary/data/company.dart';
@@ -58,6 +59,7 @@ class DataAPI {
       MAKE_INVOICE_OFFER = 'MakeInvoiceOffer',
       MAKE_INVOICE_BID = 'MakeInvoiceBid',
       CANCEL_OFFER = 'CancelOffer',
+      CLOSE_OFFER = 'CloseOffer',
       UPDATE_PURCHASE_ORDER_CONTRACT = 'UpdatePurchaseOrderContract',
       MAKE_INVESTOR_SETTLEMENT = 'MakeInvestorInvoiceSettlement',
       MAKE_COMPANY_SETTLEMENT = 'MakeCompanyInvoiceSettlement',
@@ -636,6 +638,55 @@ class DataAPI {
       }
     } catch (e) {
       print('DataAPI.addBank ERROR $e');
+      return '0';
+    }
+  }
+
+  Future<String> addAutoTradeStart(AutoTradeStart start) async {
+    try {
+      var ref = await _firestore
+          .collection('autoTradeStarts')
+          .add(start.toJson())
+          .catchError((e) {
+        print('DataAPI.addAutoTradeStart ERROR adding to Firestore $e');
+        return '0';
+      });
+      print('DataAPI.addAutoTradeStart added to Firestore: ${ref.path}');
+      return ref.documentID;
+    } catch (e) {
+      print('DataAPI.addAutoTradeStart ERROR $e');
+      return '0';
+    }
+  }
+
+  Future<String> updateAutoTradeStart(String documentId) async {
+    try {
+      var ref = await _firestore
+          .collection('autoTradeStarts')
+          .document(documentId)
+          .get()
+          .catchError((e) {
+        print('DataAPI.updateAutoTradeStart ERROR adding to Firestore $e');
+        return '0';
+      });
+      if (ref.exists) {
+        var s = AutoTradeStart.fromJson(ref.data);
+        s.dateEnded = DateTime.now();
+        await _firestore
+            .collection('autoTradeStarts')
+            .document(documentId)
+            .setData(s.toJson())
+            .catchError((e) {
+          print('DataAPI.updateAutoTradeStart ERROR updating Firestore $e');
+          return '0';
+        });
+        print(
+            'DataAPI.updateAutoTradeStart updated with end date on Firestore:');
+      }
+
+      return ref.documentID;
+    } catch (e) {
+      print('DataAPI.updateAutoTradeStart ERROR $e');
       return '0';
     }
   }
@@ -1364,7 +1415,38 @@ class DataAPI {
     }
   }
 
-  Future<String> closeOfferOnFirestore(String offerId) async {
+  Future<String> closeOffer(String offerId) async {
+    var map = Map<String, dynamic>();
+    map['offerId'] = offerId;
+
+    print('DataAPI.closeOffer ${url + CLOSE_OFFER}');
+    try {
+      var mjson = json.encode(map);
+      var httpClient = new HttpClient();
+      HttpClientRequest mRequest =
+          await httpClient.postUrl(Uri.parse(url + CLOSE_OFFER));
+      mRequest.headers.contentType = _contentType;
+      mRequest.write(mjson);
+      HttpClientResponse mResponse = await mRequest.close();
+      print(
+          'DataAPI.closeOffer blockchain response status code:  ${mResponse.statusCode}');
+      if (mResponse.statusCode == 200) {
+        await _closeOfferOnFirestore(offerId);
+        return 'we cool';
+      } else {
+        mResponse.transform(utf8.decoder).listen((contents) {
+          print('DataAPI.closeOffer  $contents');
+        });
+        print('DataAPI.closeOffer ERROR  ${mResponse.reasonPhrase}');
+        return '0';
+      }
+    } catch (e) {
+      print('DataAPI.closeOffer ERROR $e');
+      return '0';
+    }
+  }
+
+  Future<String> _closeOfferOnFirestore(String offerId) async {
     print('DataAPI.closeOfferOnFirestore - update offer');
     var qs = await _firestore
         .collection('invoiceOffers')
@@ -1455,6 +1537,16 @@ class DataAPI {
         print('DataAPI.makeInvoiceBid added to Firestore: ${ref.path}');
 
         bid.documentReference = ref.documentID;
+        //todo - check all bids for this offer - if partial bids add up to 100% then close the offer
+        var list = await ListAPI.getInvoiceBidsByOffer(offer);
+        var tot = 0.00;
+        list.forEach((m) {
+          tot += m.reservePercent;
+        });
+        if (tot >= 100.0) {
+          await closeOffer(offer.offerId);
+        }
+
         return bid.invoiceBidId;
       } else {
         mResponse.transform(utf8.decoder).listen((contents) {
@@ -1492,7 +1584,8 @@ class DataAPI {
       print(
           'DataAPI.makeInvoiceAutoBid blockchain response status code:  ${mResponse.statusCode}');
       if (mResponse.statusCode == 200) {
-        //get investor
+        await closeOffer(offer.offerId);
+        offer.isOpen = false;
         return _mirrorInvoiceAutoBid(offer, bid, order);
       } else {
         mResponse.transform(utf8.decoder).listen((contents) {
@@ -1542,18 +1635,6 @@ class DataAPI {
         return '0';
       });
       print('DataAPI._mirrorInvoiceBid added to Firestore: ${ref.path}');
-      //auto bid closes offer
-      offer.isOpen = false;
-      assert(offer.documentReference != null);
-      await _firestore
-          .collection('invoiceOffers')
-          .document(offer.documentReference)
-          .setData(offer.toJson())
-          .catchError((e) {
-        print('DataAPI._mirrorInvoiceBid ERROR $e');
-        return '0';
-      });
-      print('DataAPI._mirrorInvoiceBid offer updated on Firestore');
       bid.documentReference = ref.documentID;
     }
     return 'allOK';

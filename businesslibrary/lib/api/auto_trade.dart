@@ -1,4 +1,6 @@
 import 'package:businesslibrary/api/data_api.dart';
+import 'package:businesslibrary/api/list_api.dart';
+import 'package:businesslibrary/data/auto_start_stop.dart';
 import 'package:businesslibrary/data/auto_trade_order.dart';
 import 'package:businesslibrary/data/investor_profile.dart';
 import 'package:businesslibrary/data/invoice_bid.dart';
@@ -64,9 +66,10 @@ class AutoTradeExecutionBuilder {
   List<Account> accounts = List();
   List<InvestorProfile> profiles;
   List<Offer> offers;
+  String documentId;
 
   executeAutoTrades(List<AutoTradeOrder> orders, List<InvestorProfile> profiles,
-      List<Offer> offers, AutoTradeListener listener) {
+      List<Offer> offers, AutoTradeListener listener) async {
     assert(orders != null && orders.isNotEmpty);
     assert(profiles != null && profiles.isNotEmpty);
     assert(offers != null && offers.isNotEmpty);
@@ -75,6 +78,17 @@ class AutoTradeExecutionBuilder {
     this.orders = orders;
     this.offers = offers;
     this.profiles = profiles;
+
+    ///write AutoTradeStart to stop manual bids while running
+    var api = DataAPI(getURL());
+    var start = AutoTradeStart(
+        dateStarted: DateTime.now(), possibleTrades: offers.length);
+    var t = 0.00;
+    offers.forEach((o) {
+      t += o.offerAmount;
+    });
+    start.possibleAmount = t;
+    documentId = await api.addAutoTradeStart(start);
 
     offers.sort((a, b) => b.discountPercent.compareTo(a.discountPercent));
 
@@ -145,12 +159,25 @@ class AutoTradeExecutionBuilder {
     });
   }
 
-  void _controlInvoiceBids() {
+  void _controlInvoiceBids() async {
     if (index < executionUnitList.length) {
-      _validateInvoiceBid(executionUnitList.elementAt(index));
+      //todo - check if this offer has other partial bids already - do the rules allow auto trades in crowd funding scenario?
+      var list = await ListAPI.getInvoiceBidsByOffer(
+          executionUnitList.elementAt(index).offer);
+      if (list.isEmpty) {
+        _validateInvoiceBid(executionUnitList.elementAt(index));
+      } else {
+        print(
+            'AutoTradeExecutionBuilder._controlInvoiceBids - this offer already has bids - ignoring for now');
+        index++;
+        _controlInvoiceBids();
+      }
     } else {
+      var api = DataAPI(getURL());
+      await api.updateAutoTradeStart(documentId);
       print(
           '\n\n\AutoTradeExecutionBuilder.control @@@@@@@@@ WE ARE DONE\n\n\n');
+
       if (index == executionUnitList.length + 1) {
         listener.onError(bidCount);
       } else {
@@ -160,7 +187,7 @@ class AutoTradeExecutionBuilder {
   }
 
   ///validate the potential bid via profile settings and then write bid to BFN
-  _validateInvoiceBid(ExecutionUnit exec) {
+  _validateInvoiceBid(ExecutionUnit exec) async {
     print(
         'AutoTradeExecutionBuilder._validateInvoiceBid .......:  #### offer amt: ${exec.offer.offerAmount} for ${exec.profile.name}');
     bool validInvAmount = false,
@@ -171,7 +198,7 @@ class AutoTradeExecutionBuilder {
         validAccountBalance = false;
     double total = 0.00;
 
-    //get investor and then their open bids, check total amount
+    ///get investor and then their open bids, check total amount
     _firestore
         .collection('investors')
         .where('participantId',
@@ -206,7 +233,7 @@ class AutoTradeExecutionBuilder {
           validInvAmount = true;
         }
 
-        //check if profile has sector filters
+        ///check if profile has sector filters
         if (exec.profile.sectors != null && exec.profile.sectors.isNotEmpty) {
           exec.profile.sectors.forEach((sector) {
             if (exec.offer.sector == sector) {
@@ -223,7 +250,7 @@ class AutoTradeExecutionBuilder {
           validMinimumDiscount = true;
         }
         //
-        //check if profile has supplier filters
+        ///check if profile has supplier filters
         if (exec.profile.suppliers != null &&
             exec.profile.suppliers.isNotEmpty) {
           exec.profile.suppliers.forEach((supplier) {
@@ -234,7 +261,8 @@ class AutoTradeExecutionBuilder {
         } else {
           validSupp = true;
         }
-        //todo - check account balance covers the total open ids - for now, assume balance is valid
+
+        //todo - check Stellar account balance covers the total open ids - for now, assume balance is valid
         validAccountBalance = true;
         //
         print(
@@ -258,7 +286,7 @@ class AutoTradeExecutionBuilder {
             validAccountBalance) {
           print(
               'AutoTradeExecutionBuilder._doInvoiceBid @@@@@@@@@@ Hooray!!! trade is  VALID ####################### writing bid ....');
-          writeBid(exec);
+          _writeBid(exec);
         } else {
           print(
               'AutoTradeExecutionBuilder._doInvoiceBid @@@@@@@@@@ Fuck!!! trade is  NOT VALID #######################');
@@ -276,45 +304,67 @@ class AutoTradeExecutionBuilder {
   }
 
   ///Write bid to BFN and to Firestoree
-  void writeBid(ExecutionUnit exec) {
-    var bid = InvoiceBid(
-      offer: Namespace + 'Offer#${exec.offer.offerId}',
-      investor: exec.profile.investor,
-      autoTradeOrder:
-          Namespace + 'AutoTradeOrder#${exec.order.autoTradeOrderId}',
-      amount: exec.offer.offerAmount,
-      discountPercent: 100.0,
-      startTime: DateTime.now().toIso8601String(),
-      endTime: DateTime.now().toIso8601String(),
-      isSettled: false,
-      reservePercent: 100.0,
-      investorName: exec.profile.name,
-      wallet: exec.order.wallet,
-    );
-    api
-        .makeInvoiceAutoBid(
-      bid: bid,
-      offer: exec.offer,
-      order: exec.order,
-    )
-        .then((res) {
-      if (res == '0') {
-        print('AutoTradeExecutionBuilder._doInvoiceBid: ***** '
-            'Houustton, we have a BFN prpblem!!..................yfje..kutf..769f WTF?');
-        index = executionUnitList.length + 1;
+  void _writeBid(ExecutionUnit exec) {
+    //todo - auto trade reserves 100% of the offer. arbitrary business rule? let investor auto trade even in crowd funding situuation?
+
+    ///check other, possibly partial bids and take what's left of the reserve perc
+    ///
+    var totReserved = 0.0;
+    var myReserve = 100.0;
+    var myAmt = 0.0;
+
+    ListAPI.getInvoiceBidsByOffer(exec.offer).then((list) {
+      list.forEach((m) {
+        totReserved += m.reservePercent;
+      });
+      if (totReserved == 0.0) {
+        myReserve = 100.0;
+        myAmt = exec.offer.offerAmount;
       } else {
-        print('AutoTradeExecutionBuilder._doInvoiceBid: \n\n\n'
-            '***** New York!!!, we are GOOD. Like fantastic? BID ON BLOCKCHAIN!!!!\n\n\n');
-        bidCount++;
-        index++;
-        listener.onInvoiceAutoBid(bid);
+        myReserve = 100.0 - totReserved;
+        myAmt = exec.offer.offerAmount * (myReserve / 100);
       }
-      _controlInvoiceBids();
-    }).catchError((e) {
-      print('AutoTradeExecutionBuilder._doInvoiceBid $e');
-      listener.onError(bidCount);
-      index = executionUnitList.length;
-      _controlInvoiceBids();
+      var bid = InvoiceBid(
+        offer: Namespace + 'Offer#${exec.offer.offerId}',
+        investor: exec.profile.investor,
+        autoTradeOrder:
+            Namespace + 'AutoTradeOrder#${exec.order.autoTradeOrderId}',
+        amount: myAmt,
+        discountPercent: exec.offer.discountPercent,
+        startTime: DateTime.now().toIso8601String(),
+        endTime: DateTime.now().toIso8601String(),
+        isSettled: false,
+        reservePercent: myReserve,
+        investorName: exec.profile.name,
+        wallet: exec.order.wallet,
+      );
+      api
+          .makeInvoiceAutoBid(
+        bid: bid,
+        offer: exec.offer,
+        order: exec.order,
+      )
+          .then((res) {
+        if (res == '0') {
+          print('AutoTradeExecutionBuilder._doInvoiceBid: ***** '
+              'Houustton, we have a BFN prpblem!!..................yfje..kutf..769f WTF?');
+          index = executionUnitList.length + 1;
+        } else {
+          print('AutoTradeExecutionBuilder._doInvoiceBid: \n\n\n'
+              '***** New York!!!, we are GOOD. Like fantastic? BID ON BLOCKCHAIN!!!!\n\n\n');
+          api.closeOffer(exec.offer.offerId).then((mres) {
+            bidCount++;
+            index++;
+            listener.onInvoiceAutoBid(bid);
+          });
+        }
+        _controlInvoiceBids();
+      }).catchError((e) {
+        print('AutoTradeExecutionBuilder._doInvoiceBid $e');
+        listener.onError(bidCount);
+        index = executionUnitList.length;
+        _controlInvoiceBids();
+      });
     });
   }
 }
