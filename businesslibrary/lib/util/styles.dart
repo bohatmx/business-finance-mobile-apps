@@ -248,6 +248,11 @@ class Styles {
     fontSize: 20.0,
     color: Colors.white,
   );
+  static TextStyle whiteSmall = TextStyle(
+    fontWeight: FontWeight.normal,
+    fontSize: 14.0,
+    color: Colors.white,
+  );
   static TextStyle whiteBoldLarge = TextStyle(
     fontWeight: FontWeight.bold,
     fontSize: 24.0,

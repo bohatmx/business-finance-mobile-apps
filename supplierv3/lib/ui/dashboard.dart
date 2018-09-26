@@ -15,6 +15,7 @@ import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
+import 'package:businesslibrary/util/styles.dart';
 import 'package:businesslibrary/util/wallet_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -24,6 +25,7 @@ import 'package:supplierv3/ui/delivery_acceptance_list.dart';
 import 'package:supplierv3/ui/delivery_note_list.dart';
 import 'package:supplierv3/ui/invoice_list.dart';
 import 'package:supplierv3/ui/make_offer.dart';
+import 'package:supplierv3/ui/offer_list.dart';
 import 'package:supplierv3/ui/purchase_order_list.dart';
 import 'package:supplierv3/ui/summary_card.dart';
 
@@ -53,7 +55,7 @@ class _DashboardState extends State<Dashboard>
   Animation<double> animation;
   Supplier supplier;
   List<Invoice> invoices;
-  List<Offer> openOffers = List();
+  List<Offer> allOffers = List();
   List<DeliveryNote> deliveryNotes;
   List<PurchaseOrder> purchaseOrders;
   List<InvestorInvoiceSettlement> investorSettlements;
@@ -113,8 +115,8 @@ class _DashboardState extends State<Dashboard>
   }
 
   _listenForBids() async {
-    openOffers = await ListAPI.getOpenOffersBySupplier(supplier.participantId);
-    openOffers.forEach((i) {
+    allOffers = await ListAPI.getOpenOffersBySupplier(supplier.participantId);
+    allOffers.forEach((i) {
       listenForInvoiceBid(i.offerId, this);
     });
   }
@@ -154,7 +156,7 @@ class _DashboardState extends State<Dashboard>
   }
 
   Future _getOffers() async {
-    openOffers = await ListAPI.getOffersBySupplier(supplier.participantId);
+    allOffers = await ListAPI.getOffersBySupplier(supplier.participantId);
     setState(() {});
   }
 
@@ -210,7 +212,7 @@ class _DashboardState extends State<Dashboard>
           ),
           leading: Container(),
           bottom: PreferredSize(
-            preferredSize: const Size.fromHeight(110.0),
+            preferredSize: const Size.fromHeight(80.0),
             child: new Column(
               children: <Widget>[
                 Row(
@@ -314,11 +316,10 @@ class _DashboardState extends State<Dashboard>
                       ),
                     ),
                     new GestureDetector(
-                      onTap: _onDeliveryNotesTapped,
-                      child: SummaryCard(
-                        total: openOffers.length,
-                        label: 'Invoice Offers',
-                        totalStyle: poStyle,
+                      onTap: _onOffersTapped,
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 30.0, right: 30.0),
+                        child: OfferSummaryCard(allOffers),
                       ),
                     ),
                   ],
@@ -331,7 +332,15 @@ class _DashboardState extends State<Dashboard>
     );
   }
 
-  List<Offer> offers = List();
+  _onOffersTapped() {
+    print('_DashboardState._onOffersTapped ...............');
+    Navigator.push(
+        context,
+        new MaterialPageRoute(
+          builder: (context) => OfferList(),
+        ));
+  }
+
   void _goToWalletPage() {
     print('_MainPageState._goToWalletPage .... ');
     Navigator.push(
@@ -543,5 +552,87 @@ class _DashboardState extends State<Dashboard>
         listener: this,
         icon: Icons.message,
         action: InvoiceBidConstant);
+  }
+}
+
+class OfferSummaryCard extends StatelessWidget {
+  final List<Offer> offers;
+
+  OfferSummaryCard(this.offers);
+
+  @override
+  Widget build(BuildContext context) {
+    var open = 0;
+    var closed = 0;
+    var cancelled = 0;
+    offers.forEach((m) {
+      if (m.isOpen) {
+        open++;
+      }
+      if (!m.isOpen) {
+        closed++;
+      }
+      if (m.isCancelled) {
+        cancelled++;
+      }
+    });
+    return Card(
+      elevation: 6.0,
+      child: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: Column(
+          children: <Widget>[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: <Widget>[
+                Text(
+                  'Open Offers',
+                  style: Styles.greyLabelSmall,
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 12.0),
+                  child: Text(
+                    '$open',
+                    style: Styles.tealBoldLarge,
+                  ),
+                ),
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: <Widget>[
+                Text(
+                  'Closed Offers',
+                  style: Styles.greyLabelSmall,
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 12.0),
+                  child: Text(
+                    '$closed',
+                    style: Styles.pinkBoldLarge,
+                  ),
+                ),
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: <Widget>[
+                Text(
+                  'Cancelled Offers',
+                  style: Styles.greyLabelSmall,
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 12.0),
+                  child: Text(
+                    '$cancelled',
+                    style: Styles.blackBoldLarge,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

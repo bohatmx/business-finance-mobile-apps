@@ -1,3 +1,4 @@
+import 'package:businesslibrary/api/data_api.dart';
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/investor.dart';
@@ -436,6 +437,9 @@ class _OffersAndBidsState extends State<OffersAndBids> {
           message: 'Offer has been filled. Cannot be bid on',
           textColor: Styles.lightBlue,
           backgroundColor: Styles.black);
+      var api = DataAPI(getURL());
+      await api.closeOffer(offer.offerId);
+      _getData();
       return;
     }
     this.offer = offer;
@@ -520,12 +524,12 @@ class _OffersAndBidsState extends State<OffersAndBids> {
       Navigator.pop(context);
       Navigator.push(
         context,
-        new MaterialPageRoute(builder: (context) => new InvoiceBidder(offer)),
+        MaterialPageRoute(builder: (context) => InvoiceBidder(offer)),
       );
     } else {
       AppSnackbar.showSnackbar(
           scaffoldKey: _scaffoldKey,
-          message: 'Trading system busy. Try later',
+          message: 'Trading system busy. Try in a few minutes',
           textColor: Styles.white,
           backgroundColor: Styles.black);
     }

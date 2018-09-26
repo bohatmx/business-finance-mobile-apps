@@ -96,6 +96,8 @@ class _MyHomePageState extends State<MyHomePage>
   }
 
   Timer timer;
+
+  ///start periodic timer to control AutoTradeExecutionBuilder
   _start() async {
     print(
         '_MyHomePageState._start ..... Timer.periodic(Duration((minutes: $minutes) time: ${DateTime.now().toIso8601String()}');
@@ -133,7 +135,6 @@ class _MyHomePageState extends State<MyHomePage>
     });
   }
 
-  int _index = 0;
   List<InvoiceBid> bids = List();
   @override
   onInvoiceAutoBid(InvoiceBid bid) async {

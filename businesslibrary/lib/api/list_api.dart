@@ -364,11 +364,13 @@ class ListAPI {
 
   static Future<List<Offer>> getOpenOffersBySupplier(String supplierId) async {
     List<Offer> list = List();
+    var now = DateTime.now().toIso8601String();
     var qs = await _firestore
         .collection('invoiceOffers')
         .where('isOpen', isEqualTo: true)
         .where('supplier',
             isEqualTo: 'resource:com.oneconnect.biz.Supplier#$supplierId')
+        .where('endTime', isGreaterThan: now)
         .getDocuments()
         .catchError((e) {
       print('ListAPI.getOpenOffersBySupplier $e');
@@ -389,9 +391,11 @@ class ListAPI {
 
   static Future<List<Offer>> getOpenOffers() async {
     List<Offer> list = List();
+    var now = DateTime.now().toIso8601String();
     var qs = await _firestore
         .collection('invoiceOffers')
         .where('isOpen', isEqualTo: true)
+        .where('endTime', isGreaterThan: now)
         .getDocuments()
         .catchError((e) {
       print('ListAPI.getOpenOffers $e');
