@@ -1,4 +1,5 @@
-import 'package:businesslibrary/api/data_api.dart';
+import 'package:businesslibrary/api/data_api3.dart';
+import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/company.dart';
 import 'package:businesslibrary/data/govt_entity.dart';
@@ -93,6 +94,12 @@ class _PurchaseOrderPageState extends State<PurchaseOrderPageGovt>
         purchaseOrder.supplier =
             'resource:com.oneconnect.biz.Supplier#' + supplier.participantId;
         purchaseOrder.supplierName = supplier.name;
+        if (supplier.documentReference == null) {
+          var supp = await ListAPI.getSupplierById(supplier.participantId);
+          if (supp != null) {
+            purchaseOrder.supplierDocumentRef = supp.documentReference;
+          }
+        }
       }
       if (user != null) {
         purchaseOrder.user = 'resource:com.oneconnect.biz.User#' + user.userId;
@@ -110,10 +117,10 @@ class _PurchaseOrderPageState extends State<PurchaseOrderPageGovt>
           backgroundColor: Colors.deepPurple.shade700);
       //todo - check if this PO exists
 
-      DataAPI api = DataAPI(widget.url);
+      DataAPI3 api = DataAPI3();
       var key = await api.registerPurchaseOrder(purchaseOrder);
       _scaffoldKey.currentState.hideCurrentSnackBar();
-      if (key == '0') {
+      if (key > DataAPI3.Success) {
         AppSnackbar.showErrorSnackbar(
             listener: this,
             scaffoldKey: _scaffoldKey,

@@ -1,3 +1,4 @@
+import 'package:businesslibrary/api/data_api3.dart';
 import 'package:businesslibrary/api/firestore_list_api.dart';
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
@@ -66,6 +67,27 @@ class _DashboardState extends State<Dashboard>
     animation = new Tween(begin: 0.0, end: 1.0).animate(animationController);
 
     _getCachedPrefs();
+    //_test();
+  }
+
+  _test() async {
+    print('_DashboardState._test .........................................');
+    var api = DataAPI3();
+    var e = GovtEntity(
+        email: 'kass@mmgmail.com',
+        allowAutoAccept: true,
+        name: 'TrumanCapote Capital LLC',
+        cellphone: '098 636 7378',
+        govtEntityType: 'Private',
+        participantId: '00000',
+        dateRegistered: DateTime.now().toIso8601String(),
+        address: '309 Kingfisher Drive',
+        documentReference: 'No need for this',
+        country: 'South Africa');
+
+    prettyPrint(e.toJson(), '\n\n_DashboardState._test, CUSTOMER: ');
+    var res = await api.addGovtEntity(e);
+    print('_DashboardState._test DONE, ------------------------- result: $res');
   }
 
   @override

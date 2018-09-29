@@ -787,6 +787,27 @@ class ListAPI {
     return dn;
   }
 
+  static Future<Supplier> getSupplierById(String participantId) async {
+    Supplier supplier;
+    var qs = await _firestore
+        .collection('suppliers')
+        .where('participantId', isEqualTo: participantId)
+        .getDocuments()
+        .catchError((e) {
+      print('ListAPI.getDeliveryNoteById $e');
+      return supplier;
+    });
+
+    if (qs.documents.isNotEmpty) {
+      supplier = Supplier.fromJson(qs.documents.first.data);
+      supplier.documentReference = qs.documents.first.documentID;
+    }
+
+    print(
+        'ListAPI.getDeliveryNoteById ############ found: ${qs.documents.length}');
+    return supplier;
+  }
+
   static Future<List<SupplierContract>> getSupplierContracts(
       String supplierDocumentRef) async {
     print(

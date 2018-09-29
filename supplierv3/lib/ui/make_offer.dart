@@ -1,4 +1,4 @@
-import 'package:businesslibrary/api/data_api.dart';
+import 'package:businesslibrary/api/data_api3.dart';
 import 'package:businesslibrary/api/file_util.dart';
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
@@ -13,7 +13,6 @@ import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/selectors.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
-import 'package:businesslibrary/util/util.dart';
 import 'package:flutter/material.dart';
 
 class MakeOfferPage extends StatefulWidget {
@@ -229,9 +228,9 @@ class _MakeOfferPageState extends State<MakeOfferPage>
           actionLabel: 'Close');
       return;
     }
-    DataAPI dataAPI = DataAPI(getURL());
+    DataAPI3 dataAPI = DataAPI3();
     var key = await dataAPI.makeOffer(offer);
-    if (key == '0') {
+    if (key > DataAPI3.Success) {
       AppSnackbar.showErrorSnackbar(
           scaffoldKey: _scaffoldKey,
           message: 'Invoice Offer failed',

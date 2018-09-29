@@ -167,7 +167,7 @@ class _OfferDetailsState extends State<OfferDetails>
                 padding: const EdgeInsets.only(left: 8.0),
                 child: Text(
                   getFormattedAmount('$t', context),
-                  style: Styles.whiteMedium,
+                  style: Styles.blackBoldMedium,
                 ),
               ),
             ],
@@ -221,7 +221,8 @@ class _OfferDetailsState extends State<OfferDetails>
                 _acceptBid(bids.elementAt(index));
               },
               child: Padding(
-                padding: const EdgeInsets.all(20.0),
+                padding:
+                    const EdgeInsets.only(top: 8.0, left: 20.0, right: 20.0),
                 child: BidCard(
                   invoiceBid: bids.elementAt(index),
                 ),

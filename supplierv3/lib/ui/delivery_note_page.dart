@@ -1,4 +1,4 @@
-import 'package:businesslibrary/api/data_api.dart';
+import 'package:businesslibrary/api/data_api3.dart';
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/delivery_acceptance.dart';
@@ -10,7 +10,6 @@ import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
-import 'package:businesslibrary/util/util.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:supplierv3/listeners/firestore_listener.dart';
@@ -364,11 +363,12 @@ class _DeliveryNotePageState extends State<DeliveryNotePage>
           actionLabel: 'close');
       return;
     }
-    DataAPI api = new DataAPI(getURL());
+    DataAPI3 api = new DataAPI3();
     var note = DeliveryNote(
       purchaseOrder: NameSpacePO + _purchaseOrder.purchaseOrderId,
       supplier: _purchaseOrder.supplier,
       supplierName: _purchaseOrder.supplierName,
+      supplierDocumentRef: _purchaseOrder.supplierDocumentRef,
       user: NameSpaceUser + _user.userId,
       date: new DateTime.now().toIso8601String(),
       purchaseOrderNumber: _purchaseOrder.purchaseOrderNumber,
@@ -388,10 +388,10 @@ class _DeliveryNotePageState extends State<DeliveryNotePage>
         message: 'Submitting Delivery Note ...',
         textColor: Colors.white,
         backgroundColor: Colors.black);
-    String key = await api.registerDeliveryNote(note);
+    var key = await api.registerDeliveryNote(note);
     _scaffoldKey.currentState.hideCurrentSnackBar();
     print('_DeliveryNotePageState._onSubmit ........ back. key: $key');
-    if (key == '0') {
+    if (key > DataAPI3.Success) {
       AppSnackbar.showErrorSnackbar(
           scaffoldKey: _scaffoldKey,
           message: 'Delivery Note submission failed',

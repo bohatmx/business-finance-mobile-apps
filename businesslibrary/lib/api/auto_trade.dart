@@ -26,10 +26,10 @@ class ExecutionUnit {
 
   ExecutionUnit(
       {@required this.order,
-      @required this.profile,
+      this.profile,
       @required this.offer,
       this.date,
-      @required this.account});
+      this.account});
   ExecutionUnit.fromJson(Map data) {
     var map1 = data['order'];
     this.order = AutoTradeOrder.fromJson(map1);

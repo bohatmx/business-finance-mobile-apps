@@ -1,4 +1,4 @@
-import 'package:businesslibrary/api/data_api.dart';
+import 'package:businesslibrary/api/data_api3.dart';
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/delivery_acceptance.dart';
@@ -9,7 +9,6 @@ import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
-import 'package:businesslibrary/util/util.dart';
 import 'package:flutter/material.dart';
 import 'package:govt/ui/firestore_listener.dart';
 
@@ -122,7 +121,7 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
         textColor: Colors.white,
         backgroundColor: Colors.black);
 
-    DataAPI api = new DataAPI(getURL());
+    DataAPI3 api = new DataAPI3();
     DeliveryAcceptance acceptance = DeliveryAcceptance(
       date: new DateTime.now().toIso8601String(),
       supplier: deliveryNote.supplier,
@@ -142,7 +141,7 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
         acceptance.toJson(), '_DeliveryNoteListState._acceptDelivery ......');
     try {
       var key = await api.acceptDelivery(acceptance);
-      if (key == '0') {
+      if (key > DataAPI3.Success) {
         AppSnackbar.showErrorSnackbar(
             scaffoldKey: _scaffoldKey,
             message: 'Delivery Acceptance failed',

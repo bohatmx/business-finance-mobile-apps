@@ -86,7 +86,7 @@ class FileUtil {
       print(
           'FileUti_saveInvoiceBids ## file does not exist ...creating and writing bids file');
       var file = await jsonFile.create();
-      var x = await file.writeAsString(json.encode(map));
+      await file.writeAsString(json.encode(map));
       return 0;
     }
   }
@@ -124,7 +124,7 @@ class FileUtil {
       print(
           'FileUti_saveExecutionUnits## file does not exist ...creating and writing units file');
       var file = await jsonFile.create();
-      var x = await file.writeAsString(json.encode(map));
+      await file.writeAsString(json.encode(map));
       return 0;
     }
   }

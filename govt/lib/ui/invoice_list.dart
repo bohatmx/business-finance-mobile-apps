@@ -1,4 +1,4 @@
-import 'package:businesslibrary/api/data_api.dart';
+import 'package:businesslibrary/api/data_api3.dart';
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/govt_entity.dart';
@@ -9,7 +9,6 @@ import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/selectors.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
-import 'package:businesslibrary/util/util.dart';
 import 'package:flutter/material.dart';
 import 'package:govt/ui/invoice_settlement.dart';
 
@@ -59,7 +58,7 @@ class _InvoiceListState extends State<InvoiceList> implements SnackBarListener {
 
   void _acceptInvoice() async {
     print('_InvoiceListState._acceptInvoice');
-    DataAPI api = new DataAPI(getURL());
+    DataAPI3 api = new DataAPI3();
 
     Navigator.pop(context);
     AppSnackbar.showSnackbarWithProgressIndicator(
@@ -78,9 +77,9 @@ class _InvoiceListState extends State<InvoiceList> implements SnackBarListener {
         invoiceNumber: invoice.invoiceNumber,
         user: 'resource:com.oneconnect.biz.User#${user.userId}');
 
-    String result = await api.acceptInvoice(acceptance);
+    var result = await api.acceptInvoice(acceptance);
     _scaffoldKey.currentState.hideCurrentSnackBar();
-    if (result == '0') {
+    if (result > DataAPI3.Success) {
       AppSnackbar.showErrorSnackbar(
           scaffoldKey: _scaffoldKey,
           message: 'Acceptance FAILED',

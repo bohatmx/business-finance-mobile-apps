@@ -1,4 +1,4 @@
-import 'package:businesslibrary/api/data_api.dart';
+import 'package:businesslibrary/api/data_api3.dart';
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/delivery_acceptance.dart';
@@ -149,9 +149,9 @@ class _NewInvoicePageState extends State<NewInvoicePage>
         return;
       }
 
-      DataAPI api = DataAPI(getURL());
+      DataAPI3 api = DataAPI3();
       var result = await api.registerInvoice(invoice);
-      if (result == '0') {
+      if (result > DataAPI3.Success) {
         isSuccess = false;
         AppSnackbar.showErrorSnackbar(
             scaffoldKey: _scaffoldKey,

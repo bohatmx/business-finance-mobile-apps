@@ -278,7 +278,7 @@ class _OfferListState extends State<OfferList> with WidgetsBindingObserver {
               ),
             );
           }),
-      backgroundColor: Colors.indigo.shade50,
+      backgroundColor: Colors.brown.shade100,
     );
   }
 
@@ -420,7 +420,8 @@ class OfferListCard extends StatelessWidget {
 class OfferPanel extends StatelessWidget {
   final Offer offer;
   final int number;
-  final Color color;
+  Color color;
+  String status;
 
   OfferPanel({this.offer, this.number, this.color});
 
@@ -434,16 +435,18 @@ class OfferPanel extends StatelessWidget {
     }
   }
 
-  String getStatus() {
+  void getStatus() {
     if (offer.isOpen == true) {
-      return 'Open';
+      color = Colors.purple.shade50;
+      status = 'Open';
     } else {
-      return 'Closed';
+      status = 'Closed';
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    getStatus();
     return Padding(
       padding: const EdgeInsets.only(left: 12.0, right: 12.0),
       child: Card(
@@ -473,7 +476,7 @@ class OfferPanel extends StatelessWidget {
                     child: Padding(
                       padding: const EdgeInsets.only(left: 0.0),
                       child: Text(
-                        getStatus(),
+                        status,
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                     ),

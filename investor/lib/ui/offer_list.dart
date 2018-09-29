@@ -397,7 +397,7 @@ class _OfferListState extends State<OfferList> with WidgetsBindingObserver {
           ),
         ],
       ),
-      body: new ListView.builder(
+      body: ListView.builder(
           itemCount: offers == null ? 0 : offers.length,
           itemBuilder: (BuildContext context, int index) {
             return new InkWell(

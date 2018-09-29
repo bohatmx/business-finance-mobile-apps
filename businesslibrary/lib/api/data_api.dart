@@ -879,22 +879,10 @@ class DataAPI {
     String collection, documentId, supplierDocId;
     if (purchaseOrder.govtEntity != null) {
       collection = 'govtEntities';
-      var id = purchaseOrder.govtEntity.split('#').elementAt(1);
-      documentId = await _getDocumentId(collection, id);
-      purchaseOrder.govtDocumentRef = documentId;
     }
     if (purchaseOrder.company != null) {
       collection = 'companies';
-      var id = purchaseOrder.company.split('#').elementAt(1);
-      documentId = await _getDocumentId(collection, id);
-      purchaseOrder.companyDocumentRef = documentId;
     }
-    if (purchaseOrder.supplier != null) {
-      var id = purchaseOrder.supplier.split('#').elementAt(1);
-      supplierDocId = await _getDocumentId('suppliers', id);
-      purchaseOrder.supplierDocumentRef = supplierDocId;
-    }
-
     print(
         'DataAPI.registerPurchaseOrder url: ${url + REGISTER_PURCHASE_ORDER}');
     prettyPrint(purchaseOrder.toJson(), 'DataAPI.registerPurchaseOrder  ');
@@ -1016,24 +1004,6 @@ class DataAPI {
   Future<String> registerDeliveryNote(DeliveryNote deliveryNote) async {
     deliveryNote.deliveryNoteId = getKey();
     String documentId, participantId, path, supplierDocId;
-    if (deliveryNote.govtEntity != null) {
-      participantId = deliveryNote.govtEntity.split('#').elementAt(1);
-      path = 'govtEntities';
-      documentId = await _getDocumentId(path, participantId);
-      deliveryNote.govtDocumentRef = documentId;
-    }
-    if (deliveryNote.company != null) {
-      participantId = deliveryNote.company.split('#').elementAt(1);
-      path = 'companies';
-      documentId = await _getDocumentId(path, participantId);
-      deliveryNote.companyDocumentRef = documentId;
-    }
-
-    if (deliveryNote.supplier != null) {
-      var id = deliveryNote.supplier.split('#').elementAt(1);
-      supplierDocId = await _getDocumentId('suppliers', id);
-      deliveryNote.supplierDocumentRef = supplierDocId;
-    }
 
     prettyPrint(deliveryNote.toJson(), 'registerDeliveryNote ');
     try {
@@ -1088,24 +1058,24 @@ class DataAPI {
     invoice.isSettled = false;
 
     String documentRef, participantId, supplierDocRef, collection;
-    if (invoice.govtEntity != null) {
-      participantId = invoice.govtEntity.split('#').elementAt(1);
-      collection = 'govtEntities';
-      documentRef = await _getDocumentId(collection, participantId);
-      invoice.govtDocumentRef = documentRef;
-    }
-    if (invoice.company != null) {
-      participantId = invoice.company.split('#').elementAt(1);
-      collection = 'companies';
-      documentRef = await _getDocumentId(collection, participantId);
-      invoice.companyDocumentRef = documentRef;
-    }
-
-    if (invoice.supplier != null) {
-      var id = invoice.supplier.split('#').elementAt(1);
-      supplierDocRef = await _getDocumentId('suppliers', id);
-      invoice.supplierDocumentRef = supplierDocRef;
-    }
+//    if (invoice.govtEntity != null) {
+//      participantId = invoice.govtEntity.split('#').elementAt(1);
+//      collection = 'govtEntities';
+//      documentRef = await _getDocumentId(collection, participantId);
+//      invoice.govtDocumentRef = documentRef;
+//    }
+//    if (invoice.company != null) {
+//      participantId = invoice.company.split('#').elementAt(1);
+//      collection = 'companies';
+//      documentRef = await _getDocumentId(collection, participantId);
+//      invoice.companyDocumentRef = documentRef;
+//    }
+//
+//    if (invoice.supplier != null) {
+//      var id = invoice.supplier.split('#').elementAt(1);
+//      supplierDocRef = await _getDocumentId('suppliers', id);
+//      invoice.supplierDocumentRef = supplierDocRef;
+//    }
 
     print('DataAPI.registerInvoice url: ${url + REGISTER_INVOICE}');
     prettyPrint(invoice.toJson(),
@@ -1495,7 +1465,7 @@ class DataAPI {
     assert(offer.documentReference != null);
     assert(investor.documentReference != null);
 
-    bid.invoiceBidId = getKey();
+    bid..invoiceBidId = getKey();
     bid.date = new DateTime.now().toIso8601String();
     bid.isSettled = false;
 
