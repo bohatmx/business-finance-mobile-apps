@@ -22,6 +22,10 @@ class _OfferListState extends State<OfferList> with WidgetsBindingObserver {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   DateTime startTime, endTime;
   List<Offer> offers = List();
+
+  List<Offer> openOffers = List();
+  List<Offer> closedOffers = List();
+
   Investor investor;
   Offer offer;
   @override
@@ -50,17 +54,34 @@ class _OfferListState extends State<OfferList> with WidgetsBindingObserver {
         textColor: Colors.yellow,
         backgroundColor: Colors.black);
     offers = await ListAPI.getOffersByPeriod(startTime, endTime);
-//    offers.forEach((p) {
-//      prettyPrint(p.toJson(), '_OfferListState._getOffers: ');
-//    });
+    openOffers.clear();
+    closedOffers.clear();
+
+    offers.forEach((p) {
+      if (p.isOpen == true) {
+        openOffers.add(p);
+      } else {
+        closedOffers.add(p);
+      }
+    });
     print(
         '_OfferListState._getOffers offers in period: ${offers.length}  over $_days days');
+    text = 'OPEN';
+    switchOpen = true;
     setState(() {});
     _scaffoldKey.currentState.hideCurrentSnackBar();
   }
 
   _checkBid(Offer offer) async {
     this.offer = offer;
+    if (offer.isOpen == false) {
+      AppSnackbar.showSnackbar(
+          scaffoldKey: _scaffoldKey,
+          message: 'Offer is already closed',
+          textColor: Styles.white,
+          backgroundColor: Styles.black);
+      return;
+    }
     AppSnackbar.showSnackbarWithProgressIndicator(
         scaffoldKey: _scaffoldKey,
         message: 'Checking bid ...',
@@ -78,6 +99,14 @@ class _OfferListState extends State<OfferList> with WidgetsBindingObserver {
   }
 
   _showMoreBidsDialog() {
+    if (!offer.isOpen) {
+      AppSnackbar.showSnackbar(
+          scaffoldKey: _scaffoldKey,
+          message: 'Offer is already closed',
+          textColor: Styles.white,
+          backgroundColor: Styles.black);
+      return;
+    }
     showDialog(
         context: context,
         builder: (_) => new AlertDialog(
@@ -144,6 +173,14 @@ class _OfferListState extends State<OfferList> with WidgetsBindingObserver {
                 ),
               ],
             ));
+  }
+
+  int _getCount() {
+    if (switchOpen) {
+      return openOffers.length;
+    } else {
+      return closedOffers.length;
+    }
   }
 
 //  Widget _buildItems() {
@@ -255,7 +292,7 @@ class _OfferListState extends State<OfferList> with WidgetsBindingObserver {
           Padding(
             padding: const EdgeInsets.only(left: 12.0),
             child: Text(
-              '3 Days Under Review',
+              '3 Days Review',
               style: bold,
             ),
           ),
@@ -274,7 +311,7 @@ class _OfferListState extends State<OfferList> with WidgetsBindingObserver {
           Padding(
             padding: const EdgeInsets.only(left: 12.0),
             child: Text(
-              '7 Days Under Review',
+              '7 Days Review',
               style: bold,
             ),
           ),
@@ -293,7 +330,7 @@ class _OfferListState extends State<OfferList> with WidgetsBindingObserver {
           Padding(
             padding: const EdgeInsets.only(left: 12.0),
             child: Text(
-              '14 Days Under Review',
+              '14 Days Review',
               style: bold,
             ),
           ),
@@ -313,7 +350,7 @@ class _OfferListState extends State<OfferList> with WidgetsBindingObserver {
           Padding(
             padding: const EdgeInsets.only(left: 12.0),
             child: Text(
-              '30 Days Under Review',
+              '30 Days Review',
               style: bold,
             ),
           ),
@@ -332,7 +369,7 @@ class _OfferListState extends State<OfferList> with WidgetsBindingObserver {
           Padding(
             padding: const EdgeInsets.only(left: 12.0),
             child: Text(
-              '60 Days Under Review',
+              '60 Days Review',
               style: bold,
             ),
           ),
@@ -351,7 +388,7 @@ class _OfferListState extends State<OfferList> with WidgetsBindingObserver {
           Padding(
             padding: const EdgeInsets.only(left: 12.0),
             child: Text(
-              '90 Days Under Review',
+              '90 Days Review',
               style: bold,
             ),
           ),
@@ -371,7 +408,7 @@ class _OfferListState extends State<OfferList> with WidgetsBindingObserver {
           Padding(
             padding: const EdgeInsets.only(left: 12.0),
             child: Text(
-              '120 Days Under Review',
+              '120 Days Review',
               style: bold,
             ),
           ),
@@ -390,7 +427,7 @@ class _OfferListState extends State<OfferList> with WidgetsBindingObserver {
           Padding(
             padding: const EdgeInsets.only(left: 12.0),
             child: Text(
-              '365 Days Under Review',
+              '365 Days Review',
               style: bold,
             ),
           ),
@@ -410,7 +447,7 @@ class _OfferListState extends State<OfferList> with WidgetsBindingObserver {
         title: Text('Invoice Offers'),
         bottom: PreferredSize(
           child: _getBottom(),
-          preferredSize: Size.fromHeight(120.0),
+          preferredSize: Size.fromHeight(140.0),
         ),
         actions: <Widget>[
           IconButton(
@@ -420,18 +457,22 @@ class _OfferListState extends State<OfferList> with WidgetsBindingObserver {
         ],
       ),
       body: ListView.builder(
-          itemCount: offers == null ? 0 : offers.length,
+          itemCount: _getCount(),
           itemBuilder: (BuildContext context, int index) {
             return new InkWell(
               onTap: () {
-                _checkBid(offers.elementAt(index));
+                if (switchOpen) {
+                  _checkBid(openOffers.elementAt(index));
+                } else {
+                  _checkBid(closedOffers.elementAt(index));
+                }
               },
               child: Padding(
                 padding: const EdgeInsets.all(2.0),
                 child: OfferPanel(
-                    offer: offers.elementAt(index),
-                    number: index + 1,
-                    color: Colors.indigo.shade50),
+                  offer: _getOffer(index),
+                  number: index + 1,
+                ),
               ),
             );
           }),
@@ -439,8 +480,24 @@ class _OfferListState extends State<OfferList> with WidgetsBindingObserver {
     );
   }
 
+  Offer _getOffer(int index) {
+    if (switchOpen) {
+      return openOffers.elementAt(index);
+    } else {
+      return closedOffers.elementAt(index);
+    }
+  }
+
+  String _getTotal() {
+    if (switchOpen) {
+      return '${openOffers.length}';
+    } else {
+      return '${closedOffers.length}';
+    }
+  }
+
   List<DropdownMenuItem<int>> items = List();
-  int _days = 7;
+  int _days = 60;
   Widget _getBottom() {
     return Padding(
       padding: const EdgeInsets.only(bottom: 18.0, left: 20.0),
@@ -451,7 +508,7 @@ class _OfferListState extends State<OfferList> with WidgetsBindingObserver {
             style: getTitleTextWhite(),
           ),
           Padding(
-            padding: const EdgeInsets.only(left: 8.0, top: 8.0, right: 20.0),
+            padding: const EdgeInsets.only(left: 8.0, top: 20.0, right: 20.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: <Widget>[
@@ -462,20 +519,36 @@ class _OfferListState extends State<OfferList> with WidgetsBindingObserver {
                 Padding(
                   padding: const EdgeInsets.only(left: 8.0),
                   child: Text(
-                    offers == null ? '' : '${offers.length}',
+                    _getTotal(),
                     style: getTitleTextWhite(),
                   ),
                 ),
               ],
             ),
           ),
-          DropdownButton<int>(
-            items: items,
-            value: _days,
-            onChanged: _daysSelected,
-            hint: Text(
-              'Period in Review',
-              style: TextStyle(color: Colors.white),
+          Padding(
+            padding: const EdgeInsets.only(top: 8.0),
+            child: Row(
+              children: <Widget>[
+                DropdownButton<int>(
+                  items: items,
+                  value: _days,
+                  onChanged: _daysSelected,
+                  hint: Text(
+                    'Period in Review',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+                Row(
+                  children: <Widget>[
+                    Padding(
+                      padding: const EdgeInsets.only(right: 2.0),
+                      child: Text(text),
+                    ),
+                    Switch(value: switchOpen, onChanged: _onSwitchChanged),
+                  ],
+                ),
+              ],
             ),
           ),
         ],
@@ -483,23 +556,8 @@ class _OfferListState extends State<OfferList> with WidgetsBindingObserver {
     );
   }
 
-  void _onInvoiceBid() {
-    print('_OfferListState._onInvoiceBid');
-    Navigator.pop(context);
-    Navigator.push(
-      context,
-      new MaterialPageRoute(builder: (context) => new InvoiceBidder(offer)),
-    );
-  }
-
-  void _cancelBid() {
-    print('_OfferListState._cancelBid');
-  }
-
-  void _onOfferDetails() {
-    print('_OfferListState._onOfferDetails');
-  }
-
+  String text = 'OPEN';
+  bool switchOpen = true;
   void _onNoPressed() {
     print('_OfferListState._onNoPressed');
     Navigator.pop(context);
@@ -530,6 +588,18 @@ class _OfferListState extends State<OfferList> with WidgetsBindingObserver {
     print('############# _OfferListState._daysSelected : $value');
     _days = value;
     _getOffers();
+  }
+
+  void _onSwitchChanged(bool value) {
+    print('_OfferListState._onSwitchChanged $value');
+    if (value) {
+      text = 'OPEN';
+      switchOpen = true;
+    } else {
+      text = 'CLOSED';
+      switchOpen = false;
+    }
+    setState(() {});
   }
 }
 
@@ -625,9 +695,10 @@ class OfferListCard extends StatelessWidget {
 class OfferPanel extends StatelessWidget {
   final Offer offer;
   final int number;
-  final Color color;
+  Color color, amountColor;
+  double elevation = 4.0;
 
-  OfferPanel({this.offer, this.number, this.color});
+  OfferPanel({this.offer, this.number});
 
   TextStyle getTextStyle() {
     if (offer.dateClosed == null) {
@@ -639,20 +710,41 @@ class OfferPanel extends StatelessWidget {
     }
   }
 
-  String getStatus() {
-    if (offer.isOpen == true) {
-      return 'Open';
+  Widget getStatus() {
+    if (offer.isOpen) {
+      color = Colors.white;
+      return Text(
+        'Open',
+        style: Styles.blackBoldSmall,
+      );
     } else {
-      return 'Closed';
+      color = Colors.grey.shade600;
+      return Text(
+        'Closed',
+        style: TextStyle(
+          fontSize: 14.0,
+          fontWeight: FontWeight.bold,
+          color: Colors.grey.shade600,
+        ),
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    if (offer.isOpen) {
+      color = Colors.white;
+      amountColor = Colors.teal.shade700;
+      elevation = 4.0;
+    } else {
+      color = Colors.grey.shade300;
+      amountColor = Colors.blueGrey.shade300;
+      elevation = 2.0;
+    }
     return Padding(
       padding: const EdgeInsets.only(left: 12.0, right: 12.0),
       child: Card(
-        elevation: 3.0,
+        elevation: elevation,
         color: color == null ? Colors.white : color,
         child: Padding(
           padding: const EdgeInsets.all(10.0),
@@ -677,10 +769,7 @@ class OfferPanel extends StatelessWidget {
                     width: 60.0,
                     child: Padding(
                       padding: const EdgeInsets.only(left: 0.0),
-                      child: Text(
-                        getStatus(),
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
+                      child: getStatus(),
                     ),
                   ),
                   Padding(
@@ -698,7 +787,7 @@ class OfferPanel extends StatelessWidget {
                     child: Text(
                       getFormattedAmount('${offer.offerAmount}', context),
                       style: TextStyle(
-                          color: Colors.teal.shade300,
+                          color: amountColor,
                           fontSize: 20.0,
                           fontWeight: FontWeight.bold),
                     ),

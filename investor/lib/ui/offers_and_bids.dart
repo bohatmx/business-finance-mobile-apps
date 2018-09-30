@@ -212,9 +212,9 @@ class _OffersAndBidsState extends State<OffersAndBids> {
                     padding: const EdgeInsets.only(
                         top: 4.0, bottom: 4.0, left: 12.0, right: 12.0),
                     child: OfferPanel(
-                        offer: openOffers.elementAt(index),
-                        number: index + 1,
-                        color: Colors.indigo.shade50),
+                      offer: openOffers.elementAt(index),
+                      number: index + 1,
+                    ),
                   ),
                 );
               }),

@@ -159,6 +159,7 @@ class AutoTradeExecutionBuilder {
     });
   }
 
+  ///iterate thru executionUnitList and process each one
   void _controlInvoiceBids() async {
     if (index < executionUnitList.length) {
       //todo - check if this offer has other partial bids already - do the rules allow auto trades in crowd funding scenario?
