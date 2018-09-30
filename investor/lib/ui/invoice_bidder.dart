@@ -1,4 +1,4 @@
-import 'package:businesslibrary/api/data_api.dart';
+import 'package:businesslibrary/api/data_api3.dart';
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/investor.dart';
@@ -9,7 +9,6 @@ import 'package:businesslibrary/data/wallet.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/selectors.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
-import 'package:businesslibrary/util/util.dart';
 import 'package:flutter/material.dart';
 import 'package:investor/ui/invoice_bid_list.dart';
 import 'package:investor/ui/invoice_due_diligence.dart';
@@ -824,9 +823,9 @@ class _InvoiceBidderState extends State<InvoiceBidder>
         textColor: Colors.white,
         backgroundColor: Colors.black);
 
-    var api = DataAPI(getURL());
-    var key = await api.makeInvoiceBid(bid, offer, investor);
-    if (key == '0') {
+    var api = DataAPI3();
+    var key = await api.makeInvoiceBid(bid);
+    if (key > DataAPI3.Success) {
       AppSnackbar.showErrorSnackbar(
           scaffoldKey: _scaffoldKey,
           message: 'Invoice Bid failed',

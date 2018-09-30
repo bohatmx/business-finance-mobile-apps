@@ -50,9 +50,9 @@ class _OfferListState extends State<OfferList> with WidgetsBindingObserver {
         textColor: Colors.yellow,
         backgroundColor: Colors.black);
     offers = await ListAPI.getOffersByPeriod(startTime, endTime);
-    offers.forEach((p) {
-      prettyPrint(p.toJson(), '_OfferListState._getOffers: ');
-    });
+//    offers.forEach((p) {
+//      prettyPrint(p.toJson(), '_OfferListState._getOffers: ');
+//    });
     print(
         '_OfferListState._getOffers offers in period: ${offers.length}  over $_days days');
     setState(() {});
@@ -72,14 +72,36 @@ class _OfferListState extends State<OfferList> with WidgetsBindingObserver {
     } else {
       prettyPrint(
           xx.first.toJson(), '########### INVOICE BID for investtor/offer');
-      AppSnackbar.showSnackbar(
-          scaffoldKey: _scaffoldKey,
-          message:
-              'You have  a bid on this Offer: ${getFormattedAmount('${offer.offerAmount}', context)}',
-          textColor: Colors.lightGreen,
-          backgroundColor: Colors.black);
+      _showMoreBidsDialog();
     }
-    _scaffoldKey.currentState.hideCurrentSnackBar();
+//    _scaffoldKey.currentState.hideCurrentSnackBar();
+  }
+
+  _showMoreBidsDialog() {
+    showDialog(
+        context: context,
+        builder: (_) => new AlertDialog(
+              title: new Text(
+                "Add more bids",
+                style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).primaryColor),
+              ),
+              content: Text(
+                'Do you want to add another bid for this offer?',
+                style: Styles.blackBoldMedium,
+              ),
+              actions: <Widget>[
+                FlatButton(
+                  onPressed: _onNoPressed,
+                  child: Text('No'),
+                ),
+                FlatButton(
+                  onPressed: _onInvoiceBidRequired,
+                  child: Text('MAKE INVOICE BID'),
+                ),
+              ],
+            ));
   }
 
   _showDetailsDialog(Offer offer) {
@@ -87,7 +109,7 @@ class _OfferListState extends State<OfferList> with WidgetsBindingObserver {
     prettyPrint(offer.toJson(), 'Offer selected %%%%%%%%:');
     if (offer.isOpen == false) {
       print(
-          '_OfferListState._showDetailsDialog offer.isOpen == false ... ignore');
+          '_OfferListState._showDetailsDialog offer.isOpen == false ... ignore ===============> ');
       AppSnackbar.showSnackbar(
           scaffoldKey: _scaffoldKey,
           message: 'Offer is closed',

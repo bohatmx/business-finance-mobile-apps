@@ -7,7 +7,7 @@ class Offer {
   String purchaseOrder, participantId, wallet;
   String user, date, supplier, contractURL;
   String invoiceDocumentRef, supplierName, customerName;
-  DateTime dateClosed;
+  String dateClosed;
   String supplierDocumentRef, supplierFCMToken;
   double invoiceAmount, offerAmount, discountPercent;
   bool isCancelled, isOpen;

@@ -228,7 +228,7 @@ class DataAPI3 {
       data: offer.toJson(),
     );
     print('DataAPI.makeOffer  ${url + MAKE_OFFER}');
-    prettyPrint(bag.toJson(), 'DataAPI.makeOffer offer: ');
+    prettyPrint(bag.toJson(), 'DataAPI.makeOffer offer....................: ');
     try {
       Map map = bag.toJson();
       var mjson = json.encode(map);
@@ -243,7 +243,6 @@ class DataAPI3 {
       if (mResponse.statusCode == 200) {
         return Success;
       } else {
-        print('DataAPI.makeOffer ERROR - doc deleted from firestore');
         mResponse.transform(utf8.decoder).listen((contents) {
           print('DataAPI.makeOffer ERROR  $contents');
         });

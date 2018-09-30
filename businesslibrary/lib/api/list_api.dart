@@ -173,12 +173,9 @@ class ListAPI {
           'ListAPI.getInvoiceBidByInvestorOffer - we have a docuumentt here!!!!!!!');
     }
     qs.documents.forEach((doc) {
-      print('########## EACH doc.data:  ${doc.data}');
       var invoiceBid = InvoiceBid.fromJson(doc.data);
       invoiceBid.documentReference = doc.documentID;
       list.add(invoiceBid);
-      prettyPrint(invoiceBid.toJson(),
-          '%%%%% invoice  bid after json, bids in list: ${list.length}');
     });
     print(
         'ListAPI.getInvoiceBidByInvestorOffer ######## found objects: ${list.length} ');
