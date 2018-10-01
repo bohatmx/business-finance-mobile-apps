@@ -220,7 +220,7 @@ class DataAPI3 {
 
   Future<int> makeOffer(Offer offer) async {
     offer.offerId = getKey();
-    offer.date = new DateTime.now().toIso8601String();
+    offer.date = getUTCDate();
     offer.isOpen = true;
     offer.isCancelled = false;
     var bag = APIBag(
@@ -288,7 +288,7 @@ class DataAPI3 {
 
   Future<int> makeInvoiceBid(InvoiceBid bid) async {
     bid..invoiceBidId = getKey();
-    bid.date = new DateTime.now().toIso8601String();
+    bid.date = getUTCDate();
     bid.isSettled = false;
     var bag = APIBag(
       debug: isInDebugMode,
@@ -454,7 +454,7 @@ class DataAPI3 {
 
   Future<int> addAutoTradeOrder(AutoTradeOrder order) async {
     order.autoTradeOrderId = getKey();
-    order.date = DateTime.now().toIso8601String();
+    order.date = getUTCDate();
     order.isCancelled = false;
     var bag = APIBag(
         debug: isInDebugMode,
@@ -492,7 +492,7 @@ class DataAPI3 {
 
   Future<int> addInvestorProfile(InvestorProfile profile) async {
     profile.profileId = getKey();
-    profile.date = DateTime.now().toIso8601String();
+    profile.date = getUTCDate();
     var bag = APIBag(
         debug: isInDebugMode,
         data: profile.toJson(),
@@ -604,7 +604,7 @@ class DataAPI3 {
 
   Future<int> addInvestor(Investor investor) async {
     investor.participantId = getKey();
-    investor.dateRegistered = new DateTime.now().toIso8601String();
+    investor.dateRegistered = getUTCDate();
     var bag = APIBag(
         debug: isInDebugMode,
         data: investor.toJson(),
@@ -643,7 +643,7 @@ class DataAPI3 {
 
   Future<int> addOneConnect(OneConnect oneConnect) async {
     oneConnect.participantId = getKey();
-    oneConnect.dateRegistered = new DateTime.now().toIso8601String();
+    oneConnect.dateRegistered = getUTCDate();
     var bag = APIBag(
         debug: isInDebugMode,
         data: oneConnect.toJson(),
@@ -682,7 +682,7 @@ class DataAPI3 {
 
   Future<int> addProcurementOffice(ProcurementOffice office) async {
     office.participantId = getKey();
-    office.dateRegistered = new DateTime.now().toIso8601String();
+    office.dateRegistered = getUTCDate();
     var bag = APIBag(
         debug: isInDebugMode,
         data: office.toJson(),
@@ -721,7 +721,7 @@ class DataAPI3 {
 
   Future<int> addAuditor(Auditor auditor) async {
     auditor.participantId = getKey();
-    auditor.dateRegistered = new DateTime.now().toIso8601String();
+    auditor.dateRegistered = getUTCDate();
     var bag = APIBag(
         debug: isInDebugMode,
         data: auditor.toJson(),

@@ -805,7 +805,7 @@ class _InvoiceBidderState extends State<InvoiceBidder>
     InvoiceBid bid = InvoiceBid(
         user: NameSpace + 'User#' + user.userId,
         reservePercent: percentage,
-        date: new DateTime.now().toIso8601String(),
+        date: getUTCDate(),
         offer: NameSpace + 'Offer#' + offer.offerId,
         investor: NameSpace + 'Investor#' + investor.participantId,
         investorName: investor.name,

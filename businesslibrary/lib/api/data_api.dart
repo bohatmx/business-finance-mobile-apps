@@ -211,7 +211,7 @@ class DataAPI {
 
   Future<String> addAutoTradeOrder(AutoTradeOrder order) async {
     order.autoTradeOrderId = getKey();
-    order.date = DateTime.now().toIso8601String();
+    order.date = getUTCDate();
     order.isCancelled = false;
     print('DataAPI.addAutoTradeOrder %%%%%%%% url: ${url + AUTO_TRADE_ORDER}');
     prettyPrint(order.toJson(),
@@ -250,7 +250,7 @@ class DataAPI {
   }
 
   Future<String> updateAutoTradeOrder(AutoTradeOrder order) async {
-    order.date = DateTime.now().toIso8601String();
+    order.date = getUTCDate();
 
     print(
         'DataAPI.updateAutoTradeOrder %%%%%%%% url: ${url + AUTO_TRADE_ORDER + '/' + order.autoTradeOrderId}');
@@ -318,7 +318,7 @@ class DataAPI {
       print(
           'DataAPI.cancelAutoTradeOrder blockchain response status code:  ${mResponse.statusCode}');
       if (mResponse.statusCode == 200) {
-        map['date'] = DateTime.now().toIso8601String();
+        map['date'] = getUTCDate();
         await _firestore
             .collection('cancelledAutoTradeOrders')
             .add(map)
@@ -336,7 +336,7 @@ class DataAPI {
         if (qs.documents.isNotEmpty) {
           var data = qs.documents.first.data;
           var order = AutoTradeOrder.fromJson(data);
-          order.dateCancelled = DateTime.now().toIso8601String();
+          order.dateCancelled = getUTCDate();
           await _firestore
               .collection('autoTradeOrders')
               .document(qs.documents.first.documentID)
@@ -365,7 +365,7 @@ class DataAPI {
 
   Future<String> addInvestorProfile(InvestorProfile profile) async {
     profile.profileId = getKey();
-    profile.date = DateTime.now().toIso8601String();
+    profile.date = getUTCDate();
     print(
         'DataAPI.addInvestorProfile %%%%%%%% url: ${url + INVESTOR__PROFILE}');
     prettyPrint(profile.toJson(),
@@ -404,7 +404,7 @@ class DataAPI {
   }
 
   Future<String> updateInvestorProfile(InvestorProfile profile) async {
-    profile.date = DateTime.now().toIso8601String();
+    profile.date = getUTCDate();
     print(
         'DataAPI.updateInvestorProfile %%%%%%%% url: ${url + UPDATE_INVESTOR__PROFILE}');
     prettyPrint(profile.toJson(),
@@ -487,7 +487,7 @@ class DataAPI {
 
   Future<String> addCompany(Company company) async {
     company.participantId = getKey();
-    company.dateRegistered = new DateTime.now().toIso8601String();
+    company.dateRegistered = getUTCDate();
 
     print('DataAPI.addCompany ${url + COMPANY}');
     try {
@@ -565,7 +565,7 @@ class DataAPI {
 
   Future<String> addInvestor(Investor investor) async {
     investor.participantId = getKey();
-    investor.dateRegistered = new DateTime.now().toIso8601String();
+    investor.dateRegistered = getUTCDate();
 
     print('DataAPI.addInvestor   ${url + INVESTOR}');
 
@@ -605,7 +605,7 @@ class DataAPI {
 
   Future<String> addBank(Bank bank) async {
     bank.participantId = getKey();
-    bank.dateRegistered = new DateTime.now().toIso8601String();
+    bank.dateRegistered = getUTCDate();
 
     print('DataAPI.addBank ${url + BANK}');
     try {
@@ -708,7 +708,7 @@ class DataAPI {
     }
 
     contract.contractId = getKey();
-    contract.date = new DateTime.now().toIso8601String();
+    contract.date = getUTCDate();
 
     print(
         'DataAPI.addSupplierContract #########################  ${url + SUPPLIER_CONTRACT}');
@@ -752,7 +752,7 @@ class DataAPI {
 
   Future<String> addOneConnect(OneConnect oneConnect) async {
     oneConnect.participantId = getKey();
-    oneConnect.dateRegistered = new DateTime.now().toIso8601String();
+    oneConnect.dateRegistered = getUTCDate();
 
     print('DataAPI.addOneConnect ${url + ONECONNECT}');
     try {
@@ -791,7 +791,7 @@ class DataAPI {
 
   Future<String> addProcurementOffice(ProcurementOffice office) async {
     office.participantId = getKey();
-    office.dateRegistered = new DateTime.now().toIso8601String();
+    office.dateRegistered = getUTCDate();
 
     print('DataAPI.addProcurementOffice ${url + PROCUREMENT_OFFICE}');
     try {
@@ -831,7 +831,7 @@ class DataAPI {
 
   Future<String> addAuditor(Auditor auditor) async {
     auditor.participantId = getKey();
-    auditor.dateRegistered = new DateTime.now().toIso8601String();
+    auditor.dateRegistered = getUTCDate();
 
     print('DataAPI.addAuditor ${url + AUDITOR}');
     try {
@@ -1326,7 +1326,7 @@ class DataAPI {
 
   Future<String> makeOffer(Offer offer) async {
     offer.offerId = getKey();
-    offer.date = new DateTime.now().toIso8601String();
+    offer.date = getUTCDate();
     offer.isOpen = true;
     offer.isCancelled = false;
 
@@ -1466,7 +1466,7 @@ class DataAPI {
     assert(investor.documentReference != null);
 
     bid..invoiceBidId = getKey();
-    bid.date = new DateTime.now().toIso8601String();
+    bid.date = getUTCDate();
     bid.isSettled = false;
 
     print('DataAPI.makeInvoiceBid ${url + MAKE_INVOICE_BID}');
@@ -1537,7 +1537,7 @@ class DataAPI {
     assert(order.investor != null);
 
     bid.invoiceBidId = getKey();
-    bid.date = new DateTime.now().toIso8601String();
+    bid.date = getUTCDate();
     bid.isSettled = false;
     prettyPrint(bid.toJson(), 'makeInvoiceAutoBid, bid, check autoTradeOrder');
 
@@ -1618,7 +1618,7 @@ class DataAPI {
   Future<String> makeInvestorInvoiceSettlement(
       InvestorInvoiceSettlement settlement) async {
     settlement.invoiceSettlementId = getKey();
-    settlement.date = new DateTime.now().toIso8601String();
+    settlement.date = getUTCDate();
 
     var investorId = settlement.investor.split('#').elementAt(1);
     var investorDocId = await _getDocumentId('investors', investorId);
@@ -1681,7 +1681,7 @@ class DataAPI {
   Future<String> makeCompanyInvoiceSettlement(
       CompanyInvoiceSettlement settlement) async {
     settlement.invoiceSettlementId = getKey();
-    settlement.date = new DateTime.now().toIso8601String();
+    settlement.date = getUTCDate();
 
     var investorId = settlement.company.split('#').elementAt(1);
     var investorDocId = await _getDocumentId('companies', investorId);
@@ -1744,7 +1744,7 @@ class DataAPI {
   Future<String> makeGovtInvoiceSettlement(
       GovtInvoiceSettlement settlement) async {
     settlement.invoiceSettlementId = getKey();
-    settlement.date = new DateTime.now().toIso8601String();
+    settlement.date = getUTCDate();
 
     var investorId = settlement.govtEntity.split('#').elementAt(1);
     var investorDocId = await _getDocumentId('govtEntities', investorId);
@@ -1865,7 +1865,7 @@ class DataAPI {
 
   Future<String> cancelOffer(OfferCancellation cancellation) async {
     cancellation.cancellationId = getKey();
-    cancellation.date = DateTime.now().toIso8601String();
+    cancellation.date = getUTCDate();
     print('DataAPI.cancelOffer ${url + CANCEL_OFFER}');
     try {
       Map map = cancellation.toJson();

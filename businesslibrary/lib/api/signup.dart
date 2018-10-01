@@ -86,7 +86,7 @@ class SignUp {
       print('SignUp.signUpGovtEntity ERROR govtEntity already exists');
       return ErrorEntityAlreadyExists;
     }
-    govtEntity.dateRegistered = new DateTime.now().toIso8601String();
+    govtEntity.dateRegistered = getUTCDate();
     DataAPI dataAPI = DataAPI(url);
     var key = await dataAPI.addGovtEntity(govtEntity);
     if (key == '0') {
@@ -139,7 +139,7 @@ class SignUp {
       return ErrorEntityAlreadyExists;
     }
 
-    company.dateRegistered = DateTime.now().toIso8601String();
+    company.dateRegistered = getUTCDate();
     DataAPI dataAPI = DataAPI(url);
     var key = await dataAPI.addCompany(company);
     if (key == '0') {
@@ -180,7 +180,7 @@ class SignUp {
       return ErrorEntityAlreadyExists;
     }
     DataAPI dataAPI = DataAPI(url);
-    supplier.dateRegistered = new DateTime.now().toIso8601String();
+    supplier.dateRegistered = getUTCDate();
     var key = await dataAPI.addSupplier(supplier);
     if (key == '0') {
       return ErrorBlockchain;
@@ -217,7 +217,7 @@ class SignUp {
       print('SignUp.signUpInvestor ERROR investor already exists');
       return ErrorEntityAlreadyExists;
     }
-    investor.dateRegistered = new DateTime.now().toIso8601String();
+    investor.dateRegistered = getUTCDate();
     DataAPI dataAPI = DataAPI(url);
     var key = await dataAPI.addInvestor(investor);
     if (key == '0') {
@@ -423,7 +423,7 @@ class SignUp {
       return ErrorUserAlreadyExists;
     }
     user.userId = DataAPI.getKey();
-    user.dateRegistered = DateTime.now().toIso8601String();
+    user.dateRegistered = getUTCDate();
 
     var fbUser = await _createUser(user.email, user.password).catchError((e) {
       return ErrorCreatingFirebaseUser;

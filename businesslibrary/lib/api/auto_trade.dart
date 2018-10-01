@@ -8,6 +8,7 @@ import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/stellar/Account.dart';
 import 'package:businesslibrary/stellar/Balance.dart';
 import 'package:businesslibrary/util/comms.dart';
+import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/util.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:meta/meta.dart';
@@ -332,8 +333,8 @@ class AutoTradeExecutionBuilder {
             Namespace + 'AutoTradeOrder#${exec.order.autoTradeOrderId}',
         amount: myAmt,
         discountPercent: exec.offer.discountPercent,
-        startTime: DateTime.now().toIso8601String(),
-        endTime: DateTime.now().toIso8601String(),
+        startTime: getUTCDate(),
+        endTime: getUTCDate(),
         isSettled: false,
         reservePercent: myReserve,
         investorName: exec.profile.name,

@@ -35,7 +35,7 @@ class _InvoiceBidListState extends State<InvoiceBidList> {
   void _getBids() async {
     print('_InvoiceBidListState._getOffers');
     if (endTime == null) {
-      endTime = DateTime.now();
+      endTime = DateTime.now().toUtc();
       startTime = endTime.subtract(Duration(days: 10));
     }
     bids = await ListAPI.getInvoiceBidsByInvestor(investor.participantId);

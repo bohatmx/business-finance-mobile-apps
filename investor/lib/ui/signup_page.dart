@@ -278,7 +278,7 @@ class _SignUpPageState extends State<SignUpPage>
         name: name,
         email: email,
         country: country.name,
-        dateRegistered: DateTime.now().toIso8601String(),
+        dateRegistered: getUTCDate(),
       );
       print('_SignUpPageState._onSavePressed ${investor.toJson()}');
       User admin = User(

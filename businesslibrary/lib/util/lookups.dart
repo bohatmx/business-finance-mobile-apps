@@ -18,6 +18,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:meta/meta.dart';
 
@@ -284,6 +285,13 @@ String getFormattedDateShort(String date, BuildContext context) {
 String getFormattedDateLong(String date, BuildContext context) {
   var cc = MaterialLocalizations.of(context);
   return cc.formatFullDate(DateTime.parse(date));
+}
+
+String getUTCDate() {
+  initializeDateFormatting();
+  String now = new DateTime.now().toUtc().toIso8601String();
+  print('getUTCDate $now');
+  return now;
 }
 
 String getFormattedDate(String date) {

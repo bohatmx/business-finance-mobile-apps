@@ -80,7 +80,7 @@ class _DashboardState extends State<Dashboard>
         cellphone: '098 636 7378',
         govtEntityType: 'Private',
         participantId: '00000',
-        dateRegistered: DateTime.now().toIso8601String(),
+        dateRegistered: getUTCDate(),
         address: '309 Kingfisher Drive',
         documentReference: 'No need for this',
         country: 'South Africa');

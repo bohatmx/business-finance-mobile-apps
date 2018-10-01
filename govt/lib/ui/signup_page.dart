@@ -393,7 +393,7 @@ class _SignUpPageState extends State<SignUpPage>
         country: country.name,
         govtEntityType: govtEntityType,
         allowAutoAccept: autoAccept,
-        dateRegistered: DateTime.now().toIso8601String(),
+        dateRegistered: getUTCDate(),
       );
       print('_SignUpPageState._onSavePressed ${govtEntity.toJson()}');
       User admin = User(

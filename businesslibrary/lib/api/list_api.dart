@@ -123,6 +123,7 @@ class ListAPI {
         .collection('investors')
         .document(documentReference)
         .collection('invoiceBids')
+        .where('isSettled', isEqualTo: false)
         .orderBy('date', descending: true)
         .getDocuments()
         .catchError((e) {
@@ -361,7 +362,7 @@ class ListAPI {
 
   static Future<List<Offer>> getOpenOffersBySupplier(String supplierId) async {
     List<Offer> list = List();
-    var now = DateTime.now().toIso8601String();
+    var now = getUTCDate();
     var qs = await _firestore
         .collection('invoiceOffers')
         .where('isOpen', isEqualTo: true)
@@ -388,7 +389,7 @@ class ListAPI {
 
   static Future<List<Offer>> getOpenOffers() async {
     List<Offer> list = List();
-    var now = DateTime.now().toIso8601String();
+    var now = getUTCDate();
     var qs = await _firestore
         .collection('invoiceOffers')
         .where('isOpen', isEqualTo: true)

@@ -40,7 +40,7 @@ class Dashboard extends StatefulWidget {
 
 class _DashboardState extends State<Dashboard>
     with TickerProviderStateMixin
-    implements SnackBarListener, OfferListener {
+    implements SnackBarListener, OfferListener, BidListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   static const platform = const MethodChannel('com.oneconnect.biz.CHANNEL');
 
@@ -88,9 +88,15 @@ class _DashboardState extends State<Dashboard>
     super.dispose();
   }
 
+  bool summaryBusy = false;
+
   ///get  summaries from Firestore
   _getSummaryData() async {
-    prettyPrint(investor.toJson(), 'Dashboard_getSummaryData: ');
+    print('Dashboard_getSummaryData: ......................');
+    if (summaryBusy) {
+      return;
+    }
+    summaryBusy = true;
     AppSnackbar.showSnackbarWithProgressIndicator(
         scaffoldKey: _scaffoldKey,
         message: 'Loading fresh data ...',
@@ -100,6 +106,7 @@ class _DashboardState extends State<Dashboard>
     await _getInvoiceBids();
     await _getSettlements();
     _scaffoldKey.currentState.hideCurrentSnackBar();
+    summaryBusy = false;
   }
 
   Future _getCachedPrefs() async {
@@ -110,6 +117,7 @@ class _DashboardState extends State<Dashboard>
     assert(investor != null);
     name = investor.name;
     listenForOffer(this);
+    listenForBid(this, investor.documentReference);
     setState(() {});
     _getSummaryData();
   }
@@ -126,14 +134,15 @@ class _DashboardState extends State<Dashboard>
     if (invoiceBids.isNotEmpty) {
       lastInvoiceBid = invoiceBids.last;
     }
-    setState(() {
-      totalInvoiceBids = invoiceBids.length;
-    });
+
     if (_scaffoldKey.currentState != null) {
       _scaffoldKey.currentState.hideCurrentSnackBar();
     }
     invoiceBids.forEach((n) {
       totalInvoiceBidAmount += n.amount;
+    });
+    setState(() {
+      totalInvoiceBids = invoiceBids.length;
     });
   }
 
@@ -382,8 +391,9 @@ class _DashboardState extends State<Dashboard>
   @override
   onOffer(Offer o) {
     offer = o;
-    prettyPrint(offer.toJson(), '_DashboardState.onOffer');
-    DateTime now = DateTime.now();
+    print(
+        '\n\n_DashboardState.onOffer ...... check date handling ....${o.offerAmount} ${o.date}');
+    DateTime now = DateTime.now().toUtc();
     DateTime date = DateTime.parse(o.date);
     Duration difference = now.difference(date);
     if (difference.inHours > 1) {
@@ -437,6 +447,13 @@ class _DashboardState extends State<Dashboard>
     fontSize: 28.0,
     color: Colors.teal,
   );
+
+  @override
+  onInvoiceBid(InvoiceBid bid) {
+    print(
+        '\n\n_DashboardState.onInvoiceBid +++++++++++++ arrived safely. Bueno Senor!......... ${bid.investorName} ${bid.amount}\n\n');
+    _getSummaryData();
+  }
 }
 
 class InvoiceBidSummaryCard extends StatelessWidget {

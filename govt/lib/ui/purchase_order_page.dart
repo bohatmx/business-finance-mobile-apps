@@ -6,6 +6,7 @@ import 'package:businesslibrary/data/govt_entity.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
+import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/selectors.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:flutter/material.dart';
@@ -106,7 +107,7 @@ class _PurchaseOrderPageState extends State<PurchaseOrderPageGovt>
       }
       print(
           '_PurchaseOrderPageState._registerPurchaseOrder ... ${purchaseOrder.toJson()}');
-      purchaseOrder.date = new DateTime.now().toIso8601String();
+      purchaseOrder.date = getUTCDate();
       purchaseOrder.amount = double.parse(amount);
       purchaseOrder.purchaseOrderNumber = poNumber;
 

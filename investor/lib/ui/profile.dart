@@ -8,6 +8,7 @@ import 'package:businesslibrary/data/investor.dart';
 import 'package:businesslibrary/data/investor_profile.dart';
 import 'package:businesslibrary/data/sector.dart';
 import 'package:businesslibrary/data/supplier.dart';
+import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:businesslibrary/util/util.dart';
@@ -440,7 +441,7 @@ class _ProfilePageState extends State<ProfilePage> implements SnackBarListener {
         name: investor.name,
         investor:
             'resource:com.oneconnect.biz.Investor#${investor.participantId}',
-        date: DateTime.now().toIso8601String(),
+        date: getUTCDate(),
         maxInvestableAmount: maxInvestableAmount,
         maxInvoiceAmount: maxInvoiceAmount,
         email: email,
@@ -468,7 +469,7 @@ class _ProfilePageState extends State<ProfilePage> implements SnackBarListener {
         name: investor.name,
         investor:
             'resource:com.oneconnect.biz.Investor#${investor.participantId}',
-        date: DateTime.now().toIso8601String(),
+        date: getUTCDate(),
         maxInvestableAmount: maxInvestableAmount,
         maxInvoiceAmount: maxInvoiceAmount,
         email: email,
@@ -518,7 +519,7 @@ class _ProfilePageState extends State<ProfilePage> implements SnackBarListener {
       order.wallet = Namespace + 'Wallet#${wallet.stellarPublicKey}';
     } else {
       order = AutoTradeOrder(
-          date: DateTime.now().toIso8601String(),
+          date: getUTCDate(),
           investorName: investor.name,
           investorProfile: Namespace + 'InvestorProfile#${profile.profileId}',
           investor: Namespace + 'Investor#${investor.participantId}',

@@ -6,6 +6,7 @@ import 'package:businesslibrary/data/delivery_note.dart';
 import 'package:businesslibrary/data/invoice.dart';
 import 'package:businesslibrary/data/invoice_acceptance.dart';
 import 'package:businesslibrary/data/user.dart';
+import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/util.dart';
 
 class Accept {
@@ -13,7 +14,7 @@ class Accept {
     print(
         '\n\nAccept.sendAcceptance ####################### ......purchaseOrderNumber: ${note.purchaseOrderNumber}\n\n');
     var a = DeliveryAcceptance(
-      date: DateTime.now().toIso8601String(),
+      date: getUTCDate(),
       supplier: note.supplier,
       deliveryNote:
           'resource:com.oneconnect.biz.DeliveryNote#${note.deliveryNoteId}',
@@ -34,7 +35,7 @@ class Accept {
     print(
         '\n\nAccept.sendInvoiceAcceptance ...... ######################### invoiceNumber: ${invoice.invoiceNumber}');
     var a = InvoiceAcceptance(
-      date: DateTime.now().toIso8601String(),
+      date: getUTCDate(),
       supplierName: invoice.supplierName,
       invoiceNumber: invoice.invoiceNumber,
       invoice: 'resource:com.oneconnect.biz.Invoice#${invoice.invoiceId}',

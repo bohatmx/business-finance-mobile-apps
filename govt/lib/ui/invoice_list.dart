@@ -70,7 +70,7 @@ class _InvoiceListState extends State<InvoiceList> implements SnackBarListener {
         supplierName: invoice.supplierName,
         customerName: entity.name,
         supplierDocumentRef: invoice.supplierDocumentRef,
-        date: new DateTime.now().toIso8601String(),
+        date: getUTCDate(),
         invoice: 'resource:com.oneconnect.biz.Invoice#${invoice.invoiceId}',
         govtEntity:
             'resource:com.oneconnect.biz.GovtEntity#${entity.participantId}',

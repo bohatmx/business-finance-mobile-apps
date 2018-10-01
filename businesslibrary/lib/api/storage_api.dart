@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 
+import 'package:businesslibrary/util/lookups.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
 class StorageAPI {
@@ -14,9 +15,7 @@ class StorageAPI {
     rand = new Random(new DateTime.now().millisecondsSinceEpoch);
     var index = path.lastIndexOf('.');
     var extension = path.substring(index + 1);
-    var name = 'BFN' +
-        new DateTime.now().toIso8601String() +
-        '_${rand.nextInt(1000)} +.$extension';
+    var name = 'BFN' + getUTCDate() + '_${rand.nextInt(1000)} +.$extension';
 
     File file = new File(path);
     var task =

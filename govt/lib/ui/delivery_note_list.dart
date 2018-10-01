@@ -123,7 +123,7 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
 
     DataAPI3 api = new DataAPI3();
     DeliveryAcceptance acceptance = DeliveryAcceptance(
-      date: new DateTime.now().toIso8601String(),
+      date: getUTCDate(),
       supplier: deliveryNote.supplier,
       supplierDocumentRef: deliveryNote.supplierDocumentRef,
       companyDocumentRef: deliveryNote.companyDocumentRef,

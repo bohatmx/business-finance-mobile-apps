@@ -45,7 +45,7 @@ class _OfferListState extends State<OfferList> with WidgetsBindingObserver {
 
   void _getOffers() async {
     print('_OfferListState._getOffers .......................');
-    endTime = DateTime.now();
+    endTime = DateTime.now().toUtc();
     startTime = endTime.subtract(Duration(days: _days));
 
     AppSnackbar.showSnackbarWithProgressIndicator(

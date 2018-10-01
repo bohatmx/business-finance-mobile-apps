@@ -7,9 +7,26 @@
     <list default="true" id="80b8d4ed-f360-4af7-bada-dfcc0519f100" name="Default" comment="refactored data api to point to cloud functions">
       <change beforePath="$PROJECT_DIR$/../businesslibrary/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/api/auto_trade.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/api/auto_trade.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/api/data_api.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/api/data_api.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/api/data_api3.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/api/data_api3.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/api/list_api.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/api/list_api.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/api/signup.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/api/signup.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/api/storage_api.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/api/storage_api.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/util/lookups.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/util/lookups.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../govt/lib/ui/acceptance.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../govt/lib/ui/acceptance.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../govt/lib/ui/dashboard.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../govt/lib/ui/dashboard.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../govt/lib/ui/delivery_note_list.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../govt/lib/ui/delivery_note_list.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../govt/lib/ui/invoice_list.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../govt/lib/ui/invoice_list.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../govt/lib/ui/purchase_order_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../govt/lib/ui/purchase_order_page.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../govt/lib/ui/signup_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../govt/lib/ui/signup_page.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../investor/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../investor/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../investor/lib/ui/dashboard.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../investor/lib/ui/dashboard.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../investor/lib/ui/firestore_listener.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../investor/lib/ui/firestore_listener.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../investor/lib/ui/invoice_bid_list.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../investor/lib/ui/invoice_bid_list.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../investor/lib/ui/invoice_bidder.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../investor/lib/ui/invoice_bidder.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../investor/lib/ui/offer_list.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../investor/lib/ui/offer_list.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../investor/lib/ui/offers_and_bids.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../investor/lib/ui/offers_and_bids.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../investor/lib/ui/profile.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../investor/lib/ui/profile.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../investor/lib/ui/signup_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../investor/lib/ui/signup_page.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
@@ -274,8 +291,9 @@
           <entry key="project.open.time.56" value="1" />
           <entry key="project.open.time.59" value="1" />
           <entry key="project.open.time.61" value="1" />
+          <entry key="project.open.time.65" value="1" />
           <entry key="project.open.time.83" value="1" />
-          <entry key="project.opened" value="21" />
+          <entry key="project.opened" value="22" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
@@ -311,11 +329,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/../businesslibrary/lib/api/data_api3.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="333">
-              <caret line="230" column="74" selection-start-line="230" selection-start-column="74" selection-end-line="230" selection-end-column="74" />
+            <state relative-caret-position="329">
+              <caret line="225" column="21" lean-forward="true" selection-start-line="225" selection-start-column="21" selection-end-line="225" selection-end-column="21" />
             </state>
           </provider>
         </entry>
@@ -323,7 +341,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/lib/ui/offer_details.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="144">
+            <state relative-caret-position="32">
               <caret line="9" column="43" selection-start-line="9" selection-start-column="43" selection-end-line="9" selection-end-column="43" />
               <folding>
                 <element signature="e#0#51#0" expanded="true" />
@@ -339,7 +357,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/lib/listeners/firestore_listener.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="376">
+            <state relative-caret-position="704">
               <caret line="132" selection-start-line="132" selection-end-line="132" />
             </state>
           </provider>
@@ -348,21 +366,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/lib/ui/delivery_note_page.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="450">
+            <state relative-caret-position="1872">
               <caret line="390" column="24" selection-start-line="390" selection-start-column="24" selection-end-line="390" selection-end-column="24" />
-              <folding>
-                <element signature="e#1462#1506#0" expanded="true" />
-                <element signature="e#1521#1770#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="true">
-        <entry file="mock:///liberrors_patch.dart">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="173">
-              <caret line="39" selection-start-line="39" selection-end-line="39" />
             </state>
           </provider>
         </entry>
@@ -370,7 +375,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/lib/ui/make_offer.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="295">
+            <state relative-caret-position="1920">
               <caret line="218" column="4" selection-start-line="218" selection-start-column="4" selection-end-line="218" selection-end-column="4" />
             </state>
           </provider>
@@ -379,7 +384,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/lib/ui/delivery_note_list.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="291">
+            <state relative-caret-position="800">
               <caret line="269" column="40" selection-start-line="269" selection-start-column="40" selection-end-line="269" selection-end-column="40" />
               <folding>
                 <element signature="e#6968#8938#0" expanded="true" />
@@ -392,12 +397,10 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/lib/ui/invoice_page.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1099">
+            <state relative-caret-position="1776">
               <caret line="153" column="35" selection-start-line="153" selection-start-column="35" selection-end-line="153" selection-end-column="35" />
               <folding>
                 <element signature="e#0#52#0" expanded="true" />
-                <element signature="e#1835#1886#0" expanded="true" />
-                <element signature="e#8232#17324#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -546,7 +549,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="AndroidView" />
+      <pane id="PackagesPane" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -575,13 +578,13 @@
           <select />
         </subPane>
       </pane>
-      <pane id="PackagesPane" />
+      <pane id="AndroidView" />
       <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
     <property name="android.sdk.path" value="$USER_HOME$/Library/Android/sdk" />
-    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1538297250655" />
+    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1538393786771" />
     <property name="dart.analysis.tool.window.force.activate" value="false" />
     <property name="io.flutter.reload.alreadyRun" value="true" />
     <property name="settings.editor.selected.configurable" value="dart.settings" />
@@ -777,8 +780,8 @@
     <frame x="1680" y="28" width="1797" height="996" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.49810606" visible="true" weight="0.14985755" />
-      <window_info id="Structure" order="1" sideWeight="0.50189394" side_tool="true" visible="true" weight="0.15042736" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.4971537" visible="true" weight="0.14928775" />
+      <window_info id="Structure" order="1" sideWeight="0.5028463" side_tool="true" visible="true" weight="0.15042736" />
       <window_info id="Designer" order="2" />
       <window_info id="Build Variants" order="3" sideWeight="0.5203956" side_tool="true" weight="0.25656688" />
       <window_info id="Image Layers" order="4" />
@@ -788,14 +791,14 @@
       <window_info id="UI Designer" order="8" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32844242" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.8034188" visible="true" weight="0.33849558" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.802849" visible="true" weight="0.33849558" />
       <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.74301994" weight="0.39823008" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" sideWeight="0.4997151" weight="0.32964602" />
       <window_info anchor="bottom" id="Dart Analysis" order="7" sideWeight="0.4980057" weight="0.32807216" />
       <window_info anchor="bottom" id="Android Profiler" order="8" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Event Log" order="9" sideWeight="0.1965812" side_tool="true" visible="true" weight="0.33849558" />
+      <window_info anchor="bottom" id="Event Log" order="9" sideWeight="0.19715099" side_tool="true" visible="true" weight="0.33849558" />
       <window_info anchor="bottom" id="Logcat" order="10" sideWeight="0.4993895" weight="0.32918552" />
       <window_info anchor="bottom" id="Version Control" order="11" weight="0.32936978" />
       <window_info anchor="bottom" id="Terminal" order="12" sideWeight="0.4980057" weight="0.37767756" />
@@ -1122,23 +1125,16 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/pubspec.yaml">
+    <entry file="file://$PROJECT_DIR$/../businesslibrary/lib/api/data_api3.dart">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="128">
-          <caret line="8" column="18" selection-start-line="8" selection-start-column="2" selection-end-line="9" selection-end-column="84" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../businesslibrary/lib/util/styles.dart">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="4032">
-          <caret line="252" column="16" selection-start-line="252" selection-start-column="16" selection-end-line="252" selection-end-column="16" />
+        <state relative-caret-position="329">
+          <caret line="225" column="21" lean-forward="true" selection-start-line="225" selection-start-column="21" selection-end-line="225" selection-end-column="21" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/lib/ui/offer_details.dart">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="144">
+        <state relative-caret-position="32">
           <caret line="9" column="43" selection-start-line="9" selection-start-column="43" selection-end-line="9" selection-end-column="43" />
           <folding>
             <element signature="e#0#51#0" expanded="true" />
@@ -1152,14 +1148,28 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/lib/listeners/firestore_listener.dart">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="376">
+        <state relative-caret-position="704">
           <caret line="132" selection-start-line="132" selection-end-line="132" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lib/ui/delivery_note_page.dart">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1872">
+          <caret line="390" column="24" selection-start-line="390" selection-start-column="24" selection-end-line="390" selection-end-column="24" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lib/ui/make_offer.dart">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1920">
+          <caret line="218" column="4" selection-start-line="218" selection-start-column="4" selection-end-line="218" selection-end-column="4" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/lib/ui/delivery_note_list.dart">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="291">
+        <state relative-caret-position="800">
           <caret line="269" column="40" selection-start-line="269" selection-start-column="40" selection-end-line="269" selection-end-column="40" />
           <folding>
             <element signature="e#6968#8938#0" expanded="true" />
@@ -1170,38 +1180,25 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/lib/ui/invoice_page.dart">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1099">
+        <state relative-caret-position="1776">
           <caret line="153" column="35" selection-start-line="153" selection-start-column="35" selection-end-line="153" selection-end-column="35" />
           <folding>
             <element signature="e#0#52#0" expanded="true" />
-            <element signature="e#1835#1886#0" expanded="true" />
-            <element signature="e#8232#17324#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/../businesslibrary/lib/api/data_api3.dart">
+    <entry file="file://$PROJECT_DIR$/pubspec.yaml">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="333">
-          <caret line="230" column="74" selection-start-line="230" selection-start-column="74" selection-end-line="230" selection-end-column="74" />
+        <state relative-caret-position="128">
+          <caret line="8" column="18" selection-start-line="8" selection-start-column="2" selection-end-line="9" selection-end-column="84" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/lib/ui/make_offer.dart">
+    <entry file="file://$PROJECT_DIR$/../businesslibrary/lib/util/styles.dart">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="295">
-          <caret line="218" column="4" selection-start-line="218" selection-start-column="4" selection-end-line="218" selection-end-column="4" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/lib/ui/delivery_note_page.dart">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="450">
-          <caret line="390" column="24" selection-start-line="390" selection-start-column="24" selection-end-line="390" selection-end-column="24" />
-          <folding>
-            <element signature="e#1462#1506#0" expanded="true" />
-            <element signature="e#1521#1770#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="4032">
+          <caret line="252" column="16" selection-start-line="252" selection-start-column="16" selection-end-line="252" selection-end-column="16" />
         </state>
       </provider>
     </entry>
