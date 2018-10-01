@@ -1,10 +1,10 @@
 import 'dart:async';
 
 import 'package:businesslibrary/api/data_api.dart';
+import 'package:businesslibrary/api/data_api3.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/auditor.dart';
 import 'package:businesslibrary/data/bank.dart';
-import 'package:businesslibrary/data/company.dart';
 import 'package:businesslibrary/data/govt_entity.dart';
 import 'package:businesslibrary/data/investor.dart';
 import 'package:businesslibrary/data/oneconnect.dart';
@@ -87,9 +87,9 @@ class SignUp {
       return ErrorEntityAlreadyExists;
     }
     govtEntity.dateRegistered = getUTCDate();
-    DataAPI dataAPI = DataAPI(url);
+    DataAPI3 dataAPI = DataAPI3();
     var key = await dataAPI.addGovtEntity(govtEntity);
-    if (key == '0') {
+    if (key > DataAPI3.Success) {
       return ErrorBlockchain;
     }
 
@@ -108,7 +108,7 @@ class SignUp {
       print('SignUp.signUpGovtEntity ERROR ERROR - wallet failed');
     }
 
-    admin.govtEntity = NameSpace + 'GovtEntity#' + key;
+//    admin.govtEntity = NameSpace + 'GovtEntity#' + key;
     admin.isAdministrator = 'true';
     return await signUp(admin);
   }
@@ -122,47 +122,6 @@ class SignUp {
     }
 
     return result;
-  }
-
-  Future<int> signUpCompany(Company company, User admin) async {
-    await _setupRemoteConfig();
-    var qs = await _firestore
-        .collection('companies')
-        .where('name', isEqualTo: company.name)
-        .where('country', isEqualTo: company.country)
-        .getDocuments()
-        .catchError((e) {
-      print('SignUp.signUpCompany ERROR $e');
-    });
-    if (qs.documents.isNotEmpty) {
-      print('SignUp.signUpCompany ERROR company already exists');
-      return ErrorEntityAlreadyExists;
-    }
-
-    company.dateRegistered = getUTCDate();
-    DataAPI dataAPI = DataAPI(url);
-    var key = await dataAPI.addCompany(company);
-    if (key == '0') {
-      return ErrorBlockchain;
-    }
-    await SharedPrefs.saveCompany(company);
-
-    //create Stellar wallet
-    if (isInDebugMode) {
-      privateKey = null;
-    }
-    var res = await _doWalletCall(
-        company.name, company.participantId, privateKey, CompanyType);
-
-    if (res != '0') {
-      print('SignUp.signUpCompany govt wallet done');
-    } else {
-      print('SignUp.signUpCompany ERROR ERROR - wallet failed');
-    }
-
-    admin.company = NameSpace + 'Company#' + key;
-    admin.isAdministrator = 'true';
-    return await signUp(admin);
   }
 
   Future<int> signUpSupplier(Supplier supplier, User admin) async {
@@ -179,14 +138,14 @@ class SignUp {
       print('SignUp.signUpSupplier ERROR supplier already exists');
       return ErrorEntityAlreadyExists;
     }
-    DataAPI dataAPI = DataAPI(url);
+    DataAPI3 dataAPI = DataAPI3();
     supplier.dateRegistered = getUTCDate();
     var key = await dataAPI.addSupplier(supplier);
-    if (key == '0') {
+    if (key > DataAPI3.Success) {
       return ErrorBlockchain;
     }
     await SharedPrefs.saveSupplier(supplier);
-    admin.supplier = NameSpace + 'Supplier#' + key;
+    admin.supplier = NameSpace + 'Supplier#${supplier.participantId}';
     admin.isAdministrator = 'true';
 
     //create Stellar wallet
@@ -203,7 +162,7 @@ class SignUp {
     return await signUp(admin);
   }
 
-  Future<int> signUpInvestor(Investor investor, User admin) async {
+  Future<int> signUpInvestor(Investor investor, User user) async {
     await _setupRemoteConfig();
     var qs = await _firestore
         .collection('investors')
@@ -218,9 +177,9 @@ class SignUp {
       return ErrorEntityAlreadyExists;
     }
     investor.dateRegistered = getUTCDate();
-    DataAPI dataAPI = DataAPI(url);
-    var key = await dataAPI.addInvestor(investor);
-    if (key == '0') {
+    DataAPI3 dataAPI = DataAPI3();
+    var result = await dataAPI.addInvestor(investor);
+    if (result > DataAPI3.Success) {
       return ErrorBlockchain;
     }
 
@@ -237,9 +196,9 @@ class SignUp {
     } else {
       print('SignUp.signUpInvestor ERROR ERROR - wallet failed');
     }
-    admin.investor = NameSpace + 'Investor#' + key;
-    admin.isAdministrator = 'true';
-    return await signUp(admin);
+//    user.investor = NameSpace + 'Investor#' + key;
+    user.isAdministrator = 'true';
+    return await signUp(user);
   }
 
   Future<int> signUpAuditor(Auditor auditor, User admin) async {
@@ -256,9 +215,9 @@ class SignUp {
       print('SignUp.signUpAuditor ERROR auditor already exists');
       return ErrorEntityAlreadyExists;
     }
-    DataAPI dataAPI = DataAPI(url);
+    DataAPI3 dataAPI = DataAPI3();
     var key = await dataAPI.addAuditor(auditor);
-    if (key == '0') {
+    if (key > DataAPI3.Success) {
       return ErrorBlockchain;
     }
 
@@ -276,7 +235,7 @@ class SignUp {
       print('SignUp.signUpAuditor ERROR ERROR - wallet failed');
     }
 
-    admin.auditor = NameSpace + 'Auditor#' + key;
+//    admin.auditor = NameSpace + 'Auditor#' + key;
     admin.isAdministrator = 'true';
     return await signUp(admin);
   }
@@ -297,9 +256,9 @@ class SignUp {
           'SignUp.signUpProcurementOffice ERROR ProcurementOffice already exists');
       return ErrorEntityAlreadyExists;
     }
-    DataAPI dataAPI = DataAPI(url);
+    DataAPI3 dataAPI = DataAPI3();
     var key = await dataAPI.addProcurementOffice(office);
-    if (key == '0') {
+    if (key > DataAPI3.Success) {
       return ErrorBlockchain;
     }
 
@@ -316,7 +275,7 @@ class SignUp {
     } else {
       print('SignUp.signUpProcurementOffice ERROR ERROR - wallet failed');
     }
-    admin.procurementOffice = NameSpace + 'ProcurementOffice#' + key;
+//    admin.procurementOffice = NameSpace + 'ProcurementOffice#' + key;
     admin.isAdministrator = 'true';
     return await signUp(admin);
   }
@@ -335,9 +294,9 @@ class SignUp {
       print('SignUp.signUpBank ERROR bank already exists');
       return ErrorEntityAlreadyExists;
     }
-    DataAPI dataAPI = DataAPI(url);
+    DataAPI3 dataAPI = DataAPI3();
     var key = await dataAPI.addBank(bank);
-    if (key == '0') {
+    if (key > DataAPI3.Success) {
       return ErrorBlockchain;
     }
 
@@ -355,7 +314,7 @@ class SignUp {
       print('SignUp.signUpBank ERROR ERROR - wallet failed');
     }
 
-    admin.bank = NameSpace + 'Bank#' + key;
+//    admin.bank = NameSpace + 'Bank#' + key;
     admin.isAdministrator = 'true';
     return await signUp(admin);
   }
@@ -372,9 +331,9 @@ class SignUp {
       print('SignUp.signUpOneConnect ERROR OneConnect already exists');
       return ErrorEntityAlreadyExists;
     }
-    DataAPI dataAPI = DataAPI(url);
+    DataAPI3 dataAPI = DataAPI3();
     var key = await dataAPI.addOneConnect(oneConnect);
-    if (key == '0') {
+    if (key > DataAPI3.Success) {
       return ErrorBlockchain;
     }
 
@@ -392,7 +351,7 @@ class SignUp {
       print('SignUp.signUpOneConnect ERROR ERROR - wallet failed');
     }
 
-    admin.oneConnect = NameSpace + 'OneConnect#' + key;
+//    admin.oneConnect = NameSpace + 'OneConnect#' + key;
     admin.isAdministrator = 'true';
     return await signUp(admin);
   }
@@ -405,9 +364,6 @@ class SignUp {
     assert(user.lastName != null);
     assert(user.isAdministrator != null);
 
-    if (!hasOwner(user)) {
-      return ErrorMissingOrInvalidData;
-    }
     var qs = await _firestore
         .collection('users')
         .where('firstName', isEqualTo: user.firstName)

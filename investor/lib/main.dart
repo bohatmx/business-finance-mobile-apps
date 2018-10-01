@@ -148,7 +148,6 @@ class _StartPageState extends State<StartPage> {
       context,
       new MaterialPageRoute(builder: (context) => new SignUpPage()),
     );
-    print('_StartPageState._startSignUpPage  ${type.type}');
   }
 
   void _startSignInPage() async {

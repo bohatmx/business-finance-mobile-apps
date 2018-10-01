@@ -195,6 +195,9 @@ class _MakeOfferPageState extends State<MakeOfferPage>
 
     var offerAmt = (invoice.totalAmount * (100.0 - disc)) / 100.0;
     wallet = await SharedPrefs.getWallet();
+    var startTime = DateTime.now().toUtc();
+    var endTime = startTime.add(new Duration(days: days)).toIso8601String();
+
     Offer offer = new Offer(
         supplier: NameSpace + 'Supplier#' + supplier.participantId,
         invoice: NameSpace + 'Invoice#' + invoice.invoiceId,
@@ -203,10 +206,9 @@ class _MakeOfferPageState extends State<MakeOfferPage>
         offerAmount: offerAmt,
         invoiceAmount: invoice.totalAmount,
         discountPercent: disc,
-        startTime: new DateTime.now().toIso8601String(),
-        endTime:
-            new DateTime.now().add(new Duration(days: days)).toIso8601String(),
-        date: new DateTime.now().toIso8601String(),
+        startTime: getUTCDate(),
+        endTime: endTime,
+        date: getUTCDate(),
         participantId: supplier.participantId,
         customerName: invoice.customerName,
         wallet: NameSpace + 'Wallet#${wallet.stellarPublicKey}',

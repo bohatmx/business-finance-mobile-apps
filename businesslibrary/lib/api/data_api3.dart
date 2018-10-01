@@ -6,6 +6,7 @@ import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/api_bag.dart';
 import 'package:businesslibrary/data/auditor.dart';
 import 'package:businesslibrary/data/auto_trade_order.dart';
+import 'package:businesslibrary/data/bank.dart';
 import 'package:businesslibrary/data/delivery_acceptance.dart';
 import 'package:businesslibrary/data/delivery_note.dart';
 import 'package:businesslibrary/data/govt_entity.dart';
@@ -46,6 +47,7 @@ class DataAPI3 {
       UnknownError = 4;
   Future<int> registerPurchaseOrder(PurchaseOrder purchaseOrder) async {
     purchaseOrder.purchaseOrderId = getKey();
+    purchaseOrder.date = getUTCDate();
     var bag = APIBag(
       debug: isInDebugMode,
       data: purchaseOrder.toJson(),
@@ -80,6 +82,7 @@ class DataAPI3 {
 
   Future<int> registerDeliveryNote(DeliveryNote deliveryNote) async {
     deliveryNote.deliveryNoteId = getKey();
+    deliveryNote.date = getUTCDate();
     var bag = APIBag(
       debug: isInDebugMode,
       data: deliveryNote.toJson(),
@@ -149,6 +152,7 @@ class DataAPI3 {
     invoice.invoiceId = getKey();
     invoice.isOnOffer = false;
     invoice.isSettled = false;
+    invoice.date = getUTCDate();
 
     var bag = APIBag(
       debug: isInDebugMode,
@@ -330,6 +334,7 @@ class DataAPI3 {
         'DataAPI3.addGovtEntity ==============>>>> ........... ${govtEntity.toJson()}');
     print('DataAPI3.addGovtEntity ))))))) URL: $url$ADD_DATA');
     govtEntity.participantId = getKey();
+    govtEntity.dateRegistered = getUTCDate();
     var bag = APIBag(
         debug: isInDebugMode,
         data: govtEntity.toJson(),
@@ -365,6 +370,7 @@ class DataAPI3 {
   }
 
   Future<int> addUser(User user) async {
+    user.dateRegistered = getUTCDate();
     user.userId = getKey();
     var bag = APIBag(
         debug: isInDebugMode,
@@ -535,6 +541,7 @@ class DataAPI3 {
     wallet.debug = null;
     wallet.sourceSeed = null;
     wallet.secret = null;
+    wallet.dateRegistered = getUTCDate();
     var bag = APIBag(
         debug: isInDebugMode,
         data: wallet.toJson(),
@@ -566,6 +573,7 @@ class DataAPI3 {
   }
 
   Future<int> addSupplier(Supplier supplier) async {
+    supplier.dateRegistered = getUTCDate();
     supplier.participantId = getKey();
     var bag = APIBag(
         debug: isInDebugMode,
@@ -602,9 +610,48 @@ class DataAPI3 {
     }
   }
 
+  Future<int> addBank(Bank bank) async {
+    bank.dateRegistered = getUTCDate();
+    bank.participantId = getKey();
+    var bag = APIBag(
+        debug: isInDebugMode,
+        data: bank.toJson(),
+        apiSuffix: 'Bank',
+        collectionName: 'banks');
+    print('DataAPI.addBank   ${url + ADD_DATA}');
+
+    try {
+      var httpClient = new HttpClient();
+      HttpClientRequest mRequest =
+          await httpClient.postUrl(Uri.parse(url + ADD_DATA));
+      mRequest.headers.contentType = _contentType;
+      mRequest.write(json.encode(bag.toJson()));
+      HttpClientResponse mResponse = await mRequest.close();
+      print(
+          'DataAPI.addBank blockchain response status code:  ${mResponse.statusCode}');
+      if (mResponse.statusCode == 200) {
+        mResponse.transform(utf8.decoder).listen((contents) {
+          bank.documentReference = contents.split('/').elementAt(1);
+          print('DataAPI3.addBank ****************** contents: $contents');
+        });
+        await SharedPrefs.saveBank(bank);
+        return Success;
+      } else {
+        print('DataAPI.addBank ERROR  ${mResponse.reasonPhrase}');
+        mResponse.transform(utf8.decoder).listen((contents) {
+          print('DataAPI.addBank  $contents');
+        });
+        return BlockchainError;
+      }
+    } catch (e) {
+      print('DataAPI.addBank ERROR $e');
+      return UnknownError;
+    }
+  }
+
   Future<int> addInvestor(Investor investor) async {
-    investor.participantId = getKey();
     investor.dateRegistered = getUTCDate();
+    investor.participantId = getKey();
     var bag = APIBag(
         debug: isInDebugMode,
         data: investor.toJson(),

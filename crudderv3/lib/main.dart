@@ -285,6 +285,10 @@ class _MyHomePageState extends State<MyHomePage> {
       qs14.documents.forEach((doc) async {
         doc.reference.delete();
       });
+      var qs15 = await fs.collection('autoTradeStarts').getDocuments();
+      qs15.documents.forEach((doc) async {
+        doc.reference.delete();
+      });
 
       print(
           'Generator.cleanUp invoiceOffers and invoiceBids deleted from Firestore and FirebaseStorage ##############');

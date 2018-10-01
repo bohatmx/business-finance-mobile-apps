@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:businesslibrary/api/data_api.dart';
+import 'package:businesslibrary/api/data_api3.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/delivery_acceptance.dart';
 import 'package:businesslibrary/data/delivery_note.dart';
@@ -12,7 +12,6 @@ import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/data/wallet.dart';
-import 'package:businesslibrary/util/comms.dart';
 import 'package:businesslibrary/util/util.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -338,35 +337,12 @@ configureMessaging(FCMListener listener) async {
     onMessage: (Map<String, dynamic> message) async {
       var messageType = message["messageType"];
       if (messageType == "WALLET") {
-        print(
-            'configureMessaging: \n\n############## receiving WALLET message from FCM:\n ${message["json"]}\n\n');
-        Map map = json.decode(message["json"]);
-        var wallet = new Wallet.fromJson(map);
-        if (wallet != null) {
-          prettyPrint(map, 'configureMessaging: --------> wallet received:');
-          wallet.sourceSeed = null;
-          var dec =
-              await decrypt(wallet.stellarPublicKey, wallet.encryptedSecret);
-          wallet.secret = dec;
-          await SharedPrefs.saveWallet(wallet);
-          //get acct from stellar and save in sharedPrefs
-          DataAPI api = DataAPI(getURL());
-          wallet.secret = null;
-          var key = await api.addWallet(wallet);
-          if (key == '0') {
-            print('configureMessaging ERROR blockchain wallet write failed');
-            listener.onWalletError();
-            return;
-          }
-          var acct = await StellarCommsUtil.getAccount(wallet.stellarPublicKey);
-          await SharedPrefs.saveAccount(acct);
-          print('configureMessaging -- about to send wallet via listener');
-          listener.onWalletMessage(wallet);
-        } else {
-          print('configureMessaging: ERROR ERROR wallet from FCM is null');
-          listener.onWalletError();
-        }
+        print('');
+      } else {
+        print('configureMessaging: ERROR ERROR wallet from FCM is null');
+        listener.onWalletError();
       }
+
       if (messageType == "WALLET_ERROR") {
         print(
             'configureMessaging: ############## receiving WALLET_ERROR message from FCM');
@@ -612,15 +588,15 @@ Future<String> createWallet(
   }
 
   wallet.documentReference = walletDocId;
-  DataAPI api = DataAPI(getURL());
-  var key = await api.addWallet(wallet);
-  if (key != '0') {
+  DataAPI3 api = DataAPI3();
+  var res = await api.addWallet(wallet);
+  if (res == DataAPI3.Success) {
     prettyPrint(wallet.toJson(),
         'Wallet created and ready for use: #######################))))))))');
     return wallet.stellarPublicKey;
   } else {
     print('createWallet ERROR  writing wallet to BFN blockchain');
-    return key;
+    return '0';
   }
 }
 
