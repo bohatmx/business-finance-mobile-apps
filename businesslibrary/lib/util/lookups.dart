@@ -2,8 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:businesslibrary/api/data_api.dart';
-import 'package:businesslibrary/api/data_api3.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
+import 'package:businesslibrary/api/signup.dart';
 import 'package:businesslibrary/data/delivery_acceptance.dart';
 import 'package:businesslibrary/data/delivery_note.dart';
 import 'package:businesslibrary/data/invoice.dart';
@@ -547,9 +547,8 @@ Future<String> decrypt(String accountId, String encrypted) async {
 Future<String> createWallet(
     {@required String name,
     @required String participantId,
-    @required type,
+    @required int type,
     String seed}) async {
-  print('createWallet ............. https function call ...');
   var debugData = {
     'debug': 'true',
   };
@@ -562,11 +561,12 @@ Future<String> createWallet(
   } else {
     url = PROD_URL;
     body = prodData;
+    seed = SignUp.privateKey;
   }
   url += 'directWallet';
   http.Response result;
   Wallet wallet;
-  print('createWallet ------- making the http.post call -----');
+  print('createWallet ------- making the http.post call -----\n $url');
   try {
     result = await http.post(url, body: body).catchError((e) {
       print('createWallet ----- ERROR $e');
@@ -577,45 +577,39 @@ Future<String> createWallet(
     wallet = Wallet.fromJson(map);
     wallet.name = name;
     print(
-        'createWallet ############ Status Code: ${result.statusCode} Body: ${result.body}');
+        'createWallet ###>> Status Code: ${result.statusCode} \n\nBody: ${result.body}\n\n');
+    var walletDocId =
+        await _writeWalletToFirestore(type, wallet, participantId);
+    print('\n\n\nDo we get to here???????????? walletDocId: $walletDocId\n\n');
+    if (walletDocId == '0') {
+      return walletDocId;
+    }
+
+    wallet.documentReference = walletDocId;
+    if (USE_LOCAL_BLOCKCHAIN) {
+      var res = await DataAPI.addWallet(wallet);
+      if (res != '0') {
+        prettyPrint(wallet.toJson(),
+            'Wallet created and ready for use: #######################))))))))');
+        return wallet.stellarPublicKey;
+      } else {
+        print('createWallet ERROR  writing wallet to BFN blockchain');
+        throw Exception('createWallet ERROR  writing wallet to BFN blockchain');
+      }
+    }
   } catch (e) {
     print('createWallet ERROR - WALLET failed $e');
-    return '0';
+    throw Exception('createWallet ERROR - WALLET failed $e');
   }
 
-  var walletDocId = await _writeWalletToFirestore(type, wallet, participantId);
-  if (walletDocId == '0') {
-    return '0';
-  }
-
-  wallet.documentReference = walletDocId;
-
-  if (USE_LOCAL_BLOCKCHAIN) {
-    var res = await DataAPI.addWallet(wallet);
-    if (res != '0') {
-      prettyPrint(wallet.toJson(),
-          'Wallet created and ready for use: #######################))))))))');
-      return wallet.stellarPublicKey;
-    } else {
-      print('createWallet ERROR  writing wallet to BFN blockchain');
-      return '0';
-    }
-  } else {
-    var res = await DataAPI3.addWallet(wallet);
-    if (res == DataAPI3.Success) {
-      prettyPrint(wallet.toJson(),
-          'Wallet created and ready for use: #######################))))))))');
-      return wallet.stellarPublicKey;
-    } else {
-      print('createWallet ERROR  writing wallet to BFN blockchain');
-      return '0';
-    }
-  }
+  return '0';
 }
 
 Future<String> _writeWalletToFirestore(
     int type, Wallet wallet, String participantId) async {
-  print('_writeWalletToFirestore  type: $type participantId: $participantId');
+  print(
+      '\n\n_writeWalletToFirestore  ######## type: $type participantId: $participantId\n\n');
+
   switch (type) {
     case GovtEntityType:
       wallet.govtEntity = NameSpace + 'GovtEntity#' + participantId;
@@ -643,18 +637,22 @@ Future<String> _writeWalletToFirestore(
       wallet.company = NameSpace + 'Company#' + participantId;
       break;
   }
-
-  var ref = await _firestore
-      .collection('wallets')
-      .add(wallet.toJson())
-      .catchError((e) {
-    print('createWallet FAILED to write wallet to Firestore: $e');
-    return '0';
-  });
-  print('createWallet added to Firestore, documentRef: ${ref.documentID}');
-  wallet.documentReference = ref.documentID;
-  await SharedPrefs.saveWallet(wallet);
-  return ref.documentID;
+  try {
+    print('_writeWalletToFirestore: about to write wallet to FS....');
+    var ref = await _firestore
+        .collection('wallets')
+        .add(wallet.toJson())
+        .catchError((e) {
+      print('createWallet FAILED to write wallet to Firestore: $e');
+      throw Exception('Failed to write wallet to firestore $e');
+    });
+    print('createWallet added to Firestore, documentRef: ${ref.documentID}');
+    wallet.documentReference = ref.documentID;
+    await SharedPrefs.saveWallet(wallet);
+    return ref.documentID;
+  } catch (e) {
+    throw Exception('Failed to write wallet to firestore $e');
+  }
 }
 
 const GovtEntityType = 1,

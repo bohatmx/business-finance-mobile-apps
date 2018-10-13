@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:businesslibrary/api/data_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
+import 'package:businesslibrary/api/signup.dart';
 import 'package:businesslibrary/data/api_bag.dart';
 import 'package:businesslibrary/data/auditor.dart';
 import 'package:businesslibrary/data/auto_trade_order.dart';
@@ -49,7 +50,7 @@ class DataAPI3 {
       BlockchainError = 2,
       FirestoreError = 3,
       UnknownError = 4;
-  static Firestore _firestore = Firestore.instance;
+  static Firestore fs = Firestore.instance;
   static Future<int> registerPurchaseOrder(PurchaseOrder purchaseOrder) async {
     if (USE_LOCAL_BLOCKCHAIN) {
       var res = await DataAPI.registerPurchaseOrder(purchaseOrder);
@@ -75,31 +76,6 @@ class DataAPI3 {
       print(
           'DataAPI3.registerPurchaseOrder blockchain response status code:  ${mResponse.statusCode}');
       if (mResponse.statusCode == 200) {
-        ///write govt or company po
-        var ref = await _firestore
-            .collection('govtEntities')
-            .document(purchaseOrder.govtDocumentRef)
-            .collection('purchaseOrders')
-            .add(purchaseOrder.toJson())
-            .catchError((e) {
-          print('DataAPI3.registerPurchaseOrder ERROR $e');
-          return '0';
-        });
-
-        ///write po to intended supplier
-        var ref2 = await _firestore
-            .collection('suppliers')
-            .document(purchaseOrder.supplierDocumentRef)
-            .collection('purchaseOrders')
-            .add(purchaseOrder.toJson())
-            .catchError((e) {
-          print('DataAPI3.registerPurchaseOrder ERROR $e');
-          return '0';
-        });
-        print(
-            'DataAPI3.registerPurchaseOrder document issuer path: ${ref.path}');
-        print(
-            'DataAPI3.registerPurchaseOrder document supplier path: ${ref2.path}');
         return Success;
       } else {
         print(
@@ -391,9 +367,9 @@ class DataAPI3 {
   }
 
   //////////// ###################################### //////////
-  static Future<int> addGovtEntity(GovtEntity govtEntity) async {
+  static Future<int> addGovtEntity(GovtEntity govtEntity, User user) async {
     if (USE_LOCAL_BLOCKCHAIN) {
-      var res = await DataAPI.addGovtEntity(govtEntity);
+      var res = await DataAPI.addGovtEntity(govtEntity, user);
       return res == '0' ? DataAPI3.BlockchainError : DataAPI3.Success;
     }
     print(
@@ -401,9 +377,15 @@ class DataAPI3 {
     print('DataAPI3.addGovtEntity ))))))) URL: $url$ADD_DATA');
     govtEntity.participantId = getKey();
     govtEntity.dateRegistered = getUTCDate();
+    var seed;
+    if (!isInDebugMode) {
+      seed = SignUp.privateKey;
+    }
     var bag = APIBag(
         debug: isInDebugMode,
         data: govtEntity.toJson(),
+        user: user.toJson(),
+        sourceSeed: seed,
         apiSuffix: 'GovtEntity',
         collectionName: 'govtEntities');
     try {
@@ -421,9 +403,31 @@ class DataAPI3 {
           govtEntity.documentReference = contents.split('/').elementAt(1);
           print(
               'DataAPI3.addGovtEntity ****************** contents: $contents');
-        });
 
-        await SharedPrefs.saveGovtEntity(govtEntity);
+          SharedPrefs.saveGovtEntity(govtEntity);
+        });
+        var qs = await fs
+            .collection('wallets')
+            .where('govtEntity',
+                isEqualTo:
+                    'resource:com.oneconnect.biz.GovtEntity#${govtEntity.participantId}')
+            .getDocuments();
+        if (qs.documents.isNotEmpty) {
+          var wallet = Wallet.fromJson(qs.documents.first.data);
+          wallet.documentReference = qs.documents.first.documentID;
+          await SharedPrefs.saveWallet(wallet);
+        }
+        var qs2 = await fs
+            .collection('users')
+            .where('govtEntity',
+                isEqualTo:
+                    'resource:com.oneconnect.biz.GovtEntity#${govtEntity.participantId}')
+            .getDocuments();
+        if (qs2.documents.isNotEmpty) {
+          var user = User.fromJson(qs.documents.first.data);
+          user.documentReference = qs.documents.first.documentID;
+          await SharedPrefs.saveUser(user);
+        }
         return Success;
       } else {
         print('DataAPI3.addGovtEntity ERROR  ${resp.reasonPhrase}');
@@ -457,50 +461,6 @@ class DataAPI3 {
     } catch (e) {
       print('DataAPI3.executeAutoTrades ERROR $e');
       return '0';
-    }
-  }
-
-  static Future<int> addUser(User user) async {
-    user.dateRegistered = getUTCDate();
-    user.userId = getKey();
-    if (USE_LOCAL_BLOCKCHAIN) {
-      var res = await DataAPI.addUser(user);
-      return res == '0' ? DataAPI3.BlockchainError : DataAPI3.Success;
-    }
-    var bag = APIBag(
-        debug: isInDebugMode,
-        data: user.toJson(),
-        apiSuffix: 'User',
-        collectionName: 'users');
-    print('DataAPI3.addUser url: ${url + ADD_DATA}');
-    prettyPrint(bag.toJson(), 'DataAPI3.addUser, bag: ');
-    try {
-      var httpClient = new HttpClient();
-      HttpClientRequest mRequest =
-          await httpClient.postUrl(Uri.parse(url + ADD_DATA));
-      mRequest.headers.contentType = _contentType;
-      mRequest.write(json.encode(bag.toJson()));
-      HttpClientResponse mResponse = await mRequest.close();
-      print(
-          'DataAPI3.addUser ######## blockchain response status code:  ${mResponse.statusCode}');
-      if (mResponse.statusCode == 200) {
-        mResponse.transform(utf8.decoder).listen((contents) {
-          user.documentReference = contents.split('/').elementAt(1);
-          print('DataAPI3.addUser ****************** contents: $contents');
-        });
-        await SharedPrefs.saveUser(user);
-        return Success;
-      } else {
-        mResponse.transform(utf8.decoder).listen((contents) {
-          print('DataAPI3.addUser  $contents');
-        });
-        print(
-            'DataAPI3.addUser ----- ERROR  ${mResponse.reasonPhrase} ${mResponse.headers}');
-        return BlockchainError;
-      }
-    } catch (e) {
-      print('DataAPI3.addUser ERROR $e');
-      return UnknownError;
     }
   }
 
@@ -684,16 +644,22 @@ class DataAPI3 {
     }
   }
 
-  static Future<int> addSupplier(Supplier supplier) async {
+  static Future<int> addSupplier(Supplier supplier, User user) async {
     if (USE_LOCAL_BLOCKCHAIN) {
-      var res = await DataAPI.addSupplier(supplier);
+      var res = await DataAPI.addSupplier(supplier, user);
       return res == '0' ? DataAPI3.BlockchainError : DataAPI3.Success;
     }
     supplier.dateRegistered = getUTCDate();
     supplier.participantId = getKey();
+    var seed;
+    if (!isInDebugMode) {
+      seed = SignUp.privateKey;
+    }
     var bag = APIBag(
         debug: isInDebugMode,
         data: supplier.toJson(),
+        user: user.toJson(),
+        sourceSeed: seed,
         apiSuffix: 'Supplier',
         collectionName: 'suppliers');
     print('DataAPI3.addSupplier url: ${url + ADD_DATA}');
@@ -710,8 +676,30 @@ class DataAPI3 {
         mResponse.transform(utf8.decoder).listen((contents) {
           supplier.documentReference = contents.split('/').elementAt(1);
           print('DataAPI3.addSupplier ****************** contents: $contents');
+          SharedPrefs.saveSupplier(supplier);
         });
-        await SharedPrefs.saveSupplier(supplier);
+        var qs = await fs
+            .collection('wallets')
+            .where('supplier',
+                isEqualTo:
+                    'resource:com.oneconnect.biz.Supplier#${supplier.participantId}')
+            .getDocuments();
+        if (qs.documents.isNotEmpty) {
+          var wallet = Wallet.fromJson(qs.documents.first.data);
+          wallet.documentReference = qs.documents.first.documentID;
+          await SharedPrefs.saveWallet(wallet);
+        }
+        var qs2 = await fs
+            .collection('users')
+            .where('supplier',
+                isEqualTo:
+                    'resource:com.oneconnect.biz.Supplier#${supplier.participantId}')
+            .getDocuments();
+        if (qs2.documents.isNotEmpty) {
+          var user = User.fromJson(qs.documents.first.data);
+          user.documentReference = qs.documents.first.documentID;
+          await SharedPrefs.saveUser(user);
+        }
         return Success;
       } else {
         print('DataAPI3.addSupplier ERROR  ${mResponse.reasonPhrase}');
@@ -769,16 +757,22 @@ class DataAPI3 {
     }
   }
 
-  static Future<int> addInvestor(Investor investor) async {
+  static Future<int> addInvestor(Investor investor, User user) async {
     if (USE_LOCAL_BLOCKCHAIN) {
-      var res = await DataAPI.addInvestor(investor);
+      var res = await DataAPI.addInvestor(investor, user);
       return res == '0' ? DataAPI3.BlockchainError : DataAPI3.Success;
     }
     investor.dateRegistered = getUTCDate();
     investor.participantId = getKey();
+    var seed;
+    if (!isInDebugMode) {
+      seed = SignUp.privateKey;
+    }
     var bag = APIBag(
         debug: isInDebugMode,
         data: investor.toJson(),
+        user: user.toJson(),
+        sourceSeed: seed,
         apiSuffix: 'Investor',
         collectionName: 'investors');
     print('DataAPI3.addInvestor   ${url + ADD_DATA}');
@@ -797,8 +791,30 @@ class DataAPI3 {
         mResponse.transform(utf8.decoder).listen((contents) {
           investor.documentReference = contents.split('/').elementAt(1);
           print('DataAPI3.addInvestor ****************** contents: $contents');
+          SharedPrefs.saveInvestor(investor);
         });
-        await SharedPrefs.saveInvestor(investor);
+        var qs = await fs
+            .collection('wallets')
+            .where('investor',
+                isEqualTo:
+                    'resource:com.oneconnect.biz.Investor#${investor.participantId}')
+            .getDocuments();
+        if (qs.documents.isNotEmpty) {
+          var wallet = Wallet.fromJson(qs.documents.first.data);
+          wallet.documentReference = qs.documents.first.documentID;
+          await SharedPrefs.saveWallet(wallet);
+        }
+        var qs2 = await fs
+            .collection('users')
+            .where('investor',
+                isEqualTo:
+                    'resource:com.oneconnect.biz.Investor#${investor.participantId}')
+            .getDocuments();
+        if (qs2.documents.isNotEmpty) {
+          var user = User.fromJson(qs.documents.first.data);
+          user.documentReference = qs.documents.first.documentID;
+          await SharedPrefs.saveUser(user);
+        }
         return Success;
       } else {
         print('DataAPI3.addInvestor ERROR  ${mResponse.reasonPhrase}');

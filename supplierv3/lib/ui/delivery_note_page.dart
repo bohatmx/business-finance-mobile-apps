@@ -368,6 +368,7 @@ class _DeliveryNotePageState extends State<DeliveryNotePage>
       supplier: _purchaseOrder.supplier,
       supplierName: _purchaseOrder.supplierName,
       supplierDocumentRef: _purchaseOrder.supplierDocumentRef,
+      govtDocumentRef: _purchaseOrder.govtDocumentRef,
       user: NameSpaceUser + _user.userId,
       date: new DateTime.now().toIso8601String(),
       purchaseOrderNumber: _purchaseOrder.purchaseOrderNumber,

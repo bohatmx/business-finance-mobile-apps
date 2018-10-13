@@ -59,8 +59,24 @@ class _MyHomePageState extends State<MyHomePage> {
       _counter++;
     });
 
+//    _addOneSupplier();
     print(
         '_MyHomePageState._start  #####################################  COOMPLETED!');
+  }
+
+  _addOneSupplier() async {
+    Supplier e1 = new Supplier(
+      name: 'Thohoyandou Engineering',
+      email: 'info@mvendacom',
+      country: 'South Africa',
+    );
+    User u1 = new User(
+        firstName: 'Fanyana',
+        lastName: 'Maluleke',
+        password: 'pass123',
+        isAdministrator: true,
+        email: 'dmkhize@mvenda.com');
+    await SignUp.signUpSupplier(e1, u1);
   }
 
   _removeUsers() async {
@@ -133,9 +149,9 @@ class _MyHomePageState extends State<MyHomePage> {
           'Generator.cleanUp govtEntities deleted from Firestore ################');
       var qs3 = await fs.collection('suppliers').getDocuments();
       qs3.documents.forEach((doc) async {
-        var msnap =
+        var msnapx =
             await doc.reference.collection('purchaseOrders').getDocuments();
-        msnap.documents.forEach((x) async {
+        msnapx.documents.forEach((x) async {
           await x.reference.delete();
         });
         var msnap2 =

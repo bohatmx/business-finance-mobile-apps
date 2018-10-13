@@ -72,7 +72,6 @@ class SignUp {
     var qs = await _firestore
         .collection('govtEntities')
         .where('name', isEqualTo: govtEntity.name)
-        .where('govtEntityType', isEqualTo: govtEntity.govtEntityType)
         .where('country', isEqualTo: govtEntity.govtEntityType)
         .getDocuments()
         .catchError((e) {
@@ -84,45 +83,20 @@ class SignUp {
       return ErrorEntityAlreadyExists;
     }
     govtEntity.dateRegistered = getUTCDate();
+    govtEntity.participantId = DataAPI.getKey();
     if (USE_LOCAL_BLOCKCHAIN) {
-      var key = await DataAPI.addGovtEntity(govtEntity);
+      var key = await DataAPI.addGovtEntity(govtEntity, admin);
       if (key == '0') {
         return ErrorBlockchain;
       }
     } else {
-      var key = await DataAPI3.addGovtEntity(govtEntity);
+      var key = await DataAPI3.addGovtEntity(govtEntity, admin);
       if (key > DataAPI3.Success) {
         return ErrorBlockchain;
       }
     }
     await SharedPrefs.saveGovtEntity(govtEntity);
-
-    //create Stellar wallet
-    if (isInDebugMode) {
-      privateKey = null;
-    }
-    var result = await _doWalletCall(
-        govtEntity.name, govtEntity.participantId, privateKey, GovtEntityType);
-
-    if (result != '0') {
-      print('SignUp.signUpGovtEntity  wallet done');
-    } else {
-      print('SignUp.signUpGovtEntity ERROR ERROR - wallet failed');
-    }
-
-//    admin.govtEntity = NameSpace + 'GovtEntity#' + key;
-    return await signUp(admin);
-  }
-
-  static Future _doWalletCall(
-      String name, String participantId, String seed, int type) async {
-    var result = await createWallet(
-        name: name, participantId: participantId, type: type, seed: seed);
-    if (result == '0') {
-      await SharedPrefs.removeWallet();
-    }
-
-    return result;
+    return 0;
   }
 
   static Future<int> signUpSupplier(Supplier supplier, User admin) async {
@@ -141,32 +115,19 @@ class SignUp {
     }
     if (USE_LOCAL_BLOCKCHAIN) {
       supplier.dateRegistered = getUTCDate();
-      var key = await DataAPI.addSupplier(supplier);
+      var key = await DataAPI.addSupplier(supplier, admin);
       if (key == '0') {
         return ErrorBlockchain;
       }
     } else {
       supplier.dateRegistered = getUTCDate();
-      var key = await DataAPI3.addSupplier(supplier);
+      var key = await DataAPI3.addSupplier(supplier, admin);
       if (key > DataAPI3.Success) {
         return ErrorBlockchain;
       }
-      await SharedPrefs.saveSupplier(supplier);
-      admin.supplier = NameSpace + 'Supplier#${supplier.participantId}';
     }
 
-    //create Stellar wallet
-    if (isInDebugMode) {
-      privateKey = null;
-    }
-    var res = await _doWalletCall(
-        supplier.name, supplier.participantId, privateKey, SupplierType);
-    if (res != '0') {
-      print('SignUp.signUpSupplier  wallet done');
-    } else {
-      print('SignUp.signUpSupplier ERROR ERROR - wallet failed');
-    }
-    return await signUp(admin);
+    return DataAPI3.Success;
   }
 
   static Future<int> signUpInvestor(Investor investor, User user) async {
@@ -185,32 +146,19 @@ class SignUp {
     }
     investor.dateRegistered = getUTCDate();
     if (USE_LOCAL_BLOCKCHAIN) {
-      var result = await DataAPI.addInvestor(investor);
+      var result = await DataAPI.addInvestor(investor, user);
       if (result == '0') {
         return ErrorBlockchain;
       }
     } else {
-      var result = await DataAPI3.addInvestor(investor);
+      var result = await DataAPI3.addInvestor(investor, user);
       if (result > DataAPI3.Success) {
         return ErrorBlockchain;
       }
     }
 
     await SharedPrefs.saveInvestor(investor);
-
-    //create Stellar wallet
-    if (isInDebugMode) {
-      privateKey = null;
-    }
-    var res = await _doWalletCall(
-        investor.name, investor.participantId, privateKey, InvestorType);
-    if (res != '0') {
-      print('SignUp.signUpInvestor wallet done');
-    } else {
-      print('SignUp.signUpInvestor ERROR ERROR - wallet failed');
-    }
-//    user.investor = NameSpace + 'Investor#' + key;
-    return await signUp(user);
+    return DataAPI3.Success;
   }
 
   static Future<int> signUpAuditor(Auditor auditor, User admin) async {
@@ -239,22 +187,7 @@ class SignUp {
       }
     }
 
-    await SharedPrefs.saveAuditor(auditor);
-
-    //create Stellar wallet
-    if (isInDebugMode) {
-      privateKey = null;
-    }
-    var res = await _doWalletCall(
-        auditor.name, auditor.participantId, privateKey, AuditorType);
-    if (res != '0') {
-      print('SignUp.signUpAuditor wallet done');
-    } else {
-      print('SignUp.signUpAuditor ERROR ERROR - wallet failed');
-    }
-
-//    admin.auditor = NameSpace + 'Auditor#' + key;
-    return await signUp(admin);
+    return DataAPI3.Success;
   }
 
   static Future<int> signUpProcurementOffice(
@@ -291,15 +224,8 @@ class SignUp {
     if (isInDebugMode) {
       privateKey = null;
     }
-    var res = await _doWalletCall(
-        office.name, office.participantId, privateKey, ProcurementOfficeType);
-    if (res != '0') {
-      print('SignUp.signUpProcurementOffice wallet done');
-    } else {
-      print('SignUp.signUpProcurementOffice ERROR ERROR - wallet failed');
-    }
-//    admin.procurementOffice = NameSpace + 'ProcurementOffice#' + key;
-    return await signUp(admin);
+
+    return await _signUp(admin);
   }
 
   static Future<int> signUpBank(Bank bank, User admin) async {
@@ -329,21 +255,7 @@ class SignUp {
     }
 
     await SharedPrefs.saveBank(bank);
-
-    //create Stellar wallet
-    if (isInDebugMode) {
-      privateKey = null;
-    }
-    var res = await _doWalletCall(
-        bank.name, bank.participantId, privateKey, BankType);
-    if (res != '0') {
-      print('SignUp.signUpBank wallet done');
-    } else {
-      print('SignUp.signUpBank ERROR ERROR - wallet failed');
-    }
-
-//    admin.bank = NameSpace + 'Bank#' + key;
-    return await signUp(admin);
+    return await _signUp(admin);
   }
 
   static Future<int> signUpOneConnect(OneConnect oneConnect, User admin) async {
@@ -371,31 +283,11 @@ class SignUp {
     }
 
     await SharedPrefs.saveOneConnect(oneConnect);
-
-    //create Stellar wallet
-    if (isInDebugMode) {
-      privateKey = null;
-    }
-    var res = await _doWalletCall(
-        oneConnect.name, oneConnect.participantId, privateKey, OneConnectType);
-    if (res != '0') {
-      print('SignUp.signUpOneConnect wallet done');
-    } else {
-      print('SignUp.signUpOneConnect ERROR ERROR - wallet failed');
-    }
-
-//    admin.oneConnect = NameSpace + 'OneConnect#' + key;
-    return await signUp(admin);
+    return await _signUp(admin);
   }
 
-  /// add user to firebase and blockchain
-  static Future<int> signUp(User user) async {
-//    assert(user.email != null);
-//    assert(user.password != null);
-//    assert(user.firstName != null);
-//    assert(user.lastName != null);
-//    assert(user.isAdministrator != null);
-
+  /// add user to firebase auth and firestore
+  static Future<int> _signUp(User user) async {
     var qs = await _firestore
         .collection('users')
         .where('firstName', isEqualTo: user.firstName)
@@ -423,13 +315,15 @@ class SignUp {
     user.fcmToken = token;
     user.uid = fbUser.uid;
 
-    var key = await DataAPI3.addUser(user);
-    if (key > DataAPI3.Success) {
-      return ErrorBlockchain;
-    } else {
-      await SharedPrefs.saveUser(user);
-      return Success;
-    }
+    var mref =
+        await _firestore.collection('users').add(user.toJson()).catchError((e) {
+      print(e);
+      return ErrorCreatingFirebaseUser;
+    });
+    print(mref);
+    user.documentReference = mref.documentID;
+    await SharedPrefs.saveUser(user);
+    return Success;
   }
 
   static Future<FirebaseUser> _createUser(String email, String password) async {
@@ -537,4 +431,11 @@ class SignUp {
         return false;
     }
   }
+}
+
+class UserBag {
+  GovtEntity govtEntity;
+  User user;
+  bool debug;
+  String apiSuffix;
 }

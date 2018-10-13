@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:businesslibrary/api/data_api3.dart';
+import 'package:businesslibrary/api/helper.dart';
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/auditor.dart';
@@ -74,7 +76,7 @@ class DataAPI {
   static ContentType _contentType =
       new ContentType("application", "json", charset: "utf-8");
 
-  static Future<String> addGovtEntity(GovtEntity govtEntity) async {
+  static Future<String> addGovtEntity(GovtEntity govtEntity, User admin) async {
     govtEntity.participantId = getKey();
     govtEntity.dateRegistered = getUTCDate();
     print('DataAPI.addGovtEntity url: ${getURL() + GOVT_ENTITY}');
@@ -95,10 +97,21 @@ class DataAPI {
           print('DataAPI.addGovtEntity ERROR adding to Firestore $e');
           return ErrorFirestore;
         });
-        print('DataAPI.addGovtEntity added to Firestore: ${ref.path}');
-
+        print('DataAPI.addGovtEntity and user added to Firestore: ${ref.path}');
+        var mRef = await _firestore
+            .collection('users')
+            .add(admin.toJson())
+            .catchError((e) {
+          print(e);
+        });
+        print('DataAPI.addGovtEntity USER added to Firestore: ${mRef.path}');
         govtEntity.documentReference = ref.documentID;
         await SharedPrefs.saveGovtEntity(govtEntity);
+        //get wallet
+        await createWallet(
+            name: govtEntity.name,
+            participantId: govtEntity.participantId,
+            type: GovtEntityType);
         return govtEntity.participantId;
       } else {
         resp.transform(utf8.decoder).listen((contents) {
@@ -113,46 +126,46 @@ class DataAPI {
     }
   }
 
-  static Future<String> addUser(User user) async {
-    user.userId = getKey();
-    user.dateRegistered = getUTCDate();
-    print('DataAPI.addUser url: ${getURL() + USER}');
-    prettyPrint(user.toJson(), 'DataAPI.addUser ');
-    try {
-      var httpClient = new HttpClient();
-      HttpClientRequest mRequest =
-          await httpClient.postUrl(Uri.parse(getURL() + USER));
-      mRequest.headers.contentType = _contentType;
-      mRequest.write(json.encode(user.toJson()));
-      HttpClientResponse mResponse = await mRequest.close();
-      print(
-          'DataAPI.addUser ######## blockchain response status code:  ${mResponse.statusCode}');
-      if (mResponse.statusCode == 200) {
-        var ref = await _firestore
-            .collection('users')
-            .add(user.toJson())
-            .catchError((e) {
-          print('DataAPI.addUser ERROR $e');
-          return "0";
-        });
-        print('DataAPI.addUser user added to Firestore ${ref.documentID}');
-
-        user.documentReference = ref.documentID;
-        await SharedPrefs.saveUser(user);
-        return user.userId;
-      } else {
-        mResponse.transform(utf8.decoder).listen((contents) {
-          print('DataAPI.addUser  $contents');
-        });
-        print(
-            'DataAPI.addUser ----- ERROR  ${mResponse.reasonPhrase} ${mResponse.headers}');
-        return "0";
-      }
-    } catch (e) {
-      print('DataAPI.addUser ERROR $e');
-      return '0';
-    }
-  }
+//  static Future<String> addUser(User user) async {
+//    user.userId = getKey();
+//    user.dateRegistered = getUTCDate();
+//    print('DataAPI.addUser url: ${getURL() + USER}');
+//    prettyPrint(user.toJson(), 'DataAPI.addUser ');
+//    try {
+//      var httpClient = new HttpClient();
+//      HttpClientRequest mRequest =
+//          await httpClient.postUrl(Uri.parse(getURL() + USER));
+//      mRequest.headers.contentType = _contentType;
+//      mRequest.write(json.encode(user.toJson()));
+//      HttpClientResponse mResponse = await mRequest.close();
+//      print(
+//          'DataAPI.addUser ######## blockchain response status code:  ${mResponse.statusCode}');
+//      if (mResponse.statusCode == 200) {
+//        var ref = await _firestore
+//            .collection('users')
+//            .add(user.toJson())
+//            .catchError((e) {
+//          print('DataAPI.addUser ERROR $e');
+//          return "0";
+//        });
+//        print('DataAPI.addUser user added to Firestore ${ref.documentID}');
+//
+//        user.documentReference = ref.documentID;
+//        await SharedPrefs.saveUser(user);
+//        return user.userId;
+//      } else {
+//        mResponse.transform(utf8.decoder).listen((contents) {
+//          print('DataAPI.addUser  $contents');
+//        });
+//        print(
+//            'DataAPI.addUser ----- ERROR  ${mResponse.reasonPhrase} ${mResponse.headers}');
+//        return "0";
+//      }
+//    } catch (e) {
+//      print('DataAPI.addUser ERROR $e');
+//      return '0';
+//    }
+//  }
 
   static Future<String> addSectors() async {
     await addSector(Sector(sectorId: getKey(), sectorName: 'Public Sector'));
@@ -524,7 +537,7 @@ class DataAPI {
     }
   }
 
-  static Future<String> addSupplier(Supplier supplier) async {
+  static Future<String> addSupplier(Supplier supplier, User admin) async {
     supplier.participantId = getKey();
     supplier.dateRegistered = getUTCDate();
     print('DataAPI.addSupplier url: ${getURL() + SUPPLIER}');
@@ -548,6 +561,19 @@ class DataAPI {
         print('DataAPI.addSupplier added to Firestore: ${ref.documentID}');
         supplier.documentReference = ref.documentID;
         await SharedPrefs.saveSupplier(supplier);
+        var mRef = await _firestore
+            .collection('users')
+            .add(admin.toJson())
+            .catchError((e) {
+          print('DataAPI.addInvestor ERROR adding user to Firestore $e');
+          return '0';
+        });
+        print('DataAPI.addSupplier USER added to Firestore: ${mRef.path}');
+        //get wallet
+        await createWallet(
+            name: supplier.name,
+            participantId: supplier.participantId,
+            type: SupplierType);
         return supplier.participantId;
       } else {
         print('DataAPI.addSupplier ERROR  ${mResponse.reasonPhrase}');
@@ -562,7 +588,7 @@ class DataAPI {
     }
   }
 
-  static Future<String> addInvestor(Investor investor) async {
+  static Future<String> addInvestor(Investor investor, User admin) async {
     investor.participantId = getKey();
     investor.dateRegistered = getUTCDate();
 
@@ -587,7 +613,20 @@ class DataAPI {
         });
         print('DataAPI.addInvestor added to Firestore: ${ref.path}');
         investor.documentReference = ref.documentID;
+        var mRef = await _firestore
+            .collection('users')
+            .add(admin.toJson())
+            .catchError((e) {
+          print('DataAPI.addInvestor ERROR adding user to Firestore $e');
+          return '0';
+        });
+        print('DataAPI.addInvestor USER added to Firestore: ${mRef.path}');
         await SharedPrefs.saveInvestor(investor);
+        //get wallet
+        await createWallet(
+            name: investor.name,
+            participantId: investor.participantId,
+            type: InvestorType);
         return investor.participantId;
       } else {
         print('DataAPI.addInvestor ERROR  ${mResponse.reasonPhrase}');
@@ -841,31 +880,10 @@ class DataAPI {
       print(
           'DataAPI.registerPurchaseOrder blockchain response status code:  ${mResponse.statusCode}');
       if (mResponse.statusCode == 200) {
-        ///write govt or company po
-        var ref = await _firestore
-            .collection('govtEntities')
-            .document(purchaseOrder.govtDocumentRef)
-            .collection('purchaseOrders')
-            .add(purchaseOrder.toJson())
-            .catchError((e) {
-          print('DataAPI.registerPurchaseOrder ERROR $e');
+        var result = await addPurchaseOrderToFirestore(purchaseOrder);
+        if (result != DataAPI3.Success) {
           return '0';
-        });
-
-        ///write po to intended supplier
-        var ref2 = await _firestore
-            .collection('suppliers')
-            .document(purchaseOrder.supplierDocumentRef)
-            .collection('purchaseOrders')
-            .add(purchaseOrder.toJson())
-            .catchError((e) {
-          print('DataAPI.registerPurchaseOrder ERROR $e');
-          return '0';
-        });
-        print(
-            'DataAPI.registerPurchaseOrder document issuer path: ${ref.path}');
-        print(
-            'DataAPI.registerPurchaseOrder document supplier path: ${ref2.path}');
+        }
         return purchaseOrder.purchaseOrderId;
       } else {
         print('DataAPI.registerPurchaseOrder ERROR  ${mResponse.reasonPhrase}');
@@ -949,7 +967,6 @@ class DataAPI {
 
   static Future<String> registerDeliveryNote(DeliveryNote deliveryNote) async {
     deliveryNote.deliveryNoteId = getKey();
-    String documentId, path, supplierDocId;
 
     prettyPrint(deliveryNote.toJson(), 'registerDeliveryNote ');
     try {
@@ -962,28 +979,10 @@ class DataAPI {
       print(
           'DataAPI.registerDeliveryNote blockchain response status code:  ${mResponse.statusCode}');
       if (mResponse.statusCode == 200) {
-        var ref = await _firestore
-            .collection(path)
-            .document(documentId)
-            .collection('deliveryNotes')
-            .add(deliveryNote.toJson())
-            .catchError((e) {
-          print('DataAPI.registerDeliveryNote ERROR $e');
+        var result = await addDeliveryNoteToFirestore(deliveryNote);
+        if (result != DataAPI3.Success) {
           return '0';
-        });
-        print('DataAPI.registerDeliveryNote added to Firestore: ${ref.path}');
-        var ref2 = await _firestore
-            .collection('suppliers')
-            .document(supplierDocId)
-            .collection('deliveryNotes')
-            .add(deliveryNote.toJson())
-            .catchError((e) {
-          print('DataAPI.registerDeliveryNote ERROR $e');
-          return '0';
-        });
-        print('DataAPI.registerDeliveryNote added to Firestore: ${ref2.path}');
-        print(
-            'DataAPI.registerDeliveryNote url: ${getURL() + REGISTER_DELIVERY_NOTE}');
+        }
         return deliveryNote.deliveryNoteId;
       } else {
         print('DataAPI.registerDeliveryNote ERROR  ${mResponse.reasonPhrase}');
@@ -1003,8 +1002,6 @@ class DataAPI {
     invoice.isOnOffer = false;
     invoice.isSettled = false;
 
-    String documentRef, supplierDocRef, collection;
-
     print('DataAPI.registerInvoice url: ${getURL() + REGISTER_INVOICE}');
     prettyPrint(invoice.toJson(),
         'DataAPI.registerInvoice .. calling BFN via http(s) ...');
@@ -1018,28 +1015,10 @@ class DataAPI {
       print(
           'DataAPI.registerInvoice blockchain response status code:  ${mResponse.statusCode}');
       if (mResponse.statusCode == 200) {
-        var ref = await _firestore
-            .collection(collection)
-            .document(documentRef)
-            .collection('invoices')
-            .add(invoice.toJson())
-            .catchError((e) {
-          print('DataAPI.registerInvoice  ERROR $e');
+        var result = await addInvoiceToFirestore(invoice);
+        if (result != DataAPI3.Success) {
           return '0';
-        });
-        print('DataAPI.registerInvoice added to Firestore: ${ref.path}');
-        invoice.documentReference = ref.documentID;
-
-        var ref2 = await _firestore
-            .collection('suppliers')
-            .document(supplierDocRef)
-            .collection('invoices')
-            .add(invoice.toJson())
-            .catchError((e) {
-          print('DataAPI.registerInvoice  ERROR $e');
-          return '0';
-        });
-        print('DataAPI.registerInvoice added to Firestore: ${ref2.path}');
+        }
 
         return invoice.invoiceId;
       } else {
