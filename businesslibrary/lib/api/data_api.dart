@@ -78,7 +78,10 @@ class DataAPI {
 
   static Future<String> addGovtEntity(GovtEntity govtEntity, User admin) async {
     govtEntity.participantId = getKey();
+    admin.userId = getKey();
     govtEntity.dateRegistered = getUTCDate();
+    admin.govtEntity =
+        'resource:com.oneconnect.biz.GovtEntity#${govtEntity.participantId}';
     print('DataAPI.addGovtEntity url: ${getURL() + GOVT_ENTITY}');
 
     try {
@@ -540,6 +543,9 @@ class DataAPI {
   static Future<String> addSupplier(Supplier supplier, User admin) async {
     supplier.participantId = getKey();
     supplier.dateRegistered = getUTCDate();
+    admin.supplier =
+        'resource:com.oneconnect.biz.Supplier#${supplier.participantId}';
+    admin.userId = getKey();
     print('DataAPI.addSupplier url: ${getURL() + SUPPLIER}');
     try {
       var httpClient = new HttpClient();
@@ -591,7 +597,9 @@ class DataAPI {
   static Future<String> addInvestor(Investor investor, User admin) async {
     investor.participantId = getKey();
     investor.dateRegistered = getUTCDate();
-
+    admin.investor =
+        'resource:com.oneconnect.biz.Investor#${investor.participantId}';
+    admin.userId = getKey();
     print('DataAPI.addInvestor   ${getURL() + INVESTOR}');
 
     try {

@@ -103,7 +103,10 @@ class _PurchaseOrderPageState extends State<PurchaseOrderPageGovt>
         }
       }
       if (user != null) {
-        purchaseOrder.user = 'resource:com.oneconnect.biz.User#' + user.userId;
+        if (user.userId != null) {
+          purchaseOrder.user =
+              'resource:com.oneconnect.biz.User#' + user.userId;
+        }
       }
       print(
           '_PurchaseOrderPageState._registerPurchaseOrder ... ${purchaseOrder.toJson()}');

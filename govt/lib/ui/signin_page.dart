@@ -6,7 +6,9 @@ import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/api/signin.dart';
 import 'package:businesslibrary/data/govt_entity.dart';
 import 'package:businesslibrary/data/sector.dart';
+import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/data/wallet.dart';
+import 'package:businesslibrary/util/selectors.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/util.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -26,26 +28,37 @@ class _SignInPageState extends State<SignInPage> implements SnackBarListener {
   GovtEntity govtEntity;
 
   String participationId;
-  List<DropdownMenuItem> items = List();
 
   String sectorType;
   bool busy = false;
+  List<User> users;
   @override
   void initState() {
     super.initState();
-    _buildUserList();
+
+    if (isInDebugMode) {
+      _getUsers();
+    }
     _checkSectors();
   }
 
-  void _buildUserList() async {
-    var users = await ListAPI.getGovtUsers();
+  _getUsers() async {
+    print('_SignInPageState._getUsers ..............');
+    users = await ListAPI.getGovtUsers();
+    _buildUserList();
+    setState(() {});
+  }
+
+  List<DropdownMenuItem<User>> items = List();
+  void _buildUserList() {
+    print('_SignInPageState._buildUserList: ${users.length} ..............');
     users.forEach((user) {
       var item1 = new DropdownMenuItem(
         child: Row(
           children: <Widget>[
             Icon(
               Icons.apps,
-              color: Colors.indigo,
+              color: getRandomColor(),
             ),
             Padding(
               padding: const EdgeInsets.only(left: 8.0),
@@ -53,12 +66,14 @@ class _SignInPageState extends State<SignInPage> implements SnackBarListener {
             ),
           ],
         ),
-        value: user.email,
+        value: user,
       );
       items.add(item1);
     });
+    setState(() {});
   }
 
+  User user;
   Widget _getPreferredSize() {
     return PreferredSize(
       preferredSize: new Size.fromHeight(100.0),
@@ -68,20 +83,24 @@ class _SignInPageState extends State<SignInPage> implements SnackBarListener {
             children: <Widget>[
               Container(
                 width: 300.0,
-                child: DropdownButton(
-                  items: items,
-                  hint: Text(
-                    'Select User',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  onChanged: (val) {
-                    print(
-                        '_SignInPageState._getDropdown ################# val: $val');
-                    setState(() {
-                      adminEmail = val;
-                    });
-                  },
-                ),
+                child: items.length == 0
+                    ? Container()
+                    : DropdownButton<User>(
+                        items: items,
+                        hint: Text(
+                          'Select User',
+                          style: TextStyle(color: Colors.white, fontSize: 24.0),
+                        ),
+                        onChanged: (val) {
+                          print(
+                              '_SignInPageState._getDropdown ################# val: $val');
+                          setState(() {
+                            user = val;
+                            adminEmail = user.email;
+                            password = user.password;
+                          });
+                        },
+                      ),
               ),
               new Padding(
                 padding:
@@ -193,7 +212,7 @@ class _SignInPageState extends State<SignInPage> implements SnackBarListener {
         backgroundColor: Colors.black);
     busy = true;
     if (isInDebugMode) {
-      if (adminEmail == null) {
+      if (user == null) {
         AppSnackbar.showErrorSnackbar(
             scaffoldKey: _scaffoldKey,
             message: 'Please select user',
@@ -202,7 +221,15 @@ class _SignInPageState extends State<SignInPage> implements SnackBarListener {
         busy = false;
         return;
       }
-      password = 'pass123';
+      if (password == null) {
+        AppSnackbar.showErrorSnackbar(
+            scaffoldKey: _scaffoldKey,
+            message: 'Please enter password',
+            listener: this,
+            actionLabel: 'Close');
+        busy = false;
+        return;
+      }
       var result = await SignIn.signIn(adminEmail, password);
       busy = false;
       await _checkResult(result);

@@ -1,8 +1,11 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:businesslibrary/api/data_api3.dart';
 import 'package:businesslibrary/api/signup.dart';
+import 'package:businesslibrary/data/govt_entity.dart';
+import 'package:businesslibrary/data/investor.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/lookups.dart';
@@ -45,6 +48,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _start() async {
+    var start = DateTime.now();
     await cleanUp();
     setState(() {
       _counter++;
@@ -58,16 +62,28 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       _counter++;
     });
+    await _addCustomers();
+    setState(() {
+      _counter++;
+    });
+    await _addInvestors();
+    setState(() {
+      _counter++;
+    });
+    var end = DateTime.now();
+
+    var diff = end.difference(start).inSeconds;
+    print('\n\n_MyHomePageState._start ELAPSED SECONDS for DemoData $diff ##########\n\n');
 
 //    _addOneSupplier();
     print(
-        '_MyHomePageState._start  #####################################  COOMPLETED!');
+        '_MyHomePageState._start  #####################################  Demo Data COMPLETED!');
   }
 
   _addOneSupplier() async {
     Supplier e1 = new Supplier(
       name: 'Thohoyandou Engineering',
-      email: 'info@mvendacom',
+      email: 'info@mvenda.com',
       country: 'South Africa',
     );
     User u1 = new User(
@@ -77,6 +93,139 @@ class _MyHomePageState extends State<MyHomePage> {
         isAdministrator: true,
         email: 'dmkhize@mvenda.com');
     await SignUp.signUpSupplier(e1, u1);
+  }
+
+  _addCustomers() async {
+    GovtEntity e1 = new GovtEntity(
+      name: 'Pretoria Engineering',
+      email: 'info@mvengineers.com',
+      country: 'South Africa',
+    );
+    User u1 = new User(
+        firstName: 'Fanyana',
+        lastName: 'Maluleke',
+        password: 'pass123',
+        isAdministrator: true,
+        email: 'fanyana@mvengineers.com');
+    await SignUp.signUpGovtEntity(e1, u1);
+    GovtEntity e2 = new GovtEntity(
+      name: 'Joburg Catering',
+      email: 'info@mcaterer.com',
+      country: 'South Africa',
+    );
+    User u2 = new User(
+        firstName: 'Donald',
+        lastName: 'Trump',
+        password: 'pass123',
+        isAdministrator: true,
+        email: 'trump@mcaterer.com');
+    await SignUp.signUpGovtEntity(e2, u2);
+
+    GovtEntity e3 = new GovtEntity(
+      name: 'Dept of Agriculture',
+      email: 'info@magric.com',
+      country: 'South Africa',
+    );
+    User u3 = new User(
+        firstName: 'Kenneth',
+        lastName: 'Donnelly',
+        password: 'pass123',
+        isAdministrator: true,
+        email: 'trump@magric.com');
+    await SignUp.signUpGovtEntity(e3, u3);
+
+    GovtEntity e4 = new GovtEntity(
+      name: 'Dept of Science',
+      email: 'info@mscience.com',
+      country: 'South Africa',
+    );
+    User u4 = new User(
+        firstName: 'Peter',
+        lastName: 'van der Merwe',
+        password: 'pass123',
+        isAdministrator: true,
+        email: 'ken@mscience.com');
+    await SignUp.signUpGovtEntity(e4, u4);
+
+    GovtEntity e5 = new GovtEntity(
+      name: 'Pick n Pay',
+      email: 'info@mpickp.com',
+      country: 'South Africa',
+    );
+    User u5 = new User(
+        firstName: 'Harry',
+        lastName: 'Peterson',
+        password: 'pass123',
+        isAdministrator: true,
+        email: 'harry@mpickandp.com');
+    await SignUp.signUpGovtEntity(e5, u5);
+  }
+
+  _addInvestors() async {
+    Investor e1 = new Investor(
+      name: 'Pretoria Investors Ltd',
+      email: 'info@investors.com',
+      country: 'South Africa',
+    );
+    User u1 = new User(
+        firstName: 'Frank',
+        lastName: 'Green',
+        password: 'pass123',
+        isAdministrator: true,
+        email: 'green@investors.com');
+    await SignUp.signUpInvestor(e1, u1);
+
+    Investor e2 = new Investor(
+      name: 'Invoice Gurus Ltd',
+      email: 'info@invoicegurus.com',
+      country: 'South Africa',
+    );
+    User u2 = new User(
+        firstName: 'George',
+        lastName: 'Wallace',
+        password: 'pass123',
+        isAdministrator: true,
+        email: 'george@invoicegurus.com');
+    await SignUp.signUpInvestor(e2, u2);
+
+    Investor e3 = new Investor(
+      name: 'Funders Inc.',
+      email: 'info@funders.com',
+      country: 'South Africa',
+    );
+    User u3 = new User(
+        firstName: 'Harrison',
+        lastName: 'Johnson',
+        password: 'pass123',
+        isAdministrator: true,
+        email: 'harry@funders.com');
+    await SignUp.signUpInvestor(e3, u3);
+
+    Investor e4 = new Investor(
+      name: 'InvestorsGalore LLC',
+      email: 'info@galore.com',
+      country: 'South Africa',
+    );
+    User u4 = new User(
+        firstName: 'Mike',
+        lastName: 'Michaelson',
+        password: 'pass123',
+        isAdministrator: true,
+        email: 'mike@galore.com');
+    await SignUp.signUpInvestor(e4, u4);
+
+    Investor e5 = new Investor(
+      name: 'CashFlow Kings',
+      email: 'info@mcash.com',
+      country: 'South Africa',
+    );
+    User u5 = new User(
+        firstName: 'Daniel',
+        lastName: 'Berger',
+        password: 'pass123',
+        isAdministrator: true,
+        email: 'danb@mcash.com');
+    await SignUp.signUpInvestor(e5, u5);
   }
 
   _removeUsers() async {
@@ -90,6 +239,11 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<int> cleanUp() async {
     print('Generator.cleanUp ................ ########  ................');
     await _removeUsers();
+    print(
+        '\n\n\n_MyHomePageState.cleanUp ... sleeping for 15 seconds ...${DateTime.now().toIso8601String()}');
+    sleep(Duration(seconds: 15));
+    print(
+        '_MyHomePageState.cleanUp ... slept for 15 seconds. waking up: ...${DateTime.now().toIso8601String()}\n\n\n');
     var fs = Firestore.instance;
     try {
       var qs0 = await fs.collection('users').getDocuments();
@@ -115,6 +269,7 @@ class _MyHomePageState extends State<MyHomePage> {
       });
       print(
           'Generator.cleanUp oneConnect deleted from Firestore ################');
+      /////
       var qs2 = await fs.collection('govtEntities').getDocuments();
       qs2.documents.forEach((doc) async {
         var msnap =
@@ -147,6 +302,7 @@ class _MyHomePageState extends State<MyHomePage> {
       });
       print(
           'Generator.cleanUp govtEntities deleted from Firestore ################');
+      ////////////////
       var qs3 = await fs.collection('suppliers').getDocuments();
       qs3.documents.forEach((doc) async {
         var msnapx =
@@ -188,6 +344,8 @@ class _MyHomePageState extends State<MyHomePage> {
         await doc.reference.delete();
       });
       print('Generator.cleanUp suppliers deleted from Firestore #############');
+
+      //////////////////////
 
       var qs5 = await fs.collection('investors').getDocuments();
       qs5.documents.forEach((doc) async {

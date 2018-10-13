@@ -377,6 +377,8 @@ class DataAPI3 {
     print('DataAPI3.addGovtEntity ))))))) URL: $url$ADD_DATA');
     govtEntity.participantId = getKey();
     govtEntity.dateRegistered = getUTCDate();
+    user.govtEntity =
+        'resource:com.oneconnect.biz.GovtEntity#${govtEntity.participantId}';
     var seed;
     if (!isInDebugMode) {
       seed = SignUp.privateKey;
@@ -651,6 +653,8 @@ class DataAPI3 {
     }
     supplier.dateRegistered = getUTCDate();
     supplier.participantId = getKey();
+    user.supplier =
+        'resource:com.oneconnect.biz.Supplier#${supplier.participantId}';
     var seed;
     if (!isInDebugMode) {
       seed = SignUp.privateKey;
@@ -764,6 +768,8 @@ class DataAPI3 {
     }
     investor.dateRegistered = getUTCDate();
     investor.participantId = getKey();
+    user.investor =
+        'resource:com.oneconnect.biz.Investor#${investor.participantId}';
     var seed;
     if (!isInDebugMode) {
       seed = SignUp.privateKey;

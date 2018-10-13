@@ -13,6 +13,7 @@ import 'package:businesslibrary/data/sector.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/wallet.dart';
 import 'package:businesslibrary/util/lookups.dart';
+import 'package:businesslibrary/util/selectors.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/util.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -302,7 +303,7 @@ class _SignInPageState extends State<SignInPage> implements SnackBarListener {
           children: <Widget>[
             Icon(
               Icons.apps,
-              color: Colors.indigo,
+              color: getRandomColor(),
             ),
             Padding(
               padding: const EdgeInsets.only(left: 8.0),

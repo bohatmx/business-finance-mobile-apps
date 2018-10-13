@@ -89,12 +89,14 @@ class SignUp {
       if (key == '0') {
         return ErrorBlockchain;
       }
+      await _createUser(admin.email, admin.password);
     } else {
       var key = await DataAPI3.addGovtEntity(govtEntity, admin);
       if (key > DataAPI3.Success) {
         return ErrorBlockchain;
       }
     }
+
     await SharedPrefs.saveGovtEntity(govtEntity);
     return 0;
   }
@@ -119,6 +121,7 @@ class SignUp {
       if (key == '0') {
         return ErrorBlockchain;
       }
+      await _createUser(admin.email, admin.password);
     } else {
       supplier.dateRegistered = getUTCDate();
       var key = await DataAPI3.addSupplier(supplier, admin);
@@ -150,6 +153,7 @@ class SignUp {
       if (result == '0') {
         return ErrorBlockchain;
       }
+      await _createUser(user.email, user.password);
     } else {
       var result = await DataAPI3.addInvestor(investor, user);
       if (result > DataAPI3.Success) {
@@ -327,7 +331,8 @@ class SignUp {
   }
 
   static Future<FirebaseUser> _createUser(String email, String password) async {
-    print('SignUp.createUser ========= starting to create new user .... ===');
+    print(
+        '\n\nSignUp.createUser ========= starting to create new user .... ===');
     FirebaseUser user;
 
     user = await _auth
@@ -341,8 +346,8 @@ class SignUp {
     });
 
     if (user != null) {
-      print('SignUp.createUser done.  new user on firebase: '
-          '${user.email} uid: ${user.uid} ---- Yay!');
+      print('SignUp.createUser done. ##########  new auth user on firebase: '
+          '${user.email} uid: ${user.uid} ---- Yay!\n\n');
     }
 
     return user;
