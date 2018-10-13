@@ -2,14 +2,15 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:web_socket_channel/io.dart';
 
-const DEBUG_URL_HOME = 'https://bfnrestv3.eu-gb.mybluemix.net/api/'; //FIBRE
-const DEBUG_URL_ROUTER = 'https://bfnrestv3.eu-gb.mybluemix.net/api/'; //ROUTER
+//const DEBUG_URL_HOME = 'https://bfnrestv3.eu-gb.mybluemix.net/api/'; //FIBRE
+//const DEBUG_URL_ROUTER = 'https://bfnrestv3.eu-gb.mybluemix.net/api/'; //ROUTER
 const RELEASE_URL = 'https://bfnrestv3.eu-gb.mybluemix.net/api/'; //CLOUD
 const NameSpace = 'resource:com.oneconnect.biz.';
 ////
-//const DEBUG_URL_HOME = 'http://192.168.86.238:3003/api/'; //FIBRE
-//const DEBUG_URL_ROUTER = 'http://192.168.8.237:3003/api/'; //ROUTER
-//const RELEASE_URL = 'http://192.168.86.238:3003/api/'; //CLOUD
+const DEBUG_URL_HOME = 'http://192.168.86.238:3003/api/'; //FIBRE
+const DEBUG_URL_ROUTER = 'http://192.168.8.237:3003/api/'; //ROUTER
+
+const USE_LOCAL_BLOCKCHAIN = true;
 
 String getURL() {
   var url;

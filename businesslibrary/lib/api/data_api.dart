@@ -5,7 +5,6 @@ import 'dart:io';
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/auditor.dart';
-import 'package:businesslibrary/data/auto_start_stop.dart';
 import 'package:businesslibrary/data/auto_trade_order.dart';
 import 'package:businesslibrary/data/bank.dart';
 import 'package:businesslibrary/data/company.dart';
@@ -30,15 +29,12 @@ import 'package:businesslibrary/data/supplier_contract.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/data/wallet.dart';
 import 'package:businesslibrary/util/lookups.dart';
+import 'package:businesslibrary/util/util.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
 
 class DataAPI {
-  final String url;
-
-  DataAPI(this.url);
-
-  final Firestore _firestore = Firestore.instance;
+  static Firestore _firestore = Firestore.instance;
 
   static const GOVT_ENTITY = 'GovtEntity',
       USER = 'User',
@@ -74,18 +70,18 @@ class DataAPI {
       INVESTOR = 'Investor';
   static const ErrorFirestore = 1, ErrorBlockchain = 2, Success = 0;
 
-  HttpClient _httpClient = new HttpClient();
-  ContentType _contentType =
+  static HttpClient _httpClient = new HttpClient();
+  static ContentType _contentType =
       new ContentType("application", "json", charset: "utf-8");
 
-  Future<String> addGovtEntity(GovtEntity govtEntity) async {
+  static Future<String> addGovtEntity(GovtEntity govtEntity) async {
     govtEntity.participantId = getKey();
-
-    print('DataAPI.addGovtEntity url: ${url + GOVT_ENTITY}');
+    govtEntity.dateRegistered = getUTCDate();
+    print('DataAPI.addGovtEntity url: ${getURL() + GOVT_ENTITY}');
 
     try {
       HttpClientRequest mRequest =
-          await _httpClient.postUrl(Uri.parse(url + GOVT_ENTITY));
+          await _httpClient.postUrl(Uri.parse(getURL() + GOVT_ENTITY));
       mRequest.headers.contentType = _contentType;
       mRequest.write(json.encode(govtEntity.toJson()));
 
@@ -117,15 +113,15 @@ class DataAPI {
     }
   }
 
-  Future<String> addUser(User user) async {
+  static Future<String> addUser(User user) async {
     user.userId = getKey();
-
-    print('DataAPI.addUser url: ${url + USER}');
+    user.dateRegistered = getUTCDate();
+    print('DataAPI.addUser url: ${getURL() + USER}');
     prettyPrint(user.toJson(), 'DataAPI.addUser ');
     try {
       var httpClient = new HttpClient();
       HttpClientRequest mRequest =
-          await httpClient.postUrl(Uri.parse(url + USER));
+          await httpClient.postUrl(Uri.parse(getURL() + USER));
       mRequest.headers.contentType = _contentType;
       mRequest.write(json.encode(user.toJson()));
       HttpClientResponse mResponse = await mRequest.close();
@@ -158,7 +154,7 @@ class DataAPI {
     }
   }
 
-  Future<String> addSectors() async {
+  static Future<String> addSectors() async {
     await addSector(Sector(sectorId: getKey(), sectorName: 'Public Sector'));
     await addSector(Sector(sectorId: getKey(), sectorName: 'Automotive'));
     await addSector(Sector(sectorId: getKey(), sectorName: 'Construction'));
@@ -171,17 +167,19 @@ class DataAPI {
     await addSector(Sector(sectorId: getKey(), sectorName: 'Agricultural'));
     await addSector(Sector(sectorId: getKey(), sectorName: 'Real Estate'));
     await addSector(Sector(sectorId: getKey(), sectorName: 'Technology'));
+
+    return 'OK';
   }
 
-  Future<String> addSector(Sector sector) async {
+  static Future<String> addSector(Sector sector) async {
     sector.sectorId = getKey();
-    print('DataAPI.addSector %%%%%%%% url: ${url + SECTOR}');
+    print('DataAPI.addSector %%%%%%%% url: ${getURL() + SECTOR}');
     prettyPrint(sector.toJson(), 'adding sector to BFN blockchain');
 
     try {
       var httpClient = new HttpClient();
       HttpClientRequest mRequest =
-          await httpClient.postUrl(Uri.parse(url + SECTOR));
+          await httpClient.postUrl(Uri.parse(getURL() + SECTOR));
       mRequest.headers.contentType = _contentType;
       mRequest.write(json.encode(sector.toJson()));
       HttpClientResponse mResponse = await mRequest.close();
@@ -194,7 +192,7 @@ class DataAPI {
             .catchError((e) {
           print('DataAPI.addSector ERROR $e');
         });
-        print('DataAPI.addSector sector added ${sector.toJson()}');
+        print('DataAPI.addSector sector added ${sector.toJson()} $ref');
         return sector.sectorId;
       } else {
         mResponse.transform(utf8.decoder).listen((contents) {
@@ -209,18 +207,19 @@ class DataAPI {
     }
   }
 
-  Future<String> addAutoTradeOrder(AutoTradeOrder order) async {
+  static Future<String> addAutoTradeOrder(AutoTradeOrder order) async {
     order.autoTradeOrderId = getKey();
     order.date = getUTCDate();
     order.isCancelled = false;
-    print('DataAPI.addAutoTradeOrder %%%%%%%% url: ${url + AUTO_TRADE_ORDER}');
+    print(
+        'DataAPI.addAutoTradeOrder %%%%%%%% url: ${getURL() + AUTO_TRADE_ORDER}');
     prettyPrint(order.toJson(),
         '########################## adding addAutoTradeOrder to BFN blockchain');
 
     try {
       var httpClient = new HttpClient();
       HttpClientRequest mRequest =
-          await httpClient.postUrl(Uri.parse(url + AUTO_TRADE_ORDER));
+          await httpClient.postUrl(Uri.parse(getURL() + AUTO_TRADE_ORDER));
       mRequest.headers.contentType = _contentType;
       mRequest.write(json.encode(order.toJson()));
       HttpClientResponse mResponse = await mRequest.close();
@@ -249,17 +248,17 @@ class DataAPI {
     }
   }
 
-  Future<String> updateAutoTradeOrder(AutoTradeOrder order) async {
+  static Future<String> updateAutoTradeOrder(AutoTradeOrder order) async {
     order.date = getUTCDate();
 
     print(
-        'DataAPI.updateAutoTradeOrder %%%%%%%% url: ${url + AUTO_TRADE_ORDER + '/' + order.autoTradeOrderId}');
+        'DataAPI.updateAutoTradeOrder %%%%%%%% url: ${getURL() + AUTO_TRADE_ORDER + '/' + order.autoTradeOrderId}');
     prettyPrint(order.toJson(),
         '########################## adding updateAutoTradeOrder to BFN blockchain');
 
     //'https://bfnrestv3.eu-gb.mybluemix.net/api/AutoTradeOrder/e9d26c20-9620-11e8-81e2-e16bada8b621'
     try {
-      var mURL = url + AUTO_TRADE_ORDER + '/' + order.autoTradeOrderId;
+      var mURL = getURL() + AUTO_TRADE_ORDER + '/' + order.autoTradeOrderId;
       var httpClient = new HttpClient();
       HttpClientRequest mRequest = await httpClient.putUrl(Uri.parse(mURL));
       mRequest.headers.contentType = _contentType;
@@ -297,21 +296,21 @@ class DataAPI {
     }
   }
 
-  Future<String> cancelAutoTradeOrder(
+  static Future<String> cancelAutoTradeOrder(
       String autoTradeOrderId, String investorId) async {
     var map = Map<String, String>();
     map['autoTradeOrderId'] = autoTradeOrderId;
     map['investorId'] = investorId;
 
     print(
-        'DataAPI.cancelAutoTradeOrder %%%%%%%% url: ${url + CANCEL_AUTO_TRADE_ORDER}');
+        'DataAPI.cancelAutoTradeOrder %%%%%%%% url: ${getURL() + CANCEL_AUTO_TRADE_ORDER}');
     prettyPrint(map,
         '########################## adding cancelAutoTradeOrder to BFN blockchain');
 
     try {
       var httpClient = new HttpClient();
-      HttpClientRequest mRequest =
-          await httpClient.postUrl(Uri.parse(url + CANCEL_AUTO_TRADE_ORDER));
+      HttpClientRequest mRequest = await httpClient
+          .postUrl(Uri.parse(getURL() + CANCEL_AUTO_TRADE_ORDER));
       mRequest.headers.contentType = _contentType;
       mRequest.write(json.encode(map));
       HttpClientResponse mResponse = await mRequest.close();
@@ -363,18 +362,18 @@ class DataAPI {
     }
   }
 
-  Future<String> addInvestorProfile(InvestorProfile profile) async {
+  static Future<String> addInvestorProfile(InvestorProfile profile) async {
     profile.profileId = getKey();
     profile.date = getUTCDate();
     print(
-        'DataAPI.addInvestorProfile %%%%%%%% url: ${url + INVESTOR__PROFILE}');
+        'DataAPI.addInvestorProfile %%%%%%%% url: ${getURL() + INVESTOR__PROFILE}');
     prettyPrint(profile.toJson(),
         '########################## adding addInvestorProfile to BFN blockchain');
 
     try {
       var httpClient = new HttpClient();
       HttpClientRequest mRequest =
-          await httpClient.postUrl(Uri.parse(url + INVESTOR__PROFILE));
+          await httpClient.postUrl(Uri.parse(getURL() + INVESTOR__PROFILE));
       mRequest.headers.contentType = _contentType;
       mRequest.write(json.encode(profile.toJson()));
       HttpClientResponse mResponse = await mRequest.close();
@@ -403,17 +402,17 @@ class DataAPI {
     }
   }
 
-  Future<String> updateInvestorProfile(InvestorProfile profile) async {
+  static Future<String> updateInvestorProfile(InvestorProfile profile) async {
     profile.date = getUTCDate();
     print(
-        'DataAPI.updateInvestorProfile %%%%%%%% url: ${url + UPDATE_INVESTOR__PROFILE}');
+        'DataAPI.updateInvestorProfile %%%%%%%% url: ${getURL() + UPDATE_INVESTOR__PROFILE}');
     prettyPrint(profile.toJson(),
         '########################## updating InvestorProfile on BFN blockchain');
 
     try {
       var httpClient = new HttpClient();
-      HttpClientRequest mRequest =
-          await httpClient.postUrl(Uri.parse(url + UPDATE_INVESTOR__PROFILE));
+      HttpClientRequest mRequest = await httpClient
+          .postUrl(Uri.parse(getURL() + UPDATE_INVESTOR__PROFILE));
       mRequest.headers.contentType = _contentType;
       mRequest.write(json.encode(profile.toJson()));
       HttpClientResponse mResponse = await mRequest.close();
@@ -453,8 +452,8 @@ class DataAPI {
     }
   }
 
-  Future<String> addWallet(Wallet wallet) async {
-    print('DataAPI.addWallet %%%%%%%% url: ${url + WALLET}');
+  static Future<String> addWallet(Wallet wallet) async {
+    print('DataAPI.addWallet %%%%%%%% url: ${getURL() + WALLET}');
     prettyPrint(wallet.toJson(), 'adding wallet to BFN blockcahain');
 
     wallet.encryptedSecret = null;
@@ -464,7 +463,7 @@ class DataAPI {
     try {
       var httpClient = new HttpClient();
       HttpClientRequest mRequest =
-          await httpClient.postUrl(Uri.parse(url + WALLET));
+          await httpClient.postUrl(Uri.parse(getURL() + WALLET));
       mRequest.headers.contentType = _contentType;
       mRequest.write(json.encode(wallet.toJson()));
       HttpClientResponse mResponse = await mRequest.close();
@@ -485,15 +484,15 @@ class DataAPI {
     }
   }
 
-  Future<String> addCompany(Company company) async {
+  static Future<String> addCompany(Company company) async {
     company.participantId = getKey();
     company.dateRegistered = getUTCDate();
 
-    print('DataAPI.addCompany ${url + COMPANY}');
+    print('DataAPI.addCompany ${getURL() + COMPANY}');
     try {
       var httpClient = new HttpClient();
       HttpClientRequest mRequest =
-          await httpClient.postUrl(Uri.parse(url + COMPANY));
+          await httpClient.postUrl(Uri.parse(getURL() + COMPANY));
       mRequest.headers.contentType = _contentType;
       mRequest.write(json.encode(company.toJson()));
       HttpClientResponse mResponse = await mRequest.close();
@@ -525,14 +524,14 @@ class DataAPI {
     }
   }
 
-  Future<String> addSupplier(Supplier supplier) async {
+  static Future<String> addSupplier(Supplier supplier) async {
     supplier.participantId = getKey();
-
-    print('DataAPI.addSupplier url: ${url + SUPPLIER}');
+    supplier.dateRegistered = getUTCDate();
+    print('DataAPI.addSupplier url: ${getURL() + SUPPLIER}');
     try {
       var httpClient = new HttpClient();
       HttpClientRequest mRequest =
-          await httpClient.postUrl(Uri.parse(url + SUPPLIER));
+          await httpClient.postUrl(Uri.parse(getURL() + SUPPLIER));
       mRequest.headers.contentType = _contentType;
       mRequest.write(json.encode(supplier.toJson()));
       HttpClientResponse mResponse = await mRequest.close();
@@ -563,16 +562,16 @@ class DataAPI {
     }
   }
 
-  Future<String> addInvestor(Investor investor) async {
+  static Future<String> addInvestor(Investor investor) async {
     investor.participantId = getKey();
     investor.dateRegistered = getUTCDate();
 
-    print('DataAPI.addInvestor   ${url + INVESTOR}');
+    print('DataAPI.addInvestor   ${getURL() + INVESTOR}');
 
     try {
       var httpClient = new HttpClient();
       HttpClientRequest mRequest =
-          await httpClient.postUrl(Uri.parse(url + INVESTOR));
+          await httpClient.postUrl(Uri.parse(getURL() + INVESTOR));
       mRequest.headers.contentType = _contentType;
       mRequest.write(json.encode(investor.toJson()));
       HttpClientResponse mResponse = await mRequest.close();
@@ -603,15 +602,15 @@ class DataAPI {
     }
   }
 
-  Future<String> addBank(Bank bank) async {
+  static Future<String> addBank(Bank bank) async {
     bank.participantId = getKey();
     bank.dateRegistered = getUTCDate();
 
-    print('DataAPI.addBank ${url + BANK}');
+    print('DataAPI.addBank ${getURL() + BANK}');
     try {
       var httpClient = new HttpClient();
       HttpClientRequest mRequest =
-          await httpClient.postUrl(Uri.parse(url + BANK));
+          await httpClient.postUrl(Uri.parse(getURL() + BANK));
       mRequest.headers.contentType = _contentType;
       mRequest.write(json.encode(bank.toJson()));
       HttpClientResponse mResponse = await mRequest.close();
@@ -642,60 +641,11 @@ class DataAPI {
     }
   }
 
-  Future<String> addAutoTradeStart(AutoTradeStart start) async {
-    try {
-      var ref = await _firestore
-          .collection('autoTradeStarts')
-          .add(start.toJson())
-          .catchError((e) {
-        print('DataAPI.addAutoTradeStart ERROR adding to Firestore $e');
-        return '0';
-      });
-      print('DataAPI.addAutoTradeStart added to Firestore: ${ref.path}');
-      return ref.documentID;
-    } catch (e) {
-      print('DataAPI.addAutoTradeStart ERROR $e');
-      return '0';
-    }
-  }
-
-  Future<String> updateAutoTradeStart(String documentId) async {
-    try {
-      var ref = await _firestore
-          .collection('autoTradeStarts')
-          .document(documentId)
-          .get()
-          .catchError((e) {
-        print('DataAPI.updateAutoTradeStart ERROR adding to Firestore $e');
-        return '0';
-      });
-      if (ref.exists) {
-        var s = AutoTradeStart.fromJson(ref.data);
-        s.dateEnded = DateTime.now();
-        await _firestore
-            .collection('autoTradeStarts')
-            .document(documentId)
-            .setData(s.toJson())
-            .catchError((e) {
-          print('DataAPI.updateAutoTradeStart ERROR updating Firestore $e');
-          return '0';
-        });
-        print(
-            'DataAPI.updateAutoTradeStart updated with end date on Firestore:');
-      }
-
-      return ref.documentID;
-    } catch (e) {
-      print('DataAPI.updateAutoTradeStart ERROR $e');
-      return '0';
-    }
-  }
-
-  Future<String> addSupplierContract(SupplierContract contract) async {
+  static Future<String> addSupplierContract(SupplierContract contract) async {
     var supplierId = contract.supplier.split("#").elementAt(1);
     var docId = await _getDocumentId('suppliers', supplierId);
     contract.supplierDocumentRef = docId;
-
+    contract.date = getUTCDate();
     if (contract.govtEntity != null) {
       var id = contract.govtEntity.split("#").elementAt(1);
       var docId = await _getDocumentId('govtEntities', id);
@@ -711,13 +661,13 @@ class DataAPI {
     contract.date = getUTCDate();
 
     print(
-        'DataAPI.addSupplierContract #########################  ${url + SUPPLIER_CONTRACT}');
+        'DataAPI.addSupplierContract #########################  ${getURL() + SUPPLIER_CONTRACT}');
     prettyPrint(contract.toJson(),
         'DataAPI.addSupplierContract: document refs anyone? .....  ');
     try {
       var httpClient = new HttpClient();
       HttpClientRequest mRequest =
-          await httpClient.postUrl(Uri.parse(url + SUPPLIER_CONTRACT));
+          await httpClient.postUrl(Uri.parse(getURL() + SUPPLIER_CONTRACT));
       mRequest.headers.contentType = _contentType;
       mRequest.write(json.encode(contract.toJson()));
       HttpClientResponse mResponse = await mRequest.close();
@@ -750,15 +700,15 @@ class DataAPI {
     }
   }
 
-  Future<String> addOneConnect(OneConnect oneConnect) async {
+  static Future<String> addOneConnect(OneConnect oneConnect) async {
     oneConnect.participantId = getKey();
     oneConnect.dateRegistered = getUTCDate();
 
-    print('DataAPI.addOneConnect ${url + ONECONNECT}');
+    print('DataAPI.addOneConnect ${getURL() + ONECONNECT}');
     try {
       var httpClient = new HttpClient();
       HttpClientRequest mRequest =
-          await httpClient.postUrl(Uri.parse(url + ONECONNECT));
+          await httpClient.postUrl(Uri.parse(getURL() + ONECONNECT));
       mRequest.headers.contentType = _contentType;
       mRequest.write(json.encode(oneConnect.toJson()));
       HttpClientResponse mResponse = await mRequest.close();
@@ -789,15 +739,15 @@ class DataAPI {
     }
   }
 
-  Future<String> addProcurementOffice(ProcurementOffice office) async {
+  static Future<String> addProcurementOffice(ProcurementOffice office) async {
     office.participantId = getKey();
     office.dateRegistered = getUTCDate();
 
-    print('DataAPI.addProcurementOffice ${url + PROCUREMENT_OFFICE}');
+    print('DataAPI.addProcurementOffice ${getURL() + PROCUREMENT_OFFICE}');
     try {
       var httpClient = new HttpClient();
       HttpClientRequest mRequest =
-          await httpClient.postUrl(Uri.parse(url + PROCUREMENT_OFFICE));
+          await httpClient.postUrl(Uri.parse(getURL() + PROCUREMENT_OFFICE));
       mRequest.headers.contentType = _contentType;
       mRequest.write(json.encode(office.toJson()));
       HttpClientResponse mResponse = await mRequest.close();
@@ -829,15 +779,15 @@ class DataAPI {
     }
   }
 
-  Future<String> addAuditor(Auditor auditor) async {
+  static Future<String> addAuditor(Auditor auditor) async {
     auditor.participantId = getKey();
     auditor.dateRegistered = getUTCDate();
 
-    print('DataAPI.addAuditor ${url + AUDITOR}');
+    print('DataAPI.addAuditor ${getURL() + AUDITOR}');
     try {
       var httpClient = new HttpClient();
       HttpClientRequest mRequest =
-          await httpClient.postUrl(Uri.parse(url + AUDITOR));
+          await httpClient.postUrl(Uri.parse(getURL() + AUDITOR));
       mRequest.headers.contentType = _contentType;
       mRequest.write(json.encode(auditor.toJson()));
       HttpClientResponse mResponse = await mRequest.close();
@@ -870,26 +820,21 @@ class DataAPI {
 
   /// transactions
   ///
-  Future<String> registerPurchaseOrder(PurchaseOrder purchaseOrder) async {
+  static Future<String> registerPurchaseOrder(
+      PurchaseOrder purchaseOrder) async {
     assert(purchaseOrder.purchaserName != null);
 
     purchaseOrder.purchaseOrderId = getKey();
     print(
         'DataAPI.registerPurchaseOrder ... starting purchase: ${purchaseOrder.toJson()}');
-    String collection, documentId, supplierDocId;
-    if (purchaseOrder.govtEntity != null) {
-      collection = 'govtEntities';
-    }
-    if (purchaseOrder.company != null) {
-      collection = 'companies';
-    }
+
     print(
-        'DataAPI.registerPurchaseOrder url: ${url + REGISTER_PURCHASE_ORDER}');
+        'DataAPI.registerPurchaseOrder url: ${getURL() + REGISTER_PURCHASE_ORDER}');
     prettyPrint(purchaseOrder.toJson(), 'DataAPI.registerPurchaseOrder  ');
     try {
       var httpClient = new HttpClient();
-      HttpClientRequest mRequest =
-          await httpClient.postUrl(Uri.parse(url + REGISTER_PURCHASE_ORDER));
+      HttpClientRequest mRequest = await httpClient
+          .postUrl(Uri.parse(getURL() + REGISTER_PURCHASE_ORDER));
       mRequest.headers.contentType = _contentType;
       mRequest.write(json.encode(purchaseOrder.toJson()));
       HttpClientResponse mResponse = await mRequest.close();
@@ -898,8 +843,8 @@ class DataAPI {
       if (mResponse.statusCode == 200) {
         ///write govt or company po
         var ref = await _firestore
-            .collection(collection)
-            .document(documentId)
+            .collection('govtEntities')
+            .document(purchaseOrder.govtDocumentRef)
             .collection('purchaseOrders')
             .add(purchaseOrder.toJson())
             .catchError((e) {
@@ -910,7 +855,7 @@ class DataAPI {
         ///write po to intended supplier
         var ref2 = await _firestore
             .collection('suppliers')
-            .document(supplierDocId)
+            .document(purchaseOrder.supplierDocumentRef)
             .collection('purchaseOrders')
             .add(purchaseOrder.toJson())
             .catchError((e) {
@@ -935,7 +880,8 @@ class DataAPI {
     }
   }
 
-  Future<String> _getDocumentId(String collection, String participantId) async {
+  static Future<String> _getDocumentId(
+      String collection, String participantId) async {
     var documentId;
     var querySnapshot = await _firestore
         .collection(collection)
@@ -949,7 +895,7 @@ class DataAPI {
     return documentId;
   }
 
-  Future<String> addPurchaseOrderItem(
+  static Future<String> addPurchaseOrderItem(
       PurchaseOrderItem item, PurchaseOrder purchaseOrder) async {
     String path, documentId, participantId;
     if (purchaseOrder.govtEntity != null) {
@@ -977,13 +923,13 @@ class DataAPI {
     return await _addItem(item);
   }
 
-  Future<String> _addItem(PurchaseOrderItem item) async {
+  static Future<String> _addItem(PurchaseOrderItem item) async {
     item.itemId = getKey();
 
     try {
       var httpClient = new HttpClient();
       HttpClientRequest mRequest =
-          await httpClient.postUrl(Uri.parse(url + ITEM));
+          await httpClient.postUrl(Uri.parse(getURL() + ITEM));
       mRequest.headers.contentType = _contentType;
       mRequest.write(json.encode(item.toJson()));
       HttpClientResponse mResponse = await mRequest.close();
@@ -1001,15 +947,15 @@ class DataAPI {
     }
   }
 
-  Future<String> registerDeliveryNote(DeliveryNote deliveryNote) async {
+  static Future<String> registerDeliveryNote(DeliveryNote deliveryNote) async {
     deliveryNote.deliveryNoteId = getKey();
-    String documentId, participantId, path, supplierDocId;
+    String documentId, path, supplierDocId;
 
     prettyPrint(deliveryNote.toJson(), 'registerDeliveryNote ');
     try {
       var httpClient = new HttpClient();
-      HttpClientRequest mRequest =
-          await httpClient.postUrl(Uri.parse(url + REGISTER_DELIVERY_NOTE));
+      HttpClientRequest mRequest = await httpClient
+          .postUrl(Uri.parse(getURL() + REGISTER_DELIVERY_NOTE));
       mRequest.headers.contentType = _contentType;
       mRequest.write(json.encode(deliveryNote.toJson()));
       HttpClientResponse mResponse = await mRequest.close();
@@ -1037,7 +983,7 @@ class DataAPI {
         });
         print('DataAPI.registerDeliveryNote added to Firestore: ${ref2.path}');
         print(
-            'DataAPI.registerDeliveryNote url: ${url + REGISTER_DELIVERY_NOTE}');
+            'DataAPI.registerDeliveryNote url: ${getURL() + REGISTER_DELIVERY_NOTE}');
         return deliveryNote.deliveryNoteId;
       } else {
         print('DataAPI.registerDeliveryNote ERROR  ${mResponse.reasonPhrase}');
@@ -1052,38 +998,20 @@ class DataAPI {
     }
   }
 
-  Future<String> registerInvoice(Invoice invoice) async {
+  static Future<String> registerInvoice(Invoice invoice) async {
     invoice.invoiceId = getKey();
     invoice.isOnOffer = false;
     invoice.isSettled = false;
 
-    String documentRef, participantId, supplierDocRef, collection;
-//    if (invoice.govtEntity != null) {
-//      participantId = invoice.govtEntity.split('#').elementAt(1);
-//      collection = 'govtEntities';
-//      documentRef = await _getDocumentId(collection, participantId);
-//      invoice.govtDocumentRef = documentRef;
-//    }
-//    if (invoice.company != null) {
-//      participantId = invoice.company.split('#').elementAt(1);
-//      collection = 'companies';
-//      documentRef = await _getDocumentId(collection, participantId);
-//      invoice.companyDocumentRef = documentRef;
-//    }
-//
-//    if (invoice.supplier != null) {
-//      var id = invoice.supplier.split('#').elementAt(1);
-//      supplierDocRef = await _getDocumentId('suppliers', id);
-//      invoice.supplierDocumentRef = supplierDocRef;
-//    }
+    String documentRef, supplierDocRef, collection;
 
-    print('DataAPI.registerInvoice url: ${url + REGISTER_INVOICE}');
+    print('DataAPI.registerInvoice url: ${getURL() + REGISTER_INVOICE}');
     prettyPrint(invoice.toJson(),
         'DataAPI.registerInvoice .. calling BFN via http(s) ...');
     try {
       var httpClient = new HttpClient();
       HttpClientRequest mRequest =
-          await httpClient.postUrl(Uri.parse(url + REGISTER_INVOICE));
+          await httpClient.postUrl(Uri.parse(getURL() + REGISTER_INVOICE));
       mRequest.headers.contentType = _contentType;
       mRequest.write(json.encode(invoice.toJson()));
       HttpClientResponse mResponse = await mRequest.close();
@@ -1128,10 +1056,10 @@ class DataAPI {
     }
   }
 
-  Future<String> acceptDelivery(DeliveryAcceptance acceptance) async {
+  static Future<String> acceptDelivery(DeliveryAcceptance acceptance) async {
     acceptance.acceptanceId = getKey();
 
-    print('\n\nDataAPI.acceptDelivery url: ${url + ACCEPT_DELIVERY}');
+    print('\n\nDataAPI.acceptDelivery url: ${getURL() + ACCEPT_DELIVERY}');
     prettyPrint(
         acceptance.toJson(), 'DataAPI.acceptDelivery ... calling BFN ...');
     try {
@@ -1139,7 +1067,7 @@ class DataAPI {
       var mjson = json.encode(map);
       var httpClient = new HttpClient();
       HttpClientRequest mRequest =
-          await httpClient.postUrl(Uri.parse(url + ACCEPT_DELIVERY));
+          await httpClient.postUrl(Uri.parse(getURL() + ACCEPT_DELIVERY));
       mRequest.headers.contentType = _contentType;
       mRequest.write(mjson);
       HttpClientResponse mResponse = await mRequest.close();
@@ -1161,7 +1089,7 @@ class DataAPI {
     }
   }
 
-  Future mirrorDeliveryAcceptance(DeliveryAcceptance acceptance) async {
+  static Future mirrorDeliveryAcceptance(DeliveryAcceptance acceptance) async {
     String participantId, path;
     if (acceptance.govtEntity != null) {
       participantId = acceptance.govtEntity.split('#').elementAt(1);
@@ -1224,10 +1152,10 @@ class DataAPI {
         'DataAPI.mirrorDeliveryAcceptance SUPPLIER added to Firestore: ${ref2.path}');
   }
 
-  Future<String> acceptInvoice(InvoiceAcceptance acceptance) async {
+  static Future<String> acceptInvoice(InvoiceAcceptance acceptance) async {
     acceptance.acceptanceId = getKey();
 
-    print('DataAPI.acceptInvoice url: ${url + ACCEPT_INVOICE}');
+    print('DataAPI.acceptInvoice url: ${getURL() + ACCEPT_INVOICE}');
     prettyPrint(
         acceptance.toJson(), 'DataAPI.acceptInvoice ... calling BFN ...');
     try {
@@ -1235,7 +1163,7 @@ class DataAPI {
       var mjson = json.encode(map);
       var httpClient = new HttpClient();
       HttpClientRequest mRequest =
-          await httpClient.postUrl(Uri.parse(url + ACCEPT_INVOICE));
+          await httpClient.postUrl(Uri.parse(getURL() + ACCEPT_INVOICE));
       mRequest.headers.contentType = _contentType;
       mRequest.write(mjson);
       HttpClientResponse mResponse = await mRequest.close();
@@ -1257,7 +1185,7 @@ class DataAPI {
     }
   }
 
-  Future _mirrorInvoiceAcceptance(InvoiceAcceptance acceptance) async {
+  static Future _mirrorInvoiceAcceptance(InvoiceAcceptance acceptance) async {
     //todo - update invoice with acceptance?
 
     String documentId, participantId, path;
@@ -1324,7 +1252,7 @@ class DataAPI {
         'DataAPI._mirrorInvoiceAcceptance SUPPLIER added to Firestore: ${ref.path}');
   }
 
-  Future<String> makeOffer(Offer offer) async {
+  static Future<String> makeOffer(Offer offer) async {
     offer.offerId = getKey();
     offer.date = getUTCDate();
     offer.isOpen = true;
@@ -1345,14 +1273,14 @@ class DataAPI {
     var invoiceDocId = qs.documents.first.documentID;
     offer.invoiceDocumentRef = invoiceDocId;
 
-    print('DataAPI.makeOffer  ${url + 'MakeOffer'}');
+    print('DataAPI.makeOffer  ${getURL() + 'MakeOffer'}');
     prettyPrint(offer.toJson(), 'DataAPI.makeOffer offer: ');
     try {
       Map map = offer.toJson();
       var mjson = json.encode(map);
       var httpClient = new HttpClient();
       HttpClientRequest mRequest =
-          await httpClient.postUrl(Uri.parse(url + 'MakeOffer'));
+          await httpClient.postUrl(Uri.parse(getURL() + 'MakeOffer'));
       mRequest.headers.contentType = _contentType;
       mRequest.write(mjson);
       HttpClientResponse mResponse = await mRequest.close();
@@ -1385,16 +1313,16 @@ class DataAPI {
     }
   }
 
-  Future<String> closeOffer(String offerId) async {
+  static Future<String> closeOffer(String offerId) async {
     var map = Map<String, dynamic>();
     map['offerId'] = offerId;
 
-    print('DataAPI.closeOffer ${url + CLOSE_OFFER}');
+    print('DataAPI.closeOffer ${getURL() + CLOSE_OFFER}');
     try {
       var mjson = json.encode(map);
       var httpClient = new HttpClient();
       HttpClientRequest mRequest =
-          await httpClient.postUrl(Uri.parse(url + CLOSE_OFFER));
+          await httpClient.postUrl(Uri.parse(getURL() + CLOSE_OFFER));
       mRequest.headers.contentType = _contentType;
       mRequest.write(mjson);
       HttpClientResponse mResponse = await mRequest.close();
@@ -1416,7 +1344,7 @@ class DataAPI {
     }
   }
 
-  Future<String> _closeOfferOnFirestore(String offerId) async {
+  static Future<String> _closeOfferOnFirestore(String offerId) async {
     print('DataAPI.closeOfferOnFirestore - update offer');
     var qs = await _firestore
         .collection('invoiceOffers')
@@ -1444,7 +1372,7 @@ class DataAPI {
     }
   }
 
-  Future _updateInvoiceWithOffer(
+  static Future _updateInvoiceWithOffer(
       QuerySnapshot qs, Offer offer, String invoiceDocId) async {
     Invoice inv = new Invoice.fromJson(qs.documents.first.data);
     inv.isOnOffer = true;
@@ -1460,22 +1388,18 @@ class DataAPI {
     prettyPrint(inv.toJson(), 'updated invoice with  offer on  Firestore');
   }
 
-  Future<String> makeInvoiceBid(
-      InvoiceBid bid, Offer offer, Investor investor) async {
-    assert(offer.documentReference != null);
-    assert(investor.documentReference != null);
-
+  static Future<String> makeInvoiceBid(InvoiceBid bid) async {
     bid..invoiceBidId = getKey();
     bid.date = getUTCDate();
     bid.isSettled = false;
 
-    print('DataAPI.makeInvoiceBid ${url + MAKE_INVOICE_BID}');
+    print('DataAPI.makeInvoiceBid ${getURL() + MAKE_INVOICE_BID}');
     try {
       Map map = bid.toJson();
       var mjson = json.encode(map);
       var httpClient = new HttpClient();
       HttpClientRequest mRequest =
-          await httpClient.postUrl(Uri.parse(url + MAKE_INVOICE_BID));
+          await httpClient.postUrl(Uri.parse(getURL() + MAKE_INVOICE_BID));
       mRequest.headers.contentType = _contentType;
       mRequest.write(mjson);
       HttpClientResponse mResponse = await mRequest.close();
@@ -1483,9 +1407,15 @@ class DataAPI {
           'DataAPI.makeInvoiceBid blockchain response status code:  ${mResponse.statusCode}');
       if (mResponse.statusCode == 200) {
         //add bid to investor's collection
+        var qs = await _firestore
+            .collection('investors')
+            .where('participantId',
+                isEqualTo: bid.investor.split('#').elementAt(1))
+            .getDocuments();
+
         var ref0 = await _firestore
             .collection('investors')
-            .document(investor.documentReference)
+            .document(qs.documents.first.documentID)
             .collection('invoiceBids')
             .add(bid.toJson())
             .catchError((e) {
@@ -1494,9 +1424,15 @@ class DataAPI {
         });
         print('DataAPI.makeInvoiceBid added to Firestore: ${ref0.path}');
         //add bid to offer collection
+        var qs2 = await _firestore
+            .collection('invoiceOffers')
+            .where('offerId', isEqualTo: bid.offer.split("#").elementAt(1))
+            .getDocuments();
+        var offer = Offer.fromJson(qs2.documents.first.data);
+        offer.documentReference = qs2.documents.first.documentID;
         var ref = await _firestore
             .collection('invoiceOffers')
-            .document(offer.documentReference)
+            .document(qs2.documents.first.documentID)
             .collection('invoiceBids')
             .add(bid.toJson())
             .catchError((e) {
@@ -1531,7 +1467,7 @@ class DataAPI {
     }
   }
 
-  Future<String> makeInvoiceAutoBid(
+  static Future<String> makeInvoiceAutoBid(
       {InvoiceBid bid, Offer offer, AutoTradeOrder order}) async {
     assert(offer.documentReference != null);
     assert(order.investor != null);
@@ -1541,13 +1477,13 @@ class DataAPI {
     bid.isSettled = false;
     prettyPrint(bid.toJson(), 'makeInvoiceAutoBid, bid, check autoTradeOrder');
 
-    print('DataAPI.makeInvoiceAutoBid ${url + MAKE_INVOICE_BID}');
+    print('DataAPI.makeInvoiceAutoBid ${getURL() + MAKE_INVOICE_BID}');
     try {
       Map map = bid.toJson();
       var mjson = json.encode(map);
       var httpClient = new HttpClient();
       HttpClientRequest mRequest =
-          await httpClient.postUrl(Uri.parse(url + MAKE_INVOICE_BID));
+          await httpClient.postUrl(Uri.parse(getURL() + MAKE_INVOICE_BID));
       mRequest.headers.contentType = _contentType;
       mRequest.write(mjson);
       HttpClientResponse mResponse = await mRequest.close();
@@ -1570,7 +1506,7 @@ class DataAPI {
     }
   }
 
-  Future<String> _mirrorInvoiceAutoBid(
+  static Future<String> _mirrorInvoiceAutoBid(
       Offer offer, InvoiceBid bid, AutoTradeOrder order) async {
     //get investor
     var qs = await _firestore
@@ -1610,12 +1546,12 @@ class DataAPI {
     return 'allOK';
   }
 
-  Future<String> selectInvoiceBid(InvoiceBid bid) async {
+  static Future<String> selectInvoiceBid(InvoiceBid bid) async {
     //TODO - supplier selects the bid
     return null;
   }
 
-  Future<String> makeInvestorInvoiceSettlement(
+  static Future<String> makeInvestorInvoiceSettlement(
       InvestorInvoiceSettlement settlement) async {
     settlement.invoiceSettlementId = getKey();
     settlement.date = getUTCDate();
@@ -1631,8 +1567,8 @@ class DataAPI {
       Map map = settlement.toJson();
       var mjson = json.encode(map);
       var httpClient = new HttpClient();
-      HttpClientRequest mRequest =
-          await httpClient.postUrl(Uri.parse(url + MAKE_INVESTOR_SETTLEMENT));
+      HttpClientRequest mRequest = await httpClient
+          .postUrl(Uri.parse(getURL() + MAKE_INVESTOR_SETTLEMENT));
       mRequest.headers.contentType = _contentType;
       mRequest.write(mjson);
       HttpClientResponse mResponse = await mRequest.close();
@@ -1678,7 +1614,7 @@ class DataAPI {
     }
   }
 
-  Future<String> makeCompanyInvoiceSettlement(
+  static Future<String> makeCompanyInvoiceSettlement(
       CompanyInvoiceSettlement settlement) async {
     settlement.invoiceSettlementId = getKey();
     settlement.date = getUTCDate();
@@ -1694,8 +1630,8 @@ class DataAPI {
       Map map = settlement.toJson();
       var mjson = json.encode(map);
       var httpClient = new HttpClient();
-      HttpClientRequest mRequest =
-          await httpClient.postUrl(Uri.parse(url + MAKE_COMPANY_SETTLEMENT));
+      HttpClientRequest mRequest = await httpClient
+          .postUrl(Uri.parse(getURL() + MAKE_COMPANY_SETTLEMENT));
       mRequest.headers.contentType = _contentType;
       mRequest.write(mjson);
       HttpClientResponse mResponse = await mRequest.close();
@@ -1741,7 +1677,7 @@ class DataAPI {
     }
   }
 
-  Future<String> makeGovtInvoiceSettlement(
+  static Future<String> makeGovtInvoiceSettlement(
       GovtInvoiceSettlement settlement) async {
     settlement.invoiceSettlementId = getKey();
     settlement.date = getUTCDate();
@@ -1758,7 +1694,7 @@ class DataAPI {
       var mjson = json.encode(map);
       var httpClient = new HttpClient();
       HttpClientRequest mRequest =
-          await httpClient.postUrl(Uri.parse(url + MAKE_GOVT_SETTLEMENT));
+          await httpClient.postUrl(Uri.parse(getURL() + MAKE_GOVT_SETTLEMENT));
       mRequest.headers.contentType = _contentType;
       mRequest.write(mjson);
       HttpClientResponse mResponse = await mRequest.close();
@@ -1804,10 +1740,10 @@ class DataAPI {
     }
   }
 
-  Future<String> updatePurchaseOrderContract(
+  static Future<String> updatePurchaseOrderContract(
       PurchaseOrder po, String contractURL) async {
     print(
-        'DataAPI.updatePurchaseOrderContract ${url + UPDATE_PURCHASE_ORDER_CONTRACT}');
+        'DataAPI.updatePurchaseOrderContract ${getURL() + UPDATE_PURCHASE_ORDER_CONTRACT}');
     try {
       Map<String, String> map = Map<String, String>();
       map['contractURL'] = contractURL;
@@ -1816,7 +1752,7 @@ class DataAPI {
       var mjson = json.encode(map);
       var httpClient = new HttpClient();
       HttpClientRequest mRequest = await httpClient
-          .postUrl(Uri.parse(url + UPDATE_PURCHASE_ORDER_CONTRACT));
+          .postUrl(Uri.parse(getURL() + UPDATE_PURCHASE_ORDER_CONTRACT));
       mRequest.headers.contentType = _contentType;
       mRequest.write(mjson);
       HttpClientResponse mResponse = await mRequest.close();
@@ -1837,7 +1773,7 @@ class DataAPI {
     }
   }
 
-  Future updatePO(PurchaseOrder po, String contractURL) async {
+  static Future updatePO(PurchaseOrder po, String contractURL) async {
     var qs = await _firestore
         .collection('investors')
         .document(po.supplierDocumentRef)
@@ -1863,16 +1799,16 @@ class DataAPI {
     return 'poUpdated';
   }
 
-  Future<String> cancelOffer(OfferCancellation cancellation) async {
+  static Future<String> cancelOffer(OfferCancellation cancellation) async {
     cancellation.cancellationId = getKey();
     cancellation.date = getUTCDate();
-    print('DataAPI.cancelOffer ${url + CANCEL_OFFER}');
+    print('DataAPI.cancelOffer ${getURL() + CANCEL_OFFER}');
     try {
       Map map = cancellation.toJson();
       var mjson = json.encode(map);
       var httpClient = new HttpClient();
       HttpClientRequest mRequest =
-          await httpClient.postUrl(Uri.parse(url + CANCEL_OFFER));
+          await httpClient.postUrl(Uri.parse(getURL() + CANCEL_OFFER));
       mRequest.headers.contentType = _contentType;
       mRequest.write(mjson);
       HttpClientResponse mResponse = await mRequest.close();

@@ -206,8 +206,8 @@ class _ContractPageState extends State<ContractPage>
         message: 'Uploading dummy cooontract',
         textColor: Colors.white,
         backgroundColor: Colors.black);
-    DataAPI api = DataAPI(getURL());
-    var res = await api.addSupplierContract(c);
+    //DataAPI api = DataAPI(getURL());
+    var res = await DataAPI.addSupplierContract(c);
     isBusy = false;
     if (res == '0') {
       isDone = false;
@@ -256,8 +256,7 @@ class _ContractPageState extends State<ContractPage>
           'resource:com.oneconnect.biz.Supplier#' + supplier.participantId,
     );
 
-    DataAPI api = DataAPI(getURL());
-    var res = await api.addSupplierContract(c);
+    var res = await DataAPI.addSupplierContract(c);
     isBusy = false;
     if (res == '0') {
       isDone = false;

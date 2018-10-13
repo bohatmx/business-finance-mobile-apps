@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:businesslibrary/api/data_api.dart';
+import 'package:businesslibrary/api/data_api3.dart';
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/api/signin.dart';
@@ -220,8 +220,7 @@ class _SignInPageState extends State<SignInPage> implements SnackBarListener {
   void _checkSectors() async {
     sectors = await ListAPI.getSectors();
     if (sectors.isEmpty) {
-      var api = DataAPI(getURL());
-      api.addSectors();
+      DataAPI3.addSectors();
     }
   }
 

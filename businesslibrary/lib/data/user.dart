@@ -17,7 +17,8 @@ class User {
       uid,
       fcmToken,
       documentReference;
-  String dateRegistered, isAdministrator;
+  String dateRegistered;
+  bool isAdministrator;
 
   User(
       {this.userId,
@@ -73,7 +74,7 @@ class User {
     this.bank = data['bank'];
     this.uid = data['uid'];
   }
-  Map<String, String> toJson() => <String, String>{
+  Map<String, dynamic> toJson() => <String, dynamic>{
         'userId': userId,
         'dateRegistered': dateRegistered,
         'firstName': firstName,

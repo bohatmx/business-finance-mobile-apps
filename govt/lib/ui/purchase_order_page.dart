@@ -117,11 +117,10 @@ class _PurchaseOrderPageState extends State<PurchaseOrderPageGovt>
           textColor: Colors.white,
           backgroundColor: Colors.deepPurple.shade700);
       //todo - check if this PO exists
-
-      DataAPI3 api = DataAPI3();
-      var key = await api.registerPurchaseOrder(purchaseOrder);
+//-LOgb4poza3eLtedkXMq
+      var result = await DataAPI3.registerPurchaseOrder(purchaseOrder);
       _scaffoldKey.currentState.hideCurrentSnackBar();
-      if (key > DataAPI3.Success) {
+      if (result > DataAPI3.Success) {
         AppSnackbar.showErrorSnackbar(
             listener: this,
             scaffoldKey: _scaffoldKey,
@@ -137,8 +136,6 @@ class _PurchaseOrderPageState extends State<PurchaseOrderPageGovt>
             icon: Icons.done,
             action: 1,
             backgroundColor: Colors.teal.shade700);
-
-        Navigator.pop(context);
       }
     }
   }
@@ -334,7 +331,7 @@ class _PurchaseOrderPageState extends State<PurchaseOrderPageGovt>
     print('_PurchaseOrderPageState.onActionPressed .......... Yay!!');
     switch (action) {
       case 1:
-        Navigator.pop(context);
+        Navigator.pop(context, purchaseOrder);
         break;
     }
   }

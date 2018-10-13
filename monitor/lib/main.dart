@@ -1,10 +1,10 @@
 import 'dart:async';
-import 'dart:collection';
 
-import 'package:businesslibrary/api/auto_trade.dart';
+import 'package:businesslibrary/api/data_api3.dart';
 import 'package:businesslibrary/api/file_util.dart';
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
+import 'package:businesslibrary/data/auto_start_stop.dart';
 import 'package:businesslibrary/data/auto_trade_order.dart';
 import 'package:businesslibrary/data/delivery_acceptance.dart';
 import 'package:businesslibrary/data/delivery_note.dart';
@@ -19,7 +19,6 @@ import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:flutter/material.dart';
 import 'package:monitor/local_util.dart';
-import 'package:monitor/ui/journal.dart';
 import 'package:monitor/ui/theme_util.dart';
 
 void main() => runApp(new MyApp());
@@ -46,13 +45,12 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage>
-    implements BlockchainListener, SnackBarListener, AutoTradeListener {
+    implements BlockchainListener, SnackBarListener {
   static const NUMBER_OF_BIDS_TO_MAKE = 2;
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   List<AutoTradeOrder> _orders;
   List<InvestorProfile> _profiles;
   List<Offer> _offers;
-  AutoTradeExecutionBuilder autoTradeExecutionBuilder;
 
   @override
   void initState() {
@@ -96,6 +94,7 @@ class _MyHomePageState extends State<MyHomePage>
   }
 
   Timer timer;
+  AutoTradeStart autoTradeStart;
 
   ///start periodic timer to control AutoTradeExecutionBuilder
   _start() async {
@@ -117,20 +116,20 @@ class _MyHomePageState extends State<MyHomePage>
       setState(() {});
       _offers = await ListAPI.getOpenOffers();
       if (_offers.isNotEmpty) {
-        _orders = await ListAPI.getAutoTradeOrders();
-        _profiles = await ListAPI.getInvestorProfiles();
-        _orders.shuffle();
+        var api = DataAPI3();
+        var result = await api.executeAutoTrades();
+        autoTradeStart = await ListAPI.getAutoTradeStart();
+        prettyPrint(autoTradeStart.toJson(), '##### AutoTradeStart');
+        AppSnackbar.showSnackbar(
+            scaffoldKey: _scaffoldKey,
+            message: result,
+            textColor: Styles.white,
+            backgroundColor: Styles.black);
+        _getLists();
       } else {
         print('_MyHomePageState._start ***************'
             ' No open offers available. Will try again in $minutes minutes');
         return;
-      }
-
-      _offers.sort((a, b) => b.offerAmount.compareTo(a.offerAmount));
-      if (_orders.isNotEmpty && _profiles.isNotEmpty && _offers.isNotEmpty) {
-        autoTradeExecutionBuilder = AutoTradeExecutionBuilder();
-        autoTradeExecutionBuilder.executeAutoTrades(
-            _orders, _profiles, _offers, this);
       }
     });
   }
@@ -199,8 +198,17 @@ class _MyHomePageState extends State<MyHomePage>
     print(
         '\n\n_MyHomePageState._restart ....startting auto trades ........... offers: ${_offers.length}\n\n');
     if (_orders.isNotEmpty && _profiles.isNotEmpty && _offers.isNotEmpty) {
-      var z = AutoTradeExecutionBuilder();
-      z.executeAutoTrades(_orders, _profiles, _offers, this);
+      var api = DataAPI3();
+      var result = await api.executeAutoTrades();
+      print('_MyHomePageState._start result: $result');
+      AppSnackbar.showSnackbar(
+          scaffoldKey: _scaffoldKey,
+          message: result,
+          textColor: Styles.white,
+          backgroundColor: Styles.black);
+      var autoStart = await ListAPI.getAutoTradeStart();
+      prettyPrint(autoStart.toJson(), '##### AutoTradeStart');
+      _getLists();
     } else {
       _showProgress = false;
       setState(() {});
@@ -328,52 +336,23 @@ class _MyHomePageState extends State<MyHomePage>
     _start();
   }
 
-  ExecutionUnit exec;
-  List<ExecutionUnit> invalidUnits = List();
-  HashMap<String, ExecutionUnit> map = HashMap<String, ExecutionUnit>();
-  @override
-  onInvalidTrade(ExecutionUnit exec) async {
-    this.exec = exec;
-    map['${exec.order.autoTradeOrderId}-${exec.offer.offerId}'] = exec;
-    invalidUnits.clear();
-    map.forEach((key, ex) {
-      invalidUnits.add(ex);
-    });
-
-    try {
-      List<ExecutionUnit> mUnits = await FileUtil.getExecutionUnits();
-      if (mUnits == null) {
-        mUnits = List();
-      }
-      invalidUnits.forEach((m) {
-        mUnits.insert(0, m);
-      });
-      mUnits.sort((a, b) => b.date.compareTo(a.date));
-      await FileUtil.saveExecutionUnits(ExecutionUnits(mUnits));
-    } catch (e) {
-      print('_MyHomePageState.onInvalidTrade  FILE PROBLEM $e');
-    }
-
-    summarize();
-  }
-
   void _onSessionTapped() {
-    if (bids.isEmpty && invalidUnits.isEmpty) {
-      AppSnackbar.showErrorSnackbar(
-          scaffoldKey: _scaffoldKey,
-          message: 'No session details available',
-          listener: this,
-          actionLabel: 'OK');
-      return;
-    }
-    Navigator.push(
-      context,
-      new MaterialPageRoute(
-          builder: (context) => new JournalPage(
-                bids: bids,
-                units: invalidUnits,
-              )),
-    );
+//    if (bids.isEmpty && invalidUnits.isEmpty) {
+//      AppSnackbar.showErrorSnackbar(
+//          scaffoldKey: _scaffoldKey,
+//          message: 'No session details available',
+//          listener: this,
+//          actionLabel: 'OK');
+//      return;
+//    }
+//    Navigator.push(
+//      context,
+//      new MaterialPageRoute(
+//          builder: (context) => new JournalPage(
+//                bids: bids,
+//                units: invalidUnits,
+//              )),
+//    );
   }
 
   Widget _getBody() {
@@ -557,9 +536,7 @@ class _MyHomePageState extends State<MyHomePage>
                           Padding(
                             padding: const EdgeInsets.only(left: 2.0),
                             child: Text(
-                              invalidUnits == null
-                                  ? '0'
-                                  : '${invalidUnits.length}',
+                              '0',
                               style: Styles.pinkBoldLarge,
                             ),
                           ),

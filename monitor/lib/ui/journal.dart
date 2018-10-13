@@ -1,7 +1,6 @@
 import 'dart:collection';
 
 import 'package:businesslibrary/api/auto_trade.dart';
-import 'package:businesslibrary/api/file_util.dart';
 import 'package:businesslibrary/data/invoice_bid.dart';
 import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/util/lookups.dart';
@@ -30,14 +29,6 @@ class _JournalPageState extends State<JournalPage> {
   initState() {
     super.initState();
     // _getData();
-  }
-
-  _getData() async {
-    bids = await FileUtil.getInvoiceBids();
-    units = await FileUtil.getExecutionUnits();
-
-    _calcInvalids();
-    setState(() {});
   }
 
   Widget _getBidView() {

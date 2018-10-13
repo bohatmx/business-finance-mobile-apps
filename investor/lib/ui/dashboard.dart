@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:businesslibrary/api/data_api.dart';
+import 'package:businesslibrary/api/data_api3.dart';
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/auto_trade_order.dart';
@@ -75,8 +75,7 @@ class _DashboardState extends State<Dashboard>
   void _checkSectors() async {
     sectors = await ListAPI.getSectors();
     if (sectors.isEmpty) {
-      var api = DataAPI(getURL());
-      api.addSectors();
+      DataAPI3.addSectors();
     }
   }
 
@@ -340,27 +339,8 @@ class _DashboardState extends State<Dashboard>
 
   AutoTradeOrder order;
   InvestorProfile profile;
-  int _days = 30;
 
   List<DropdownMenuItem<int>> items = List();
-
-  void _onDropDownChanged(int value) async {
-    print('_DashboardState._onDropDownChanged ..... value: $value');
-    setState(() {
-      _days = value;
-    });
-
-    AppSnackbar.showSnackbarWithProgressIndicator(
-        scaffoldKey: _scaffoldKey,
-        message: 'Loading $_days days data ...',
-        textColor: Colors.white,
-        backgroundColor: Colors.black);
-
-    await _getOffers();
-    if (_scaffoldKey.currentState != null) {
-      _scaffoldKey.currentState.hideCurrentSnackBar();
-    }
-  }
 
   Future _getOffers() async {
     print('_DashboardState._getOffers ................');

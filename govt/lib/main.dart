@@ -18,7 +18,7 @@ class GovtApp extends StatelessWidget {
       title: 'FinanceNetwork',
       debugShowCheckedModeBanner: false,
       theme: getTheme(),
-      home: new StartPage(title: 'Business Finance - Govt'),
+      home: new StartPage(title: 'Business Finance Network'),
     );
   }
 }
@@ -80,7 +80,7 @@ class _StartPageState extends State<StartPage> implements SnackBarListener {
                   padding: const EdgeInsets.only(
                       top: 110.0, left: 50.0, right: 30.0),
                   child: Text(
-                    'To create a brand new Government Entity Account press the button below. To do this, you must be an Administrator or Manager',
+                    'To create a brand new Customer Account press the button below. To do this, you must be an Administrator or Manager',
                     style: TextStyle(
                         color: Colors.black, fontWeight: FontWeight.bold),
                   ),
@@ -94,7 +94,7 @@ class _StartPageState extends State<StartPage> implements SnackBarListener {
                     child: new Padding(
                       padding: const EdgeInsets.all(12.0),
                       child: Text(
-                        'Start New Government Entity Account',
+                        'Start New CustomerAccount',
                         style: TextStyle(
                             color: Colors.white, fontWeight: FontWeight.bold),
                       ),
@@ -105,7 +105,7 @@ class _StartPageState extends State<StartPage> implements SnackBarListener {
                   padding:
                       const EdgeInsets.only(top: 80.0, left: 50.0, right: 30.0),
                   child: Text(
-                    'To sign in to an existing Government Entity Account press the button below.',
+                    'To sign in to an existing Customer Account press the button below.',
                     style: TextStyle(
                         color: Colors.black, fontWeight: FontWeight.bold),
                   ),
@@ -119,7 +119,7 @@ class _StartPageState extends State<StartPage> implements SnackBarListener {
                     child: new Padding(
                       padding: const EdgeInsets.all(12.0),
                       child: Text(
-                        'Sign in to Government Entity App',
+                        'Sign in to Customer App',
                         style: TextStyle(
                             color: Colors.white, fontWeight: FontWeight.bold),
                       ),
@@ -139,6 +139,7 @@ class _StartPageState extends State<StartPage> implements SnackBarListener {
 //          tooltip: 'Increment',
 //          child: new Icon(FontAwesomeIcons.lockOpen),
 //        ),
+      //-LOgb4poza3eLtedkXMq
 //      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }

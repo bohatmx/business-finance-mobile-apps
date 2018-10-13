@@ -1,4 +1,4 @@
-import 'package:businesslibrary/api/data_api.dart';
+import 'package:businesslibrary/api/data_api3.dart';
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/investor.dart';
@@ -25,7 +25,6 @@ class _OffersAndBidsState extends State<OffersAndBids> {
   List<InvoiceBid> settledBids = List();
   Investor investor;
   InvestorProfile profile;
-  int _days = 30;
 
   List<DropdownMenuItem<int>> items = List();
 
@@ -437,8 +436,7 @@ class _OffersAndBidsState extends State<OffersAndBids> {
           message: 'Offer has been filled. Cannot be bid on',
           textColor: Styles.lightBlue,
           backgroundColor: Styles.black);
-      var api = DataAPI(getURL());
-      await api.closeOffer(offer.offerId);
+      await DataAPI3.closeOffer(offer.offerId);
       _getData();
       return;
     }

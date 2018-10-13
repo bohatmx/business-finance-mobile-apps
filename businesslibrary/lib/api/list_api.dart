@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:businesslibrary/api/shared_prefs.dart';
+import 'package:businesslibrary/data/auto_start_stop.dart';
 import 'package:businesslibrary/data/auto_trade_order.dart';
 import 'package:businesslibrary/data/company.dart';
 import 'package:businesslibrary/data/delivery_acceptance.dart';
@@ -22,6 +23,26 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ListAPI {
   static final Firestore _firestore = Firestore.instance;
+
+  static Future<AutoTradeStart> getAutoTradeStart() async {
+    AutoTradeStart start;
+    var qs = await _firestore
+        .collection('autoTradeStarts')
+        .orderBy('dateEnded', descending: true)
+        .limit(1)
+        .getDocuments()
+        .catchError((e) {
+      print('ListAPI.getAutoTradeStart $e');
+      return null;
+    });
+    print('ListAPI.getAutoTradeStart found offers: ${qs.documents.length} ');
+    if (qs.documents.isEmpty) {
+      return null;
+    }
+    start = AutoTradeStart.fromJson(qs.documents.first.data);
+
+    return start;
+  }
 
   static Future<Wallet> getWallet(String ownerType, String name) async {
     print('ListAPI.getWallet ownerType: $ownerType name: $name');

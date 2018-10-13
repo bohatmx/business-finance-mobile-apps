@@ -20,17 +20,14 @@ import 'package:google_sign_in/google_sign_in.dart';
 
 class SignUp {
   static const NameSpace = 'resource:com.oneconnect.biz.';
-  final String url;
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  final Firestore _firestore = Firestore.instance;
-  final GoogleSignIn _googleSignIn = new GoogleSignIn(
+  static FirebaseAuth _auth = FirebaseAuth.instance;
+  static Firestore _firestore = Firestore.instance;
+  static GoogleSignIn _googleSignIn = new GoogleSignIn(
     scopes: [
       'email',
       'https://www.googleapis.com/auth/contacts.readonly',
     ],
   );
-
-  SignUp(this.url);
 
   static const Success = 0,
       ErrorFirebaseUserExists = 1,
@@ -44,8 +41,8 @@ class SignUp {
   static String publicKey =
           'GDN4SBSKZI4EUYIOXK5HCFHCZGZYEZTGEUX26V6MVI2BINMDUGR6E5EZ',
       privateKey = 'SCVBNGSMPV3KESG23ZQTSVFKTSP6YIJE7ONBBGSS6SH6IQ7XKSUOVOIO';
-  RemoteConfig remoteConfig;
-  Future<Null> _setupRemoteConfig() async {
+  static RemoteConfig remoteConfig;
+  static Future<Null> _setupRemoteConfig() async {
     if (privateKey != null) {
       return null;
     }
@@ -70,7 +67,7 @@ class SignUp {
     }
   }
 
-  Future<int> signUpGovtEntity(GovtEntity govtEntity, User admin) async {
+  static Future<int> signUpGovtEntity(GovtEntity govtEntity, User admin) async {
     await _setupRemoteConfig();
     var qs = await _firestore
         .collection('govtEntities')
@@ -87,12 +84,17 @@ class SignUp {
       return ErrorEntityAlreadyExists;
     }
     govtEntity.dateRegistered = getUTCDate();
-    DataAPI3 dataAPI = DataAPI3();
-    var key = await dataAPI.addGovtEntity(govtEntity);
-    if (key > DataAPI3.Success) {
-      return ErrorBlockchain;
+    if (USE_LOCAL_BLOCKCHAIN) {
+      var key = await DataAPI.addGovtEntity(govtEntity);
+      if (key == '0') {
+        return ErrorBlockchain;
+      }
+    } else {
+      var key = await DataAPI3.addGovtEntity(govtEntity);
+      if (key > DataAPI3.Success) {
+        return ErrorBlockchain;
+      }
     }
-
     await SharedPrefs.saveGovtEntity(govtEntity);
 
     //create Stellar wallet
@@ -109,11 +111,10 @@ class SignUp {
     }
 
 //    admin.govtEntity = NameSpace + 'GovtEntity#' + key;
-    admin.isAdministrator = 'true';
     return await signUp(admin);
   }
 
-  Future _doWalletCall(
+  static Future _doWalletCall(
       String name, String participantId, String seed, int type) async {
     var result = await createWallet(
         name: name, participantId: participantId, type: type, seed: seed);
@@ -124,7 +125,7 @@ class SignUp {
     return result;
   }
 
-  Future<int> signUpSupplier(Supplier supplier, User admin) async {
+  static Future<int> signUpSupplier(Supplier supplier, User admin) async {
     await _setupRemoteConfig();
     var qs = await _firestore
         .collection('suppliers')
@@ -138,15 +139,21 @@ class SignUp {
       print('SignUp.signUpSupplier ERROR supplier already exists');
       return ErrorEntityAlreadyExists;
     }
-    DataAPI3 dataAPI = DataAPI3();
-    supplier.dateRegistered = getUTCDate();
-    var key = await dataAPI.addSupplier(supplier);
-    if (key > DataAPI3.Success) {
-      return ErrorBlockchain;
+    if (USE_LOCAL_BLOCKCHAIN) {
+      supplier.dateRegistered = getUTCDate();
+      var key = await DataAPI.addSupplier(supplier);
+      if (key == '0') {
+        return ErrorBlockchain;
+      }
+    } else {
+      supplier.dateRegistered = getUTCDate();
+      var key = await DataAPI3.addSupplier(supplier);
+      if (key > DataAPI3.Success) {
+        return ErrorBlockchain;
+      }
+      await SharedPrefs.saveSupplier(supplier);
+      admin.supplier = NameSpace + 'Supplier#${supplier.participantId}';
     }
-    await SharedPrefs.saveSupplier(supplier);
-    admin.supplier = NameSpace + 'Supplier#${supplier.participantId}';
-    admin.isAdministrator = 'true';
 
     //create Stellar wallet
     if (isInDebugMode) {
@@ -162,7 +169,7 @@ class SignUp {
     return await signUp(admin);
   }
 
-  Future<int> signUpInvestor(Investor investor, User user) async {
+  static Future<int> signUpInvestor(Investor investor, User user) async {
     await _setupRemoteConfig();
     var qs = await _firestore
         .collection('investors')
@@ -177,10 +184,16 @@ class SignUp {
       return ErrorEntityAlreadyExists;
     }
     investor.dateRegistered = getUTCDate();
-    DataAPI3 dataAPI = DataAPI3();
-    var result = await dataAPI.addInvestor(investor);
-    if (result > DataAPI3.Success) {
-      return ErrorBlockchain;
+    if (USE_LOCAL_BLOCKCHAIN) {
+      var result = await DataAPI.addInvestor(investor);
+      if (result == '0') {
+        return ErrorBlockchain;
+      }
+    } else {
+      var result = await DataAPI3.addInvestor(investor);
+      if (result > DataAPI3.Success) {
+        return ErrorBlockchain;
+      }
     }
 
     await SharedPrefs.saveInvestor(investor);
@@ -197,11 +210,10 @@ class SignUp {
       print('SignUp.signUpInvestor ERROR ERROR - wallet failed');
     }
 //    user.investor = NameSpace + 'Investor#' + key;
-    user.isAdministrator = 'true';
     return await signUp(user);
   }
 
-  Future<int> signUpAuditor(Auditor auditor, User admin) async {
+  static Future<int> signUpAuditor(Auditor auditor, User admin) async {
     await _setupRemoteConfig();
     var qs = await _firestore
         .collection('auditors')
@@ -215,10 +227,16 @@ class SignUp {
       print('SignUp.signUpAuditor ERROR auditor already exists');
       return ErrorEntityAlreadyExists;
     }
-    DataAPI3 dataAPI = DataAPI3();
-    var key = await dataAPI.addAuditor(auditor);
-    if (key > DataAPI3.Success) {
-      return ErrorBlockchain;
+    if (USE_LOCAL_BLOCKCHAIN) {
+      var key = await DataAPI.addAuditor(auditor);
+      if (key == '0') {
+        return ErrorBlockchain;
+      }
+    } else {
+      var key = await DataAPI3.addAuditor(auditor);
+      if (key > DataAPI3.Success) {
+        return ErrorBlockchain;
+      }
     }
 
     await SharedPrefs.saveAuditor(auditor);
@@ -236,11 +254,10 @@ class SignUp {
     }
 
 //    admin.auditor = NameSpace + 'Auditor#' + key;
-    admin.isAdministrator = 'true';
     return await signUp(admin);
   }
 
-  Future<int> signUpProcurementOffice(
+  static Future<int> signUpProcurementOffice(
       ProcurementOffice office, User admin) async {
     await _setupRemoteConfig();
     var qs = await _firestore
@@ -256,10 +273,16 @@ class SignUp {
           'SignUp.signUpProcurementOffice ERROR ProcurementOffice already exists');
       return ErrorEntityAlreadyExists;
     }
-    DataAPI3 dataAPI = DataAPI3();
-    var key = await dataAPI.addProcurementOffice(office);
-    if (key > DataAPI3.Success) {
-      return ErrorBlockchain;
+    if (USE_LOCAL_BLOCKCHAIN) {
+      var key = await DataAPI.addProcurementOffice(office);
+      if (key == '0') {
+        return ErrorBlockchain;
+      }
+    } else {
+      var key = await DataAPI3.addProcurementOffice(office);
+      if (key > DataAPI3.Success) {
+        return ErrorBlockchain;
+      }
     }
 
     await SharedPrefs.saveProcurementOffice(office);
@@ -276,11 +299,10 @@ class SignUp {
       print('SignUp.signUpProcurementOffice ERROR ERROR - wallet failed');
     }
 //    admin.procurementOffice = NameSpace + 'ProcurementOffice#' + key;
-    admin.isAdministrator = 'true';
     return await signUp(admin);
   }
 
-  Future<int> signUpBank(Bank bank, User admin) async {
+  static Future<int> signUpBank(Bank bank, User admin) async {
     await _setupRemoteConfig();
     var qs = await _firestore
         .collection('bank')
@@ -294,10 +316,16 @@ class SignUp {
       print('SignUp.signUpBank ERROR bank already exists');
       return ErrorEntityAlreadyExists;
     }
-    DataAPI3 dataAPI = DataAPI3();
-    var key = await dataAPI.addBank(bank);
-    if (key > DataAPI3.Success) {
-      return ErrorBlockchain;
+    if (USE_LOCAL_BLOCKCHAIN) {
+      var key = await DataAPI.addBank(bank);
+      if (key == '0') {
+        return ErrorBlockchain;
+      }
+    } else {
+      var key = await DataAPI3.addBank(bank);
+      if (key > DataAPI3.Success) {
+        return ErrorBlockchain;
+      }
     }
 
     await SharedPrefs.saveBank(bank);
@@ -315,11 +343,10 @@ class SignUp {
     }
 
 //    admin.bank = NameSpace + 'Bank#' + key;
-    admin.isAdministrator = 'true';
     return await signUp(admin);
   }
 
-  Future<int> signUpOneConnect(OneConnect oneConnect, User admin) async {
+  static Future<int> signUpOneConnect(OneConnect oneConnect, User admin) async {
     await _setupRemoteConfig();
     var qs = await _firestore
         .collection('oneConnect')
@@ -331,10 +358,16 @@ class SignUp {
       print('SignUp.signUpOneConnect ERROR OneConnect already exists');
       return ErrorEntityAlreadyExists;
     }
-    DataAPI3 dataAPI = DataAPI3();
-    var key = await dataAPI.addOneConnect(oneConnect);
-    if (key > DataAPI3.Success) {
-      return ErrorBlockchain;
+    if (USE_LOCAL_BLOCKCHAIN) {
+      var key = await DataAPI.addOneConnect(oneConnect);
+      if (key == '0') {
+        return ErrorBlockchain;
+      }
+    } else {
+      var key = await DataAPI3.addOneConnect(oneConnect);
+      if (key > DataAPI3.Success) {
+        return ErrorBlockchain;
+      }
     }
 
     await SharedPrefs.saveOneConnect(oneConnect);
@@ -352,17 +385,16 @@ class SignUp {
     }
 
 //    admin.oneConnect = NameSpace + 'OneConnect#' + key;
-    admin.isAdministrator = 'true';
     return await signUp(admin);
   }
 
   /// add user to firebase and blockchain
-  Future<int> signUp(User user) async {
-    assert(user.email != null);
-    assert(user.password != null);
-    assert(user.firstName != null);
-    assert(user.lastName != null);
-    assert(user.isAdministrator != null);
+  static Future<int> signUp(User user) async {
+//    assert(user.email != null);
+//    assert(user.password != null);
+//    assert(user.firstName != null);
+//    assert(user.lastName != null);
+//    assert(user.isAdministrator != null);
 
     var qs = await _firestore
         .collection('users')
@@ -391,9 +423,8 @@ class SignUp {
     user.fcmToken = token;
     user.uid = fbUser.uid;
 
-    DataAPI api = DataAPI(url);
-    String key = await api.addUser(user);
-    if (key == "0") {
+    var key = await DataAPI3.addUser(user);
+    if (key > DataAPI3.Success) {
       return ErrorBlockchain;
     } else {
       await SharedPrefs.saveUser(user);
@@ -401,7 +432,7 @@ class SignUp {
     }
   }
 
-  Future<FirebaseUser> _createUser(String email, String password) async {
+  static Future<FirebaseUser> _createUser(String email, String password) async {
     print('SignUp.createUser ========= starting to create new user .... ===');
     FirebaseUser user;
 
@@ -423,7 +454,8 @@ class SignUp {
     return user;
   }
 
-  Future<FirebaseUser> signInWithEmail(String email, String password) async {
+  static Future<FirebaseUser> signInWithEmail(
+      String email, String password) async {
     print('SignUp.signInWithEmail ========= starting sign in .... ===');
     FirebaseUser user;
     try {
@@ -438,7 +470,7 @@ class SignUp {
     return user;
   }
 
-  Future<FirebaseUser> signInWithGoogle() async {
+  static Future<FirebaseUser> signInWithGoogle() async {
     print('SignUp.signInWithGoogle  ========= starting sign in .... ===');
     FirebaseUser user;
     try {

@@ -29,7 +29,7 @@ class StellarCommsUtil {
     var response = await request.close();
     var statusCode = response.statusCode;
     print("****************** Stellar HTTP status code: $statusCode");
-    if (response.statusCode == HttpStatus.OK) {
+    if (response.statusCode == 200) {
       var jx = await response.transform(utf8.decoder).join();
       Map data = json.decode(jx);
       acct = new Account.fromJson(data);
@@ -150,5 +150,6 @@ class StellarCommsUtil {
         }
       });
     });
+    return null;
   }
 }

@@ -276,7 +276,6 @@ class _SectorListPageState extends State<SectorListPage>
     selectedSectors.forEach((supp) {
       if (sector.sectorId == supp.sectorId) {
         isFound = true;
-        ;
       }
     });
     if (isFound) {

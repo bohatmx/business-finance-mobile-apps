@@ -6,7 +6,6 @@ import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/util.dart';
 import 'package:flutter/material.dart';
-import 'package:investor/ui/invoice_bidder.dart';
 
 class InvoiceBidList extends StatefulWidget {
   @override
@@ -19,6 +18,7 @@ class _InvoiceBidListState extends State<InvoiceBidList> {
   List<InvoiceBid> bids = List();
   Investor investor;
   Offer offer;
+
   @override
   void initState() {
     super.initState();
@@ -44,139 +44,6 @@ class _InvoiceBidListState extends State<InvoiceBidList> {
     bids.forEach((off) {
       prettyPrint(off.toJson(), 'InvoiceBid:');
     });
-  }
-
-  _showMenuDialog(Offer offer) {
-    this.offer = offer;
-    showDialog(
-        context: context,
-        builder: (_) => new AlertDialog(
-              title: new Text(
-                "Offer Actions",
-                style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).primaryColor),
-              ),
-              content: Container(
-                height: 300.0,
-                child: Column(
-                  children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.only(top: 4.0, bottom: 10.0),
-                      child: Text(
-                        '${offer.supplierName}',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                    Row(
-                      children: <Widget>[
-                        Padding(
-                          padding: const EdgeInsets.only(
-                            top: 4.0,
-                            bottom: 20.0,
-                          ),
-                          child: Text(
-                            'Amount:',
-                            style: TextStyle(
-                                fontWeight: FontWeight.normal, fontSize: 12.0),
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(
-                            left: 8.0,
-                          ),
-                          child: Text(
-                            '$offer.offerAmount}',
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 20.0,
-                                color: Colors.teal),
-                          ),
-                        ),
-                      ],
-                    ),
-                    _buildItems(),
-                  ],
-                ),
-              ),
-            ));
-  }
-
-  Widget _buildItems() {
-    var item1 = Card(
-      elevation: 4.0,
-      child: InkWell(
-        onTap: _onInvoiceBid,
-        child: Row(
-          children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Icon(
-                Icons.attach_money,
-                color: Colors.green.shade800,
-              ),
-            ),
-            Text('Make Invoice Bid'),
-          ],
-        ),
-      ),
-    );
-    var item2 = Card(
-      elevation: 4.0,
-      child: InkWell(
-        onTap: _cancelBid,
-        child: Row(
-          children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Icon(
-                Icons.cancel,
-                color: Colors.red.shade800,
-              ),
-            ),
-            Text('Cancel Invoice Bid'),
-          ],
-        ),
-      ),
-    );
-    var item3 = Card(
-      elevation: 4.0,
-      child: InkWell(
-        onTap: _onOfferDetails,
-        child: Row(
-          children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Icon(
-                Icons.description,
-                color: Colors.blue.shade800,
-              ),
-            ),
-            Text('Check Invoice Details'),
-          ],
-        ),
-      ),
-    );
-
-    return Column(
-      children: <Widget>[
-        item1,
-        item2,
-        item3,
-        Padding(
-          padding: const EdgeInsets.only(top: 16.0),
-          child: FlatButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            child: Text(
-              'Cancel',
-              style: TextStyle(color: Colors.blue, fontSize: 20.0),
-            ),
-          ),
-        ),
-      ],
-    );
   }
 
   @override
@@ -223,23 +90,6 @@ class _InvoiceBidListState extends State<InvoiceBidList> {
         ],
       ),
     );
-  }
-
-  void _onInvoiceBid() {
-    print('_InvoiceBidListState._onInvoiceBid');
-    Navigator.pop(context);
-    Navigator.push(
-      context,
-      new MaterialPageRoute(builder: (context) => new InvoiceBidder(offer)),
-    );
-  }
-
-  void _cancelBid() {
-    print('_InvoiceBidListState._cancelBid');
-  }
-
-  void _onOfferDetails() {
-    print('_InvoiceBidListState._onOfferDetails');
   }
 }
 

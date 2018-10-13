@@ -58,7 +58,6 @@ class _InvoiceListState extends State<InvoiceList> implements SnackBarListener {
 
   void _acceptInvoice() async {
     print('_InvoiceListState._acceptInvoice');
-    DataAPI3 api = new DataAPI3();
 
     Navigator.pop(context);
     AppSnackbar.showSnackbarWithProgressIndicator(
@@ -77,7 +76,7 @@ class _InvoiceListState extends State<InvoiceList> implements SnackBarListener {
         invoiceNumber: invoice.invoiceNumber,
         user: 'resource:com.oneconnect.biz.User#${user.userId}');
 
-    var result = await api.acceptInvoice(acceptance);
+    var result = await DataAPI3.acceptInvoice(acceptance);
     _scaffoldKey.currentState.hideCurrentSnackBar();
     if (result > DataAPI3.Success) {
       AppSnackbar.showErrorSnackbar(

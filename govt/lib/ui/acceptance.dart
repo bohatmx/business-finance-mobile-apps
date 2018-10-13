@@ -7,7 +7,6 @@ import 'package:businesslibrary/data/invoice.dart';
 import 'package:businesslibrary/data/invoice_acceptance.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/lookups.dart';
-import 'package:businesslibrary/util/util.dart';
 
 class Accept {
   static Future<String> sendAcceptance(DeliveryNote note, User user) async {
@@ -24,8 +23,7 @@ class Accept {
       purchaseOrderNumber: note.purchaseOrderNumber,
       user: 'resource:com.oneconnect.biz.User#${user.userId}',
     );
-    var api = DataAPI(getURL());
-    var res = await api.acceptDelivery(a);
+    var res = await DataAPI.acceptDelivery(a);
 
     return res;
   }
@@ -44,8 +42,7 @@ class Accept {
       user: 'resource:com.oneconnect.biz.User#${user.userId}',
       supplierDocumentRef: invoice.supplierDocumentRef,
     );
-    var api = DataAPI(getURL());
-    var res = await api.acceptInvoice(a);
+    var res = await DataAPI.acceptInvoice(a);
 
     return res;
   }

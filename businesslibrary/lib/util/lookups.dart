@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:businesslibrary/api/data_api.dart';
 import 'package:businesslibrary/api/data_api3.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/delivery_acceptance.dart';
@@ -588,15 +589,27 @@ Future<String> createWallet(
   }
 
   wallet.documentReference = walletDocId;
-  DataAPI3 api = DataAPI3();
-  var res = await api.addWallet(wallet);
-  if (res == DataAPI3.Success) {
-    prettyPrint(wallet.toJson(),
-        'Wallet created and ready for use: #######################))))))))');
-    return wallet.stellarPublicKey;
+
+  if (USE_LOCAL_BLOCKCHAIN) {
+    var res = await DataAPI.addWallet(wallet);
+    if (res != '0') {
+      prettyPrint(wallet.toJson(),
+          'Wallet created and ready for use: #######################))))))))');
+      return wallet.stellarPublicKey;
+    } else {
+      print('createWallet ERROR  writing wallet to BFN blockchain');
+      return '0';
+    }
   } else {
-    print('createWallet ERROR  writing wallet to BFN blockchain');
-    return '0';
+    var res = await DataAPI3.addWallet(wallet);
+    if (res == DataAPI3.Success) {
+      prettyPrint(wallet.toJson(),
+          'Wallet created and ready for use: #######################))))))))');
+      return wallet.stellarPublicKey;
+    } else {
+      print('createWallet ERROR  writing wallet to BFN blockchain');
+      return '0';
+    }
   }
 }
 

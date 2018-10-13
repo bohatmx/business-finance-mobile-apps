@@ -823,8 +823,7 @@ class _InvoiceBidderState extends State<InvoiceBidder>
         textColor: Colors.white,
         backgroundColor: Colors.black);
 
-    var api = DataAPI3();
-    var key = await api.makeInvoiceBid(bid);
+    var key = await DataAPI3.makeInvoiceBid(bid);
     if (key > DataAPI3.Success) {
       AppSnackbar.showErrorSnackbar(
           scaffoldKey: _scaffoldKey,

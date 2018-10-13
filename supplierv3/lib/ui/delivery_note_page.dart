@@ -88,7 +88,7 @@ class _DeliveryNotePageState extends State<DeliveryNotePage>
     if (_purchaseOrders == null) {
       return Container();
     }
-    ;
+
     items.clear();
     _purchaseOrders.forEach((po) {
       var item6 = DropdownMenuItem<PurchaseOrder>(
@@ -363,7 +363,6 @@ class _DeliveryNotePageState extends State<DeliveryNotePage>
           actionLabel: 'close');
       return;
     }
-    DataAPI3 api = new DataAPI3();
     var note = DeliveryNote(
       purchaseOrder: NameSpacePO + _purchaseOrder.purchaseOrderId,
       supplier: _purchaseOrder.supplier,
@@ -388,7 +387,7 @@ class _DeliveryNotePageState extends State<DeliveryNotePage>
         message: 'Submitting Delivery Note ...',
         textColor: Colors.white,
         backgroundColor: Colors.black);
-    var key = await api.registerDeliveryNote(note);
+    var key = await DataAPI3.registerDeliveryNote(note);
     _scaffoldKey.currentState.hideCurrentSnackBar();
     print('_DeliveryNotePageState._onSubmit ........ back. key: $key');
     if (key > DataAPI3.Success) {

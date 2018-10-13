@@ -149,8 +149,7 @@ class _NewInvoicePageState extends State<NewInvoicePage>
         return;
       }
 
-      DataAPI3 api = DataAPI3();
-      var result = await api.registerInvoice(invoice);
+      var result = await DataAPI3.registerInvoice(invoice);
       if (result > DataAPI3.Success) {
         isSuccess = false;
         AppSnackbar.showErrorSnackbar(

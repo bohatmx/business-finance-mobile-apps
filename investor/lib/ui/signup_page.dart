@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'package:businesslibrary/api/data_api.dart';
+import 'package:businesslibrary/api/data_api3.dart';
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/api/signup.dart';
@@ -19,9 +19,9 @@ import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/selectors.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/util.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:investor/ui/dashboard.dart';
+import 'package:investor/ui/profile.dart';
 
 class SignUpPage extends StatefulWidget {
   @override
@@ -42,7 +42,6 @@ class _SignUpPageState extends State<SignUpPage>
       adminCellphone,
       idNumber;
   final GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
-  final FirebaseMessaging _firebaseMessaging = new FirebaseMessaging();
   String participationId;
 
   Country country;
@@ -94,6 +93,13 @@ class _SignUpPageState extends State<SignUpPage>
     'TradeFinance Pty Ltd',
     'Finance Gurus LLC',
     'African Financial Services',
+    'Southern Finance LLC',
+    'Gauteng Finance Brokers',
+    'Samuelson LLC',
+    'Johannesburg Finance',
+    'Finance Gurus Pty Ltd',
+    'BlueBull Financiers',
+    'Hennessey Invoice Funds LLC',
   ];
 
   _getCountry() async {
@@ -282,11 +288,11 @@ class _SignUpPageState extends State<SignUpPage>
       );
       print('_SignUpPageState._onSavePressed ${investor.toJson()}');
       User admin = User(
-        firstName: firstName,
-        lastName: lastName,
-        email: adminEmail,
-        password: password,
-      );
+          firstName: firstName,
+          lastName: lastName,
+          email: adminEmail,
+          password: password,
+          isAdministrator: true);
       print('_SignUpPageState._onSavePressed ${admin.toJson()}');
       AppSnackbar.showSnackbarWithProgressIndicator(
         scaffoldKey: _scaffoldKey,
@@ -295,8 +301,7 @@ class _SignUpPageState extends State<SignUpPage>
         backgroundColor: Colors.black,
       );
 
-      SignUp signUp = SignUp(getURL());
-      var result = await signUp.signUpInvestor(investor, admin);
+      var result = await SignUp.signUpInvestor(investor, admin);
 
       checkResult(result, investor);
     }
@@ -319,7 +324,7 @@ class _SignUpPageState extends State<SignUpPage>
               action: 0,
               icon: Icons.done_all);
 
-          subscribe(investor);
+          checkProfile();
         } else {
           //TODO - wallet not on blockchain.
           exit();
@@ -372,8 +377,7 @@ class _SignUpPageState extends State<SignUpPage>
   void _checkSectors() async {
     sectors = await ListAPI.getSectors();
     if (sectors.isEmpty) {
-      var api = DataAPI(getURL());
-      api.addSectors();
+      DataAPI3.addSectors();
     }
   }
 
@@ -387,17 +391,15 @@ class _SignUpPageState extends State<SignUpPage>
     );
   }
 
-  void subscribe(Investor investor) {
-    var topic2 = 'general';
-    _firebaseMessaging.subscribeToTopic(topic2);
-    var topic3 = 'settlements' + investor.documentReference;
-    _firebaseMessaging.subscribeToTopic(topic3);
-    var topic4 = 'invoiceOffers';
-    _firebaseMessaging.subscribeToTopic(topic4);
-
-    print(
-        '_SignInState._configMessaging ... ############# subscribed to FCM topics '
-        ' \n $topic2 \n $topic3 \n $topic4 \n ');
+  void checkProfile() async {
+    var profile = await SharedPrefs.getInvestorProfile();
+    if (profile == null) {
+      Navigator.push(
+          context,
+          new MaterialPageRoute(
+            builder: (context) => new ProfilePage(),
+          ));
+    }
   }
 
   @override

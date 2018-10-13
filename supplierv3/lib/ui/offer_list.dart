@@ -21,6 +21,7 @@ class _OfferListState extends State<OfferList> with WidgetsBindingObserver {
   List<Offer> offers = List();
   Supplier supplier;
   Offer offer;
+
   @override
   void initState() {
     super.initState();
@@ -67,6 +68,7 @@ class _OfferListState extends State<OfferList> with WidgetsBindingObserver {
   }
 
   TextStyle white = TextStyle(color: Colors.black, fontSize: 16.0);
+
   List<DropdownMenuItem<int>> _buildDaysDropDownItems() {
     var item0 = DropdownMenuItem<int>(
       value: 1,
@@ -284,6 +286,7 @@ class _OfferListState extends State<OfferList> with WidgetsBindingObserver {
 
   List<DropdownMenuItem<int>> items = List();
   int _days = 7;
+
   Widget _getBottom() {
     return Padding(
       padding: const EdgeInsets.only(bottom: 18.0, left: 20.0),
@@ -318,12 +321,6 @@ class _OfferListState extends State<OfferList> with WidgetsBindingObserver {
   }
 
   void _refresh() {
-    _getOffers();
-  }
-
-  void _daysSelected(int value) {
-    print('############# _OfferListState._daysSelected : $value');
-    _days = value;
     _getOffers();
   }
 }

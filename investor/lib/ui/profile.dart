@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:businesslibrary/api/data_api.dart';
+import 'package:businesslibrary/api/data_api3.dart';
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/auto_trade_order.dart';
@@ -11,7 +12,6 @@ import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
-import 'package:businesslibrary/util/util.dart';
 import 'package:flutter/material.dart';
 import 'package:investor/ui/sector_list_page.dart';
 import 'package:investor/ui/supplier_list_page.dart';
@@ -23,7 +23,6 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> implements SnackBarListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
-  final _formKey = GlobalKey<FormState>();
 
   InvestorProfile profile;
   AutoTradeOrder order;
@@ -190,7 +189,6 @@ class _ProfilePageState extends State<ProfilePage> implements SnackBarListener {
       profile.suppliers = suppStrings;
     }
 
-    var api = DataAPI(getURL());
     AppSnackbar.showSnackbarWithProgressIndicator(
         scaffoldKey: _scaffoldKey,
         message: 'Saving profile ...',
@@ -198,9 +196,9 @@ class _ProfilePageState extends State<ProfilePage> implements SnackBarListener {
         backgroundColor: Styles.black);
     var res;
     if (profile.profileId == null) {
-      res = await api.addInvestorProfile(profile);
+      res = await DataAPI3.addInvestorProfile(profile);
     } else {
-      res = await api.updateInvestorProfile(profile);
+      res = await DataAPI.updateInvestorProfile(profile);
     }
     if (res == '0') {
       AppSnackbar.showErrorSnackbar(
@@ -526,7 +524,6 @@ class _ProfilePageState extends State<ProfilePage> implements SnackBarListener {
           user: Namespace + 'User#${user.userId}',
           wallet: Namespace + 'Wallet#${wallet.stellarPublicKey}');
     }
-    var api = DataAPI(getURL());
     AppSnackbar.showSnackbarWithProgressIndicator(
         scaffoldKey: _scaffoldKey,
         message: 'Saving Auto Trade Order',
@@ -535,9 +532,9 @@ class _ProfilePageState extends State<ProfilePage> implements SnackBarListener {
 
     var res;
     if (orderCached != null) {
-      res = await api.updateAutoTradeOrder(order);
+      res = await DataAPI.updateAutoTradeOrder(order);
     } else {
-      res = await api.addAutoTradeOrder(order);
+      res = await DataAPI3.addAutoTradeOrder(order);
     }
     if (res == '0') {
       AppSnackbar.showErrorSnackbar(

@@ -2,7 +2,6 @@ import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/investor.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/user.dart';
-import 'package:businesslibrary/util/lookups.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:investor/ui/dashboard.dart';
@@ -144,7 +143,7 @@ class _StartPageState extends State<StartPage> {
 
   void _startSignUpPage() async {
     print('_MyHomePageState._btnPressed ................');
-    PrivateSectorType type = await Navigator.push(
+    await Navigator.push(
       context,
       new MaterialPageRoute(builder: (context) => new SignUpPage()),
     );

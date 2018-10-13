@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:businesslibrary/api/data_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/api_bag.dart';
 import 'package:businesslibrary/data/auditor.dart';
@@ -25,14 +26,17 @@ import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/data/wallet.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/util.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
 
 class DataAPI3 {
-  HttpClient _httpClient = new HttpClient();
-  ContentType _contentType =
+  static HttpClient _httpClient = new HttpClient();
+  static ContentType _contentType =
       new ContentType("application", "json", charset: "utf-8");
-  String url = 'https://us-central1-business-finance-dev.cloudfunctions.net/';
+  static String url =
+      'https://us-central1-business-finance-dev.cloudfunctions.net/';
   static const ADD_DATA = 'addData',
+      EXECUTE_AUTO_TRADES = 'executeAutoTrade',
       REGISTER_PURCHASE_ORDER = 'registerPurchaseOrder',
       REGISTER_INVOICE = 'registerInvoice',
       REGISTER_DELIVERY_NOTE = 'registerDeliveryNote',
@@ -45,7 +49,12 @@ class DataAPI3 {
       BlockchainError = 2,
       FirestoreError = 3,
       UnknownError = 4;
-  Future<int> registerPurchaseOrder(PurchaseOrder purchaseOrder) async {
+  static Firestore _firestore = Firestore.instance;
+  static Future<int> registerPurchaseOrder(PurchaseOrder purchaseOrder) async {
+    if (USE_LOCAL_BLOCKCHAIN) {
+      var res = await DataAPI.registerPurchaseOrder(purchaseOrder);
+      return res == '0' ? DataAPI3.BlockchainError : DataAPI3.Success;
+    }
     purchaseOrder.purchaseOrderId = getKey();
     purchaseOrder.date = getUTCDate();
     var bag = APIBag(
@@ -54,8 +63,8 @@ class DataAPI3 {
     );
 
     print(
-        'DataAPI.registerPurchaseOrder url: ${url + REGISTER_PURCHASE_ORDER}');
-    prettyPrint(bag.toJson(), 'DataAPI.registerPurchaseOrder  ');
+        'DataAPI3.registerPurchaseOrder url: ${url + REGISTER_PURCHASE_ORDER}');
+    prettyPrint(bag.toJson(), 'DataAPI3.registerPurchaseOrder  ');
     try {
       var httpClient = new HttpClient();
       HttpClientRequest mRequest =
@@ -64,23 +73,53 @@ class DataAPI3 {
       mRequest.write(json.encode(bag.toJson()));
       HttpClientResponse mResponse = await mRequest.close();
       print(
-          'DataAPI.registerPurchaseOrder blockchain response status code:  ${mResponse.statusCode}');
+          'DataAPI3.registerPurchaseOrder blockchain response status code:  ${mResponse.statusCode}');
       if (mResponse.statusCode == 200) {
+        ///write govt or company po
+        var ref = await _firestore
+            .collection('govtEntities')
+            .document(purchaseOrder.govtDocumentRef)
+            .collection('purchaseOrders')
+            .add(purchaseOrder.toJson())
+            .catchError((e) {
+          print('DataAPI3.registerPurchaseOrder ERROR $e');
+          return '0';
+        });
+
+        ///write po to intended supplier
+        var ref2 = await _firestore
+            .collection('suppliers')
+            .document(purchaseOrder.supplierDocumentRef)
+            .collection('purchaseOrders')
+            .add(purchaseOrder.toJson())
+            .catchError((e) {
+          print('DataAPI3.registerPurchaseOrder ERROR $e');
+          return '0';
+        });
+        print(
+            'DataAPI3.registerPurchaseOrder document issuer path: ${ref.path}');
+        print(
+            'DataAPI3.registerPurchaseOrder document supplier path: ${ref2.path}');
         return Success;
       } else {
-        print('DataAPI.registerPurchaseOrder ERROR  ${mResponse.reasonPhrase}');
+        print(
+            'DataAPI3.registerPurchaseOrder ERROR  ${mResponse.reasonPhrase}');
         mResponse.transform(utf8.decoder).listen((contents) {
-          print('DataAPI.registerPurchaseOrder  $contents');
+          print('DataAPI3.registerPurchaseOrder  $contents');
         });
         return BlockchainError;
       }
     } catch (e) {
-      print('DataAPI.registerPurchaseOrder ERROR $e');
+      print('DataAPI3.registerPurchaseOrder ERROR $e');
       return UnknownError;
     }
   }
 
-  Future<int> registerDeliveryNote(DeliveryNote deliveryNote) async {
+  static Future<int> registerDeliveryNote(DeliveryNote deliveryNote) async {
+    if (USE_LOCAL_BLOCKCHAIN) {
+      var res = await DataAPI.registerDeliveryNote(deliveryNote);
+      return res == '0' ? DataAPI3.BlockchainError : DataAPI3.Success;
+    }
     deliveryNote.deliveryNoteId = getKey();
     deliveryNote.date = getUTCDate();
     var bag = APIBag(
@@ -97,31 +136,35 @@ class DataAPI3 {
       mRequest.write(json.encode(bag.toJson()));
       HttpClientResponse mResponse = await mRequest.close();
       print(
-          'DataAPI.registerDeliveryNote blockchain response status code:  ${mResponse.statusCode}');
+          'DataAPI3.registerDeliveryNote blockchain response status code:  ${mResponse.statusCode}');
       if (mResponse.statusCode == 200) {
         return Success;
       } else {
-        print('DataAPI.registerDeliveryNote ERROR  ${mResponse.reasonPhrase}');
+        print('DataAPI3.registerDeliveryNote ERROR  ${mResponse.reasonPhrase}');
         mResponse.transform(utf8.decoder).listen((contents) {
-          print('DataAPI.registerDeliveryNote  $contents');
+          print('DataAPI3.registerDeliveryNote  $contents');
         });
         return BlockchainError;
       }
     } catch (e) {
-      print('DataAPI.registerDeliveryNote ERROR $e');
+      print('DataAPI3.registerDeliveryNote ERROR $e');
       return UnknownError;
     }
   }
 
-  Future<int> acceptDelivery(DeliveryAcceptance acceptance) async {
+  static Future<int> acceptDelivery(DeliveryAcceptance acceptance) async {
+    if (USE_LOCAL_BLOCKCHAIN) {
+      var res = await DataAPI.acceptDelivery(acceptance);
+      return res == '0' ? DataAPI3.BlockchainError : DataAPI3.Success;
+    }
     acceptance.acceptanceId = getKey();
     var bag = APIBag(
       debug: isInDebugMode,
       data: acceptance.toJson(),
     );
 
-    print('\n\nDataAPI.acceptDelivery url: ${url + ACCEPT_DELIVERY_NOTE}');
-    prettyPrint(bag.toJson(), 'DataAPI.acceptDelivery ... calling BFN ...');
+    print('\n\nDataAPI3.acceptDelivery url: ${url + ACCEPT_DELIVERY_NOTE}');
+    prettyPrint(bag.toJson(), 'DataAPI3.acceptDelivery ... calling BFN ...');
     try {
       Map map = bag.toJson();
       var mjson = json.encode(map);
@@ -132,36 +175,40 @@ class DataAPI3 {
       mRequest.write(mjson);
       HttpClientResponse mResponse = await mRequest.close();
       print(
-          'DataAPI.acceptDelivery blockchain response status code:  ${mResponse.statusCode}');
+          'DataAPI3.acceptDelivery blockchain response status code:  ${mResponse.statusCode}');
       if (mResponse.statusCode == 200) {
         return Success;
       } else {
         mResponse.transform(utf8.decoder).listen((contents) {
-          print('DataAPI.acceptDelivery ERROR  $contents');
+          print('DataAPI3.acceptDelivery ERROR  $contents');
         });
-        print('DataAPI.acceptDelivery ERROR  ${mResponse.reasonPhrase}');
+        print('DataAPI3.acceptDelivery ERROR  ${mResponse.reasonPhrase}');
         return BlockchainError;
       }
     } catch (e) {
-      print('DataAPI.acceptDelivery ERROR $e');
+      print('DataAPI3.acceptDelivery ERROR $e');
       return UnknownError;
     }
   }
 
-  Future<int> registerInvoice(Invoice invoice) async {
+  static Future<int> registerInvoice(Invoice invoice) async {
     invoice.invoiceId = getKey();
     invoice.isOnOffer = false;
     invoice.isSettled = false;
     invoice.date = getUTCDate();
+    if (USE_LOCAL_BLOCKCHAIN) {
+      var res = await DataAPI.registerInvoice(invoice);
+      return res == '0' ? DataAPI3.BlockchainError : DataAPI3.Success;
+    }
 
     var bag = APIBag(
       debug: isInDebugMode,
       data: invoice.toJson(),
     );
 
-    print('DataAPI.registerInvoice url: ${url + REGISTER_INVOICE}');
+    print('DataAPI3.registerInvoice url: ${url + REGISTER_INVOICE}');
     prettyPrint(invoice.toJson(),
-        'DataAPI.registerInvoice .. calling BFN via http(s) ...');
+        'DataAPI3.registerInvoice .. calling BFN via http(s) ...');
     try {
       var httpClient = new HttpClient();
       HttpClientRequest mRequest =
@@ -170,32 +217,35 @@ class DataAPI3 {
       mRequest.write(json.encode(bag.toJson()));
       HttpClientResponse mResponse = await mRequest.close();
       print(
-          'DataAPI.registerInvoice blockchain response status code:  ${mResponse.statusCode}');
+          'DataAPI3.registerInvoice blockchain response status code:  ${mResponse.statusCode}');
       if (mResponse.statusCode == 200) {
         return Success;
       } else {
-        print('DataAPI.registerInvoice ERROR  ${mResponse.reasonPhrase}');
+        print('DataAPI3.registerInvoice ERROR  ${mResponse.reasonPhrase}');
         mResponse.transform(utf8.decoder).listen((contents) {
-          print('DataAPI.registerInvoice  $contents');
+          print('DataAPI3.registerInvoice  $contents');
         });
-        print('DataAPI.registerInvoice Firestore invoice deleted');
+        print('DataAPI3.registerInvoice Firestore invoice deleted');
         return BlockchainError;
       }
     } catch (e) {
-      print('DataAPI.registerInvoice ERROR $e');
+      print('DataAPI3.registerInvoice ERROR $e');
       return UnknownError;
     }
   }
 
-  Future<int> acceptInvoice(InvoiceAcceptance acceptance) async {
+  static Future<int> acceptInvoice(InvoiceAcceptance acceptance) async {
     acceptance.acceptanceId = getKey();
-
+    if (USE_LOCAL_BLOCKCHAIN) {
+      var res = await DataAPI.acceptInvoice(acceptance);
+      return res == '0' ? DataAPI3.BlockchainError : DataAPI3.Success;
+    }
     var bag = APIBag(
       debug: isInDebugMode,
       data: acceptance.toJson(),
     );
-    print('DataAPI.acceptInvoice url: ${url + ACCEPT_INVOICE}');
-    prettyPrint(bag.toJson(), 'DataAPI.acceptInvoice ... calling BFN ...');
+    print('DataAPI3.acceptInvoice url: ${url + ACCEPT_INVOICE}');
+    prettyPrint(bag.toJson(), 'DataAPI3.acceptInvoice ... calling BFN ...');
     try {
       Map map = bag.toJson();
       var mjson = json.encode(map);
@@ -206,33 +256,37 @@ class DataAPI3 {
       mRequest.write(mjson);
       HttpClientResponse mResponse = await mRequest.close();
       print(
-          'DataAPI.acceptInvoice blockchain response status code:  ${mResponse.statusCode}');
+          'DataAPI3.acceptInvoice blockchain response status code:  ${mResponse.statusCode}');
       if (mResponse.statusCode == 200) {
         return Success;
       } else {
         mResponse.transform(utf8.decoder).listen((contents) {
-          print('DataAPI.acceptInvoice ERROR  $contents');
+          print('DataAPI3.acceptInvoice ERROR  $contents');
         });
-        print('DataAPI.acceptInvoice ERROR  ${mResponse.reasonPhrase}');
+        print('DataAPI3.acceptInvoice ERROR  ${mResponse.reasonPhrase}');
         return BlockchainError;
       }
     } catch (e) {
-      print('DataAPI.acceptInvoice ERROR $e');
+      print('DataAPI3.acceptInvoice ERROR $e');
       return UnknownError;
     }
   }
 
-  Future<int> makeOffer(Offer offer) async {
+  static Future<int> makeOffer(Offer offer) async {
     offer.offerId = getKey();
     offer.date = getUTCDate();
     offer.isOpen = true;
     offer.isCancelled = false;
+    if (USE_LOCAL_BLOCKCHAIN) {
+      var res = await DataAPI.makeOffer(offer);
+      return res == '0' ? DataAPI3.BlockchainError : DataAPI3.Success;
+    }
     var bag = APIBag(
       debug: isInDebugMode,
       data: offer.toJson(),
     );
-    print('DataAPI.makeOffer  ${url + MAKE_OFFER}');
-    prettyPrint(bag.toJson(), 'DataAPI.makeOffer offer....................: ');
+    print('DataAPI3.makeOffer  ${url + MAKE_OFFER}');
+    prettyPrint(bag.toJson(), 'DataAPI3.makeOffer offer....................: ');
     try {
       Map map = bag.toJson();
       var mjson = json.encode(map);
@@ -243,28 +297,32 @@ class DataAPI3 {
       mRequest.write(mjson);
       HttpClientResponse mResponse = await mRequest.close();
       print(
-          'DataAPI.makeOffer blockchain response status code:  ${mResponse.statusCode}');
+          'DataAPI3.makeOffer blockchain response status code:  ${mResponse.statusCode}');
       if (mResponse.statusCode == 200) {
         return Success;
       } else {
         mResponse.transform(utf8.decoder).listen((contents) {
-          print('DataAPI.makeOffer ERROR  $contents');
+          print('DataAPI3.makeOffer ERROR  $contents');
         });
-        print('DataAPI.MakeOffer ERROR  ${mResponse.reasonPhrase}');
+        print('DataAPI3.MakeOffer ERROR  ${mResponse.reasonPhrase}');
         return BlockchainError;
       }
     } catch (e) {
-      print('DataAPI.MakeOffer ERROR $e');
+      print('DataAPI3.MakeOffer ERROR $e');
       return UnknownError;
     }
   }
 
-  Future<int> closeOffer(String offerId) async {
+  static Future<int> closeOffer(String offerId) async {
+    if (USE_LOCAL_BLOCKCHAIN) {
+      var res = await DataAPI.closeOffer(offerId);
+      return res == '0' ? DataAPI3.BlockchainError : DataAPI3.Success;
+    }
     var map = Map<String, dynamic>();
     map['debug'] = isInDebugMode;
     map['offerId'] = offerId;
 
-    print('DataAPI.closeOffer ${url + CLOSE_OFFER}');
+    print('DataAPI3.closeOffer ${url + CLOSE_OFFER}');
     try {
       var mjson = json.encode(map);
       var httpClient = new HttpClient();
@@ -274,23 +332,27 @@ class DataAPI3 {
       mRequest.write(mjson);
       HttpClientResponse mResponse = await mRequest.close();
       print(
-          'DataAPI.closeOffer blockchain response status code:  ${mResponse.statusCode}');
+          'DataAPI3.closeOffer blockchain response status code:  ${mResponse.statusCode}');
       if (mResponse.statusCode == 200) {
         return Success;
       } else {
         mResponse.transform(utf8.decoder).listen((contents) {
-          print('DataAPI.closeOffer  $contents');
+          print('DataAPI3.closeOffer  $contents');
         });
-        print('DataAPI.closeOffer ERROR  ${mResponse.reasonPhrase}');
+        print('DataAPI3.closeOffer ERROR  ${mResponse.reasonPhrase}');
         return BlockchainError;
       }
     } catch (e) {
-      print('DataAPI.closeOffer ERROR $e');
+      print('DataAPI3.closeOffer ERROR $e');
       return UnknownError;
     }
   }
 
-  Future<int> makeInvoiceBid(InvoiceBid bid) async {
+  static Future<int> makeInvoiceBid(InvoiceBid bid) async {
+    if (USE_LOCAL_BLOCKCHAIN) {
+      var res = await DataAPI.makeInvoiceBid(bid);
+      return res == '0' ? DataAPI3.BlockchainError : DataAPI3.Success;
+    }
     bid..invoiceBidId = getKey();
     bid.date = getUTCDate();
     bid.isSettled = false;
@@ -298,7 +360,7 @@ class DataAPI3 {
       debug: isInDebugMode,
       data: bid.toJson(),
     );
-    print('DataAPI.makeInvoiceBid ${url + MAKE_INVOICE_BID}');
+    print('DataAPI3.makeInvoiceBid ${url + MAKE_INVOICE_BID}');
     try {
       Map map = bag.toJson();
       var mjson = json.encode(map);
@@ -309,7 +371,7 @@ class DataAPI3 {
       mRequest.write(mjson);
       HttpClientResponse mResponse = await mRequest.close();
       print(
-          'DataAPI.makeInvoiceBid blockchain response status code:  ${mResponse.statusCode}');
+          'DataAPI3.makeInvoiceBid blockchain response status code:  ${mResponse.statusCode}');
       if (mResponse.statusCode == 200) {
         if (bid.autoTradeOrder != null) {
           await closeOffer(bid.offer.split('#').elementAt(1));
@@ -317,19 +379,23 @@ class DataAPI3 {
         return Success;
       } else {
         mResponse.transform(utf8.decoder).listen((contents) {
-          print('DataAPI.makeInvoiceBid  $contents');
+          print('DataAPI3.makeInvoiceBid  $contents');
         });
-        print('DataAPI.makeInvoiceBid ERROR  ${mResponse.reasonPhrase}');
+        print('DataAPI3.makeInvoiceBid ERROR  ${mResponse.reasonPhrase}');
         return BlockchainError;
       }
     } catch (e) {
-      print('DataAPI.makeInvoiceBid ERROR $e');
+      print('DataAPI3.makeInvoiceBid ERROR $e');
       return UnknownError;
     }
   }
 
   //////////// ###################################### //////////
-  Future<int> addGovtEntity(GovtEntity govtEntity) async {
+  static Future<int> addGovtEntity(GovtEntity govtEntity) async {
+    if (USE_LOCAL_BLOCKCHAIN) {
+      var res = await DataAPI.addGovtEntity(govtEntity);
+      return res == '0' ? DataAPI3.BlockchainError : DataAPI3.Success;
+    }
     print(
         'DataAPI3.addGovtEntity ==============>>>> ........... ${govtEntity.toJson()}');
     print('DataAPI3.addGovtEntity ))))))) URL: $url$ADD_DATA');
@@ -369,16 +435,45 @@ class DataAPI3 {
     }
   }
 
-  Future<int> addUser(User user) async {
+  static Future<String> executeAutoTrades() async {
+    print('DataAPI3.executeAutoTrades url: ${url + EXECUTE_AUTO_TRADES}');
+    try {
+      var httpClient = new HttpClient();
+      HttpClientRequest mRequest =
+          await httpClient.postUrl(Uri.parse(url + EXECUTE_AUTO_TRADES));
+      mRequest.headers.contentType = _contentType;
+      mRequest.write(json.encode({'debug': isInDebugMode}));
+      HttpClientResponse mResponse = await mRequest.close();
+      print(
+          'DataAPI3.executeAutoTrades ######## blockchain response status code:  ${mResponse.statusCode}');
+      mResponse.transform(utf8.decoder).listen((contents) {
+        print('DataAPI3.executeAutoTrades;  $contents');
+      });
+      if (mResponse.statusCode == 200) {
+        return 'Auto Trade Session complete';
+      } else {
+        return '0';
+      }
+    } catch (e) {
+      print('DataAPI3.executeAutoTrades ERROR $e');
+      return '0';
+    }
+  }
+
+  static Future<int> addUser(User user) async {
     user.dateRegistered = getUTCDate();
     user.userId = getKey();
+    if (USE_LOCAL_BLOCKCHAIN) {
+      var res = await DataAPI.addUser(user);
+      return res == '0' ? DataAPI3.BlockchainError : DataAPI3.Success;
+    }
     var bag = APIBag(
         debug: isInDebugMode,
         data: user.toJson(),
         apiSuffix: 'User',
         collectionName: 'users');
-    print('DataAPI.addUser url: ${url + ADD_DATA}');
-    prettyPrint(bag.toJson(), 'DataAPI.addUser, bag: ');
+    print('DataAPI3.addUser url: ${url + ADD_DATA}');
+    prettyPrint(bag.toJson(), 'DataAPI3.addUser, bag: ');
     try {
       var httpClient = new HttpClient();
       HttpClientRequest mRequest =
@@ -387,7 +482,7 @@ class DataAPI3 {
       mRequest.write(json.encode(bag.toJson()));
       HttpClientResponse mResponse = await mRequest.close();
       print(
-          'DataAPI.addUser ######## blockchain response status code:  ${mResponse.statusCode}');
+          'DataAPI3.addUser ######## blockchain response status code:  ${mResponse.statusCode}');
       if (mResponse.statusCode == 200) {
         mResponse.transform(utf8.decoder).listen((contents) {
           user.documentReference = contents.split('/').elementAt(1);
@@ -397,19 +492,19 @@ class DataAPI3 {
         return Success;
       } else {
         mResponse.transform(utf8.decoder).listen((contents) {
-          print('DataAPI.addUser  $contents');
+          print('DataAPI3.addUser  $contents');
         });
         print(
-            'DataAPI.addUser ----- ERROR  ${mResponse.reasonPhrase} ${mResponse.headers}');
+            'DataAPI3.addUser ----- ERROR  ${mResponse.reasonPhrase} ${mResponse.headers}');
         return BlockchainError;
       }
     } catch (e) {
-      print('DataAPI.addUser ERROR $e');
+      print('DataAPI3.addUser ERROR $e');
       return UnknownError;
     }
   }
 
-  Future<int> addSectors() async {
+  static Future<int> addSectors() async {
     await addSector(Sector(sectorId: getKey(), sectorName: 'Public Sector'));
     await addSector(Sector(sectorId: getKey(), sectorName: 'Automotive'));
     await addSector(Sector(sectorId: getKey(), sectorName: 'Construction'));
@@ -422,16 +517,21 @@ class DataAPI3 {
     await addSector(Sector(sectorId: getKey(), sectorName: 'Agricultural'));
     await addSector(Sector(sectorId: getKey(), sectorName: 'Real Estate'));
     await addSector(Sector(sectorId: getKey(), sectorName: 'Technology'));
+    return DataAPI3.Success;
   }
 
-  Future<int> addSector(Sector sector) async {
+  static Future<int> addSector(Sector sector) async {
+    if (USE_LOCAL_BLOCKCHAIN) {
+      var res = await DataAPI.addSector(sector);
+      return res == '0' ? DataAPI3.BlockchainError : DataAPI3.Success;
+    }
     sector.sectorId = getKey();
     var bag = APIBag(
         debug: isInDebugMode,
         data: sector.toJson(),
         apiSuffix: 'Sector',
         collectionName: 'sectors');
-    print('DataAPI.addSector %%%%%%%% url: ${url + ADD_DATA}');
+    print('DataAPI3.addSector %%%%%%%% url: ${url + ADD_DATA}');
     prettyPrint(bag.toJson(), 'adding sector to BFN blockchain');
 
     try {
@@ -442,23 +542,27 @@ class DataAPI3 {
       mRequest.write(json.encode(bag.toJson()));
       HttpClientResponse mResponse = await mRequest.close();
       print(
-          'DataAPI.addSector blockchain response status code:  ${mResponse.statusCode}');
+          'DataAPI3.addSector blockchain response status code:  ${mResponse.statusCode}');
       if (mResponse.statusCode == 200) {
         return Success;
       } else {
         mResponse.transform(utf8.decoder).listen((contents) {
-          print('DataAPI.addSector  $contents');
+          print('DataAPI3.addSector  $contents');
         });
-        print('DataAPI.addSector ERROR  ${mResponse.reasonPhrase}');
+        print('DataAPI3.addSector ERROR  ${mResponse.reasonPhrase}');
         return BlockchainError;
       }
     } catch (e) {
-      print('DataAPI.addSector ERROR $e');
+      print('DataAPI3.addSector ERROR $e');
       return UnknownError;
     }
   }
 
-  Future<int> addAutoTradeOrder(AutoTradeOrder order) async {
+  static Future<int> addAutoTradeOrder(AutoTradeOrder order) async {
+    if (USE_LOCAL_BLOCKCHAIN) {
+      var res = await DataAPI.addAutoTradeOrder(order);
+      return res == '0' ? DataAPI3.BlockchainError : DataAPI3.Success;
+    }
     order.autoTradeOrderId = getKey();
     order.date = getUTCDate();
     order.isCancelled = false;
@@ -467,7 +571,7 @@ class DataAPI3 {
         data: order.toJson(),
         apiSuffix: 'AutoTradeOrder',
         collectionName: 'autoTradeOrders');
-    print('DataAPI.addAutoTradeOrder %%%%%%%% url: ${url + ADD_DATA}');
+    print('DataAPI3.addAutoTradeOrder %%%%%%%% url: ${url + ADD_DATA}');
     prettyPrint(bag.toJson(),
         '########################## adding addAutoTradeOrder to BFN blockchain');
 
@@ -479,32 +583,36 @@ class DataAPI3 {
       mRequest.write(json.encode(bag.toJson()));
       HttpClientResponse mResponse = await mRequest.close();
       print(
-          'DataAPI.addAutoTradeOrder blockchain response status code:  ${mResponse.statusCode}');
+          'DataAPI3.addAutoTradeOrder blockchain response status code:  ${mResponse.statusCode}');
       if (mResponse.statusCode == 200) {
         await SharedPrefs.saveAutoTradeOrder(order);
         return Success;
       } else {
         mResponse.transform(utf8.decoder).listen((contents) {
-          print('DataAPI.addAutoTradeOrder  $contents');
+          print('DataAPI3.addAutoTradeOrder  $contents');
         });
-        print('DataAPI.addAutoTradeOrder ERROR  ${mResponse.reasonPhrase}');
+        print('DataAPI3.addAutoTradeOrder ERROR  ${mResponse.reasonPhrase}');
         return BlockchainError;
       }
     } catch (e) {
-      print('DataAPI.addAutoTradeOrder ERROR $e');
+      print('DataAPI3.addAutoTradeOrder ERROR $e');
       return UnknownError;
     }
   }
 
-  Future<int> addInvestorProfile(InvestorProfile profile) async {
+  static Future<int> addInvestorProfile(InvestorProfile profile) async {
     profile.profileId = getKey();
     profile.date = getUTCDate();
+    if (USE_LOCAL_BLOCKCHAIN) {
+      var res = await DataAPI.addInvestorProfile(profile);
+      return res == '0' ? DataAPI3.BlockchainError : DataAPI3.Success;
+    }
     var bag = APIBag(
         debug: isInDebugMode,
         data: profile.toJson(),
         apiSuffix: 'InvestorProfile',
         collectionName: 'investorProfiles');
-    print('DataAPI.addInvestorProfile %%%%%%%% url: ${url + ADD_DATA}');
+    print('DataAPI3.addInvestorProfile %%%%%%%% url: ${url + ADD_DATA}');
     prettyPrint(profile.toJson(),
         '########################## adding addInvestorProfile to BFN blockchain');
 
@@ -516,26 +624,30 @@ class DataAPI3 {
       mRequest.write(json.encode(bag.toJson()));
       HttpClientResponse mResponse = await mRequest.close();
       print(
-          'DataAPI.addInvestorProfile blockchain response status code:  ${mResponse.statusCode}');
+          'DataAPI3.addInvestorProfile blockchain response status code:  ${mResponse.statusCode}');
       if (mResponse.statusCode == 200) {
         await SharedPrefs.saveInvestorProfile(profile);
         return Success;
       } else {
         mResponse.transform(utf8.decoder).listen((contents) {
-          print('DataAPI.addInvestorProfile  $contents');
+          print('DataAPI3.addInvestorProfile  $contents');
         });
-        print('DataAPI.addInvestorProfile ERROR  ${mResponse.reasonPhrase}');
+        print('DataAPI3.addInvestorProfile ERROR  ${mResponse.reasonPhrase}');
         return BlockchainError;
       }
     } catch (e) {
-      print('DataAPI.addInvestorProfile ERROR $e');
+      print('DataAPI3.addInvestorProfile ERROR $e');
       return UnknownError;
     }
   }
 
-  Future<int> addWallet(Wallet wallet) async {
-    print('DataAPI.addWallet %%%%%%%% url: ${url + ADD_DATA}');
+  static Future<int> addWallet(Wallet wallet) async {
+    print('DataAPI3.addWallet %%%%%%%% url: ${url + ADD_DATA}');
     prettyPrint(wallet.toJson(), 'adding wallet to BFN blockcahain');
+    if (USE_LOCAL_BLOCKCHAIN) {
+      var res = await DataAPI.addWallet(wallet);
+      return res == '0' ? DataAPI3.BlockchainError : DataAPI3.Success;
+    }
 
 //    wallet.encryptedSecret = null;
     wallet.debug = null;
@@ -556,23 +668,27 @@ class DataAPI3 {
       mRequest.write(json.encode(bag.toJson()));
       HttpClientResponse mResponse = await mRequest.close();
       print(
-          'DataAPI.addWallet blockchain response status code:  ${mResponse.statusCode}');
+          'DataAPI3.addWallet blockchain response status code:  ${mResponse.statusCode}');
       if (mResponse.statusCode == 200) {
         return Success;
       } else {
         mResponse.transform(utf8.decoder).listen((contents) {
-          print('DataAPI.addWallet  $contents');
+          print('DataAPI3.addWallet  $contents');
         });
-        print('DataAPI.addWallet ERROR  ${mResponse.reasonPhrase}');
+        print('DataAPI3.addWallet ERROR  ${mResponse.reasonPhrase}');
         return BlockchainError;
       }
     } catch (e) {
-      print('DataAPI.addWallet ERROR $e');
+      print('DataAPI3.addWallet ERROR $e');
       return UnknownError;
     }
   }
 
-  Future<int> addSupplier(Supplier supplier) async {
+  static Future<int> addSupplier(Supplier supplier) async {
+    if (USE_LOCAL_BLOCKCHAIN) {
+      var res = await DataAPI.addSupplier(supplier);
+      return res == '0' ? DataAPI3.BlockchainError : DataAPI3.Success;
+    }
     supplier.dateRegistered = getUTCDate();
     supplier.participantId = getKey();
     var bag = APIBag(
@@ -580,7 +696,7 @@ class DataAPI3 {
         data: supplier.toJson(),
         apiSuffix: 'Supplier',
         collectionName: 'suppliers');
-    print('DataAPI.addSupplier url: ${url + ADD_DATA}');
+    print('DataAPI3.addSupplier url: ${url + ADD_DATA}');
     try {
       var httpClient = new HttpClient();
       HttpClientRequest mRequest =
@@ -589,7 +705,7 @@ class DataAPI3 {
       mRequest.write(json.encode(bag.toJson()));
       HttpClientResponse mResponse = await mRequest.close();
       print(
-          'DataAPI.addSupplier blockchain response status code:  ${mResponse.statusCode}');
+          'DataAPI3.addSupplier blockchain response status code:  ${mResponse.statusCode}');
       if (mResponse.statusCode == 200) {
         mResponse.transform(utf8.decoder).listen((contents) {
           supplier.documentReference = contents.split('/').elementAt(1);
@@ -598,19 +714,23 @@ class DataAPI3 {
         await SharedPrefs.saveSupplier(supplier);
         return Success;
       } else {
-        print('DataAPI.addSupplier ERROR  ${mResponse.reasonPhrase}');
+        print('DataAPI3.addSupplier ERROR  ${mResponse.reasonPhrase}');
         mResponse.transform(utf8.decoder).listen((contents) {
-          print('DataAPI.addSupplier  $contents');
+          print('DataAPI3.addSupplier  $contents');
         });
         return BlockchainError;
       }
     } catch (e) {
-      print('DataAPI.addSupplier ERROR $e');
+      print('DataAPI3.addSupplier ERROR $e');
       return UnknownError;
     }
   }
 
-  Future<int> addBank(Bank bank) async {
+  static Future<int> addBank(Bank bank) async {
+    if (USE_LOCAL_BLOCKCHAIN) {
+      var res = await DataAPI.addBank(bank);
+      return res == '0' ? DataAPI3.BlockchainError : DataAPI3.Success;
+    }
     bank.dateRegistered = getUTCDate();
     bank.participantId = getKey();
     var bag = APIBag(
@@ -618,7 +738,7 @@ class DataAPI3 {
         data: bank.toJson(),
         apiSuffix: 'Bank',
         collectionName: 'banks');
-    print('DataAPI.addBank   ${url + ADD_DATA}');
+    print('DataAPI3.addBank   ${url + ADD_DATA}');
 
     try {
       var httpClient = new HttpClient();
@@ -628,7 +748,7 @@ class DataAPI3 {
       mRequest.write(json.encode(bag.toJson()));
       HttpClientResponse mResponse = await mRequest.close();
       print(
-          'DataAPI.addBank blockchain response status code:  ${mResponse.statusCode}');
+          'DataAPI3.addBank blockchain response status code:  ${mResponse.statusCode}');
       if (mResponse.statusCode == 200) {
         mResponse.transform(utf8.decoder).listen((contents) {
           bank.documentReference = contents.split('/').elementAt(1);
@@ -637,19 +757,23 @@ class DataAPI3 {
         await SharedPrefs.saveBank(bank);
         return Success;
       } else {
-        print('DataAPI.addBank ERROR  ${mResponse.reasonPhrase}');
+        print('DataAPI3.addBank ERROR  ${mResponse.reasonPhrase}');
         mResponse.transform(utf8.decoder).listen((contents) {
-          print('DataAPI.addBank  $contents');
+          print('DataAPI3.addBank  $contents');
         });
         return BlockchainError;
       }
     } catch (e) {
-      print('DataAPI.addBank ERROR $e');
+      print('DataAPI3.addBank ERROR $e');
       return UnknownError;
     }
   }
 
-  Future<int> addInvestor(Investor investor) async {
+  static Future<int> addInvestor(Investor investor) async {
+    if (USE_LOCAL_BLOCKCHAIN) {
+      var res = await DataAPI.addInvestor(investor);
+      return res == '0' ? DataAPI3.BlockchainError : DataAPI3.Success;
+    }
     investor.dateRegistered = getUTCDate();
     investor.participantId = getKey();
     var bag = APIBag(
@@ -657,7 +781,8 @@ class DataAPI3 {
         data: investor.toJson(),
         apiSuffix: 'Investor',
         collectionName: 'investors');
-    print('DataAPI.addInvestor   ${url + ADD_DATA}');
+    print('DataAPI3.addInvestor   ${url + ADD_DATA}');
+    prettyPrint(bag.toJson(), 'DataAPI3.addInvestor : ');
 
     try {
       var httpClient = new HttpClient();
@@ -667,7 +792,7 @@ class DataAPI3 {
       mRequest.write(json.encode(bag.toJson()));
       HttpClientResponse mResponse = await mRequest.close();
       print(
-          'DataAPI.addInvestor blockchain response status code:  ${mResponse.statusCode}');
+          'DataAPI3.addInvestor blockchain response status code:  ${mResponse.statusCode}');
       if (mResponse.statusCode == 200) {
         mResponse.transform(utf8.decoder).listen((contents) {
           investor.documentReference = contents.split('/').elementAt(1);
@@ -676,19 +801,23 @@ class DataAPI3 {
         await SharedPrefs.saveInvestor(investor);
         return Success;
       } else {
-        print('DataAPI.addInvestor ERROR  ${mResponse.reasonPhrase}');
+        print('DataAPI3.addInvestor ERROR  ${mResponse.reasonPhrase}');
         mResponse.transform(utf8.decoder).listen((contents) {
-          print('DataAPI.addInvestor  $contents');
+          print('DataAPI3.addInvestor  $contents');
         });
         return BlockchainError;
       }
     } catch (e) {
-      print('DataAPI.addInvestor ERROR $e');
+      print('DataAPI3.addInvestor ERROR $e');
       return UnknownError;
     }
   }
 
-  Future<int> addOneConnect(OneConnect oneConnect) async {
+  static Future<int> addOneConnect(OneConnect oneConnect) async {
+    if (USE_LOCAL_BLOCKCHAIN) {
+      var res = await DataAPI.addOneConnect(oneConnect);
+      return res == '0' ? DataAPI3.BlockchainError : DataAPI3.Success;
+    }
     oneConnect.participantId = getKey();
     oneConnect.dateRegistered = getUTCDate();
     var bag = APIBag(
@@ -696,7 +825,7 @@ class DataAPI3 {
         data: oneConnect.toJson(),
         apiSuffix: 'OneConnect',
         collectionName: 'oneConnect');
-    print('DataAPI.addOneConnect ${url + ADD_DATA}');
+    print('DataAPI3.addOneConnect ${url + ADD_DATA}');
     try {
       var httpClient = new HttpClient();
       HttpClientRequest mRequest =
@@ -705,7 +834,7 @@ class DataAPI3 {
       mRequest.write(json.encode(bag.toJson()));
       HttpClientResponse mResponse = await mRequest.close();
       print(
-          'DataAPI.addOneConnect blockchain response status code:  ${mResponse.statusCode}');
+          'DataAPI3.addOneConnect blockchain response status code:  ${mResponse.statusCode}');
       if (mResponse.statusCode == 200) {
         mResponse.transform(utf8.decoder).listen((contents) {
           oneConnect.documentReference = contents.split('/').elementAt(1);
@@ -715,19 +844,23 @@ class DataAPI3 {
         await SharedPrefs.saveOneConnect(oneConnect);
         return Success;
       } else {
-        print('DataAPI.addOneConnect ERROR  ${mResponse.reasonPhrase}');
+        print('DataAPI3.addOneConnect ERROR  ${mResponse.reasonPhrase}');
         mResponse.transform(utf8.decoder).listen((contents) {
-          print('DataAPI.addOneConnect  $contents');
+          print('DataAPI3.addOneConnect  $contents');
         });
         return BlockchainError;
       }
     } catch (e) {
-      print('DataAPI.addOneConnect ERROR $e');
+      print('DataAPI3.addOneConnect ERROR $e');
       return UnknownError;
     }
   }
 
-  Future<int> addProcurementOffice(ProcurementOffice office) async {
+  static Future<int> addProcurementOffice(ProcurementOffice office) async {
+    if (USE_LOCAL_BLOCKCHAIN) {
+      var res = await DataAPI.addProcurementOffice(office);
+      return res == '0' ? DataAPI3.BlockchainError : DataAPI3.Success;
+    }
     office.participantId = getKey();
     office.dateRegistered = getUTCDate();
     var bag = APIBag(
@@ -735,7 +868,7 @@ class DataAPI3 {
         data: office.toJson(),
         apiSuffix: 'ProcurementOffice',
         collectionName: 'procurementOffices');
-    print('DataAPI.addProcurementOffice ${url + ADD_DATA}');
+    print('DataAPI3.addProcurementOffice ${url + ADD_DATA}');
     try {
       var httpClient = new HttpClient();
       HttpClientRequest mRequest =
@@ -744,7 +877,7 @@ class DataAPI3 {
       mRequest.write(json.encode(bag.toJson()));
       HttpClientResponse mResponse = await mRequest.close();
       print(
-          'DataAPI.addProcurementOffice blockchain response status code:  ${mResponse.statusCode}');
+          'DataAPI3.addProcurementOffice blockchain response status code:  ${mResponse.statusCode}');
       if (mResponse.statusCode == 200) {
         mResponse.transform(utf8.decoder).listen((contents) {
           office.documentReference = contents.split('/').elementAt(1);
@@ -754,19 +887,23 @@ class DataAPI3 {
         await SharedPrefs.saveProcurementOffice(office);
         return Success;
       } else {
-        print('DataAPI.addProcurementOffice ERROR  ${mResponse.reasonPhrase}');
+        print('DataAPI3.addProcurementOffice ERROR  ${mResponse.reasonPhrase}');
         mResponse.transform(utf8.decoder).listen((contents) {
-          print('DataAPI.addProcurementOffice  $contents');
+          print('DataAPI3.addProcurementOffice  $contents');
         });
         return BlockchainError;
       }
     } catch (e) {
-      print('DataAPI.addProcurementOffice ERROR $e');
+      print('DataAPI3.addProcurementOffice ERROR $e');
       return UnknownError;
     }
   }
 
-  Future<int> addAuditor(Auditor auditor) async {
+  static Future<int> addAuditor(Auditor auditor) async {
+    if (USE_LOCAL_BLOCKCHAIN) {
+      var res = await DataAPI.addAuditor(auditor);
+      return res == '0' ? DataAPI3.BlockchainError : DataAPI3.Success;
+    }
     auditor.participantId = getKey();
     auditor.dateRegistered = getUTCDate();
     var bag = APIBag(
@@ -774,7 +911,7 @@ class DataAPI3 {
         data: auditor.toJson(),
         apiSuffix: 'Auditor',
         collectionName: 'auditors');
-    print('DataAPI.addAuditor ${url + ADD_DATA}');
+    print('DataAPI3.addAuditor ${url + ADD_DATA}');
     try {
       var httpClient = new HttpClient();
       HttpClientRequest mRequest =
@@ -783,7 +920,7 @@ class DataAPI3 {
       mRequest.write(json.encode(bag.toJson()));
       HttpClientResponse mResponse = await mRequest.close();
       print(
-          'DataAPI.addAuditor blockchain response status code:  ${mResponse.statusCode}');
+          'DataAPI3.addAuditor blockchain response status code:  ${mResponse.statusCode}');
       if (mResponse.statusCode == 200) {
         mResponse.transform(utf8.decoder).listen((contents) {
           auditor.documentReference = contents.split('/').elementAt(1);
@@ -792,14 +929,14 @@ class DataAPI3 {
         await SharedPrefs.saveAuditor(auditor);
         return Success;
       } else {
-        print('DataAPI.addAuditor ERROR  ${mResponse.reasonPhrase}');
+        print('DataAPI3.addAuditor ERROR  ${mResponse.reasonPhrase}');
         mResponse.transform(utf8.decoder).listen((contents) {
-          print('DataAPI.addAuditor  $contents');
+          print('DataAPI3.addAuditor  $contents');
         });
         return BlockchainError;
       }
     } catch (e) {
-      print('DataAPI.addAuditor ERROR $e');
+      print('DataAPI3.addAuditor ERROR $e');
       return UnknownError;
     }
   }
@@ -807,7 +944,7 @@ class DataAPI3 {
   static String getKey() {
     var uuid = new Uuid();
     String key = uuid.v1();
-    print('DataAPI.getKey !!!!!!!!!!! - key generated: $key');
+    print('DataAPI3.getKey !!!!!!!!!!! - key generated: $key');
     return key;
   }
 }

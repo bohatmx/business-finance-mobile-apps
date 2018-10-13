@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:businesslibrary/api/data_api.dart';
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/data/auto_start_stop.dart';
@@ -9,7 +11,6 @@ import 'package:businesslibrary/stellar/Account.dart';
 import 'package:businesslibrary/stellar/Balance.dart';
 import 'package:businesslibrary/util/comms.dart';
 import 'package:businesslibrary/util/lookups.dart';
-import 'package:businesslibrary/util/util.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:meta/meta.dart';
 
@@ -58,7 +59,6 @@ class ExecutionUnit {
 ///Manage the auto buying of offers by investors
 class AutoTradeExecutionBuilder {
   List<ExecutionUnit> executionUnitList;
-  DataAPI api = DataAPI(getURL());
   AutoTradeListener listener;
   final Firestore _firestore = Firestore.instance;
   List<AutoTradeOrder> orders;
@@ -68,28 +68,27 @@ class AutoTradeExecutionBuilder {
   List<InvestorProfile> profiles;
   List<Offer> offers;
   String documentId;
+  DateTime timeStarted;
+  String dateStarted = getUTCDate();
+  double possibleAmount = 0.0;
 
-  executeAutoTrades(List<AutoTradeOrder> orders, List<InvestorProfile> profiles,
-      List<Offer> offers, AutoTradeListener listener) async {
-    assert(orders != null && orders.isNotEmpty);
-    assert(profiles != null && profiles.isNotEmpty);
-    assert(offers != null && offers.isNotEmpty);
-
+  executeAutoTrades() async {
     this.listener = listener;
-    this.orders = orders;
-    this.offers = offers;
-    this.profiles = profiles;
+    this.orders = await ListAPI.getAutoTradeOrders();
+    this.offers = await ListAPI.getOpenOffers();
+    this.profiles = await ListAPI.getInvestorProfiles();
+    timeStarted = DateTime.now();
+    dateStarted = getUTCDate();
 
     ///write AutoTradeStart to stop manual bids while running
-    var api = DataAPI(getURL());
     var start = AutoTradeStart(
-        dateStarted: DateTime.now(), possibleTrades: offers.length);
+        dateStarted: getUTCDate(), possibleTrades: offers.length);
     var t = 0.00;
     offers.forEach((o) {
       t += o.offerAmount;
     });
     start.possibleAmount = t;
-    documentId = await api.addAutoTradeStart(start);
+    documentId = await addAutoTradeStart(start);
 
     offers.sort((a, b) => b.discountPercent.compareTo(a.discountPercent));
 
@@ -150,6 +149,7 @@ class AutoTradeExecutionBuilder {
         var offer = offers.elementAt(0);
         var t = ExecutionUnit(offer: offer, order: order, date: DateTime.now());
         executionUnitList.add(t);
+        possibleAmount += offer.offerAmount;
         offers.remove(offer);
         print(
             'AutoTradeExecutionBuilder._buildExecutionList ----- executionUnitList : '
@@ -163,20 +163,9 @@ class AutoTradeExecutionBuilder {
   ///iterate thru executionUnitList and process each one
   void _controlInvoiceBids() async {
     if (index < executionUnitList.length) {
-      //todo - check if this offer has other partial bids already - do the rules allow auto trades in crowd funding scenario?
-      var list = await ListAPI.getInvoiceBidsByOffer(
-          executionUnitList.elementAt(index).offer);
-      if (list.isEmpty) {
-        _validateInvoiceBid(executionUnitList.elementAt(index));
-      } else {
-        print(
-            'AutoTradeExecutionBuilder._controlInvoiceBids - this offer already has bids - ignoring for now');
-        index++;
-        _controlInvoiceBids();
-      }
+      _validateInvoiceBid(executionUnitList.elementAt(index));
     } else {
-      var api = DataAPI(getURL());
-      await api.updateAutoTradeStart(documentId);
+      await updateAutoTradeStart(documentId);
       print(
           '\n\n\AutoTradeExecutionBuilder.control @@@@@@@@@ WE ARE DONE\n\n\n');
 
@@ -186,6 +175,38 @@ class AutoTradeExecutionBuilder {
         listener.onComplete(bidCount);
       }
     }
+  }
+
+  Future addAutoTradeStart(AutoTradeStart auto) async {
+    var ref = await _firestore
+        .collection('autoTradeStarts')
+        .add(auto.toJson())
+        .catchError((e) {
+      print('AutoTradeExecutionBuilder.addAutoTradeStart $e');
+    });
+    documentId = ref.documentID;
+    print(
+        'AutoTradeExecutionBuilder.addAutoTradeStart - updated on Firestore ${ref.path}');
+  }
+
+  Future updateAutoTradeStart(String documentId) async {
+    var auto = AutoTradeStart(
+        dateStarted: dateStarted,
+        dateEnded: getUTCDate(),
+        elapsedSeconds: timeStarted.difference(DateTime.now()).inSeconds,
+        possibleAmount: possibleAmount,
+        possibleTrades: bidCount);
+
+    var ref = await _firestore
+        .collection('autoTradeStarts')
+        .document(documentId)
+        .setData(auto.toJson())
+        .catchError((e) {
+      print('AutoTradeExecutionBuilder.updateAutoTradeStart $e');
+      listener.onError(bidCount);
+    });
+    print(
+        'AutoTradeExecutionBuilder.updateAutoTradeStart - updated on Firestore $ref');
   }
 
   ///validate the potential bid via profile settings and then write bid to BFN
@@ -340,13 +361,11 @@ class AutoTradeExecutionBuilder {
         investorName: exec.profile.name,
         wallet: exec.order.wallet,
       );
-      api
-          .makeInvoiceAutoBid(
+      DataAPI.makeInvoiceAutoBid(
         bid: bid,
         offer: exec.offer,
         order: exec.order,
-      )
-          .then((res) {
+      ).then((res) {
         if (res == '0') {
           print('AutoTradeExecutionBuilder._doInvoiceBid: ***** '
               'Houustton, we have a BFN prpblem!!..................yfje..kutf..769f WTF?');
@@ -354,7 +373,7 @@ class AutoTradeExecutionBuilder {
         } else {
           print('AutoTradeExecutionBuilder._doInvoiceBid: \n\n\n'
               '***** New York!!!, we are GOOD. Like fantastic? BID ON BLOCKCHAIN!!!!\n\n\n');
-          api.closeOffer(exec.offer.offerId).then((mres) {
+          DataAPI.closeOffer(exec.offer.offerId).then((mres) {
             bidCount++;
             index++;
             listener.onInvoiceAutoBid(bid);

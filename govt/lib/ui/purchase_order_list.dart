@@ -120,8 +120,7 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage> {
           builder: (context) => new PurchaseOrderPageGovt(getURL())),
     );
     if (purchaseOrder != null) {
-      purchaseOrders.add(purchaseOrder);
-      setState(() {});
+      _getPOData();
       AppSnackbar.showSnackbar(
         scaffoldKey: _scaffoldKey,
         message: 'Purchase Order submitted successfully',

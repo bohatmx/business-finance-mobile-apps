@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:businesslibrary/api/data_api.dart';
+import 'package:businesslibrary/api/data_api3.dart';
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/api/signup.dart';
@@ -77,15 +77,55 @@ class _SignUpPageState extends State<SignUpPage>
     }
   }
 
-  List<String> firstNames = ['Maria', 'Jonathan', 'David', 'Thabiso', 'Fikile'];
+  List<String> firstNames = [
+    'Maria',
+    'Jonathan',
+    'David',
+    'Thabiso',
+    'Fikile',
+    'Peter',
+    'John',
+    'Donald',
+    'Malenga',
+    'Thomas',
+    'Catherine',
+    'Portia',
+    'Helen',
+    'Suzanne',
+    'Jennifer',
+    'Nothando'
+  ];
   List<String> lastNames = [
     'Nkosi',
     'Maluleke',
     'Hanyane',
     'Mokoena',
-    'Chauke'
+    'Chauke',
+    'Thompson',
+    'Simon',
+    'Peterson',
+    'Smith',
+    'van der Merwe',
+    'du Toit',
+    'Kotze',
+    'Lerner',
+    'Samuels',
+    'Johnson',
+    'Carlson',
+    'Brooks',
+    'Charles'
   ];
   List<String> entities = [
+    'Ace Supermarkets',
+    'Thompson Engineering',
+    'Pick & Take Supermarkets',
+    'Hyundai Motors',
+    'Netcare Hospitals',
+    'Joburg Metro',
+    'Tshwane Metro',
+    'Madibeng Municipality',
+    'Fourways Mall',
+    'Checkers Supermarkets',
     'Dept of Public Works',
     'Dept of Health',
     'Dept of Transport',
@@ -93,6 +133,7 @@ class _SignUpPageState extends State<SignUpPage>
     'Dept of Communications',
     'Dept of Finance',
     'Dept of Social Services',
+    'Brits Mining Works',
   ];
 
   _getCountry() async {
@@ -106,8 +147,7 @@ class _SignUpPageState extends State<SignUpPage>
   void _checkSectors() async {
     sectors = await ListAPI.getSectors();
     if (sectors.isEmpty) {
-      var api = DataAPI(getURL());
-      api.addSectors();
+      DataAPI3.addSectors();
     }
   }
 
@@ -397,11 +437,11 @@ class _SignUpPageState extends State<SignUpPage>
       );
       print('_SignUpPageState._onSavePressed ${govtEntity.toJson()}');
       User admin = User(
-        firstName: firstName,
-        lastName: lastName,
-        email: adminEmail,
-        password: password,
-      );
+          firstName: firstName,
+          lastName: lastName,
+          email: adminEmail,
+          password: password,
+          isAdministrator: true);
       print('_SignUpPageState._onSavePressed ${admin.toJson()}');
       AppSnackbar.showSnackbarWithProgressIndicator(
         scaffoldKey: _scaffoldKey,
@@ -409,8 +449,7 @@ class _SignUpPageState extends State<SignUpPage>
         textColor: Colors.lightBlue,
         backgroundColor: Colors.black,
       );
-      SignUp signUp = SignUp(getURL());
-      var result = await signUp.signUpGovtEntity(govtEntity, admin);
+      var result = await SignUp.signUpGovtEntity(govtEntity, admin);
       await checkResult(result);
     }
   }

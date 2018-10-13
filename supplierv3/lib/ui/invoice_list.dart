@@ -13,8 +13,6 @@ import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
-import 'package:businesslibrary/util/util.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:supplierv3/listeners/firestore_listener.dart';
 import 'package:supplierv3/ui/delivery_note_list.dart';
@@ -32,7 +30,6 @@ class _InvoiceListState extends State<InvoiceList>
         InvoiceBidListener,
         InvoiceAcceptanceListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
-  final FirebaseMessaging _firebaseMessaging = new FirebaseMessaging();
   static const MakeOffer = '1', CancelOffer = '2', EditInvoice = '3';
   List<Invoice> invoicesOpen = List(),
       invoicesOnOffer = List(),
@@ -335,7 +332,6 @@ class _InvoiceListState extends State<InvoiceList>
   void _cancelOffer() async {
     print('_InvoiceListState._cancelOffer ..........');
     Navigator.pop(context);
-    var api = new DataAPI(getURL());
 
     AppSnackbar.showSnackbarWithProgressIndicator(
         scaffoldKey: _scaffoldKey,
@@ -358,7 +354,7 @@ class _InvoiceListState extends State<InvoiceList>
         offer: 'resource:com.oneconnect.biz.Offer#${offer.offerId}',
         user: 'resource:com.oneconnect.biz.User#${user.userId}');
 
-    var result = await api.cancelOffer(cancellation);
+    var result = await DataAPI.cancelOffer(cancellation);
     _scaffoldKey.currentState.hideCurrentSnackBar();
     if (result == '0') {
       AppSnackbar.showErrorSnackbar(
@@ -613,6 +609,7 @@ class InvoiceCard extends StatelessWidget {
       case Settled:
         return Colors.grey.shade50;
     }
+    return Colors.grey.shade50;
   }
 
   @override

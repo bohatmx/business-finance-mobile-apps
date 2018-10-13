@@ -275,7 +275,6 @@ class _SupplierListPageState extends State<SupplierListPage>
     selectedSuppliers.forEach((supp) {
       if (supplier.participantId == supp.participantId) {
         isFound = true;
-        ;
       }
     });
     if (isFound) {

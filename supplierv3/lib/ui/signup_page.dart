@@ -268,17 +268,20 @@ class _SignUpPageState extends State<SignUpPage>
         name: name,
         email: email,
         country: country.name,
-        sector: 'resource:com.oneconnect.biz.Sector#${sector.sectorId}',
-        sectorName: sector.sectorName,
-        dateRegistered: DateTime.now().toIso8601String(),
+        dateRegistered: getUTCDate(),
       );
+      if (sector != null) {
+        supplier.sector =
+            'resource:com.oneconnect.biz.Sector#${sector.sectorId}';
+        supplier.sectorName = sector.sectorName;
+      }
       print('_SignUpPageState._onSavePressed ${supplier.toJson()}');
       User admin = User(
-        firstName: firstName,
-        lastName: lastName,
-        email: adminEmail,
-        password: password,
-      );
+          firstName: firstName,
+          lastName: lastName,
+          email: adminEmail,
+          password: password,
+          isAdministrator: true);
       print('_SignUpPageState._onSavePressed ${admin.toJson()}');
       AppSnackbar.showSnackbarWithProgressIndicator(
         scaffoldKey: _scaffoldKey,
@@ -286,8 +289,8 @@ class _SignUpPageState extends State<SignUpPage>
         textColor: Colors.lightBlue,
         backgroundColor: Colors.black,
       );
-      SignUp signUp = SignUp(getURL());
-      var result = await signUp.signUpSupplier(supplier, admin);
+
+      var result = await SignUp.signUpSupplier(supplier, admin);
       checkResult(result, supplier);
     }
   }

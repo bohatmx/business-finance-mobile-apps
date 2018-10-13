@@ -167,7 +167,7 @@ class _MakeOfferPageState extends State<MakeOfferPage>
           actionLabel: 'Close');
       return;
     }
-    if (percentage == null || percentage == 0) {
+    if (percentage == null) {
       AppSnackbar.showErrorSnackbar(
           scaffoldKey: _scaffoldKey,
           message: 'Please select Offer Percentage',
@@ -230,8 +230,7 @@ class _MakeOfferPageState extends State<MakeOfferPage>
           actionLabel: 'Close');
       return;
     }
-    DataAPI3 dataAPI = DataAPI3();
-    var key = await dataAPI.makeOffer(offer);
+    var key = await DataAPI3.makeOffer(offer);
     if (key > DataAPI3.Success) {
       AppSnackbar.showErrorSnackbar(
           scaffoldKey: _scaffoldKey,

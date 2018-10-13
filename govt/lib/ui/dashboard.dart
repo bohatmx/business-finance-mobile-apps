@@ -72,7 +72,6 @@ class _DashboardState extends State<Dashboard>
 
   _test() async {
     print('_DashboardState._test .........................................');
-    var api = DataAPI3();
     var e = GovtEntity(
         email: 'kass@mmgmail.com',
         allowAutoAccept: true,
@@ -86,7 +85,7 @@ class _DashboardState extends State<Dashboard>
         country: 'South Africa');
 
     prettyPrint(e.toJson(), '\n\n_DashboardState._test, CUSTOMER: ');
-    var res = await api.addGovtEntity(e);
+    var res = await DataAPI3.addGovtEntity(e);
     print('_DashboardState._test DONE, ------------------------- result: $res');
   }
 

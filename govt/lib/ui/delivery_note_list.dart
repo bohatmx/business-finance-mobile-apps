@@ -121,7 +121,6 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
         textColor: Colors.white,
         backgroundColor: Colors.black);
 
-    DataAPI3 api = new DataAPI3();
     DeliveryAcceptance acceptance = DeliveryAcceptance(
       date: getUTCDate(),
       supplier: deliveryNote.supplier,
@@ -140,7 +139,7 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
     prettyPrint(
         acceptance.toJson(), '_DeliveryNoteListState._acceptDelivery ......');
     try {
-      var key = await api.acceptDelivery(acceptance);
+      var key = await DataAPI3.acceptDelivery(acceptance);
       if (key > DataAPI3.Success) {
         AppSnackbar.showErrorSnackbar(
             scaffoldKey: _scaffoldKey,

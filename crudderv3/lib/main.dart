@@ -1,11 +1,11 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:businesslibrary/api/data_api.dart';
+import 'package:businesslibrary/api/data_api3.dart';
 import 'package:businesslibrary/api/signup.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
-import 'package:businesslibrary/util/util.dart';
+import 'package:businesslibrary/util/lookups.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:crudderv3/theme_util.dart';
 import 'package:flutter/material.dart';
@@ -38,7 +38,6 @@ class _MyHomePageState extends State<MyHomePage> {
   static Firestore _fs = Firestore.instance;
   static const NameSpace = 'resource:com.oneconnect.biz.';
   static Random rand = new Random(new DateTime.now().millisecondsSinceEpoch);
-  static DataAPI dataAPI;
   @override
   initState() {
     super.initState();
@@ -50,22 +49,31 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       _counter++;
     });
+    await DataAPI3.addSectors();
+
+    setState(() {
+      _counter++;
+    });
     await _generateSuppliers();
     setState(() {
       _counter++;
     });
-    var api = DataAPI(getURL());
-    await api.addSectors();
 
-    setState(() {
-      _counter++;
-    });
     print(
         '_MyHomePageState._start  #####################################  COOMPLETED!');
   }
 
+  _removeUsers() async {
+    var fs = Firestore.instance;
+    var now = getUTCDate();
+    var data = {'now': now, 'desc': 'Trigger deletion of auth users'};
+    var res = await fs.collection('usersDeleteTriggers').add(data);
+    print(res);
+  }
+
   Future<int> cleanUp() async {
     print('Generator.cleanUp ................ ########  ................');
+    await _removeUsers();
     var fs = Firestore.instance;
     try {
       var qs0 = await fs.collection('users').getDocuments();
@@ -135,6 +143,12 @@ class _MyHomePageState extends State<MyHomePage> {
         msnap2.documents.forEach((x) async {
           await x.reference.delete();
         });
+        var msnap2a = await doc.reference
+            .collection('deliveryAcceptances')
+            .getDocuments();
+        msnap2a.documents.forEach((x) async {
+          await x.reference.delete();
+        });
         var msnap3 = await doc.reference.collection('invoices').getDocuments();
         msnap3.documents.forEach((x) async {
           await x.reference.delete();
@@ -157,8 +171,7 @@ class _MyHomePageState extends State<MyHomePage> {
         });
         await doc.reference.delete();
       });
-      print(
-          'Generator.cleanUp suppliers deleted from Firestore ##############');
+      print('Generator.cleanUp suppliers deleted from Firestore #############');
 
       var qs5 = await fs.collection('investors').getDocuments();
       qs5.documents.forEach((doc) async {
@@ -363,7 +376,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<int> _generateSuppliers() async {
     print('Generator.generateSuppliers ............');
-    SignUp signUp = SignUp(getURL());
     try {
       Supplier e1 = new Supplier(
         name: 'Mkhize Electrical',
@@ -374,8 +386,9 @@ class _MyHomePageState extends State<MyHomePage> {
           firstName: 'David',
           lastName: 'Mkhize',
           password: 'pass123',
+          isAdministrator: true,
           email: 'dmkhize@mkhize.com');
-      await signUp.signUpSupplier(e1, u1);
+      await SignUp.signUpSupplier(e1, u1);
 
       Supplier e2 = new Supplier(
         name: 'Dlamini Contractors',
@@ -386,8 +399,9 @@ class _MyHomePageState extends State<MyHomePage> {
           firstName: 'Moses',
           lastName: 'Dlamini',
           password: 'pass123',
+          isAdministrator: true,
           email: 'ddlam@dlamini.com');
-      await signUp.signUpSupplier(e2, u2);
+      await SignUp.signUpSupplier(e2, u2);
 
       Supplier e5 = new Supplier(
         name: 'TrebleX Engineering',
@@ -398,8 +412,9 @@ class _MyHomePageState extends State<MyHomePage> {
           firstName: 'Daniel',
           lastName: 'Khoza',
           password: 'pass123',
+          isAdministrator: true,
           email: 'danielkk@engineers.com');
-      await signUp.signUpSupplier(e5, u5);
+      await SignUp.signUpSupplier(e5, u5);
 
       Supplier e6 = new Supplier(
         name: 'DHH Transport Logistics',
@@ -410,8 +425,9 @@ class _MyHomePageState extends State<MyHomePage> {
           firstName: 'Peter',
           lastName: 'Johnson',
           password: 'pass123',
+          isAdministrator: true,
           email: 'petejohn@dhhtransport.com');
-      await signUp.signUpSupplier(e6, u6);
+      await SignUp.signUpSupplier(e6, u6);
 
       Supplier e7 = new Supplier(
         name: 'FX Super Logistics',
@@ -422,8 +438,9 @@ class _MyHomePageState extends State<MyHomePage> {
           firstName: 'Samuel',
           lastName: 'Mathebula',
           password: 'pass123',
+          isAdministrator: true,
           email: 'sam@fxtransport.com');
-      await signUp.signUpSupplier(e7, u7);
+      await SignUp.signUpSupplier(e7, u7);
 
       Supplier e8 = new Supplier(
         name: 'Davids Rolling Logistics',
@@ -434,8 +451,9 @@ class _MyHomePageState extends State<MyHomePage> {
           firstName: 'Thomas',
           lastName: 'Johnson',
           password: 'pass123',
+          isAdministrator: true,
           email: 'tom@rolliin.com');
-      await signUp.signUpSupplier(e8, u8);
+      await SignUp.signUpSupplier(e8, u8);
 
       Supplier e9 = new Supplier(
         name: 'Pope Transport Logistics',
@@ -446,8 +464,9 @@ class _MyHomePageState extends State<MyHomePage> {
           firstName: 'Daniel',
           lastName: 'Johnson',
           password: 'pass123',
+          isAdministrator: true,
           email: 'xman@pope.com');
-      await signUp.signUpSupplier(e9, u9);
+      await SignUp.signUpSupplier(e9, u9);
 
       Supplier e10 = new Supplier(
         name: 'Naidoo Transport Logistics',
@@ -458,8 +477,9 @@ class _MyHomePageState extends State<MyHomePage> {
           firstName: 'Sithwell',
           lastName: 'Johnson',
           password: 'pass123',
+          isAdministrator: true,
           email: 'pete@naidoo.com');
-      await signUp.signUpSupplier(e10, u10);
+      await SignUp.signUpSupplier(e10, u10);
 
       Supplier e11 = new Supplier(
         name: 'Green Logistics',
@@ -470,8 +490,9 @@ class _MyHomePageState extends State<MyHomePage> {
           firstName: 'Evelyn',
           lastName: 'Johnson',
           password: 'pass123',
+          isAdministrator: true,
           email: 'eve@greenlogs.com');
-      await signUp.signUpSupplier(e11, u11);
+      await SignUp.signUpSupplier(e11, u11);
 
       Supplier e12 = new Supplier(
         name: 'Wendywood Transporters',
@@ -482,8 +503,9 @@ class _MyHomePageState extends State<MyHomePage> {
           firstName: 'Mary',
           lastName: 'Johnson',
           password: 'pass123',
+          isAdministrator: true,
           email: 'mary@wendywood.com');
-      await signUp.signUpSupplier(e12, u12);
+      await SignUp.signUpSupplier(e12, u12);
       Supplier e13 = new Supplier(
         name: 'Xavier TTransport',
         email: 'info@xavier.com',
@@ -493,8 +515,9 @@ class _MyHomePageState extends State<MyHomePage> {
           firstName: 'Xavier',
           lastName: 'Johnson',
           password: 'pass123',
+          isAdministrator: true,
           email: 'xavier@xavier.com');
-      await signUp.signUpSupplier(e13, u13);
+      await SignUp.signUpSupplier(e13, u13);
 
       Supplier e14 = new Supplier(
         name: 'Danielson Logistics',
@@ -505,8 +528,9 @@ class _MyHomePageState extends State<MyHomePage> {
           firstName: 'dan',
           lastName: 'Johnson',
           password: 'pass123',
+          isAdministrator: true,
           email: 'danj@logs.com');
-      await signUp.signUpSupplier(e14, u14);
+      await SignUp.signUpSupplier(e14, u14);
       print('Generator.generateSuppliers COMPLETED');
     } catch (e) {
       print('Generator.generateSuppliers ERROR $e');
