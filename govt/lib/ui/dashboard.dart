@@ -11,7 +11,6 @@ import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:businesslibrary/util/wallet_page.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:govt/ui/acceptance.dart';
 import 'package:govt/ui/delivery_note_list.dart';
@@ -42,7 +41,6 @@ class _DashboardState extends State<Dashboard>
       DeliveryNotes = 4,
       DeliveryAcceptances = 5;
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
-  FirebaseMessaging _firebaseMessaging = new FirebaseMessaging();
   AnimationController animationController;
   Animation<double> animation;
   GovtEntity govtEntity;

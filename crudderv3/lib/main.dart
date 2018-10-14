@@ -9,6 +9,8 @@ import 'package:businesslibrary/data/investor.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/lookups.dart';
+import 'package:businesslibrary/util/snackbar_util.dart';
+import 'package:businesslibrary/util/styles.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:crudderv3/theme_util.dart';
 import 'package:flutter/material.dart';
@@ -36,21 +38,33 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+
   int _counter = 0;
   double opacity;
   static const NameSpace = 'resource:com.oneconnect.biz.';
   static Random rand = new Random(new DateTime.now().millisecondsSinceEpoch);
+  bool isBusy = false;
+  String btnText = "Go!";
   @override
   initState() {
     super.initState();
-    print('\n\n_MyHomePageState.initState ###################\n\n');
-    _start();
   }
 
   void _start() async {
+    if (isBusy) {
+      AppSnackbar.showSnackbar(
+          scaffoldKey: _scaffoldKey,
+          message: 'Process busy or finished. May not be run twice',
+          textColor: Styles.white,
+          backgroundColor: Styles.black);
+      return;
+    }
+    isBusy = true;
     var start = DateTime.now();
     await _cleanUp();
     setState(() {
+      btnText = 'Working...';
       _counter++;
       msgList.add('Demo data cleanup is complete');
     });
@@ -72,14 +86,17 @@ class _MyHomePageState extends State<MyHomePage> {
     });
     await _addInvestors();
     var end = DateTime.now();
-    var diff = end.difference(start).inMinutes;
+    var diffm = end.difference(start).inMinutes;
+    var diffs = end.difference(start).inSeconds;
     print(
-        '\n\n_MyHomePageState._start ELAPSED SECONDS for DemoData $diff ##########\n\n');
+        '\n\n_MyHomePageState._start ELAPSED SECONDS for DemoData $diffs ##########\n\n');
 
     setState(() {
       _counter++;
+      btnText = 'Done';
       msgList.add('Investors added to BFN and Firestore');
-      msgList.add('Demo data Generation complete:, elapsed minutes: $diff');
+      msgList.add(
+          'Demo Data Generation complete:, $diffm minutes elapsed. ($diffs seconds)');
     });
     print(
         '_MyHomePageState._start  #####################################  Demo Data COMPLETED!');
@@ -521,10 +538,11 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
+        key: _scaffoldKey,
         appBar: new AppBar(
           title: new Text(widget.title),
           bottom: PreferredSize(
-            preferredSize: const Size.fromHeight(140.0),
+            preferredSize: const Size.fromHeight(120.0),
             child: Column(
               children: <Widget>[
                 new Padding(
@@ -534,41 +552,34 @@ class _MyHomePageState extends State<MyHomePage> {
                     style: TextStyle(color: Colors.white, fontSize: 24.0),
                   ),
                 ),
-                new Padding(
-                  padding: const EdgeInsets.only(bottom: 28.0),
-                  child: Text(
-                    'Generating Data Needed for BFN',
-                    style: TextStyle(color: Colors.white, fontSize: 14.0),
-                  ),
-                ),
                 Center(
                   child: Padding(
                     padding: const EdgeInsets.only(top: 8.0, bottom: 20.0),
                     child: Padding(
-                      padding: const EdgeInsets.only(left: 20.0),
+                      padding: const EdgeInsets.only(left: 10.0),
                       child: Row(
                         children: <Widget>[
                           Text(
                             'Phase Complete',
                             style: TextStyle(
-                                fontSize: 20.0, fontWeight: FontWeight.bold),
+                                fontSize: 16.0, fontWeight: FontWeight.bold),
                           ),
                           Padding(
-                            padding: const EdgeInsets.only(left: 12.0),
+                            padding: const EdgeInsets.only(left: 8.0),
                             child: Text(
                               '$_counter',
                               style: TextStyle(
-                                  fontSize: 30.0,
+                                  fontSize: 24.0,
                                   fontWeight: FontWeight.w900,
                                   color: Colors.blue.shade900),
                             ),
                           ),
                           Padding(
-                            padding: const EdgeInsets.only(left: 10.0),
+                            padding: const EdgeInsets.only(left: 8.0),
                             child: Text(
                               'of',
                               style: TextStyle(
-                                  fontSize: 20.0, fontWeight: FontWeight.bold),
+                                  fontSize: 16.0, fontWeight: FontWeight.bold),
                             ),
                           ),
                           Padding(
@@ -576,11 +587,24 @@ class _MyHomePageState extends State<MyHomePage> {
                             child: Text(
                               '5',
                               style: TextStyle(
-                                  fontSize: 30.0,
+                                  fontSize: 24.0,
                                   fontWeight: FontWeight.w900,
                                   color: Colors.blue.shade900),
                             ),
                           ),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 30.0),
+                            child: RaisedButton(
+                              onPressed: _start,
+                              elevation: 8.0,
+                              color: Colors.red.shade800,
+                              child: Text(
+                                btnText,
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 20.0),
+                              ),
+                            ),
+                          )
                         ],
                       ),
                     ),
