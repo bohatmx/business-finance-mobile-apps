@@ -113,25 +113,57 @@ class ListAPI {
     return list;
   }
 
-  static Future<List<InvoiceBid>> getInvoiceBidsByOffer(Offer offer) async {
+  static Future<OfferBag> getOfferWithBids(String offerId) async {
     List<InvoiceBid> list = List();
+    OfferBag bag;
     var qs = await _firestore
         .collection('invoiceOffers')
-        .document(offer.documentReference)
-        .collection('invoiceBids')
-        .orderBy('date', descending: true)
+        .where('offerId', isEqualTo: offerId)
         .getDocuments()
         .catchError((e) {
       print('ListAPI.getOfferInvoiceBids $e');
       return list;
     });
+    if (qs.documents.isNotEmpty) {
+      var offer = Offer.fromJson(qs.documents.first.data);
+      var snap = await qs.documents.first.reference
+          .collection('invoiceBids')
+          .getDocuments();
 
-    print('ListAPI.getOfferInvoiceBids found: ${qs.documents.length} ');
+      snap.documents.forEach((doc) {
+        var bid = InvoiceBid.fromJson(doc.data);
+        list.add(bid);
+      });
+      print('ListAPI.getInvoiceBidsByOffer found ${list.length} invoice bids');
+      bag = OfferBag(offer: offer, invoiceBids: list);
+    }
 
-    qs.documents.forEach((doc) {
-      list.add(new InvoiceBid.fromJson(doc.data));
+    return bag;
+  }
+
+  static Future<List<InvoiceBid>> getInvoiceBidsByOffer(String offerId) async {
+    List<InvoiceBid> list = List();
+
+    var qs = await _firestore
+        .collection('invoiceOffers')
+        .where('offerId', isEqualTo: offerId)
+        .getDocuments()
+        .catchError((e) {
+      print('ListAPI.getOfferInvoiceBids $e');
+      return list;
     });
+    if (qs.documents.isNotEmpty) {
+      var offer = Offer.fromJson(qs.documents.first.data);
+      var snap = await qs.documents.first.reference
+          .collection('invoiceBids')
+          .getDocuments();
 
+      snap.documents.forEach((doc) {
+        var bid = InvoiceBid.fromJson(doc.data);
+        list.add(bid);
+      });
+    }
+    print('ListAPI.getInvoiceBidsByOffer found ${list.length} invoice bids');
     return list;
   }
 

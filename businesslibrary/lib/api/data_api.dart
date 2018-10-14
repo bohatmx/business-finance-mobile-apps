@@ -101,27 +101,32 @@ class DataAPI {
           return ErrorFirestore;
         });
         print('DataAPI.addGovtEntity and user added to Firestore: ${ref.path}');
-        var mRef = await _firestore
-            .collection('users')
-            .add(admin.toJson())
-            .catchError((e) {
-          print(e);
-        });
-        print('DataAPI.addGovtEntity USER added to Firestore: ${mRef.path}');
-        govtEntity.documentReference = ref.documentID;
-        await SharedPrefs.saveGovtEntity(govtEntity);
-        //get wallet
-        await createWallet(
-            name: govtEntity.name,
-            participantId: govtEntity.participantId,
-            type: GovtEntityType);
-        return govtEntity.participantId;
+        var res = await _addUserToBFN(admin);
+        if (res == DataAPI3.Success) {
+          var mRef = await _firestore
+              .collection('users')
+              .add(admin.toJson())
+              .catchError((e) {
+            print(e);
+          });
+          print('DataAPI.addGovtEntity USER added to Firestore: ${mRef.path}');
+          govtEntity.documentReference = ref.documentID;
+          await SharedPrefs.saveGovtEntity(govtEntity);
+          //get wallet
+          await createWallet(
+              name: govtEntity.name,
+              participantId: govtEntity.participantId,
+              type: GovtEntityType);
+          return govtEntity.participantId;
+        } else {
+          resp.transform(utf8.decoder).listen((contents) {
+            print('DataAPI.addGovtEntity  $contents');
+          });
+          print('DataAPI.addGovtEntity ERROR  ${resp.reasonPhrase}');
+          return "0";
+        }
       } else {
-        resp.transform(utf8.decoder).listen((contents) {
-          print('DataAPI.addGovtEntity  $contents');
-        });
-        print('DataAPI.addGovtEntity ERROR  ${resp.reasonPhrase}');
-        return "0";
+        return '0';
       }
     } catch (e) {
       print('DataAPI.addGovtEntity ERROR $e');
@@ -566,20 +571,25 @@ class DataAPI {
         print('DataAPI.addSupplier added to Firestore: ${ref.documentID}');
         supplier.documentReference = ref.documentID;
         await SharedPrefs.saveSupplier(supplier);
-        var mRef = await _firestore
-            .collection('users')
-            .add(admin.toJson())
-            .catchError((e) {
-          print('DataAPI.addInvestor ERROR adding user to Firestore $e');
+        var res = await _addUserToBFN(admin);
+        if (res == DataAPI3.Success) {
+          var mRef = await _firestore
+              .collection('users')
+              .add(admin.toJson())
+              .catchError((e) {
+            print('DataAPI.addInvestor ERROR adding user to Firestore $e');
+            return '0';
+          });
+          print('DataAPI.addSupplier USER added to Firestore: ${mRef.path}');
+          //get wallet
+          await createWallet(
+              name: supplier.name,
+              participantId: supplier.participantId,
+              type: SupplierType);
+          return supplier.participantId;
+        } else {
           return '0';
-        });
-        print('DataAPI.addSupplier USER added to Firestore: ${mRef.path}');
-        //get wallet
-        await createWallet(
-            name: supplier.name,
-            participantId: supplier.participantId,
-            type: SupplierType);
-        return supplier.participantId;
+        }
       } else {
         print('DataAPI.addSupplier ERROR  ${mResponse.reasonPhrase}');
         mResponse.transform(utf8.decoder).listen((contents) {
@@ -590,6 +600,38 @@ class DataAPI {
     } catch (e) {
       print('DataAPI.addSupplier ERROR $e');
       return '0';
+    }
+  }
+
+  static Future<int> _addUserToBFN(User user) async {
+    var url = getURL() + USER;
+    print('DataAPI.addUserToBFN ########## $url');
+    user.dateRegistered = DateTime.now().toIso8601String();
+    try {
+      var httpClient = new HttpClient();
+      HttpClientRequest mRequest = await httpClient.postUrl(Uri.parse(url));
+      mRequest.headers.contentType = _contentType;
+      mRequest.write(json.encode(user.toJson()));
+      HttpClientResponse mResponse = await mRequest.close();
+      print(
+          'DataAPI.addUserToBFN blockchain response status code:  ${mResponse.statusCode}');
+      if (mResponse.statusCode == 200) {
+        mResponse.transform(utf8.decoder).listen((contents) async {
+          print('\n\n\n\nDataAPI.addUserToBFN SUCCESS!!! :  $contents \n\n\n');
+          var x = json.decode(contents);
+          var bfnUser = User.fromJson(x);
+          await SharedPrefs.saveUser(bfnUser);
+        });
+        return DataAPI3.Success;
+      } else {
+        mResponse.transform(utf8.decoder).listen((contents) async {
+          print('\n\n\n\nDataAPI.addUserToBFN ERROR!!! :  $contents \n\n\n');
+        });
+        return DataAPI3.BlockchainError;
+      }
+    } catch (e) {
+      print('DataAPI.addUserToBFN $e');
+      return DataAPI3.BlockchainError;
     }
   }
 
@@ -620,21 +662,26 @@ class DataAPI {
         });
         print('DataAPI.addInvestor added to Firestore: ${ref.path}');
         investor.documentReference = ref.documentID;
-        var mRef = await _firestore
-            .collection('users')
-            .add(admin.toJson())
-            .catchError((e) {
-          print('DataAPI.addInvestor ERROR adding user to Firestore $e');
+        var res = await _addUserToBFN(admin);
+        if (res == DataAPI3.Success) {
+          var mRef = await _firestore
+              .collection('users')
+              .add(admin.toJson())
+              .catchError((e) {
+            print('DataAPI.addInvestor ERROR adding user to Firestore $e');
+            return '0';
+          });
+          print('DataAPI.addInvestor USER added to Firestore: ${mRef.path}');
+          await SharedPrefs.saveInvestor(investor);
+          //get wallet
+          await createWallet(
+              name: investor.name,
+              participantId: investor.participantId,
+              type: InvestorType);
+          return investor.participantId;
+        } else {
           return '0';
-        });
-        print('DataAPI.addInvestor USER added to Firestore: ${mRef.path}');
-        await SharedPrefs.saveInvestor(investor);
-        //get wallet
-        await createWallet(
-            name: investor.name,
-            participantId: investor.participantId,
-            type: InvestorType);
-        return investor.participantId;
+        }
       } else {
         print('DataAPI.addInvestor ERROR  ${mResponse.reasonPhrase}');
         mResponse.transform(utf8.decoder).listen((contents) {
@@ -1430,7 +1477,7 @@ class DataAPI {
 
         bid.documentReference = ref.documentID;
         //todo - check all bids for this offer - if partial bids add up to 100% then close the offer
-        var list = await ListAPI.getInvoiceBidsByOffer(offer);
+        var list = await ListAPI.getInvoiceBidsByOffer(offer.offerId);
         var tot = 0.00;
         list.forEach((m) {
           tot += m.reservePercent;

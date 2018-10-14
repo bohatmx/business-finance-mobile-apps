@@ -3,6 +3,7 @@ import 'package:businesslibrary/api/file_util.dart';
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/invoice.dart';
+import 'package:businesslibrary/data/invoice_bid.dart';
 import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/sector.dart';
@@ -14,6 +15,8 @@ import 'package:businesslibrary/util/selectors.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:flutter/material.dart';
+import 'package:supplierv3/listeners/firestore_listener.dart';
+import 'package:supplierv3/ui/offer_details.dart';
 
 class MakeOfferPage extends StatefulWidget {
   final Invoice invoice;
@@ -27,7 +30,7 @@ class MakeOfferPage extends StatefulWidget {
 }
 
 class _MakeOfferPageState extends State<MakeOfferPage>
-    implements SnackBarListener {
+    implements SnackBarListener, InvoiceBidListener {
   static const NameSpace = 'resource:com.oneconnect.biz.';
   static GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
@@ -46,6 +49,7 @@ class _MakeOfferPageState extends State<MakeOfferPage>
   Wallet wallet;
   Sector sector;
   List<Sector> sectors = List();
+  String offerId;
   @override
   initState() {
     super.initState();
@@ -231,7 +235,7 @@ class _MakeOfferPageState extends State<MakeOfferPage>
       return;
     }
     var key = await DataAPI3.makeOffer(offer);
-    if (key > DataAPI3.Success) {
+    if (key == '0') {
       AppSnackbar.showErrorSnackbar(
           scaffoldKey: _scaffoldKey,
           message: 'Invoice Offer failed',
@@ -239,7 +243,9 @@ class _MakeOfferPageState extends State<MakeOfferPage>
           actionLabel: 'Close');
       submitting = false;
     } else {
+      offerId = key;
       needRefresh = true;
+      listenForInvoiceBid(offerId, this);
       AppSnackbar.showSnackbarWithAction(
           scaffoldKey: _scaffoldKey,
           message: 'Ivoice Offer suubmitted OK',
@@ -524,6 +530,17 @@ class _MakeOfferPageState extends State<MakeOfferPage>
   @override
   onActionPressed(int action) {
     print('_MakeOfferPageState.onActionPressed');
+    switch (action) {
+      case 1:
+        //navigate to offer details
+        Navigator.push(
+            context,
+            new MaterialPageRoute(
+              builder: (context) =>
+                  OfferDetails(bid.offer.split('#').elementAt(1)),
+            ));
+        break;
+    }
     Navigator.pop(context, needRefresh);
   }
 
@@ -863,5 +880,22 @@ class _MakeOfferPageState extends State<MakeOfferPage>
       ),
     );
     items.add(x6);
+  }
+
+  InvoiceBid bid;
+  @override
+  onInvoiceBid(InvoiceBid bid) async {
+    prettyPrint(bid.toJson(), 'Invoice Bid arrived .......');
+
+    this.bid = bid;
+    AppSnackbar.showSnackbarWithAction(
+        scaffoldKey: _scaffoldKey,
+        message: 'Invoice Bid arrived',
+        textColor: Styles.white,
+        backgroundColor: Styles.teal,
+        actionLabel: 'Details',
+        listener: this,
+        icon: Icons.done_all,
+        action: 1);
   }
 }

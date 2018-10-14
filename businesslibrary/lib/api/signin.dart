@@ -9,6 +9,7 @@ import 'package:businesslibrary/data/oneconnect.dart';
 import 'package:businesslibrary/data/procurement_office.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
+import 'package:businesslibrary/util/lookups.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -20,7 +21,10 @@ class SignIn {
       Success = 0,
       ErrorUserNotInDatabase = 2,
       ErrorDatabase = 3,
-      ErrorNoOwningEntity = 4;
+      ErrorNoOwningEntity = 4,
+      CustomerType = 5,
+      SupplierType = 6,
+      InvestorType = 7;
 
   ///Existing user signs into BFN  and cahes data to SharedPrefs
   static Future<int> signIn(String email, String password) async {
@@ -55,23 +59,21 @@ class SignIn {
       return ErrorDatabase;
     });
     User user;
-    querySnapshot.documents.forEach((doc) {
-      user = new User.fromJson(doc.data);
-      user.documentReference = doc.documentID;
-    });
-
-    if (user == null) {
-      print('SignIn.signIn ERROR  user not found in Firestore ---------------');
-      return ErrorSignIn;
+    if (querySnapshot.documents.isNotEmpty) {
+      user = new User.fromJson(querySnapshot.documents.first.data);
+      user.documentReference = querySnapshot.documents.first.documentID;
+      await SharedPrefs.saveUser(user);
+      return await getOwningEntity(user);
+    } else {
+      return ErrorUserNotInDatabase;
     }
-    print('SignIn.signIn: so far, so good, about  to save user ');
-    await SharedPrefs.saveUser(user);
-    return await getOwningEntity(user);
   }
 
   static Future<int> getOwningEntity(User user) async {
     print(
         'SignIn.getOwningEntity: .... .....  ${user.firstName} ${user.lastName}');
+
+    prettyPrint(user.toJson(), 'User: getOwningEntity');
     if (user.govtEntity != null) {
       var partId = user.govtEntity.split("#").elementAt(1);
       var qSnap = await _firestore
@@ -82,10 +84,10 @@ class SignIn {
         return ErrorNoOwningEntity;
       });
       GovtEntity govtEntity;
-      qSnap.documents.forEach((doc) {
-        govtEntity = new GovtEntity.fromJson(doc.data);
-        govtEntity.documentReference = doc.documentID;
-      });
+      if (qSnap.documents.isNotEmpty) {
+        govtEntity = new GovtEntity.fromJson(qSnap.documents.first.data);
+        govtEntity.documentReference = qSnap.documents.first.documentID;
+      }
       if (govtEntity == null) {
         print('SignIn.signIn ERROR  govtEntity not found in Firestore');
         return ErrorSignIn;
@@ -104,10 +106,10 @@ class SignIn {
         return ErrorNoOwningEntity;
       });
       Supplier supplier;
-      qSnap.documents.forEach((doc) {
-        supplier = new Supplier.fromJson(doc.data);
-        supplier.documentReference = doc.documentID;
-      });
+      if (qSnap.documents.isNotEmpty) {
+        supplier = new Supplier.fromJson(qSnap.documents.first.data);
+        supplier.documentReference = qSnap.documents.first.documentID;
+      }
       if (supplier == null) {
         print('SignIn.signIn ERROR  supplier not found in Firestore');
         return ErrorSignIn;

@@ -60,7 +60,11 @@ class User {
     this.password = data['password'];
     this.cellphone = data['cellphone'];
     this.address = data['address'];
-    this.isAdministrator = data['isAdministrator'];
+    if (data['isAdministrator'] == 'true') {
+      this.isAdministrator = true;
+    } else {
+      this.isAdministrator = false;
+    }
     this.fcmToken = data['fcmToken'];
     this.documentReference = data['documentReference'];
 

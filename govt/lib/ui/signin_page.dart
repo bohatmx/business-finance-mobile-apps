@@ -62,7 +62,7 @@ class _SignInPageState extends State<SignInPage> implements SnackBarListener {
             ),
             Padding(
               padding: const EdgeInsets.only(left: 8.0),
-              child: Text(user.email),
+              child: Text('${user.firstName} ${user.lastName}'),
             ),
           ],
         ),
@@ -125,7 +125,7 @@ class _SignInPageState extends State<SignInPage> implements SnackBarListener {
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
-        title: Text('Government Sign In'),
+        title: Text('Customer Sign In'),
         bottom: isInDebugMode ? _getPreferredSize() : Container(),
       ),
       body: Form(

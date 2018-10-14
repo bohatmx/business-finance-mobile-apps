@@ -68,40 +68,6 @@ class _SignUpPageState extends State<SignUpPage>
     }
   }
 
-  List<String> firstNames = [
-    'Mark',
-    'Jonathan',
-    'David',
-    'Jennifer',
-    'Catherine',
-    'Henry'
-  ];
-  List<String> lastNames = [
-    'Jones',
-    'van der Merwe',
-    'Franklin',
-    'Henderson',
-    'Samuels',
-    'Bergh',
-    'Davidson',
-  ];
-  List<String> investors = [
-    'Invoice Financiers',
-    'Black Ox Capital',
-    'Finance LLC',
-    'SME Investors LLC',
-    'TradeFinance Pty Ltd',
-    'Finance Gurus LLC',
-    'African Financial Services',
-    'Southern Finance LLC',
-    'Gauteng Finance Brokers',
-    'Samuelson LLC',
-    'Johannesburg Finance',
-    'Finance Gurus Pty Ltd',
-    'BlueBull Financiers',
-    'Hennessey Invoice Funds LLC',
-  ];
-
   _getCountry() async {
     country = await Navigator.push(
       context,
@@ -463,4 +429,38 @@ class _SignUpPageState extends State<SignUpPage>
       );
     }
   }
+
+  List<String> firstNames = [
+    'Mark',
+    'Jonathan',
+    'David',
+    'Jennifer',
+    'Catherine',
+    'Henry'
+  ];
+  List<String> lastNames = [
+    'Jones',
+    'van der Merwe',
+    'Franklin',
+    'Henderson',
+    'Samuels',
+    'Bergh',
+    'Davidson',
+  ];
+  List<String> investors = [
+    'Invoice Financiers',
+    'Black Ox Capital',
+    'Finance LLC',
+    'SME Investors LLC',
+    'TradeFinance Pty Ltd',
+    'Finance Gurus LLC',
+    'African Financial Services',
+    'Southern Finance LLC',
+    'Gauteng Finance Brokers',
+    'Samuelson LLC',
+    'Johannesburg Finance',
+    'Finance Gurus Pty Ltd',
+    'BlueBull Financiers',
+    'Hennessey Invoice Funds LLC',
+  ];
 }

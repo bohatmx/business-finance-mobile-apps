@@ -11,7 +11,6 @@ import 'package:businesslibrary/data/govt_entity.dart';
 import 'package:businesslibrary/data/invoice.dart';
 import 'package:businesslibrary/data/invoice_bid.dart';
 import 'package:businesslibrary/data/invoice_settlement.dart';
-import 'package:businesslibrary/data/misc_data.dart';
 import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/sector.dart';
@@ -77,65 +76,6 @@ class _SignUpPageState extends State<SignUpPage>
     }
   }
 
-  List<String> firstNames = [
-    'Maria',
-    'Jonathan',
-    'David',
-    'Thabiso',
-    'Fikile',
-    'Peter',
-    'John',
-    'Donald',
-    'Malenga',
-    'Thomas',
-    'Catherine',
-    'Portia',
-    'Helen',
-    'Suzanne',
-    'Jennifer',
-    'Nothando'
-  ];
-  List<String> lastNames = [
-    'Nkosi',
-    'Maluleke',
-    'Hanyane',
-    'Mokoena',
-    'Chauke',
-    'Thompson',
-    'Simon',
-    'Peterson',
-    'Smith',
-    'van der Merwe',
-    'du Toit',
-    'Kotze',
-    'Lerner',
-    'Samuels',
-    'Johnson',
-    'Carlson',
-    'Brooks',
-    'Charles'
-  ];
-  List<String> entities = [
-    'Ace Supermarkets',
-    'Thompson Engineering',
-    'Pick & Take Supermarkets',
-    'Hyundai Motors',
-    'Netcare Hospitals',
-    'Joburg Metro',
-    'Tshwane Metro',
-    'Madibeng Municipality',
-    'Fourways Mall',
-    'Checkers Supermarkets',
-    'Dept of Public Works',
-    'Dept of Health',
-    'Dept of Transport',
-    'Dept of Education',
-    'Dept of Communications',
-    'Dept of Finance',
-    'Dept of Social Services',
-    'Brits Mining Works',
-  ];
-
   _getCountry() async {
     country = await Navigator.push(
       context,
@@ -159,60 +99,60 @@ class _SignUpPageState extends State<SignUpPage>
   @override
   Widget build(BuildContext context) {
 //    _debug();
-    items = List();
-    var item1 = DropdownMenuItem(
-      value: GovtTypeUtil.National,
-      child: Row(
-        children: <Widget>[
-          Icon(
-            Icons.apps,
-            color: Colors.indigo,
-          ),
-          new Padding(
-            padding: const EdgeInsets.only(left: 8.0),
-            child: Text('National'),
-          )
-        ],
-      ),
-    );
-    items.add(item1);
-    var item2 = DropdownMenuItem(
-      value: GovtTypeUtil.Provincial,
-      child: Row(
-        children: <Widget>[
-          Icon(
-            Icons.apps,
-            color: Colors.pink,
-          ),
-          new Padding(
-            padding: const EdgeInsets.only(left: 8.0),
-            child: Text('Provincial'),
-          )
-        ],
-      ),
-    );
-    items.add(item2);
-    var item3 = DropdownMenuItem(
-      value: GovtTypeUtil.Municipality,
-      child: Row(
-        children: <Widget>[
-          Icon(
-            Icons.apps,
-            color: Colors.teal,
-          ),
-          new Padding(
-            padding: const EdgeInsets.only(left: 8.0),
-            child: Text('Municipality'),
-          )
-        ],
-      ),
-    );
-    items.add(item3);
+//    items = List();
+//    var item1 = DropdownMenuItem(
+//      value: GovtTypeUtil.National,
+//      child: Row(
+//        children: <Widget>[
+//          Icon(
+//            Icons.apps,
+//            color: Colors.indigo,
+//          ),
+//          new Padding(
+//            padding: const EdgeInsets.only(left: 8.0),
+//            child: Text('National'),
+//          )
+//        ],
+//      ),
+//    );
+//    items.add(item1);
+//    var item2 = DropdownMenuItem(
+//      value: GovtTypeUtil.Provincial,
+//      child: Row(
+//        children: <Widget>[
+//          Icon(
+//            Icons.apps,
+//            color: Colors.pink,
+//          ),
+//          new Padding(
+//            padding: const EdgeInsets.only(left: 8.0),
+//            child: Text('Provincial'),
+//          )
+//        ],
+//      ),
+//    );
+//    items.add(item2);
+//    var item3 = DropdownMenuItem(
+//      value: GovtTypeUtil.Municipality,
+//      child: Row(
+//        children: <Widget>[
+//          Icon(
+//            Icons.apps,
+//            color: Colors.teal,
+//          ),
+//          new Padding(
+//            padding: const EdgeInsets.only(left: 8.0),
+//            child: Text('Municipality'),
+//          )
+//        ],
+//      ),
+//    );
+//    items.add(item3);
 
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
-        title: Text('Government SignUp'),
+        title: Text('Customer SignUp'),
       ),
       body: Form(
         key: _formKey,
@@ -261,39 +201,6 @@ class _SignUpPageState extends State<SignUpPage>
                       }
                     },
                     onSaved: (val) => email = val,
-                  ),
-                  new Row(
-                    children: <Widget>[
-                      DropdownButton(
-                        items: items,
-                        hint: Text(
-                          'Select Category',
-                          style: TextStyle(color: Colors.blue),
-                        ),
-                        onChanged: (val) {
-                          print('_SignUpPageState.build $val');
-
-                          setState(() {
-                            govtEntityType = val;
-                          });
-                        },
-                      ),
-                      new Padding(
-                        padding: const EdgeInsets.only(left: 16.0),
-                        child: Text(
-                          govtEntityType == null ? '' : govtEntityType,
-                          style: TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.w900,
-                              fontSize: 20.0),
-                        ),
-                      )
-                    ],
-                  ),
-                  Row(
-                    children: <Widget>[
-                      Switch(value: false, onChanged: _autoChanged),
-                    ],
                   ),
                   new Padding(
                     padding: const EdgeInsets.only(top: 14.0),
@@ -392,12 +299,12 @@ class _SignUpPageState extends State<SignUpPage>
                         left: 28.0, right: 20.0, top: 30.0),
                     child: RaisedButton(
                       elevation: 8.0,
-                      color: Theme.of(context).accentColor,
+                      color: Colors.red.shade900,
                       onPressed: _onSavePressed,
                       child: new Padding(
                         padding: const EdgeInsets.all(12.0),
                         child: Text(
-                          'Submit SignUp',
+                          'Register to BFN',
                           style: TextStyle(color: Colors.white, fontSize: 20.0),
                         ),
                       ),
@@ -417,21 +324,20 @@ class _SignUpPageState extends State<SignUpPage>
     final form = _formKey.currentState;
     if (form.validate()) {
       form.save();
-      if (govtEntityType == null) {
-        AppSnackbar.showErrorSnackbar(
-            scaffoldKey: _scaffoldKey,
-            message: 'Please select Category',
-            listener: this,
-            actionLabel: 'Close');
-        return;
-      }
+//      if (govtEntityType == null) {
+//        AppSnackbar.showErrorSnackbar(
+//            scaffoldKey: _scaffoldKey,
+//            message: 'Please select Category',
+//            listener: this,
+//            actionLabel: 'Close');
+//        return;
+//      }
       print('GovtEntityForm._onSavePressed: will send submit now ....');
 
       GovtEntity govtEntity = GovtEntity(
         name: name,
         email: email,
         country: country.name,
-        govtEntityType: govtEntityType,
         allowAutoAccept: autoAccept,
         dateRegistered: getUTCDate(),
       );
@@ -600,4 +506,63 @@ class _SignUpPageState extends State<SignUpPage>
     autoAccept = value;
     setState(() {});
   }
+
+  List<String> firstNames = [
+    'Maria',
+    'Jonathan',
+    'David',
+    'Thabiso',
+    'Fikile',
+    'Peter',
+    'John',
+    'Donald',
+    'Malenga',
+    'Thomas',
+    'Catherine',
+    'Portia',
+    'Helen',
+    'Suzanne',
+    'Jennifer',
+    'Nothando'
+  ];
+  List<String> lastNames = [
+    'Nkosi',
+    'Maluleke',
+    'Hanyane',
+    'Mokoena',
+    'Chauke',
+    'Thompson',
+    'Simon',
+    'Peterson',
+    'Smith',
+    'van der Merwe',
+    'du Toit',
+    'Kotze',
+    'Lerner',
+    'Samuels',
+    'Johnson',
+    'Carlson',
+    'Brooks',
+    'Charles'
+  ];
+  List<String> entities = [
+    'Ace Supermarkets',
+    'Thompson Engineering',
+    'Pick & Take Supermarkets',
+    'Hyundai Motors',
+    'Netcare Hospitals',
+    'Joburg Metro',
+    'Tshwane Metro',
+    'Madibeng Municipality',
+    'Fourways Mall',
+    'Checkers Supermarkets',
+    'Dept of Public Works',
+    'Dept of Health',
+    'Dept of Transport',
+    'Dept of Education',
+    'Dept of Communications',
+    'Dept of Finance',
+    'Dept of Social Services',
+    'Brits Mining Works',
+  ];
 }
