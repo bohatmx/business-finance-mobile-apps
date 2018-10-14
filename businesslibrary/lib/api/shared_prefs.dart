@@ -44,7 +44,6 @@ class SharedPrefs {
   }
 
   static Future saveUser(User user) async {
-    print('SharedPrefs.saveUser  saving user data ........');
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
     Map jsonx = user.toJson();
@@ -70,7 +69,6 @@ class SharedPrefs {
   }
 
   static Future saveGovtEntity(GovtEntity govtEntity) async {
-    print('SharedPrefs.saveGovtEntity  saving GovtEntity data ........');
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
     Map jsonx = govtEntity.toJson();
@@ -82,7 +80,6 @@ class SharedPrefs {
   }
 
   static Future<GovtEntity> getGovEntity() async {
-    print("SharedPrefs.getGovEntity =========  getting cached data.........");
     var prefs = await SharedPreferences.getInstance();
     var string = prefs.getString('govtEntity');
     if (string == null) {
@@ -95,7 +92,6 @@ class SharedPrefs {
   }
 
   static Future saveInvestorProfile(InvestorProfile profile) async {
-    print('SharedPrefs.saveInvestorProfile  saving data ........');
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
     Map jsonx = profile.toJson();
@@ -143,8 +139,6 @@ class SharedPrefs {
   }
 
   static Future<AutoTradeOrder> getAutoTradeOrder() async {
-    print(
-        "SharedPrefs.getAutoTradeOrder =========  getting cached data.........");
     var prefs = await SharedPreferences.getInstance();
     var string = prefs.getString('autoTradeOrder');
     if (string == null) {
@@ -163,7 +157,6 @@ class SharedPrefs {
   }
 
   static Future saveCompany(Company company) async {
-    print('SharedPrefs.saveCompany  saving data ........');
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
     Map jsonx = company.toJson();
@@ -175,7 +168,6 @@ class SharedPrefs {
   }
 
   static Future<Company> getCompany() async {
-    print("SharedPrefs.getCompany =========  getting cached data.........");
     var prefs = await SharedPreferences.getInstance();
     var string = prefs.getString('company');
     if (string == null) {
@@ -188,7 +180,6 @@ class SharedPrefs {
   }
 
   static Future saveSupplier(Supplier company) async {
-    print('SharedPrefs.saveSupplier saving data ........');
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
     Map jsonx = company.toJson();
@@ -212,7 +203,6 @@ class SharedPrefs {
   }
 
   static Future saveBank(Bank bank) async {
-    print('SharedPrefs.saveBank saving data ........');
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
     Map jsonx = bank.toJson();
@@ -236,7 +226,6 @@ class SharedPrefs {
   }
 
   static Future saveAuditor(Auditor auditor) async {
-    print('SharedPrefs.saveAuditor saving data ........');
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
     Map jsonx = auditor.toJson();
@@ -271,8 +260,6 @@ class SharedPrefs {
   }
 
   static Future<ProcurementOffice> getProcurementOffice() async {
-    print(
-        "SharedPrefs.getProcurementOffice  =========  getting cached data.........");
     var prefs = await SharedPreferences.getInstance();
     var string = prefs.getString('office');
     if (string == null) {
@@ -285,7 +272,6 @@ class SharedPrefs {
   }
 
   static Future saveInvestor(Investor investor) async {
-    print('SharedPrefsInvestor  saving data ........');
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
     Map jsonx = investor.toJson();
@@ -296,7 +282,6 @@ class SharedPrefs {
   }
 
   static Future<Investor> getInvestor() async {
-    print("SharedPrefs.getInvestor  =========  getting cached data.........");
     var prefs = await SharedPreferences.getInstance();
     var string = prefs.getString('investor');
     if (string == null) {
@@ -311,7 +296,6 @@ class SharedPrefs {
   }
 
   static Future saveOneConnect(OneConnect oneConnect) async {
-    print('SharedPrefs  OneConnect  saving data ........');
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
     Map jsonx = oneConnect.toJson();
@@ -385,15 +369,12 @@ class SharedPrefs {
       print('SharedPrefs.saveWallet - wallet is null - QUIT');
       return null;
     }
-    print("SharedPrefs - saving wallet data .........");
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    Map map = wallet.toJson();
-    var jx = json.encode(map);
+    Map jsonx = wallet.toJson();
+    var jx = json.encode(jsonx);
+    prefs.setString('wallet', jx);
+    print("SharedPrefs.saveWallet=========  data SAVED.........");
 
-    prefs.setString("wallet", jx);
-    //prefs.commit();
-    print("SharedPrefs - wallet saved in local prefs....... ");
-    prettyPrint(map, "wallet saved on device: ------> ");
     return null;
   }
 

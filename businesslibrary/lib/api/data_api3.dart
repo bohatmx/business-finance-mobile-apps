@@ -966,7 +966,6 @@ class DataAPI3 {
   static String getKey() {
     var uuid = new Uuid();
     String key = uuid.v1();
-    print('DataAPI3.getKey !!!!!!!!!!! - key generated: $key');
     return key;
   }
 }

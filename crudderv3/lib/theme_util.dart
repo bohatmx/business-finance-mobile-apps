@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 
 ThemeData getTheme() {
-  ThemeData tData = ThemeData.light();
-
   Color primary = Colors.blueGrey.shade400;
   Color cardColor = Colors.grey.shade50;
   Color back = Colors.pink.shade400;

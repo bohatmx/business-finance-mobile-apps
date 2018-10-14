@@ -470,7 +470,6 @@ class DataAPI {
 
   static Future<String> addWallet(Wallet wallet) async {
     print('DataAPI.addWallet %%%%%%%% url: ${getURL() + WALLET}');
-    prettyPrint(wallet.toJson(), 'adding wallet to BFN blockcahain');
 
     wallet.encryptedSecret = null;
     wallet.debug = null;

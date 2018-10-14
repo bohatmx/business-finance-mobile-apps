@@ -98,6 +98,8 @@ class SignUp {
     }
 
     await SharedPrefs.saveGovtEntity(govtEntity);
+    print(
+        '\n\n\n\n########## SignUp.signUpGovtEntity ${govtEntity.name} COMPLETE #############\n\n\n\n');
     return 0;
   }
 
@@ -128,7 +130,10 @@ class SignUp {
       if (key > DataAPI3.Success) {
         return ErrorBlockchain;
       }
+      await SharedPrefs.saveSupplier(supplier);
     }
+    print(
+        '\n\n\n\n########## SignUp.signUpSupplier ${supplier.name} COMPLETE #############\n\n\n\n');
 
     return DataAPI3.Success;
   }
@@ -162,6 +167,8 @@ class SignUp {
     }
 
     await SharedPrefs.saveInvestor(investor);
+    print(
+        '\n\n\n\n########## SignUp.signUpInvestor ${investor.name} COMPLETE #############\n\n\n\n');
     return DataAPI3.Success;
   }
 
@@ -346,8 +353,9 @@ class SignUp {
     });
 
     if (user != null) {
-      print('SignUp.createUser done. ##########  new auth user on firebase: '
-          '${user.email} uid: ${user.uid} ---- Yay!\n\n');
+      print(
+          '\n\nSignUp.createUser done. ##########  new auth user on firebase: '
+          '${user.email} uid: ${user.uid} ---- Yay!\n\n\n\n');
     }
 
     return user;

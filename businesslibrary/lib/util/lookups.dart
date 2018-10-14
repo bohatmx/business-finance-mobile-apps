@@ -290,7 +290,6 @@ String getFormattedDateLong(String date, BuildContext context) {
 String getUTCDate() {
   initializeDateFormatting();
   String now = new DateTime.now().toUtc().toIso8601String();
-  print('getUTCDate $now');
   return now;
 }
 
@@ -580,7 +579,6 @@ Future<String> createWallet(
         'createWallet ###>> Status Code: ${result.statusCode} \n\nBody: ${result.body}\n\n');
     var walletDocId =
         await _writeWalletToFirestore(type, wallet, participantId);
-    print('\n\n\nDo we get to here???????????? walletDocId: $walletDocId\n\n');
     if (walletDocId == '0') {
       return walletDocId;
     }
@@ -589,7 +587,7 @@ Future<String> createWallet(
     if (USE_LOCAL_BLOCKCHAIN) {
       var res = await DataAPI.addWallet(wallet);
       if (res != '0') {
-        prettyPrint(wallet.toJson(),
+        print(
             'Wallet created and ready for use: #######################))))))))');
         return wallet.stellarPublicKey;
       } else {

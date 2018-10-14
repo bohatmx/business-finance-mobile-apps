@@ -4,18 +4,18 @@
     <option name="TOOL_WINDOW_CONFIGURED_FILTER" value="Show only selected application" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="80b8d4ed-f360-4af7-bada-dfcc0519f100" name="Default" comment="refactoring done for UTC date changes">
+    <list default="true" id="80b8d4ed-f360-4af7-bada-dfcc0519f100" name="Default" comment="refactored demo data generation">
       <change beforePath="$PROJECT_DIR$/../businesslibrary/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/api/data_api.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/api/data_api.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/api/data_api3.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/api/data_api3.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/api/shared_prefs.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/api/shared_prefs.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/api/signup.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/api/signup.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/util/lookups.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/util/lookups.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../crudderv3/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../crudderv3/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../crudderv3/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../crudderv3/lib/main.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/lib/ui/purchase_order_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../govt/lib/ui/purchase_order_page.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/lib/ui/signin_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../govt/lib/ui/signin_page.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../crudderv3/lib/theme_util.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../crudderv3/lib/theme_util.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../investor/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../investor/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/ui/signin_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/ui/signin_page.dart" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <ignored path="../.gradle/4.4/fileChanges/last-build.bin" />
@@ -293,7 +293,7 @@
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
         <counts>
-          <entry key="dart" value="81" />
+          <entry key="dart" value="82" />
           <entry key="gradle" value="5" />
           <entry key="yaml" value="2" />
         </counts>
@@ -302,12 +302,12 @@
         <counts>
           <entry key="dart" value="17233" />
           <entry key="gradle" value="2" />
-          <entry key="txt" value="500" />
+          <entry key="txt" value="523" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
         <counts>
-          <entry key="Dart" value="81" />
+          <entry key="Dart" value="82" />
           <entry key="Groovy" value="5" />
           <entry key="YAML" value="2" />
         </counts>
@@ -316,7 +316,7 @@
         <counts>
           <entry key="Dart" value="17233" />
           <entry key="Groovy" value="2" />
-          <entry key="PLAIN_TEXT" value="500" />
+          <entry key="PLAIN_TEXT" value="523" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.vcs.git.usages" />
@@ -324,15 +324,6 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/lib/ui/delivery_note_page.dart">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1552">
-              <caret line="370" column="53" selection-start-line="370" selection-start-column="53" selection-end-line="370" selection-end-column="53" />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/lib/ui/invoice_list.dart">
           <provider selected="true" editor-type-id="text-editor">
@@ -363,13 +354,26 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/lib/ui/signin_page.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="397">
-              <caret line="304" column="9" selection-start-line="304" selection-start-column="9" selection-end-line="304" selection-end-column="9" />
+            <state relative-caret-position="253">
+              <caret line="295" column="12" lean-forward="true" selection-start-line="295" selection-start-column="12" selection-end-line="295" selection-end-column="12" />
               <folding>
                 <element signature="e#0#20#0" expanded="true" />
+                <element signature="e#9906#10406#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/lib/ui/govt_entities_list.dart">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="429">
+              <caret line="53" column="14" selection-start-line="41" selection-end-line="64" selection-end-column="8" />
+              <folding>
+                <element signature="e#2214#2591#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -434,7 +438,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>Handler</find>
       <find>InvoiceList</find>
       <find>receiving PURCHASE_ORDER message from FCM</find>
       <find>What</find>
@@ -464,6 +467,7 @@
       <find>listenForDeliveryAcceptance  reference.snapshots()</find>
       <find>avigator.push</find>
       <find>Do you</find>
+      <find>ListView.builder</find>
     </findStrings>
     <replaceStrings>
       <replace>InvoicePage</replace>
@@ -583,7 +587,7 @@
   </component>
   <component name="PropertiesComponent">
     <property name="android.sdk.path" value="$USER_HOME$/Library/Android/sdk" />
-    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1539468699438" />
+    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1539494859138" />
     <property name="dart.analysis.tool.window.force.activate" value="false" />
     <property name="io.flutter.reload.alreadyRun" value="true" />
     <property name="settings.editor.selected.configurable" value="dart.settings" />
@@ -777,7 +781,14 @@
       <option name="project" value="LOCAL" />
       <updated>1538415404497</updated>
     </task>
-    <option name="localTasksCounter" value="20" />
+    <task id="LOCAL-00020" summary="refactored demo data generation">
+      <created>1539472276219</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1539472276219</updated>
+    </task>
+    <option name="localTasksCounter" value="21" />
     <servers />
   </component>
   <component name="TodoView">
@@ -804,14 +815,14 @@
       <window_info id="UI Designer" order="8" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32844242" />
-      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.79971385" weight="0.40611354" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.7989986" visible="true" weight="0.21334793" />
       <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.74301994" weight="0.39823008" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" sideWeight="0.4997151" weight="0.32964602" />
       <window_info anchor="bottom" id="Dart Analysis" order="7" sideWeight="0.49713877" weight="0.32751092" />
       <window_info anchor="bottom" id="Android Profiler" order="8" show_stripe_button="false" />
-      <window_info active="true" anchor="bottom" id="Event Log" order="9" sideWeight="0.20028612" side_tool="true" visible="true" weight="0.4059081" />
+      <window_info anchor="bottom" id="Event Log" order="9" sideWeight="0.20100144" side_tool="true" visible="true" weight="0.21334793" />
       <window_info anchor="bottom" id="Logcat" order="10" sideWeight="0.4993895" weight="0.32918552" />
       <window_info anchor="bottom" id="Version Control" order="11" weight="0.32936978" />
       <window_info anchor="bottom" id="Terminal" order="12" sideWeight="0.4980057" weight="0.37767756" />
@@ -853,7 +864,8 @@
     <MESSAGE value="refactored data api to point to cloud functions" />
     <MESSAGE value="refactored all dates to be UTC format - takes care of time zones and shit" />
     <MESSAGE value="refactoring done for UTC date changes" />
-    <option name="LAST_COMMIT_MESSAGE" value="refactoring done for UTC date changes" />
+    <MESSAGE value="refactored demo data generation" />
+    <option name="LAST_COMMIT_MESSAGE" value="refactored demo data generation" />
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/test/widget_test.dart">
@@ -907,13 +919,6 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/lib/util.dart" />
-    <entry file="file://$PROJECT_DIR$/lib/ui/govt_entities_list.dart">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="528">
-          <caret line="82" column="17" selection-start-line="82" selection-start-column="17" selection-end-line="82" selection-end-column="17" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/lib/ui/delivery_acceptance_list.dart">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="128">
@@ -1187,10 +1192,21 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/lib/ui/signin_page.dart">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="397">
-          <caret line="304" column="9" selection-start-line="304" selection-start-column="9" selection-end-line="304" selection-end-column="9" />
+        <state relative-caret-position="253">
+          <caret line="295" column="12" lean-forward="true" selection-start-line="295" selection-start-column="12" selection-end-line="295" selection-end-column="12" />
           <folding>
             <element signature="e#0#20#0" expanded="true" />
+            <element signature="e#9906#10406#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lib/ui/govt_entities_list.dart">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="429">
+          <caret line="53" column="14" selection-start-line="41" selection-end-line="64" selection-end-column="8" />
+          <folding>
+            <element signature="e#2214#2591#0" expanded="true" />
           </folding>
         </state>
       </provider>
