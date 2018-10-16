@@ -4,6 +4,7 @@ import 'package:businesslibrary/data/investor.dart';
 import 'package:businesslibrary/data/invoice_bid.dart';
 import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/util/lookups.dart';
+import 'package:businesslibrary/util/styles.dart';
 import 'package:businesslibrary/util/util.dart';
 import 'package:flutter/material.dart';
 
@@ -122,7 +123,12 @@ class OfferCard extends StatelessWidget {
               padding: const EdgeInsets.all(8.0),
               child: Row(
                 children: <Widget>[
-                  Container(width: 70.0, child: Text('Supplier')),
+                  Container(
+                      width: 80.0,
+                      child: Text(
+                        'Supplier',
+                        style: Styles.greyLabelSmall,
+                      )),
                   Text(
                       offer.supplierName == null
                           ? 'Unknown yet'
@@ -135,7 +141,12 @@ class OfferCard extends StatelessWidget {
               padding: const EdgeInsets.all(8.0),
               child: Row(
                 children: <Widget>[
-                  Container(width: 70.0, child: Text('Customer')),
+                  Container(
+                      width: 80.0,
+                      child: Text(
+                        'For',
+                        style: Styles.greyLabelSmall,
+                      )),
                   Text(
                       offer.customerName == null
                           ? 'Unknown yet'
@@ -148,7 +159,12 @@ class OfferCard extends StatelessWidget {
               padding: const EdgeInsets.all(8.0),
               child: Row(
                 children: <Widget>[
-                  Container(width: 40.0, child: Text('Start')),
+                  Container(
+                      width: 60.0,
+                      child: Text(
+                        'Start',
+                        style: Styles.greyLabelSmall,
+                      )),
                   Text(
                       offer.startTime == null
                           ? 'Unknown yet'
@@ -162,23 +178,33 @@ class OfferCard extends StatelessWidget {
               padding: const EdgeInsets.all(8.0),
               child: Row(
                 children: <Widget>[
-                  Container(width: 40.0, child: Text('End')),
+                  Container(
+                      width: 60.0,
+                      child: Text(
+                        'End',
+                        style: Styles.greyLabelSmall,
+                      )),
                   Text(
                       offer.endTime == null
                           ? 'Unknown yet'
                           : getFormattedDateLong(offer.endTime, context),
                       style: TextStyle(
-                          fontSize: 18.0,
-                          color: Colors.indigo.shade800,
+                          fontSize: 14.0,
+                          color: Colors.pink.shade800,
                           fontWeight: FontWeight.bold)),
                 ],
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.only(top: 18.0),
               child: Row(
                 children: <Widget>[
-                  Container(width: 70.0, child: Text('Amount')),
+                  Container(
+                      width: 80.0,
+                      child: Text(
+                        'Amount',
+                        style: Styles.greyLabelSmall,
+                      )),
                   Text(
                     offer.offerAmount == null
                         ? 'Unknown yet'

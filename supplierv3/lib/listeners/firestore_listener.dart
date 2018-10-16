@@ -120,12 +120,15 @@ void listenForInvoiceBid(String offerId, InvoiceBidListener listener) async {
       .collection('invoiceOffers')
       .where('offerId', isEqualTo: offerId)
       .getDocuments();
+  if (qs.documents.isEmpty) {
+    return;
+  }
   String offerDocRef = qs.documents.first.documentID;
-  var a = Offer.fromJson(qs.documents.first.data);
+  var offer = Offer.fromJson(qs.documents.first.data);
 
   print(
       '\n\n listenForInvoiceBid ########## listening for Invoice Bids .......: offerId: $offerId  ....');
-  prettyPrint(a.toJson(), '###### Listening for bids for this OFFER:');
+  prettyPrint(offer.toJson(), '###### Listening for bids for this OFFER:');
   CollectionReference reference = Firestore.instance
       .collection('invoiceOffers')
       .document(offerDocRef)

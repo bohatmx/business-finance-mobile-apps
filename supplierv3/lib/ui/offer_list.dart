@@ -1,11 +1,14 @@
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
+import 'package:businesslibrary/data/invoice_bid.dart';
 import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
+import 'package:businesslibrary/util/styles.dart';
 import 'package:businesslibrary/util/util.dart';
 import 'package:flutter/material.dart';
+import 'package:supplierv3/listeners/firestore_listener.dart';
 import 'package:supplierv3/ui/offer_details.dart';
 
 class OfferList extends StatefulWidget {
@@ -15,7 +18,9 @@ class OfferList extends StatefulWidget {
   _OfferListState createState() => _OfferListState();
 }
 
-class _OfferListState extends State<OfferList> with WidgetsBindingObserver {
+class _OfferListState extends State<OfferList>
+    with WidgetsBindingObserver
+    implements InvoiceBidListener, SnackBarListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   DateTime startTime, endTime;
   List<Offer> offers = List();
@@ -34,8 +39,8 @@ class _OfferListState extends State<OfferList> with WidgetsBindingObserver {
 
   void _getCached() async {
     supplier = await SharedPrefs.getSupplier();
+    assert(supplier != null);
     _getOffers();
-    setState(() {});
   }
 
   void _getOffers() async {
@@ -49,13 +54,15 @@ class _OfferListState extends State<OfferList> with WidgetsBindingObserver {
         textColor: Colors.yellow,
         backgroundColor: Colors.black);
     offers = await ListAPI.getOffersBySupplier(supplier.participantId);
-    offers.forEach((p) {
-      prettyPrint(p.toJson(), '_OfferListState._getOffers: ');
-    });
     print(
         '_OfferListState._getOffers offers in period: ${offers.length}  over $_days days');
     setState(() {});
     _scaffoldKey.currentState.hideCurrentSnackBar();
+    offers.forEach((offer) {
+      if (offer.isOpen) {
+        listenForInvoiceBid(offer.offerId, this);
+      }
+    });
   }
 
   _checkBids(Offer offer) async {
@@ -63,7 +70,8 @@ class _OfferListState extends State<OfferList> with WidgetsBindingObserver {
 
     Navigator.push(
       context,
-      new MaterialPageRoute(builder: (context) => new OfferDetails(offer)),
+      new MaterialPageRoute(
+          builder: (context) => new OfferDetails(offer.offerId)),
     );
   }
 
@@ -322,6 +330,22 @@ class _OfferListState extends State<OfferList> with WidgetsBindingObserver {
 
   void _refresh() {
     _getOffers();
+  }
+
+  @override
+  onActionPressed(int action) {
+    // TODO: implement onActionPressed
+  }
+
+  List<InvoiceBid> bids = List();
+  @override
+  onInvoiceBid(InvoiceBid bid) {
+    bids.add(bid);
+    AppSnackbar.showSnackbar(
+        scaffoldKey: _scaffoldKey,
+        message: 'Invoice Bid arrived',
+        textColor: Styles.white,
+        backgroundColor: Styles.black);
   }
 }
 

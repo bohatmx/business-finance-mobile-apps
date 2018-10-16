@@ -5,17 +5,18 @@ import 'dart:math';
 import 'package:businesslibrary/api/data_api.dart';
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
+import 'package:businesslibrary/api/storage_api.dart';
 import 'package:businesslibrary/data/govt_entity.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/supplier_contract.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
+import 'package:businesslibrary/util/styles.dart';
 import 'package:businesslibrary/util/util.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:supplierv3/storage_api.dart';
 
 class ContractPage extends StatefulWidget {
   final SupplierContract contract;
@@ -27,7 +28,7 @@ class ContractPage extends StatefulWidget {
 }
 
 class _ContractPageState extends State<ContractPage>
-    implements SnackBarListener {
+    implements SnackBarListener, UploadListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   static const platform = const MethodChannel('com.oneconnect.files/pdf');
   SupplierContract contract;
@@ -156,18 +157,7 @@ class _ContractPageState extends State<ContractPage>
         textColor: Colors.white,
         backgroundColor: Colors.black);
 
-    url = await StorageAPI.uploadFile('contracts', path);
-    print('_ContractPageState._uploadFile url: $url');
-    if (url == '0') {
-      isBusy = false;
-      AppSnackbar.showErrorSnackbar(
-          scaffoldKey: _scaffoldKey,
-          message: 'Contract upload failed',
-          listener: this,
-          actionLabel: 'Close');
-    } else {
-      _uploadContract();
-    }
+    StorageAPI.uploadFile('contracts', path, this);
   }
 
   void _createDummy() async {
@@ -206,7 +196,6 @@ class _ContractPageState extends State<ContractPage>
         message: 'Uploading dummy cooontract',
         textColor: Colors.white,
         backgroundColor: Colors.black);
-    //DataAPI api = DataAPI(getURL());
     var res = await DataAPI.addSupplierContract(c);
     isBusy = false;
     if (res == '0') {
@@ -747,5 +736,37 @@ class _ContractPageState extends State<ContractPage>
     if (isDone) {
       Navigator.pop(context, true);
     }
+  }
+
+  @override
+  onComplete(String url, String totalByteCount, String bytesTransferred) {
+    this.url = url;
+    AppSnackbar.showSnackbar(
+        scaffoldKey: _scaffoldKey,
+        message:
+            'Upload Complete. Uploaded $bytesTransferred of $totalByteCount',
+        textColor: Styles.white,
+        backgroundColor: Styles.black);
+    print('_ContractPageState._uploadFile url: $url');
+
+    _uploadContract();
+  }
+
+  @override
+  onError(String message) {
+    AppSnackbar.showErrorSnackbar(
+        scaffoldKey: _scaffoldKey,
+        message: message,
+        listener: this,
+        actionLabel: 'Close ');
+  }
+
+  @override
+  onProgress(String totalByteCount, String bytesTransferred) {
+    AppSnackbar.showSnackbar(
+        scaffoldKey: _scaffoldKey,
+        message: 'Uploaded $bytesTransferred of $totalByteCount',
+        textColor: Colors.yellow,
+        backgroundColor: Styles.black);
   }
 }

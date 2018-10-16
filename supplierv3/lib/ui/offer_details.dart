@@ -8,9 +8,9 @@ import 'package:flutter/material.dart';
 import 'package:supplierv3/listeners/firestore_listener.dart';
 
 class OfferDetails extends StatefulWidget {
-  final Offer offer;
+  final String offerId;
 
-  OfferDetails(this.offer);
+  OfferDetails(this.offerId);
 
   @override
   _OfferDetailsState createState() => _OfferDetailsState();
@@ -20,7 +20,8 @@ class _OfferDetailsState extends State<OfferDetails>
     implements InvoiceBidListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   List<InvoiceBid> bids = List();
-
+  OfferBag bag;
+  Offer offer;
   @override
   void initState() {
     super.initState();
@@ -34,7 +35,9 @@ class _OfferDetailsState extends State<OfferDetails>
         textColor: Styles.white,
         backgroundColor: Styles.black);
 
-    bids = await ListAPI.getInvoiceBidsByOffer(widget.offer);
+    bag = await ListAPI.getOfferWithBids(widget.offerId);
+    bids = bag.invoiceBids;
+    offer = bag.offer;
     _scaffoldKey.currentState.removeCurrentSnackBar();
 
     setState(() {});
@@ -59,7 +62,9 @@ class _OfferDetailsState extends State<OfferDetails>
                 Padding(
                   padding: const EdgeInsets.only(left: 8.0),
                   child: Text(
-                    getFormattedAmount('${widget.offer.offerAmount}', context),
+                    offer == null
+                        ? '0.00'
+                        : getFormattedAmount('${offer.offerAmount}', context),
                     style: Styles.whiteBoldReallyLarge,
                   ),
                 ),
@@ -79,14 +84,18 @@ class _OfferDetailsState extends State<OfferDetails>
                   Padding(
                     padding: const EdgeInsets.only(left: 8.0),
                     child: Text(
-                      getFormattedDateShort('${widget.offer.date}', context),
+                      offer == null
+                          ? ''
+                          : getFormattedDateShort('${offer.date}', context),
                       style: Styles.whiteBoldLarge,
                     ),
                   ),
                   Padding(
                     padding: const EdgeInsets.only(left: 8.0),
                     child: Text(
-                      getFormattedDateHour('${widget.offer.date}'),
+                      offer == null
+                          ? ''
+                          : getFormattedDateHour('${offer.date}'),
                       style: Styles.whiteBoldLarge,
                     ),
                   ),
@@ -107,7 +116,7 @@ class _OfferDetailsState extends State<OfferDetails>
                   Padding(
                     padding: const EdgeInsets.only(left: 8.0),
                     child: Text(
-                      '${widget.offer.discountPercent} %',
+                      offer == null ? '' : '${offer.discountPercent} %',
                       style: Styles.whiteBoldLarge,
                     ),
                   ),
@@ -126,7 +135,7 @@ class _OfferDetailsState extends State<OfferDetails>
                   Padding(
                     padding: const EdgeInsets.only(left: 8.0, right: 12.0),
                     child: Text(
-                      '${bids.length}',
+                      bids == null ? '0' : '${bids.length}',
                       style: Styles.whiteBoldLarge,
                     ),
                   )

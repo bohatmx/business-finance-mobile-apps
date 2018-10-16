@@ -156,7 +156,8 @@ class _OfferListState extends State<OfferList> with WidgetsBindingObserver {
                     color: Theme.of(context).primaryColor),
               ),
               content: Container(
-                height: 200.0,
+                height: 300.0,
+                width: 500.0,
                 child: OfferListCard(
                   offer: offer,
                   color: Colors.grey.shade50,
@@ -182,83 +183,6 @@ class _OfferListState extends State<OfferList> with WidgetsBindingObserver {
       return closedOffers.length;
     }
   }
-
-//  Widget _buildItems() {
-//    var item1 = Card(
-//      elevation: 4.0,
-//      child: InkWell(
-//        onTap: _onInvoiceBid,
-//        child: Row(
-//          children: <Widget>[
-//            Padding(
-//              padding: const EdgeInsets.all(8.0),
-//              child: Icon(
-//                Icons.attach_money,
-//                color: Colors.green.shade800,
-//              ),
-//            ),
-//            Text('Make Invoice Bid'),
-//          ],
-//        ),
-//      ),
-//    );
-//    var item2 = Card(
-//      elevation: 4.0,
-//      child: InkWell(
-//        onTap: _cancelBid,
-//        child: Row(
-//          children: <Widget>[
-//            Padding(
-//              padding: const EdgeInsets.all(8.0),
-//              child: Icon(
-//                Icons.cancel,
-//                color: Colors.red.shade800,
-//              ),
-//            ),
-//            Text('Cancel Invoice Bid'),
-//          ],
-//        ),
-//      ),
-//    );
-//    var item3 = Card(
-//      elevation: 4.0,
-//      child: InkWell(
-//        onTap: _onOfferDetails,
-//        child: Row(
-//          children: <Widget>[
-//            Padding(
-//              padding: const EdgeInsets.all(8.0),
-//              child: Icon(
-//                Icons.description,
-//                color: Colors.blue.shade800,
-//              ),
-//            ),
-//            Text('Check Invoice Details'),
-//          ],
-//        ),
-//      ),
-//    );
-//
-//    return Column(
-//      children: <Widget>[
-//        item1,
-//        item2,
-//        item3,
-//        Padding(
-//          padding: const EdgeInsets.only(top: 16.0),
-//          child: FlatButton(
-//            onPressed: () {
-//              Navigator.pop(context);
-//            },
-//            child: Text(
-//              'Cancel',
-//              style: TextStyle(color: Colors.blue, fontSize: 20.0),
-//            ),
-//          ),
-//        ),
-//      ],
-//    );
-//  }
 
   TextStyle white = TextStyle(color: Colors.black, fontSize: 16.0);
   List<DropdownMenuItem<int>> _buildDaysDropDownItems() {
@@ -624,6 +548,10 @@ class OfferListCard extends StatelessWidget {
     print('OfferListCard.build');
     return Column(
       children: <Widget>[
+        Text(
+          "Supplier",
+          style: Styles.greyLabelSmall,
+        ),
         Row(
           children: <Widget>[
             Text(
@@ -632,23 +560,38 @@ class OfferListCard extends StatelessWidget {
           ],
         ),
         Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Row(
-            children: <Widget>[
-              Container(width: 30.0, child: Text('For')),
-              Text(
+          padding: const EdgeInsets.only(top: 20.0),
+          child: Text(
+            "Customer",
+            style: Styles.greyLabelSmall,
+            textAlign: TextAlign.left,
+          ),
+        ),
+        Row(
+          children: <Widget>[
+            Flexible(
+              child: Container(
+                child: Text(
                   offer.customerName == null
                       ? 'Unknown yet'
                       : offer.customerName,
-                  style: boldStyle),
-            ],
-          ),
+                  style: boldStyle,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ),
+          ],
         ),
         Padding(
-          padding: const EdgeInsets.only(left: 8.0, top: 20.0),
+          padding: const EdgeInsets.only(left: 8.0, top: 40.0),
           child: Row(
             children: <Widget>[
-              Container(width: 40.0, child: Text('Start')),
+              Container(
+                  width: 80.0,
+                  child: Text(
+                    'Start',
+                    style: Styles.greyLabelSmall,
+                  )),
               Text(
                   offer.startTime == null
                       ? 'Unknown yet'
@@ -661,7 +604,12 @@ class OfferListCard extends StatelessWidget {
           padding: const EdgeInsets.all(8.0),
           child: Row(
             children: <Widget>[
-              Container(width: 40.0, child: Text('End')),
+              Container(
+                  width: 80.0,
+                  child: Text(
+                    'End',
+                    style: Styles.greyLabelSmall,
+                  )),
               Text(
                   offer.endTime == null
                       ? 'Unknown yet'
@@ -677,7 +625,12 @@ class OfferListCard extends StatelessWidget {
           padding: const EdgeInsets.all(8.0),
           child: Row(
             children: <Widget>[
-              Container(width: 70.0, child: Text('Amount')),
+              Container(
+                  width: 80.0,
+                  child: Text(
+                    'Amount',
+                    style: Styles.greyLabelSmall,
+                  )),
               Text(
                 offer.offerAmount == null
                     ? 'Unknown yet'

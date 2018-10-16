@@ -158,6 +158,11 @@ class _DashboardState extends State<Dashboard>
   Future _getOffers() async {
     allOffers = await ListAPI.getOffersBySupplier(supplier.participantId);
     setState(() {});
+    allOffers.forEach((offer) {
+      if (offer.isOpen) {
+        listenForInvoiceBid(offer.offerId, this);
+      }
+    });
   }
 
   Future _getPurchaseOrders() async {

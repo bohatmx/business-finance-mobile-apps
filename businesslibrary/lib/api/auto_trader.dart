@@ -336,7 +336,7 @@ class AutoTradeExecutionBuilder {
     var myReserve = 100.0;
     var myAmt = 0.0;
 
-    ListAPI.getInvoiceBidsByOffer(exec.offer).then((list) {
+    ListAPI.getInvoiceBidsByOffer(exec.offer.offerId).then((list) {
       list.forEach((m) {
         totReserved += m.reservePercent;
       });

@@ -50,7 +50,7 @@ class _InvoiceBidderState extends State<InvoiceBidder>
   void _getExistingBids() async {
     prettyPrint(offer.toJson(),
         '_InvoiceBidderState._getExistingBids ...... for this OFFER.....');
-    bids = await ListAPI.getInvoiceBidsByOffer(offer);
+    bids = await ListAPI.getInvoiceBidsByOffer(offer.offerId);
     _calculateTotal();
     setState(() {});
   }
@@ -91,7 +91,7 @@ class _InvoiceBidderState extends State<InvoiceBidder>
 
   Widget _getBottom() {
     return PreferredSize(
-      preferredSize: Size.fromHeight(110.0),
+      preferredSize: Size.fromHeight(150.0),
       child: Padding(
         padding: const EdgeInsets.only(bottom: 12.0),
         child: Column(
@@ -101,7 +101,7 @@ class _InvoiceBidderState extends State<InvoiceBidder>
               children: <Widget>[
                 Text(
                   'Bids for Offer: ',
-                  style: TextStyle(color: Colors.white),
+                  style: TextStyle(color: Colors.white, fontSize: 12.0),
                 ),
                 Row(
                   children: <Widget>[
@@ -121,7 +121,8 @@ class _InvoiceBidderState extends State<InvoiceBidder>
                         children: <Widget>[
                           Text(
                             'Perc:',
-                            style: TextStyle(color: Colors.white),
+                            style:
+                                TextStyle(color: Colors.white, fontSize: 12.0),
                           ),
                           Padding(
                             padding:
@@ -146,7 +147,7 @@ class _InvoiceBidderState extends State<InvoiceBidder>
               children: <Widget>[
                 Text(
                   'Total Amount Bid: ',
-                  style: TextStyle(color: Colors.white),
+                  style: TextStyle(color: Colors.white, fontSize: 12.0),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(12.0),
@@ -188,7 +189,7 @@ class _InvoiceBidderState extends State<InvoiceBidder>
                 child: Text(
                   'Invoice Due Diligence',
                   style: TextStyle(
-                      fontSize: 20.0,
+                      fontSize: 16.0,
                       color: Colors.grey,
                       fontWeight: FontWeight.bold),
                 ),
@@ -212,7 +213,7 @@ class _InvoiceBidderState extends State<InvoiceBidder>
             elevation: 8,
             hint: Text(
               'Bid Percentage',
-              style: TextStyle(fontSize: 20.0),
+              style: TextStyle(fontSize: 16.0),
             ),
             onChanged: _onChanged,
           ),
@@ -254,7 +255,7 @@ class _InvoiceBidderState extends State<InvoiceBidder>
               padding: const EdgeInsets.all(12.0),
               child: Text(
                 'Make Invoice Bid',
-                style: TextStyle(color: Colors.white, fontSize: 20.0),
+                style: TextStyle(color: Colors.white, fontSize: 18.0),
               ),
             ),
           ),
@@ -328,420 +329,6 @@ class _InvoiceBidderState extends State<InvoiceBidder>
     }
   }
 
-//  void _buildItems() {
-//    var item00a = DropdownMenuItem<double>(
-//      value: 0.25,
-//      child: Row(
-//        children: <Widget>[
-//          Icon(
-//            Icons.apps,
-//            color: Colors.green,
-//          ),
-//          Padding(
-//            padding: const EdgeInsets.all(8.0),
-//            child: Text(
-//              '0.25 %',
-//              style: TextStyle(
-//                  color: Colors.black,
-//                  fontWeight: FontWeight.bold,
-//                  fontSize: 16.0),
-//            ),
-//          ),
-//        ],
-//      ),
-//    );
-//    items.add(item00a);
-//    var item00b = DropdownMenuItem<double>(
-//      value: 0.5,
-//      child: Row(
-//        children: <Widget>[
-//          Icon(
-//            Icons.apps,
-//            color: Colors.green,
-//          ),
-//          Padding(
-//            padding: const EdgeInsets.all(8.0),
-//            child: Text(
-//              '0.5 %',
-//              style: TextStyle(
-//                  color: Colors.black,
-//                  fontWeight: FontWeight.bold,
-//                  fontSize: 16.0),
-//            ),
-//          ),
-//        ],
-//      ),
-//    );
-//    items.add(item00b);
-//    //
-//    var item000 = DropdownMenuItem<double>(
-//      value: 1.0,
-//      child: Row(
-//        children: <Widget>[
-//          Icon(
-//            Icons.apps,
-//            color: Colors.indigo,
-//          ),
-//          Padding(
-//            padding: const EdgeInsets.all(8.0),
-//            child: Text(
-//              '1%',
-//              style: TextStyle(
-//                  color: Colors.black,
-//                  fontWeight: FontWeight.bold,
-//                  fontSize: 16.0),
-//            ),
-//          ),
-//        ],
-//      ),
-//    );
-//    items.add(item000);
-//    var item00 = DropdownMenuItem<double>(
-//      value: 2.5,
-//      child: Row(
-//        children: <Widget>[
-//          Icon(
-//            Icons.apps,
-//            color: Colors.pink,
-//          ),
-//          Padding(
-//            padding: const EdgeInsets.all(8.0),
-//            child: Text(
-//              '2.5 %',
-//              style: TextStyle(
-//                  color: Colors.black,
-//                  fontWeight: FontWeight.bold,
-//                  fontSize: 16.0),
-//            ),
-//          ),
-//        ],
-//      ),
-//    );
-//    items.add(item00);
-//
-//    var item0 = DropdownMenuItem<double>(
-//      value: 5.0,
-//      child: Row(
-//        children: <Widget>[
-//          Icon(
-//            Icons.apps,
-//            color: Colors.indigo,
-//          ),
-//          Padding(
-//            padding: const EdgeInsets.all(8.0),
-//            child: Text(
-//              '5 %',
-//              style: TextStyle(
-//                  color: Colors.black,
-//                  fontWeight: FontWeight.bold,
-//                  fontSize: 16.0),
-//            ),
-//          ),
-//        ],
-//      ),
-//    );
-//    items.add(item0);
-//    //
-//    var item1 = DropdownMenuItem<double>(
-//      value: 7.5,
-//      child: Row(
-//        children: <Widget>[
-//          Icon(
-//            Icons.apps,
-//            color: Colors.lime,
-//          ),
-//          Padding(
-//            padding: const EdgeInsets.all(8.0),
-//            child: Text(
-//              '7.5 %',
-//              style: TextStyle(
-//                  color: Colors.black,
-//                  fontWeight: FontWeight.bold,
-//                  fontSize: 16.0),
-//            ),
-//          ),
-//        ],
-//      ),
-//    );
-//    items.add(item1);
-//    //
-//    var item2 = DropdownMenuItem<double>(
-//      value: 10.0,
-//      child: Row(
-//        children: <Widget>[
-//          Icon(
-//            Icons.apps,
-//            color: Colors.indigo,
-//          ),
-//          Padding(
-//            padding: const EdgeInsets.all(8.0),
-//            child: Text(
-//              '10 %',
-//              style: TextStyle(
-//                  color: Colors.black,
-//                  fontWeight: FontWeight.bold,
-//                  fontSize: 16.0),
-//            ),
-//          ),
-//        ],
-//      ),
-//    );
-//    items.add(item2);
-//    //
-//    var item3 = DropdownMenuItem<double>(
-//      value: 15.0,
-//      child: Row(
-//        children: <Widget>[
-//          Icon(
-//            Icons.apps,
-//            color: Colors.pink,
-//          ),
-//          Padding(
-//            padding: const EdgeInsets.all(8.0),
-//            child: Text(
-//              '15 %',
-//              style: TextStyle(
-//                  color: Colors.black,
-//                  fontWeight: FontWeight.bold,
-//                  fontSize: 16.0),
-//            ),
-//          ),
-//        ],
-//      ),
-//    );
-//    items.add(item3);
-//    //
-//    var item4 = DropdownMenuItem<double>(
-//      value: 20.0,
-//      child: Row(
-//        children: <Widget>[
-//          Icon(
-//            Icons.apps,
-//            color: Colors.green,
-//          ),
-//          Padding(
-//            padding: const EdgeInsets.all(8.0),
-//            child: Text(
-//              '20 %',
-//              style: TextStyle(
-//                  color: Colors.black,
-//                  fontWeight: FontWeight.bold,
-//                  fontSize: 16.0),
-//            ),
-//          ),
-//        ],
-//      ),
-//    );
-//    items.add(item4);
-//    //
-//    var item5 = DropdownMenuItem<double>(
-//      value: 25.0,
-//      child: Row(
-//        children: <Widget>[
-//          Icon(
-//            Icons.apps,
-//            color: Colors.blueGrey,
-//          ),
-//          Padding(
-//            padding: const EdgeInsets.all(8.0),
-//            child: Text(
-//              '25 %',
-//              style: TextStyle(
-//                  color: Colors.black,
-//                  fontWeight: FontWeight.bold,
-//                  fontSize: 16.0),
-//            ),
-//          ),
-//        ],
-//      ),
-//    );
-//    items.add(item5);
-//    //
-//    var item6 = DropdownMenuItem<double>(
-//      value: 30.0,
-//      child: Row(
-//        children: <Widget>[
-//          Icon(
-//            Icons.apps,
-//            color: Colors.brown,
-//          ),
-//          Padding(
-//            padding: const EdgeInsets.all(8.0),
-//            child: Text(
-//              '30 %',
-//              style: TextStyle(
-//                  color: Colors.black,
-//                  fontWeight: FontWeight.bold,
-//                  fontSize: 16.0),
-//            ),
-//          ),
-//        ],
-//      ),
-//    );
-//    items.add(item6);
-//    //
-//    var item7 = DropdownMenuItem<double>(
-//      value: 40.0,
-//      child: Row(
-//        children: <Widget>[
-//          Icon(
-//            Icons.apps,
-//            color: Colors.amber,
-//          ),
-//          Padding(
-//            padding: const EdgeInsets.all(8.0),
-//            child: Text(
-//              '40 %',
-//              style: TextStyle(
-//                  color: Colors.black,
-//                  fontWeight: FontWeight.bold,
-//                  fontSize: 16.0),
-//            ),
-//          ),
-//        ],
-//      ),
-//    );
-//    items.add(item7);
-//    //
-//    var item8 = DropdownMenuItem<double>(
-//      value: 50.0,
-//      child: Row(
-//        children: <Widget>[
-//          Icon(
-//            Icons.apps,
-//            color: Colors.blue,
-//          ),
-//          Padding(
-//            padding: const EdgeInsets.all(8.0),
-//            child: Text(
-//              '50 %',
-//              style: TextStyle(
-//                  color: Colors.black,
-//                  fontWeight: FontWeight.bold,
-//                  fontSize: 16.0),
-//            ),
-//          ),
-//        ],
-//      ),
-//    );
-//    items.add(item8);
-//    //
-//    var item9 = DropdownMenuItem<double>(
-//      value: 60.0,
-//      child: Row(
-//        children: <Widget>[
-//          Icon(
-//            Icons.apps,
-//            color: Colors.grey,
-//          ),
-//          Padding(
-//            padding: const EdgeInsets.all(8.0),
-//            child: Text(
-//              '60 %',
-//              style: TextStyle(
-//                  color: Colors.black,
-//                  fontWeight: FontWeight.bold,
-//                  fontSize: 16.0),
-//            ),
-//          ),
-//        ],
-//      ),
-//    );
-//    items.add(item9);
-//    //
-//    var item10 = DropdownMenuItem<double>(
-//      value: 70.0,
-//      child: Row(
-//        children: <Widget>[
-//          Icon(
-//            Icons.apps,
-//            color: Colors.teal,
-//          ),
-//          Padding(
-//            padding: const EdgeInsets.all(8.0),
-//            child: Text(
-//              '70 %',
-//              style: TextStyle(
-//                  color: Colors.black,
-//                  fontWeight: FontWeight.bold,
-//                  fontSize: 16.0),
-//            ),
-//          ),
-//        ],
-//      ),
-//    );
-//    items.add(item10);
-//    //
-//    var item11 = DropdownMenuItem<double>(
-//      value: 80.0,
-//      child: Row(
-//        children: <Widget>[
-//          Icon(
-//            Icons.apps,
-//            color: Colors.red,
-//          ),
-//          Padding(
-//            padding: const EdgeInsets.all(8.0),
-//            child: Text(
-//              '80 %',
-//              style: TextStyle(
-//                  color: Colors.black,
-//                  fontWeight: FontWeight.bold,
-//                  fontSize: 16.0),
-//            ),
-//          ),
-//        ],
-//      ),
-//    );
-//    items.add(item11);
-//    //
-//    var item12 = DropdownMenuItem<double>(
-//      value: 90.0,
-//      child: Row(
-//        children: <Widget>[
-//          Icon(
-//            Icons.apps,
-//            color: Colors.deepPurple,
-//          ),
-//          Padding(
-//            padding: const EdgeInsets.all(8.0),
-//            child: Text(
-//              '90 %',
-//              style: TextStyle(
-//                  color: Colors.black,
-//                  fontWeight: FontWeight.bold,
-//                  fontSize: 16.0),
-//            ),
-//          ),
-//        ],
-//      ),
-//    );
-//    items.add(item12);
-//    //
-//    var item13 = DropdownMenuItem<double>(
-//      value: 100.0,
-//      child: Row(
-//        children: <Widget>[
-//          Icon(
-//            Icons.apps,
-//            color: Colors.lime,
-//          ),
-//          Padding(
-//            padding: const EdgeInsets.all(8.0),
-//            child: Text(
-//              '100  %',
-//              style: TextStyle(
-//                  color: Colors.black,
-//                  fontWeight: FontWeight.bold,
-//                  fontSize: 16.0),
-//            ),
-//          ),
-//        ],
-//      ),
-//    );
-//    items.add(item13);
-//  }
-
   void _onChanged(double value) {
     percentage = value;
     print('_InvoiceBidderState._onChanged: percentage: $percentage');
@@ -755,7 +342,7 @@ class _InvoiceBidderState extends State<InvoiceBidder>
   static const NameSpace = 'resource:com.oneconnect.biz.';
 
   void _onSubmitBid() async {
-    var bids = await ListAPI.getInvoiceBidsByOffer(offer);
+    var bids = await ListAPI.getInvoiceBidsByOffer(offer.offerId);
     var t = 0.00;
     bids.forEach((m) {
       t += m.reservePercent;

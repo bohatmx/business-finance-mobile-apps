@@ -423,7 +423,7 @@ class _OffersAndBidsState extends State<OffersAndBids> {
           backgroundColor: Styles.black);
       return;
     }
-    var bids = await ListAPI.getInvoiceBidsByOffer(offer);
+    var bids = await ListAPI.getInvoiceBidsByOffer(offer.offerId);
     var t = 0.00;
     bids.forEach((m) {
       t += m.reservePercent;

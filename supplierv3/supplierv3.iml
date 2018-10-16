@@ -2,6 +2,11 @@
 <module type="JAVA_MODULE" version="4">
   <component name="NewModuleRootManager" inherit-compiler-output="true">
     <exclude-output />
+    <content url="file://$MODULE_DIR$/../businesslibrary">
+      <excludeFolder url="file://$MODULE_DIR$/../businesslibrary/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/../businesslibrary/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/../businesslibrary/build" />
+    </content>
     <content url="file://$MODULE_DIR$">
       <excludeFolder url="file://$MODULE_DIR$/.dart_tool" />
       <excludeFolder url="file://$MODULE_DIR$/.pub" />

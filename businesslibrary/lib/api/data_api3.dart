@@ -248,14 +248,14 @@ class DataAPI3 {
     }
   }
 
-  static Future<int> makeOffer(Offer offer) async {
+  static Future<String> makeOffer(Offer offer) async {
     offer.offerId = getKey();
     offer.date = getUTCDate();
     offer.isOpen = true;
     offer.isCancelled = false;
     if (USE_LOCAL_BLOCKCHAIN) {
       var res = await DataAPI.makeOffer(offer);
-      return res == '0' ? DataAPI3.BlockchainError : DataAPI3.Success;
+      return res;
     }
     var bag = APIBag(
       debug: isInDebugMode,
@@ -275,17 +275,17 @@ class DataAPI3 {
       print(
           'DataAPI3.makeOffer blockchain response status code:  ${mResponse.statusCode}');
       if (mResponse.statusCode == 200) {
-        return Success;
+        return offer.offerId;
       } else {
         mResponse.transform(utf8.decoder).listen((contents) {
           print('DataAPI3.makeOffer ERROR  $contents');
         });
         print('DataAPI3.MakeOffer ERROR  ${mResponse.reasonPhrase}');
-        return BlockchainError;
+        return '0';
       }
     } catch (e) {
       print('DataAPI3.MakeOffer ERROR $e');
-      return UnknownError;
+      return '0';
     }
   }
 

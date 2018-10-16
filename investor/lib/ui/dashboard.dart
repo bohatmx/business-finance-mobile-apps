@@ -450,7 +450,7 @@ class InvoiceBidSummaryCard extends StatelessWidget {
     });
     print('InvoiceBidSummaryCard.build totalBidAmount: $totalBidAmount');
     return Container(
-      height: 160.0,
+      height: 220.0,
       child: new Padding(
         padding: const EdgeInsets.all(12.0),
         child: Card(
@@ -458,7 +458,7 @@ class InvoiceBidSummaryCard extends StatelessWidget {
           child: Column(
             children: <Widget>[
               Padding(
-                padding: const EdgeInsets.only(top: 12.0, bottom: 2.0),
+                padding: const EdgeInsets.only(top: 20.0, bottom: 2.0),
                 child: Text(
                   'Your Unsettled Invoice Bids',
                   style: Styles.greyLabelMedium,

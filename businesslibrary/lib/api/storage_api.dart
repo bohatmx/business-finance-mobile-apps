@@ -10,26 +10,48 @@ class StorageAPI {
   static Random rand = new Random(new DateTime.now().millisecondsSinceEpoch);
 
   // ignore: missing_return
-  static Future<String> uploadFile(String folderName, String path) async {
+  static uploadFile(
+      String folderName, String path, UploadListener listener) async {
     print('StorageAPI.uploadFile $folderName path: $path');
     rand = new Random(new DateTime.now().millisecondsSinceEpoch);
     var index = path.lastIndexOf('.');
     var extension = path.substring(index + 1);
     var name = 'BFN' + getUTCDate() + '_${rand.nextInt(1000)} +.$extension';
 
-    File file = new File(path);
-    var task =
-        _firebaseStorage.ref().child(folderName).child(name).putFile(file);
-    await task.future.then((snap) {
-      var url = snap.downloadUrl.toString();
-      print('StorageAPI._uploadFile: SUCCESS!!! -  FILE UPLOADED ...: $url');
-      return url;
-    }).catchError((e) {
-      print('StorageAPI._uploadFile ERROR $e');
-      return '0';
-    });
-    print(
-        'StorageAPI.uploadFile \n****  END OF METHOD  ... what happens next while uploading??????\n\n');
+    try {
+      File file = new File(path);
+      final StorageReference firebaseStorageRef =
+          FirebaseStorage.instance.ref().child(folderName).child(name);
+
+      var task = firebaseStorageRef.putFile(file);
+      task.events.listen((event) {
+        var totalByteCount = event.snapshot.totalByteCount;
+        var bytesTransferred = event.snapshot.bytesTransferred;
+        var bt = (bytesTransferred / 1024).toStringAsFixed(2) + ' KB';
+        var tot = (totalByteCount / 1024).toStringAsFixed(2) + ' KB';
+        print(
+            'StorageAPI.uploadFile:  progress ******* $bt KB of $tot KB transferred');
+
+        listener.onProgress(tot, bt);
+      });
+      task.onComplete.then((snap) {
+        var totalByteCount = snap.totalByteCount;
+        var bytesTransferred = snap.bytesTransferred;
+        var bt = (bytesTransferred / 1024).toStringAsFixed(2) + ' KB';
+        var tot = (totalByteCount / 1024).toStringAsFixed(2) + ' KB';
+        print(
+            'StorageAPI.uploadFile:  complete ******* $bt KB of $tot KB transferred');
+
+        listener.onComplete(
+            firebaseStorageRef.getDownloadURL().toString(), tot, bt);
+      }).catchError((e) {
+        print(e);
+        listener.onError('File upload failed');
+      });
+    } catch (e) {
+      print(e);
+      listener.onError('Houston, we have a problem $e');
+    }
   }
 
   // ignore: missing_return
@@ -58,4 +80,10 @@ class StorageAPI {
       return 1;
     });
   }
+}
+
+abstract class UploadListener {
+  onProgress(String totalByteCount, String bytesTransferred);
+  onComplete(String url, String totalByteCount, String bytesTransferred);
+  onError(String message);
 }
