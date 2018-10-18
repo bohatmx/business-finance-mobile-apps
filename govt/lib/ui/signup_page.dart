@@ -20,6 +20,7 @@ import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/selectors.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/util.dart';
+import 'package:email_validator/email_validator.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:govt/ui/dashboard.dart';
@@ -289,6 +290,14 @@ class _SignUpPageState extends State<SignUpPage>
         allowAutoAccept: autoAccept,
         dateRegistered: getUTCDate(),
       );
+      if (EmailValidator.validate(email) == false) {
+        AppSnackbar.showErrorSnackbar(
+            scaffoldKey: _scaffoldKey,
+            message: 'Email is in wrong format',
+            listener: this,
+            actionLabel: 'Close');
+        return;
+      }
       print('_SignUpPageState._onSavePressed ${govtEntity.toJson()}');
       User admin = User(
           firstName: firstName,
@@ -492,8 +501,8 @@ class _SignUpPageState extends State<SignUpPage>
     'Simon',
     'Peterson',
     'Smith',
-    'van der Merwe',
-    'du Toit',
+    'Mathebula',
+    'Tottenkopf',
     'Kotze',
     'Lerner',
     'Samuels',

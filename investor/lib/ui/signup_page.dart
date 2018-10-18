@@ -19,6 +19,7 @@ import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/selectors.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/util.dart';
+import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:investor/ui/dashboard.dart';
 import 'package:investor/ui/profile.dart';
@@ -245,7 +246,14 @@ class _SignUpPageState extends State<SignUpPage>
     final form = _formKey.currentState;
     if (form.validate()) {
       form.save();
-
+      if (EmailValidator.validate(adminEmail) == false) {
+        AppSnackbar.showErrorSnackbar(
+            scaffoldKey: _scaffoldKey,
+            message: 'Email is in wrong format',
+            listener: this,
+            actionLabel: 'Close');
+        return;
+      }
       Investor investor = Investor(
         name: name,
         email: email,

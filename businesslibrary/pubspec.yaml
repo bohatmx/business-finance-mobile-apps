@@ -24,6 +24,7 @@ dependencies:
     intl: ^0.15.7
     http: ^0.11.3+17
     web_socket_channel: ^1.0.9
+    email_validator: ^1.0.0
 
 #    oktoast: ^1.0.1+2
 #    card_settings: ^0.1.10

@@ -98,12 +98,18 @@ class SignUp {
         return ErrorBlockchain;
       }
     }
+    var e = await _auth
+        .signInWithEmailAndPassword(
+            email: admin.email, password: admin.password)
+        .catchError((e) {
+      print('SignUp.signUpGovtEntity ERROR signing to Firebase Auth: $e');
+      return DataAPI3.FirestoreError;
+    });
+    print('\n\nSignUp.signUpGovtEntity --- Firebase signin OK: ' + e.email);
 
-    await SharedPrefs.saveUser(admin);
-    await SharedPrefs.saveGovtEntity(govtEntity);
     print(
-        '\n\n\n\n########## SignUp.signUpGovtEntity ${govtEntity.name} COMPLETE #############\n\n\n\n');
-    return 0;
+        '\n\n########## SignUp.signUpGovtEntity ${govtEntity.name} COMPLETE #############\n\n');
+    return DataAPI3.Success;
   }
 
   static Future<int> signUpSupplier(Supplier supplier, User admin) async {
@@ -122,12 +128,8 @@ class SignUp {
     }
     admin.supplier =
         'resource:com.oneconnect.biz.Supplier#${supplier.participantId}';
-//    FirebaseUser fbUser = await _createUser(admin.email, admin.password);
-//    if (fbUser == null) {
-//      return ErrorCreatingFirebaseUser;
-//    }
+
     supplier.dateRegistered = getUTCDate();
-//    admin.uid = fbUser.uid;
     if (USE_LOCAL_BLOCKCHAIN) {
       var key = await DataAPI.addSupplier(supplier, admin);
       if (key == '0') {
@@ -139,11 +141,17 @@ class SignUp {
         return ErrorBlockchain;
       }
     }
+    var e = await _auth
+        .signInWithEmailAndPassword(
+            email: admin.email, password: admin.password)
+        .catchError((e) {
+      print('SignUp.signUpSupplier ERROR signing to Firebase Auth: $e');
+      return DataAPI3.FirestoreError;
+    });
+    print('\n\nSignUp.signUpSupplier --- Firebase signin OK: ' + e.email);
 
-    await SharedPrefs.saveSupplier(supplier);
-    await SharedPrefs.saveUser(admin);
     print(
-        '\n\n\n\n########## SignUp.signUpSupplier ${supplier.name} COMPLETE #############\n\n\n\n');
+        '\n\n########## SignUp.signUpSupplier ${supplier.name} COMPLETE #############\n\n');
 
     return DataAPI3.Success;
   }
@@ -165,11 +173,7 @@ class SignUp {
     investor.dateRegistered = getUTCDate();
     admin.investor =
         'resource:com.oneconnect.biz.Investor#${investor.participantId}';
-//    FirebaseUser fbUser = await _createUser(admin.email, admin.password);
-//    if (fbUser == null) {
-//      return ErrorCreatingFirebaseUser;
-//    }
-//    admin.uid = fbUser.uid;
+
     if (USE_LOCAL_BLOCKCHAIN) {
       var result = await DataAPI.addInvestor(investor, admin);
       if (result == '0') {
@@ -181,11 +185,17 @@ class SignUp {
         return ErrorBlockchain;
       }
     }
-    await SharedPrefs.saveInvestor(investor);
-    await _createUser(admin.email, admin.password);
-    await SharedPrefs.saveUser(admin);
+    var e = await _auth
+        .signInWithEmailAndPassword(
+            email: admin.email, password: admin.password)
+        .catchError((e) {
+      print('SignUp.signUpInvestor ERROR signing to Firebase Auth: $e');
+      return DataAPI3.FirestoreError;
+    });
+    print('\n\nSignUp.signUpInvestor --- Firebase signin OK: ' + e.email);
+
     print(
-        '\n\n\n\n########## SignUp.signUpInvestor ${investor.name} COMPLETE #############\n\n\n\n');
+        '\n\n########## SignUp.signUpInvestor ${investor.name} COMPLETE #############\n\n');
     return DataAPI3.Success;
   }
 

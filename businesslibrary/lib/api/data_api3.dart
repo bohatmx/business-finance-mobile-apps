@@ -407,12 +407,14 @@ class DataAPI3 {
 
       if (resp.statusCode == 200) {
         resp.transform(utf8.decoder).listen((contents) {
-          govtEntity.documentReference = contents.split('/').elementAt(1);
-          print(
-              'DataAPI3.addGovtEntity ****************** contents: $contents');
-
-          SharedPrefs.saveGovtEntity(govtEntity);
+          var map = json.decode(contents);
+          prettyPrint(map, 'RESULT from functions call:');
+          govtEntity.documentReference =
+              map['participantPath'].split('/').elementAt(1);
+          admin.documentReference = map['userPath'].split('/').elementAt(1);
         });
+        await SharedPrefs.saveGovtEntity(govtEntity);
+        await SharedPrefs.saveUser(admin);
         var qs = await fs
             .collection('wallets')
             .where('govtEntity',
@@ -424,23 +426,13 @@ class DataAPI3 {
           wallet.documentReference = qs.documents.first.documentID;
           await SharedPrefs.saveWallet(wallet);
         }
-        var qs2 = await fs
-            .collection('users')
-            .where('govtEntity',
-                isEqualTo:
-                    'resource:com.oneconnect.biz.GovtEntity#${govtEntity.participantId}')
-            .getDocuments();
-        if (qs2.documents.isNotEmpty) {
-          var user = User.fromJson(qs.documents.first.data);
-          user.documentReference = qs.documents.first.documentID;
-          await SharedPrefs.saveUser(user);
-        }
         return Success;
       } else {
-        resp.listen((data) {
-          print(data);
+        resp.transform(utf8.decoder).listen((data) {
+          var map = json.decode(data);
+          prettyPrint(
+              map, 'DataAPI3.addGovtEntity ---- ERROR from functions call');
         });
-        print('DataAPI3.addGovtEntity ERROR  ${resp..reasonPhrase}');
         return BlockchainError;
       }
     } catch (e) {
@@ -690,11 +682,14 @@ class DataAPI3 {
           'DataAPI3.addSupplier blockchain response status code:  ${mResponse.statusCode}');
       if (mResponse.statusCode == 200) {
         mResponse.transform(utf8.decoder).listen((contents) {
-          print('DataAPI3.addSupplier ****************** contents: $contents');
-          supplier.documentReference = contents.split('/').elementAt(1);
-
-          SharedPrefs.saveSupplier(supplier);
+          var map = json.decode(contents);
+          prettyPrint(map, 'RESULT from functions call:');
+          supplier.documentReference =
+              map['participantPath'].split('/').elementAt(1);
+          admin.documentReference = map['userPath'].split('/').elementAt(1);
         });
+        await SharedPrefs.saveSupplier(supplier);
+        await SharedPrefs.saveUser(admin);
         var qs = await fs
             .collection('wallets')
             .where('supplier',
@@ -706,22 +701,12 @@ class DataAPI3 {
           wallet.documentReference = qs.documents.first.documentID;
           await SharedPrefs.saveWallet(wallet);
         }
-        var qs2 = await fs
-            .collection('users')
-            .where('supplier',
-                isEqualTo:
-                    'resource:com.oneconnect.biz.Supplier#${supplier.participantId}')
-            .getDocuments();
-        if (qs2.documents.isNotEmpty) {
-          var user = User.fromJson(qs.documents.first.data);
-          user.documentReference = qs.documents.first.documentID;
-          await SharedPrefs.saveUser(user);
-        }
         return Success;
       } else {
-        print('DataAPI3.addSupplier ERROR  ${mResponse.reasonPhrase}');
         mResponse.transform(utf8.decoder).listen((contents) {
-          print('DataAPI3.addSupplier  $contents');
+          var map = json.decode(contents);
+          prettyPrint(
+              map, 'DataAPI3.addSupplier ---- ERROR from functions call');
         });
         return BlockchainError;
       }
@@ -812,10 +797,14 @@ class DataAPI3 {
           'DataAPI3.addInvestor blockchain response status code:  ${mResponse.statusCode}');
       if (mResponse.statusCode == 200) {
         mResponse.transform(utf8.decoder).listen((contents) {
-          investor.documentReference = contents.split('/').elementAt(1);
-          print('DataAPI3.addInvestor ****************** contents: $contents');
-          SharedPrefs.saveInvestor(investor);
+          var map = json.decode(contents);
+          prettyPrint(map, 'RESULT from functions call:');
+          investor.documentReference =
+              map['participantPath'].split('/').elementAt(1);
+          admin.documentReference = map['userPath'].split('/').elementAt(1);
         });
+        await SharedPrefs.saveInvestor(investor);
+        await SharedPrefs.saveUser(admin);
         var qs = await fs
             .collection('wallets')
             .where('investor',
@@ -827,22 +816,12 @@ class DataAPI3 {
           wallet.documentReference = qs.documents.first.documentID;
           await SharedPrefs.saveWallet(wallet);
         }
-        var qs2 = await fs
-            .collection('users')
-            .where('investor',
-                isEqualTo:
-                    'resource:com.oneconnect.biz.Investor#${investor.participantId}')
-            .getDocuments();
-        if (qs2.documents.isNotEmpty) {
-          var user = User.fromJson(qs.documents.first.data);
-          user.documentReference = qs.documents.first.documentID;
-          await SharedPrefs.saveUser(user);
-        }
         return Success;
       } else {
-        print('DataAPI3.addInvestor ERROR  ${mResponse.reasonPhrase}');
         mResponse.transform(utf8.decoder).listen((contents) {
-          print('DataAPI3.addInvestor  $contents');
+          var map = json.decode(contents);
+          prettyPrint(
+              map, 'DataAPI3.addInvestor ---- ERROR from functions call');
         });
         return BlockchainError;
       }

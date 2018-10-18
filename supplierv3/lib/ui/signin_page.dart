@@ -16,6 +16,7 @@ import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/selectors.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/util.dart';
+import 'package:email_validator/email_validator.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:supplierv3/ui/dashboard.dart';
@@ -162,7 +163,7 @@ class _SignInPageState extends State<SignInPage> implements SnackBarListener {
                     child: RaisedButton(
                       elevation: 8.0,
                       color: Theme.of(context).accentColor,
-                      onPressed: _onSavePressed,
+                      onPressed: _onSubmit,
                       child: new Padding(
                         padding: const EdgeInsets.all(12.0),
                         child: Text(
@@ -181,7 +182,7 @@ class _SignInPageState extends State<SignInPage> implements SnackBarListener {
     );
   }
 
-  void _onSavePressed() async {
+  void _onSubmit() async {
     if (isInDebugMode) {
       if (adminEmail == null) {
         AppSnackbar.showErrorSnackbar(
@@ -197,6 +198,14 @@ class _SignInPageState extends State<SignInPage> implements SnackBarListener {
       final form = _formKey.currentState;
       if (form.validate()) {
         form.save();
+        if (EmailValidator.validate(adminEmail) == false) {
+          AppSnackbar.showErrorSnackbar(
+              scaffoldKey: _scaffoldKey,
+              message: 'Email is in wrong format',
+              listener: this,
+              actionLabel: 'Close');
+          return;
+        }
         await signIn();
       }
     }
