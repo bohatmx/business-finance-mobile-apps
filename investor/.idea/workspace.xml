@@ -1,42 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="b840dc6a-331e-46d9-b624-92fa4c1707ed" name="Default" comment="ui tweaks">
-      <change beforePath="$PROJECT_DIR$/../businesslibrary/.flutter-plugins" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/.flutter-plugins" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../businesslibrary/.idea/libraries/Dart_Packages.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/.idea/libraries/Dart_Packages.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../businesslibrary/.idea/libraries/Dart_SDK.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/.idea/libraries/Dart_SDK.xml" afterDir="false" />
+    <list default="true" id="b840dc6a-331e-46d9-b624-92fa4c1707ed" name="Default" comment="ui tweaks II">
       <change beforePath="$PROJECT_DIR$/../businesslibrary/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/api/auto_trader.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/api/auto_trader.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/api/data_api3.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/api/data_api3.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/api/storage_api.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/api/storage_api.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../businesslibrary/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/pubspec.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/.idea/libraries/Dart_Packages.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../govt/.idea/libraries/Dart_Packages.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/.idea/libraries/Dart_SDK.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../govt/.idea/libraries/Dart_SDK.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/.idea/libraries/Flutter_Plugins.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../govt/.idea/libraries/Flutter_Plugins.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/govt.iml" beforeDir="false" afterPath="$PROJECT_DIR$/../govt/govt.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/mlibrary/mlibrary.iml" beforeDir="false" afterPath="$PROJECT_DIR$/../govt/mlibrary/mlibrary.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/../govt/pubspec.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Dart_SDK.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Dart_SDK.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Flutter_Plugins.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Flutter_Plugins.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/api/signup.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/api/signup.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/util/util.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/util/util.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../crudderv3/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../crudderv3/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../crudderv3/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../crudderv3/lib/main.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../govt/lib/ui/signup_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../govt/lib/ui/signup_page.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/investor.iml" beforeDir="false" afterPath="$PROJECT_DIR$/investor.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/ui/dashboard.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/ui/dashboard.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/ui/invoice_bid_list.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/ui/invoice_bid_list.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/ui/invoice_bidder.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/ui/invoice_bidder.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/ui/offer_list.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/ui/offer_list.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/ui/offers_and_bids.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/ui/offers_and_bids.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../supplierv3/.idea/libraries/Dart_Packages.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/.idea/libraries/Dart_Packages.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../supplierv3/.idea/libraries/Flutter_Plugins.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/.idea/libraries/Flutter_Plugins.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../supplierv3/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../supplierv3/lib/listeners/firestore_listener.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/lib/listeners/firestore_listener.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../supplierv3/lib/storage_api.dart" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../supplierv3/lib/ui/contract_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/lib/ui/contract_page.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../supplierv3/lib/ui/dashboard.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/lib/ui/dashboard.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../supplierv3/lib/ui/offer_details.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/lib/ui/offer_details.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../supplierv3/lib/ui/offer_list.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/lib/ui/offer_list.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../supplierv3/supplierv3.iml" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/supplierv3.iml" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -93,9 +67,9 @@
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="dart" value="15471" />
+          <entry key="dart" value="15476" />
           <entry key="gradle" value="1" />
-          <entry key="txt" value="246" />
+          <entry key="txt" value="249" />
           <entry key="yaml" value="6" />
         </counts>
       </usages-collector>
@@ -108,9 +82,9 @@
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="Dart" value="15471" />
+          <entry key="Dart" value="15476" />
           <entry key="Groovy" value="1" />
-          <entry key="PLAIN_TEXT" value="246" />
+          <entry key="PLAIN_TEXT" value="249" />
           <entry key="YAML" value="6" />
         </counts>
       </usages-collector>
@@ -223,8 +197,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/lib/ui/invoice_bidder.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="384">
-              <caret line="257" column="66" selection-start-line="257" selection-start-column="66" selection-end-line="257" selection-end-column="66" />
+            <state relative-caret-position="308">
+              <caret line="251" column="27" selection-start-line="251" selection-start-column="27" selection-end-line="251" selection-end-column="27" />
               <folding>
                 <element signature="e#1605#1831#0" expanded="true" />
                 <element signature="e#1882#2291#0" expanded="true" />
@@ -257,7 +231,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>ListView.builder</find>
       <find>SharedPrefs.getInvestor</find>
       <find>ProfilePageState._getCachedData</find>
       <find>investor from cache</find>
@@ -287,6 +260,7 @@
       <find>_onSavePressed  ErrorMissingOrInvalidData</find>
       <find>Offer Actions</find>
       <find>Offer Ac</find>
+      <find>USE</find>
     </findStrings>
     <replaceStrings>
       <replace>89.0</replace>
@@ -400,7 +374,7 @@
   </component>
   <component name="PropertiesComponent">
     <property name="android.sdk.path" value="$USER_HOME$/Library/Android/sdk" />
-    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1539672594999" />
+    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1539851945949" />
     <property name="dart.analysis.tool.window.force.activate" value="false" />
     <property name="io.flutter.reload.alreadyRun" value="true" />
     <property name="settings.editor.selected.configurable" value="flutter.settings" />
@@ -579,7 +553,14 @@
       <option name="project" value="LOCAL" />
       <updated>1538297298618</updated>
     </task>
-    <option name="localTasksCounter" value="18" />
+    <task id="LOCAL-00018" summary="ui tweaks II">
+      <created>1539672695828</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1539672695829</updated>
+    </task>
+    <option name="localTasksCounter" value="19" />
     <servers />
   </component>
   <component name="TodoView">
@@ -593,9 +574,8 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="1917" y="23" width="1440" height="1006" extended-state="0" />
-    <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.538874" visible="true" weight="0.14377682" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.538874" visible="true" weight="0.14377682" />
       <window_info id="Structure" order="1" sideWeight="0.461126" side_tool="true" visible="true" weight="0.1223176" />
       <window_info id="Designer" order="2" />
       <window_info id="Build Variants" order="3" side_tool="true" />
@@ -606,7 +586,7 @@
       <window_info id="UI Designer" order="8" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.7287805" visible="true" weight="0.3512035" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.7287805" visible="true" weight="0.3512035" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.39953542" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -652,7 +632,8 @@
     <MESSAGE value="added investor partial bid feature" />
     <MESSAGE value="added close offer when bid reserve is 100%" />
     <MESSAGE value="ui tweaks" />
-    <option name="LAST_COMMIT_MESSAGE" value="ui tweaks" />
+    <MESSAGE value="ui tweaks II" />
+    <option name="LAST_COMMIT_MESSAGE" value="ui tweaks II" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -950,8 +931,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/lib/ui/invoice_bidder.dart">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="384">
-          <caret line="257" column="66" selection-start-line="257" selection-start-column="66" selection-end-line="257" selection-end-column="66" />
+        <state relative-caret-position="308">
+          <caret line="251" column="27" selection-start-line="251" selection-start-column="27" selection-end-line="251" selection-end-column="27" />
           <folding>
             <element signature="e#1605#1831#0" expanded="true" />
             <element signature="e#1882#2291#0" expanded="true" />

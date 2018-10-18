@@ -66,25 +66,27 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       btnText = 'Working...';
       _counter++;
-      msgList.add('Demo data cleanup is complete');
+      msgList.add('### Demo data cleanup is complete');
     });
     await DataAPI3.addSectors();
 
     setState(() {
-      msgList.add('Sectors added to BFN and Firestore');
+      msgList.add('### Sectors added to BFN and Firestore');
       _counter++;
+    });
+
+    await _addCustomers();
+    setState(() {
+      _counter++;
+      msgList.add('### Customers added to BFN and Firestore');
     });
     await _generateSuppliers();
     setState(() {
       _counter++;
-      msgList.add('Suppliers added to BFN and Firestore');
-    });
-    await _addCustomers();
-    setState(() {
-      _counter++;
-      msgList.add('Customers added to BFN and Firestore');
+      msgList.add('### Suppliers added to BFN and Firestore');
     });
     await _addInvestors();
+
     var end = DateTime.now();
     var diffm = end.difference(start).inMinutes;
     var diffs = end.difference(start).inSeconds;
@@ -94,9 +96,9 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       _counter++;
       btnText = 'Done';
-      msgList.add('Investors added to BFN and Firestore');
+      msgList.add('### Investors added to BFN and Firestore');
       msgList.add(
-          'Demo Data Generation complete:, $diffm minutes elapsed. ($diffs seconds)');
+          '### Demo Data Generation complete:, $diffm minutes elapsed. ($diffs seconds)');
     });
     print(
         '_MyHomePageState._start  #####################################  Demo Data COMPLETED!');
@@ -105,9 +107,10 @@ class _MyHomePageState extends State<MyHomePage> {
   List<String> msgList = List();
 
   _addCustomers() async {
+    var result;
     GovtEntity e1 = new GovtEntity(
       name: 'Pretoria Engineering',
-      email: 'info@mvengineers.com',
+      email: 'info@ptavengineers.com',
       country: 'South Africa',
     );
     User u1 = new User(
@@ -115,15 +118,19 @@ class _MyHomePageState extends State<MyHomePage> {
         lastName: 'Maluleke',
         password: 'pass123',
         isAdministrator: true,
-        email: 'fanyana@mvengineers.com');
-    await SignUp.signUpGovtEntity(e1, u1);
+        email: 'fanyana@ptaengineers.com');
+    result = await SignUp.signUpGovtEntity(e1, u1);
+    if (result > 0) {
+      print('_MyHomePageState._addCustomers .... quit...');
+      return;
+    }
     setState(() {
       msgList.add('Customer added: ${e1.name}');
     });
 
     GovtEntity e2 = new GovtEntity(
       name: 'Joburg Catering',
-      email: 'info@mcaterer.com',
+      email: 'info@jhbcaterer.com',
       country: 'South Africa',
     );
     User u2 = new User(
@@ -131,15 +138,19 @@ class _MyHomePageState extends State<MyHomePage> {
         lastName: 'Trump',
         password: 'pass123',
         isAdministrator: true,
-        email: 'trump@mcaterer.com');
-    await SignUp.signUpGovtEntity(e2, u2);
+        email: 'orangebaboon@jhbcaterer.com');
+    result = await SignUp.signUpGovtEntity(e2, u2);
+    if (result > 0) {
+      print('_MyHomePageState._addCustomers .... quit...');
+      return;
+    }
     setState(() {
       msgList.add('Customer added: ${e2.name}');
     });
 
     GovtEntity e3 = new GovtEntity(
       name: 'Dept of Agriculture',
-      email: 'info@magric.com',
+      email: 'info@agric.gov.za',
       country: 'South Africa',
     );
     User u3 = new User(
@@ -147,15 +158,19 @@ class _MyHomePageState extends State<MyHomePage> {
         lastName: 'Donnelly',
         password: 'pass123',
         isAdministrator: true,
-        email: 'trump@magric.com');
-    await SignUp.signUpGovtEntity(e3, u3);
+        email: 'kendonnelly@agric.gov.za');
+    result = await SignUp.signUpGovtEntity(e3, u3);
+    if (result > 0) {
+      print('_MyHomePageState._addCustomers .... quit...');
+      return;
+    }
     setState(() {
       msgList.add('Customer added: ${e3.name}');
     });
 
     GovtEntity e4 = new GovtEntity(
       name: 'Dept of Science',
-      email: 'info@mscience.com',
+      email: 'info@mscience.gov.za',
       country: 'South Africa',
     );
     User u4 = new User(
@@ -163,15 +178,19 @@ class _MyHomePageState extends State<MyHomePage> {
         lastName: 'van der Merwe',
         password: 'pass123',
         isAdministrator: true,
-        email: 'ken@mscience.com');
-    await SignUp.signUpGovtEntity(e4, u4);
+        email: 'petervdm@mscience.gov.za');
+    result = await SignUp.signUpGovtEntity(e4, u4);
+    if (result > 0) {
+      print('_MyHomePageState._addCustomers .... quit...');
+      return;
+    }
     setState(() {
       msgList.add('Customer added: ${e4.name}');
     });
 
     GovtEntity e5 = new GovtEntity(
       name: 'Pick n Pay',
-      email: 'info@mpickp.com',
+      email: 'info@pickandpay.com',
       country: 'South Africa',
     );
     User u5 = new User(
@@ -179,14 +198,15 @@ class _MyHomePageState extends State<MyHomePage> {
         lastName: 'Peterson',
         password: 'pass123',
         isAdministrator: true,
-        email: 'harry@mpickandp.com');
-    await SignUp.signUpGovtEntity(e5, u5);
+        email: 'harry@pickandpay.com');
+    result = await SignUp.signUpGovtEntity(e5, u5);
     setState(() {
       msgList.add('Customer added: ${e5.name}');
     });
   }
 
   _addInvestors() async {
+    var result;
     Investor e1 = new Investor(
       name: 'Pretoria Investors Ltd',
       email: 'info@investors.com',
@@ -198,7 +218,11 @@ class _MyHomePageState extends State<MyHomePage> {
         password: 'pass123',
         isAdministrator: true,
         email: 'green@investors.com');
-    await SignUp.signUpInvestor(e1, u1);
+    result = await SignUp.signUpInvestor(e1, u1);
+    if (result > 0) {
+      print('_MyHomePageState.__addInvestors .... quit...');
+      return;
+    }
     setState(() {
       msgList.add('Investor added: ${e1.name}');
     });
@@ -214,7 +238,11 @@ class _MyHomePageState extends State<MyHomePage> {
         password: 'pass123',
         isAdministrator: true,
         email: 'george@invoicegurus.com');
-    await SignUp.signUpInvestor(e2, u2);
+    result = await SignUp.signUpInvestor(e2, u2);
+    if (result > 0) {
+      print('_MyHomePageState.__addInvestors .... quit...');
+      return;
+    }
     setState(() {
       msgList.add('Investor added: ${e2.name}');
     });
@@ -230,7 +258,11 @@ class _MyHomePageState extends State<MyHomePage> {
         password: 'pass123',
         isAdministrator: true,
         email: 'harry@funders.com');
-    await SignUp.signUpInvestor(e3, u3);
+    result = await SignUp.signUpInvestor(e3, u3);
+    if (result > 0) {
+      print('_MyHomePageState.__addInvestors .... quit...');
+      return;
+    }
     setState(() {
       msgList.add('Investor added: ${e3.name}');
     });
@@ -246,14 +278,18 @@ class _MyHomePageState extends State<MyHomePage> {
         password: 'pass123',
         isAdministrator: true,
         email: 'mike@galore.com');
-    await SignUp.signUpInvestor(e4, u4);
+    result = await SignUp.signUpInvestor(e4, u4);
+    if (result > 0) {
+      print('_MyHomePageState.__addInvestors .... quit...');
+      return;
+    }
     setState(() {
       msgList.add('Investor added: ${e4.name}');
     });
 
     Investor e5 = new Investor(
       name: 'CashFlow Kings',
-      email: 'info@mcash.com',
+      email: 'info@mcashkings.com',
       country: 'South Africa',
     );
     User u5 = new User(
@@ -261,8 +297,12 @@ class _MyHomePageState extends State<MyHomePage> {
         lastName: 'Berger',
         password: 'pass123',
         isAdministrator: true,
-        email: 'danb@mcash.com');
-    await SignUp.signUpInvestor(e5, u5);
+        email: 'danb@mcashkings.com');
+    result = await SignUp.signUpInvestor(e5, u5);
+    if (result > 0) {
+      print('_MyHomePageState.__addInvestors .... quit...');
+      return;
+    }
     setState(() {
       msgList.add('Investor added: ${e5.name}');
     });
@@ -617,9 +657,9 @@ class _MyHomePageState extends State<MyHomePage> {
         body: _getListView());
   }
 
-  Future<int> _generateSuppliers() async {
+  _generateSuppliers() async {
     print('Generator.generateSuppliers ............');
-
+    var result;
     try {
       Supplier e1 = new Supplier(
         name: 'Mkhize Electrical',
@@ -632,7 +672,11 @@ class _MyHomePageState extends State<MyHomePage> {
           password: 'pass123',
           isAdministrator: true,
           email: 'dmkhize@mkhize.com');
-      await SignUp.signUpSupplier(e1, u1);
+      result = await SignUp.signUpSupplier(e1, u1);
+      if (result > 0) {
+        print('_MyHomePageState._generateSuppliers .... quit...');
+        return;
+      }
       setState(() {
         msgList.add('Supplier added: ${e1.name}');
       });
@@ -648,7 +692,11 @@ class _MyHomePageState extends State<MyHomePage> {
           password: 'pass123',
           isAdministrator: true,
           email: 'ddlam@dlamini.com');
-      await SignUp.signUpSupplier(e2, u2);
+      result = await SignUp.signUpSupplier(e2, u2);
+      if (result > 0) {
+        print('_MyHomePageState._generateSuppliers .... quit...');
+        return;
+      }
       setState(() {
         msgList.add('Supplier added: ${e2.name}');
       });
@@ -664,7 +712,11 @@ class _MyHomePageState extends State<MyHomePage> {
           password: 'pass123',
           isAdministrator: true,
           email: 'danielkk@engineers.com');
-      await SignUp.signUpSupplier(e5, u5);
+      result = await SignUp.signUpSupplier(e5, u5);
+      if (result > 0) {
+        print('_MyHomePageState._generateSuppliers .... quit...');
+        return;
+      }
       setState(() {
         msgList.add('Supplier added: ${e5.name}');
       });
@@ -680,7 +732,11 @@ class _MyHomePageState extends State<MyHomePage> {
           password: 'pass123',
           isAdministrator: true,
           email: 'petejohn@dhhtransport.com');
-      await SignUp.signUpSupplier(e6, u6);
+      result = await SignUp.signUpSupplier(e6, u6);
+      if (result > 0) {
+        print('_MyHomePageState._generateSuppliers .... quit...');
+        return;
+      }
       setState(() {
         msgList.add('Supplier added: ${e6.name}');
       });
@@ -696,7 +752,11 @@ class _MyHomePageState extends State<MyHomePage> {
           password: 'pass123',
           isAdministrator: true,
           email: 'sam@fxtransport.com');
-      await SignUp.signUpSupplier(e7, u7);
+      result = await SignUp.signUpSupplier(e7, u7);
+      if (result > 0) {
+        print('_MyHomePageState._generateSuppliers .... quit...');
+        return;
+      }
       setState(() {
         msgList.add('Supplier added: ${e7.name}');
       });
@@ -712,7 +772,11 @@ class _MyHomePageState extends State<MyHomePage> {
           password: 'pass123',
           isAdministrator: true,
           email: 'tom@rolliin.com');
-      await SignUp.signUpSupplier(e8, u8);
+      result = await SignUp.signUpSupplier(e8, u8);
+      if (result > 0) {
+        print('_MyHomePageState._generateSuppliers .... quit...');
+        return;
+      }
       setState(() {
         msgList.add('Supplier added: ${e8.name}');
       });
@@ -728,7 +792,11 @@ class _MyHomePageState extends State<MyHomePage> {
           password: 'pass123',
           isAdministrator: true,
           email: 'xman@pope.com');
-      await SignUp.signUpSupplier(e9, u9);
+      result = await SignUp.signUpSupplier(e9, u9);
+      if (result > 0) {
+        print('_MyHomePageState._generateSuppliers .... quit...');
+        return;
+      }
       setState(() {
         msgList.add('Supplier added: ${e9.name}');
       });
@@ -744,7 +812,11 @@ class _MyHomePageState extends State<MyHomePage> {
           password: 'pass123',
           isAdministrator: true,
           email: 'pete@naidoo.com');
-      await SignUp.signUpSupplier(e10, u10);
+      result = await SignUp.signUpSupplier(e10, u10);
+      if (result > 0) {
+        print('_MyHomePageState._generateSuppliers .... quit...');
+        return;
+      }
       setState(() {
         msgList.add('Supplier added: ${e10.name}');
       });
@@ -760,7 +832,11 @@ class _MyHomePageState extends State<MyHomePage> {
           password: 'pass123',
           isAdministrator: true,
           email: 'eve@greenlogs.com');
-      await SignUp.signUpSupplier(e11, u11);
+      result = await SignUp.signUpSupplier(e11, u11);
+      if (result > 0) {
+        print('_MyHomePageState._generateSuppliers .... quit...');
+        return;
+      }
       setState(() {
         msgList.add('Supplier added: ${e11.name}');
       });
@@ -776,7 +852,11 @@ class _MyHomePageState extends State<MyHomePage> {
           password: 'pass123',
           isAdministrator: true,
           email: 'mary@wendywood.com');
-      await SignUp.signUpSupplier(e12, u12);
+      result = await SignUp.signUpSupplier(e12, u12);
+      if (result > 0) {
+        print('_MyHomePageState._generateSuppliers .... quit...');
+        return;
+      }
       setState(() {
         msgList.add('Supplier added: ${e12.name}');
       });
@@ -791,7 +871,11 @@ class _MyHomePageState extends State<MyHomePage> {
           password: 'pass123',
           isAdministrator: true,
           email: 'xavier@xavier.com');
-      await SignUp.signUpSupplier(e13, u13);
+      result = await SignUp.signUpSupplier(e13, u13);
+      if (result > 0) {
+        print('_MyHomePageState._generateSuppliers .... quit...');
+        return;
+      }
       setState(() {
         msgList.add('Supplier added: ${e13.name}');
       });
@@ -807,17 +891,21 @@ class _MyHomePageState extends State<MyHomePage> {
           password: 'pass123',
           isAdministrator: true,
           email: 'danj@logs.com');
-      await SignUp.signUpSupplier(e14, u14);
+      result = await SignUp.signUpSupplier(e14, u14);
+      if (result > 0) {
+        print('_MyHomePageState._generateSuppliers .... quit...');
+        return;
+      }
       print('Generator.generateSuppliers COMPLETED');
       setState(() {
         msgList.add('Supplier added: ${e14.name}');
       });
     } catch (e) {
       print('Generator.generateSuppliers ERROR $e');
-      return 1;
+      return;
     }
 
-    return 0;
+    return;
   }
 
   _getListView() {

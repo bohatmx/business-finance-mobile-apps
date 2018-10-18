@@ -32,7 +32,7 @@ class SignUpPage extends StatefulWidget {
 
 class _SignUpPageState extends State<SignUpPage>
     implements SnackBarListener, FCMListener {
-  var name,
+  String name,
       email,
       address,
       cellphone,
@@ -51,7 +51,7 @@ class _SignUpPageState extends State<SignUpPage>
   List<DropdownMenuItem> items = List();
   Country country;
   var govtEntityType;
-
+  var btnOpacity = 1.0;
   @override
   initState() {
     super.initState();
@@ -63,13 +63,15 @@ class _SignUpPageState extends State<SignUpPage>
   _debug() {
     if (isInDebugMode) {
       Random rand = new Random(new DateTime.now().millisecondsSinceEpoch);
-      var num = rand.nextInt(1000);
+      var num = rand.nextInt(10000);
       name = '${entities.elementAt(rand.nextInt(entities.length - 1))}';
-      adminEmail = 'admin$num@gov.co.za';
-      email = 'info$num@gov.co.za';
+
+      email = 'info$num@customeremail.co.za';
       firstName =
           '${firstNames.elementAt(rand.nextInt(firstNames.length - 1))}';
       lastName = '${lastNames.elementAt(rand.nextInt(lastNames.length - 1))}';
+      adminEmail =
+          '${firstName.toLowerCase()}.${lastName.toLowerCase()}$num@customeremail.co.za';
       password = 'pass123';
       autoAccept = true;
       country = Country(name: 'South Africa', code: 'ZA');
@@ -98,57 +100,6 @@ class _SignUpPageState extends State<SignUpPage>
 
   @override
   Widget build(BuildContext context) {
-//    _debug();
-//    items = List();
-//    var item1 = DropdownMenuItem(
-//      value: GovtTypeUtil.National,
-//      child: Row(
-//        children: <Widget>[
-//          Icon(
-//            Icons.apps,
-//            color: Colors.indigo,
-//          ),
-//          new Padding(
-//            padding: const EdgeInsets.only(left: 8.0),
-//            child: Text('National'),
-//          )
-//        ],
-//      ),
-//    );
-//    items.add(item1);
-//    var item2 = DropdownMenuItem(
-//      value: GovtTypeUtil.Provincial,
-//      child: Row(
-//        children: <Widget>[
-//          Icon(
-//            Icons.apps,
-//            color: Colors.pink,
-//          ),
-//          new Padding(
-//            padding: const EdgeInsets.only(left: 8.0),
-//            child: Text('Provincial'),
-//          )
-//        ],
-//      ),
-//    );
-//    items.add(item2);
-//    var item3 = DropdownMenuItem(
-//      value: GovtTypeUtil.Municipality,
-//      child: Row(
-//        children: <Widget>[
-//          Icon(
-//            Icons.apps,
-//            color: Colors.teal,
-//          ),
-//          new Padding(
-//            padding: const EdgeInsets.only(left: 8.0),
-//            child: Text('Municipality'),
-//          )
-//        ],
-//      ),
-//    );
-//    items.add(item3);
-
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
@@ -294,22 +245,25 @@ class _SignUpPageState extends State<SignUpPage>
                       ),
                     ],
                   ),
-                  new Padding(
-                    padding: const EdgeInsets.only(
-                        left: 28.0, right: 20.0, top: 30.0),
-                    child: RaisedButton(
-                      elevation: 8.0,
-                      color: Colors.red.shade900,
-                      onPressed: _onSavePressed,
-                      child: new Padding(
-                        padding: const EdgeInsets.all(12.0),
-                        child: Text(
-                          'Register to BFN',
-                          style: TextStyle(color: Colors.white, fontSize: 20.0),
-                        ),
-                      ),
-                    ),
-                  )
+                  btnOpacity == 0
+                      ? Container()
+                      : new Padding(
+                          padding: const EdgeInsets.only(
+                              left: 28.0, right: 20.0, top: 30.0),
+                          child: RaisedButton(
+                            elevation: 8.0,
+                            color: Colors.red.shade900,
+                            onPressed: _onSubmit,
+                            child: new Padding(
+                              padding: const EdgeInsets.all(12.0),
+                              child: Text(
+                                'Register to BFN',
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 20.0),
+                              ),
+                            ),
+                          ),
+                        )
                 ],
               ),
             ),
@@ -319,21 +273,15 @@ class _SignUpPageState extends State<SignUpPage>
     );
   }
 
-  void _onSavePressed() async {
-    print('_SignUpPageState._onSavePressed');
+  bool isBusy = false;
+  void _onSubmit() async {
+    if (isBusy) {
+      return;
+    }
+    isBusy = true;
     final form = _formKey.currentState;
     if (form.validate()) {
       form.save();
-//      if (govtEntityType == null) {
-//        AppSnackbar.showErrorSnackbar(
-//            scaffoldKey: _scaffoldKey,
-//            message: 'Please select Category',
-//            listener: this,
-//            actionLabel: 'Close');
-//        return;
-//      }
-      print('GovtEntityForm._onSavePressed: will send submit now ....');
-
       GovtEntity govtEntity = GovtEntity(
         name: name,
         email: email,
@@ -355,35 +303,44 @@ class _SignUpPageState extends State<SignUpPage>
         textColor: Colors.lightBlue,
         backgroundColor: Colors.black,
       );
+      setState(() {
+        btnOpacity = 0.0;
+      });
       var result = await SignUp.signUpGovtEntity(govtEntity, admin);
       await checkResult(result);
     }
   }
 
   Future checkResult(int result) async {
+    if (result == SignUp.Success) {
+      print('_SignUpPageState._onSavePressed SUCCESS!!!!!!');
+      await _subscribeToFCM();
+      var wallet = await SharedPrefs.getWallet();
+      if (wallet != null) {
+        AppSnackbar.showSnackbarWithAction(
+            scaffoldKey: _scaffoldKey,
+            message: 'Sign up and wallet OK',
+            textColor: Colors.white,
+            backgroundColor: Colors.teal.shade800,
+            actionLabel: 'DONE',
+            listener: this,
+            action: 0,
+            icon: Icons.done_all);
+      } else {
+        //TODO - deal with error - wallet NOT on blockchain
+        exit();
+      }
+      return SignUp.Success;
+    }
+    setState(() {
+      btnOpacity = 1.0;
+      isBusy = false;
+    });
     switch (result) {
-      case SignUp.Success:
-        print('_SignUpPageState._onSavePressed SUCCESS!!!!!!');
-        await _subscribeToFCM();
-        var wallet = await SharedPrefs.getWallet();
-        if (wallet != null) {
-          AppSnackbar.showSnackbarWithAction(
-              scaffoldKey: _scaffoldKey,
-              message: 'Sign up and wallet OK',
-              textColor: Colors.white,
-              backgroundColor: Colors.teal.shade800,
-              actionLabel: 'DONE',
-              listener: this,
-              action: 0,
-              icon: Icons.done_all);
-        } else {
-          //TODO - deal with error - wallet NOT on blockchain
-          exit();
-        }
-        break;
       case SignUp.ErrorBlockchain:
         print('_SignUpPageState._onSavePressed  ErrorBlockchain');
         _showSignUpError('Blockchain error');
+        btnOpacity = 1.0;
         break;
       case SignUp.ErrorMissingOrInvalidData:
         print('_SignUpPageState._onSavePressed  ErrorMissingOrInvalidData');

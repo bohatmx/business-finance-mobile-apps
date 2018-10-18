@@ -10,7 +10,7 @@ const NameSpace = 'resource:com.oneconnect.biz.';
 const DEBUG_URL_HOME = 'http://192.168.86.238:3003/api/'; //FIBRE
 const DEBUG_URL_ROUTER = 'http://192.168.8.237:3003/api/'; //ROUTER
 
-const USE_LOCAL_BLOCKCHAIN = true;
+const USE_LOCAL_BLOCKCHAIN = false;
 
 String getURL() {
   var url;

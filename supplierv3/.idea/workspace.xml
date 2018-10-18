@@ -5,41 +5,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="80b8d4ed-f360-4af7-bada-dfcc0519f100" name="Default" comment="refactored demo data generation">
-      <change beforePath="$PROJECT_DIR$/../businesslibrary/.flutter-plugins" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/.flutter-plugins" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../businesslibrary/.idea/libraries/Dart_Packages.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/.idea/libraries/Dart_Packages.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../businesslibrary/.idea/libraries/Dart_SDK.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/.idea/libraries/Dart_SDK.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../businesslibrary/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/api/auto_trader.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/api/auto_trader.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/api/data_api3.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/api/data_api3.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/api/storage_api.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/api/storage_api.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../businesslibrary/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/pubspec.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/.idea/libraries/Dart_Packages.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../govt/.idea/libraries/Dart_Packages.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/.idea/libraries/Dart_SDK.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../govt/.idea/libraries/Dart_SDK.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/.idea/libraries/Flutter_Plugins.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../govt/.idea/libraries/Flutter_Plugins.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/govt.iml" beforeDir="false" afterPath="$PROJECT_DIR$/../govt/govt.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/mlibrary/mlibrary.iml" beforeDir="false" afterPath="$PROJECT_DIR$/../govt/mlibrary/mlibrary.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/../govt/pubspec.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../investor/.idea/libraries/Dart_Packages.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../investor/.idea/libraries/Dart_Packages.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../investor/.idea/libraries/Dart_SDK.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../investor/.idea/libraries/Dart_SDK.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../investor/.idea/libraries/Flutter_Plugins.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../investor/.idea/libraries/Flutter_Plugins.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/api/signup.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/api/signup.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/util/util.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/util/util.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../crudderv3/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../crudderv3/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../crudderv3/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../crudderv3/lib/main.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../govt/lib/ui/signup_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../govt/lib/ui/signup_page.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../investor/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../investor/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../investor/investor.iml" beforeDir="false" afterPath="$PROJECT_DIR$/../investor/investor.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../investor/lib/ui/dashboard.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../investor/lib/ui/dashboard.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../investor/lib/ui/invoice_bid_list.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../investor/lib/ui/invoice_bid_list.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../investor/lib/ui/invoice_bidder.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../investor/lib/ui/invoice_bidder.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../investor/lib/ui/offer_list.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../investor/lib/ui/offer_list.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../investor/lib/ui/offers_and_bids.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../investor/lib/ui/offers_and_bids.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../investor/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/../investor/pubspec.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Flutter_Plugins.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Flutter_Plugins.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/listeners/firestore_listener.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/listeners/firestore_listener.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/storage_api.dart" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/ui/contract_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/ui/contract_page.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/ui/dashboard.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/ui/dashboard.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/ui/offer_details.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/ui/offer_details.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/ui/offer_list.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/ui/offer_list.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/supplierv3.iml" beforeDir="false" afterPath="$PROJECT_DIR$/supplierv3.iml" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <ignored path="../.gradle/4.4/fileChanges/last-build.bin" />
@@ -744,7 +718,6 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="1915" y="23" width="1440" height="1006" extended-state="0" />
-    <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" sideWeight="0.48242188" visible="true" weight="0.17668097" />
       <window_info id="Structure" order="1" sideWeight="0.5175781" side_tool="true" visible="true" weight="0.18884121" />

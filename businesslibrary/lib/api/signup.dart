@@ -86,11 +86,7 @@ class SignUp {
     govtEntity.participantId = DataAPI.getKey();
     admin.govtEntity =
         'resource:com.oneconnect.biz.GovtEntity#${govtEntity.participantId}';
-    FirebaseUser fbUser = await _createUser(admin.email, admin.password);
-    if (fbUser == null) {
-      return ErrorCreatingFirebaseUser;
-    }
-    admin.uid = fbUser.uid;
+
     if (USE_LOCAL_BLOCKCHAIN) {
       var key = await DataAPI.addGovtEntity(govtEntity, admin);
       if (key == '0') {
@@ -103,7 +99,6 @@ class SignUp {
       }
     }
 
-    admin.uid = fbUser.uid;
     await SharedPrefs.saveUser(admin);
     await SharedPrefs.saveGovtEntity(govtEntity);
     print(
@@ -127,12 +122,12 @@ class SignUp {
     }
     admin.supplier =
         'resource:com.oneconnect.biz.Supplier#${supplier.participantId}';
-    FirebaseUser fbUser = await _createUser(admin.email, admin.password);
-    if (fbUser == null) {
-      return ErrorCreatingFirebaseUser;
-    }
+//    FirebaseUser fbUser = await _createUser(admin.email, admin.password);
+//    if (fbUser == null) {
+//      return ErrorCreatingFirebaseUser;
+//    }
     supplier.dateRegistered = getUTCDate();
-    admin.uid = fbUser.uid;
+//    admin.uid = fbUser.uid;
     if (USE_LOCAL_BLOCKCHAIN) {
       var key = await DataAPI.addSupplier(supplier, admin);
       if (key == '0') {
@@ -170,11 +165,11 @@ class SignUp {
     investor.dateRegistered = getUTCDate();
     admin.investor =
         'resource:com.oneconnect.biz.Investor#${investor.participantId}';
-    FirebaseUser fbUser = await _createUser(admin.email, admin.password);
-    if (fbUser == null) {
-      return ErrorCreatingFirebaseUser;
-    }
-    admin.uid = fbUser.uid;
+//    FirebaseUser fbUser = await _createUser(admin.email, admin.password);
+//    if (fbUser == null) {
+//      return ErrorCreatingFirebaseUser;
+//    }
+//    admin.uid = fbUser.uid;
     if (USE_LOCAL_BLOCKCHAIN) {
       var result = await DataAPI.addInvestor(investor, admin);
       if (result == '0') {

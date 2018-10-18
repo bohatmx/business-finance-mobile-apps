@@ -37,6 +37,7 @@ class DataAPI3 {
   static String url =
       'https://us-central1-business-finance-dev.cloudfunctions.net/';
   static const ADD_DATA = 'addData',
+      ADD_PARTICIPANT = 'addParticipant',
       EXECUTE_AUTO_TRADES = 'executeAutoTrade',
       REGISTER_PURCHASE_ORDER = 'registerPurchaseOrder',
       REGISTER_INVOICE = 'registerInvoice',
@@ -367,17 +368,21 @@ class DataAPI3 {
   }
 
   //////////// ###################################### //////////
-  static Future<int> addGovtEntity(GovtEntity govtEntity, User user) async {
+  static Future<int> addGovtEntity(GovtEntity govtEntity, User admin) async {
+    assert(govtEntity != null);
+    assert(admin != null);
     if (USE_LOCAL_BLOCKCHAIN) {
-      var res = await DataAPI.addGovtEntity(govtEntity, user);
+      var res = await DataAPI.addGovtEntity(govtEntity, admin);
       return res == '0' ? DataAPI3.BlockchainError : DataAPI3.Success;
     }
     print(
         'DataAPI3.addGovtEntity ==============>>>> ........... ${govtEntity.toJson()}');
-    print('DataAPI3.addGovtEntity ))))))) URL: $url$ADD_DATA');
+    print('DataAPI3.addGovtEntity ))))))) URL: $url$ADD_PARTICIPANT');
     govtEntity.participantId = getKey();
     govtEntity.dateRegistered = getUTCDate();
-    user.govtEntity =
+    admin.userId = getKey();
+    admin.dateRegistered = getUTCDate();
+    admin.govtEntity =
         'resource:com.oneconnect.biz.GovtEntity#${govtEntity.participantId}';
     var seed;
     if (!isInDebugMode) {
@@ -386,13 +391,13 @@ class DataAPI3 {
     var bag = APIBag(
         debug: isInDebugMode,
         data: govtEntity.toJson(),
-        user: user.toJson(),
+        user: admin.toJson(),
         sourceSeed: seed,
         apiSuffix: 'GovtEntity',
         collectionName: 'govtEntities');
     try {
       HttpClientRequest mRequest =
-          await _httpClient.postUrl(Uri.parse(url + ADD_DATA));
+          await _httpClient.postUrl(Uri.parse(url + ADD_PARTICIPANT));
       mRequest.headers.contentType = _contentType;
       mRequest.write(json.encode(bag.toJson()));
 
@@ -432,7 +437,10 @@ class DataAPI3 {
         }
         return Success;
       } else {
-        print('DataAPI3.addGovtEntity ERROR  ${resp.reasonPhrase}');
+        resp.listen((data) {
+          print(data);
+        });
+        print('DataAPI3.addGovtEntity ERROR  ${resp..reasonPhrase}');
         return BlockchainError;
       }
     } catch (e) {
@@ -646,14 +654,18 @@ class DataAPI3 {
     }
   }
 
-  static Future<int> addSupplier(Supplier supplier, User user) async {
+  static Future<int> addSupplier(Supplier supplier, User admin) async {
+    assert(supplier != null);
+    assert(admin != null);
     if (USE_LOCAL_BLOCKCHAIN) {
-      var res = await DataAPI.addSupplier(supplier, user);
+      var res = await DataAPI.addSupplier(supplier, admin);
       return res == '0' ? DataAPI3.BlockchainError : DataAPI3.Success;
     }
     supplier.dateRegistered = getUTCDate();
     supplier.participantId = getKey();
-    user.supplier =
+    admin.userId = getKey();
+    admin.dateRegistered = getUTCDate();
+    admin.supplier =
         'resource:com.oneconnect.biz.Supplier#${supplier.participantId}';
     var seed;
     if (!isInDebugMode) {
@@ -662,15 +674,15 @@ class DataAPI3 {
     var bag = APIBag(
         debug: isInDebugMode,
         data: supplier.toJson(),
-        user: user.toJson(),
+        user: admin.toJson(),
         sourceSeed: seed,
         apiSuffix: 'Supplier',
         collectionName: 'suppliers');
-    print('DataAPI3.addSupplier url: ${url + ADD_DATA}');
+    print('DataAPI3.addSupplier url: ${url + ADD_PARTICIPANT}');
     try {
       var httpClient = new HttpClient();
       HttpClientRequest mRequest =
-          await httpClient.postUrl(Uri.parse(url + ADD_DATA));
+          await httpClient.postUrl(Uri.parse(url + ADD_PARTICIPANT));
       mRequest.headers.contentType = _contentType;
       mRequest.write(json.encode(bag.toJson()));
       HttpClientResponse mResponse = await mRequest.close();
@@ -678,8 +690,9 @@ class DataAPI3 {
           'DataAPI3.addSupplier blockchain response status code:  ${mResponse.statusCode}');
       if (mResponse.statusCode == 200) {
         mResponse.transform(utf8.decoder).listen((contents) {
-          supplier.documentReference = contents.split('/').elementAt(1);
           print('DataAPI3.addSupplier ****************** contents: $contents');
+          supplier.documentReference = contents.split('/').elementAt(1);
+
           SharedPrefs.saveSupplier(supplier);
         });
         var qs = await fs
@@ -761,14 +774,18 @@ class DataAPI3 {
     }
   }
 
-  static Future<int> addInvestor(Investor investor, User user) async {
+  static Future<int> addInvestor(Investor investor, User admin) async {
+    assert(investor != null);
+    assert(admin != null);
     if (USE_LOCAL_BLOCKCHAIN) {
-      var res = await DataAPI.addInvestor(investor, user);
+      var res = await DataAPI.addInvestor(investor, admin);
       return res == '0' ? DataAPI3.BlockchainError : DataAPI3.Success;
     }
     investor.dateRegistered = getUTCDate();
     investor.participantId = getKey();
-    user.investor =
+    admin.userId = getKey();
+    admin.dateRegistered = getUTCDate();
+    admin.investor =
         'resource:com.oneconnect.biz.Investor#${investor.participantId}';
     var seed;
     if (!isInDebugMode) {
@@ -777,17 +794,17 @@ class DataAPI3 {
     var bag = APIBag(
         debug: isInDebugMode,
         data: investor.toJson(),
-        user: user.toJson(),
+        user: admin.toJson(),
         sourceSeed: seed,
         apiSuffix: 'Investor',
         collectionName: 'investors');
-    print('DataAPI3.addInvestor   ${url + ADD_DATA}');
+    print('DataAPI3.addInvestor   ${url + ADD_PARTICIPANT}');
     prettyPrint(bag.toJson(), 'DataAPI3.addInvestor : ');
 
     try {
       var httpClient = new HttpClient();
       HttpClientRequest mRequest =
-          await httpClient.postUrl(Uri.parse(url + ADD_DATA));
+          await httpClient.postUrl(Uri.parse(url + ADD_PARTICIPANT));
       mRequest.headers.contentType = _contentType;
       mRequest.write(json.encode(bag.toJson()));
       HttpClientResponse mResponse = await mRequest.close();
