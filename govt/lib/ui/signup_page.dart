@@ -19,6 +19,7 @@ import 'package:businesslibrary/data/wallet.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/selectors.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
+import 'package:businesslibrary/util/styles.dart';
 import 'package:businesslibrary/util/util.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -125,6 +126,19 @@ class _SignUpPageState extends State<SignUpPage>
                           fontSize: 14.0,
                           fontWeight: FontWeight.w900),
                     ),
+                  ),
+                  Row(
+                    children: <Widget>[
+                      Text(
+                        'Allow Invoice Acceptance?',
+                        style: Styles.greyLabelSmall,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 20.0),
+                        child:
+                            Switch(value: autoAccept, onChanged: _autoChanged),
+                      ),
+                    ],
                   ),
                   TextFormField(
                     initialValue: name == null ? '' : name,
@@ -469,6 +483,7 @@ class _SignUpPageState extends State<SignUpPage>
   }
 
   void _autoChanged(bool value) {
+    print('_SignUpPageState._autoChanged: value = $value');
     autoAccept = value;
     setState(() {});
   }

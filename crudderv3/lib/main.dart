@@ -110,8 +110,9 @@ class _MyHomePageState extends State<MyHomePage> {
     var result;
     GovtEntity e1 = new GovtEntity(
       name: 'Pretoria Engineering',
-      email: 'info@ptavengineers.com',
+      email: 'info@ptavengineersa.com',
       country: 'South Africa',
+      allowAutoAccept: true,
     );
     User u1 = new User(
         firstName: 'Fanyana',
@@ -132,6 +133,7 @@ class _MyHomePageState extends State<MyHomePage> {
       name: 'Joburg Catering',
       email: 'info@jhbcaterer.com',
       country: 'South Africa',
+      allowAutoAccept: true,
     );
     User u2 = new User(
         firstName: 'Donald',
@@ -152,6 +154,7 @@ class _MyHomePageState extends State<MyHomePage> {
       name: 'Dept of Agriculture',
       email: 'info@agric.gov.za',
       country: 'South Africa',
+      allowAutoAccept: true,
     );
     User u3 = new User(
         firstName: 'Kenneth',
@@ -172,6 +175,7 @@ class _MyHomePageState extends State<MyHomePage> {
       name: 'Dept of Science',
       email: 'info@mscience.gov.za',
       country: 'South Africa',
+      allowAutoAccept: true,
     );
     User u4 = new User(
         firstName: 'Peter',
@@ -192,6 +196,7 @@ class _MyHomePageState extends State<MyHomePage> {
       name: 'Pick n Pay',
       email: 'info@pickandpay.com',
       country: 'South Africa',
+      allowAutoAccept: true,
     );
     User u5 = new User(
         firstName: 'Harry',
