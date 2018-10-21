@@ -1,17 +1,12 @@
-import 'dart:collection';
-
-import 'package:businesslibrary/api/auto_trade.dart';
 import 'package:businesslibrary/data/invoice_bid.dart';
-import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:flutter/material.dart';
 
 class JournalPage extends StatefulWidget {
   final List<InvoiceBid> bids;
-  final List<ExecutionUnit> units;
 
-  JournalPage({this.bids, this.units});
+  JournalPage({this.bids});
 
   @override
   _JournalPageState createState() => _JournalPageState();
@@ -24,7 +19,6 @@ class _JournalPageState extends State<JournalPage> {
   int totalBids = 0;
   int totalInvalids = 0;
   List<InvoiceBid> bids;
-  List<ExecutionUnit> units;
   @override
   initState() {
     super.initState();
@@ -119,7 +113,7 @@ class _JournalPageState extends State<JournalPage> {
                   child: Text('Total Bids'),
                 ),
                 Text(
-                  '${units.length}',
+                  '${bids.length}',
                   style: Styles.blueBoldMedium,
                 ),
               ],
@@ -127,17 +121,17 @@ class _JournalPageState extends State<JournalPage> {
           ),
           new Flexible(
             child: new ListView.builder(
-                itemCount: units == null ? 0 : units.length,
+                itemCount: bids == null ? 0 : bids.length,
                 itemBuilder: (BuildContext context, int index) {
                   return new GestureDetector(
                     onTap: () {
-                      _showInvalidDetail(units.elementAt(index));
+                      _showBidDetail(bids.elementAt(index));
                     },
                     child: Padding(
                       padding: const EdgeInsets.only(
                           top: 4.0, bottom: 4.0, left: 4.0, right: 4.0),
-                      child: ExecUnitCard(
-                        unit: units.elementAt(index),
+                      child: InvoiceBidCard(
+                        bid: bids.elementAt(index),
                       ),
                     ),
                   );
@@ -149,25 +143,24 @@ class _JournalPageState extends State<JournalPage> {
   }
 
   void _calcInvalids() {
-    var map = HashMap<String, Offer>();
-    units.forEach((m) {
-      map['${m.offer.offerId}'] = m.offer;
-    });
-    totalInvalidAmount = 0.00;
-    totalBidAmount = 0.00;
-
-    map.forEach((key, off) {
-      totalInvalidAmount += off.offerAmount;
-    });
-    bids.forEach((m) {
-      totalBidAmount += m.amount;
-    });
+//    var map = HashMap<String, Offer>();
+//    bids.forEach((m) {
+//      map['${m.offer}'] = m.offer;
+//    });
+//    totalInvalidAmount = 0.00;
+//    totalBidAmount = 0.00;
+//
+//    map.forEach((key, off) {
+//      totalInvalidAmount += off.offerAmount;
+//    });
+//    bids.forEach((m) {
+//      totalBidAmount += m.amount;
+//    });
   }
 
   @override
   Widget build(BuildContext context) {
     bids = widget.bids;
-    units = widget.units;
     _calcInvalids();
     return DefaultTabController(
       length: 3,
@@ -205,8 +198,6 @@ class _JournalPageState extends State<JournalPage> {
   }
 
   void _showBidDetail(InvoiceBid elementAt) {}
-
-  void _showInvalidDetail(ExecutionUnit elementAt) {}
 }
 
 class InvoiceBidCard extends StatelessWidget {
@@ -279,84 +270,6 @@ class InvoiceBidCard extends StatelessWidget {
                           ? '0.00'
                           : getFormattedAmount('${bid.amount}', context),
                       style: Styles.tealBoldMedium),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class ExecUnitCard extends StatelessWidget {
-  final ExecutionUnit unit;
-
-  ExecUnitCard({this.unit});
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      elevation: 4.0,
-      color: Colors.purple.shade50,
-      child: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: Column(
-          children: <Widget>[
-            Row(
-              children: <Widget>[
-                Text(' Date', style: Styles.greyLabelSmall),
-                Padding(
-                  padding: const EdgeInsets.only(left: 8.0),
-                  child: Text(
-                      unit.date == null
-                          ? getFormattedDate(DateTime.now().toIso8601String())
-                          : getFormattedDateLong('${unit.date}', context),
-                      style: Styles.blueBoldSmall),
-                ),
-              ],
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 8.0),
-              child: Row(
-                children: <Widget>[
-                  Text('Bid Time', style: Styles.greyLabelSmall),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 8.0),
-                    child: Text(
-                        unit.date == null
-                            ? '0.00'
-                            : getFormattedDateHour('${unit.date}'),
-                        style: Styles.purpleBoldSmall),
-                  ),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 20.0),
-              child: Row(
-                children: <Widget>[
-                  Text('Investor', style: Styles.greyLabelSmall),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 8.0),
-                    child: Text(unit.profile.name,
-                        style: TextStyle(
-                            color: Colors.grey.shade600, fontSize: 20.0)),
-                  ),
-                ],
-              ),
-            ),
-            Row(
-              children: <Widget>[
-                Text('Amount', style: Styles.greyLabelSmall),
-                Padding(
-                  padding: const EdgeInsets.only(left: 8.0),
-                  child: Text(
-                      unit.offer.offerAmount == null
-                          ? '0.00'
-                          : getFormattedAmount(
-                              '${unit.offer.offerAmount}', context),
-                      style: Styles.blackBoldMedium),
                 ),
               ],
             ),

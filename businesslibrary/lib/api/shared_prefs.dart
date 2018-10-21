@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:businesslibrary/data/auditor.dart';
+import 'package:businesslibrary/data/auto_start_stop.dart';
 import 'package:businesslibrary/data/auto_trade_order.dart';
 import 'package:businesslibrary/data/bank.dart';
 import 'package:businesslibrary/data/company.dart';
@@ -116,6 +117,34 @@ class SharedPrefs {
       return investorProfile;
     } catch (e) {
       print('SharedPrefs.getInvestorProfile ERROR $e');
+      return null;
+    }
+  }
+
+  static Future saveAutoTradeStart(AutoTradeStart start) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    Map jsonx = start.toJson();
+    var jx = json.encode(jsonx);
+    prefs.setString('start', jx);
+    print("SharedPrefs.saveAutoTradeStart =========  data SAVED.........");
+  }
+
+  static Future<AutoTradeStart> getAutoTradeStart() async {
+    print(
+        "SharedPrefs.getAutoTradeStart =========  getting cached data.........");
+    var prefs = await SharedPreferences.getInstance();
+    var string = prefs.getString('start');
+    if (string == null) {
+      print('SharedPrefs.getAutoTradeStart is NULL');
+      return null;
+    }
+    try {
+      var jx = json.decode(string);
+      var start = AutoTradeStart.fromJson(jx);
+      return start;
+    } catch (e) {
+      print('SharedPrefs.getAutoTradeStart ERROR $e');
       return null;
     }
   }

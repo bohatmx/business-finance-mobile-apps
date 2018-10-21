@@ -7,6 +7,7 @@ import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/api/signup.dart';
 import 'package:businesslibrary/data/api_bag.dart';
 import 'package:businesslibrary/data/auditor.dart';
+import 'package:businesslibrary/data/auto_start_stop.dart';
 import 'package:businesslibrary/data/auto_trade_order.dart';
 import 'package:businesslibrary/data/bank.dart';
 import 'package:businesslibrary/data/delivery_acceptance.dart';
@@ -441,8 +442,8 @@ class DataAPI3 {
     }
   }
 
-  static Future<String> executeAutoTrades() async {
-    print('DataAPI3.executeAutoTrades url: ${url + EXECUTE_AUTO_TRADES}');
+  static Future<int> executeAutoTrades() async {
+    print('\n\n\nDataAPI3.executeAutoTrades url: ${url + EXECUTE_AUTO_TRADES}');
     try {
       var httpClient = new HttpClient();
       HttpClientRequest mRequest =
@@ -452,18 +453,24 @@ class DataAPI3 {
       HttpClientResponse mResponse = await mRequest.close();
       print(
           'DataAPI3.executeAutoTrades ######## blockchain response status code:  ${mResponse.statusCode}');
-      mResponse.transform(utf8.decoder).listen((contents) {
-        print('DataAPI3.executeAutoTrades;  $contents');
+      var summary, mjson;
+
+      mResponse.transform(utf8.decoder).listen((autoResult) {
+        print('DataAPI3.executeAutoTrades;  $autoResult');
+        mjson = json.decode(autoResult);
+        summary = AutoTradeStart.fromJson(mjson);
+        SharedPrefs.saveAutoTradeStart(summary);
       });
       if (mResponse.statusCode == 200) {
-        return 'Auto Trade Session complete';
+        return 0;
       } else {
-        return '0';
+        return 9;
       }
     } catch (e) {
       print('DataAPI3.executeAutoTrades ERROR $e');
-      return '0';
+      return 9;
     }
+    return null;
   }
 
   static Future<int> addSectors() async {

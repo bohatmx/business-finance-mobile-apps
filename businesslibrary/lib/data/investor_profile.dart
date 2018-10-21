@@ -24,13 +24,13 @@ class InvestorProfile {
   InvestorProfile.fromJson(Map data) {
     this.profileId = data['profileId'];
     this.name = data['name'];
-    this.maxInvestableAmount = data['maxInvestableAmount'];
-    this.maxInvoiceAmount = data['maxInvoiceAmount'];
+    this.maxInvestableAmount = data['maxInvestableAmount'] * 1.00;
+    this.maxInvoiceAmount = data['maxInvoiceAmount'] * 1.00;
     this.cellphone = data['cellphone'];
     this.investor = data['investor'];
     this.email = data['email'];
     this.investor = data['investor'];
-    this.minimumDiscount = data['minimumDiscount'];
+    this.minimumDiscount = data['minimumDiscount'] * 1.0;
 
     this.date = data['date'];
     List list = data['sectors'];

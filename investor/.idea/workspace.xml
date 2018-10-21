@@ -1,34 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="b840dc6a-331e-46d9-b624-92fa4c1707ed" name="Default" comment="refactored signup thru cloud functions">
-      <change afterPath="$PROJECT_DIR$/../govt/assets/chime.mp3" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../govt/assets/glass.mp3" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../govt/assets/pin.mp3" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../govt/assets/sms1.mp3" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../govt/assets/sms2.mp3" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../govt/assets/sms3.mp3" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../govt/assets/sms4.mp3" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../govt/assets/ting.mp3" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../govt/lib/sounds.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/api/list_api.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/api/list_api.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/api/signin.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/api/signin.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/util/lookups.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/util/lookups.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../businesslibrary/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/pubspec.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../crudderv3/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../crudderv3/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/.idea/libraries/Dart_Packages.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../govt/.idea/libraries/Dart_Packages.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/.idea/libraries/Flutter_Plugins.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../govt/.idea/libraries/Flutter_Plugins.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/lib/ui/dashboard.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../govt/lib/ui/dashboard.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/../govt/pubspec.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" afterDir="false" />
+    <list default="true" id="b840dc6a-331e-46d9-b624-92fa4c1707ed" name="Default" comment="added invoice bid FCM message to investors">
+      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/api/data_api3.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/api/data_api3.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/data/investor_profile.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/data/investor_profile.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/ui/dashboard.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/ui/dashboard.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/ui/invoice_bidder.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/ui/invoice_bidder.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/ui/signup_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/ui/signup_page.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../supplierv3/.idea/libraries/Dart_Packages.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/.idea/libraries/Dart_Packages.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../monitor/.idea/libraries/Dart_Packages.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../monitor/.idea/libraries/Dart_Packages.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../monitor/.idea/libraries/Flutter_Plugins.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../monitor/.idea/libraries/Flutter_Plugins.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../monitor/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../monitor/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../monitor/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../monitor/lib/main.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../monitor/lib/ui/journal.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../monitor/lib/ui/journal.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../supplierv3/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../supplierv3/lib/ui/invoice_list.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/lib/ui/invoice_list.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../supplierv3/lib/ui/make_offer.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/lib/ui/make_offer.dart" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -41,7 +23,7 @@
     <session id="1039512942">
       <usages-collector id="statistics.lifecycle.project">
         <counts>
-          <entry key="project.closed" value="32" />
+          <entry key="project.closed" value="33" />
           <entry key="project.open.time.100" value="1" />
           <entry key="project.open.time.103" value="1" />
           <entry key="project.open.time.117" value="1" />
@@ -76,12 +58,12 @@
           <entry key="project.open.time.66" value="1" />
           <entry key="project.open.time.72" value="1" />
           <entry key="project.open.time.91" value="1" />
-          <entry key="project.opened" value="42" />
+          <entry key="project.opened" value="43" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
         <counts>
-          <entry key="dart" value="82" />
+          <entry key="dart" value="85" />
           <entry key="gradle" value="1" />
           <entry key="java" value="1" />
           <entry key="yaml" value="5" />
@@ -89,15 +71,15 @@
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="dart" value="16268" />
+          <entry key="dart" value="16275" />
           <entry key="gradle" value="1" />
-          <entry key="txt" value="287" />
+          <entry key="txt" value="329" />
           <entry key="yaml" value="6" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
         <counts>
-          <entry key="Dart" value="82" />
+          <entry key="Dart" value="85" />
           <entry key="Groovy" value="1" />
           <entry key="JAVA" value="1" />
           <entry key="YAML" value="5" />
@@ -105,135 +87,14 @@
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="Dart" value="16268" />
+          <entry key="Dart" value="16275" />
           <entry key="Groovy" value="1" />
-          <entry key="PLAIN_TEXT" value="287" />
+          <entry key="PLAIN_TEXT" value="329" />
           <entry key="YAML" value="6" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.vcs.git.usages" />
     </session>
-  </component>
-  <component name="FileEditorManager">
-    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/lib/ui/signup_page.dart">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="857">
-              <caret line="302" column="28" selection-start-line="302" selection-start-column="28" selection-end-line="302" selection-end-column="28" />
-              <folding>
-                <element signature="e#0#19#0" expanded="true" />
-                <element signature="e#9069#10234#0" expanded="true" />
-                <element signature="e#12728#12841#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/lib/ui/dashboard.dart">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="98">
-              <caret line="447" column="2" selection-start-line="447" selection-start-column="2" selection-end-line="447" selection-end-column="2" />
-              <folding>
-                <element signature="e#0#20#0" expanded="true" />
-                <element signature="e#2389#2767#0" expanded="true" />
-                <element signature="e#2993#3054#0" expanded="true" />
-                <element signature="e#10418#10579#0" expanded="true" />
-                <element signature="e#12463#12637#0" expanded="true" />
-                <element signature="e#12972#13020#0" expanded="true" />
-                <element signature="e#12869#15202#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/../businesslibrary/lib/util/util.dart">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="292">
-              <caret line="55" column="28" selection-start-line="55" selection-start-column="28" selection-end-line="55" selection-end-column="28" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/../businesslibrary/lib/util/lookups.dart">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="188">
-              <caret line="336" selection-start-line="336" selection-end-line="336" />
-              <folding>
-                <element signature="e#10371#10415#0" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/../businesslibrary/lib/data/invoice_bid.dart">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="277">
-              <caret line="33" column="32" lean-forward="true" selection-start-line="33" selection-start-column="32" selection-end-line="33" selection-end-column="32" />
-              <folding>
-                <element signature="e#813#1638#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/lib/ui/invoice_bidder.dart">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="373">
-              <caret line="466" column="25" selection-start-line="466" selection-start-column="25" selection-end-line="466" selection-end-column="25" />
-              <folding>
-                <element signature="e#1205#1366#0" expanded="true" />
-                <element signature="e#1605#1831#0" expanded="true" />
-                <element signature="e#13415#13619#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/../businesslibrary/lib/api/data_api3.dart">
-          <provider selected="true" editor-type-id="text-editor">
-            <state>
-              <folding>
-                <element signature="e#0#20#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/../businesslibrary/lib/api/signup.dart">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="373">
-              <caret line="206" column="1" selection-start-line="206" selection-start-column="1" selection-end-line="206" selection-end-column="1" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/../businesslibrary/lib/data/invoice_acceptance.dart">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="64">
-              <caret line="4" column="23" selection-start-line="1" selection-start-column="2" selection-end-line="9" selection-end-column="35" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/../businesslibrary/lib/data/invoice.dart">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="189">
-              <caret line="18" column="18" selection-start-line="18" selection-start-column="18" selection-end-line="18" selection-end-column="18" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-    </leaf>
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -304,7 +165,6 @@
         <option value="$PROJECT_DIR$/lib/ui/invoice_due_diligence.dart" />
         <option value="$PROJECT_DIR$/android/app/build.gradle" />
         <option value="$PROJECT_DIR$/../businesslibrary/lib/api/shared_prefs.dart" />
-        <option value="$PROJECT_DIR$/../businesslibrary/lib/data/investor_profile.dart" />
         <option value="$PROJECT_DIR$/lib/ui/theme_util.dart" />
         <option value="$PROJECT_DIR$/lib/socket_listener.dart" />
         <option value="$PROJECT_DIR$/../businesslibrary/lib/api/data_api.dart" />
@@ -329,6 +189,7 @@
         <option value="$PROJECT_DIR$/lib/ui/dashboard.dart" />
         <option value="$PROJECT_DIR$/lib/ui/invoice_bidder.dart" />
         <option value="$PROJECT_DIR$/../businesslibrary/lib/util/lookups.dart" />
+        <option value="$PROJECT_DIR$/../businesslibrary/lib/data/investor_profile.dart" />
       </list>
     </option>
   </component>
@@ -342,7 +203,7 @@
     <option name="x" value="1775" />
     <option name="y" value="23" />
     <option name="width" value="1582" />
-    <option name="height" value="1006" />
+    <option name="height" value="1004" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true">
     <ConfirmationsSetting value="2" id="Add" />
@@ -406,7 +267,7 @@
   </component>
   <component name="PropertiesComponent">
     <property name="android.sdk.path" value="$USER_HOME$/Library/Android/sdk" />
-    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1540093440336" />
+    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1540107426206" />
     <property name="dart.analysis.tool.window.force.activate" value="false" />
     <property name="io.flutter.reload.alreadyRun" value="true" />
     <property name="settings.editor.selected.configurable" value="flutter.settings" />
@@ -599,7 +460,14 @@
       <option name="project" value="LOCAL" />
       <updated>1539879295725</updated>
     </task>
-    <option name="localTasksCounter" value="20" />
+    <task id="LOCAL-00020" summary="added invoice bid FCM message to investors">
+      <created>1540094305425</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1540094305426</updated>
+    </task>
+    <option name="localTasksCounter" value="21" />
     <servers />
   </component>
   <component name="TodoView">
@@ -612,9 +480,10 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="1775" y="23" width="1582" height="1006" extended-state="0" />
+    <frame x="1775" y="23" width="1582" height="1004" extended-state="0" />
+    <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.53592235" visible="true" weight="0.17922078" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.53592235" visible="true" weight="0.17922078" />
       <window_info id="Structure" order="1" sideWeight="0.46407768" side_tool="true" visible="true" weight="0.15454546" />
       <window_info id="Designer" order="2" />
       <window_info id="Build Variants" order="3" side_tool="true" />
@@ -625,7 +494,7 @@
       <window_info id="UI Designer" order="8" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.8321951" visible="true" weight="0.6301969" />
+      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.8321951" weight="0.6301969" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.39953542" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -673,7 +542,8 @@
     <MESSAGE value="ui tweaks" />
     <MESSAGE value="ui tweaks II" />
     <MESSAGE value="refactored signup thru cloud functions" />
-    <option name="LAST_COMMIT_MESSAGE" value="refactored signup thru cloud functions" />
+    <MESSAGE value="added invoice bid FCM message to investors" />
+    <option name="LAST_COMMIT_MESSAGE" value="added invoice bid FCM message to investors" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -744,13 +614,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/../businesslibrary/lib/data/investor_profile.dart">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="560">
-          <caret line="35" column="9" selection-start-line="35" selection-start-column="9" selection-end-line="35" selection-end-column="9" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/lib/ui/theme_util.dart">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="48">
@@ -811,13 +674,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="128">
           <caret line="8" column="56" lean-forward="true" selection-start-line="8" selection-start-column="56" selection-end-line="8" selection-end-column="56" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../businesslibrary/lib/api/list_api.dart">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="267">
-          <caret line="117" column="24" selection-start-line="117" selection-start-column="24" selection-end-line="117" selection-end-column="24" />
         </state>
       </provider>
     </entry>
@@ -988,7 +844,7 @@
     <entry file="file://$PROJECT_DIR$/../businesslibrary/lib/data/invoice_bid.dart">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="277">
-          <caret line="33" column="32" lean-forward="true" selection-start-line="33" selection-start-column="32" selection-end-line="33" selection-end-column="32" />
+          <caret line="33" column="32" selection-start-line="33" selection-start-column="32" selection-end-line="33" selection-end-column="32" />
           <folding>
             <element signature="e#813#1638#0" expanded="true" />
           </folding>
@@ -1001,6 +857,36 @@
           <caret line="336" selection-start-line="336" selection-end-line="336" />
           <folding>
             <element signature="e#10371#10415#0" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../businesslibrary/lib/api/list_api.dart">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="203">
+          <caret line="98" selection-start-line="98" selection-end-line="98" />
+          <folding>
+            <element signature="e#3900#4690#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../businesslibrary/lib/data/investor_profile.dart">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-282">
+          <caret line="5" column="18" selection-start-line="5" selection-start-column="18" selection-end-line="5" selection-end-column="18" />
+          <folding>
+            <element signature="e#538#1276#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../businesslibrary/lib/data/auto_start_stop.dart">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="81">
+          <caret line="8" column="12" lean-forward="true" selection-start-line="8" selection-start-column="4" selection-end-line="9" selection-end-column="19" />
+          <folding>
+            <element signature="e#314#560#0" expanded="true" />
           </folding>
         </state>
       </provider>

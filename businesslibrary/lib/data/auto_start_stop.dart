@@ -1,31 +1,42 @@
 class AutoTradeStart {
   String dateStarted;
   String dateEnded;
-  int possibleTrades;
-  double possibleAmount;
-  int elapsedSeconds;
+  int totalValidBids, totalOffers, totalInvalidBids;
+  double possibleAmount, totalAmount, elapsedSeconds;
+  int closedOffers;
 
-  AutoTradeStart({
-    this.dateStarted,
-    this.dateEnded,
-    this.elapsedSeconds,
-    this.possibleAmount,
-    this.possibleTrades,
-  });
+  AutoTradeStart(
+      this.dateStarted,
+      this.dateEnded,
+      this.totalValidBids,
+      this.totalOffers,
+      this.totalInvalidBids,
+      this.possibleAmount,
+      this.totalAmount,
+      this.elapsedSeconds,
+      this.closedOffers);
 
   AutoTradeStart.fromJson(Map data) {
     this.dateStarted = data['dateStarted'];
     this.dateEnded = data['dateEnded'];
-    this.possibleTrades = data['possibleTrades'];
+    this.totalValidBids = data['totalValidBids'];
     this.possibleAmount = data['possibleAmount'] * 1.00;
     this.elapsedSeconds = data['elapsedSeconds'];
+    this.totalOffers = data['totalOffers'];
+    this.totalInvalidBids = data['totalInvalidBids'];
+    this.totalAmount = data['totalAmount'] * 1.0;
+    this.closedOffers = data['closedOffers'];
   }
 
   Map<String, dynamic> toJson() => <String, dynamic>{
         'dateStarted': dateStarted,
         'dateEnded': dateEnded,
-        'possibleTrades': possibleTrades,
+        'totalValidBids': totalValidBids,
         'possibleAmount': possibleAmount,
         'elapsedSeconds': elapsedSeconds,
+        'totalOffers': totalOffers,
+        'totalInvalidBids': totalInvalidBids,
+        'totalAmount': totalAmount,
+        'closedOffers': closedOffers,
       };
 }

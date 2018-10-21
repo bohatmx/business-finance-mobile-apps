@@ -1,24 +1,19 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:businesslibrary/api/data_api3.dart';
-import 'package:businesslibrary/api/file_util.dart';
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/auto_start_stop.dart';
 import 'package:businesslibrary/data/auto_trade_order.dart';
-import 'package:businesslibrary/data/delivery_acceptance.dart';
-import 'package:businesslibrary/data/delivery_note.dart';
 import 'package:businesslibrary/data/investor_profile.dart';
-import 'package:businesslibrary/data/invoice.dart';
-import 'package:businesslibrary/data/invoice_acceptance.dart';
 import 'package:businesslibrary/data/invoice_bid.dart';
 import 'package:businesslibrary/data/offer.dart';
-import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:monitor/local_util.dart';
 import 'package:monitor/ui/theme_util.dart';
 
 void main() => runApp(new MyApp());
@@ -45,9 +40,11 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage>
-    implements BlockchainListener, SnackBarListener {
+    implements SnackBarListener, FCMListener {
   static const NUMBER_OF_BIDS_TO_MAKE = 2;
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  final FirebaseMessaging _firebaseMessaging = new FirebaseMessaging();
+
   List<AutoTradeOrder> _orders;
   List<InvestorProfile> _profiles;
   List<Offer> _offers;
@@ -55,8 +52,11 @@ class _MyHomePageState extends State<MyHomePage>
   @override
   void initState() {
     super.initState();
-//    BlockchainUtil.listenForBlockchainEvents(this);
-    _getLists();
+    _getLists(true);
+    configureMessaging(this);
+    _firebaseMessaging.subscribeToTopic('invoiceBids');
+    print(
+        '_MyHomePageState.initState ############ subscribed to invoiceBids topic');
   }
 
   int minutes = 1;
@@ -69,12 +69,14 @@ class _MyHomePageState extends State<MyHomePage>
     setState(() {});
   }
 
-  _getLists() async {
-    AppSnackbar.showSnackbarWithProgressIndicator(
-        scaffoldKey: _scaffoldKey,
-        message: 'Loading data for trades ...',
-        textColor: Styles.white,
-        backgroundColor: Styles.black);
+  _getLists(bool showSnack) async {
+    if (showSnack) {
+      AppSnackbar.showSnackbarWithProgressIndicator(
+          scaffoldKey: _scaffoldKey,
+          message: 'Loading data for trades ...',
+          textColor: Styles.white,
+          backgroundColor: Styles.black);
+    }
     _orders = await ListAPI.getAutoTradeOrders();
     _profiles = await ListAPI.getInvestorProfiles();
     _offers = await ListAPI.getOpenOffers();
@@ -111,21 +113,35 @@ class _MyHomePageState extends State<MyHomePage>
       print(
           '_MyHomePageState._start:\n\n\n TIMER tripping - starting AUTO TRADE cycle .......time: '
           '${DateTime.now().toIso8601String()}.  mTimer.tick: ${mTimer.tick}...\n\n');
-
-      _showProgress = true;
-      setState(() {});
       _offers = await ListAPI.getOpenOffers();
       if (_offers.isNotEmpty) {
-        var api = DataAPI3();
-        var result = await api.executeAutoTrades();
-        autoTradeStart = await ListAPI.getAutoTradeStart();
-        prettyPrint(autoTradeStart.toJson(), '##### AutoTradeStart');
-        AppSnackbar.showSnackbar(
-            scaffoldKey: _scaffoldKey,
-            message: result,
-            textColor: Styles.white,
-            backgroundColor: Styles.black);
-        _getLists();
+        setState(() {
+          _showProgress = true;
+        });
+        var result = await DataAPI3.executeAutoTrades();
+        if (result > 0) {
+          AppSnackbar.showErrorSnackbar(
+              scaffoldKey: _scaffoldKey,
+              message: 'Problem with Auto Trade Session',
+              listener: this,
+              actionLabel: 'close');
+        } else {
+          sleep(Duration(seconds: 1));
+          autoTradeStart = await SharedPrefs.getAutoTradeStart();
+          print('_MyHomePageState._start ++++ summary in the house!');
+          setState(() {
+            _showProgress = false;
+          });
+          autoTradeStart = await ListAPI.getAutoTradeStart();
+          prettyPrint(
+              autoTradeStart.toJson(), '##### AutoTradeStart from Firestore');
+          AppSnackbar.showSnackbar(
+              scaffoldKey: _scaffoldKey,
+              message: 'Auto Trade Session complete',
+              textColor: Styles.white,
+              backgroundColor: Styles.teal);
+          _getLists(true);
+        }
       } else {
         print('_MyHomePageState._start ***************'
             ' No open offers available. Will try again in $minutes minutes');
@@ -135,38 +151,8 @@ class _MyHomePageState extends State<MyHomePage>
   }
 
   List<InvoiceBid> bids = List();
-  @override
-  onInvoiceAutoBid(InvoiceBid bid) async {
-    this.bids.add(bid);
-    print(
-        '_MyHomePageState.onInvoiceBid -- telling the folks back home we invested in an Offer ))))) ${bid.amount}');
-    try {
-      List<InvoiceBid> mbids = await FileUtil.getInvoiceBids();
-      if (mbids == null) {
-        mbids = List();
-      }
-      bids.forEach((m) {
-        mbids.insert(0, m);
-      });
-      bids.sort((a, b) => b.date.compareTo(a.date));
-      var x = InvoiceBids(bids);
-      await FileUtil.saveInvoiceBids(x);
-    } catch (e) {
-      print('_MyHomePageState.onInvalidTrade  FILE PROBLEM $e');
-    }
-
-    summarize();
-  }
 
   String time, count, amount;
-  @override
-  onComplete(int count) async {
-    print(
-        '_MyHomePageState.onComplete ......... processed; $count timer.tick: ${timer.tick} bids: ${bids.length} offers: ${_offers.length}');
-    _offers = await ListAPI.getOpenOffers();
-    _showProgress = false;
-    summarize();
-  }
 
   void summarize() {
     double t = 0.00;
@@ -191,27 +177,40 @@ class _MyHomePageState extends State<MyHomePage>
   }
 
   void _restart() async {
-    _showProgress = true;
-    setState(() {});
-    await _getLists();
+    await _getLists(true);
     setState(() {});
     print(
-        '\n\n_MyHomePageState._restart ....startting auto trades ........... offers: ${_offers.length}\n\n');
+        '\n\n_MyHomePageState._restart ....starting auto trades ........... offers: ${_offers.length}\n\n');
     if (_orders.isNotEmpty && _profiles.isNotEmpty && _offers.isNotEmpty) {
-      var api = DataAPI3();
-      var result = await api.executeAutoTrades();
-      print('_MyHomePageState._start result: $result');
-      AppSnackbar.showSnackbar(
-          scaffoldKey: _scaffoldKey,
-          message: result,
-          textColor: Styles.white,
-          backgroundColor: Styles.black);
-      var autoStart = await ListAPI.getAutoTradeStart();
-      prettyPrint(autoStart.toJson(), '##### AutoTradeStart');
-      _getLists();
-    } else {
-      _showProgress = false;
-      setState(() {});
+      setState(() {
+        _showProgress = true;
+      });
+      var result = await DataAPI3.executeAutoTrades();
+
+      if (result > 0) {
+        AppSnackbar.showErrorSnackbar(
+            scaffoldKey: _scaffoldKey,
+            message: 'Problem with Auto Trade Session',
+            listener: this,
+            actionLabel: 'close');
+      } else {
+        sleep(Duration(seconds: 2));
+        autoTradeStart = await SharedPrefs.getAutoTradeStart();
+        print('_MyHomePageState._start ++++ summary in the house!');
+        setState(() {
+          _showProgress = false;
+        });
+        AppSnackbar.showSnackbar(
+            scaffoldKey: _scaffoldKey,
+            message: 'Auto Trade Session complete',
+            textColor: Styles.white,
+            backgroundColor: Styles.black);
+        autoTradeStart = await ListAPI.getAutoTradeStart();
+        prettyPrint(
+            autoTradeStart.toJson(), '##### AutoTradeStart from Firestore');
+        setState(() {});
+        _getLists(false);
+      }
     }
   }
 
@@ -276,40 +275,40 @@ class _MyHomePageState extends State<MyHomePage>
     );
   }
 
-  @override
-  onDeliveryAcceptance(DeliveryAcceptance deliveryAcceptance) {
-    print('_MyHomePageState.onDeliveryAcceptance');
-  }
-
-  @override
-  onDeliveryNote(DeliveryNote deliveryNote) {
-    print('_MyHomePageState.onDeliveryNote');
-  }
-
-  @override
-  onInvoice(Invoice invoice) {
-    print('_MyHomePageState.onInvoice');
-  }
-
-  @override
-  onInvoiceAcceptance(InvoiceAcceptance invoiceAcceptance) {
-    print('_MyHomePageState.onInvoiceAcceptance');
-  }
-
-  @override
-  onInvoiceBid(InvoiceBid bid) {
-    print('_MyHomePageState.onInvoiceBid');
-  }
-
-  @override
-  onOffer(Offer offer) {
-    print('_MyHomePageState.onOffer');
-  }
-
-  @override
-  onPurchaseOrder(PurchaseOrder purchaseOrder) {
-    print('_MyHomePageState.onPurchaseOrder');
-  }
+//  @override
+//  onDeliveryAcceptance(DeliveryAcceptance deliveryAcceptance) {
+//    print('_MyHomePageState.onDeliveryAcceptance');
+//  }
+//
+//  @override
+//  onDeliveryNote(DeliveryNote deliveryNote) {
+//    print('_MyHomePageState.onDeliveryNote');
+//  }
+//
+//  @override
+//  onInvoice(Invoice invoice) {
+//    print('_MyHomePageState.onInvoice');
+//  }
+//
+//  @override
+//  onInvoiceAcceptance(InvoiceAcceptance invoiceAcceptance) {
+//    print('_MyHomePageState.onInvoiceAcceptance');
+//  }
+//
+//  @override
+//  onInvoiceBid(InvoiceBid bid) {
+//    print('_MyHomePageState.onInvoiceBid');
+//  }
+//
+//  @override
+//  onOffer(Offer offer) {
+//    print('_MyHomePageState.onOffer');
+//  }
+//
+//  @override
+//  onPurchaseOrder(PurchaseOrder purchaseOrder) {
+//    print('_MyHomePageState.onPurchaseOrder');
+//  }
 
   @override
   onActionPressed(int action) {
@@ -474,7 +473,10 @@ class _MyHomePageState extends State<MyHomePage>
                         Padding(
                           padding: const EdgeInsets.only(left: 2.0),
                           child: Text(
-                            time == null ? '00:00' : time,
+                            autoTradeStart == null
+                                ? '00:00'
+                                : getFormattedDateHour(
+                                    autoTradeStart.dateEnded),
                             style: Styles.purpleBoldLarge,
                           ),
                         ),
@@ -494,7 +496,10 @@ class _MyHomePageState extends State<MyHomePage>
                           Padding(
                             padding: const EdgeInsets.only(left: 2.0),
                             child: Text(
-                              amount == null ? '0.00' : amount,
+                              autoTradeStart == null
+                                  ? '0.00'
+                                  : getFormattedAmount(
+                                      '${autoTradeStart.totalAmount}', context),
                               style: Styles.tealBoldLarge,
                             ),
                           ),
@@ -515,7 +520,9 @@ class _MyHomePageState extends State<MyHomePage>
                           Padding(
                             padding: const EdgeInsets.only(left: 2.0),
                             child: Text(
-                              count == null ? '0' : count,
+                              autoTradeStart == null
+                                  ? '0'
+                                  : '${autoTradeStart.totalValidBids}',
                               style: Styles.blackBoldLarge,
                             ),
                           ),
@@ -536,7 +543,34 @@ class _MyHomePageState extends State<MyHomePage>
                           Padding(
                             padding: const EdgeInsets.only(left: 2.0),
                             child: Text(
-                              '0',
+                              autoTradeStart == null
+                                  ? '0'
+                                  : '${autoTradeStart.totalInvalidBids}',
+                              style: Styles.pinkBoldLarge,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 10.0, bottom: 10.0),
+                      child: Row(
+                        children: <Widget>[
+                          Container(
+                            width: 80.0,
+                            child: Text(
+                              'Possible Amount: ',
+                              style: Styles.greyLabelSmall,
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 2.0),
+                            child: Text(
+                              autoTradeStart == null
+                                  ? '0'
+                                  : getFormattedAmount(
+                                      '${autoTradeStart.possibleAmount}',
+                                      context),
                               style: Styles.pinkBoldLarge,
                             ),
                           ),
@@ -551,5 +585,17 @@ class _MyHomePageState extends State<MyHomePage>
         ),
       ],
     );
+  }
+
+  @override
+  onInvoiceBidMessage(InvoiceBid invoiceBid) {
+    print('_MyHomePageState.onInvoiceBidMessage ${invoiceBid.toJson()}');
+    var msg =
+        'Invoice Bid ${invoiceBid.amount} reserved: ${invoiceBid.reservePercent} \n Bid at: ${getFormattedDateHour(DateTime.now().toIso8601String())}';
+    AppSnackbar.showSnackbar(
+        scaffoldKey: _scaffoldKey,
+        message: msg,
+        textColor: Styles.white,
+        backgroundColor: Styles.teal);
   }
 }
