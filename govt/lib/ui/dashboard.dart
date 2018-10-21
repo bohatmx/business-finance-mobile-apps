@@ -12,6 +12,7 @@ import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:businesslibrary/util/wallet_page.dart';
 import 'package:flutter/material.dart';
+import 'package:govt/sounds.dart';
 import 'package:govt/ui/acceptance.dart';
 import 'package:govt/ui/delivery_note_list.dart';
 import 'package:govt/ui/firestore_listener.dart';
@@ -154,6 +155,7 @@ class _DashboardState extends State<Dashboard>
     await _getInvoices();
     await _getNotes();
     await _getSettlements();
+    Sounds.playChime();
 
     _scaffoldKey.currentState.hideCurrentSnackBar();
   }

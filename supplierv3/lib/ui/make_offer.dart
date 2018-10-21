@@ -161,6 +161,11 @@ class _MakeOfferPageState extends State<MakeOfferPage>
     print(
         'MakeOfferPage._submitOffer ########### invoice: ${invoice.invoiceNumber} --------------\n\n');
     if (submitting) {
+      AppSnackbar.showErrorSnackbar(
+          scaffoldKey: _scaffoldKey,
+          message: 'Offer already submitted',
+          listener: this,
+          actionLabel: 'Close');
       return;
     }
     if (sector == null) {

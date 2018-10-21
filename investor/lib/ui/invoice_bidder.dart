@@ -9,6 +9,8 @@ import 'package:businesslibrary/data/wallet.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/selectors.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
+import 'package:businesslibrary/util/styles.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:investor/ui/invoice_bid_list.dart';
 import 'package:investor/ui/invoice_due_diligence.dart';
@@ -23,8 +25,10 @@ class InvoiceBidder extends StatefulWidget {
 }
 
 class _InvoiceBidderState extends State<InvoiceBidder>
-    implements SnackBarListener {
+    implements SnackBarListener, FCMListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  final FirebaseMessaging _firebaseMessaging = new FirebaseMessaging();
+
   DateTime startTime, endTime;
   Investor investor;
   Offer offer;
@@ -37,6 +41,7 @@ class _InvoiceBidderState extends State<InvoiceBidder>
         '_InvoiceBidderState.initState ==================================>>>');
     _getCached();
     _getExistingBids();
+    configureMessaging(this);
   }
 
   void _getCached() async {
@@ -445,5 +450,21 @@ class _InvoiceBidderState extends State<InvoiceBidder>
       new MaterialPageRoute(
           builder: (context) => new InvoiceDueDiligence(offer)),
     );
+  }
+
+  @override
+  onInvoiceBidMessage(InvoiceBid invoiceBid) {
+    print('_InvoiceBidderState.onInvoiceBidMessage invoiceBid arrived');
+
+    if (invoiceBid.offer ==
+        'resource:com.oneconnect.biz.Offer#${offer.offerId}') {
+      AppSnackbar.showSnackbar(
+          scaffoldKey: _scaffoldKey,
+          message:
+              'Invoice bid made on this offer by someone else\nbid perc: ${invoiceBid.reservePercent} amt: ${invoiceBid.amount}',
+          textColor: Styles.white,
+          backgroundColor: Styles.black);
+      _getExistingBids();
+    }
   }
 }

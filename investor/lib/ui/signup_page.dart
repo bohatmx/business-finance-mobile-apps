@@ -20,6 +20,7 @@ import 'package:businesslibrary/util/selectors.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/util.dart';
 import 'package:email_validator/email_validator.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:investor/ui/dashboard.dart';
 import 'package:investor/ui/profile.dart';
@@ -32,6 +33,8 @@ class SignUpPage extends StatefulWidget {
 class _SignUpPageState extends State<SignUpPage>
     implements SnackBarListener, FCMListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  final FirebaseMessaging _firebaseMessaging = new FirebaseMessaging();
+
   var name,
       email,
       address,
@@ -297,7 +300,7 @@ class _SignUpPageState extends State<SignUpPage>
               actionLabel: 'Start',
               action: 0,
               icon: Icons.done_all);
-
+          _subscribeToFCM();
           checkProfile();
         } else {
           //TODO - wallet not on blockchain.
@@ -346,6 +349,11 @@ class _SignUpPageState extends State<SignUpPage>
             actionLabel: "Support");
         break;
     }
+  }
+
+  void _subscribeToFCM() {
+    _firebaseMessaging.subscribeToTopic('invoiceBids');
+    _firebaseMessaging.subscribeToTopic('general');
   }
 
   void _checkSectors() async {

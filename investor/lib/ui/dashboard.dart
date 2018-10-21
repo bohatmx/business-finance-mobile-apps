@@ -20,6 +20,7 @@ import 'package:businesslibrary/util/styles.dart';
 import 'package:businesslibrary/util/summary_card.dart';
 import 'package:businesslibrary/util/util.dart';
 import 'package:businesslibrary/util/wallet_page.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:investor/ui/firestore_listener.dart';
@@ -40,9 +41,10 @@ class Dashboard extends StatefulWidget {
 
 class _DashboardState extends State<Dashboard>
     with TickerProviderStateMixin
-    implements SnackBarListener, OfferListener, BidListener {
+    implements SnackBarListener, OfferListener, BidListener, FCMListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   static const platform = const MethodChannel('com.oneconnect.biz.CHANNEL');
+  final FirebaseMessaging _firebaseMessaging = new FirebaseMessaging();
 
   String message;
   AnimationController animationController;
@@ -69,7 +71,14 @@ class _DashboardState extends State<Dashboard>
     _getCachedPrefs();
 
     items = buildDaysDropDownItems();
+    _subscribeToFCM();
+    configureMessaging(this);
     _checkSectors();
+  }
+
+  void _subscribeToFCM() {
+    _firebaseMessaging.subscribeToTopic('invoiceBids');
+    print('_DashboardState._subscribeToFCM ########## subscribed!');
   }
 
   void _checkSectors() async {
@@ -432,6 +441,12 @@ class _DashboardState extends State<Dashboard>
   onInvoiceBid(InvoiceBid bid) {
     print(
         '\n\n_DashboardState.onInvoiceBid +++++++++++++ arrived safely. Bueno Senor!......... ${bid.investorName} ${bid.amount}\n\n');
+    _getSummaryData();
+  }
+
+  @override
+  onInvoiceBidMessage(InvoiceBid invoiceBid) {
+    print('_DashboardState.onInvoiceBidMessage ${invoiceBid.toJson()}');
     _getSummaryData();
   }
 }

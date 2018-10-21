@@ -403,8 +403,16 @@ class _InvoiceListState extends State<InvoiceList>
 
   Future _goMakeOffer(Invoice invoice) async {
     //check for acceptance
+    AppSnackbar.showSnackbarWithProgressIndicator(
+        scaffoldKey: _scaffoldKey,
+        message: 'Checking ...',
+        textColor: Styles.white,
+        backgroundColor: Styles.black);
 
-    if (invoice.invoiceAcceptance == null) {
+    var acceptance = await ListAPI.getInvoiceAcceptanceByInvoice(
+        supplier.documentReference,
+        'resource:com.oneconnect.biz.Invoice#${invoice.invoiceId}');
+    if (acceptance == null) {
       AppSnackbar.showSnackbar(
           scaffoldKey: _scaffoldKey,
           message: 'The invoice has not been accepted yet',
@@ -412,11 +420,6 @@ class _InvoiceListState extends State<InvoiceList>
           backgroundColor: Styles.black);
       return;
     }
-    AppSnackbar.showSnackbarWithProgressIndicator(
-        scaffoldKey: _scaffoldKey,
-        message: 'Checking ...',
-        textColor: Styles.white,
-        backgroundColor: Styles.black);
 
     var offX = await ListAPI.getOfferByInvoice(invoice.invoiceId);
     _scaffoldKey.currentState.hideCurrentSnackBar();

@@ -89,7 +89,7 @@ class SignIn {
         govtEntity.documentReference = qSnap.documents.first.documentID;
       }
       if (govtEntity == null) {
-        print('SignIn.signIn ERROR  govtEntity not found in Firestore');
+        print('SignIn.signIn ERROR  customer not found in Firestore');
         return ErrorSignIn;
       }
       await SharedPrefs.saveGovtEntity(govtEntity);

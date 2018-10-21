@@ -10,6 +10,7 @@ import 'package:businesslibrary/data/govt_entity.dart';
 import 'package:businesslibrary/data/investor.dart';
 import 'package:businesslibrary/data/investor_profile.dart';
 import 'package:businesslibrary/data/invoice.dart';
+import 'package:businesslibrary/data/invoice_acceptance.dart';
 import 'package:businesslibrary/data/invoice_bid.dart';
 import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
@@ -139,6 +140,30 @@ class ListAPI {
     }
 
     return bag;
+  }
+
+  static Future<InvoiceAcceptance> getInvoiceAcceptanceByInvoice(
+      String supplierDocRef, String invoice) async {
+    InvoiceAcceptance acceptance;
+
+    var qs = await _firestore
+        .collection('suppliers')
+        .document(supplierDocRef)
+        .collection('invoiceAcceptances')
+        .where('invoice', isEqualTo: invoice)
+        .getDocuments()
+        .catchError((e) {
+      print('ListAPI.getOfferInvoiceBids $e');
+      return acceptance;
+    });
+    if (qs.documents.isNotEmpty) {
+      acceptance = InvoiceAcceptance.fromJson(qs.documents.first.data);
+    }
+    if (acceptance != null) {
+      print(
+          'ListAPI.getInvoiceAcceptanceByInvoice found ${acceptance.toJson()}');
+    }
+    return acceptance;
   }
 
   static Future<List<InvoiceBid>> getInvoiceBidsByOffer(String offerId) async {
