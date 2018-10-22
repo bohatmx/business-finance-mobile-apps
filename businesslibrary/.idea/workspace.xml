@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="660adc5a-c8c8-4a31-b30d-d6acb1a8cbf3" name="Default" comment="added checks for invoice bids + partial reserve in auto trade">
+    <list default="true" id="660adc5a-c8c8-4a31-b30d-d6acb1a8cbf3" name="Default" comment="clean-up">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/api/auto_trader.dart" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/api/data_api3.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/api/data_api3.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/api/list_api.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/api/list_api.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../monitor/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../monitor/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../monitor/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../monitor/lib/main.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../supplierv3/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../supplierv3/lib/ui/invoice_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/lib/ui/invoice_page.dart" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <ignored path="../.gradle/4.4/fileChanges/last-build.bin" />
@@ -293,29 +295,29 @@
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
         <counts>
-          <entry key="dart" value="154" />
+          <entry key="dart" value="155" />
           <entry key="packages" value="1" />
           <entry key="yaml" value="4" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="dart" value="20530" />
-          <entry key="txt" value="246" />
+          <entry key="dart" value="20743" />
+          <entry key="txt" value="254" />
           <entry key="yaml" value="48" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
         <counts>
-          <entry key="Dart" value="154" />
+          <entry key="Dart" value="155" />
           <entry key="PLAIN_TEXT" value="1" />
           <entry key="YAML" value="4" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="Dart" value="20530" />
-          <entry key="PLAIN_TEXT" value="246" />
+          <entry key="Dart" value="20743" />
+          <entry key="PLAIN_TEXT" value="254" />
           <entry key="YAML" value="48" />
         </counts>
       </usages-collector>
@@ -336,20 +338,24 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/lib/api/data_api3.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="422">
-              <caret line="450" column="17" selection-start-line="450" selection-start-column="17" selection-end-line="450" selection-end-column="17" />
+            <state relative-caret-position="2063">
+              <caret line="199" column="3" selection-start-line="199" selection-start-column="3" selection-end-line="199" selection-end-column="3" />
               <folding>
                 <element signature="e#0#20#0" expanded="true" />
-                <element signature="e#13886#16599#0" expanded="true" />
+                <element signature="e#2610#4035#0" expanded="true" />
+                <element signature="e#4106#5413#0" expanded="true" />
+                <element signature="e#5482#6853#0" expanded="true" />
+                <element signature="e#14035#16748#0" expanded="true" />
+                <element signature="e#16791#17933#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/lib/data/delivery_note.dart">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="175">
@@ -567,7 +573,7 @@
   </component>
   <component name="PropertiesComponent">
     <property name="android.sdk.path" value="$USER_HOME$/Library/Android/sdk" />
-    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1540159461730" />
+    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1540196207470" />
     <property name="dart.analysis.tool.window.force.activate" value="false" />
     <property name="settings.editor.selected.configurable" value="flutter.settings" />
     <property name="show.migrate.to.gradle.popup" value="false" />
@@ -769,7 +775,14 @@
       <option name="project" value="LOCAL" />
       <updated>1537812279264</updated>
     </task>
-    <option name="localTasksCounter" value="21" />
+    <task id="LOCAL-00021" summary="clean-up">
+      <created>1540187361377</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1540187361378</updated>
+    </task>
+    <option name="localTasksCounter" value="22" />
     <servers />
   </component>
   <component name="TodoView" selected-index="3">
@@ -785,7 +798,7 @@
     <frame x="1915" y="23" width="1443" height="1004" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.56377554" visible="true" weight="0.15774447" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.56377554" visible="true" weight="0.15774447" />
       <window_info id="Structure" order="1" sideWeight="0.4362245" side_tool="true" visible="true" weight="0.1213419" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info id="Image Layers" order="3" />
@@ -800,8 +813,8 @@
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" sideWeight="0.49740335" weight="0.32919955" />
       <window_info anchor="bottom" id="Dart Analysis" order="7" sideWeight="0.4817987" weight="0.02741228" />
-      <window_info anchor="bottom" id="Terminal" order="8" sideWeight="0.827552" visible="true" weight="0.2258772" />
-      <window_info anchor="bottom" id="Event Log" order="9" sideWeight="0.17244796" side_tool="true" visible="true" weight="0.2258772" />
+      <window_info active="true" anchor="bottom" id="Terminal" order="8" sideWeight="0.827552" visible="true" weight="0.3223684" />
+      <window_info anchor="bottom" id="Event Log" order="9" sideWeight="0.17244796" side_tool="true" visible="true" weight="0.3223684" />
       <window_info anchor="bottom" id="Version Control" order="10" sideWeight="0.4997183" weight="0.32842582" />
       <window_info anchor="bottom" id="Messages" order="11" sideWeight="0.49821556" weight="0.025219299" />
       <window_info anchor="right" id="Commander" order="0" weight="0.4" />
@@ -868,14 +881,15 @@
     <MESSAGE value="refactored: api changes - blockchain writes before firestore mirror" />
     <MESSAGE value="added investor profile and associated changes" />
     <MESSAGE value="added checks for invoice bids + partial reserve in auto trade" />
-    <option name="LAST_COMMIT_MESSAGE" value="added checks for invoice bids + partial reserve in auto trade" />
+    <MESSAGE value="clean-up" />
+    <option name="LAST_COMMIT_MESSAGE" value="clean-up" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" type="Dart">
           <url>file://$PROJECT_DIR$/lib/api/list_api.dart</url>
-          <line>1085</line>
+          <line>1109</line>
           <option name="timeStamp" value="1" />
         </line-breakpoint>
       </breakpoints>
@@ -1136,16 +1150,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/lib/api/auto_trader.dart">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1216">
-          <caret line="338" column="52" selection-start-line="338" selection-start-column="52" selection-end-line="338" selection-end-column="52" />
-          <folding>
-            <element signature="e#5982#6605#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/lib/api/helper.dart">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="265">
@@ -1219,23 +1223,38 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/lib/api/data_api3.dart">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="422">
-          <caret line="450" column="17" selection-start-line="450" selection-start-column="17" selection-end-line="450" selection-end-column="17" />
-          <folding>
-            <element signature="e#0#20#0" expanded="true" />
-            <element signature="e#13886#16599#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/lib/data/delivery_note.dart">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="175">
           <caret line="28" column="15" lean-forward="true" selection-start-line="28" selection-start-column="11" selection-end-line="28" selection-end-column="23" />
           <folding>
             <element signature="e#977#1940#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lib/api/auto_trader.dart">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="473">
+          <caret line="84" column="51" selection-start-line="84" selection-start-column="51" selection-end-line="84" selection-end-column="51" />
+          <folding>
+            <element signature="e#5982#6605#0" expanded="true" />
+            <element signature="e#10843#12985#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lib/api/data_api3.dart">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2063">
+          <caret line="199" column="3" selection-start-line="199" selection-start-column="3" selection-end-line="199" selection-end-column="3" />
+          <folding>
+            <element signature="e#0#20#0" expanded="true" />
+            <element signature="e#2610#4035#0" expanded="true" />
+            <element signature="e#4106#5413#0" expanded="true" />
+            <element signature="e#5482#6853#0" expanded="true" />
+            <element signature="e#14035#16748#0" expanded="true" />
+            <element signature="e#16791#17933#0" expanded="true" />
           </folding>
         </state>
       </provider>

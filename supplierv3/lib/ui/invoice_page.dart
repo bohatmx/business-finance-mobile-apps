@@ -150,27 +150,35 @@ class _NewInvoicePageState extends State<NewInvoicePage>
       }
 
       var result = await DataAPI3.registerInvoice(invoice);
-      if (result > DataAPI3.Success) {
-        isSuccess = false;
-        AppSnackbar.showErrorSnackbar(
-            scaffoldKey: _scaffoldKey,
-            message: 'Invoice submission failed',
-            listener: this,
-            actionLabel: "ERROR ");
-      } else {
-        isSuccess = true;
-        setState(() {
-          _opacity = 0.0;
-        });
-        AppSnackbar.showSnackbarWithAction(
-            scaffoldKey: _scaffoldKey,
-            message: 'Invoice submitted OK',
-            textColor: Colors.white,
-            icon: Icons.done,
-            listener: this,
-            actionLabel: 'DONE',
-            action: 0,
-            backgroundColor: Colors.black);
+      switch (result) {
+        case DataAPI3.InvoiceRegistered:
+          isSuccess = true;
+          setState(() {
+            _opacity = 0.0;
+          });
+          AppSnackbar.showSnackbar(
+              scaffoldKey: _scaffoldKey,
+              message: 'Invoice registered',
+              textColor: Styles.white,
+              backgroundColor: Styles.black);
+          break;
+        case DataAPI3.InvoiceRegisteredAccepted:
+          isSuccess = true;
+          setState(() {
+            _opacity = 0.0;
+          });
+          InvoiceAcceptance acc = await ListAPI.getLastInvoiceAcceptance(
+              supplier.documentReference);
+          onInvoiceAcceptance(acc);
+          break;
+        default:
+          isSuccess = false;
+          AppSnackbar.showErrorSnackbar(
+              scaffoldKey: _scaffoldKey,
+              message: 'Invoice registration failed',
+              listener: this,
+              actionLabel: "ERROR ");
+          break;
       }
     }
   }

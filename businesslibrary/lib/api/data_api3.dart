@@ -49,6 +49,8 @@ class DataAPI3 {
       MAKE_INVOICE_BID = 'makeInvoiceBid',
       ACCEPT_INVOICE = 'acceptInvoice';
   static const Success = 0,
+      InvoiceRegistered = 6,
+      InvoiceRegisteredAccepted = 7,
       BlockchainError = 2,
       FirestoreError = 3,
       UnknownError = 4;
@@ -195,16 +197,23 @@ class DataAPI3 {
       mRequest.write(json.encode(bag.toJson()));
       HttpClientResponse mResponse = await mRequest.close();
       print(
-          'DataAPI3.registerInvoice blockchain response status code:  ${mResponse.statusCode}');
-      if (mResponse.statusCode == 200) {
-        return Success;
-      } else {
-        print('DataAPI3.registerInvoice ERROR  ${mResponse.reasonPhrase}');
-        mResponse.transform(utf8.decoder).listen((contents) {
-          print('DataAPI3.registerInvoice  $contents');
-        });
-        print('DataAPI3.registerInvoice Firestore invoice deleted');
-        return BlockchainError;
+          '\n\nDataAPI3.registerInvoice blockchain response status code:  ${mResponse.statusCode}');
+      print(mResponse.toString());
+      mResponse.transform(utf8.decoder).listen((contents) {
+        print('\n\nDataAPI3.registerInvoice.transform contents:  $contents');
+      });
+      switch (mResponse.statusCode) {
+        case 200:
+          print('DataAPI3.registerInvoice: invoice registered');
+          return InvoiceRegistered;
+          break;
+        case 201: //invoice auto accepted
+          print('DataAPI3.registerInvoice: invoice auto accepted');
+          return InvoiceRegisteredAccepted;
+          break;
+        default:
+          return BlockchainError;
+          break;
       }
     } catch (e) {
       print('DataAPI3.registerInvoice ERROR $e');

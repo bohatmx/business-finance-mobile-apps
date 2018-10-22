@@ -142,6 +142,30 @@ class ListAPI {
     return bag;
   }
 
+  static Future<InvoiceAcceptance> getLastInvoiceAcceptance(
+      String supplierDocRef) async {
+    InvoiceAcceptance acceptance;
+
+    var qs = await _firestore
+        .collection('suppliers')
+        .document(supplierDocRef)
+        .collection('invoiceAcceptances')
+        .orderBy('date', descending: true)
+        .limit(1)
+        .getDocuments()
+        .catchError((e) {
+      print('ListAPI.getLastInvoiceAcceptance $e');
+      return acceptance;
+    });
+    if (qs.documents.isNotEmpty) {
+      acceptance = InvoiceAcceptance.fromJson(qs.documents.first.data);
+    }
+    if (acceptance != null) {
+      print('ListAPI.getLastInvoiceAcceptance found ${acceptance.toJson()}');
+    }
+    return acceptance;
+  }
+
   static Future<InvoiceAcceptance> getInvoiceAcceptanceByInvoice(
       String supplierDocRef, String invoice) async {
     InvoiceAcceptance acceptance;
