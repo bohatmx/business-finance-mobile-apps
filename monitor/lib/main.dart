@@ -130,7 +130,7 @@ class _MyHomePageState extends State<MyHomePage>
           autoTradeStart = await SharedPrefs.getAutoTradeStart();
           print('_MyHomePageState._start ++++ summary in the house!');
           setState(() {
-            _showProgress = false;
+            _showProgress = null;
           });
           autoTradeStart = await ListAPI.getAutoTradeStart();
           prettyPrint(
@@ -145,6 +145,11 @@ class _MyHomePageState extends State<MyHomePage>
       } else {
         print('_MyHomePageState._start ***************'
             ' No open offers available. Will try again in $minutes minutes');
+        AppSnackbar.showSnackbar(
+            scaffoldKey: _scaffoldKey,
+            message: 'No open offers in network',
+            textColor: Styles.lightBlue,
+            backgroundColor: Styles.black);
         return;
       }
     });
@@ -194,11 +199,11 @@ class _MyHomePageState extends State<MyHomePage>
             listener: this,
             actionLabel: 'close');
       } else {
-        sleep(Duration(seconds: 2));
+        sleep(Duration(seconds: 1));
         autoTradeStart = await SharedPrefs.getAutoTradeStart();
         print('_MyHomePageState._start ++++ summary in the house!');
         setState(() {
-          _showProgress = false;
+          _showProgress = null;
         });
         AppSnackbar.showSnackbar(
             scaffoldKey: _scaffoldKey,
@@ -211,25 +216,31 @@ class _MyHomePageState extends State<MyHomePage>
         setState(() {});
         _getLists(false);
       }
+    } else {
+      AppSnackbar.showSnackbar(
+          scaffoldKey: _scaffoldKey,
+          message: 'No open offers in network',
+          textColor: Styles.lightBlue,
+          backgroundColor: Styles.black);
     }
   }
 
   Widget _getBottom() {
     return PreferredSize(
-      preferredSize: const Size.fromHeight(60.0),
+      preferredSize: const Size.fromHeight(40.0),
       child: new Column(
         children: <Widget>[
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               new Padding(
-                padding: const EdgeInsets.only(bottom: 28.0),
+                padding: const EdgeInsets.only(bottom: 20.0),
                 child: Text(
                   'OneConnect - BFN',
                   style: TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
-                    fontSize: 28.0,
+                    fontSize: 18.0,
                   ),
                 ),
               )
@@ -241,13 +252,16 @@ class _MyHomePageState extends State<MyHomePage>
   }
 
   TextEditingController controller = TextEditingController();
-  bool _showProgress = true;
+  bool _showProgress;
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
-        title: Text('Business Finance Network'),
+        title: Text(
+          'BFN Monitor',
+          style: Styles.whiteSmall,
+        ),
         bottom: _getBottom(),
       ),
       body: Stack(
@@ -370,7 +384,7 @@ class _MyHomePageState extends State<MyHomePage>
                       padding: const EdgeInsets.only(top: 4.0),
                       child: Text(
                         'Automatic Trade every',
-                        style: Styles.greyLabelMedium,
+                        style: Styles.greyLabelSmall,
                       ),
                     ),
                     Padding(
@@ -380,7 +394,7 @@ class _MyHomePageState extends State<MyHomePage>
                         keyboardType: TextInputType.numberWithOptions(),
                         onChanged: _onMinutesChanged,
                         maxLength: 3,
-                        style: Styles.purpleBoldLarge,
+                        style: Styles.purpleBoldMedium,
                         decoration: InputDecoration(
                           icon: Icon(Icons.access_time),
                           labelText: 'Minutes',
@@ -395,7 +409,7 @@ class _MyHomePageState extends State<MyHomePage>
                     children: <Widget>[
                       Text(
                         'Auto Trade Orders',
-                        style: Styles.greyLabelMedium,
+                        style: Styles.greyLabelSmall,
                       ),
                       Padding(
                         padding: const EdgeInsets.only(left: 8.0),
@@ -414,7 +428,7 @@ class _MyHomePageState extends State<MyHomePage>
                     children: <Widget>[
                       Text(
                         'Open Invoice Offers',
-                        style: Styles.greyLabelMedium,
+                        style: Styles.greyLabelSmall,
                       ),
                       Padding(
                         padding: const EdgeInsets.only(left: 8.0),
@@ -452,10 +466,10 @@ class _MyHomePageState extends State<MyHomePage>
                           Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Text(
-                              _showProgress == false
+                              _showProgress == null
                                   ? ''
                                   : 'Auto Trade running...',
-                              style: Styles.blueBoldMedium,
+                              style: Styles.blueBoldSmall,
                             ),
                           ),
                         ],
@@ -464,7 +478,7 @@ class _MyHomePageState extends State<MyHomePage>
                     Row(
                       children: <Widget>[
                         Container(
-                          width: 80.0,
+                          width: 100.0,
                           child: Text(
                             'Time: ',
                             style: Styles.greyLabelSmall,
@@ -477,7 +491,7 @@ class _MyHomePageState extends State<MyHomePage>
                                 ? '00:00'
                                 : getFormattedDateHour(
                                     autoTradeStart.dateEnded),
-                            style: Styles.purpleBoldLarge,
+                            style: Styles.purpleBoldMedium,
                           ),
                         ),
                       ],
@@ -487,7 +501,7 @@ class _MyHomePageState extends State<MyHomePage>
                       child: Row(
                         children: <Widget>[
                           Container(
-                            width: 80.0,
+                            width: 100.0,
                             child: Text(
                               'Amount:',
                               style: Styles.greyLabelSmall,
@@ -511,7 +525,7 @@ class _MyHomePageState extends State<MyHomePage>
                       child: Row(
                         children: <Widget>[
                           Container(
-                            width: 80.0,
+                            width: 100.0,
                             child: Text(
                               'Trades: ',
                               style: Styles.greyLabelSmall,
@@ -534,7 +548,7 @@ class _MyHomePageState extends State<MyHomePage>
                       child: Row(
                         children: <Widget>[
                           Container(
-                            width: 80.0,
+                            width: 100.0,
                             child: Text(
                               'Invalid: ',
                               style: Styles.greyLabelSmall,
@@ -546,18 +560,18 @@ class _MyHomePageState extends State<MyHomePage>
                               autoTradeStart == null
                                   ? '0'
                                   : '${autoTradeStart.totalInvalidBids}',
-                              style: Styles.pinkBoldLarge,
+                              style: Styles.blackBoldLarge,
                             ),
                           ),
                         ],
                       ),
                     ),
                     Padding(
-                      padding: const EdgeInsets.only(top: 10.0, bottom: 10.0),
+                      padding: const EdgeInsets.only(top: 0.0, bottom: 10.0),
                       child: Row(
                         children: <Widget>[
                           Container(
-                            width: 80.0,
+                            width: 100.0,
                             child: Text(
                               'Possible Amount: ',
                               style: Styles.greyLabelSmall,
@@ -571,7 +585,7 @@ class _MyHomePageState extends State<MyHomePage>
                                   : getFormattedAmount(
                                       '${autoTradeStart.possibleAmount}',
                                       context),
-                              style: Styles.pinkBoldLarge,
+                              style: Styles.blackBoldLarge,
                             ),
                           ),
                         ],

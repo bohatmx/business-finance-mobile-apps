@@ -444,12 +444,18 @@ class DataAPI3 {
 
   static Future<int> executeAutoTrades() async {
     print('\n\n\nDataAPI3.executeAutoTrades url: ${url + EXECUTE_AUTO_TRADES}');
+    var parms;
+    if (isInDebugMode) {
+      parms = {'debug': true};
+    } else {
+      parms = {};
+    }
     try {
       var httpClient = new HttpClient();
       HttpClientRequest mRequest =
           await httpClient.postUrl(Uri.parse(url + EXECUTE_AUTO_TRADES));
       mRequest.headers.contentType = _contentType;
-      mRequest.write(json.encode({'debug': isInDebugMode}));
+      mRequest.write(json.encode(parms));
       HttpClientResponse mResponse = await mRequest.close();
       print(
           'DataAPI3.executeAutoTrades ######## blockchain response status code:  ${mResponse.statusCode}');
