@@ -13,6 +13,7 @@ import 'package:businesslibrary/data/sector.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/lookups.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 abstract class GenListener {
@@ -32,6 +33,47 @@ class Generator {
   static DateTime start;
   static GenListener genListener;
   static BuildContext context;
+
+  static Future fixEndDates() async {
+    offers = await ListAPI.getOpenOffers();
+    Firestore firestore = Firestore.instance;
+    for (var offer in offers) {
+      offer.endTime = _getRandomEndDate();
+      await firestore
+          .collection('invoiceOffers')
+          .document(offer.documentReference)
+          .setData(offer.toJson());
+      print(
+          'Generator.fixEndDates ... updated end time: ${offer.endTime} : ${offer.offerAmount}');
+    }
+  }
+
+  static Future generateOffers(GenListener listener, BuildContext ctx) async {
+    listener.onEvent('## Making mass offers ...');
+    suppliers = await ListAPI.getSuppliers();
+    sectors = await ListAPI.getSectors();
+    genListener = listener;
+    context = ctx;
+
+    for (var supplier in suppliers) {
+      invoices =
+          await ListAPI.getInvoices(supplier.documentReference, 'suppliers');
+      for (var invoice in invoices) {
+        var offer = await ListAPI.getOfferByInvoice(invoice.invoiceId);
+        if (offer == null) {
+          assert(supplier.documentReference != null);
+          var acc = await ListAPI.getInvoiceAcceptanceByInvoice(
+              supplier.documentReference,
+              nameSpace + 'Invoice#${invoice.invoiceId}');
+          if (acc != null) {
+            await _makeOffer(invoice, supplier);
+          }
+        }
+      }
+    }
+    print('Generator.generateOffers made ${offers.length} offers in session');
+    listener.onEvent('Done! made ${offers.length} offers in session');
+  }
 
   static Future generate(GenListener listener, BuildContext ctx) async {
     genListener = listener;
@@ -108,16 +150,10 @@ class Generator {
           supplier = s;
         }
       });
-
-      var mAcceptance = await ListAPI.getInvoiceAcceptanceByInvoice(
-          supplier.documentReference, inv.invoiceId);
-      if (mAcceptance != null) {
-        print(
-            'Generator._startDancing invoice acceptance exists, make offer ..');
-        await _makeOffer(inv, supplier);
-      }
-      sleep(Duration(seconds: 1));
+      await _makeOffer(inv, supplier);
     }
+    sleep(Duration(seconds: 1));
+
     print(div);
     genListener.onEvent('Generator - offers generated: ${offers.length}');
   }
@@ -258,7 +294,7 @@ class Generator {
         invoiceAmount: invoice.totalAmount,
         discountPercent: disc,
         startTime: getUTCDate(),
-        endTime: getUTCDate(),
+        endTime: _getRandomEndDate(),
         date: getUTCDate(),
         participantId: supplier.participantId,
         customerName: invoice.customerName,
@@ -273,8 +309,18 @@ class Generator {
       genListener.onEvent(
           'Offer added: ${invoice.supplierName} for: ${getFormattedAmount('${offer.offerAmount}', context)} discount: ${offer.discountPercent}%');
     } catch (e) {
+      print(e);
       throw e;
     }
+  }
+
+  static String _getRandomEndDate() {
+    int days = rand.nextInt(16);
+    if (days < 5) {
+      days = 10;
+    }
+    var date = DateTime.now().add(Duration(days: days));
+    return getUTC(date);
   }
 
   static double _getRandomDisc() {

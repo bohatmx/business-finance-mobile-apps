@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 
-import 'package:businesslibrary/api/data_api3.dart';
 import 'package:businesslibrary/api/signup.dart';
 import 'package:businesslibrary/data/govt_entity.dart';
 import 'package:businesslibrary/data/investor.dart';
@@ -63,36 +62,47 @@ class _MyHomePageState extends State<MyHomePage> implements GenListener {
     }
     isBusy = true;
     var start = DateTime.now();
-    await _cleanUp();
-    setState(() {
-      btnText = 'Working...';
-      _counter++;
-      msgList.add('### Demo data cleanup is complete');
-    });
-    await DataAPI3.addSectors();
+//    await _cleanUp();
+//    setState(() {
+//      btnText = 'Working...';
+//      _counter++;
+//      msgList.add('### Demo data cleanup is complete');
+//    });
+//    await DataAPI3.addSectors();
+//
+//    setState(() {
+//      msgList.add('### Sectors added to BFN and Firestore');
+//      _counter++;
+//    });
+//
+//    await _addCustomers();
+//    setState(() {
+//      _counter++;
+//      msgList.add('### Customers added to BFN and Firestore');
+//    });
+//    await _generateSuppliers();
+//    setState(() {
+//      _counter++;
+//      msgList.add('### Suppliers added to BFN and Firestore');
+//    });
+//    await _addInvestors();
+//    setState(() {
+//      _counter++;
+//      msgList.add('### Investors added to BFN and Firestore');
+//    });
+//    await _generateWork();
+//    setState(() {
+//      _counter++;
+//    });
+//    await Generator.generateOffers(this, context);
+//    setState(() {
+//      _counter++;
+//    });
 
-    setState(() {
-      msgList.add('### Sectors added to BFN and Firestore');
-      _counter++;
-    });
-
-    await _addCustomers();
-    setState(() {
-      _counter++;
-      msgList.add('### Customers added to BFN and Firestore');
-    });
-    await _generateSuppliers();
-    setState(() {
-      _counter++;
-      msgList.add('### Suppliers added to BFN and Firestore');
-    });
-    await _addInvestors();
-
-    await _generateWork();
+    await Generator.fixEndDates();
     setState(() {
       _counter++;
     });
-
     var end = DateTime.now();
     var diffm = end.difference(start).inMinutes;
     var diffs = end.difference(start).inSeconds;
@@ -639,7 +649,7 @@ class _MyHomePageState extends State<MyHomePage> implements GenListener {
                           Padding(
                             padding: const EdgeInsets.only(left: 10.0),
                             child: Text(
-                              '5',
+                              '6',
                               style: TextStyle(
                                   fontSize: 24.0,
                                   fontWeight: FontWeight.w900,

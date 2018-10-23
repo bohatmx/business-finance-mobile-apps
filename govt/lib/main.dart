@@ -1,3 +1,5 @@
+import 'package:businesslibrary/api/shared_prefs.dart';
+import 'package:businesslibrary/data/govt_entity.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -34,8 +36,8 @@ class StartPage extends StatefulWidget {
 
 class _StartPageState extends State<StartPage> implements SnackBarListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
-  FirebaseUser firebaseUser;
   double fabOpacity = 0.3;
+  GovtEntity customer;
   @override
   initState() {
     super.initState();
@@ -43,9 +45,8 @@ class _StartPageState extends State<StartPage> implements SnackBarListener {
   }
 
   checkUser() async {
-    firebaseUser = await _auth.currentUser();
-    if (firebaseUser != null) {
-      print('_StartPageState.checkUser firebaseUser:  ${firebaseUser.email}');
+    customer = await SharedPrefs.getGovEntity();
+    if (customer != null) {
       await Navigator.push(
         context,
         new MaterialPageRoute(builder: (context) => new Dashboard(null)),

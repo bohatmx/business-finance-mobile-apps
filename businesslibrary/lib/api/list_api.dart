@@ -503,7 +503,7 @@ class ListAPI {
     });
 
     print(
-        'ListAPI.getOpenOffers +++++++ offers found: ${qs.documents.length} ');
+        'ListAPI.getOpenOffers +++++++ >>> offers found: ${qs.documents.length} ');
 
     qs.documents.forEach((doc) {
       var offer = Offer.fromJson(doc.data);
@@ -1293,9 +1293,9 @@ class OfferBag {
 
   OfferBag({this.offer, this.invoiceBids});
   doPrint() {
-    prettyPrint(offer.toJson(), '######## OFFER:');
-    invoiceBids.forEach((m) {
-      prettyPrint(m.toJson(), '%%%%%%%%% BID:');
-    });
+//    prettyPrint(offer.toJson(), '######## OFFER:');
+//    invoiceBids.forEach((m) {
+//      prettyPrint(m.toJson(), '%%%%%%%%% BID:');
+//    });
   }
 }

@@ -37,7 +37,6 @@ class StartPage extends StatefulWidget {
 }
 
 class _StartPageState extends State<StartPage> {
-  FirebaseUser firebaseUser;
   double fabOpacity = 0.3;
   Supplier supplier;
   User user;
@@ -50,13 +49,7 @@ class _StartPageState extends State<StartPage> {
   checkUser() async {
     user = await SharedPrefs.getUser();
     supplier = await SharedPrefs.getSupplier();
-    firebaseUser = await _auth.currentUser();
-    if (firebaseUser != null) {
-      print('_StartPageState.checkUser firebaseUser:  ${firebaseUser.email}');
-
-      supplier = await SharedPrefs.getSupplier();
-      user = await SharedPrefs.getUser();
-      assert(supplier != null);
+    if (supplier != null) {
       await Navigator.push(
         context,
         new MaterialPageRoute(builder: (context) => new Dashboard(null)),

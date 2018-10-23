@@ -287,6 +287,12 @@ String getUTCDate() {
   return now;
 }
 
+String getUTC(DateTime date) {
+  initializeDateFormatting();
+  String now = date.toUtc().toIso8601String();
+  return now;
+}
+
 String getFormattedDate(String date) {
   DateTime d = DateTime.parse(date);
   var format = new DateFormat.yMMMd();

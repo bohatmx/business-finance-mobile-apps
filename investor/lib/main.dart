@@ -1,7 +1,6 @@
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/investor.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
-import 'package:businesslibrary/data/user.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:investor/ui/dashboard.dart';
@@ -36,10 +35,8 @@ class StartPage extends StatefulWidget {
 }
 
 class _StartPageState extends State<StartPage> {
-  FirebaseUser firebaseUser;
   double fabOpacity = 0.3;
   Investor investor;
-  User user;
   @override
   initState() {
     super.initState();
@@ -47,13 +44,8 @@ class _StartPageState extends State<StartPage> {
   }
 
   checkUser() async {
-    user = await SharedPrefs.getUser();
     investor = await SharedPrefs.getInvestor();
-    firebaseUser = await _auth.currentUser();
-    if (firebaseUser != null) {
-      print('_StartPageState.checkUser firebaseUser:  ${firebaseUser.email}');
-      user = await SharedPrefs.getUser();
-      assert(investor != null);
+    if (investor != null) {
       await Navigator.push(
         context,
         new MaterialPageRoute(builder: (context) => new Dashboard(null)),
