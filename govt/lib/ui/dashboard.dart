@@ -100,8 +100,8 @@ class _DashboardState extends State<Dashboard>
   _getPOData() async {
     print('_DashboardState._getPOData ................');
 
-    purchaseOrders = await ListAPI.getPurchaseOrders(
-        govtEntity.documentReference, 'govtEntities');
+    purchaseOrders =
+        await ListAPI.getPurchaseOrders(govtEntity.documentReference);
     print(
         '_DashboardState._getSummaryData @@@@@@@@@@@@ purchaseOrders: ${purchaseOrders.length}');
     setState(() {

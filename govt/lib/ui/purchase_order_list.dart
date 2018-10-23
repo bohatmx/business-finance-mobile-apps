@@ -38,8 +38,7 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage> {
         textColor: Styles.white,
         backgroundColor: Styles.black);
     entity = await SharedPrefs.getGovEntity();
-    purchaseOrders = await ListAPI.getPurchaseOrders(
-        entity.documentReference, 'govtEntities');
+    purchaseOrders = await ListAPI.getPurchaseOrders(entity.documentReference);
     _scaffoldKey.currentState.removeCurrentSnackBar();
     print(
         '_DashboardState._getSummaryData @@@@@@@@@@@@ purchaseOrders: ${purchaseOrders.length}');

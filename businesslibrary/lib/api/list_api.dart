@@ -537,13 +537,13 @@ class ListAPI {
   }
 
   static Future<List<PurchaseOrder>> getPurchaseOrders(
-      String documentId, String collection) async {
+      String govtDocRef) async {
     print(
-        'ListAPI.getPurchaseOrders  ..........documentId: $documentId...........');
+        'ListAPI.getPurchaseOrders  ..........documentId: $govtDocRef...........');
     List<PurchaseOrder> list = List();
     var querySnapshot = await _firestore
-        .collection(collection)
-        .document(documentId)
+        .collection('govtEntities')
+        .document(govtDocRef)
         .collection('purchaseOrders')
         .orderBy('date', descending: true)
         .getDocuments()
@@ -553,6 +553,7 @@ class ListAPI {
     });
     querySnapshot.documents.forEach((doc) {
       var m = new PurchaseOrder.fromJson(doc.data);
+      m.documentReference = doc.documentID;
       list.add(m);
     });
     print('ListAPI.getPurchaseOrders &&&&&&&&&&& found: ${list.length} ');
@@ -1000,7 +1001,9 @@ class ListAPI {
     });
 
     qs.documents.forEach((doc) {
-      list.add(new GovtEntity.fromJson(doc.data));
+      var m = GovtEntity.fromJson(doc.data);
+      m.documentReference = doc.documentID;
+      list.add(m);
     });
 
     print('ListAPI.getGovtEntities ############ found: ${list.length}');
@@ -1113,7 +1116,9 @@ class ListAPI {
     });
 
     qs.documents.forEach((doc) {
-      list.add(new Supplier.fromJson(doc.data));
+      var m = Supplier.fromJson(doc.data);
+      m.documentReference = doc.documentID;
+      list.add(m);
     });
 
     print('ListAPI.getSuppliers ############ found: ${list.length}');

@@ -12,6 +12,7 @@ import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:crudderv3/generator.dart';
 import 'package:crudderv3/theme_util.dart';
 import 'package:flutter/material.dart';
 
@@ -21,7 +22,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return new MaterialApp(
-      title: 'Flutter Demo',
+      title: 'BFN Crudder',
       debugShowCheckedModeBanner: false,
       theme: getTheme(),
       home: new MyHomePage(title: 'Business Finance Network'),
@@ -37,7 +38,7 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => new _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _MyHomePageState extends State<MyHomePage> implements GenListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
   int _counter = 0;
@@ -87,6 +88,11 @@ class _MyHomePageState extends State<MyHomePage> {
     });
     await _addInvestors();
 
+    await _generateWork();
+    setState(() {
+      _counter++;
+    });
+
     var end = DateTime.now();
     var diffm = end.difference(start).inMinutes;
     var diffs = end.difference(start).inSeconds;
@@ -96,7 +102,6 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       _counter++;
       btnText = 'Done';
-      msgList.add('### Investors added to BFN and Firestore');
       msgList.add(
           '### Demo Data Generation complete:, $diffm minutes elapsed. ($diffs seconds)');
     });
@@ -105,6 +110,10 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   List<String> msgList = List();
+
+  _generateWork() async {
+    await Generator.generate(this, context);
+  }
 
   _addCustomers() async {
     var result;
@@ -933,11 +942,33 @@ class _MyHomePageState extends State<MyHomePage> {
           if (msgList[position].contains('Auth')) {
             color = Colors.purple.shade900;
           }
+          if (msgList[position].contains('Purchase order added')) {
+            color = Colors.purple.shade900;
+          }
+          if (msgList[position].contains('Delivery Note added')) {
+            color = Colors.pink.shade900;
+          }
+          if (msgList[position].contains('DeliveryAcceptance added')) {
+            color = Colors.blue.shade900;
+          }
+          if (msgList[position].contains('Invoice added')) {
+            color = Colors.teal.shade900;
+          }
+          if (msgList[position].contains('Offer added')) {
+            color = Colors.red.shade900;
+          }
           return MessageCard(
             message: msgList[position],
             color: color,
           );
         });
+  }
+
+  @override
+  onEvent(String message) {
+    setState(() {
+      msgList.add(message);
+    });
   }
 }
 

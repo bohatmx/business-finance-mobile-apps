@@ -76,22 +76,30 @@ class _InvoiceListState extends State<InvoiceList> implements SnackBarListener {
         invoiceNumber: invoice.invoiceNumber,
         user: 'resource:com.oneconnect.biz.User#${user.userId}');
 
-    var result = await DataAPI3.acceptInvoice(acceptance);
-    _scaffoldKey.currentState.hideCurrentSnackBar();
-    if (result > DataAPI3.Success) {
-      AppSnackbar.showErrorSnackbar(
-          scaffoldKey: _scaffoldKey,
-          message: 'Acceptance FAILED',
-          listener: this,
-          actionLabel: 'Close');
-    } else {
-      _getInvoices();
-      AppSnackbar.showSnackbar(
-          scaffoldKey: _scaffoldKey,
-          message: 'Invoice accepted',
-          textColor: Colors.lightBlue,
-          backgroundColor: Colors.black);
+    try {
+      var result = await DataAPI3.acceptInvoice(acceptance);
+      _scaffoldKey.currentState.hideCurrentSnackBar();
+      if (result != null) {
+        showError();
+      } else {
+        _getInvoices();
+        AppSnackbar.showSnackbar(
+            scaffoldKey: _scaffoldKey,
+            message: 'Invoice accepted',
+            textColor: Colors.lightBlue,
+            backgroundColor: Colors.black);
+      }
+    } catch (e) {
+      showError();
     }
+  }
+
+  void showError() {
+    AppSnackbar.showErrorSnackbar(
+        scaffoldKey: _scaffoldKey,
+        message: 'Acceptance FAILED',
+        listener: this,
+        actionLabel: 'Close');
   }
 
   void _settleInvoice() {

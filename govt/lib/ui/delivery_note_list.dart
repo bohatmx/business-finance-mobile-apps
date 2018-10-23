@@ -140,7 +140,7 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
         acceptance.toJson(), '_DeliveryNoteListState._acceptDelivery ......');
     try {
       var key = await DataAPI3.acceptDelivery(acceptance);
-      if (key > DataAPI3.Success) {
+      if (key != null) {
         AppSnackbar.showErrorSnackbar(
             scaffoldKey: _scaffoldKey,
             message: 'Delivery Acceptance failed',

@@ -33,7 +33,7 @@ class Sounds {
 
   static playChime() {
     print('Sounds.playChime ###################');
-    audioPlayer.play(kUrl1);
+    audioPlayer.play(chime);
   }
 
   void initAudioPlayer() {
@@ -41,7 +41,7 @@ class Sounds {
   }
 
   static Future play() async {
-    await audioPlayer.play(kUrl1);
+    await audioPlayer.play(chime);
   }
 
   static Future pause() async {
@@ -57,6 +57,8 @@ class Sounds {
   }
 
   void onComplete() {}
-  static const kUrl1 = 'http://www.rxlabz.com/labz/audio.mp3';
-  static const kUrl2 = 'http://www.rxlabz.com/labz/audio2.mp3';
+  static const chime =
+      'https://firebasestorage.googleapis.com/v0/b/business-finance-dev.appspot.com/o/audio%2Fchime.mp3?alt=media&token=f026808b-31c6-414a-a435-b1929444ca9b';
+  static const kUrl2 =
+      'https://firebasestorage.googleapis.com/v0/b/business-finance-dev.appspot.com/o/audio%2Fsms1.mp3?alt=media&token=1c8e3df1-15c5-4de7-892b-525f385276bf';
 }
