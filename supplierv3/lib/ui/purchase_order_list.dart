@@ -46,8 +46,8 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
         backgroundColor: Colors.black);
     user = await SharedPrefs.getUser();
     supplier = await SharedPrefs.getSupplier();
-    purchaseOrders = await ListAPI.getPurchaseOrders(
-        supplier.documentReference, 'suppliers');
+    purchaseOrders =
+        await ListAPI.getSupplierPurchaseOrders(supplier.documentReference);
     _scaffoldKey.currentState.hideCurrentSnackBar();
   }
 

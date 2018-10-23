@@ -239,27 +239,36 @@ class _MakeOfferPageState extends State<MakeOfferPage>
           actionLabel: 'Close');
       return;
     }
-    var key = await DataAPI3.makeOffer(offer);
-    if (key == '0') {
+    try {
+      var resultOffer = await DataAPI3.makeOffer(offer);
+      if (resultOffer == null) {
+        AppSnackbar.showErrorSnackbar(
+            scaffoldKey: _scaffoldKey,
+            message: 'Invoice Offer failed',
+            listener: this,
+            actionLabel: 'Close');
+        submitting = false;
+      } else {
+        offerId = resultOffer.offerId;
+        needRefresh = true;
+        listenForInvoiceBid(offerId, this);
+        AppSnackbar.showSnackbarWithAction(
+            scaffoldKey: _scaffoldKey,
+            message: 'Ivoice Offer suubmitted OK',
+            textColor: Colors.white,
+            backgroundColor: Colors.teal.shade800,
+            actionLabel: "DONE",
+            listener: this,
+            action: OfferSubmitted,
+            icon: Icons.done);
+      }
+    } catch (e) {
       AppSnackbar.showErrorSnackbar(
           scaffoldKey: _scaffoldKey,
           message: 'Invoice Offer failed',
           listener: this,
           actionLabel: 'Close');
       submitting = false;
-    } else {
-      offerId = key;
-      needRefresh = true;
-      listenForInvoiceBid(offerId, this);
-      AppSnackbar.showSnackbarWithAction(
-          scaffoldKey: _scaffoldKey,
-          message: 'Ivoice Offer suubmitted OK',
-          textColor: Colors.white,
-          backgroundColor: Colors.teal.shade800,
-          actionLabel: "DONE",
-          listener: this,
-          action: OfferSubmitted,
-          icon: Icons.done);
     }
   }
 

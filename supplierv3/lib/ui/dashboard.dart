@@ -166,8 +166,8 @@ class _DashboardState extends State<Dashboard>
   }
 
   Future _getPurchaseOrders() async {
-    purchaseOrders = await ListAPI.getPurchaseOrders(
-        supplier.documentReference, 'suppliers');
+    purchaseOrders =
+        await ListAPI.getSupplierPurchaseOrders(supplier.documentReference);
     setState(() {
       totalPOs = purchaseOrders.length;
     });

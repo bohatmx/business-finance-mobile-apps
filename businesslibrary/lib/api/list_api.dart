@@ -536,10 +536,8 @@ class ListAPI {
     }
   }
 
-  static Future<List<PurchaseOrder>> getPurchaseOrders(
+  static Future<List<PurchaseOrder>> getCustomerPurchaseOrders(
       String govtDocRef) async {
-    print(
-        'ListAPI.getPurchaseOrders  ..........documentId: $govtDocRef...........');
     List<PurchaseOrder> list = List();
     var querySnapshot = await _firestore
         .collection('govtEntities')
@@ -556,7 +554,31 @@ class ListAPI {
       m.documentReference = doc.documentID;
       list.add(m);
     });
-    print('ListAPI.getPurchaseOrders &&&&&&&&&&& found: ${list.length} ');
+    print(
+        'ListAPI.getCustomerPurchaseOrders &&&&&&&&&&& found: ${list.length} ');
+    return list;
+  }
+
+  static Future<List<PurchaseOrder>> getSupplierPurchaseOrders(
+      String supplierDocRef) async {
+    List<PurchaseOrder> list = List();
+    var querySnapshot = await _firestore
+        .collection('suppliers')
+        .document(supplierDocRef)
+        .collection('purchaseOrders')
+        .orderBy('date', descending: true)
+        .getDocuments()
+        .catchError((e) {
+      print('ListAPI.getSupplierPurchaseOrders  ERROR $e');
+      return list;
+    });
+    querySnapshot.documents.forEach((doc) {
+      var m = new PurchaseOrder.fromJson(doc.data);
+      m.documentReference = doc.documentID;
+      list.add(m);
+    });
+    print(
+        'ListAPI.getSupplierPurchaseOrders &&&&&&&&&&& found: ${list.length} ');
     return list;
   }
 

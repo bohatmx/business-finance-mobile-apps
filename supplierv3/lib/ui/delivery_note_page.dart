@@ -54,8 +54,8 @@ class _DeliveryNotePageState extends State<DeliveryNotePage>
         message: 'Loading  purchase orders',
         textColor: Colors.lightBlue,
         backgroundColor: Colors.black);
-    _purchaseOrders = await ListAPI.getPurchaseOrders(
-        supplier.documentReference, 'suppliers');
+    _purchaseOrders =
+        await ListAPI.getSupplierPurchaseOrders(supplier.documentReference);
     if (_scaffoldKey.currentState != null) {
       _scaffoldKey.currentState.hideCurrentSnackBar();
     }
@@ -388,26 +388,34 @@ class _DeliveryNotePageState extends State<DeliveryNotePage>
         message: 'Submitting Delivery Note ...',
         textColor: Colors.white,
         backgroundColor: Colors.black);
-    var key = await DataAPI3.registerDeliveryNote(note);
-    _scaffoldKey.currentState.hideCurrentSnackBar();
-    print('_DeliveryNotePageState._onSubmit ........ back. key: $key');
-    if (key > DataAPI3.Success) {
+    try {
+      var resultNote = await DataAPI3.registerDeliveryNote(note);
+      _scaffoldKey.currentState.hideCurrentSnackBar();
+      print('_DeliveryNotePageState._onSubmit ........ back. key: $resultNote');
+      if (resultNote == null) {
+        AppSnackbar.showErrorSnackbar(
+            scaffoldKey: _scaffoldKey,
+            message: 'Delivery Note submission failed',
+            listener: this,
+            actionLabel: 'Close');
+      } else {
+        AppSnackbar.showSnackbarWithAction(
+            scaffoldKey: _scaffoldKey,
+            message: 'Delivery Note submitted',
+            textColor: Colors.white,
+            backgroundColor: Colors.teal.shade800,
+            actionLabel: 'DONE',
+            action: 0,
+            listener: this,
+            icon: Icons.done);
+        isDone = true;
+      }
+    } catch (e) {
       AppSnackbar.showErrorSnackbar(
           scaffoldKey: _scaffoldKey,
           message: 'Delivery Note submission failed',
           listener: this,
           actionLabel: 'Close');
-    } else {
-      AppSnackbar.showSnackbarWithAction(
-          scaffoldKey: _scaffoldKey,
-          message: 'Delivery Note submitted',
-          textColor: Colors.white,
-          backgroundColor: Colors.teal.shade800,
-          actionLabel: 'DONE',
-          action: 0,
-          listener: this,
-          icon: Icons.done);
-      isDone = true;
     }
   }
 

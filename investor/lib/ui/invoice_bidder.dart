@@ -415,25 +415,33 @@ class _InvoiceBidderState extends State<InvoiceBidder>
         textColor: Colors.white,
         backgroundColor: Colors.black);
 
-    var key = await DataAPI3.makeInvoiceBid(bid);
-    if (key > DataAPI3.Success) {
+    try {
+      var resultBid = await DataAPI3.makeInvoiceBid(bid);
+      if (resultBid == null) {
+        AppSnackbar.showErrorSnackbar(
+            scaffoldKey: _scaffoldKey,
+            message: 'Invoice Bid failed',
+            listener: this,
+            actionLabel: 'CLOSE');
+      } else {
+        AppSnackbar.showSnackbarWithAction(
+            scaffoldKey: _scaffoldKey,
+            message: 'Invoice Bid successful',
+            textColor: Colors.white,
+            backgroundColor: Colors.black,
+            actionLabel: 'OK',
+            listener: this,
+            icon: Icons.done_all,
+            action: 0);
+
+        _getExistingBids();
+      }
+    } catch (e) {
       AppSnackbar.showErrorSnackbar(
           scaffoldKey: _scaffoldKey,
           message: 'Invoice Bid failed',
           listener: this,
           actionLabel: 'CLOSE');
-    } else {
-      AppSnackbar.showSnackbarWithAction(
-          scaffoldKey: _scaffoldKey,
-          message: 'Invoice Bid successful',
-          textColor: Colors.white,
-          backgroundColor: Colors.black,
-          actionLabel: 'OK',
-          listener: this,
-          icon: Icons.done_all,
-          action: 0);
-
-      _getExistingBids();
     }
   }
 
