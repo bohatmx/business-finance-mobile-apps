@@ -1,11 +1,11 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:businesslibrary/api/data_api3.dart';
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/auto_start_stop.dart';
 import 'package:businesslibrary/data/auto_trade_order.dart';
+import 'package:businesslibrary/data/invalid_trade.dart';
 import 'package:businesslibrary/data/investor_profile.dart';
 import 'package:businesslibrary/data/invoice_bid.dart';
 import 'package:businesslibrary/data/offer.dart';
@@ -55,6 +55,7 @@ class _MyHomePageState extends State<MyHomePage>
     _getLists(true);
     configureMessaging(this);
     _firebaseMessaging.subscribeToTopic('invoiceBids');
+    _firebaseMessaging.subscribeToTopic('invalidAutoTrades');
     print(
         '_MyHomePageState.initState ############ subscribed to invoiceBids topic');
   }
@@ -96,7 +97,7 @@ class _MyHomePageState extends State<MyHomePage>
   }
 
   Timer timer;
-  AutoTradeStart autoTradeStart;
+  AutoTradeStart autoTradeStart = AutoTradeStart();
 
   ///start periodic timer to control AutoTradeExecutionBuilder
   _start() async {
@@ -109,50 +110,57 @@ class _MyHomePageState extends State<MyHomePage>
             '_MyHomePageState._start -------- TIMER cancelled. timer.tick: ${timer.tick}');
       }
     }
-    timer = Timer.periodic(Duration(minutes: minutes), (mTimer) async {
-      print(
-          '_MyHomePageState._start:\n\n\n TIMER tripping - starting AUTO TRADE cycle .......time: '
-          '${DateTime.now().toIso8601String()}.  mTimer.tick: ${mTimer.tick}...\n\n');
-      _offers = await ListAPI.getOpenOffers();
-      if (_offers.isNotEmpty) {
-        setState(() {
-          _showProgress = true;
-        });
-        var result = await DataAPI3.executeAutoTrades();
-        if (result > 0) {
-          AppSnackbar.showErrorSnackbar(
-              scaffoldKey: _scaffoldKey,
-              message: 'Problem with Auto Trade Session',
-              listener: this,
-              actionLabel: 'close');
-        } else {
-          sleep(Duration(seconds: 1));
-          autoTradeStart = await SharedPrefs.getAutoTradeStart();
-          print('_MyHomePageState._start ++++ summary in the house!');
+    try {
+      timer = Timer.periodic(Duration(minutes: minutes), (mTimer) async {
+        print(
+            '_MyHomePageState._start:\n\n\n TIMER tripping - starting AUTO TRADE cycle .......time: '
+            '${DateTime.now().toIso8601String()}.  mTimer.tick: ${mTimer.tick}...\n\n');
+        _offers = await ListAPI.getOpenOffers();
+
+        if (_offers.isNotEmpty) {
           setState(() {
-            _showProgress = null;
+            _showProgress = true;
           });
-          autoTradeStart = await ListAPI.getAutoTradeStart();
+          autoTradeStart = await DataAPI3.executeAutoTrades();
           prettyPrint(
-              autoTradeStart.toJson(), '##### AutoTradeStart from Firestore');
+              autoTradeStart.toJson(), '\n\n####### RESULT from AutoTrades:');
+          if (autoTradeStart == null) {
+            AppSnackbar.showErrorSnackbar(
+                scaffoldKey: _scaffoldKey,
+                message: 'Problem with Auto Trade Session',
+                listener: this,
+                actionLabel: 'close');
+          } else {
+            setState(() {
+              _showProgress = null;
+            });
+            prettyPrint(
+                autoTradeStart.toJson(), '##### AutoTradeStart from Firestore');
+            AppSnackbar.showSnackbar(
+                scaffoldKey: _scaffoldKey,
+                message: 'Auto Trade Session complete',
+                textColor: Styles.white,
+                backgroundColor: Styles.teal);
+            _getLists(true);
+          }
+        } else {
+          print('_MyHomePageState._start ***************'
+              ' No open offers available. Will try again in $minutes minutes');
           AppSnackbar.showSnackbar(
               scaffoldKey: _scaffoldKey,
-              message: 'Auto Trade Session complete',
-              textColor: Styles.white,
-              backgroundColor: Styles.teal);
-          _getLists(true);
+              message: 'No open offers in network',
+              textColor: Styles.lightBlue,
+              backgroundColor: Styles.black);
+          return;
         }
-      } else {
-        print('_MyHomePageState._start ***************'
-            ' No open offers available. Will try again in $minutes minutes');
-        AppSnackbar.showSnackbar(
-            scaffoldKey: _scaffoldKey,
-            message: 'No open offers in network',
-            textColor: Styles.lightBlue,
-            backgroundColor: Styles.black);
-        return;
-      }
-    });
+      });
+    } catch (e) {
+      AppSnackbar.showErrorSnackbar(
+          scaffoldKey: _scaffoldKey,
+          message: 'Problem with Auto Trade Session',
+          listener: this,
+          actionLabel: 'close');
+    }
   }
 
   List<InvoiceBid> bids = List();
@@ -186,42 +194,46 @@ class _MyHomePageState extends State<MyHomePage>
     setState(() {});
     print(
         '\n\n_MyHomePageState._restart ....starting auto trades ........... offers: ${_offers.length}\n\n');
-    if (_orders.isNotEmpty && _profiles.isNotEmpty && _offers.isNotEmpty) {
-      setState(() {
-        _showProgress = true;
-      });
-      var result = await DataAPI3.executeAutoTrades();
-
-      if (result > 0) {
-        AppSnackbar.showErrorSnackbar(
-            scaffoldKey: _scaffoldKey,
-            message: 'Problem with Auto Trade Session',
-            listener: this,
-            actionLabel: 'close');
-      } else {
-        sleep(Duration(seconds: 1));
-        autoTradeStart = await SharedPrefs.getAutoTradeStart();
-        print('_MyHomePageState._start ++++ summary in the house!');
+    try {
+      if (_orders.isNotEmpty && _profiles.isNotEmpty && _offers.isNotEmpty) {
         setState(() {
-          _showProgress = null;
+          _showProgress = true;
         });
+
+        autoTradeStart = await DataAPI3.executeAutoTrades();
+
+        if (autoTradeStart == null) {
+          AppSnackbar.showErrorSnackbar(
+              scaffoldKey: _scaffoldKey,
+              message: 'Problem with Auto Trade Session',
+              listener: this,
+              actionLabel: 'close');
+        } else {
+          print('_MyHomePageState._start ++++ summary in the house!');
+          setState(() {
+            _showProgress = null;
+          });
+          AppSnackbar.showSnackbar(
+              scaffoldKey: _scaffoldKey,
+              message: 'Auto Trade Session complete',
+              textColor: Styles.white,
+              backgroundColor: Styles.black);
+          setState(() {});
+          _getLists(false);
+        }
+      } else {
         AppSnackbar.showSnackbar(
             scaffoldKey: _scaffoldKey,
-            message: 'Auto Trade Session complete',
-            textColor: Styles.white,
+            message: 'No open offers in network',
+            textColor: Styles.lightBlue,
             backgroundColor: Styles.black);
-        autoTradeStart = await ListAPI.getAutoTradeStart();
-        prettyPrint(
-            autoTradeStart.toJson(), '##### AutoTradeStart from Firestore');
-        setState(() {});
-        _getLists(false);
       }
-    } else {
-      AppSnackbar.showSnackbar(
+    } catch (e) {
+      AppSnackbar.showErrorSnackbar(
           scaffoldKey: _scaffoldKey,
-          message: 'No open offers in network',
-          textColor: Styles.lightBlue,
-          backgroundColor: Styles.black);
+          message: 'Problem with Auto Trade Session',
+          listener: this,
+          actionLabel: 'close');
     }
   }
 
@@ -415,7 +427,7 @@ class _MyHomePageState extends State<MyHomePage>
                         padding: const EdgeInsets.only(left: 8.0),
                         child: Text(
                           _orders == null ? '0' : '${_orders.length}',
-                          style: Styles.pinkBoldReallyLarge,
+                          style: Styles.pinkBoldLarge,
                         ),
                       ),
                     ],
@@ -434,7 +446,7 @@ class _MyHomePageState extends State<MyHomePage>
                         padding: const EdgeInsets.only(left: 8.0),
                         child: Text(
                           _offers == null ? '0' : '${_offers.length}',
-                          style: Styles.blueBoldReallyLarge,
+                          style: Styles.blueBoldLarge,
                         ),
                       ),
                     ],
@@ -487,7 +499,7 @@ class _MyHomePageState extends State<MyHomePage>
                         Padding(
                           padding: const EdgeInsets.only(left: 2.0),
                           child: Text(
-                            autoTradeStart == null
+                            autoTradeStart.dateEnded == null
                                 ? '00:00'
                                 : getFormattedDateHour(
                                     autoTradeStart.dateEnded),
@@ -510,7 +522,7 @@ class _MyHomePageState extends State<MyHomePage>
                           Padding(
                             padding: const EdgeInsets.only(left: 2.0),
                             child: Text(
-                              autoTradeStart == null
+                              autoTradeStart.totalAmount == null
                                   ? '0.00'
                                   : getFormattedAmount(
                                       '${autoTradeStart.totalAmount}', context),
@@ -534,7 +546,7 @@ class _MyHomePageState extends State<MyHomePage>
                           Padding(
                             padding: const EdgeInsets.only(left: 2.0),
                             child: Text(
-                              autoTradeStart == null
+                              autoTradeStart.totalValidBids == null
                                   ? '0'
                                   : '${autoTradeStart.totalValidBids}',
                               style: Styles.blackBoldLarge,
@@ -557,7 +569,7 @@ class _MyHomePageState extends State<MyHomePage>
                           Padding(
                             padding: const EdgeInsets.only(left: 2.0),
                             child: Text(
-                              autoTradeStart == null
+                              autoTradeStart.totalInvalidBids == null
                                   ? '0'
                                   : '${autoTradeStart.totalInvalidBids}',
                               style: Styles.blackBoldLarge,
@@ -580,7 +592,7 @@ class _MyHomePageState extends State<MyHomePage>
                           Padding(
                             padding: const EdgeInsets.only(left: 2.0),
                             child: Text(
-                              autoTradeStart == null
+                              autoTradeStart.possibleAmount == null
                                   ? '0'
                                   : getFormattedAmount(
                                       '${autoTradeStart.possibleAmount}',
@@ -601,15 +613,46 @@ class _MyHomePageState extends State<MyHomePage>
     );
   }
 
+  List<InvoiceBid> bidsArrived = List();
+  List<InvalidTrade> invaliTrades = List();
   @override
   onInvoiceBidMessage(InvoiceBid invoiceBid) {
-    print('_MyHomePageState.onInvoiceBidMessage ${invoiceBid.toJson()}');
+    prettyPrint(invoiceBid.toJson(), '\n\n\n############# INVOICE BID arrived');
     var msg =
-        'Invoice Bid ${invoiceBid.amount} reserved: ${invoiceBid.reservePercent} \n Bid at: ${getFormattedDateHour(DateTime.now().toIso8601String())}';
+        'Invoice Bid ${getFormattedAmount('${invoiceBid.amount}', context)} reserved: ${invoiceBid.reservePercent} % \n Bid made at: ${getFormattedDateHour(DateTime.now().toIso8601String())}';
+    bidsArrived.add(invoiceBid);
+    var tot = 0.00;
+    bidsArrived.forEach((bid) {
+      tot += bid.amount;
+    });
+
+    if (autoTradeStart == null) {
+      autoTradeStart = AutoTradeStart();
+    }
+    autoTradeStart.totalAmount = tot;
+    autoTradeStart.totalValidBids = bidsArrived.length;
+    _getLists(false);
+    setState(() {});
+    print(msg);
+    print(
+        '\n_MyHomePageState.onInvoiceBidMessage ... bids arrived: ${bidsArrived.length}\n\n');
     AppSnackbar.showSnackbar(
         scaffoldKey: _scaffoldKey,
         message: msg,
         textColor: Styles.white,
         backgroundColor: Styles.teal);
+  }
+
+  @override
+  onInvalidTrade(InvalidTrade invalidTrade) {
+    prettyPrint(invalidTrade.toJson(), '\n\n###### InvalidTrade arrived:');
+    invaliTrades.add(invalidTrade);
+    if (autoTradeStart == null) {
+      autoTradeStart = AutoTradeStart();
+    }
+
+    setState(() {
+      autoTradeStart.totalInvalidBids = invaliTrades.length;
+    });
   }
 }

@@ -514,6 +514,31 @@ class ListAPI {
     return list;
   }
 
+  static Future<List<Offer>> getExpiredOffers() async {
+    List<Offer> list = List();
+    var now = getUTCDate();
+    var qs = await _firestore
+        .collection('invoiceOffers')
+        .where('isOpen', isEqualTo: true)
+        .where('endTime', isLessThan: now)
+        .getDocuments()
+        .catchError((e) {
+      print('ListAPI.getExpiredOffers $e');
+      return list;
+    });
+
+    print(
+        'ListAPI.getExpiredOffers ------- offers found: ${qs.documents.length} ');
+
+    qs.documents.forEach((doc) {
+      var offer = Offer.fromJson(doc.data);
+      offer.documentReference = doc.documentID;
+      list.add(offer);
+    });
+
+    return list;
+  }
+
   ///check if auto trade is running
   static Future<bool> checkLatestAutoTradeStart() async {
     try {

@@ -1,12 +1,12 @@
 class AutoTradeStart {
-  String dateStarted;
-  String dateEnded;
-  int totalValidBids, totalOffers, totalInvalidBids;
-  double possibleAmount, totalAmount, elapsedSeconds;
-  int closedOffers;
+  String dateStarted = DateTime.now().toIso8601String();
+  String dateEnded = DateTime.now().toIso8601String();
+  int totalValidBids = 0, totalOffers = 0, totalInvalidBids = 0;
+  double possibleAmount = 0.0, totalAmount = 0.0, elapsedSeconds = 0.0;
+  int closedOffers = 0;
 
   AutoTradeStart(
-      this.dateStarted,
+      {this.dateStarted,
       this.dateEnded,
       this.totalValidBids,
       this.totalOffers,
@@ -14,7 +14,7 @@ class AutoTradeStart {
       this.possibleAmount,
       this.totalAmount,
       this.elapsedSeconds,
-      this.closedOffers);
+      this.closedOffers});
 
   AutoTradeStart.fromJson(Map data) {
     this.dateStarted = data['dateStarted'];

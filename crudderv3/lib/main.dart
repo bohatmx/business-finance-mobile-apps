@@ -90,19 +90,19 @@ class _MyHomePageState extends State<MyHomePage> implements GenListener {
 //      _counter++;
 //      msgList.add('### Investors added to BFN and Firestore');
 //    });
-//    await _generateWork();
-//    setState(() {
-//      _counter++;
-//    });
+    await _generateWork();
+    setState(() {
+      _counter++;
+    });
 //    await Generator.generateOffers(this, context);
 //    setState(() {
 //      _counter++;
 //    });
 
-    await Generator.fixEndDates();
-    setState(() {
-      _counter++;
-    });
+//    await Generator.fixEndDates();
+//    setState(() {
+//      _counter++;
+//    });
     var end = DateTime.now();
     var diffm = end.difference(start).inMinutes;
     var diffs = end.difference(start).inSeconds;

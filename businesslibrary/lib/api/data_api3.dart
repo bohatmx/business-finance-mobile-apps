@@ -366,41 +366,28 @@ class DataAPI3 {
     }
   }
 
-  static Future<int> executeAutoTrades() async {
+  static Future<AutoTradeStart> executeAutoTrades() async {
     print('\n\n\nDataAPI3.executeAutoTrades url: ${url + EXECUTE_AUTO_TRADES}');
-    var parms;
-    if (isInDebugMode) {
-      parms = {'debug': true};
-    } else {
-      parms = {};
-    }
-    try {
-      var httpClient = new HttpClient();
-      HttpClientRequest mRequest =
-          await httpClient.postUrl(Uri.parse(url + EXECUTE_AUTO_TRADES));
-      mRequest.headers.contentType = _contentType;
-      mRequest.write(json.encode(parms));
-      HttpClientResponse mResponse = await mRequest.close();
-      print(
-          'DataAPI3.executeAutoTrades ######## blockchain response status code:  ${mResponse.statusCode}');
-      var summary, mjson;
 
-      mResponse.transform(utf8.decoder).listen((autoResult) {
-        print('DataAPI3.executeAutoTrades;  $autoResult');
-        mjson = json.decode(autoResult);
-        summary = AutoTradeStart.fromJson(mjson);
-        SharedPrefs.saveAutoTradeStart(summary);
-      });
+    APIBag bag = APIBag(
+      debug: isInDebugMode,
+    );
+    try {
+      var mResponse = await doHTTP(url + EXECUTE_AUTO_TRADES, bag);
       if (mResponse.statusCode == 200) {
-        return 0;
+        var mjson = json.decode(mResponse.body);
+        var start = AutoTradeStart.fromJson(mjson);
+        prettyPrint(start.toJson(),
+            '\n\n\n######## AUTO TRADE EXECUTION COMPLETE!!!\n\n');
+        return start;
       } else {
-        return 9;
+        print(mResponse.body);
+        throw Exception('Auto Trade failed = ${mResponse.body}');
       }
     } catch (e) {
-      print('DataAPI3.executeAutoTrades ERROR $e');
-      return 9;
+      print(e);
+      throw e;
     }
-    return null;
   }
 
   static Future<int> addSectors() async {

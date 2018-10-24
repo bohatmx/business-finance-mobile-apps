@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:businesslibrary/api/data_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/api/signup.dart';
+import 'package:businesslibrary/data/invalid_trade.dart';
 import 'package:businesslibrary/data/invoice_bid.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/data/wallet.dart';
@@ -300,9 +301,17 @@ String getFormattedDate(String date) {
 }
 
 String getFormattedDateHour(String date) {
-  DateTime d = DateTime.parse(date);
-  var format = new DateFormat.Hm();
-  return format.format(d);
+  print(date);
+  try {
+    DateTime d = DateTime.parse(date);
+    var format = new DateFormat.Hm();
+    return format.format(d);
+  } catch (e) {
+    print('------------ check value of input date');
+    DateTime d = DateTime.now();
+    var format = new DateFormat.Hm();
+    return format.format(d);
+  }
 }
 
 String getFormattedLongestDate(String date) {
@@ -341,104 +350,15 @@ configureMessaging(FCMListener listener) async {
       try {
         if (messageType.contains("INVOICE_BID")) {
           var invoiceBid = InvoiceBid.fromJson(json.decode(data['json']));
-          prettyPrint(invoiceBid.toJson(), 'invoiceBid ############: ');
           listener.onInvoiceBidMessage(invoiceBid);
-        } else {
-          print(
-              '\n\nconfigureMessaging: ----- message type comparison flopped: $messageType');
+        }
+        if (messageType.contains("INVALID_TRADE")) {
+          var invalid = InvalidTrade.fromJson(json.decode(data['json']));
+          listener.onInvalidTrade(invalid);
         }
       } catch (e) {
         print(e);
       }
-
-//      if (messageType == "WALLET_ERROR") {
-//        print(
-//            'configureMessaging: ############## receiving WALLET_ERROR message from FCM');
-//        listener.onWalletError();
-//      }
-//      if (messageType == "PURCHASE_ORDER") {
-//        print(
-//            'configureMessaging: ############## receiving PURCHASE_ORDER message from FCM ....');
-//        Map map = json.decode(message["json"]);
-//        var po = new PurchaseOrder.fromJson(map);
-//        assert(po != null);
-//        print('configureMessaging .... about to tell listener about po');
-//        listener.onPurchaseOrderMessage(po);
-//      }
-//      if (messageType == "DELIVERY_NOTE") {
-//        print(
-//            'configureMessaging: ############## receiving DELIVERY_NOTE message from FCM');
-//        Map map = json.decode(message["json"]);
-//        var m = new DeliveryNote.fromJson(map);
-//        assert(m != null);
-//        listener.onDeliveryNote(m);
-//      }
-//      if (messageType == "DELIVERY_ACCEPTANCE") {
-//        print(
-//            'configureMessaging: ############## receiving DELIVERY_ACCEPTANCE message from FCM');
-//        Map map = json.decode(message["json"]);
-//        var m = new DeliveryAcceptance.fromJson(map);
-//        assert(m != null);
-//        print('configureMessaging #### about to send acceptance via listener');
-//        listener.onDeliveryAcceptance(m);
-//      }
-//      //
-//      if (messageType == "INVOICE") {
-//        print(
-//            'configureMessaging: \n\n############## receiving INVOICE from FCM,*** WTF!! and we just stop here???');
-//        try {
-//          Map map = json.decode(message["json"]);
-//          var m = new Invoice.fromJson(map);
-//          //assert(m != null);
-//          print(
-//              'configureMessaging -- about to tell listener about invoice ...');
-//          prettyPrint(map, 'received: ++++++++++++++++++++++++=');
-//          listener.onInvoiceMessage(m);
-//        } catch (e) {
-//          print('configureMessaging ERROR $e');
-//        }
-//      }
-//      //
-//      if (messageType == "INVOICE_OFFER") {
-//        print(
-//            'configureMessaging: ############## receiving INVOICE_OFFER message from FCM');
-//        Map map = json.decode(message["json"]);
-//        var m = new Offer.fromJson(map);
-//        assert(m != null);
-//        listener.onOfferMessage(m);
-//      }
-//      if (messageType == "INVOICE_BID") {
-//        print(
-//            'configureMessaging: ############## receiving INVOICE_BID message from FCM');
-//        Map map = json.decode(message["json"]);
-//        var m = new InvoiceBid.fromJson(map);
-//        assert(m != null);
-//        listener.onInvoiceBidMessage(m);
-//      }
-//      if (messageType == "GOVT_INVOICE_SETTLEMENT") {
-//        print(
-//            'configureMessaging: ############## receiving GOVT_INVOICE_SETTLEMENT message from FCM');
-//        Map map = json.decode(message["json"]);
-//        var m = new GovtInvoiceSettlement.fromJson(map);
-//        assert(m != null);
-//        listener.onGovtInvoiceSettlement(m);
-//      }
-//      if (messageType == "INVESTOR_INVOICE_SETTLEMENT") {
-//        print(
-//            'configureMessaging: ############## receiving INVESTOR_INVOICE_SETTLEMENT message from FCM');
-//        Map map = json.decode(message["json"]);
-//        var m = new InvestorInvoiceSettlement.fromJson(map);
-//        assert(m != null);
-//        listener.onInvestorSettlement(m);
-//      }
-//      if (messageType == "COMPANY_INVOICE_SETTLEMENT") {
-//        print(
-//            'configureMessaging: ############## receiving COMPANY_INVOICE_SETTLEMENT message from FCM');
-//        Map map = json.decode(message["json"]);
-//        var m = new CompanyInvoiceSettlement.fromJson(map);
-//        assert(m != null);
-//        listener.onCompanySettlement(m);
-//      }
     },
     onLaunch: (Map<String, dynamic> message) {
       print('configureMessaging onLaunch *********** ');
@@ -502,6 +422,7 @@ abstract class FCMListener {
 //  onInvoiceMessage(Invoice invoice);
 //  onOfferMessage(Offer offer);
   onInvoiceBidMessage(InvoiceBid invoiceBid);
+  onInvalidTrade(InvalidTrade invalidTrade);
 //  onGovtInvoiceSettlement(GovtInvoiceSettlement settlement);
 //  onInvestorSettlement(InvestorInvoiceSettlement settlement);
 //  onCompanySettlement(CompanyInvoiceSettlement settlement);
