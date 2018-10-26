@@ -4,6 +4,7 @@ import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/api/signup.dart';
 import 'package:businesslibrary/data/delivery_acceptance.dart';
 import 'package:businesslibrary/data/delivery_note.dart';
+import 'package:businesslibrary/data/invalid_trade.dart';
 import 'package:businesslibrary/data/invoice.dart';
 import 'package:businesslibrary/data/invoice_bid.dart';
 import 'package:businesslibrary/data/invoice_settlement.dart';
@@ -461,5 +462,10 @@ class _SignUpPageState extends State<SignUpPage>
             builder: (context) => new Dashboard('Wallet created')),
       );
     }
+  }
+
+  @override
+  onInvalidTrade(InvalidTrade invalidTrade) {
+    // TODO: implement onInvalidTrade
   }
 }

@@ -18,6 +18,7 @@ import 'package:flutter/material.dart';
 
 abstract class GenListener {
   onEvent(String message);
+  onPhaseComplete();
 }
 
 class Generator {
@@ -59,15 +60,8 @@ class Generator {
       invoices =
           await ListAPI.getInvoices(supplier.documentReference, 'suppliers');
       for (var invoice in invoices) {
-        var offer = await ListAPI.getOfferByInvoice(invoice.invoiceId);
-        if (offer == null) {
-          assert(supplier.documentReference != null);
-          var acc = await ListAPI.getInvoiceAcceptanceByInvoice(
-              supplier.documentReference,
-              nameSpace + 'Invoice#${invoice.invoiceId}');
-          if (acc != null) {
-            await _makeOffer(invoice, supplier);
-          }
+        if (!invoice.isOnOffer) {
+          await _makeOffer(invoice, supplier);
         }
       }
     }
@@ -113,6 +107,7 @@ class Generator {
     print(div);
     genListener.onEvent(
         'Generator - purchaseOrders generated: ${purchaseOrders.length}');
+    genListener.onPhaseComplete();
 
     for (var po in purchaseOrders) {
       await _generateDeliveryNote(po);
@@ -121,6 +116,7 @@ class Generator {
     print(div);
     genListener.onEvent(
         'Generator - delivery notes generated: ${purchaseOrders.length}');
+    genListener.onPhaseComplete();
 
     for (var note in deliveryNotes) {
       await _acceptDeliveryNote(note);
@@ -129,6 +125,7 @@ class Generator {
     print(div);
     genListener.onEvent(
         'Generator - delivery notes accepted: ${deliveryNotes.length}');
+    genListener.onPhaseComplete();
 
     for (var acc in deliveryAcceptances) {
       var note;
@@ -142,6 +139,7 @@ class Generator {
     }
     print(div);
     genListener.onEvent('Generator - invoices generated: ${invoices.length}');
+    genListener.onPhaseComplete();
 
     for (var inv in invoices) {
       Supplier supplier;
@@ -156,6 +154,7 @@ class Generator {
 
     print(div);
     genListener.onEvent('Generator - offers generated: ${offers.length}');
+    genListener.onPhaseComplete();
   }
 
   static List<PurchaseOrder> purchaseOrders = List();
@@ -331,11 +330,25 @@ class Generator {
       4.0,
       5.0,
       6.0,
+      1.0,
+      2.0,
+      3.0,
       7.0,
       8.0,
+      4.0,
+      5.0,
       9.0,
+      2.0,
+      1.0,
+      3.0,
+      4.0,
       10.0,
+      4.0,
       11.0,
+      1.0,
+      2.0,
+      5.0,
+      3.0,
       12.0
     ];
     return discounts[rand.nextInt(discounts.length - 1)];

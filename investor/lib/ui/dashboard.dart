@@ -4,6 +4,7 @@ import 'package:businesslibrary/api/data_api3.dart';
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/auto_trade_order.dart';
+import 'package:businesslibrary/data/dashboard_data.dart';
 import 'package:businesslibrary/data/delivery_acceptance.dart';
 import 'package:businesslibrary/data/delivery_note.dart';
 import 'package:businesslibrary/data/investor.dart';
@@ -40,13 +41,13 @@ class Dashboard extends StatefulWidget {
 }
 
 class _DashboardState extends State<Dashboard>
-    with TickerProviderStateMixin
+    with TickerProviderStateMixin, WidgetsBindingObserver
     implements SnackBarListener, OfferListener, BidListener, FCMListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   static const platform = const MethodChannel('com.oneconnect.biz.CHANNEL');
   final FirebaseMessaging _firebaseMessaging = new FirebaseMessaging();
 
-  String message;
+  String _message;
   AnimationController animationController;
   Animation<double> animation;
   Investor investor;
@@ -58,11 +59,11 @@ class _DashboardState extends State<Dashboard>
   String fullName;
   DeliveryAcceptance acceptance;
   BasicMessageChannel<String> basicMessageChannel;
-
+  AppLifecycleState lifecycleState;
   @override
   initState() {
     super.initState();
-    print('_DashboardState.initState .............. to get summary');
+    WidgetsBinding.instance.addObserver(this);
     animationController = AnimationController(
       duration: Duration(milliseconds: 1000),
       vsync: this,
@@ -72,12 +73,24 @@ class _DashboardState extends State<Dashboard>
 
     items = buildDaysDropDownItems();
     _subscribeToFCM();
-    configureMessaging(this);
     _checkSectors();
   }
 
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    print('_DashboardState.didChangeAppLifecycleState state: $state');
+    if (state == AppLifecycleState.resumed) {
+      _getSummaryData();
+    }
+    setState(() {
+      lifecycleState = state;
+    });
+  }
+
   void _subscribeToFCM() {
+    configureMessaging(this);
     _firebaseMessaging.subscribeToTopic('invoiceBids');
+    _firebaseMessaging.subscribeToTopic('offers');
     print('_DashboardState._subscribeToFCM ########## subscribed!');
   }
 
@@ -93,10 +106,12 @@ class _DashboardState extends State<Dashboard>
   @override
   void dispose() {
     animationController.dispose();
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
   bool summaryBusy = false;
+  DashboardData dashboardData = DashboardData();
 
   ///get  summaries from Firestore
   _getSummaryData() async {
@@ -110,11 +125,13 @@ class _DashboardState extends State<Dashboard>
         message: 'Loading fresh data ...',
         textColor: Colors.white,
         backgroundColor: Colors.black);
-    await _getOffers();
-    await _getInvoiceBids();
-    await _getSettlements();
+
+    dashboardData = await ListAPI.getInvestorDashboardData(
+        investor.participantId, investor.documentReference);
+
     _scaffoldKey.currentState.hideCurrentSnackBar();
     summaryBusy = false;
+    setState(() {});
   }
 
   Future _getCachedPrefs() async {
@@ -134,59 +151,13 @@ class _DashboardState extends State<Dashboard>
     print('_DashboardState._getSettlements ......');
   }
 
-  Future _getInvoiceBids() async {
-    invoiceBids =
-        await ListAPI.getInvoiceBidsByInvestor(investor.documentReference);
-    print('_DashboardState._getInvoiceBids +++++++ ${invoiceBids.length}');
-    _scaffoldKey.currentState.hideCurrentSnackBar();
-    if (invoiceBids.isNotEmpty) {
-      lastInvoiceBid = invoiceBids.last;
-    }
-
-    if (_scaffoldKey.currentState != null) {
-      _scaffoldKey.currentState.hideCurrentSnackBar();
-    }
-    invoiceBids.forEach((n) {
-      totalInvoiceBidAmount += n.amount;
-    });
-    setState(() {
-      totalInvoiceBids = invoiceBids.length;
-    });
-  }
-
   InvoiceBid lastInvoiceBid;
   PurchaseOrder lastPO;
   DeliveryNote lastNote;
 
-  int totalInvoiceBids, totalOffers, totalNotes, totalPayments;
-  double totalInvoiceBidAmount = 0.00;
-  final invoiceStyle = TextStyle(
-    fontWeight: FontWeight.w900,
-    fontSize: 28.0,
-    color: Colors.pink,
-  );
-  final poStyle = TextStyle(
-    fontWeight: FontWeight.w900,
-    fontSize: 28.0,
-    color: Colors.black,
-  );
-  final delNoteStyle = TextStyle(
-    fontWeight: FontWeight.w900,
-    fontSize: 28.0,
-    color: Colors.blue,
-  );
-  final paymentStyle = TextStyle(
-    fontWeight: FontWeight.w900,
-    fontSize: 28.0,
-    color: Colors.teal,
-  );
-
-  double opacity = 1.0;
-  String name;
-
   @override
   Widget build(BuildContext context) {
-    message = widget.message;
+    _message = widget.message;
 
     return new WillPopScope(
       onWillPop: () async => false,
@@ -194,7 +165,6 @@ class _DashboardState extends State<Dashboard>
         key: _scaffoldKey,
         appBar: AppBar(
           elevation: 3.0,
-//          backgroundColor: Colors.indigo.shade400,
           title: Text(
             'BFN',
             style: TextStyle(fontWeight: FontWeight.normal),
@@ -235,34 +205,27 @@ class _DashboardState extends State<Dashboard>
                 padding: const EdgeInsets.only(top: 4.0),
                 child: ListView(
                   children: <Widget>[
-//                    Padding(
-//                      padding: const EdgeInsets.only(left: 28.0),
-//                      child: DropdownButton<int>(
-//                        items: items,
-//                        value: _days,
-//                        elevation: 4,
-//                        onChanged: _onDropDownChanged,
-//                      ),
-//                    ),
                     new InkWell(
                       onTap: _onPaymentsTapped,
                       child: SummaryCard(
-                        total: totalPayments == null ? 0 : totalPayments,
+                        total: dashboardData == null ? 0 : 0,
                         label: 'Bids Settled',
-                        totalStyle: Styles.blueBoldReallyLarge,
+                        totalStyle: Styles.blueBoldLarge,
                       ),
                     ),
                     new InkWell(
                       onTap: _onOffersTapped,
                       child: SummaryCard(
-                        total: totalOffers == null ? 0 : totalOffers,
+                        total: dashboardData.totalOpenOffers == null
+                            ? 0
+                            : dashboardData.totalOpenOffers,
                         label: 'Open Invoice Offers',
-                        totalStyle: invoiceStyle,
+                        totalStyle: Styles.pinkBoldMedium,
                       ),
                     ),
                     new InkWell(
                       onTap: _onInvoiceBidsTapped,
-                      child: InvoiceBidSummaryCard(invoiceBids),
+                      child: InvestorSummaryCard(dashboardData, context),
                     ),
                   ],
                 ),
@@ -352,11 +315,10 @@ class _DashboardState extends State<Dashboard>
   List<DropdownMenuItem<int>> items = List();
 
   Future _getOffers() async {
-    print('_DashboardState._getOffers ................');
     offers = await ListAPI.getOpenOffers();
-    setState(() {
-      totalOffers = offers.length;
-    });
+    setState(() {});
+    print(
+        '\n\n_DashboardState._getOffers ................ ${offers.length}\n\n');
   }
 
   void _onOffersTapped() {
@@ -438,87 +400,202 @@ class _DashboardState extends State<Dashboard>
   );
 
   @override
-  onInvoiceBid(InvoiceBid bid) {
+  onInvoiceBid(InvoiceBid bid) async {
     print(
         '\n\n_DashboardState.onInvoiceBid +++++++++++++ arrived safely. Bueno Senor!......... ${bid.investorName} ${bid.amount}\n\n');
-    _getSummaryData();
+
+    invoiceBids.insert(0, bid);
+    setState(() {});
+    await _getOffers();
+    print('_DashboardState.onInvoiceBidMessage ############ ${offers.length}');
+    setState(() {});
   }
 
   @override
-  onInvoiceBidMessage(InvoiceBid invoiceBid) {
-    print('_DashboardState.onInvoiceBidMessage ${invoiceBid.toJson()}');
-    _getSummaryData();
+  onOfferMessage(Offer offer) {
+    print('_DashboardState.onOfferMessage');
+    prettyPrint(offer.toJson(), 'OFFER arrived via FCM');
   }
+
+  @override
+  onInvoiceBidMessage(invoiceBid) async {
+    print('\n\n_DashboardState.onInvoiceBidMessage \n${invoiceBid.toJson()}');
+    invoiceBids.insert(0, invoiceBid);
+    setState(() {});
+    await _getOffers();
+    print('_DashboardState.onInvoiceBidMessage ############ ${offers.length}');
+    setState(() {});
+  }
+
+//  int totalInvoiceBids, totalOffers, totalNotes, totalPayments;
+//  double totalInvoiceBidAmount = 0.00;
+  final invoiceStyle = TextStyle(
+    fontWeight: FontWeight.w900,
+    fontSize: 28.0,
+    color: Colors.pink,
+  );
+  final poStyle = TextStyle(
+    fontWeight: FontWeight.w900,
+    fontSize: 28.0,
+    color: Colors.black,
+  );
+  final delNoteStyle = TextStyle(
+    fontWeight: FontWeight.w900,
+    fontSize: 28.0,
+    color: Colors.blue,
+  );
+  final paymentStyle = TextStyle(
+    fontWeight: FontWeight.w900,
+    fontSize: 28.0,
+    color: Colors.teal,
+  );
+
+  double opacity = 1.0;
+  String name;
 }
 
-class InvoiceBidSummaryCard extends StatelessWidget {
-  final List<InvoiceBid> bids;
+class InvestorSummaryCard extends StatelessWidget {
+  final DashboardData dashboardData;
+  final BuildContext context;
+  InvestorSummaryCard(this.dashboardData, this.context);
 
-  InvoiceBidSummaryCard(this.bids);
+  Widget _getTotalBids() {
+    return Padding(
+      padding: EdgeInsets.only(left: 12.0, top: 8.0, bottom: 8.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: <Widget>[
+          Text(
+            'Number of Bids',
+            style: Styles.greyLabelSmall,
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 10.0, right: 10.0),
+            child: Text(
+              dashboardData.totalBids == null
+                  ? '0'
+                  : '${dashboardData.totalBids}',
+              style: Styles.blackBoldMedium,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
-  double totalBidAmount = 0.00;
-  int numberOfBids = 0;
+  Widget _getTotalBidValue() {
+    return Padding(
+      padding: EdgeInsets.only(left: 12.0, top: 8.0, bottom: 8.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: <Widget>[
+          Text(
+            'Total Bid Amount',
+            style: Styles.greyLabelSmall,
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 10.0, right: 10.0),
+            child: Text(
+              dashboardData.totalBidAmount == null
+                  ? '0'
+                  : '${getFormattedAmount('${dashboardData.totalBidAmount}', context)}',
+              style: Styles.blackBoldMedium,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _getAverageDiscount() {
+    return Padding(
+      padding: EdgeInsets.only(left: 12.0, top: 8.0, bottom: 8.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: <Widget>[
+          Text(
+            'Average Discount',
+            style: Styles.greyLabelSmall,
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 10.0, right: 10.0),
+            child: Text(
+              dashboardData.averageDiscountPerc == null
+                  ? '0'
+                  : '${getFormattedAmount('${dashboardData.averageDiscountPerc}', context)}%',
+              style: Styles.purpleBoldMedium,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _getAverageBidAmount() {
+    return Padding(
+      padding: EdgeInsets.only(left: 12.0, top: 8.0, bottom: 8.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: <Widget>[
+          Text(
+            'Average Bid Amount',
+            style: Styles.greyLabelSmall,
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 10.0, right: 10.0),
+            child: Text(
+              dashboardData.averageBidAmount == null
+                  ? '0'
+                  : '${getFormattedAmount('${dashboardData.averageBidAmount}', context)}',
+              style: Styles.blackBoldMedium,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    bids.forEach((m) {
-      totalBidAmount += m.amount;
-    });
-    print('InvoiceBidSummaryCard.build totalBidAmount: $totalBidAmount');
     return Container(
-      height: 220.0,
+      height: 400.0,
       child: new Padding(
-        padding: const EdgeInsets.all(12.0),
+        padding: const EdgeInsets.all(10.0),
         child: Card(
           elevation: 8.0,
           child: Column(
             children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.only(top: 20.0, bottom: 2.0),
-                child: Text(
-                  'Your Unsettled Invoice Bids',
-                  style: Styles.greyLabelMedium,
+              Container(
+                height: 140.0,
+                child: Container(
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      image: AssetImage('assets/fincash.jpg'),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
                 ),
               ),
-              new Padding(
-                padding: EdgeInsets.only(top: 8.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: <Widget>[
-                    Text(
-                      'Total Value',
-                      style: Styles.greyLabelSmall,
+              _getTotalBids(),
+              _getTotalBidValue(),
+              _getAverageBidAmount(),
+              _getAverageDiscount(),
+              Container(
+                child: RaisedButton(
+                  elevation: 6.0,
+                  color: Colors.indigo.shade400,
+                  onPressed: _onBtnPressed,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      'Show Charts',
+                      style: Styles.whiteSmall,
                     ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 10.0, right: 10.0),
-                      child: Text(
-                        totalBidAmount == null
-                            ? '0.00'
-                            : getFormattedAmount('$totalBidAmount', context),
-                        style: Styles.tealBoldLarge,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.only(top: 12.0, bottom: 12.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: <Widget>[
-                    Text(
-                      'Number of Bids',
-                      style: Styles.greyLabelSmall,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 10.0, right: 10.0),
-                      child: Text(
-                        bids == null ? '0' : '${bids.length}',
-                        style: Styles.blackBoldLarge,
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ],
@@ -527,4 +604,6 @@ class InvoiceBidSummaryCard extends StatelessWidget {
       ),
     );
   }
+
+  void _onBtnPressed() {}
 }

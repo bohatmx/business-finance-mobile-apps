@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 
+import 'package:businesslibrary/api/data_api3.dart';
 import 'package:businesslibrary/api/signup.dart';
 import 'package:businesslibrary/data/govt_entity.dart';
 import 'package:businesslibrary/data/investor.dart';
@@ -14,6 +15,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:crudderv3/generator.dart';
 import 'package:crudderv3/theme_util.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 
 void main() => runApp(new MyApp());
 
@@ -45,13 +47,13 @@ class _MyHomePageState extends State<MyHomePage> implements GenListener {
   static const NameSpace = 'resource:com.oneconnect.biz.';
   static Random rand = new Random(new DateTime.now().millisecondsSinceEpoch);
   bool isBusy = false;
-  String btnText = "Go!";
+  String btnText = "Generate Working Data", phases = FIVE;
   @override
   initState() {
     super.initState();
   }
 
-  void _start() async {
+  void _generateBrandNewNetwork() async {
     if (isBusy) {
       AppSnackbar.showSnackbar(
           scaffoldKey: _scaffoldKey,
@@ -62,67 +64,95 @@ class _MyHomePageState extends State<MyHomePage> implements GenListener {
     }
     isBusy = true;
     var start = DateTime.now();
-//    await _cleanUp();
-//    setState(() {
-//      btnText = 'Working...';
-//      _counter++;
-//      msgList.add('### Demo data cleanup is complete');
-//    });
-//    await DataAPI3.addSectors();
-//
-//    setState(() {
-//      msgList.add('### Sectors added to BFN and Firestore');
-//      _counter++;
-//    });
-//
-//    await _addCustomers();
-//    setState(() {
-//      _counter++;
-//      msgList.add('### Customers added to BFN and Firestore');
-//    });
-//    await _generateSuppliers();
-//    setState(() {
-//      _counter++;
-//      msgList.add('### Suppliers added to BFN and Firestore');
-//    });
-//    await _addInvestors();
-//    setState(() {
-//      _counter++;
-//      msgList.add('### Investors added to BFN and Firestore');
-//    });
+    await _cleanUp();
+    setState(() {
+      btnText = 'Working...';
+      phases = SIX;
+      _counter++;
+      msgList.add('### Demo data cleanup is complete');
+    });
+    await DataAPI3.addSectors();
+    //TODO - add countries and VAT schedules
+    setState(() {
+      msgList.add('### Sectors added to BFN and Firestore');
+      _counter++;
+    });
+
+    await _addCustomers();
+    setState(() {
+      _counter++;
+      msgList.add('### Customers added to BFN and Firestore');
+    });
+    await _generateSuppliers();
+    setState(() {
+      _counter++;
+      msgList.add('### Suppliers added to BFN and Firestore');
+    });
+    await _addInvestors();
+    setState(() {
+      _counter++;
+      msgList.add('### Investors added to BFN and Firestore');
+    });
+    //generate PurchaseOrders thru Offers
     await _generateWork();
     setState(() {
       _counter++;
+      msgList.add('### Generated POs thru Offers. Operation One');
     });
-//    await Generator.generateOffers(this, context);
-//    setState(() {
-//      _counter++;
-//    });
+    await _generateWork();
 
-//    await Generator.fixEndDates();
-//    setState(() {
-//      _counter++;
-//    });
     var end = DateTime.now();
     var diffm = end.difference(start).inMinutes;
     var diffs = end.difference(start).inSeconds;
-    print(
-        '\n\n_MyHomePageState._start ELAPSED SECONDS for DemoData $diffs ##########\n\n');
 
+    isBusy = false;
+    isBrandNew = false;
+    btnText = 'Generate New Working Data';
+    phases = FIVE;
+    btnColor = Colors.pink.shade800;
     setState(() {
       _counter++;
-      btnText = 'Done';
+      msgList.add('### Generated POs thru Offers. Operation Two');
       msgList.add(
           '### Demo Data Generation complete:, $diffm minutes elapsed. ($diffs seconds)');
     });
     print(
-        '_MyHomePageState._start  #####################################  Demo Data COMPLETED!');
+        '\n\n_MyHomePageState._start  #####################################  Demo Data COMPLETED!');
   }
 
+  void _generateWorkingData() async {
+    if (isBusy) {
+      AppSnackbar.showSnackbar(
+          scaffoldKey: _scaffoldKey,
+          message: 'Process busy or finished. May not be run twice',
+          textColor: Styles.white,
+          backgroundColor: Styles.black);
+      return;
+    }
+    isBusy = true;
+    var start = DateTime.now();
+    await _generateWork();
+
+    isBusy = false;
+    var end = DateTime.now();
+    var diffm = end.difference(start).inMinutes;
+    var diffs = end.difference(start).inSeconds;
+
+    setState(() {
+      _counter++;
+      phases = FIVE;
+      msgList.add(
+          '### Demo Data Generation complete:, $diffm minutes elapsed. ($diffs seconds)');
+    });
+    print(
+        '\n\n_MyHomePageState._start  #####################################  Demo Data COMPLETED!');
+  }
+
+  static const FIVE = '6', SIX = '6';
   List<String> msgList = List();
 
   _generateWork() async {
-    await Generator.generate(this, context);
+    await Generator.generateOffers(this, context);
   }
 
   _addCustomers() async {
@@ -599,86 +629,105 @@ class _MyHomePageState extends State<MyHomePage> implements GenListener {
     return 0;
   }
 
+  Color btnColor = Colors.indigo.shade800;
+  ScrollController controller1 = ScrollController();
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
         key: _scaffoldKey,
-        appBar: new AppBar(
-          title: new Text(widget.title),
+        appBar: AppBar(
+          title: Text('BFN Demo Data Generator'),
           bottom: PreferredSize(
-            preferredSize: const Size.fromHeight(120.0),
+            preferredSize: const Size.fromHeight(240.0),
             child: Column(
               children: <Widget>[
-                new Padding(
-                  padding: const EdgeInsets.only(bottom: 8.0),
-                  child: Text(
-                    'Demo Data Generation',
-                    style: TextStyle(color: Colors.white, fontSize: 24.0),
+                Padding(
+                  padding: const EdgeInsets.only(left: 44.0, bottom: 12.0),
+                  child: Row(
+                    children: <Widget>[
+                      Text(
+                        'Execution Mode',
+                        style: Styles.whiteMedium,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 18.0),
+                        child: Switch(
+                          value: isBrandNew,
+                          onChanged: _onSwitch,
+                          activeColor: btnColor,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                Center(
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 8.0, bottom: 20.0),
+                Padding(
+                  padding: const EdgeInsets.only(left: 10.0),
+                  child: RaisedButton(
+                    onPressed: _chooseMode,
+                    elevation: 16.0,
+                    color: btnColor,
                     child: Padding(
-                      padding: const EdgeInsets.only(left: 10.0),
-                      child: Row(
-                        children: <Widget>[
-                          Text(
-                            'Phase Complete',
-                            style: TextStyle(
-                                fontSize: 16.0, fontWeight: FontWeight.bold),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(left: 8.0),
-                            child: Text(
-                              '$_counter',
-                              style: TextStyle(
-                                  fontSize: 24.0,
-                                  fontWeight: FontWeight.w900,
-                                  color: Colors.blue.shade900),
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(left: 8.0),
-                            child: Text(
-                              'of',
-                              style: TextStyle(
-                                  fontSize: 16.0, fontWeight: FontWeight.bold),
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(left: 10.0),
-                            child: Text(
-                              '6',
-                              style: TextStyle(
-                                  fontSize: 24.0,
-                                  fontWeight: FontWeight.w900,
-                                  color: Colors.blue.shade900),
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(left: 30.0),
-                            child: RaisedButton(
-                              onPressed: _start,
-                              elevation: 8.0,
-                              color: Colors.red.shade800,
-                              child: Text(
-                                btnText,
-                                style: TextStyle(
-                                    color: Colors.white, fontSize: 20.0),
-                              ),
-                            ),
-                          )
-                        ],
+                      padding: const EdgeInsets.all(12.0),
+                      child: Text(
+                        btnText,
+                        style: TextStyle(color: Colors.white, fontSize: 16.0),
                       ),
                     ),
                   ),
                 ),
+                _getPhaseMessage(),
               ],
             ),
           ),
         ),
         body: _getListView());
+  }
+
+  Widget _getPhaseMessage() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.only(left: 30.0, top: 30.0, bottom: 20.0),
+        child: Padding(
+          padding: const EdgeInsets.only(left: 10.0),
+          child: Row(
+            children: <Widget>[
+              Text(
+                'Phase Complete:',
+                style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.normal),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: 20.0),
+                child: Text(
+                  '$_counter',
+                  style: TextStyle(
+                      fontSize: 24.0,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: 8.0),
+                child: Text(
+                  'of',
+                  style:
+                      TextStyle(fontSize: 16.0, fontWeight: FontWeight.normal),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: 10.0),
+                child: Text(
+                  phases,
+                  style: TextStyle(
+                      fontSize: 24.0,
+                      fontWeight: FontWeight.w900,
+                      color: Colors.blue.shade900),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   _generateSuppliers() async {
@@ -933,8 +982,17 @@ class _MyHomePageState extends State<MyHomePage> implements GenListener {
   }
 
   _getListView() {
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      controller1.animateTo(
+        controller1.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 10),
+        curve: Curves.easeOut,
+      );
+    });
+
     return ListView.builder(
         itemCount: msgList.length,
+        controller: controller1,
         itemBuilder: (context, position) {
           Color color = Colors.black;
           if (msgList[position].contains('Supplier')) {
@@ -978,6 +1036,89 @@ class _MyHomePageState extends State<MyHomePage> implements GenListener {
   onEvent(String message) {
     setState(() {
       msgList.add(message);
+    });
+  }
+
+  bool isBrandNew = false;
+  void _onSwitch(bool value) {
+    print('_MyHomePageState._onSwitch value: $value');
+    isBrandNew = value;
+    if (isBrandNew) {
+      btnText = 'Generate Brand New Network';
+      phases = SIX;
+      btnColor = Colors.indigo.shade800;
+    } else {
+      btnText = 'Generate New Working Data';
+      phases = '1';
+      btnColor = Colors.pink.shade800;
+    }
+    setState(() {});
+  }
+
+  void _chooseMode() {
+    if (isBrandNew) {
+      _confirmBrandNewDialog();
+    } else {
+      _generateWorkingData();
+    }
+  }
+
+  void _confirmBrandNewDialog() {
+    showDialog(
+        context: context,
+        builder: (_) => new AlertDialog(
+              title: new Text(
+                "Confirm Brand New BFN",
+                style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).primaryColor),
+              ),
+              content: Container(
+                height: 300.0,
+                child: Column(
+                  children: <Widget>[
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                          'Do you want to create a new BFN Network?\n\nPlease note that this will destroy all the existing Firestore data and make like a new house. It also assumes a brand new blockchain has been set up.\n\nYou cool wid dat?'),
+                    ),
+                  ],
+                ),
+              ),
+              actions: <Widget>[
+                FlatButton(
+                  child: Text(
+                    'NO',
+                    style: TextStyle(color: Colors.grey),
+                  ),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 20.0),
+                  child: RaisedButton(
+                    onPressed: _generateBrandNewNetwork,
+                    elevation: 4.0,
+                    color: Colors.teal.shade400,
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        'Generate new BFN data',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ));
+  }
+
+  @override
+  onPhaseComplete() {
+    setState(() {
+      _counter++;
+      msgList.add('');
     });
   }
 }

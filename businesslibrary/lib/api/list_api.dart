@@ -1,9 +1,11 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/auto_start_stop.dart';
 import 'package:businesslibrary/data/auto_trade_order.dart';
 import 'package:businesslibrary/data/company.dart';
+import 'package:businesslibrary/data/dashboard_data.dart';
 import 'package:businesslibrary/data/delivery_acceptance.dart';
 import 'package:businesslibrary/data/delivery_note.dart';
 import 'package:businesslibrary/data/govt_entity.dart';
@@ -20,7 +22,9 @@ import 'package:businesslibrary/data/supplier_contract.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/data/wallet.dart';
 import 'package:businesslibrary/util/lookups.dart';
+import 'package:businesslibrary/util/util.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:http/http.dart' as http;
 
 class ListAPI {
   static final Firestore _firestore = Firestore.instance;
@@ -607,6 +611,73 @@ class ListAPI {
     return list;
   }
 
+  static Future<DashboardData> getSupplierDashboardData(
+      String supplierId) async {
+    print('ListAPI.getSupplierDashboardData ..........');
+    var data = DashboardParms(id: supplierId);
+
+    DashboardData result =
+        await _doHTTP(getFunctionsURL() + 'supplierDashboard', data);
+    prettyPrint(result.toJson(), '### Dashboard Data:');
+    return result;
+  }
+
+  static Future<DashboardData> getInvestorDashboardData(
+      String investorId, String documentId) async {
+    print('ListAPI.getDashboardData ..........');
+    var data = DashboardParms(id: investorId, documentId: documentId);
+
+    DashboardData result =
+        await _doHTTP(getFunctionsURL() + 'investorDashboard', data);
+    if (result != null) {
+      prettyPrint(result.toJson(), '### Dashboard Data:');
+    }
+    return result;
+  }
+
+  static Future<DashboardData> getCustomerDashboardData(
+      String govtEntityId) async {
+    print('ListAPI.getCustomerDashboardData ..........');
+    var data = DashboardParms(id: govtEntityId);
+
+    DashboardData result =
+        await _doHTTP(getFunctionsURL() + 'customerDashboard', data);
+    prettyPrint(result.toJson(), '### Dashboard Data:');
+    return result;
+  }
+
+  static const Map<String, String> headers = {
+    'Content-type': 'application/json',
+    'Accept': 'application/json',
+  };
+
+  static Future<DashboardData> _doHTTP(
+      String mUrl, DashboardParms dashParms) async {
+    DashboardData data;
+    var start = DateTime.now();
+    try {
+      var client = new http.Client();
+      var resp = await client
+          .post(
+        mUrl,
+        body: json.encode(dashParms.toJson()),
+        headers: headers,
+      )
+          .whenComplete(() {
+        client.close();
+      });
+      print(
+          'ListAPI.doHTTP .... ################ Query via Cloud Functions: status: ${resp.statusCode}');
+      data = DashboardData.fromJson(json.decode(resp.body));
+    } catch (e) {
+      print('ListAPI._doHTTP $e');
+    }
+    var end = DateTime.now();
+    print(
+        '\n\nListAPI._doHTTP ### elapsed: ${end.difference(start).inSeconds} seconds');
+    return data;
+  }
+
   static Future<List<Invoice>> getInvoices(
       String documentId, String collection) async {
     print('ListAPI.getInvoices ............. documentId: $documentId');
@@ -629,7 +700,10 @@ class ListAPI {
       list.add(new Invoice.fromJson(doc.data));
     });
 
-    print('ListAPI.getInvoices ################## found: ${list.length}');
+    if (list.isNotEmpty) {
+      print(
+          'ListAPI.getInvoices ################## found: ${list.length} from ${list.elementAt(0).supplierName}');
+    }
     return list;
   }
 
@@ -642,9 +716,9 @@ class ListAPI {
         .collection(collection)
         .document(documentId)
         .collection('invoices')
-        .where('offer', isNull: true)
+        .where('isOnOffer', isEqualTo: false)
         .orderBy('date', descending: true)
-        .limit(100)
+        .limit(1000)
         .getDocuments()
         .catchError((e) {
       print('ListAPI.getInvoicesOpenForOffers $e');
@@ -1323,4 +1397,15 @@ class OfferBag {
 //      prettyPrint(m.toJson(), '%%%%%%%%% BID:');
 //    });
   }
+}
+
+class DashboardParms {
+  String id;
+  String documentId;
+
+  DashboardParms({this.id, this.documentId});
+  Map<String, dynamic> toJson() => <String, dynamic>{
+        'id': id,
+        'documentId': documentId,
+      };
 }

@@ -48,6 +48,7 @@ class _MyHomePageState extends State<MyHomePage>
   List<AutoTradeOrder> _orders;
   List<InvestorProfile> _profiles;
   List<Offer> _offers;
+  DateTime startDate;
 
   @override
   void initState() {
@@ -120,7 +121,11 @@ class _MyHomePageState extends State<MyHomePage>
         if (_offers.isNotEmpty) {
           setState(() {
             _showProgress = true;
+            autoTradeStart = AutoTradeStart();
+            invaliTrades.clear();
+            bidsArrived.clear();
           });
+          startDate = DateTime.now();
           autoTradeStart = await DataAPI3.executeAutoTrades();
           prettyPrint(
               autoTradeStart.toJson(), '\n\n####### RESULT from AutoTrades:');
@@ -194,12 +199,16 @@ class _MyHomePageState extends State<MyHomePage>
     setState(() {});
     print(
         '\n\n_MyHomePageState._restart ....starting auto trades ........... offers: ${_offers.length}\n\n');
+
     try {
       if (_orders.isNotEmpty && _profiles.isNotEmpty && _offers.isNotEmpty) {
         setState(() {
           _showProgress = true;
+          autoTradeStart = AutoTradeStart();
+          invaliTrades.clear();
+          bidsArrived.clear();
         });
-
+        startDate = DateTime.now();
         autoTradeStart = await DataAPI3.executeAutoTrades();
 
         if (autoTradeStart == null) {
@@ -300,41 +309,6 @@ class _MyHomePageState extends State<MyHomePage>
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
-
-//  @override
-//  onDeliveryAcceptance(DeliveryAcceptance deliveryAcceptance) {
-//    print('_MyHomePageState.onDeliveryAcceptance');
-//  }
-//
-//  @override
-//  onDeliveryNote(DeliveryNote deliveryNote) {
-//    print('_MyHomePageState.onDeliveryNote');
-//  }
-//
-//  @override
-//  onInvoice(Invoice invoice) {
-//    print('_MyHomePageState.onInvoice');
-//  }
-//
-//  @override
-//  onInvoiceAcceptance(InvoiceAcceptance invoiceAcceptance) {
-//    print('_MyHomePageState.onInvoiceAcceptance');
-//  }
-//
-//  @override
-//  onInvoiceBid(InvoiceBid bid) {
-//    print('_MyHomePageState.onInvoiceBid');
-//  }
-//
-//  @override
-//  onOffer(Offer offer) {
-//    print('_MyHomePageState.onOffer');
-//  }
-//
-//  @override
-//  onPurchaseOrder(PurchaseOrder purchaseOrder) {
-//    print('_MyHomePageState.onPurchaseOrder');
-//  }
 
   @override
   onActionPressed(int action) {
@@ -562,16 +536,18 @@ class _MyHomePageState extends State<MyHomePage>
                           Container(
                             width: 100.0,
                             child: Text(
-                              'Invalid: ',
+                              'Possible Amount: ',
                               style: Styles.greyLabelSmall,
                             ),
                           ),
                           Padding(
                             padding: const EdgeInsets.only(left: 2.0),
                             child: Text(
-                              autoTradeStart.totalInvalidBids == null
-                                  ? '0'
-                                  : '${autoTradeStart.totalInvalidBids}',
+                              autoTradeStart.possibleAmount == null
+                                  ? '0.00'
+                                  : getFormattedAmount(
+                                      '${autoTradeStart.possibleAmount}',
+                                      context),
                               style: Styles.blackBoldLarge,
                             ),
                           ),
@@ -585,19 +561,17 @@ class _MyHomePageState extends State<MyHomePage>
                           Container(
                             width: 100.0,
                             child: Text(
-                              'Possible Amount: ',
+                              'Elapsed: ',
                               style: Styles.greyLabelSmall,
                             ),
                           ),
                           Padding(
                             padding: const EdgeInsets.only(left: 2.0),
                             child: Text(
-                              autoTradeStart.possibleAmount == null
-                                  ? '0'
-                                  : getFormattedAmount(
-                                      '${autoTradeStart.possibleAmount}',
-                                      context),
-                              style: Styles.blackBoldLarge,
+                              autoTradeStart.elapsedSeconds == null
+                                  ? '0.0'
+                                  : '${autoTradeStart.elapsedSeconds} seconds',
+                              style: Styles.blueMedium,
                             ),
                           ),
                         ],
@@ -631,6 +605,10 @@ class _MyHomePageState extends State<MyHomePage>
     }
     autoTradeStart.totalAmount = tot;
     autoTradeStart.totalValidBids = bidsArrived.length;
+    autoTradeStart.elapsedSeconds =
+        DateTime.now().difference(startDate).inSeconds * 1.0;
+    autoTradeStart.dateEnded =
+        getFormattedDateHour('${DateTime.now().toIso8601String()}');
     _getLists(false);
     setState(() {});
     print(msg);
@@ -652,7 +630,25 @@ class _MyHomePageState extends State<MyHomePage>
     }
 
     setState(() {
+      autoTradeStart.dateEnded =
+          getFormattedDateHour('${DateTime.now().toIso8601String()}');
       autoTradeStart.totalInvalidBids = invaliTrades.length;
+      autoTradeStart.elapsedSeconds =
+          DateTime.now().difference(startDate).inSeconds * 1.0;
     });
+  }
+
+  String _getTotalInvalidAmount() {
+    double tot = 0.00;
+    invaliTrades.forEach((t) {
+      tot += t.offer.offerAmount;
+    });
+    return getFormattedAmount('$tot', context);
+  }
+
+  @override
+  onOfferMessage(Offer offer) {
+    print('_MyHomePageState.onOfferMessage');
+    prettyPrint(offer.toJson(), 'OFFER arrived via FCM');
   }
 }

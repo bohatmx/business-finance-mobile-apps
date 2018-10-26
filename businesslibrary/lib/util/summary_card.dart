@@ -1,3 +1,4 @@
+import 'package:businesslibrary/util/styles.dart';
 import 'package:flutter/material.dart';
 
 ///summary card used in dashboards
@@ -9,21 +10,21 @@ class SummaryCard extends StatelessWidget {
   SummaryCard({this.total, this.totalStyle, this.label});
   final bigLabel = TextStyle(
     fontWeight: FontWeight.w900,
-    fontSize: 20.0,
+    fontSize: 16.0,
     color: Colors.grey,
   );
 
   @override
   Widget build(BuildContext context) {
     var opacity = 1.0;
-    var height = 90.0, cHeight = 60.0, top = 10.0;
+    var height = 60.0, top = 4.0;
 
     return new Container(
       height: height,
       child: new Padding(
-        padding: const EdgeInsets.all(12.0),
+        padding: const EdgeInsets.all(8.0),
         child: Card(
-          elevation: 6.0,
+          elevation: 4.0,
           child: Column(
             children: <Widget>[
               new Padding(
@@ -34,7 +35,7 @@ class SummaryCard extends StatelessWidget {
                   children: <Widget>[
                     Text(
                       label,
-                      style: bigLabel,
+                      style: Styles.greyLabelSmall,
                     ),
                     Padding(
                       padding: const EdgeInsets.only(left: 10.0, right: 10.0),

@@ -8,7 +8,6 @@ import 'package:businesslibrary/data/delivery_acceptance.dart';
 import 'package:businesslibrary/data/delivery_note.dart';
 import 'package:businesslibrary/data/investor.dart';
 import 'package:businesslibrary/data/invoice.dart';
-import 'package:businesslibrary/data/invoice_bid.dart';
 import 'package:businesslibrary/data/invoice_settlement.dart';
 import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
@@ -405,9 +404,6 @@ class _SignUpPageState extends State<SignUpPage>
   onInvestorSettlement(InvestorInvoiceSettlement settlement) {}
 
   @override
-  onInvoiceBidMessage(InvoiceBid invoiceBid) {}
-
-  @override
   onInvoiceMessage(Invoice invoice) {}
 
   @override
@@ -479,4 +475,9 @@ class _SignUpPageState extends State<SignUpPage>
     'BlueBull Financiers',
     'Hennessey Invoice Funds LLC',
   ];
+
+  @override
+  onInvoiceBidMessage(invoiceBid) {
+    // TODO: implement onInvoiceBidMessage
+  }
 }

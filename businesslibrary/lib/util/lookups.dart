@@ -4,8 +4,8 @@ import 'dart:convert';
 import 'package:businesslibrary/api/data_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/api/signup.dart';
-import 'package:businesslibrary/data/invalid_trade.dart';
 import 'package:businesslibrary/data/invoice_bid.dart';
+import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/data/wallet.dart';
 import 'package:businesslibrary/util/util.dart';
@@ -352,9 +352,9 @@ configureMessaging(FCMListener listener) async {
           var invoiceBid = InvoiceBid.fromJson(json.decode(data['json']));
           listener.onInvoiceBidMessage(invoiceBid);
         }
-        if (messageType.contains("INVALID_TRADE")) {
-          var invalid = InvalidTrade.fromJson(json.decode(data['json']));
-          listener.onInvalidTrade(invalid);
+        if (messageType.contains("OFFER")) {
+          var offer = Offer.fromJson(json.decode(data['json']));
+          listener.onOfferMessage(offer);
         }
       } catch (e) {
         print(e);
@@ -422,7 +422,7 @@ abstract class FCMListener {
 //  onInvoiceMessage(Invoice invoice);
 //  onOfferMessage(Offer offer);
   onInvoiceBidMessage(InvoiceBid invoiceBid);
-  onInvalidTrade(InvalidTrade invalidTrade);
+  onOfferMessage(Offer offer);
 //  onGovtInvoiceSettlement(GovtInvoiceSettlement settlement);
 //  onInvestorSettlement(InvestorInvoiceSettlement settlement);
 //  onCompanySettlement(CompanyInvoiceSettlement settlement);

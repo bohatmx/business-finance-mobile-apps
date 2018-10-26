@@ -33,11 +33,9 @@ import 'package:http/http.dart' as http;
 import 'package:uuid/uuid.dart';
 
 class DataAPI3 {
-  static HttpClient _httpClient = new HttpClient();
   static ContentType _contentType =
       new ContentType("application", "json", charset: "utf-8");
-  static String url =
-      'https://us-central1-business-finance-dev.cloudfunctions.net/';
+
   static const ADD_DATA = 'addData',
       ADD_PARTICIPANT = 'addParticipant',
       EXECUTE_AUTO_TRADES = 'executeAutoTrade',
@@ -67,9 +65,10 @@ class DataAPI3 {
     );
 
     print(
-        'DataAPI3.registerPurchaseOrder url: ${url + REGISTER_PURCHASE_ORDER}\n\n');
+        'DataAPI3.registerPurchaseOrder getFunctionsURL(): ${getFunctionsURL() + REGISTER_PURCHASE_ORDER}\n\n');
     try {
-      var mResponse = await doHTTP(url + REGISTER_PURCHASE_ORDER, bag);
+      var mResponse =
+          await _doHTTP(getFunctionsURL() + REGISTER_PURCHASE_ORDER, bag);
       if (mResponse.statusCode == 200) {
         var map = json.decode(mResponse.body);
         var po = PurchaseOrder.fromJson(map);
@@ -90,7 +89,8 @@ class DataAPI3 {
     'Accept': 'application/json',
   };
 
-  static Future doHTTP(String mUrl, APIBag bag) async {
+  static Future _doHTTP(String mUrl, APIBag bag) async {
+    var start = DateTime.now();
     var client = new http.Client();
     var resp = await client
         .post(
@@ -103,6 +103,9 @@ class DataAPI3 {
     });
     print(
         'DataAPI3.doHTTP .... ################ BFN via Cloud Functions: status: ${resp.statusCode}');
+    var end = DateTime.now();
+    print(
+        '\n\nListAPI._doHTTP ### elapsed: ${end.difference(start).inSeconds} seconds');
     return resp;
   }
 
@@ -115,10 +118,11 @@ class DataAPI3 {
       data: deliveryNote.toJson(),
     );
     print(
-        'DataAPI3.registerPurchaseOrder url: ${url + REGISTER_DELIVERY_NOTE}\n\n');
+        'DataAPI3.registerDeliveryNote url: ${getFunctionsURL() + REGISTER_DELIVERY_NOTE}\n\n');
 
     try {
-      var mResponse = await doHTTP(url + REGISTER_DELIVERY_NOTE, bag);
+      var mResponse =
+          await _doHTTP(getFunctionsURL() + REGISTER_DELIVERY_NOTE, bag);
       if (mResponse.statusCode == 200) {
         var note = DeliveryNote.fromJson(json.decode(mResponse.body));
         return note;
@@ -140,9 +144,11 @@ class DataAPI3 {
       data: acceptance.toJson(),
     );
 
-    print('DataAPI3.acceptDelivery url: ${url + ACCEPT_DELIVERY_NOTE}');
+    print(
+        'DataAPI3.acceptDelivery url: ${getFunctionsURL() + ACCEPT_DELIVERY_NOTE}');
     try {
-      var mResponse = await doHTTP(url + ACCEPT_DELIVERY_NOTE, bag);
+      var mResponse =
+          await _doHTTP(getFunctionsURL() + ACCEPT_DELIVERY_NOTE, bag);
       if (mResponse.statusCode == 200) {
         return DeliveryAcceptance.fromJson(json.decode(mResponse.body));
       } else {
@@ -165,10 +171,11 @@ class DataAPI3 {
       data: invoice.toJson(),
     );
 
-    print('DataAPI3.registerInvoice url: ${url + REGISTER_INVOICE}');
+    print(
+        'DataAPI3.registerInvoice url: ${getFunctionsURL() + REGISTER_INVOICE}');
 
     try {
-      var mResponse = await doHTTP(url + REGISTER_INVOICE, bag);
+      var mResponse = await _doHTTP(getFunctionsURL() + REGISTER_INVOICE, bag);
       switch (mResponse.statusCode) {
         case 200:
           print('DataAPI3.registerInvoice: invoice registered');
@@ -200,9 +207,9 @@ class DataAPI3 {
       debug: isInDebugMode,
       data: acceptance.toJson(),
     );
-    print('DataAPI3.acceptInvoice url: ${url + ACCEPT_INVOICE}');
+    print('DataAPI3.acceptInvoice url: ${getFunctionsURL() + ACCEPT_INVOICE}');
     try {
-      var mResponse = await doHTTP(url + ACCEPT_INVOICE, bag);
+      var mResponse = await _doHTTP(getFunctionsURL() + ACCEPT_INVOICE, bag);
       if (mResponse.statusCode == 200) {
         return InvoiceAcceptance.fromJson(json.decode(mResponse.body));
       } else {
@@ -225,9 +232,9 @@ class DataAPI3 {
       debug: isInDebugMode,
       data: offer.toJson(),
     );
-    print('DataAPI3.makeOffer  ${url + MAKE_OFFER}');
+    print('DataAPI3.makeOffer  ${getFunctionsURL() + MAKE_OFFER}');
     try {
-      var mResponse = await doHTTP(url + MAKE_OFFER, bag);
+      var mResponse = await _doHTTP(getFunctionsURL() + MAKE_OFFER, bag);
       if (mResponse.statusCode == 200) {
         return Offer.fromJson(json.decode(mResponse.body));
       } else {
@@ -249,12 +256,12 @@ class DataAPI3 {
     map['debug'] = isInDebugMode;
     map['offerId'] = offerId;
 
-    print('DataAPI3.closeOffer ${url + CLOSE_OFFER}');
+    print('DataAPI3.closeOffer ${getFunctionsURL() + CLOSE_OFFER}');
     try {
       var mjson = json.encode(map);
       var httpClient = new HttpClient();
       HttpClientRequest mRequest =
-          await httpClient.postUrl(Uri.parse(url + CLOSE_OFFER));
+          await httpClient.postUrl(Uri.parse(getFunctionsURL() + CLOSE_OFFER));
       mRequest.headers.contentType = _contentType;
       mRequest.write(mjson);
       HttpClientResponse mResponse = await mRequest.close();
@@ -283,9 +290,9 @@ class DataAPI3 {
       debug: isInDebugMode,
       data: bid.toJson(),
     );
-    print('DataAPI3.makeInvoiceBid ${url + MAKE_INVOICE_BID}');
+    print('DataAPI3.makeInvoiceBid ${getFunctionsURL() + MAKE_INVOICE_BID}');
     try {
-      var mResponse = await doHTTP(url + MAKE_INVOICE_BID, bag);
+      var mResponse = await _doHTTP(getFunctionsURL() + MAKE_INVOICE_BID, bag);
       if (mResponse.statusCode == 200) {
         if (bid.autoTradeOrder != null) {
           await closeOffer(bid.offer.split('#').elementAt(1));
@@ -311,7 +318,8 @@ class DataAPI3 {
 
     print(
         'DataAPI3.addGovtEntity ==============>>>> ........... ${govtEntity.toJson()}');
-    print('DataAPI3.addGovtEntity ))))))) URL: $url$ADD_PARTICIPANT');
+    print(
+        'DataAPI3.addGovtEntity ))))))) URL: $getFunctionsURL()$ADD_PARTICIPANT');
     govtEntity.participantId = getKey();
     govtEntity.dateRegistered = getUTCDate();
     admin.userId = getKey();
@@ -339,7 +347,7 @@ class DataAPI3 {
     };
      */
     try {
-      var resp = await doHTTP(url + ADD_PARTICIPANT, bag);
+      var resp = await _doHTTP(getFunctionsURL() + ADD_PARTICIPANT, bag);
       if (resp.statusCode == 200) {
         Map<String, String> map = json.decode(resp.body);
         govtEntity.documentReference =
@@ -367,13 +375,15 @@ class DataAPI3 {
   }
 
   static Future<AutoTradeStart> executeAutoTrades() async {
-    print('\n\n\nDataAPI3.executeAutoTrades url: ${url + EXECUTE_AUTO_TRADES}');
+    print(
+        '\n\n\nDataAPI3.executeAutoTrades url: ${getFunctionsURL() + EXECUTE_AUTO_TRADES}');
 
     APIBag bag = APIBag(
       debug: isInDebugMode,
     );
     try {
-      var mResponse = await doHTTP(url + EXECUTE_AUTO_TRADES, bag);
+      var mResponse =
+          await _doHTTP(getFunctionsURL() + EXECUTE_AUTO_TRADES, bag);
       if (mResponse.statusCode == 200) {
         var mjson = json.decode(mResponse.body);
         var start = AutoTradeStart.fromJson(mjson);
@@ -417,13 +427,13 @@ class DataAPI3 {
         data: sector.toJson(),
         apiSuffix: 'Sector',
         collectionName: 'sectors');
-    print('DataAPI3.addSector %%%%%%%% url: ${url + ADD_DATA}');
+    print('DataAPI3.addSector %%%%%%%% url: ${getFunctionsURL() + ADD_DATA}');
     prettyPrint(bag.toJson(), 'adding sector to BFN blockchain');
 
     try {
       var httpClient = new HttpClient();
       HttpClientRequest mRequest =
-          await httpClient.postUrl(Uri.parse(url + ADD_DATA));
+          await httpClient.postUrl(Uri.parse(getFunctionsURL() + ADD_DATA));
       mRequest.headers.contentType = _contentType;
       mRequest.write(json.encode(bag.toJson()));
       HttpClientResponse mResponse = await mRequest.close();
@@ -457,14 +467,15 @@ class DataAPI3 {
         data: order.toJson(),
         apiSuffix: 'AutoTradeOrder',
         collectionName: 'autoTradeOrders');
-    print('DataAPI3.addAutoTradeOrder %%%%%%%% url: ${url + ADD_DATA}');
+    print(
+        'DataAPI3.addAutoTradeOrder %%%%%%%% url: ${getFunctionsURL() + ADD_DATA}');
     prettyPrint(bag.toJson(),
         '########################## adding addAutoTradeOrder to BFN blockchain');
 
     try {
       var httpClient = new HttpClient();
       HttpClientRequest mRequest =
-          await httpClient.postUrl(Uri.parse(url + ADD_DATA));
+          await httpClient.postUrl(Uri.parse(getFunctionsURL() + ADD_DATA));
       mRequest.headers.contentType = _contentType;
       mRequest.write(json.encode(bag.toJson()));
       HttpClientResponse mResponse = await mRequest.close();
@@ -498,14 +509,15 @@ class DataAPI3 {
         data: profile.toJson(),
         apiSuffix: 'InvestorProfile',
         collectionName: 'investorProfiles');
-    print('DataAPI3.addInvestorProfile %%%%%%%% url: ${url + ADD_DATA}');
+    print(
+        'DataAPI3.addInvestorProfile %%%%%%%% url: ${getFunctionsURL() + ADD_DATA}');
     prettyPrint(profile.toJson(),
         '########################## adding addInvestorProfile to BFN blockchain');
 
     try {
       var httpClient = new HttpClient();
       HttpClientRequest mRequest =
-          await httpClient.postUrl(Uri.parse(url + ADD_DATA));
+          await httpClient.postUrl(Uri.parse(getFunctionsURL() + ADD_DATA));
       mRequest.headers.contentType = _contentType;
       mRequest.write(json.encode(bag.toJson()));
       HttpClientResponse mResponse = await mRequest.close();
@@ -528,7 +540,7 @@ class DataAPI3 {
   }
 
   static Future<int> addWallet(Wallet wallet) async {
-    print('DataAPI3.addWallet %%%%%%%% url: ${url + ADD_DATA}');
+    print('DataAPI3.addWallet %%%%%%%% url: ${getFunctionsURL() + ADD_DATA}');
     prettyPrint(wallet.toJson(), 'adding wallet to BFN blockcahain');
     if (USE_LOCAL_BLOCKCHAIN) {
       var res = await DataAPI.addWallet(wallet);
@@ -549,7 +561,7 @@ class DataAPI3 {
     try {
       var httpClient = new HttpClient();
       HttpClientRequest mRequest =
-          await httpClient.postUrl(Uri.parse(url + ADD_DATA));
+          await httpClient.postUrl(Uri.parse(getFunctionsURL() + ADD_DATA));
       mRequest.headers.contentType = _contentType;
       mRequest.write(json.encode(bag.toJson()));
       HttpClientResponse mResponse = await mRequest.close();
@@ -591,9 +603,9 @@ class DataAPI3 {
         sourceSeed: seed,
         apiSuffix: 'Supplier',
         collectionName: 'suppliers');
-    print('DataAPI3.addSupplier url: ${url + ADD_PARTICIPANT}');
+    print('DataAPI3.addSupplier url: ${getFunctionsURL() + ADD_PARTICIPANT}');
     try {
-      var mResponse = await doHTTP(url + ADD_PARTICIPANT, bag);
+      var mResponse = await _doHTTP(getFunctionsURL() + ADD_PARTICIPANT, bag);
       if (mResponse.statusCode == 200) {
         Map<String, String> map = json.decode(mResponse.body);
         supplier.documentReference =
@@ -633,12 +645,12 @@ class DataAPI3 {
         data: bank.toJson(),
         apiSuffix: 'Bank',
         collectionName: 'banks');
-    print('DataAPI3.addBank   ${url + ADD_DATA}');
+    print('DataAPI3.addBank   ${getFunctionsURL() + ADD_DATA}');
 
     try {
       var httpClient = new HttpClient();
       HttpClientRequest mRequest =
-          await httpClient.postUrl(Uri.parse(url + ADD_DATA));
+          await httpClient.postUrl(Uri.parse(getFunctionsURL() + ADD_DATA));
       mRequest.headers.contentType = _contentType;
       mRequest.write(json.encode(bag.toJson()));
       HttpClientResponse mResponse = await mRequest.close();
@@ -685,11 +697,11 @@ class DataAPI3 {
         sourceSeed: seed,
         apiSuffix: 'Investor',
         collectionName: 'investors');
-    print('DataAPI3.addInvestor   ${url + ADD_PARTICIPANT}');
+    print('DataAPI3.addInvestor   ${getFunctionsURL() + ADD_PARTICIPANT}');
     prettyPrint(bag.toJson(), 'DataAPI3.addInvestor : ');
 
     try {
-      var mResponse = await doHTTP(url + ADD_PARTICIPANT, bag);
+      var mResponse = await _doHTTP(getFunctionsURL() + ADD_PARTICIPANT, bag);
       if (mResponse.statusCode == 200) {
         Map<String, String> map = json.decode(mResponse.body);
         investor.documentReference =
@@ -728,11 +740,11 @@ class DataAPI3 {
         data: oneConnect.toJson(),
         apiSuffix: 'OneConnect',
         collectionName: 'oneConnect');
-    print('DataAPI3.addOneConnect ${url + ADD_DATA}');
+    print('DataAPI3.addOneConnect ${getFunctionsURL() + ADD_DATA}');
     try {
       var httpClient = new HttpClient();
       HttpClientRequest mRequest =
-          await httpClient.postUrl(Uri.parse(url + ADD_DATA));
+          await httpClient.postUrl(Uri.parse(getFunctionsURL() + ADD_DATA));
       mRequest.headers.contentType = _contentType;
       mRequest.write(json.encode(bag.toJson()));
       HttpClientResponse mResponse = await mRequest.close();
@@ -771,11 +783,11 @@ class DataAPI3 {
         data: office.toJson(),
         apiSuffix: 'ProcurementOffice',
         collectionName: 'procurementOffices');
-    print('DataAPI3.addProcurementOffice ${url + ADD_DATA}');
+    print('DataAPI3.addProcurementOffice ${getFunctionsURL() + ADD_DATA}');
     try {
       var httpClient = new HttpClient();
       HttpClientRequest mRequest =
-          await httpClient.postUrl(Uri.parse(url + ADD_DATA));
+          await httpClient.postUrl(Uri.parse(getFunctionsURL() + ADD_DATA));
       mRequest.headers.contentType = _contentType;
       mRequest.write(json.encode(bag.toJson()));
       HttpClientResponse mResponse = await mRequest.close();
@@ -814,11 +826,11 @@ class DataAPI3 {
         data: auditor.toJson(),
         apiSuffix: 'Auditor',
         collectionName: 'auditors');
-    print('DataAPI3.addAuditor ${url + ADD_DATA}');
+    print('DataAPI3.addAuditor ${getFunctionsURL() + ADD_DATA}');
     try {
       var httpClient = new HttpClient();
       HttpClientRequest mRequest =
-          await httpClient.postUrl(Uri.parse(url + ADD_DATA));
+          await httpClient.postUrl(Uri.parse(getFunctionsURL() + ADD_DATA));
       mRequest.headers.contentType = _contentType;
       mRequest.write(json.encode(bag.toJson()));
       HttpClientResponse mResponse = await mRequest.close();

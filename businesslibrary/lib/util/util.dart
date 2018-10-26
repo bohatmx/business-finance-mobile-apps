@@ -5,19 +5,32 @@ import 'package:web_socket_channel/io.dart';
 //const DEBUG_URL_HOME = 'https://bfnrestv3.eu-gb.mybluemix.net/api/'; //FIBRE
 //const DEBUG_URL_ROUTER = 'https://bfnrestv3.eu-gb.mybluemix.net/api/'; //ROUTER
 const RELEASE_URL = 'https://bfnrestv3.eu-gb.mybluemix.net/api/'; //CLOUD
-const NameSpace = 'resource:com.oneconnect.biz.';
-////
-const DEBUG_URL_HOME = 'http://192.168.86.238:3003/api/'; //FIBRE
-const DEBUG_URL_ROUTER = 'http://192.168.8.237:3003/api/'; //ROUTER
+const DEBUG_URL = 'https://bfnrestv3.eu-gb.mybluemix.net/api/'; //FIBRE
+
+const DEBUG_URL_FUNCTIONS =
+    'https://us-central1-business-finance-dev.cloudfunctions.net/';
+const RELEASE_URL_FUNCTIONS =
+    'https://us-central1-business-finance-prod.cloudfunctions.net/';
 
 const USE_LOCAL_BLOCKCHAIN = false;
+const NameSpace = 'resource:com.oneconnect.biz.';
 
 String getURL() {
   var url;
   if (isInDebugMode) {
-    url = DEBUG_URL_HOME; //switch  to DEBUG_URL_ROUTER before demo
+    url = DEBUG_URL; //switch  to DEBUG_URL_ROUTER before demo
   } else {
     url = RELEASE_URL;
+  }
+  return url;
+}
+
+String getFunctionsURL() {
+  var url;
+  if (isInDebugMode) {
+    url = DEBUG_URL_FUNCTIONS;
+  } else {
+    url = RELEASE_URL_FUNCTIONS;
   }
   return url;
 }
