@@ -126,6 +126,41 @@ class _DashboardState extends State<Dashboard>
         textColor: Colors.white,
         backgroundColor: Colors.black);
 
+//    OpenOfferSummary summ1 =
+//        await ListAPI.getOpenOffersWithPaging(lastDate: null, pageLimit: 28);
+//    if (summ1.offers.isNotEmpty) {
+//      print('\n\n FIRST ROW: .................');
+//      print(summ1.offers.elementAt(0).toJson());
+//      print('\n\n LAST ROW: .................');
+//      print(summ1.offers.elementAt(summ1.offers.length - 1).toJson());
+//    }
+//
+//    print(
+//        '\n\n################# PAGE 2: run again with non null date: ${summ1.offers.elementAt(summ1.offers.length - 1).date}\n\n');
+//
+//    OpenOfferSummary page2 = await ListAPI.getOpenOffersWithPaging(
+//        lastDate: summ1.offers.elementAt(summ1.offers.length - 1).date,
+//        pageLimit: 32);
+//
+//    if (page2.offers.isNotEmpty) {
+//      print('\n\n FIRST ROW: .................');
+//      print(page2.offers.elementAt(0).toJson());
+//      print('\n\n LAST ROW: .................');
+//      print(page2.offers.elementAt(page2.offers.length - 1).toJson());
+//    }
+//    print(
+//        '\n\n################# PAGE 3: run again with non null date: ${page2.offers.elementAt(page2.offers.length - 1).date}\n\n');
+//    var page3 = await ListAPI.getOpenOffersWithPaging(
+//        lastDate: page2.offers.elementAt(page2.offers.length - 1).date,
+//        pageLimit: 36);
+//
+//    if (page3.offers.isNotEmpty) {
+//      print('\n\n FIRST ROW: .................');
+//      print(page3.offers.elementAt(0).toJson());
+//      print('\n\n LAST ROW: .................');
+//      print(page3.offers.elementAt(page3.offers.length - 1).toJson());
+//    }
+
     dashboardData = await ListAPI.getInvestorDashboardData(
         investor.participantId, investor.documentReference);
 
@@ -141,12 +176,11 @@ class _DashboardState extends State<Dashboard>
 
     assert(investor != null);
     name = investor.name;
-    listenForOffer(this);
-    listenForBid(this, investor.documentReference);
     setState(() {});
     _getSummaryData();
   }
 
+  //4075980089
   Future _getSettlements() async {
     print('_DashboardState._getSettlements ......');
   }

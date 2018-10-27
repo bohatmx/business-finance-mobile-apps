@@ -5,6 +5,7 @@ import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/investor.dart';
 import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/util/lookups.dart';
+import 'package:businesslibrary/util/selectors.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:businesslibrary/util/util.dart';
@@ -18,7 +19,9 @@ class OfferList extends StatefulWidget {
   _OfferListState createState() => _OfferListState();
 }
 
-class _OfferListState extends State<OfferList> with WidgetsBindingObserver {
+class _OfferListState extends State<OfferList>
+    with WidgetsBindingObserver
+    implements PagerListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   DateTime startTime, endTime;
   List<Offer> offers = List();
@@ -28,14 +31,22 @@ class _OfferListState extends State<OfferList> with WidgetsBindingObserver {
 
   Investor investor;
   Offer offer;
+  int startNext, startBack;
+  OpenOfferSummary summary = OpenOfferSummary();
+  List<int> startDates = List();
+
+  double _opacity = 0.0;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
 
     _buildDaysDropDownItems();
-    _getOffers();
+
     _getCached();
+    _getPageLimit();
+    _getOffers();
   }
 
   void _getCached() async {
@@ -43,32 +54,43 @@ class _OfferListState extends State<OfferList> with WidgetsBindingObserver {
     setState(() {});
   }
 
+  void _getPageLimit() async {
+    setState(() {});
+  }
+
   void _getOffers() async {
-    print('_OfferListState._getOffers .......................');
-    endTime = DateTime.now().toUtc();
-    startTime = endTime.subtract(Duration(days: _days));
+    print('\n\n\n_OfferListState._getOffers .......................');
 
     AppSnackbar.showSnackbarWithProgressIndicator(
         scaffoldKey: _scaffoldKey,
         message: 'Loading  Offers ...',
         textColor: Colors.yellow,
         backgroundColor: Colors.black);
-    offers = await ListAPI.getOffersByPeriod(startTime, endTime);
-    openOffers.clear();
-    closedOffers.clear();
-
-    offers.forEach((p) {
-      if (p.isOpen == true) {
-        openOffers.add(p);
-      } else {
-        closedOffers.add(p);
-      }
+    setState(() {
+      _opacity = 1.0;
     });
-    print(
-        '_OfferListState._getOffers offers in period: ${offers.length}  over $_days days');
-    text = 'OPEN';
-    switchOpen = true;
-    setState(() {});
+    startDates.add(startNext);
+    currentIndex++;
+    if (numberOfOffers == null) {
+      numberOfOffers = await SharedPrefs.getPageLimit();
+    }
+    summary = await ListAPI.getOpenOffersWithPaging(
+        lastDate: startNext, pageLimit: numberOfOffers);
+    openOffers = summary.offers;
+    if (openOffers != null) {
+      if (openOffers.isNotEmpty) {
+        openOffers.forEach((o) {
+          startNext = o.intDate;
+        });
+
+        print('\n\n_OfferListState._getOffers ##startAfter: $startNext\n\n');
+      }
+    } else {
+      print('_OfferListState._getOffers ... ERROR');
+    }
+    setState(() {
+      _opacity = 0.0;
+    });
     _scaffoldKey.currentState.hideCurrentSnackBar();
   }
 
@@ -137,8 +159,8 @@ class _OfferListState extends State<OfferList> with WidgetsBindingObserver {
     this.offer = offer;
     prettyPrint(offer.toJson(), 'Offer selected %%%%%%%%:');
     if (offer.isOpen == false) {
-      print(
-          '_OfferListState._showDetailsDialog offer.isOpen == false ... ignore ===============> ');
+      //print
+//          '_OfferListState._showDetailsDialog offer.isOpen == false ... ignore ===============> ');
       AppSnackbar.showSnackbar(
           scaffoldKey: _scaffoldKey,
           message: 'Offer is closed',
@@ -166,25 +188,29 @@ class _OfferListState extends State<OfferList> with WidgetsBindingObserver {
               actions: <Widget>[
                 FlatButton(
                   onPressed: _onNoPressed,
-                  child: Text('No'),
+                  child: Text(
+                    'No',
+                    style: Styles.greyLabelSmall,
+                  ),
                 ),
-                FlatButton(
+                RaisedButton(
+                  elevation: 8.0,
                   onPressed: _onInvoiceBidRequired,
-                  child: Text('MAKE INVOICE BID'),
+                  color: Colors.pink,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      'MAKE INVOICE BID',
+                      style: Styles.whiteSmall,
+                    ),
+                  ),
                 ),
               ],
             ));
   }
 
-  int _getCount() {
-    if (switchOpen) {
-      return openOffers.length;
-    } else {
-      return closedOffers.length;
-    }
-  }
-
   TextStyle white = TextStyle(color: Colors.black, fontSize: 16.0);
+
   List<DropdownMenuItem<int>> _buildDaysDropDownItems() {
     var item0 = DropdownMenuItem<int>(
       value: 1,
@@ -368,10 +394,13 @@ class _OfferListState extends State<OfferList> with WidgetsBindingObserver {
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
-        title: Text('Invoice Offers'),
+        title: Text(
+          'Open Invoice Offers',
+          style: Styles.whiteSmall,
+        ),
         bottom: PreferredSize(
           child: _getBottom(),
-          preferredSize: Size.fromHeight(140.0),
+          preferredSize: Size.fromHeight(160.0),
         ),
         actions: <Widget>[
           IconButton(
@@ -381,15 +410,11 @@ class _OfferListState extends State<OfferList> with WidgetsBindingObserver {
         ],
       ),
       body: ListView.builder(
-          itemCount: _getCount(),
+          itemCount: openOffers == null ? 0 : openOffers.length,
           itemBuilder: (BuildContext context, int index) {
             return new InkWell(
               onTap: () {
-                if (switchOpen) {
-                  _checkBid(openOffers.elementAt(index));
-                } else {
-                  _checkBid(closedOffers.elementAt(index));
-                }
+                _checkBid(openOffers.elementAt(index));
               },
               child: Padding(
                 padding: const EdgeInsets.all(2.0),
@@ -405,37 +430,49 @@ class _OfferListState extends State<OfferList> with WidgetsBindingObserver {
   }
 
   Offer _getOffer(int index) {
-    if (switchOpen) {
-      return openOffers.elementAt(index);
-    } else {
-      return closedOffers.elementAt(index);
+    if (openOffers == null) {
+      return null;
     }
-  }
-
-  String _getTotal() {
-    if (switchOpen) {
-      return '${openOffers.length}';
-    } else {
-      return '${closedOffers.length}';
-    }
+    return openOffers.elementAt(index);
   }
 
   List<DropdownMenuItem<int>> items = List();
-  int _days = 60;
+  int currentIndex = 0;
+
   Widget _getBottom() {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 18.0, left: 20.0),
+      padding: const EdgeInsets.only(bottom: 18.0, left: 8.0, right: 8.0),
       child: Column(
         children: <Widget>[
-          Text(
-            investor == null ? '' : investor.name,
-            style: getTitleTextWhite(),
-          ),
           Padding(
-            padding: const EdgeInsets.only(left: 8.0, top: 20.0, right: 20.0),
+            padding: const EdgeInsets.only(bottom: 8.0, top: 8.0),
+            child: Text(
+              investor == null ? '' : investor.name,
+              style: getTitleTextWhite(),
+            ),
+          ),
+          Pager(this),
+          Padding(
+            padding: const EdgeInsets.only(left: 8.0, top: 8.0, right: 20.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.only(right: 28.0),
+                  child: Opacity(
+                      opacity: _opacity,
+                      child: Container(
+                        width: 20.0,
+                        height: 20.0,
+                        child: Padding(
+                          padding: const EdgeInsets.all(4.0),
+                          child: CircularProgressIndicator(
+                            backgroundColor: Colors.yellow,
+                            strokeWidth: 3.0,
+                          ),
+                        ),
+                      )),
+                ),
                 Text(
                   'Invoice Offers',
                   style: getTextWhiteSmall(),
@@ -443,34 +480,9 @@ class _OfferListState extends State<OfferList> with WidgetsBindingObserver {
                 Padding(
                   padding: const EdgeInsets.only(left: 8.0),
                   child: Text(
-                    _getTotal(),
+                    openOffers == null ? '0' : '${openOffers.length}',
                     style: getTitleTextWhite(),
                   ),
-                ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(top: 8.0),
-            child: Row(
-              children: <Widget>[
-                DropdownButton<int>(
-                  items: items,
-                  value: _days,
-                  onChanged: _daysSelected,
-                  hint: Text(
-                    'Period in Review',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ),
-                Row(
-                  children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.only(right: 2.0),
-                      child: Text(text),
-                    ),
-                    Switch(value: switchOpen, onChanged: _onSwitchChanged),
-                  ],
                 ),
               ],
             ),
@@ -481,9 +493,10 @@ class _OfferListState extends State<OfferList> with WidgetsBindingObserver {
   }
 
   String text = 'OPEN';
-  bool switchOpen = true;
+  int numberOfOffers;
+
   void _onNoPressed() {
-    print('_OfferListState._onNoPressed');
+    //print'_OfferListState._onNoPressed');
     Navigator.pop(context);
   }
 
@@ -497,8 +510,8 @@ class _OfferListState extends State<OfferList> with WidgetsBindingObserver {
     if (refresh == null) {
       return;
     }
-    print(
-        '_OfferListState._onInvoiceBidRequired back from Bidder, refresh: $refresh');
+    //print
+//        '_OfferListState._onInvoiceBidRequired back from Bidder, refresh: $refresh');
     if (refresh) {
       _getOffers();
     }
@@ -508,22 +521,38 @@ class _OfferListState extends State<OfferList> with WidgetsBindingObserver {
     _getOffers();
   }
 
-  void _daysSelected(int value) {
-    print('############# _OfferListState._daysSelected : $value');
-    _days = value;
-    _getOffers();
+  @override
+  onEvent(int action, int numberOfOffers) {
+    this.numberOfOffers = numberOfOffers;
+    switch (action) {
+      case Pager.Back:
+        print(
+            '_OfferListState.onEvent; BACK pressed: Back: $startBack Next: $startNext');
+        print(startDates);
+        print(currentIndex);
+        try {
+          startNext = startDates.elementAt(currentIndex - 1);
+        } catch (e) {
+          print('****** error ignored');
+          startNext = null;
+        }
+        _getOffers();
+        break;
+      case Pager.Next:
+        print(
+            '_OfferListState.onEvent; NEXT pressed: Back: $startBack Next: $startNext');
+        _getOffers();
+        break;
+    }
   }
 
-  void _onSwitchChanged(bool value) {
-    print('_OfferListState._onSwitchChanged $value');
-    if (value) {
-      text = 'OPEN';
-      switchOpen = true;
-    } else {
-      text = 'CLOSED';
-      switchOpen = false;
-    }
-    setState(() {});
+  @override
+  onPrompt() {
+    AppSnackbar.showSnackbar(
+        scaffoldKey: _scaffoldKey,
+        message: 'Press Back or Next icon',
+        textColor: Styles.yellow,
+        backgroundColor: Styles.black);
   }
 }
 
@@ -545,12 +574,17 @@ class OfferListCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print('OfferListCard.build');
+    //print'OfferListCard.build');
     return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
       children: <Widget>[
-        Text(
-          "Supplier",
-          style: Styles.greyLabelSmall,
+        Row(
+          children: <Widget>[
+            Text(
+              "Supplier",
+              style: Styles.greyLabelSmall,
+            ),
+          ],
         ),
         Row(
           children: <Widget>[
@@ -561,10 +595,14 @@ class OfferListCard extends StatelessWidget {
         ),
         Padding(
           padding: const EdgeInsets.only(top: 20.0),
-          child: Text(
-            "Customer",
-            style: Styles.greyLabelSmall,
-            textAlign: TextAlign.left,
+          child: Row(
+            children: <Widget>[
+              Text(
+                "Customer",
+                style: Styles.greyLabelSmall,
+                textAlign: TextAlign.left,
+              ),
+            ],
           ),
         ),
         Row(
@@ -798,6 +836,130 @@ class OfferPanel extends StatelessWidget {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+abstract class PagerListener {
+  onEvent(int action, int numberOfOffers);
+  onPrompt();
+}
+
+class Pager extends StatefulWidget {
+  final PagerListener listener;
+  static const Back = 1, Next = 2;
+  Pager(this.listener);
+
+  @override
+  _PagerState createState() => _PagerState();
+}
+
+class _PagerState extends State<Pager> {
+  static const numbers = [10, 20, 30, 40, 50, 60, 70, 80, 100];
+  final List<DropdownMenuItem<int>> items = List();
+  void _buildItems() {
+    numbers.forEach((num) {
+      var item = DropdownMenuItem<int>(
+        value: num,
+        child: Row(
+          children: <Widget>[
+            Icon(
+              Icons.apps,
+              color: getRandomColor(),
+            ),
+            Text('$num'),
+          ],
+        ),
+      );
+      items.add(item);
+    });
+  }
+
+  void _forwardPressed() {
+    print('Pager._forwardPressed');
+    widget.listener.onEvent(Pager.Next, number);
+  }
+
+  void _rewindPressed() {
+    print('Pager._rewindPressed');
+    widget.listener.onEvent(Pager.Back, number);
+  }
+
+  int number = 10;
+  void _onNumber(int value) async {
+    print('Pager._onNumber value: $value');
+    SharedPrefs.savePageLimit(value);
+    setState(() {
+      number = value;
+    });
+    widget.listener.onPrompt();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _buildItems();
+    _setPageLimit();
+  }
+
+  void _setPageLimit() async {
+    number = await SharedPrefs.getPageLimit();
+    setState(() {});
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Card(
+        elevation: 16.0,
+        child: Column(
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.only(left: 8.0, right: 8.0),
+              child: Row(
+                children: <Widget>[
+                  DropdownButton<int>(
+                    items: items,
+                    hint: Text('Offers'),
+                    onChanged: _onNumber,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 10.0, right: 10.0),
+                    child: Text(
+                      '$number',
+                      style: Styles.pinkBoldSmall,
+                    ),
+                  ),
+                  InkWell(
+                      onTap: _rewindPressed,
+                      child: Text('Back', style: Styles.blackBoldSmall)),
+                  IconButton(
+                    icon: Icon(
+                      Icons.fast_rewind,
+                      color: Colors.indigo,
+                    ),
+                    onPressed: _rewindPressed,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 8.0),
+                    child: InkWell(
+                        onTap: _forwardPressed,
+                        child: Text('Next', style: Styles.blackBoldSmall)),
+                  ),
+                  IconButton(
+                    icon: Icon(
+                      Icons.fast_forward,
+                      color: Colors.teal,
+                    ),
+                    onPressed: _forwardPressed,
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );

@@ -11,10 +11,12 @@ class Offer {
   String supplierDocumentRef, supplierFCMToken;
   double invoiceAmount, offerAmount, discountPercent;
   bool isCancelled, isOpen;
+  int intDate;
   String sector, sectorName;
   List<String> invoiceBids;
   Offer(
       {this.offerId,
+      this.intDate,
       this.startTime,
       this.endTime,
       this.discountPercent,
@@ -44,6 +46,7 @@ class Offer {
 
   Offer.fromJson(Map data) {
     this.offerId = data['offerId'];
+    this.intDate = data['intDate'];
     this.startTime = data['startTime'];
     this.endTime = data['endTime'];
     this.discountPercent = data['discountPercent'] * 1.00;
@@ -77,6 +80,7 @@ class Offer {
 
   Map<String, dynamic> toJson() => <String, dynamic>{
         'offerId': offerId,
+        'intDate': intDate,
         'startTime': startTime,
         'endTime': endTime,
         'discountPercent': discountPercent,

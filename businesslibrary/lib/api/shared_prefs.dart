@@ -455,4 +455,19 @@ class SharedPrefs {
     print("=================== SharedPrefs path index: $path");
     return path;
   }
+
+  static void savePageLimit(int index) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setInt("pageLimit", index);
+  }
+
+  static Future<int> getPageLimit() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    int pageLimit = prefs.getInt("pageLimit");
+    if (pageLimit == null) {
+      pageLimit = 10;
+    }
+    print("=================== SharedPrefs pageLimit: $pageLimit");
+    return pageLimit;
+  }
 }

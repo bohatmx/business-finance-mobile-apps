@@ -9,6 +9,7 @@ import 'package:businesslibrary/data/wallet.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/selectors.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
+import 'package:businesslibrary/util/styles.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:investor/ui/invoice_bid_list.dart';
@@ -68,7 +69,10 @@ class _InvoiceBidderState extends State<InvoiceBidder>
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
-        title: Text('Make Invoice Bid'),
+        title: Text(
+          'Make Invoice Bid',
+          style: Styles.whiteSmall,
+        ),
         elevation: 8.0,
         bottom: _getBottom(),
         actions: <Widget>[
@@ -95,7 +99,7 @@ class _InvoiceBidderState extends State<InvoiceBidder>
 
   Widget _getBottom() {
     return PreferredSize(
-      preferredSize: Size.fromHeight(150.0),
+      preferredSize: Size.fromHeight(110.0),
       child: Padding(
         padding: const EdgeInsets.only(bottom: 12.0),
         child: Column(
@@ -269,6 +273,7 @@ class _InvoiceBidderState extends State<InvoiceBidder>
   }
 
   double percentage, amount;
+  bool isBusy = false;
 
   List<DropdownMenuItem<double>> items = List();
   void _buildPercChoices() {
@@ -346,6 +351,10 @@ class _InvoiceBidderState extends State<InvoiceBidder>
   static const NameSpace = 'resource:com.oneconnect.biz.';
 
   void _onSubmitBid() async {
+    if (isBusy) {
+      return;
+    }
+    isBusy = true;
     var bids = await ListAPI.getInvoiceBidsByOffer(offer.offerId);
     var t = 0.00;
     bids.forEach((m) {

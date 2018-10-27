@@ -248,11 +248,10 @@ class ListAPI {
 
   static Future<List<InvoiceBid>> getInvoiceBidByInvestorOffer(
       Offer offer, Investor investor) async {
-    //resource:com.oneconnect.biz.Investor#4cdc2c70-9620-11e8-c714-174858cf9948
-    //resource:com.oneconnect.biz.Offer#6a4819c0-9620-11e8-fac2-c919ce809955
-
+    assert(offer.documentReference != null);
     print(
-        'ListAPI.getInvoiceBidByInvestorOffer =======> offer.documentReference: ${offer.documentReference} offer.offerId: ${offer.offerId} participantId: ${investor.participantId}');
+        'ListAPI.getInvoiceBidByInvestorOffer =======> offer.documentReference: ${offer.documentReference} '
+        'offer.offerId: ${offer.offerId} participantId: ${investor.participantId}');
     List<InvoiceBid> list = List();
     var qs = await _firestore
         .collection('invoiceOffers')
@@ -274,10 +273,10 @@ class ListAPI {
         'ListAPI.getInvoiceBidByInvestorOffer ######## found: ${qs.documents.length} ');
     if (qs.documents.isEmpty) {
       print(
-          'ListAPI.getInvoiceBidByInvestorOffer: qs.documents iisEmpty ----------');
+          'ListAPI.getInvoiceBidByInvestorOffer: qs.documents isEmpty ----------');
     } else {
       print(
-          'ListAPI.getInvoiceBidByInvestorOffer - we have a docuumentt here!!!!!!!');
+          'ListAPI.getInvoiceBidByInvestorOffer - we have a document here!!!!!!!');
     }
     qs.documents.forEach((doc) {
       var invoiceBid = InvoiceBid.fromJson(doc.data);
@@ -617,7 +616,7 @@ class ListAPI {
     var data = DashboardParms(id: supplierId);
 
     DashboardData result =
-        await _doHTTP(getFunctionsURL() + 'supplierDashboard', data);
+        await _doDashboardHTTP(getFunctionsURL() + 'supplierDashboard', data);
     prettyPrint(result.toJson(), '### Dashboard Data:');
     return result;
   }
@@ -628,7 +627,7 @@ class ListAPI {
     var data = DashboardParms(id: investorId, documentId: documentId);
 
     DashboardData result =
-        await _doHTTP(getFunctionsURL() + 'investorDashboard', data);
+        await _doDashboardHTTP(getFunctionsURL() + 'investorDashboard', data);
     if (result != null) {
       prettyPrint(result.toJson(), '### Dashboard Data:');
     }
@@ -641,19 +640,76 @@ class ListAPI {
     var data = DashboardParms(id: govtEntityId);
 
     DashboardData result =
-        await _doHTTP(getFunctionsURL() + 'customerDashboard', data);
+        await _doDashboardHTTP(getFunctionsURL() + 'customerDashboard', data);
     prettyPrint(result.toJson(), '### Dashboard Data:');
     return result;
   }
 
-  static const Map<String, String> headers = {
-    'Content-type': 'application/json',
-    'Accept': 'application/json',
-  };
+  static Future<OpenOfferSummary> getOpenOffersWithPaging(
+      {int lastDate, int pageLimit}) async {
+    print(
+        '\n\n######## ListAPI.getOpenOffersWithPaging ............. $lastDate');
+    OpenOfferSummary summary = await _doOpenOffersHTTP(
+        getFunctionsURL() + 'getOpenOffersWithPaging', lastDate, pageLimit);
+    if (summary.offers != null) {
+      print(
+          '\n\n\nListAPI.getOpenOffersWithPaging &&&&&&&&&&& found: ${summary.offers.length} \n\n');
+    }
+    return summary;
+  }
 
-  static Future<DashboardData> _doHTTP(
+  static Future<OpenOfferSummary> _doOpenOffersHTTP(
+      String mUrl, int date, int pageLimit) async {
+    OpenOfferSummary summary = OpenOfferSummary();
+    Map<String, String> headers = {
+      'Content-type': 'application/json',
+      'Accept': 'application/json',
+    };
+
+    Map<String, dynamic> map;
+    if (date != null) {
+      map = {'date': date, 'pageLimit': pageLimit};
+    } else {
+      map = {'pageLimit': pageLimit};
+    }
+    print('ListAPI._doOpenOffersHTTP -- $map');
+    var start = DateTime.now();
+    try {
+      var client = new http.Client();
+      var resp = await client
+          .post(
+        mUrl,
+        body: json.encode(map),
+        headers: headers,
+      )
+          .whenComplete(() {
+        client.close();
+      });
+      print(
+          'ListAPI._doOpenOffersHTTP .... ################ Query via Cloud Functions: status: ${resp.statusCode}');
+      if (resp.statusCode == 200) {
+        summary = OpenOfferSummary.fromJson(json.decode(resp.body));
+        prettyPrint(summary.toJson(),
+            '\n\n### OpenOfferSummary from function call:\n\n');
+      } else {
+        print(resp.body);
+      }
+    } catch (e) {
+      print('ListAPI._doOpenOffersHTTP $e');
+    }
+    var end = DateTime.now();
+    print(
+        '\n\nListAPI._doOpenOffersHTTP ### elapsed: ${end.difference(start).inSeconds} seconds');
+    return summary;
+  }
+
+  static Future<DashboardData> _doDashboardHTTP(
       String mUrl, DashboardParms dashParms) async {
     DashboardData data;
+    Map<String, String> headers = {
+      'Content-type': 'application/json',
+      'Accept': 'application/json',
+    };
     var start = DateTime.now();
     try {
       var client = new http.Client();
@@ -668,7 +724,11 @@ class ListAPI {
       });
       print(
           'ListAPI.doHTTP .... ################ Query via Cloud Functions: status: ${resp.statusCode}');
-      data = DashboardData.fromJson(json.decode(resp.body));
+      if (resp.statusCode == 200) {
+        data = DashboardData.fromJson(json.decode(resp.body));
+      } else {
+        print(resp.body);
+      }
     } catch (e) {
       print('ListAPI._doHTTP $e');
     }
@@ -1407,5 +1467,35 @@ class DashboardParms {
   Map<String, dynamic> toJson() => <String, dynamic>{
         'id': id,
         'documentId': documentId,
+      };
+}
+
+class OpenOfferSummary {
+  List<Offer> offers = List();
+  int totalOpenOffers = 0;
+  double totalOfferAmount = 0.00;
+  int startedAfter;
+
+  OpenOfferSummary(
+      {this.offers,
+      this.totalOpenOffers,
+      this.totalOfferAmount,
+      this.startedAfter});
+  OpenOfferSummary.fromJson(Map data) {
+    this.totalOpenOffers = data['totalOpenOffers'];
+    this.totalOfferAmount = data['totalOfferAmount'] * 1.0;
+    this.startedAfter = data['startedAfter'];
+    List mOffers = data['offers'];
+    offers = List();
+    mOffers.forEach((o) {
+      offers.add(Offer.fromJson(o));
+    });
+  }
+
+  Map<String, dynamic> toJson() => <String, dynamic>{
+        'totalOpenOffers': totalOpenOffers,
+        'startedAfter': startedAfter,
+        'totalOfferAmount': totalOfferAmount,
+        'offers': offers,
       };
 }
