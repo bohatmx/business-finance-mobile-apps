@@ -109,7 +109,7 @@ class _SupplierListPageState extends State<SupplierListPage>
                                 child: Container(
                                   child: Text(
                                     '${selectedSuppliers.elementAt(index).name}',
-                                    overflow: TextOverflow.ellipsis,
+                                    overflow: TextOverflow.clip,
                                   ),
                                 ),
                               ),
@@ -219,7 +219,7 @@ class _SupplierListPageState extends State<SupplierListPage>
                   height: 60.0,
                   child: Text(
                     'Do you want to remove ${supplier.name} from your supplier list?',
-                    overflow: TextOverflow.ellipsis,
+                    overflow: TextOverflow.clip,
                   ),
                 ),
               ),

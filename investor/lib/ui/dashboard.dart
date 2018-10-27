@@ -200,8 +200,8 @@ class _DashboardState extends State<Dashboard>
         appBar: AppBar(
           elevation: 3.0,
           title: Text(
-            'BFN',
-            style: TextStyle(fontWeight: FontWeight.normal),
+            'Business Finance Network',
+            style: Styles.whiteSmall,
           ),
           leading: Container(),
           bottom: _getBottom(),
@@ -510,7 +510,7 @@ class InvestorSummaryCard extends StatelessWidget {
               dashboardData.totalBids == null
                   ? '0'
                   : '${dashboardData.totalBids}',
-              style: Styles.blackBoldMedium,
+              style: Styles.blackBoldSmall,
             ),
           ),
         ],
@@ -526,7 +526,7 @@ class InvestorSummaryCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
           Text(
-            'Total Bid Amount',
+            'Total Bids',
             style: Styles.greyLabelSmall,
           ),
           Padding(
@@ -535,7 +535,7 @@ class InvestorSummaryCard extends StatelessWidget {
               dashboardData.totalBidAmount == null
                   ? '0'
                   : '${getFormattedAmount('${dashboardData.totalBidAmount}', context)}',
-              style: Styles.blackBoldMedium,
+              style: Styles.pinkBoldLarge,
             ),
           ),
         ],
@@ -560,7 +560,7 @@ class InvestorSummaryCard extends StatelessWidget {
               dashboardData.averageDiscountPerc == null
                   ? '0'
                   : '${getFormattedAmount('${dashboardData.averageDiscountPerc}', context)}%',
-              style: Styles.purpleBoldMedium,
+              style: Styles.purpleBoldSmall,
             ),
           ),
         ],
@@ -585,7 +585,7 @@ class InvestorSummaryCard extends StatelessWidget {
               dashboardData.averageBidAmount == null
                   ? '0'
                   : '${getFormattedAmount('${dashboardData.averageBidAmount}', context)}',
-              style: Styles.blackBoldMedium,
+              style: Styles.blackBoldSmall,
             ),
           ),
         ],
@@ -596,7 +596,7 @@ class InvestorSummaryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 400.0,
+      height: 450.0,
       child: new Padding(
         padding: const EdgeInsets.all(10.0),
         child: Card(

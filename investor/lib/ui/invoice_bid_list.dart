@@ -110,6 +110,7 @@ class OfferCard extends StatelessWidget {
     fontWeight: FontWeight.bold,
   );
 
+  final width = 80.0;
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -120,11 +121,11 @@ class OfferCard extends StatelessWidget {
         child: Column(
           children: <Widget>[
             Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.only(left: 8.0, top: 30.0),
               child: Row(
                 children: <Widget>[
                   Container(
-                      width: 80.0,
+                      width: width,
                       child: Text(
                         'Supplier',
                         style: Styles.greyLabelSmall,
@@ -138,11 +139,11 @@ class OfferCard extends StatelessWidget {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.only(left: 8.0),
               child: Row(
                 children: <Widget>[
                   Container(
-                      width: 80.0,
+                      width: width,
                       child: Text(
                         'For',
                         style: Styles.greyLabelSmall,
@@ -156,11 +157,11 @@ class OfferCard extends StatelessWidget {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.only(left: 8.0, top: 20.0),
               child: Row(
                 children: <Widget>[
                   Container(
-                      width: 60.0,
+                      width: width,
                       child: Text(
                         'Start',
                         style: Styles.greyLabelSmall,
@@ -175,11 +176,11 @@ class OfferCard extends StatelessWidget {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.only(left: 8.0, top: 0.0),
               child: Row(
                 children: <Widget>[
                   Container(
-                      width: 60.0,
+                      width: width,
                       child: Text(
                         'End',
                         style: Styles.greyLabelSmall,
@@ -191,16 +192,17 @@ class OfferCard extends StatelessWidget {
                       style: TextStyle(
                           fontSize: 14.0,
                           color: Colors.pink.shade800,
-                          fontWeight: FontWeight.bold)),
+                          fontWeight: FontWeight.normal)),
                 ],
               ),
             ),
             Padding(
-              padding: const EdgeInsets.only(top: 18.0),
+              padding:
+                  const EdgeInsets.only(top: 20.0, left: 8.0, bottom: 20.0),
               child: Row(
                 children: <Widget>[
                   Container(
-                      width: 80.0,
+                      width: width,
                       child: Text(
                         'Amount',
                         style: Styles.greyLabelSmall,

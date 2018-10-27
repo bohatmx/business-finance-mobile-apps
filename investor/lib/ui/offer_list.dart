@@ -31,7 +31,7 @@ class _OfferListState extends State<OfferList>
 
   Investor investor;
   Offer offer;
-  int startNext, startBack;
+  int currentStartKey, previousStartKey;
   OpenOfferSummary summary = OpenOfferSummary();
   List<int> startDates = List();
 
@@ -69,21 +69,21 @@ class _OfferListState extends State<OfferList>
     setState(() {
       _opacity = 1.0;
     });
-    startDates.add(startNext);
+
     currentIndex++;
     if (numberOfOffers == null) {
       numberOfOffers = await SharedPrefs.getPageLimit();
     }
+    print('_OfferListState._getOffers ## ...currentStartKey: $currentStartKey');
     summary = await ListAPI.getOpenOffersWithPaging(
-        lastDate: startNext, pageLimit: numberOfOffers);
+        lastDate: currentStartKey, pageLimit: numberOfOffers);
     openOffers = summary.offers;
     if (openOffers != null) {
       if (openOffers.isNotEmpty) {
+        previousStartKey = currentStartKey;
         openOffers.forEach((o) {
-          startNext = o.intDate;
+          currentStartKey = o.intDate;
         });
-
-        print('\n\n_OfferListState._getOffers ##startAfter: $startNext\n\n');
       }
     } else {
       print('_OfferListState._getOffers ... ERROR');
@@ -106,18 +106,19 @@ class _OfferListState extends State<OfferList>
     }
     AppSnackbar.showSnackbarWithProgressIndicator(
         scaffoldKey: _scaffoldKey,
-        message: 'Checking bid ...',
+        message: 'Checking bid ...please wait',
         textColor: Colors.yellow,
         backgroundColor: Colors.black);
+
     var xx = await ListAPI.getInvoiceBidByInvestorOffer(offer, investor);
+    _scaffoldKey.currentState.hideCurrentSnackBar();
     if (xx.isEmpty) {
-      _showDetailsDialog(offer);
+      _showInvoiceBidDialog(offer);
     } else {
-      prettyPrint(
-          xx.first.toJson(), '########### INVOICE BID for investtor/offer');
+      prettyPrint(xx.first.toJson(),
+          '########### INVOICE BID for investtor/offer found....');
       _showMoreBidsDialog();
     }
-//    _scaffoldKey.currentState.hideCurrentSnackBar();
   }
 
   _showMoreBidsDialog() {
@@ -155,12 +156,10 @@ class _OfferListState extends State<OfferList>
             ));
   }
 
-  _showDetailsDialog(Offer offer) {
+  _showInvoiceBidDialog(Offer offer) {
     this.offer = offer;
-    prettyPrint(offer.toJson(), 'Offer selected %%%%%%%%:');
+
     if (offer.isOpen == false) {
-      //print
-//          '_OfferListState._showDetailsDialog offer.isOpen == false ... ignore ===============> ');
       AppSnackbar.showSnackbar(
           scaffoldKey: _scaffoldKey,
           message: 'Offer is closed',
@@ -172,14 +171,12 @@ class _OfferListState extends State<OfferList>
         context: context,
         builder: (_) => new AlertDialog(
               title: new Text(
-                "Offer Actions",
-                style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).primaryColor),
+                "Invoice Bid Actions",
+                style: Styles.blackBoldLarge,
               ),
               content: Container(
-                height: 300.0,
-                width: 500.0,
+                height: 240.0,
+                width: double.infinity,
                 child: OfferListCard(
                   offer: offer,
                   color: Colors.grey.shade50,
@@ -196,7 +193,7 @@ class _OfferListState extends State<OfferList>
                 RaisedButton(
                   elevation: 8.0,
                   onPressed: _onInvoiceBidRequired,
-                  color: Colors.pink,
+                  color: Colors.teal.shade600,
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Text(
@@ -527,20 +524,15 @@ class _OfferListState extends State<OfferList>
     switch (action) {
       case Pager.Back:
         print(
-            '_OfferListState.onEvent; BACK pressed: Back: $startBack Next: $startNext');
-        print(startDates);
-        print(currentIndex);
-        try {
-          startNext = startDates.elementAt(currentIndex - 1);
-        } catch (e) {
-          print('****** error ignored');
-          startNext = null;
-        }
+            '_OfferListState.onEvent; BACK pressed: previousStartKey: $previousStartKey currentStartKey: $currentStartKey');
+        currentStartKey = previousStartKey;
+        print(
+            '_OfferListState.onEvent; BACK pressed: previousStartKey: $previousStartKey currentStartKey: $currentStartKey');
         _getOffers();
         break;
       case Pager.Next:
         print(
-            '_OfferListState.onEvent; NEXT pressed: Back: $startBack Next: $startNext');
+            '_OfferListState.onEvent; NEXT pressed: previousStartKey: $previousStartKey currentStartKey: $currentStartKey');
         _getOffers();
         break;
     }
@@ -559,18 +551,9 @@ class _OfferListState extends State<OfferList>
 class OfferListCard extends StatelessWidget {
   final Offer offer;
   final Color color;
+  final double width = 60.0;
 
   OfferListCard({this.offer, this.color});
-  final boldStyle = TextStyle(
-    color: Colors.black,
-    fontSize: 16.0,
-    fontWeight: FontWeight.bold,
-  );
-  final amtStyle = TextStyle(
-    color: Colors.teal,
-    fontSize: 18.0,
-    fontWeight: FontWeight.w900,
-  );
 
   @override
   Widget build(BuildContext context) {
@@ -588,9 +571,16 @@ class OfferListCard extends StatelessWidget {
         ),
         Row(
           children: <Widget>[
-            Text(
-                offer.supplierName == null ? 'Unknown yet' : offer.supplierName,
-                style: boldStyle),
+            Flexible(
+              child: Container(
+                child: Text(
+                    offer.supplierName == null
+                        ? 'Unknown yet'
+                        : offer.supplierName,
+                    overflow: TextOverflow.clip,
+                    style: Styles.blackBoldSmall),
+              ),
+            ),
           ],
         ),
         Padding(
@@ -613,19 +603,19 @@ class OfferListCard extends StatelessWidget {
                   offer.customerName == null
                       ? 'Unknown yet'
                       : offer.customerName,
-                  style: boldStyle,
-                  overflow: TextOverflow.ellipsis,
+                  style: Styles.blackBoldSmall,
+                  overflow: TextOverflow.clip,
                 ),
               ),
             ),
           ],
         ),
         Padding(
-          padding: const EdgeInsets.only(left: 8.0, top: 40.0),
+          padding: const EdgeInsets.only(left: 0.0, top: 40.0),
           child: Row(
             children: <Widget>[
               Container(
-                  width: 80.0,
+                  width: 60.0,
                   child: Text(
                     'Start',
                     style: Styles.greyLabelSmall,
@@ -634,16 +624,16 @@ class OfferListCard extends StatelessWidget {
                   offer.startTime == null
                       ? 'Unknown yet'
                       : getFormattedDate(offer.startTime),
-                  style: TextStyle(fontSize: 14.0, color: Colors.deepPurple)),
+                  style: Styles.blackBoldSmall),
             ],
           ),
         ),
         Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: const EdgeInsets.only(left: 0.0),
           child: Row(
             children: <Widget>[
               Container(
-                  width: 80.0,
+                  width: 60.0,
                   child: Text(
                     'End',
                     style: Styles.greyLabelSmall,
@@ -652,19 +642,16 @@ class OfferListCard extends StatelessWidget {
                   offer.endTime == null
                       ? 'Unknown yet'
                       : getFormattedDate(offer.endTime),
-                  style: TextStyle(
-                      fontSize: 14.0,
-                      color: Colors.red,
-                      fontWeight: FontWeight.bold)),
+                  style: Styles.pinkBoldSmall),
             ],
           ),
         ),
         Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: const EdgeInsets.only(left: 0.0, top: 20.0),
           child: Row(
             children: <Widget>[
               Container(
-                  width: 80.0,
+                  width: 60.0,
                   child: Text(
                     'Amount',
                     style: Styles.greyLabelSmall,
@@ -673,7 +660,7 @@ class OfferListCard extends StatelessWidget {
                 offer.offerAmount == null
                     ? 'Unknown yet'
                     : getFormattedAmount('${offer.offerAmount}', context),
-                style: amtStyle,
+                style: Styles.tealBoldLarge,
               ),
             ],
           ),
@@ -732,6 +719,7 @@ class OfferPanel extends StatelessWidget {
       amountColor = Colors.blueGrey.shade300;
       elevation = 2.0;
     }
+    double width = 60.0;
     return Padding(
       padding: const EdgeInsets.only(left: 12.0, right: 12.0),
       child: Card(
@@ -757,7 +745,7 @@ class OfferPanel extends StatelessWidget {
                     ),
                   ),
                   Container(
-                    width: 60.0,
+                    width: width,
                     child: Padding(
                       padding: const EdgeInsets.only(left: 0.0),
                       child: getStatus(),
@@ -799,12 +787,17 @@ class OfferPanel extends StatelessWidget {
                             fontWeight: FontWeight.bold),
                       ),
                     ),
-                    Text(
-                      offer.supplierName == null ? '' : offer.supplierName,
-                      style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 14.0,
-                          fontWeight: FontWeight.bold),
+                    Flexible(
+                      child: Container(
+                        child: Text(
+                          offer.supplierName == null ? '' : offer.supplierName,
+                          overflow: TextOverflow.clip,
+                          style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 14.0,
+                              fontWeight: FontWeight.bold),
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -824,12 +817,17 @@ class OfferPanel extends StatelessWidget {
                             fontWeight: FontWeight.bold),
                       ),
                     ),
-                    Text(
-                      offer.customerName == null ? '' : offer.customerName,
-                      style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 14.0,
-                          fontWeight: FontWeight.normal),
+                    Flexible(
+                      child: Container(
+                        child: Text(
+                          offer.customerName == null ? '' : offer.customerName,
+                          overflow: TextOverflow.clip,
+                          style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 14.0,
+                              fontWeight: FontWeight.normal),
+                        ),
+                      ),
                     ),
                   ],
                 ),

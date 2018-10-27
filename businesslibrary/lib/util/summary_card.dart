@@ -17,7 +17,7 @@ class SummaryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var opacity = 1.0;
-    var height = 60.0, top = 4.0;
+    var height = 80.0, top = 12.0;
 
     return new Container(
       height: height,

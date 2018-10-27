@@ -110,7 +110,7 @@ class _SectorListPageState extends State<SectorListPage>
                                 child: Container(
                                   child: Text(
                                     '${selectedSectors.elementAt(index).sectorName}',
-                                    overflow: TextOverflow.ellipsis,
+                                    overflow: TextOverflow.clip,
                                   ),
                                 ),
                               ),
@@ -220,7 +220,7 @@ class _SectorListPageState extends State<SectorListPage>
                   height: 60.0,
                   child: Text(
                     'Do you want to remove ${sector.sectorName} from your sector list?',
-                    overflow: TextOverflow.ellipsis,
+                    overflow: TextOverflow.clip,
                   ),
                 ),
               ),

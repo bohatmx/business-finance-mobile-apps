@@ -40,6 +40,7 @@ class _InvoiceBidderState extends State<InvoiceBidder>
     print(
         '_InvoiceBidderState.initState ==================================>>>');
     _getCached();
+    _buildPercChoices();
     _getExistingBids();
     configureMessaging(this);
   }
@@ -93,15 +94,15 @@ class _InvoiceBidderState extends State<InvoiceBidder>
       totalAmtBid += m.amount;
       totalPercBid += m.reservePercent;
     });
-    _buildPercChoices();
+
     setState(() {});
   }
 
   Widget _getBottom() {
     return PreferredSize(
-      preferredSize: Size.fromHeight(110.0),
+      preferredSize: Size.fromHeight(100.0),
       child: Padding(
-        padding: const EdgeInsets.only(bottom: 12.0),
+        padding: const EdgeInsets.only(bottom: 12.0, right: 20.0),
         child: Column(
           children: <Widget>[
             Row(
@@ -117,10 +118,7 @@ class _InvoiceBidderState extends State<InvoiceBidder>
                       padding: const EdgeInsets.only(left: 14.0, right: 10.0),
                       child: Text(
                         bids == null ? '0' : '${bids.length}',
-                        style: TextStyle(
-                            color: Colors.indigo.shade800,
-                            fontSize: 24.0,
-                            fontWeight: FontWeight.bold),
+                        style: Styles.blackBoldLarge,
                       ),
                     ),
                     Padding(
@@ -137,10 +135,7 @@ class _InvoiceBidderState extends State<InvoiceBidder>
                                 const EdgeInsets.only(left: 8.0, right: 10.0),
                             child: Text(
                               totalPercBid == null ? '0 %' : '$totalPercBid %',
-                              style: TextStyle(
-                                  color: Colors.indigo.shade800,
-                                  fontSize: 24.0,
-                                  fontWeight: FontWeight.bold),
+                              style: Styles.blackBoldLarge,
                             ),
                           ),
                         ],
@@ -163,10 +158,7 @@ class _InvoiceBidderState extends State<InvoiceBidder>
                     totalAmtBid == null
                         ? '0.00'
                         : '${getFormattedAmount('$totalAmtBid', context)}',
-                    style: TextStyle(
-                        color: Colors.indigo.shade800,
-                        fontSize: 24.0,
-                        fontWeight: FontWeight.bold),
+                    style: Styles.whiteBoldLarge,
                   ),
                 ),
               ],
@@ -188,9 +180,9 @@ class _InvoiceBidderState extends State<InvoiceBidder>
           ),
         ),
         Padding(
-          padding: const EdgeInsets.only(bottom: 0.0),
+          padding: const EdgeInsets.only(bottom: 0.0, left: 20.0),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
+            mainAxisAlignment: MainAxisAlignment.start,
             children: <Widget>[
               Padding(
                 padding: const EdgeInsets.only(left: 8.0),
@@ -215,15 +207,22 @@ class _InvoiceBidderState extends State<InvoiceBidder>
             ],
           ),
         ),
-        Center(
-          child: DropdownButton<double>(
-            items: items,
-            elevation: 8,
-            hint: Text(
-              'Bid Percentage',
-              style: TextStyle(fontSize: 16.0),
+        Padding(
+          padding: const EdgeInsets.only(
+              left: 20.0, top: 0.0, right: 20.0, bottom: 20.0),
+          child: Center(
+            child: DropdownButton<double>(
+              items: items,
+              elevation: 8,
+              hint: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Text(
+                  'Select Percentage',
+                  style: Styles.greyLabelMedium,
+                ),
+              ),
+              onChanged: _onChanged,
             ),
-            onChanged: _onChanged,
           ),
         ),
         Padding(
@@ -232,11 +231,7 @@ class _InvoiceBidderState extends State<InvoiceBidder>
             children: <Widget>[
               Text(
                 percentage == null ? '0.0 %' : '$percentage %',
-                style: TextStyle(
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 24.0,
-                ),
+                style: Styles.blackBoldMedium,
               ),
               Padding(
                 padding: const EdgeInsets.only(left: 16.0),
@@ -254,22 +249,71 @@ class _InvoiceBidderState extends State<InvoiceBidder>
           ),
         ),
         Padding(
-          padding: const EdgeInsets.only(left: 36.0, right: 36.0, top: 4.0),
+          padding: const EdgeInsets.only(left: 80.0, right: 80.0, top: 20.0),
           child: RaisedButton(
-            onPressed: _onSubmitBid,
+            onPressed: _showConfirmDialog,
             elevation: 8.0,
-            color: Colors.pink,
+            color: Colors.indigo.shade300,
             child: Padding(
-              padding: const EdgeInsets.all(12.0),
+              padding: const EdgeInsets.all(8.0),
               child: Text(
-                'Make Invoice Bid',
-                style: TextStyle(color: Colors.white, fontSize: 18.0),
+                'Make  Bid',
+                style: Styles.whiteMedium,
               ),
             ),
           ),
         ),
       ],
     );
+  }
+
+  void _showConfirmDialog() {
+    showDialog(
+        context: context,
+        builder: (_) => new AlertDialog(
+              title: new Text(
+                "Confirm Invoice Bid",
+                style: Styles.blackBoldLarge,
+              ),
+              content: Container(
+                height: 200.0,
+                child: Column(
+                  children: <Widget>[
+                    Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Text(
+                          'Do you want to make an Invoice Bid?\n\nThis will record your intention to purchase the Offer at the proportion you specified.'),
+                    ),
+                  ],
+                ),
+              ),
+              actions: <Widget>[
+                FlatButton(
+                  child: Text(
+                    'NO',
+                    style: TextStyle(color: Colors.grey),
+                  ),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 20.0, right: 20.0),
+                  child: RaisedButton(
+                    onPressed: _onSubmitBid,
+                    elevation: 8.0,
+                    color: Colors.teal.shade700,
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        'Confirm Bid',
+                        style: Styles.whiteSmall,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ));
   }
 
   double percentage, amount;
@@ -351,9 +395,21 @@ class _InvoiceBidderState extends State<InvoiceBidder>
   static const NameSpace = 'resource:com.oneconnect.biz.';
 
   void _onSubmitBid() async {
+    Navigator.pop(context);
     if (isBusy) {
+      print('_InvoiceBidderState._onSubmitBid submit is busy');
+      AppSnackbar.showSnackbar(
+          scaffoldKey: _scaffoldKey,
+          message: 'Busy. Device already subnitting bid. Please wait',
+          textColor: Styles.yellow,
+          backgroundColor: Styles.black);
       return;
     }
+    AppSnackbar.showSnackbarWithProgressIndicator(
+        scaffoldKey: _scaffoldKey,
+        message: 'Making invoice bid ...',
+        textColor: Colors.white,
+        backgroundColor: Colors.black);
     isBusy = true;
     var bids = await ListAPI.getInvoiceBidsByOffer(offer.offerId);
     var t = 0.00;
@@ -371,6 +427,7 @@ class _InvoiceBidderState extends State<InvoiceBidder>
         listener: this,
         actionLabel: '',
       );
+      _scaffoldKey.currentState.removeCurrentSnackBar();
       return;
     }
 
@@ -417,12 +474,6 @@ class _InvoiceBidderState extends State<InvoiceBidder>
         isSettled: false,
         supplierId: offer.supplierDocumentRef);
 
-    AppSnackbar.showSnackbarWithProgressIndicator(
-        scaffoldKey: _scaffoldKey,
-        message: 'Making invoice bid ...',
-        textColor: Colors.white,
-        backgroundColor: Colors.black);
-
     try {
       var resultBid = await DataAPI3.makeInvoiceBid(bid);
       if (resultBid == null) {
@@ -467,22 +518,6 @@ class _InvoiceBidderState extends State<InvoiceBidder>
           builder: (context) => new InvoiceDueDiligence(offer)),
     );
   }
-//
-//  @override
-//  onInvoiceBidMessage(InvoiceBid invoiceBid) {
-//    print('_InvoiceBidderState.onInvoiceBidMessage invoiceBid arrived');
-//
-//    if (invoiceBid.offer ==
-//        'resource:com.oneconnect.biz.Offer#${offer.offerId}') {
-//      AppSnackbar.showSnackbar(
-//          scaffoldKey: _scaffoldKey,
-//          message:
-//              'Invoice bid made on this offer by someone else\nbid perc: ${invoiceBid.reservePercent} amt: ${invoiceBid.amount}',
-//          textColor: Styles.white,
-//          backgroundColor: Styles.black);
-//      _getExistingBids();
-//    }
-//  }
 
   @override
   onOfferMessage(Offer offer) {
@@ -491,6 +526,14 @@ class _InvoiceBidderState extends State<InvoiceBidder>
 
   @override
   onInvoiceBidMessage(invoiceBid) {
-    // TODO: implement onInvoiceBidMessage
+    print(
+        '_InvoiceBidderState.onInvoiceBidMessage -- bid from investor: ${invoiceBid.investorName}');
+    if (invoiceBid.investor ==
+        NameSpace + 'Investor#${investor.participantId}') {
+      print(
+          '_InvoiceBidderState.onInvoiceBidMessage IGNORE - this is our own bid');
+    } else {
+      _getExistingBids();
+    }
   }
 }

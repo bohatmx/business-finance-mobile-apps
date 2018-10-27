@@ -647,13 +647,11 @@ class ListAPI {
 
   static Future<OpenOfferSummary> getOpenOffersWithPaging(
       {int lastDate, int pageLimit}) async {
-    print(
-        '\n\n######## ListAPI.getOpenOffersWithPaging ............. $lastDate');
     OpenOfferSummary summary = await _doOpenOffersHTTP(
         getFunctionsURL() + 'getOpenOffersWithPaging', lastDate, pageLimit);
     if (summary.offers != null) {
       print(
-          '\n\n\nListAPI.getOpenOffersWithPaging &&&&&&&&&&& found: ${summary.offers.length} \n\n');
+          'ListAPI.getOpenOffersWithPaging &&&&&&&&&&& found: ${summary.offers.length} \n\n');
     }
     return summary;
   }
@@ -672,7 +670,7 @@ class ListAPI {
     } else {
       map = {'pageLimit': pageLimit};
     }
-    print('ListAPI._doOpenOffersHTTP -- $map');
+    print('ListAPI._doOpenOffersHTTP ------- parameters: $map');
     var start = DateTime.now();
     try {
       var client = new http.Client();
@@ -686,11 +684,11 @@ class ListAPI {
         client.close();
       });
       print(
-          'ListAPI._doOpenOffersHTTP .... ################ Query via Cloud Functions: status: ${resp.statusCode}');
+          'ListAPI._doOpenOffersHTTP .... ## Query via Cloud Functions: status: ${resp.statusCode}');
       if (resp.statusCode == 200) {
         summary = OpenOfferSummary.fromJson(json.decode(resp.body));
-        prettyPrint(summary.toJson(),
-            '\n\n### OpenOfferSummary from function call:\n\n');
+        print(
+            'ListAPI._doOpenOffersHTTP summary, offers: ${summary.offers.length}');
       } else {
         print(resp.body);
       }
@@ -699,7 +697,7 @@ class ListAPI {
     }
     var end = DateTime.now();
     print(
-        '\n\nListAPI._doOpenOffersHTTP ### elapsed: ${end.difference(start).inSeconds} seconds');
+        'ListAPI._doOpenOffersHTTP ### elapsed: ${end.difference(start).inSeconds} seconds');
     return summary;
   }
 
