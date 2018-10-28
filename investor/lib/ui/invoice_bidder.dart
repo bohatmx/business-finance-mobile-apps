@@ -40,7 +40,7 @@ class _InvoiceBidderState extends State<InvoiceBidder>
     print(
         '_InvoiceBidderState.initState ==================================>>>');
     _getCached();
-    _buildPercChoices();
+
     _getExistingBids();
     configureMessaging(this);
   }
@@ -58,6 +58,7 @@ class _InvoiceBidderState extends State<InvoiceBidder>
         '_InvoiceBidderState._getExistingBids ...... for this OFFER.....');
     bids = await ListAPI.getInvoiceBidsByOffer(offer.offerId);
     _calculateTotal();
+    _buildPercChoices();
     setState(() {});
   }
 

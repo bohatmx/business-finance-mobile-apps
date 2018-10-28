@@ -33,8 +33,8 @@ class _OfferListState extends State<OfferList>
   Offer offer;
   int currentStartKey, previousStartKey;
   OpenOfferSummary summary = OpenOfferSummary();
-  List<int> startDates = List();
-
+  List<int> keys = List();
+  KeyItems keyItems = KeyItems();
   double _opacity = 0.0;
 
   @override
@@ -46,7 +46,7 @@ class _OfferListState extends State<OfferList>
 
     _getCached();
     _getPageLimit();
-    _getOffers();
+    _getOffers(false);
   }
 
   void _getCached() async {
@@ -58,7 +58,7 @@ class _OfferListState extends State<OfferList>
     setState(() {});
   }
 
-  void _getOffers() async {
+  void _getOffers(bool isBackPressed) async {
     print('\n\n\n_OfferListState._getOffers .......................');
 
     AppSnackbar.showSnackbarWithProgressIndicator(
@@ -70,13 +70,20 @@ class _OfferListState extends State<OfferList>
       _opacity = 1.0;
     });
 
-    currentIndex++;
     if (numberOfOffers == null) {
       numberOfOffers = await SharedPrefs.getPageLimit();
     }
     print('_OfferListState._getOffers ## ...currentStartKey: $currentStartKey');
     summary = await ListAPI.getOpenOffersWithPaging(
         lastDate: currentStartKey, pageLimit: numberOfOffers);
+    if (!isBackPressed) {
+      var item = KeyItem(currentIndex, currentStartKey);
+      keyItems.addItem(item);
+      keyItems.doPrint();
+      print(
+          '\n\n_getOffers #######  currentIndex: $currentIndex currentStartKey: $currentStartKey');
+      keys.add(currentStartKey);
+    }
     openOffers = summary.offers;
     if (openOffers != null) {
       if (openOffers.isNotEmpty) {
@@ -510,30 +517,43 @@ class _OfferListState extends State<OfferList>
     //print
 //        '_OfferListState._onInvoiceBidRequired back from Bidder, refresh: $refresh');
     if (refresh) {
-      _getOffers();
+      _getOffers(false);
     }
   }
 
   void _refresh() {
-    _getOffers();
+    _getOffers(false);
   }
 
   @override
   onEvent(int action, int numberOfOffers) {
     this.numberOfOffers = numberOfOffers;
+    print(
+        '\n\nonEvent ********** currentIndex: $currentIndex currentStartKey: $currentStartKey');
     switch (action) {
       case Pager.Back:
+        currentIndex--;
+        if (currentIndex < 0) {
+          currentStartKey = null;
+        } else {
+          if (currentIndex < keyItems.items.length) {
+            currentStartKey = keyItems.items.elementAt(currentIndex).startKey;
+          } else {
+            currentStartKey = null;
+          }
+        }
         print(
-            '_OfferListState.onEvent; BACK pressed: previousStartKey: $previousStartKey currentStartKey: $currentStartKey');
-        currentStartKey = previousStartKey;
-        print(
-            '_OfferListState.onEvent; BACK pressed: previousStartKey: $previousStartKey currentStartKey: $currentStartKey');
-        _getOffers();
+            'onEvent; -------------- BACK pressed: currentStartKey: $currentStartKey');
+        _getOffers(true);
         break;
       case Pager.Next:
+        currentIndex++;
+        if (currentIndex < keyItems.items.length) {
+          currentStartKey = keyItems.items.elementAt(currentIndex).startKey;
+        }
         print(
-            '_OfferListState.onEvent; NEXT pressed: previousStartKey: $previousStartKey currentStartKey: $currentStartKey');
-        _getOffers();
+            'onEvent; +++++++++++ NEXT pressed: currentStartKey: $currentStartKey');
+        _getOffers(false);
         break;
     }
   }
@@ -855,7 +875,7 @@ class Pager extends StatefulWidget {
 }
 
 class _PagerState extends State<Pager> {
-  static const numbers = [10, 20, 30, 40, 50, 60, 70, 80, 100];
+  static const numbers = [2, 10, 20, 30, 40, 50, 60, 70, 80, 100];
   final List<DropdownMenuItem<int>> items = List();
   void _buildItems() {
     numbers.forEach((num) {
@@ -961,5 +981,37 @@ class _PagerState extends State<Pager> {
         ),
       ),
     );
+  }
+}
+
+class KeyItem {
+  final int index;
+  final int startKey;
+
+  KeyItem(this.index, this.startKey);
+}
+
+class KeyItems {
+  final List<KeyItem> items = List();
+
+  void addItem(KeyItem item) {
+//    items.add(item);
+    var isFound = false;
+    items.forEach((i) {
+      if (i.startKey == item.startKey) {
+        isFound = true;
+      }
+    });
+    if (!isFound) {
+      items.add(item);
+    }
+  }
+
+  doPrint() {
+    print('\n\n################################################');
+    items.forEach((i) {
+      print('keyItem:index: ${i.index} startKey: ${i.startKey}');
+    });
+    print('################################################\n\n');
   }
 }
