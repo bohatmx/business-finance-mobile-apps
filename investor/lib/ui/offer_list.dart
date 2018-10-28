@@ -945,7 +945,7 @@ class _PagerState extends State<Pager> {
                     onChanged: _onNumber,
                   ),
                   Padding(
-                    padding: const EdgeInsets.only(left: 10.0, right: 10.0),
+                    padding: const EdgeInsets.only(left: 8.0, right: 10.0),
                     child: Text(
                       '$number',
                       style: Styles.pinkBoldSmall,
@@ -958,11 +958,12 @@ class _PagerState extends State<Pager> {
                     icon: Icon(
                       Icons.fast_rewind,
                       color: Colors.indigo,
+                      size: 36.0,
                     ),
                     onPressed: _rewindPressed,
                   ),
                   Padding(
-                    padding: const EdgeInsets.only(left: 8.0),
+                    padding: const EdgeInsets.only(left: 12.0),
                     child: InkWell(
                         onTap: _forwardPressed,
                         child: Text('Next', style: Styles.blackBoldSmall)),
@@ -971,6 +972,7 @@ class _PagerState extends State<Pager> {
                     icon: Icon(
                       Icons.fast_forward,
                       color: Colors.teal,
+                      size: 36.0,
                     ),
                     onPressed: _forwardPressed,
                   ),

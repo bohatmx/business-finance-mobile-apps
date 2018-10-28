@@ -152,7 +152,7 @@ class _MyHomePageState extends State<MyHomePage> implements GenListener {
   List<String> msgList = List();
 
   _generateWork() async {
-    await Generator.generateOffers(this, context);
+    await Generator.generate(this, context);
   }
 
   _addCustomers() async {

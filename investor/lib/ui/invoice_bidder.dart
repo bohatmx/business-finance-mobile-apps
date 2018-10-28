@@ -87,6 +87,7 @@ class _InvoiceBidderState extends State<InvoiceBidder>
 
   double totalAmtBid = 0.00;
   double totalPercBid = 0.00;
+  double totalToGo = 0.00;
 
   _calculateTotal() {
     totalAmtBid = 0.00;
@@ -96,12 +97,15 @@ class _InvoiceBidderState extends State<InvoiceBidder>
       totalPercBid += m.reservePercent;
     });
 
+    totalToGo = offer.offerAmount - totalAmtBid;
+    print(
+        '_InvoiceBidderState._calculate --- offer.offerAmount:  ${offer.offerAmount} totalAmtBid: $totalAmtBid totalToGo: $totalToGo ');
     setState(() {});
   }
 
   Widget _getBottom() {
     return PreferredSize(
-      preferredSize: Size.fromHeight(100.0),
+      preferredSize: Size.fromHeight(180.0),
       child: Padding(
         padding: const EdgeInsets.only(bottom: 12.0, right: 20.0),
         child: Column(
@@ -127,7 +131,7 @@ class _InvoiceBidderState extends State<InvoiceBidder>
                       child: Row(
                         children: <Widget>[
                           Text(
-                            'Perc:',
+                            ' Reserved:',
                             style:
                                 TextStyle(color: Colors.white, fontSize: 12.0),
                           ),
@@ -146,23 +150,50 @@ class _InvoiceBidderState extends State<InvoiceBidder>
                 ),
               ],
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: <Widget>[
-                Text(
-                  'Total Amount Bid: ',
-                  style: TextStyle(color: Colors.white, fontSize: 12.0),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: Text(
-                    totalAmtBid == null
-                        ? '0.00'
-                        : '${getFormattedAmount('$totalAmtBid', context)}',
-                    style: Styles.whiteBoldLarge,
+            Padding(
+              padding: const EdgeInsets.only(top: 30.0, left: 20.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: <Widget>[
+                  Container(
+                    width: 100.0,
+                    child: Text(
+                      'Total Amount Bid: ',
+                      style: TextStyle(color: Colors.white, fontSize: 12.0),
+                    ),
                   ),
-                ),
-              ],
+                  Padding(
+                    padding: const EdgeInsets.only(left: 12.0),
+                    child: Text(
+                      totalAmtBid == null
+                          ? '0.00'
+                          : '${getFormattedAmount('$totalAmtBid', context)}',
+                      style: Styles.whiteBoldLarge,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 20.0, top: 0.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: <Widget>[
+                  Container(
+                    width: 100.0,
+                    child: Text('Amount To Go: ', style: Styles.blackBoldSmall),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Text(
+                      totalToGo == null
+                          ? '0.00'
+                          : '${getFormattedAmount('$totalToGo', context)}',
+                      style: Styles.blackBoldLarge,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
         ),
@@ -210,7 +241,7 @@ class _InvoiceBidderState extends State<InvoiceBidder>
         ),
         Padding(
           padding: const EdgeInsets.only(
-              left: 20.0, top: 0.0, right: 20.0, bottom: 20.0),
+              left: 20.0, top: 0.0, right: 20.0, bottom: 0.0),
           child: Center(
             child: DropdownButton<double>(
               items: items,
@@ -243,7 +274,7 @@ class _InvoiceBidderState extends State<InvoiceBidder>
                   style: TextStyle(
                       fontSize: 28.0,
                       fontWeight: FontWeight.bold,
-                      color: Colors.pink.shade300),
+                      color: Colors.pink.shade200),
                 ),
               ),
             ],
@@ -535,6 +566,11 @@ class _InvoiceBidderState extends State<InvoiceBidder>
           '_InvoiceBidderState.onInvoiceBidMessage IGNORE - this is our own bid');
     } else {
       _getExistingBids();
+      AppSnackbar.showSnackbar(
+          scaffoldKey: _scaffoldKey,
+          message: 'Invoice Bid happened',
+          textColor: Styles.white,
+          backgroundColor: Colors.teal.shade900);
     }
   }
 }

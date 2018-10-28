@@ -145,7 +145,7 @@ class OfferCard extends StatelessWidget {
                   Container(
                       width: width,
                       child: Text(
-                        'For',
+                        'Customer',
                         style: Styles.greyLabelSmall,
                       )),
                   Text(
@@ -198,7 +198,7 @@ class OfferCard extends StatelessWidget {
             ),
             Padding(
               padding:
-                  const EdgeInsets.only(top: 20.0, left: 8.0, bottom: 20.0),
+                  const EdgeInsets.only(top: 20.0, left: 8.0, bottom: 10.0),
               child: Row(
                 children: <Widget>[
                   Container(
@@ -212,6 +212,36 @@ class OfferCard extends StatelessWidget {
                         ? 'Unknown yet'
                         : getFormattedAmount('${offer.offerAmount}', context),
                     style: amtStyle,
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 0.0, left: 8.0, bottom: 20.0),
+              child: Row(
+                children: <Widget>[
+                  Container(
+                      width: width,
+                      child: Text(
+                        'Discount',
+                        style: Styles.greyLabelSmall,
+                      )),
+                  Text(
+                    offer.offerAmount == null
+                        ? '0.00'
+                        : getFormattedAmount(
+                            '${offer.offerAmount * (offer.discountPercent / 100)}',
+                            context),
+                    style: Styles.blackBoldMedium,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 8.0),
+                    child: Text(
+                      offer.discountPercent == null
+                          ? '0.0%'
+                          : '${offer.discountPercent}%',
+                      style: Styles.blueBoldMedium,
+                    ),
                   ),
                 ],
               ),
