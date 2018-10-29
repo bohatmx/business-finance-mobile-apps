@@ -573,4 +573,9 @@ class _InvoiceBidderState extends State<InvoiceBidder>
           backgroundColor: Colors.teal.shade900);
     }
   }
+
+  @override
+  onHeartbeat(Map map) {
+    // TODO: implement onHeartbeat
+  }
 }

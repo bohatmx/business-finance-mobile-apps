@@ -480,4 +480,9 @@ class _SignUpPageState extends State<SignUpPage>
   onInvoiceBidMessage(invoiceBid) {
     // TODO: implement onInvoiceBidMessage
   }
+
+  @override
+  onHeartbeat(Map map) {
+    // TODO: implement onHeartbeat
+  }
 }

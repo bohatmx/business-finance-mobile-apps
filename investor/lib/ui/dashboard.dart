@@ -486,6 +486,11 @@ class _DashboardState extends State<Dashboard>
 
   double opacity = 1.0;
   String name;
+
+  @override
+  onHeartbeat(Map map) {
+    // TODO: implement onHeartbeat
+  }
 }
 
 class InvestorSummaryCard extends StatelessWidget {

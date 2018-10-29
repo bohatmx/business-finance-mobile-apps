@@ -320,6 +320,14 @@ String getFormattedLongestDate(String date) {
   return format.format(d);
 }
 
+String getFormattedNumber(int number, BuildContext context) {
+  Locale myLocale = Localizations.localeOf(context);
+  var val = myLocale.languageCode + '_' + myLocale.countryCode;
+  final oCcy = new NumberFormat("###,###,###,###,###", val);
+
+  return oCcy.format(number);
+}
+
 String getFormattedAmount(String amount, BuildContext context) {
   Locale myLocale = Localizations.localeOf(context);
   var val = myLocale.languageCode + '_' + myLocale.countryCode;
@@ -344,7 +352,7 @@ configureMessaging(FCMListener listener) async {
 
   _firebaseMessaging.configure(
     onMessage: (Map<String, dynamic> message) async {
-      print('configureMessaging, onMessage: $message');
+      print('\n\nRECEIVED FCM message, onMessage:\n$message \n');
       var data = message['data'];
       String messageType = data["messageType"];
       try {
@@ -355,6 +363,10 @@ configureMessaging(FCMListener listener) async {
         if (messageType.contains("OFFER")) {
           var offer = Offer.fromJson(json.decode(data['json']));
           listener.onOfferMessage(offer);
+        }
+        if (messageType.contains("HEARTBEAT")) {
+          Map map = json.decode(data['json']);
+          listener.onHeartbeat(map);
         }
       } catch (e) {
         print(e);
@@ -414,18 +426,11 @@ _updateToken(String token) async {
 }
 
 abstract class FCMListener {
-//  onWalletMessage(Wallet wallet);
-//  onWalletError();
-//  onPurchaseOrderMessage(PurchaseOrder purchaseOrder);
-//  onDeliveryNote(DeliveryNote deliveryNote);
-//  onDeliveryAcceptance(DeliveryAcceptance deliveryAcceptance);
-//  onInvoiceMessage(Invoice invoice);
-//  onOfferMessage(Offer offer);
   onInvoiceBidMessage(InvoiceBid invoiceBid);
+
   onOfferMessage(Offer offer);
-//  onGovtInvoiceSettlement(GovtInvoiceSettlement settlement);
-//  onInvestorSettlement(InvestorInvoiceSettlement settlement);
-//  onCompanySettlement(CompanyInvoiceSettlement settlement);
+
+  onHeartbeat(Map map);
 }
 
 const DEBUG_URL =
@@ -590,4 +595,5 @@ const GovtEntityType = 1,
     ProcurementOfficeType = 6,
     BankType = 7,
     OneConnectType = 8;
+
 const NameSpace = 'resource:com.oneconnect.biz.';

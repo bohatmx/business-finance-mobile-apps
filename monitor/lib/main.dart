@@ -10,6 +10,7 @@ import 'package:businesslibrary/data/investor_profile.dart';
 import 'package:businesslibrary/data/invoice_bid.dart';
 import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/util/lookups.dart';
+import 'package:businesslibrary/util/selectors.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -47,8 +48,8 @@ class _MyHomePageState extends State<MyHomePage>
 
   List<AutoTradeOrder> _orders;
   List<InvestorProfile> _profiles;
-  List<Offer> _offers;
   DateTime startDate;
+  OpenOfferSummary summary;
 
   @override
   void initState() {
@@ -56,7 +57,7 @@ class _MyHomePageState extends State<MyHomePage>
     _getLists(true);
     configureMessaging(this);
     _firebaseMessaging.subscribeToTopic('invoiceBids');
-    _firebaseMessaging.subscribeToTopic('invalidAutoTrades');
+    _firebaseMessaging.subscribeToTopic('heartbeats');
     print(
         '_MyHomePageState.initState ############ subscribed to invoiceBids topic');
   }
@@ -81,7 +82,7 @@ class _MyHomePageState extends State<MyHomePage>
     }
     _orders = await ListAPI.getAutoTradeOrders();
     _profiles = await ListAPI.getInvestorProfiles();
-    _offers = await ListAPI.getOpenOffers();
+    summary = await ListAPI.getOpenOffersSummary();
     _scaffoldKey.currentState.hideCurrentSnackBar();
     await _getMinutes();
 
@@ -116,14 +117,17 @@ class _MyHomePageState extends State<MyHomePage>
         print(
             '_MyHomePageState._start:\n\n\n TIMER tripping - starting AUTO TRADE cycle .......time: '
             '${DateTime.now().toIso8601String()}.  mTimer.tick: ${mTimer.tick}...\n\n');
-        _offers = await ListAPI.getOpenOffers();
+        summary = await ListAPI.getOpenOffersSummary();
 
-        if (_offers.isNotEmpty) {
+        if (summary.totalOpenOffers > 0) {
           setState(() {
             _showProgress = true;
             autoTradeStart = AutoTradeStart();
             invaliTrades.clear();
             bidsArrived.clear();
+          });
+          setState(() {
+            messages.clear();
           });
           startDate = DateTime.now();
           autoTradeStart = await DataAPI3.executeAutoTrades();
@@ -183,25 +187,17 @@ class _MyHomePageState extends State<MyHomePage>
     setState(() {});
   }
 
-  @override
-  onError(int count) {
-    print(
-        '_MyHomePageState.onError ....ERROR ERROOR..... processed; $count timer.tick: ${timer.tick}');
-    AppSnackbar.showErrorSnackbar(
-        scaffoldKey: _scaffoldKey,
-        message: 'Auto Trades ERROR. Processed OK: $count',
-        listener: this,
-        actionLabel: 'close');
-  }
-
   void _restart() async {
-    await _getLists(true);
-    setState(() {});
     print(
-        '\n\n_MyHomePageState._restart ....starting auto trades ........... offers: ${_offers.length}\n\n');
+        '\n\n_MyHomePageState._restart ....starting auto trades ........... offers: $summary.totalOpenOffers\n\n');
 
+    setState(() {
+      messages.clear();
+    });
     try {
-      if (_orders.isNotEmpty && _profiles.isNotEmpty && _offers.isNotEmpty) {
+      if (_orders.isNotEmpty &&
+          _profiles.isNotEmpty &&
+          summary.totalOpenOffers > 0) {
         setState(() {
           _showProgress = true;
           autoTradeStart = AutoTradeStart();
@@ -238,6 +234,10 @@ class _MyHomePageState extends State<MyHomePage>
             backgroundColor: Styles.black);
       }
     } catch (e) {
+      setState(() {
+        _showProgress = null;
+      });
+      _getLists(false);
       AppSnackbar.showErrorSnackbar(
           scaffoldKey: _scaffoldKey,
           message: 'Problem with Auto Trade Session',
@@ -274,6 +274,10 @@ class _MyHomePageState extends State<MyHomePage>
 
   TextEditingController controller = TextEditingController();
   bool _showProgress;
+  _refresh() {
+    _getLists(true);
+  }
+
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
@@ -284,6 +288,15 @@ class _MyHomePageState extends State<MyHomePage>
           style: Styles.whiteSmall,
         ),
         bottom: _getBottom(),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(
+              Icons.refresh,
+              color: Colors.white,
+            ),
+            onPressed: _refresh,
+          ),
+        ],
       ),
       body: Stack(
         children: <Widget>[
@@ -364,222 +377,108 @@ class _MyHomePageState extends State<MyHomePage>
             color: Colors.orange.shade50,
             child: Column(
               children: <Widget>[
-                Column(
-                  children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.only(top: 4.0),
-                      child: Text(
-                        'Automatic Trade every',
-                        style: Styles.greyLabelSmall,
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 60.0, right: 100.0),
-                      child: TextField(
-                        controller: controller,
-                        keyboardType: TextInputType.numberWithOptions(),
-                        onChanged: _onMinutesChanged,
-                        maxLength: 3,
-                        style: Styles.purpleBoldMedium,
-                        decoration: InputDecoration(
-                          icon: Icon(Icons.access_time),
-                          labelText: 'Minutes',
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 2.0, left: 20.0),
-                  child: Row(
-                    children: <Widget>[
-                      Text(
-                        'Auto Trade Orders',
-                        style: Styles.greyLabelSmall,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 8.0),
-                        child: Text(
-                          _orders == null ? '0' : '${_orders.length}',
-                          style: Styles.pinkBoldLarge,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Padding(
-                  padding:
-                      const EdgeInsets.only(top: 4.0, left: 20.0, bottom: 10.0),
-                  child: Row(
-                    children: <Widget>[
-                      Text(
-                        'Open Invoice Offers',
-                        style: Styles.greyLabelSmall,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 8.0),
-                        child: Text(
-                          _offers == null ? '0' : '${_offers.length}',
-                          style: Styles.blueBoldLarge,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                _getSubHeader(),
+                _getAutoTraderView(),
+                _getOfferAmountView(),
+                _getOfferAmount(),
               ],
             ),
           ),
         ),
+        _getSessionCard(),
+        _getSessionLog(),
+      ],
+    );
+  }
+
+  List<String> messages = List();
+  Widget _getSessionLog() {
+    if (messages.isEmpty) {
+      return Container();
+    }
+    List<Widget> widgets = List();
+
+    messages.forEach((message) {
+      TextStyle style = Styles.blackMedium;
+      if (message.contains('AutoTrade')) {
+        style = Styles.blackBoldMedium;
+      }
+      if (message.contains('BFN')) {
+        style = Styles.blackBoldMedium;
+      }
+      if (message.contains('ALLOWABLE')) {
+        style = Styles.blueBoldMedium;
+      }
+      if (message.contains('completed')) {
+        style = Styles.purpleBoldMedium;
+      }
+      if (message.contains('Matcher')) {
+        style = Styles.blackBoldMedium;
+      }
+      var tile = ListTile(
+        leading: Icon(
+          Icons.apps,
+          color: getRandomColor(),
+        ),
+        title: Text(
+          message,
+          style: style,
+        ),
+      );
+      widgets.add(tile);
+    });
+    return Column(
+      children: widgets,
+    );
+  }
+
+  Widget _getSessionCard() {
+    return Padding(
+      padding: const EdgeInsets.only(left: 12.0, right: 12.0),
+      child: GestureDetector(
+        onTap: _onSessionTapped,
+        child: Card(
+          elevation: 8.0,
+          color: Colors.purple.shade50,
+          child: Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: Column(
+              children: <Widget>[
+                _getHeader(),
+                _getTime(),
+                _getAmount(),
+                _getTrades(),
+                _getPossible(),
+                _getElapsed(),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _getSubHeader() {
+    return Column(
+      children: <Widget>[
         Padding(
-          padding: const EdgeInsets.only(left: 12.0, right: 12.0),
-          child: GestureDetector(
-            onTap: _onSessionTapped,
-            child: Card(
-              elevation: 8.0,
-              color: Colors.purple.shade50,
-              child: Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: Column(
-                  children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 8.0),
-                      child: Row(
-                        children: <Widget>[
-                          Text(
-                            _showProgress == true ? '' : 'Auto Trading Session',
-                            style: Styles.greyLabelMedium,
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Text(
-                              _showProgress == null
-                                  ? ''
-                                  : 'Auto Trade running...',
-                              style: Styles.blueBoldSmall,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Row(
-                      children: <Widget>[
-                        Container(
-                          width: 100.0,
-                          child: Text(
-                            'Time: ',
-                            style: Styles.greyLabelSmall,
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 2.0),
-                          child: Text(
-                            autoTradeStart.dateEnded == null
-                                ? '00:00'
-                                : getFormattedDateHour(
-                                    autoTradeStart.dateEnded),
-                            style: Styles.purpleBoldMedium,
-                          ),
-                        ),
-                      ],
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 4.0),
-                      child: Row(
-                        children: <Widget>[
-                          Container(
-                            width: 100.0,
-                            child: Text(
-                              'Amount:',
-                              style: Styles.greyLabelSmall,
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(left: 2.0),
-                            child: Text(
-                              autoTradeStart.totalAmount == null
-                                  ? '0.00'
-                                  : getFormattedAmount(
-                                      '${autoTradeStart.totalAmount}', context),
-                              style: Styles.tealBoldLarge,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 2.0, bottom: 2.0),
-                      child: Row(
-                        children: <Widget>[
-                          Container(
-                            width: 100.0,
-                            child: Text(
-                              'Trades: ',
-                              style: Styles.greyLabelSmall,
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(left: 2.0),
-                            child: Text(
-                              autoTradeStart.totalValidBids == null
-                                  ? '0'
-                                  : '${autoTradeStart.totalValidBids}',
-                              style: Styles.blackBoldLarge,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 0.0, bottom: 10.0),
-                      child: Row(
-                        children: <Widget>[
-                          Container(
-                            width: 100.0,
-                            child: Text(
-                              'Possible Amount: ',
-                              style: Styles.greyLabelSmall,
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(left: 2.0),
-                            child: Text(
-                              autoTradeStart.possibleAmount == null
-                                  ? '0.00'
-                                  : getFormattedAmount(
-                                      '${autoTradeStart.possibleAmount}',
-                                      context),
-                              style: Styles.blackBoldLarge,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 0.0, bottom: 10.0),
-                      child: Row(
-                        children: <Widget>[
-                          Container(
-                            width: 100.0,
-                            child: Text(
-                              'Elapsed: ',
-                              style: Styles.greyLabelSmall,
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(left: 2.0),
-                            child: Text(
-                              autoTradeStart.elapsedSeconds == null
-                                  ? '0.0'
-                                  : '${autoTradeStart.elapsedSeconds} seconds',
-                              style: Styles.blueMedium,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+          padding: const EdgeInsets.only(top: 4.0),
+          child: Text(
+            'Automatic Trade every',
+            style: Styles.greyLabelSmall,
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(left: 60.0, right: 100.0),
+          child: TextField(
+            controller: controller,
+            keyboardType: TextInputType.numberWithOptions(),
+            onChanged: _onMinutesChanged,
+            maxLength: 3,
+            style: Styles.purpleBoldMedium,
+            decoration: InputDecoration(
+              icon: Icon(Icons.access_time),
+              labelText: 'Minutes',
             ),
           ),
         ),
@@ -587,13 +486,257 @@ class _MyHomePageState extends State<MyHomePage>
     );
   }
 
+  Widget _getAutoTraderView() {
+    return Padding(
+      padding: const EdgeInsets.only(top: 2.0, left: 20.0, bottom: 10.0),
+      child: Row(
+        children: <Widget>[
+          Container(
+            width: 120.0,
+            child: Text(
+              'Auto Traders',
+              style: Styles.greyLabelSmall,
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 8.0),
+            child: Text(
+              _orders == null ? '0' : '${_orders.length}',
+              style: Styles.pinkBoldMedium,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _getOfferAmountView() {
+    return Padding(
+      padding: const EdgeInsets.only(top: 4.0, left: 20.0, bottom: 10.0),
+      child: Row(
+        children: <Widget>[
+          Container(
+            width: 120.0,
+            child: Text(
+              'Open Offers',
+              style: Styles.greyLabelSmall,
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 8.0),
+            child: Text(
+              summary == null
+                  ? '0'
+                  : getFormattedNumber(summary.totalOpenOffers, context),
+              style: Styles.blueBoldMedium,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _getOfferAmount() {
+    return Padding(
+      padding: const EdgeInsets.only(top: 4.0, left: 20.0, bottom: 30.0),
+      child: Row(
+        children: <Widget>[
+          Container(
+            width: 120.0,
+            child: Text(
+              'Offer Amount',
+              style: Styles.greyLabelSmall,
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 8.0),
+            child: Text(
+              summary == null
+                  ? '0.00'
+                  : '${getFormattedAmount('${summary.totalOfferAmount}', context)}',
+              style: Styles.blackBoldMedium,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _getHeader() {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8.0),
+      child: Row(
+        children: <Widget>[
+          Text(
+            _showProgress == true ? '' : 'Auto Trading Session',
+            style: Styles.greyLabelMedium,
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              children: <Widget>[
+                Text(
+                  _showProgress == null ? '' : 'Auto Trade running...',
+                  style: Styles.blueBoldMedium,
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 8.0),
+                  child: Container(
+                    width: 16.0,
+                    height: 16.0,
+                    child: _showProgress == null
+                        ? Container()
+                        : CircularProgressIndicator(
+                            strokeWidth: 4.0,
+                          ),
+                  ),
+                )
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _getTime() {
+    return Row(
+      children: <Widget>[
+        Container(
+          width: 100.0,
+          child: Text(
+            'Time: ',
+            style: Styles.greyLabelSmall,
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(left: 2.0),
+          child: Text(
+            autoTradeStart.dateEnded == null
+                ? '00:00'
+                : getFormattedDateHour(autoTradeStart.dateEnded),
+            style: Styles.purpleBoldMedium,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _getAmount() {
+    return Padding(
+      padding: const EdgeInsets.only(top: 4.0),
+      child: Row(
+        children: <Widget>[
+          Container(
+            width: 100.0,
+            child: Text(
+              'Amount:',
+              style: Styles.greyLabelSmall,
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 2.0),
+            child: Text(
+              autoTradeStart.totalAmount == null
+                  ? '0.00'
+                  : getFormattedAmount(
+                      '${autoTradeStart.totalAmount}', context),
+              style: Styles.tealBoldLarge,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _getTrades() {
+    return Padding(
+      padding: const EdgeInsets.only(top: 2.0, bottom: 2.0),
+      child: Row(
+        children: <Widget>[
+          Container(
+            width: 100.0,
+            child: Text(
+              'Trades: ',
+              style: Styles.greyLabelSmall,
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 2.0),
+            child: Text(
+              autoTradeStart.totalValidBids == null
+                  ? '0'
+                  : '${autoTradeStart.totalValidBids}',
+              style: Styles.blackBoldLarge,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _getPossible() {
+    return Padding(
+      padding: const EdgeInsets.only(top: 0.0, bottom: 10.0),
+      child: Row(
+        children: <Widget>[
+          Container(
+            width: 100.0,
+            child: Text(
+              'Possible Total: ',
+              style: Styles.greyLabelSmall,
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 2.0),
+            child: Text(
+              autoTradeStart.possibleAmount == null
+                  ? '0.00'
+                  : getFormattedAmount(
+                      '${autoTradeStart.possibleAmount}', context),
+              style: Styles.blackBoldLarge,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _getElapsed() {
+    return Padding(
+      padding: const EdgeInsets.only(top: 0.0, bottom: 10.0),
+      child: Row(
+        children: <Widget>[
+          Container(
+            width: 100.0,
+            child: Text(
+              'Elapsed: ',
+              style: Styles.greyLabelSmall,
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 2.0),
+            child: Text(
+              autoTradeStart.elapsedSeconds == null
+                  ? '0.0'
+                  : '${autoTradeStart.elapsedSeconds} seconds',
+              style: Styles.blueMedium,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   List<InvoiceBid> bidsArrived = List();
   List<InvalidTrade> invaliTrades = List();
   @override
   onInvoiceBidMessage(InvoiceBid invoiceBid) {
-    prettyPrint(invoiceBid.toJson(), '\n\n\n############# INVOICE BID arrived');
+    print(
+        '_MyHomePageState.onInvoiceBidMessage ############# INVOICE BID arrived: ${invoiceBid.amount} ${invoiceBid.investorName}');
     var msg =
-        'Invoice Bid ${getFormattedAmount('${invoiceBid.amount}', context)} reserved: ${invoiceBid.reservePercent} % \n Bid made at: ${getFormattedDateHour(DateTime.now().toIso8601String())}';
+        'Invoice Bid ${getFormattedAmount('${invoiceBid.amount}', context)} '
+        'reserved: ${invoiceBid.reservePercent} % \n Bid made at: ${getFormattedDateHour(DateTime.now().toIso8601String())}';
     bidsArrived.add(invoiceBid);
     var tot = 0.00;
     bidsArrived.forEach((bid) {
@@ -610,7 +753,9 @@ class _MyHomePageState extends State<MyHomePage>
     autoTradeStart.dateEnded =
         getFormattedDateHour('${DateTime.now().toIso8601String()}');
     _getLists(false);
-    setState(() {});
+    setState(() {
+      messages.add(msg);
+    });
     print(msg);
     print(
         '\n_MyHomePageState.onInvoiceBidMessage ... bids arrived: ${bidsArrived.length}\n\n');
@@ -650,5 +795,22 @@ class _MyHomePageState extends State<MyHomePage>
   onOfferMessage(Offer offer) {
     print('_MyHomePageState.onOfferMessage');
     prettyPrint(offer.toJson(), 'OFFER arrived via FCM');
+  }
+
+  @override
+  onHeartbeat(Map map) {
+    print('\n\n_MyHomePageState.onHeartbeat ############ map: $map');
+    if (_showProgress == null || _showProgress == false) {
+      return;
+    }
+    print('_MyHomePageState.onHeartbeat updating messages');
+    setState(() {
+      messages.add(map['message']);
+    });
+//    AppSnackbar.showSnackbar(
+//        scaffoldKey: _scaffoldKey,
+//        message: map['message'],
+//        textColor: Styles.white,
+//        backgroundColor: Colors.deepOrange);
   }
 }

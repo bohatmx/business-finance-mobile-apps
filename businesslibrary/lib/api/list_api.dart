@@ -701,6 +701,46 @@ class ListAPI {
     return summary;
   }
 
+  static Future<OpenOfferSummary> getOpenOffersSummary() async {
+    OpenOfferSummary summary = OpenOfferSummary();
+    Map<String, String> headers = {
+      'Content-type': 'application/json',
+      'Accept': 'application/json',
+    };
+
+    var mUrl = getFunctionsURL() + 'getOpenOffersSummary';
+    Map<String, dynamic> map;
+    map = {'debug': isInDebugMode};
+
+    var start = DateTime.now();
+    try {
+      var client = new http.Client();
+      var resp = await client
+          .post(
+        mUrl,
+        body: json.encode(map),
+        headers: headers,
+      )
+          .whenComplete(() {
+        client.close();
+      });
+      print(
+          'ListAPI.getOpenOffersSummary .... ## Query via Cloud Functions: status: ${resp.statusCode}');
+      if (resp.statusCode == 200) {
+        summary = OpenOfferSummary.fromJson(json.decode(resp.body));
+        print('ListAPI.getOpenOffersSummary summary: ${summary.toJson()}');
+      } else {
+        print(resp.body);
+      }
+    } catch (e) {
+      print('ListAPI.getOpenOffersSummary $e');
+    }
+    var end = DateTime.now();
+    print(
+        'ListAPI.getOpenOffersSummary ### elapsed: ${end.difference(start).inSeconds} seconds');
+    return summary;
+  }
+
   static Future<DashboardData> _doDashboardHTTP(
       String mUrl, DashboardParms dashParms) async {
     DashboardData data;
@@ -1442,6 +1482,26 @@ class ListAPI {
 
     return list;
   }
+
+  static Future<List<Investor>> getInvestors() async {
+    List<Investor> list = List();
+    var qs = await _firestore
+        .collection('investors')
+        .orderBy('name')
+        .getDocuments()
+        .catchError((e) {
+      print('ListAPI.getInvestors $e');
+      return list;
+    });
+
+    print('ListAPI.getInvestors found: ${qs.documents.length} ');
+
+    qs.documents.forEach((doc) {
+      list.add(new Investor.fromJson(doc.data));
+    });
+
+    return list;
+  }
 }
 
 class OfferBag {
@@ -1483,11 +1543,13 @@ class OpenOfferSummary {
     this.totalOpenOffers = data['totalOpenOffers'];
     this.totalOfferAmount = data['totalOfferAmount'] * 1.0;
     this.startedAfter = data['startedAfter'];
-    List mOffers = data['offers'];
-    offers = List();
-    mOffers.forEach((o) {
-      offers.add(Offer.fromJson(o));
-    });
+    if (data['offers'] != null) {
+      List mOffers = data['offers'];
+      offers = List();
+      mOffers.forEach((o) {
+        offers.add(Offer.fromJson(o));
+      });
+    }
   }
 
   Map<String, dynamic> toJson() => <String, dynamic>{

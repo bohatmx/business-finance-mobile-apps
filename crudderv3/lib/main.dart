@@ -3,11 +3,16 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:businesslibrary/api/data_api3.dart';
+import 'package:businesslibrary/api/list_api.dart';
+import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/api/signup.dart';
+import 'package:businesslibrary/data/auto_trade_order.dart';
 import 'package:businesslibrary/data/govt_entity.dart';
 import 'package:businesslibrary/data/investor.dart';
+import 'package:businesslibrary/data/investor_profile.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
+import 'package:businesslibrary/data/wallet.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
@@ -39,21 +44,35 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => new _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> implements GenListener {
+class _MyHomePageState extends State<MyHomePage>
+    implements GenListener, SnackBarListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
-  int _counter = 0;
+  int _phaseCounter = 0;
   double opacity;
   static const NameSpace = 'resource:com.oneconnect.biz.';
   static Random rand = new Random(new DateTime.now().millisecondsSinceEpoch);
   bool isBusy = false;
   String btnText = "Generate Working Data", phases = FIVE;
+  bool isBrandNew = false;
+  int recordCounter = 0;
+
   @override
   initState() {
     super.initState();
   }
 
   void _generateBrandNewNetwork() async {
+    if (!isBrandNew) {
+      print(
+          '_MyHomePageState._generateBrandNewNetwork - NETWORK ALREADY PAST Genesis. IGNORED. OUT.');
+      AppSnackbar.showErrorSnackbar(
+          scaffoldKey: _scaffoldKey,
+          message: 'Genesis Run already executed. Out.',
+          listener: this,
+          actionLabel: 'Close');
+      return;
+    }
     if (isBusy) {
       AppSnackbar.showSnackbar(
           scaffoldKey: _scaffoldKey,
@@ -68,38 +87,41 @@ class _MyHomePageState extends State<MyHomePage> implements GenListener {
     setState(() {
       btnText = 'Working...';
       phases = SIX;
-      _counter++;
-      msgList.add('### Demo data cleanup is complete');
+      _phaseCounter++;
+      msgList.add('### GENESIS : Demo data cleanup is complete');
     });
     await DataAPI3.addSectors();
     //TODO - add countries and VAT schedules
     setState(() {
-      msgList.add('### Sectors added to BFN and Firestore');
-      _counter++;
+      msgList.add('### GENESIS : Sectors added to BFN and Firestore');
+      _phaseCounter++;
     });
 
     await _addCustomers();
     setState(() {
-      _counter++;
-      msgList.add('### Customers added to BFN and Firestore');
+      _phaseCounter++;
+      msgList.add('### GENESIS : Customers added to BFN and Firestore');
     });
     await _generateSuppliers();
     setState(() {
-      _counter++;
-      msgList.add('### Suppliers added to BFN and Firestore');
+      _phaseCounter++;
+      msgList.add('### GENESIS : Suppliers added to BFN and Firestore');
     });
     await _addInvestors();
     setState(() {
-      _counter++;
-      msgList.add('### Investors added to BFN and Firestore');
+      _phaseCounter++;
+      msgList.add('### GENESIS : Investors added to BFN and Firestore');
     });
+
     //generate PurchaseOrders thru Offers
-    await _generateWork();
+    await Generator.generate(this, context);
+
     setState(() {
-      _counter++;
-      msgList.add('### Generated POs thru Offers. Operation One');
+      _phaseCounter++;
+      msgList.add('### GENESIS : Generated POs thru Offers. Operation One');
     });
-    await _generateWork();
+
+    await Generator.generate(this, context);
 
     var end = DateTime.now();
     var diffm = end.difference(start).inMinutes;
@@ -108,16 +130,17 @@ class _MyHomePageState extends State<MyHomePage> implements GenListener {
     isBusy = false;
     isBrandNew = false;
     btnText = 'Generate New Working Data';
-    phases = FIVE;
+    phases = SIX;
     btnColor = Colors.pink.shade800;
+
     setState(() {
-      _counter++;
-      msgList.add('### Generated POs thru Offers. Operation Two');
+      _phaseCounter++;
+      msgList.add('### GENESIS : Generated POs thru Offers. Operation Two');
       msgList.add(
-          '### Demo Data Generation complete:, $diffm minutes elapsed. ($diffs seconds)');
+          '### GENESIS : Demo Data Generation complete:, $diffm minutes elapsed. ($diffs seconds)');
     });
     print(
-        '\n\n_MyHomePageState._start  #####################################  Demo Data COMPLETED!');
+        '\n\n_MyHomePageState._start  ###################### GENESIS : Demo Data COMPLETED!');
   }
 
   void _generateWorkingData() async {
@@ -130,8 +153,10 @@ class _MyHomePageState extends State<MyHomePage> implements GenListener {
       return;
     }
     isBusy = true;
+    _phaseCounter = 0;
+
     var start = DateTime.now();
-    await _generateWork();
+    await Generator.generate(this, context);
 
     isBusy = false;
     var end = DateTime.now();
@@ -139,7 +164,6 @@ class _MyHomePageState extends State<MyHomePage> implements GenListener {
     var diffs = end.difference(start).inSeconds;
 
     setState(() {
-      _counter++;
       phases = FIVE;
       msgList.add(
           '### Demo Data Generation complete:, $diffm minutes elapsed. ($diffs seconds)');
@@ -148,11 +172,116 @@ class _MyHomePageState extends State<MyHomePage> implements GenListener {
         '\n\n_MyHomePageState._start  #####################################  Demo Data COMPLETED!');
   }
 
-  static const FIVE = '6', SIX = '6';
+  static const FIVE = '5', SIX = '6';
   List<String> msgList = List();
 
-  _generateWork() async {
-    await Generator.generate(this, context);
+  Future fixInvestorProfiles() async {
+    var investors = await ListAPI.getInvestors();
+    var users = await ListAPI.getUsers();
+    User user;
+    if (users.isNotEmpty) {
+      user = users.elementAt(0);
+    }
+    for (var investor in investors) {
+      var wallet = await ListAPI.getWallet(
+          'investor', NameSpace + 'Investor#${investor.participantId}');
+      var profile = await ListAPI.getInvestorProfile(investor.participantId);
+      if (profile == null) {
+        _addProfile(investor, user, wallet);
+      }
+    }
+  }
+
+  Future fixAutoTradeOrders() async {
+    var fs = Firestore.instance;
+    var qs = await fs.collection('autoTradeOrders').getDocuments();
+    print(
+        '_MyHomePageState.fixAutoTradeOrders, orders found: ${qs.documents.length}');
+    for (var doc in qs.documents) {
+      var order = AutoTradeOrder.fromJson(doc.data);
+      var wallet = await ListAPI.getWallet('investor', order.investor);
+      order.wallet = NameSpace + 'Wallet#${wallet.stellarPublicKey}';
+      await doc.reference.setData(order.toJson());
+      setState(() {
+        msgList.add('AutoTrade wallet updated to: ${wallet.stellarPublicKey}');
+      });
+      prettyPrint(order.toJson(), '\n### Updated AutoTradeOrder wallet:');
+    }
+  }
+
+  _addProfile(Investor investor, User user, Wallet wallet) async {
+    double invoiceAmount = _getRandomInvoiceAmount();
+    InvestorProfile investorProfile = InvestorProfile(
+        date: getUTCDate(),
+        cellphone: investor.cellphone,
+        email: investor.email,
+        investor: NameSpace + 'Investor#${investor.participantId}',
+        maxInvoiceAmount: invoiceAmount,
+        maxInvestableAmount: getRandomMax(invoiceAmount),
+        minimumDiscount: Generator.getRandomDisc(),
+        name: investor.name);
+    var result = await DataAPI3.addInvestorProfile(investorProfile);
+    if (result > 0) {
+      print('_MyHomePageState._addCustomers .... quit...');
+      throw Exception('Bad juju. eh?');
+    }
+    result = await _addAutoTradeOrder(investor, investorProfile, user, wallet);
+    if (result > 0) {
+      print('_MyHomePageState._addCustomers .... quit...');
+      throw Exception('Bad juju. eh?');
+    }
+    setState(() {
+      msgList.add('Investor Profile added: ${investorProfile.name}');
+      recordCounter++;
+    });
+  }
+
+  _addAutoTradeOrder(
+      Investor c, InvestorProfile p, User user, Wallet wallet) async {
+    AutoTradeOrder autoTradeOrder = AutoTradeOrder(
+        investor: NameSpace + 'Investor#${c.participantId}',
+        date: getUTCDate(),
+        investorProfile: NameSpace + 'InvestorProfile#${p.profileId}',
+        user: NameSpace + 'User#${user.userId}',
+        isCancelled: false,
+        wallet: NameSpace + 'Wallet#${wallet.stellarPublicKey}',
+        investorName: c.name);
+
+    var result = await DataAPI3.addAutoTradeOrder(autoTradeOrder);
+    if (result > 0) {
+      print('_MyHomePageState._addCustomers .... quit...');
+      throw Exception('Bad juju. eh?');
+    }
+
+    setState(() {
+      msgList.add('AutoTradeOrder added: ${p.name}');
+      recordCounter++;
+    });
+  }
+
+  double getRandomMax(double invoiceAmount) {
+    int m = rand.nextInt(1000);
+    if (m < 500) {
+      return invoiceAmount * 500;
+    }
+    if (m < 800) {
+      return invoiceAmount * 800;
+    }
+    return invoiceAmount * 1000;
+  }
+
+  double _getRandomInvoiceAmount() {
+    var m = rand.nextInt(1000);
+    double seed = 0.0;
+    if (m > 700) {
+      seed = rand.nextInt(100) * 6950.00;
+    } else {
+      seed = rand.nextInt(100) * 765.00;
+    }
+    if (seed == 0.0) {
+      seed = 100000.00;
+    }
+    return seed;
   }
 
   _addCustomers() async {
@@ -172,10 +301,11 @@ class _MyHomePageState extends State<MyHomePage> implements GenListener {
     result = await SignUp.signUpGovtEntity(e1, u1);
     if (result > 0) {
       print('_MyHomePageState._addCustomers .... quit...');
-      return;
+      throw Exception('Bad juju. eh?');
     }
     setState(() {
       msgList.add('Customer added: ${e1.name}');
+      recordCounter++;
     });
 
     GovtEntity e2 = new GovtEntity(
@@ -193,10 +323,11 @@ class _MyHomePageState extends State<MyHomePage> implements GenListener {
     result = await SignUp.signUpGovtEntity(e2, u2);
     if (result > 0) {
       print('_MyHomePageState._addCustomers .... quit...');
-      return;
+      throw Exception('Bad juju. eh?');
     }
     setState(() {
       msgList.add('Customer added: ${e2.name}');
+      recordCounter++;
     });
 
     GovtEntity e3 = new GovtEntity(
@@ -214,10 +345,11 @@ class _MyHomePageState extends State<MyHomePage> implements GenListener {
     result = await SignUp.signUpGovtEntity(e3, u3);
     if (result > 0) {
       print('_MyHomePageState._addCustomers .... quit...');
-      return;
+      throw Exception('Bad juju. eh?');
     }
     setState(() {
       msgList.add('Customer added: ${e3.name}');
+      recordCounter++;
     });
 
     GovtEntity e4 = new GovtEntity(
@@ -235,10 +367,11 @@ class _MyHomePageState extends State<MyHomePage> implements GenListener {
     result = await SignUp.signUpGovtEntity(e4, u4);
     if (result > 0) {
       print('_MyHomePageState._addCustomers .... quit...');
-      return;
+      throw Exception('Bad juju. eh?');
     }
     setState(() {
       msgList.add('Customer added: ${e4.name}');
+      recordCounter++;
     });
 
     GovtEntity e5 = new GovtEntity(
@@ -254,13 +387,21 @@ class _MyHomePageState extends State<MyHomePage> implements GenListener {
         isAdministrator: true,
         email: 'harry@pickandpay.com');
     result = await SignUp.signUpGovtEntity(e5, u5);
+    if (result > 0) {
+      print('_MyHomePageState._addCustomers .... quit...');
+      throw Exception('Bad juju. eh?');
+    }
     setState(() {
       msgList.add('Customer added: ${e5.name}');
+      recordCounter++;
     });
   }
 
   _addInvestors() async {
     var result;
+    Investor investor;
+    User user;
+    Wallet wallet;
     Investor e1 = new Investor(
       name: 'Pretoria Investors Ltd',
       email: 'info@investors.com',
@@ -275,10 +416,17 @@ class _MyHomePageState extends State<MyHomePage> implements GenListener {
     result = await SignUp.signUpInvestor(e1, u1);
     if (result > 0) {
       print('_MyHomePageState.__addInvestors .... quit...');
-      return;
+      throw Exception('Bad juju. eh?');
+    }
+    investor = await SharedPrefs.getInvestor();
+    user = await SharedPrefs.getUser();
+    wallet = await SharedPrefs.getWallet();
+    if (investor != null) {
+      await _addProfile(e1, user, wallet);
     }
     setState(() {
       msgList.add('Investor added: ${e1.name}');
+      recordCounter++;
     });
 
     Investor e2 = new Investor(
@@ -295,10 +443,17 @@ class _MyHomePageState extends State<MyHomePage> implements GenListener {
     result = await SignUp.signUpInvestor(e2, u2);
     if (result > 0) {
       print('_MyHomePageState.__addInvestors .... quit...');
-      return;
+      throw Exception('Bad juju. eh?');
+    }
+    investor = await SharedPrefs.getInvestor();
+    user = await SharedPrefs.getUser();
+    wallet = await SharedPrefs.getWallet();
+    if (investor != null) {
+      await _addProfile(e2, user, wallet);
     }
     setState(() {
       msgList.add('Investor added: ${e2.name}');
+      recordCounter++;
     });
 
     Investor e3 = new Investor(
@@ -315,10 +470,17 @@ class _MyHomePageState extends State<MyHomePage> implements GenListener {
     result = await SignUp.signUpInvestor(e3, u3);
     if (result > 0) {
       print('_MyHomePageState.__addInvestors .... quit...');
-      return;
+      throw Exception('Bad juju. eh?');
+    }
+    investor = await SharedPrefs.getInvestor();
+    user = await SharedPrefs.getUser();
+    wallet = await SharedPrefs.getWallet();
+    if (investor != null) {
+      await _addProfile(e3, user, wallet);
     }
     setState(() {
       msgList.add('Investor added: ${e3.name}');
+      recordCounter++;
     });
 
     Investor e4 = new Investor(
@@ -335,10 +497,17 @@ class _MyHomePageState extends State<MyHomePage> implements GenListener {
     result = await SignUp.signUpInvestor(e4, u4);
     if (result > 0) {
       print('_MyHomePageState.__addInvestors .... quit...');
-      return;
+      throw Exception('Bad juju. eh?');
+    }
+    investor = await SharedPrefs.getInvestor();
+    user = await SharedPrefs.getUser();
+    wallet = await SharedPrefs.getWallet();
+    if (investor != null) {
+      await _addProfile(e4, user, wallet);
     }
     setState(() {
       msgList.add('Investor added: ${e4.name}');
+      recordCounter++;
     });
 
     Investor e5 = new Investor(
@@ -355,10 +524,17 @@ class _MyHomePageState extends State<MyHomePage> implements GenListener {
     result = await SignUp.signUpInvestor(e5, u5);
     if (result > 0) {
       print('_MyHomePageState.__addInvestors .... quit...');
-      return;
+      throw Exception('Bad juju. eh?');
+    }
+    investor = await SharedPrefs.getInvestor();
+    user = await SharedPrefs.getUser();
+    wallet = await SharedPrefs.getWallet();
+    if (investor != null) {
+      await _addProfile(e5, user, wallet);
     }
     setState(() {
       msgList.add('Investor added: ${e5.name}');
+      recordCounter++;
     });
   }
 
@@ -629,8 +805,10 @@ class _MyHomePageState extends State<MyHomePage> implements GenListener {
     return 0;
   }
 
-  Color btnColor = Colors.indigo.shade800;
+  Color btnColor = Colors.orange.shade800;
   ScrollController controller1 = ScrollController();
+  bool weHaveMELTDOWN = false;
+  double prefSize = 200.0;
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
@@ -638,7 +816,7 @@ class _MyHomePageState extends State<MyHomePage> implements GenListener {
         appBar: AppBar(
           title: Text('BFN Demo Data Generator'),
           bottom: PreferredSize(
-            preferredSize: const Size.fromHeight(240.0),
+            preferredSize: Size.fromHeight(prefSize),
             child: Column(
               children: <Widget>[
                 Padding(
@@ -647,7 +825,7 @@ class _MyHomePageState extends State<MyHomePage> implements GenListener {
                     children: <Widget>[
                       Text(
                         'Execution Mode',
-                        style: Styles.whiteMedium,
+                        style: Styles.whiteSmall,
                       ),
                       Padding(
                         padding: const EdgeInsets.only(left: 18.0),
@@ -670,12 +848,13 @@ class _MyHomePageState extends State<MyHomePage> implements GenListener {
                       padding: const EdgeInsets.all(12.0),
                       child: Text(
                         btnText,
-                        style: TextStyle(color: Colors.white, fontSize: 16.0),
+                        style: TextStyle(color: Colors.white, fontSize: 14.0),
                       ),
                     ),
                   ),
                 ),
                 _getPhaseMessage(),
+                _getErrorView(),
               ],
             ),
           ),
@@ -683,6 +862,28 @@ class _MyHomePageState extends State<MyHomePage> implements GenListener {
         body: _getListView());
   }
 
+  Widget _getErrorView() {
+    if (!weHaveMELTDOWN) {
+      return Container();
+    }
+    setState(() {
+      prefSize = 300.0;
+    });
+    return Padding(
+      padding: const EdgeInsets.all(12.0),
+      child: RaisedButton(
+        onPressed: null,
+        elevation: 16.0,
+        color: Colors.red.shade800,
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text(message, style: Styles.whiteBoldMedium),
+        ),
+      ),
+    );
+  }
+
+  String message;
   Widget _getPhaseMessage() {
     return Center(
       child: Padding(
@@ -693,14 +894,14 @@ class _MyHomePageState extends State<MyHomePage> implements GenListener {
             children: <Widget>[
               Text(
                 'Phase Complete:',
-                style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.normal),
+                style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.normal),
               ),
               Padding(
                 padding: const EdgeInsets.only(left: 20.0),
                 child: Text(
-                  '$_counter',
+                  '$_phaseCounter',
                   style: TextStyle(
-                      fontSize: 24.0,
+                      fontSize: 20.0,
                       fontWeight: FontWeight.bold,
                       color: Colors.white),
                 ),
@@ -710,7 +911,7 @@ class _MyHomePageState extends State<MyHomePage> implements GenListener {
                 child: Text(
                   'of',
                   style:
-                      TextStyle(fontSize: 16.0, fontWeight: FontWeight.normal),
+                      TextStyle(fontSize: 14.0, fontWeight: FontWeight.normal),
                 ),
               ),
               Padding(
@@ -718,9 +919,24 @@ class _MyHomePageState extends State<MyHomePage> implements GenListener {
                 child: Text(
                   phases,
                   style: TextStyle(
-                      fontSize: 24.0,
+                      fontSize: 20.0,
                       fontWeight: FontWeight.w900,
                       color: Colors.blue.shade900),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: 30.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: <Widget>[
+                    Padding(
+                      padding: const EdgeInsets.only(right: 12.0),
+                      child: Text(
+                        recordCounter == 0 ? '0000' : '$recordCounter',
+                        style: TextStyle(color: Colors.yellow, fontSize: 20.0),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -748,9 +964,10 @@ class _MyHomePageState extends State<MyHomePage> implements GenListener {
       result = await SignUp.signUpSupplier(e1, u1);
       if (result > 0) {
         print('_MyHomePageState._generateSuppliers .... quit...');
-        return;
+        throw Exception('Bad juju. eh?');
       }
       setState(() {
+        recordCounter++;
         msgList.add('Supplier added: ${e1.name}');
       });
 
@@ -768,10 +985,11 @@ class _MyHomePageState extends State<MyHomePage> implements GenListener {
       result = await SignUp.signUpSupplier(e2, u2);
       if (result > 0) {
         print('_MyHomePageState._generateSuppliers .... quit...');
-        return;
+        throw Exception('Bad juju. eh?');
       }
       setState(() {
         msgList.add('Supplier added: ${e2.name}');
+        recordCounter++;
       });
 
       Supplier e5 = new Supplier(
@@ -788,10 +1006,11 @@ class _MyHomePageState extends State<MyHomePage> implements GenListener {
       result = await SignUp.signUpSupplier(e5, u5);
       if (result > 0) {
         print('_MyHomePageState._generateSuppliers .... quit...');
-        return;
+        throw Exception('Bad juju. eh?');
       }
       setState(() {
         msgList.add('Supplier added: ${e5.name}');
+        recordCounter++;
       });
 
       Supplier e6 = new Supplier(
@@ -808,10 +1027,11 @@ class _MyHomePageState extends State<MyHomePage> implements GenListener {
       result = await SignUp.signUpSupplier(e6, u6);
       if (result > 0) {
         print('_MyHomePageState._generateSuppliers .... quit...');
-        return;
+        throw Exception('Bad juju. eh?');
       }
       setState(() {
         msgList.add('Supplier added: ${e6.name}');
+        recordCounter++;
       });
 
       Supplier e7 = new Supplier(
@@ -828,10 +1048,11 @@ class _MyHomePageState extends State<MyHomePage> implements GenListener {
       result = await SignUp.signUpSupplier(e7, u7);
       if (result > 0) {
         print('_MyHomePageState._generateSuppliers .... quit...');
-        return;
+        throw Exception('Bad juju. eh?');
       }
       setState(() {
         msgList.add('Supplier added: ${e7.name}');
+        recordCounter++;
       });
 
       Supplier e8 = new Supplier(
@@ -848,10 +1069,11 @@ class _MyHomePageState extends State<MyHomePage> implements GenListener {
       result = await SignUp.signUpSupplier(e8, u8);
       if (result > 0) {
         print('_MyHomePageState._generateSuppliers .... quit...');
-        return;
+        throw Exception('Bad juju. eh?');
       }
       setState(() {
         msgList.add('Supplier added: ${e8.name}');
+        recordCounter++;
       });
 
       Supplier e9 = new Supplier(
@@ -868,10 +1090,11 @@ class _MyHomePageState extends State<MyHomePage> implements GenListener {
       result = await SignUp.signUpSupplier(e9, u9);
       if (result > 0) {
         print('_MyHomePageState._generateSuppliers .... quit...');
-        return;
+        throw Exception('Bad juju. eh?');
       }
       setState(() {
         msgList.add('Supplier added: ${e9.name}');
+        recordCounter++;
       });
 
       Supplier e10 = new Supplier(
@@ -888,10 +1111,11 @@ class _MyHomePageState extends State<MyHomePage> implements GenListener {
       result = await SignUp.signUpSupplier(e10, u10);
       if (result > 0) {
         print('_MyHomePageState._generateSuppliers .... quit...');
-        return;
+        throw Exception('Bad juju. eh?');
       }
       setState(() {
         msgList.add('Supplier added: ${e10.name}');
+        recordCounter++;
       });
 
       Supplier e11 = new Supplier(
@@ -908,10 +1132,11 @@ class _MyHomePageState extends State<MyHomePage> implements GenListener {
       result = await SignUp.signUpSupplier(e11, u11);
       if (result > 0) {
         print('_MyHomePageState._generateSuppliers .... quit...');
-        return;
+        throw Exception('Bad juju. eh?');
       }
       setState(() {
         msgList.add('Supplier added: ${e11.name}');
+        recordCounter++;
       });
 
       Supplier e12 = new Supplier(
@@ -928,10 +1153,11 @@ class _MyHomePageState extends State<MyHomePage> implements GenListener {
       result = await SignUp.signUpSupplier(e12, u12);
       if (result > 0) {
         print('_MyHomePageState._generateSuppliers .... quit...');
-        return;
+        throw Exception('Bad juju. eh?');
       }
       setState(() {
         msgList.add('Supplier added: ${e12.name}');
+        recordCounter++;
       });
       Supplier e13 = new Supplier(
         name: 'Xavier TTransport',
@@ -947,10 +1173,11 @@ class _MyHomePageState extends State<MyHomePage> implements GenListener {
       result = await SignUp.signUpSupplier(e13, u13);
       if (result > 0) {
         print('_MyHomePageState._generateSuppliers .... quit...');
-        return;
+        throw Exception('Bad juju. eh?');
       }
       setState(() {
         msgList.add('Supplier added: ${e13.name}');
+        recordCounter++;
       });
 
       Supplier e14 = new Supplier(
@@ -967,15 +1194,16 @@ class _MyHomePageState extends State<MyHomePage> implements GenListener {
       result = await SignUp.signUpSupplier(e14, u14);
       if (result > 0) {
         print('_MyHomePageState._generateSuppliers .... quit...');
-        return;
+        throw Exception('Bad juju. eh?');
       }
       print('Generator.generateSuppliers COMPLETED');
       setState(() {
         msgList.add('Supplier added: ${e14.name}');
+        recordCounter++;
       });
     } catch (e) {
       print('Generator.generateSuppliers ERROR $e');
-      return;
+      throw Exception('Bad juju. eh?');
     }
 
     return;
@@ -1033,13 +1261,15 @@ class _MyHomePageState extends State<MyHomePage> implements GenListener {
   }
 
   @override
-  onEvent(String message) {
+  onEvent(String message, bool isRecordAdded) {
     setState(() {
+      if (isRecordAdded) {
+        recordCounter++;
+      }
       msgList.add(message);
     });
   }
 
-  bool isBrandNew = false;
   void _onSwitch(bool value) {
     print('_MyHomePageState._onSwitch value: $value');
     isBrandNew = value;
@@ -1050,7 +1280,7 @@ class _MyHomePageState extends State<MyHomePage> implements GenListener {
     } else {
       btnText = 'Generate New Working Data';
       phases = '1';
-      btnColor = Colors.pink.shade800;
+      btnColor = Colors.orange.shade800;
     }
     setState(() {});
   }
@@ -1060,6 +1290,8 @@ class _MyHomePageState extends State<MyHomePage> implements GenListener {
       _confirmBrandNewDialog();
     } else {
       _generateWorkingData();
+      //fixInvestorProfiles();
+      //fixAutoTradeOrders();
     }
   }
 
@@ -1117,8 +1349,21 @@ class _MyHomePageState extends State<MyHomePage> implements GenListener {
   @override
   onPhaseComplete() {
     setState(() {
-      _counter++;
+      _phaseCounter++;
       msgList.add('');
+    });
+  }
+
+  @override
+  onActionPressed(int action) {
+    // TODO: implement onActionPressed
+  }
+
+  @override
+  onError(String message) {
+    setState(() {
+      weHaveMELTDOWN = true;
+      this.message = message;
     });
   }
 }

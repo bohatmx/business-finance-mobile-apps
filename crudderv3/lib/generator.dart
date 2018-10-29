@@ -17,8 +17,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 abstract class GenListener {
-  onEvent(String message);
+  onEvent(String message, bool isRecordAdded);
   onPhaseComplete();
+  onError(String message);
 }
 
 class Generator {
@@ -50,7 +51,7 @@ class Generator {
   }
 
   static Future generateOffers(GenListener listener, BuildContext ctx) async {
-    listener.onEvent('## Making mass offers ...');
+    listener.onEvent('## Making mass offers ...', false);
     suppliers = await ListAPI.getSuppliers();
     sectors = await ListAPI.getSectors();
     genListener = listener;
@@ -66,7 +67,7 @@ class Generator {
       }
     }
     print('Generator.generateOffers made ${offers.length} offers in session');
-    listener.onEvent('Done! made ${offers.length} offers in session');
+    listener.onEvent('Done! made ${offers.length} offers in session', false);
   }
 
   static Future generate(GenListener listener, BuildContext ctx) async {
@@ -75,12 +76,14 @@ class Generator {
     print(
         '\n\nGenerator.generate ############ generate business trades starting ...\n\n');
     genListener.onEvent(
-        'Data Generation Starting .... loading customers, suppliers, sectors and users ....');
+        'Data Generation Starting .... loading customers, suppliers, sectors and users ....',
+        false);
     start = DateTime.now();
     customers = await ListAPI.getGovtEntitiesByCountry('South Africa');
     suppliers = await ListAPI.getSuppliers();
     sectors = await ListAPI.getSectors();
     users = await ListAPI.getUsers();
+    units = List();
 
     customers.forEach((customer) {
       suppliers.forEach((supplier) {
@@ -89,8 +92,8 @@ class Generator {
     });
     print(
         '\n\nGenerator.generate - number of units: ${units.length} to process\n\n');
-    genListener
-        .onEvent('Generator number of units to process: ${units.length}');
+    genListener.onEvent(
+        'Generator number of units to process: ${units.length}', false);
     index = 0;
     await _startDancing();
   }
@@ -106,7 +109,8 @@ class Generator {
         '\n\n\n####################################################################################\n\n\n';
     print(div);
     genListener.onEvent(
-        'Generator - purchaseOrders generated: ${purchaseOrders.length}');
+        'Generator - purchaseOrders generated: ${purchaseOrders.length}',
+        false);
     genListener.onPhaseComplete();
 
     for (var po in purchaseOrders) {
@@ -115,7 +119,8 @@ class Generator {
     }
     print(div);
     genListener.onEvent(
-        'Generator - delivery notes generated: ${purchaseOrders.length}');
+        'Generator - delivery notes generated: ${purchaseOrders.length}',
+        false);
     genListener.onPhaseComplete();
 
     for (var note in deliveryNotes) {
@@ -124,7 +129,7 @@ class Generator {
     }
     print(div);
     genListener.onEvent(
-        'Generator - delivery notes accepted: ${deliveryNotes.length}');
+        'Generator - delivery notes accepted: ${deliveryNotes.length}', false);
     genListener.onPhaseComplete();
 
     for (var acc in deliveryAcceptances) {
@@ -138,7 +143,8 @@ class Generator {
       sleep(Duration(seconds: 1));
     }
     print(div);
-    genListener.onEvent('Generator - invoices generated: ${invoices.length}');
+    genListener.onEvent(
+        'Generator - invoices generated: ${invoices.length}', false);
     genListener.onPhaseComplete();
 
     for (var inv in invoices) {
@@ -153,7 +159,8 @@ class Generator {
     sleep(Duration(seconds: 1));
 
     print(div);
-    genListener.onEvent('Generator - offers generated: ${offers.length}');
+    genListener.onEvent(
+        'Generator - offers generated: ${offers.length}', false);
     genListener.onPhaseComplete();
   }
 
@@ -185,8 +192,10 @@ class Generator {
       var pOrder = await DataAPI3.registerPurchaseOrder(po);
       purchaseOrders.add(pOrder);
       genListener.onEvent(
-          'Purchase order added: ${getFormattedAmount('${po.amount}', context)} : ${po.purchaserName} to ${po.supplierName} ');
+          'Purchase order added: ${getFormattedAmount('${po.amount}', context)} : ${po.purchaserName} to ${po.supplierName} ',
+          true);
     } catch (e) {
+      genListener.onError(e.toString());
       throw e;
     }
   }
@@ -212,8 +221,10 @@ class Generator {
       var nn = await DataAPI3.registerDeliveryNote(note);
       deliveryNotes.add(nn);
       genListener.onEvent(
-          'Delivery Note added: ${getFormattedAmount('${note.totalAmount}', context)} : ${po.purchaserName} to ${po.supplierName} - ${nn.deliveryNoteId}');
+          'Delivery Note added: ${getFormattedAmount('${note.totalAmount}', context)} : ${po.purchaserName} to ${po.supplierName} - ${nn.deliveryNoteId}',
+          true);
     } catch (e) {
+      genListener.onError(e.toString());
       throw e;
     }
   }
@@ -237,8 +248,10 @@ class Generator {
       var aa = await DataAPI3.acceptDelivery(acc);
       deliveryAcceptances.add(aa);
       genListener.onEvent(
-          'DeliveryAcceptance added: ${note.customerName} to ${note.supplierName} ');
+          'DeliveryAcceptance added: ${note.customerName} to ${note.supplierName} ',
+          true);
     } catch (e) {
+      genListener.onError(e.toString());
       throw e;
     }
   }
@@ -275,14 +288,16 @@ class Generator {
       var i = await DataAPI3.registerInvoice(invoice);
       invoices.add(i);
       genListener.onEvent(
-          'Invoice added: ${invoice.invoiceNumber} - ${getFormattedAmount('${invoice.totalAmount}', context)} ${note.customerName} to ${note.supplierName} ');
+          'Invoice added: ${invoice.invoiceNumber} - ${getFormattedAmount('${invoice.totalAmount}', context)} ${note.customerName} to ${note.supplierName} ',
+          true);
     } catch (e) {
+      genListener.onError(e.toString());
       throw e;
     }
   }
 
   static Future _makeOffer(Invoice invoice, Supplier supplier) async {
-    double disc = _getRandomDisc();
+    double disc = getRandomDisc();
     var sector = sectors.elementAt(rand.nextInt(sectors.length - 1));
     assert(sector != null);
     Offer offer = new Offer(
@@ -306,23 +321,25 @@ class Generator {
       var off = await DataAPI3.makeOffer(offer);
       offers.add(off);
       genListener.onEvent(
-          'Offer added: ${invoice.supplierName} for: ${getFormattedAmount('${offer.offerAmount}', context)} discount: ${offer.discountPercent}%');
+          'Offer added: ${invoice.supplierName} for: ${getFormattedAmount('${offer.offerAmount}', context)} discount: ${offer.discountPercent}%',
+          true);
     } catch (e) {
       print(e);
+      genListener.onError(e.toString());
       throw e;
     }
   }
 
   static String _getRandomEndDate() {
-    int days = rand.nextInt(16);
-    if (days < 5) {
+    int days = rand.nextInt(20);
+    if (days < 10) {
       days = 10;
     }
     var date = DateTime.now().add(Duration(days: days));
     return getUTC(date);
   }
 
-  static double _getRandomDisc() {
+  static double getRandomDisc() {
     const discounts = [
       1.0,
       2.0,

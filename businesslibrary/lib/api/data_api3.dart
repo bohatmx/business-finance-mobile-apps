@@ -102,10 +102,10 @@ class DataAPI3 {
       client.close();
     });
     print(
-        'DataAPI3.doHTTP .... ################ BFN via Cloud Functions: status: ${resp.statusCode}');
+        '\n\nDataAPI3.doHTTP .... ################ BFN via Cloud Functions: status: ${resp.statusCode}');
     var end = DateTime.now();
     print(
-        '\n\nListAPI._doHTTP ### elapsed: ${end.difference(start).inSeconds} seconds');
+        'ListAPI._doHTTP ### elapsed: ${end.difference(start).inSeconds} seconds');
     return resp;
   }
 
@@ -187,7 +187,8 @@ class DataAPI3 {
           return Invoice.fromJson(json.decode(mResponse.body));
           break;
         default:
-          throw Exception('Register Invoice failed: ${mResponse.body}');
+          var e = Exception('Register Invoice failed: ${mResponse.body}');
+          throw e;
           break;
       }
     } catch (e) {
