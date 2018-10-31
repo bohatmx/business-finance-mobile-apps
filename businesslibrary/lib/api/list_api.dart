@@ -596,6 +596,7 @@ class ListAPI {
         .document(supplierDocRef)
         .collection('purchaseOrders')
         .orderBy('date', descending: true)
+        .limit(100)
         .getDocuments()
         .catchError((e) {
       print('ListAPI.getSupplierPurchaseOrders  ERROR $e');

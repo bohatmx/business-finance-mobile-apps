@@ -11,10 +11,6 @@ import 'package:supplierv3/ui/delivery_note_page.dart';
 import 'package:supplierv3/ui/invoice_page.dart';
 
 class PurchaseOrderListPage extends StatefulWidget {
-  final List<PurchaseOrder> purchaseOrders;
-
-  PurchaseOrderListPage(this.purchaseOrders);
-
   @override
   _PurchaseOrderListPageState createState() => _PurchaseOrderListPageState();
 }
@@ -22,9 +18,10 @@ class PurchaseOrderListPage extends StatefulWidget {
 class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
     implements SnackBarListener, POListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  List<PurchaseOrder> purchaseOrders;
+
   PurchaseOrder purchaseOrder;
   List<Supplier> suppliers;
-  List<PurchaseOrder> purchaseOrders;
   Supplier supplier;
   bool isPurchaseOrder = false, isDeliveryAcceptance = false;
   DeliveryAcceptance acceptance;
@@ -33,9 +30,7 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
   @override
   void initState() {
     super.initState();
-    if (widget.purchaseOrders == null) {
-      _getPurchaseOrders();
-    }
+    _getPurchaseOrders();
   }
 
   _getPurchaseOrders() async {
@@ -49,11 +44,11 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
     purchaseOrders =
         await ListAPI.getSupplierPurchaseOrders(supplier.documentReference);
     _scaffoldKey.currentState.hideCurrentSnackBar();
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
-    purchaseOrders = widget.purchaseOrders;
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
@@ -68,19 +63,22 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
                 new Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
-                    'Existing POs',
+                    'Existing Purchase Orders',
                     style: TextStyle(
                         color: Colors.white,
                         fontSize: 16.0,
                         fontWeight: FontWeight.normal),
                   ),
                 ),
-                Text(
-                  purchaseOrders == null ? '0' : '${purchaseOrders.length}',
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 30.0,
-                      fontWeight: FontWeight.w900),
+                Padding(
+                  padding: const EdgeInsets.only(right: 12.0),
+                  child: Text(
+                    purchaseOrders == null ? '0' : '${purchaseOrders.length}',
+                    style: TextStyle(
+                        color: Colors.yellow,
+                        fontSize: 20.0,
+                        fontWeight: FontWeight.w900),
+                  ),
                 )
               ],
             ),
@@ -104,6 +102,7 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
                     return PurchaseOrderCard(
                       purchaseOrder: purchaseOrders.elementAt(index),
                       listener: this,
+                      elevation: elevation,
                     );
                   }),
             ),
@@ -113,73 +112,7 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
     );
   }
 
-//  _confirm(PurchaseOrder order) {
-//    purchaseOrder = order;
-//    showDialog(
-//        context: context,
-//        builder: (_) => new AlertDialog(
-//              title: new Text(
-//                "Task Selection",
-//                style: TextStyle(
-//                    color: Theme.of(context).primaryColor,
-//                    fontSize: 20.0,
-//                    fontWeight: FontWeight.bold),
-//              ),
-//              content: Container(
-//                height: 100.0,
-//                child: Column(
-//                  children: <Widget>[
-//                    new Text(
-//                        "Do you want  to create a Delivery Note for this Purchase Order?"),
-//                    Padding(
-//                      padding: const EdgeInsets.only(top: 18.0),
-//                      child: Row(
-//                        children: <Widget>[
-//                          Text(
-//                            'PO Number:',
-//                            style: TextStyle(color: Colors.grey),
-//                          ),
-//                          Padding(
-//                            padding: const EdgeInsets.only(left: 10.0),
-//                            child: Text(
-//                              '${order.purchaseOrderNumber}',
-//                              style: TextStyle(
-//                                color: Colors.pink.shade100,
-//                                fontWeight: FontWeight.bold,
-//                                fontSize: 20.0,
-//                              ),
-//                            ),
-//                          ),
-//                        ],
-//                      ),
-//                    ),
-//                  ],
-//                ),
-//              ),
-//              actions: <Widget>[
-//                FlatButton(
-//                  onPressed: () {
-//                    Navigator.pop(context);
-//                  },
-//                  child: Text(
-//                    'NO',
-//                    style: TextStyle(fontSize: 16.0, color: Colors.grey),
-//                  ),
-//                ),
-//                FlatButton(
-//                  onPressed: _onDeliveryNote,
-//                  child: Text(
-//                    'YES',
-//                    style: TextStyle(
-//                        color: Colors.blue,
-//                        fontSize: 16.0,
-//                        fontWeight: FontWeight.bold),
-//                  ),
-//                ),
-//              ],
-//            ));
-//  }
-
+  double elevation = 2.0;
   void _refresh() {
     print('_PurchaseOrderListPageState._refresh ..................');
   }
@@ -199,7 +132,7 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
       Navigator.push(
         context,
         new MaterialPageRoute(
-            builder: (context) => new PurchaseOrderListPage(purchaseOrders)),
+            builder: (context) => new PurchaseOrderListPage()),
       );
     }
   }
@@ -226,15 +159,19 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
 class PurchaseOrderCard extends StatelessWidget {
   final PurchaseOrder purchaseOrder;
   final POListener listener;
+  final double elevation;
 
-  PurchaseOrderCard({@required this.purchaseOrder, @required this.listener});
+  PurchaseOrderCard(
+      {@required this.purchaseOrder,
+      @required this.listener,
+      @required this.elevation});
 
   @override
   Widget build(BuildContext context) {
     return new Padding(
       padding: const EdgeInsets.all(4.0),
       child: Card(
-        elevation: 4.0,
+        elevation: 2.0,
         color: Colors.brown.shade50,
         child: Column(
           children: <Widget>[

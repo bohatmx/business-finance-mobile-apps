@@ -89,7 +89,7 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
                       mDeliveryNotes == null ? '0' : '${mDeliveryNotes.length}',
                       style: TextStyle(
                           color: Colors.yellow,
-                          fontSize: 24.0,
+                          fontSize: 20.0,
                           fontWeight: FontWeight.w900),
                     ),
                   ),
@@ -344,7 +344,7 @@ class DeliveryNoteCard extends StatelessWidget {
                         style: TextStyle(
                             color: Colors.black,
                             fontSize: 16.0,
-                            fontWeight: FontWeight.normal),
+                            fontWeight: FontWeight.bold),
                       ),
                     ),
                   )

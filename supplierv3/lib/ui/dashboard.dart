@@ -317,8 +317,7 @@ class _DashboardState extends State<Dashboard>
     print('_MainPageState._onPurchaseOrdersTapped  go to list of pos');
     Navigator.push(
       context,
-      new MaterialPageRoute(
-          builder: (context) => new PurchaseOrderListPage(purchaseOrders)),
+      new MaterialPageRoute(builder: (context) => new PurchaseOrderListPage()),
     );
   }
 
@@ -350,7 +349,7 @@ class _DashboardState extends State<Dashboard>
         Navigator.push(
           context,
           new MaterialPageRoute(
-              builder: (context) => new PurchaseOrderListPage(purchaseOrders)),
+              builder: (context) => new PurchaseOrderListPage()),
         );
         break;
       case DeliveryAcceptanceConstant:

@@ -316,7 +316,29 @@ String getFormattedDateShort(String date, BuildContext context) {
   Locale myLocale = Localizations.localeOf(context);
 
   initializeDateFormatting();
-  var format = new DateFormat('dd MMM yyyy', myLocale.toString());
+  var format = new DateFormat('dd MMMM yyyy', myLocale.toString());
+  try {
+    if (date.contains('GMT')) {
+      var mDate = getLocalDateFromGMT(date, context);
+      print(
+          '++++++++++++++ Formatted date with locale == ${format.format(mDate)}');
+      return format.format(mDate);
+    } else {
+      var mDate = DateTime.parse(date);
+      return format.format(mDate.toLocal());
+    }
+  } catch (e) {
+    print(e);
+    return 'NoDate';
+  }
+}
+
+String getFormattedDateShortest(String date, BuildContext context) {
+  print('\n\ngetFormattedDateShort $date'); //Sun, 28 Oct 2018 23:59:49 GMT
+  Locale myLocale = Localizations.localeOf(context);
+
+  initializeDateFormatting();
+  var format = new DateFormat('dd-MM-yyyy', myLocale.toString());
   try {
     if (date.contains('GMT')) {
       var mDate = getLocalDateFromGMT(date, context);
@@ -362,13 +384,8 @@ DateTime getLocalDateFromGMT(String date, BuildContext context) {
   print('+++++++++++++++ locale: ${myLocale.toString()}');
   initializeDateFormatting();
   try {
-    if (date.contains('GMT')) {
-      var mDate = translateGMTString(date);
-      return mDate.toLocal();
-    } else {
-      var mDate = DateTime.parse(date);
-      return mDate.toLocal();
-    }
+    var mDate = translateGMTString(date);
+    return mDate.toLocal();
   } catch (e) {
     print(e);
     throw e;
@@ -387,7 +404,7 @@ DateTime translateGMTString(String date) {
   var cc = DateTime.utc(year, getMonth(mth), day, hour, min, sec);
 
   print('##### translated date: ${cc.toIso8601String()}');
-  print('##### translated local date: ${cc.toLocal().toIso8601String()}');
+  print('##### translated local: ${cc.toLocal().toIso8601String()}');
 
   return cc;
 }

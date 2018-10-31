@@ -8,6 +8,7 @@ import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/lookups.dart';
+import 'package:businesslibrary/util/selectors.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:flutter/material.dart';
@@ -36,16 +37,18 @@ class _DeliveryNotePageState extends State<DeliveryNotePage>
   @override
   void initState() {
     super.initState();
-    _getUser();
+    _getCached();
   }
 
-  _getUser() async {
+  _getCached() async {
     _user = await SharedPrefs.getUser();
     supplier = await SharedPrefs.getSupplier();
     userName = _user.firstName + ' ' + _user.lastName;
 
     listenForDeliveryAcceptance(supplier.documentReference, this);
-    _getPurchaseOrders();
+    if (widget.purchaseOrder == null) {
+      _getPurchaseOrders();
+    }
   }
 
   _getPurchaseOrders() async {
@@ -90,6 +93,7 @@ class _DeliveryNotePageState extends State<DeliveryNotePage>
     }
 
     items.clear();
+    var index = 0;
     _purchaseOrders.forEach((po) {
       var item6 = DropdownMenuItem<PurchaseOrder>(
         value: po,
@@ -99,25 +103,26 @@ class _DeliveryNotePageState extends State<DeliveryNotePage>
               padding: const EdgeInsets.all(4.0),
               child: Icon(
                 Icons.apps,
-                color: Colors.blue,
+                color: getRandomColor(),
               ),
             ),
-            Text('${po.purchaseOrderNumber} - ${po.amount}'),
+            Text(
+              '${po.purchaserName}',
+              style: TextStyle(fontSize: 16.0),
+            ),
           ],
         ),
       );
+
       items.add(item6);
     });
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: DropdownButton<PurchaseOrder>(
-        items: items,
-        onChanged: _onPOpicked,
-        elevation: 8,
-        hint: Text(
-          'Purchase Orders',
-          style: TextStyle(fontSize: 20.0, color: Colors.blue),
-        ),
+    return DropdownButton<PurchaseOrder>(
+      items: items,
+      onChanged: _onPOpicked,
+      elevation: 8,
+      hint: Text(
+        'Purchase Orders',
+        style: TextStyle(fontSize: 16.0, color: Colors.blue),
       ),
     );
   }
@@ -135,13 +140,13 @@ class _DeliveryNotePageState extends State<DeliveryNotePage>
           style: TextStyle(fontWeight: FontWeight.normal),
         ),
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(40.0),
+          preferredSize: const Size.fromHeight(80.0),
           child: new Column(
             children: <Widget>[
               Text(
                 _purchaseOrder == null ? '' : _purchaseOrder.supplierName,
                 style: TextStyle(
-                    fontWeight: FontWeight.w900,
+                    fontWeight: FontWeight.bold,
                     color: Colors.white,
                     fontSize: 20.0),
               ),
@@ -171,7 +176,7 @@ class _DeliveryNotePageState extends State<DeliveryNotePage>
               children: <Widget>[
                 _getPOList(),
                 Padding(
-                  padding: const EdgeInsets.only(top: 0.0, bottom: 10.0),
+                  padding: const EdgeInsets.only(top: 20.0, bottom: 30.0),
                   child: Text(
                     _purchaseOrder == null ? '' : _purchaseOrder.purchaserName,
                     style: styleBlack,
@@ -209,7 +214,10 @@ class _DeliveryNotePageState extends State<DeliveryNotePage>
                         ),
                       ),
                       Text(
-                        _purchaseOrder == null ? '' : _getFormattedDate(),
+                        _purchaseOrder == null
+                            ? ''
+                            : getFormattedDateShort(
+                                '${_purchaseOrder.date}', context),
                         style: styleBlack,
                       ),
                     ],
@@ -270,26 +278,31 @@ class _DeliveryNotePageState extends State<DeliveryNotePage>
                             fontSize: 20.0)),
                   ),
                 ),
-                Row(
-                  children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.only(right: 8.0),
-                      child: Text(
-                        'Delivery Note VAT',
-                        style: TextStyle(color: Colors.grey),
+                Padding(
+                  padding: const EdgeInsets.only(top: 28.0),
+                  child: Row(
+                    children: <Widget>[
+                      Padding(
+                        padding: const EdgeInsets.only(right: 8.0),
+                        child: Text(
+                          'Delivery Note VAT',
+                          style: TextStyle(color: Colors.grey),
+                        ),
                       ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(right: 8.0),
-                      child: Text(
-                        vat == null ? '0.00' : getFormattedAmount(vat, context),
-                        style: TextStyle(
-                            fontSize: 20.0,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.purple),
+                      Padding(
+                        padding: const EdgeInsets.only(right: 8.0),
+                        child: Text(
+                          vat == null
+                              ? '0.00'
+                              : getFormattedAmount(vat, context),
+                          style: TextStyle(
+                              fontSize: 20.0,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.purple),
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
                 Padding(
                   padding: const EdgeInsets.only(
@@ -298,7 +311,7 @@ class _DeliveryNotePageState extends State<DeliveryNotePage>
                   ),
                   child: RaisedButton(
                     elevation: 8.0,
-                    color: Colors.purple.shade500,
+                    color: Colors.indigo.shade300,
                     onPressed: _onSubmit,
                     child: Padding(
                       padding: const EdgeInsets.all(16.0),
