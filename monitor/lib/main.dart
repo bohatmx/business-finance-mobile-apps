@@ -131,6 +131,7 @@ class _MyHomePageState extends State<MyHomePage>
           });
           startDate = DateTime.now();
           autoTradeStart = await DataAPI3.executeAutoTrades();
+
           prettyPrint(
               autoTradeStart.toJson(), '\n\n####### RESULT from AutoTrades:');
           if (autoTradeStart == null) {
@@ -152,6 +153,7 @@ class _MyHomePageState extends State<MyHomePage>
                 backgroundColor: Styles.teal);
             _getLists(true);
           }
+          await _getInvestorSummaries();
         } else {
           print('_MyHomePageState._start ***************'
               ' No open offers available. Will try again in $minutes minutes');
@@ -207,6 +209,8 @@ class _MyHomePageState extends State<MyHomePage>
         startDate = DateTime.now();
         autoTradeStart = await DataAPI3.executeAutoTrades();
 
+        await _getInvestorSummaries();
+
         if (autoTradeStart == null) {
           AppSnackbar.showErrorSnackbar(
               scaffoldKey: _scaffoldKey,
@@ -243,6 +247,13 @@ class _MyHomePageState extends State<MyHomePage>
           message: 'Problem with Auto Trade Session',
           listener: this,
           actionLabel: 'close');
+    }
+  }
+
+  _getInvestorSummaries() async {
+    var investors = await ListAPI.getInvestors();
+    for (var inv in investors) {
+      await ListAPI.getInvestorUnsettledBidSummary(inv.participantId);
     }
   }
 
@@ -400,26 +411,54 @@ class _MyHomePageState extends State<MyHomePage>
 
     messages.forEach((message) {
       TextStyle style = Styles.blackMedium;
+      Icon icon = Icon(
+        Icons.apps,
+        color: getRandomColor(),
+      );
       if (message.contains('AutoTrade')) {
         style = Styles.blackBoldMedium;
+        icon = Icon(
+          Icons.message,
+          color: Colors.black,
+        );
       }
       if (message.contains('BFN')) {
         style = Styles.blackBoldMedium;
+        icon = Icon(
+          Icons.timer,
+          color: Colors.black,
+        );
       }
       if (message.contains('ALLOWABLE')) {
         style = Styles.blueBoldMedium;
+        icon = Icon(
+          Icons.assignment_turned_in,
+          color: Colors.black,
+        );
       }
       if (message.contains('completed')) {
         style = Styles.purpleBoldMedium;
+        icon = Icon(
+          Icons.beenhere,
+          color: Colors.purple.shade800,
+        );
+      }
+      if (message.contains('reserved')) {
+        style = TextStyle(color: Colors.black, fontSize: 16.0);
+        icon = Icon(
+          Icons.apps,
+          color: getRandomColor(),
+        );
       }
       if (message.contains('Matcher')) {
         style = Styles.blackBoldMedium;
+        icon = Icon(
+          Icons.airport_shuttle,
+          color: Colors.black,
+        );
       }
       var tile = ListTile(
-        leading: Icon(
-          Icons.apps,
-          color: getRandomColor(),
-        ),
+        leading: icon,
         title: Text(
           message,
           style: style,
@@ -735,8 +774,8 @@ class _MyHomePageState extends State<MyHomePage>
     print(
         '_MyHomePageState.onInvoiceBidMessage ############# INVOICE BID arrived: ${invoiceBid.amount} ${invoiceBid.investorName}');
     var msg =
-        'Invoice Bid ${getFormattedAmount('${invoiceBid.amount}', context)} '
-        'reserved: ${invoiceBid.reservePercent} % \n Bid made at: ${getFormattedDateHour(DateTime.now().toIso8601String())}';
+        '${invoiceBid.investorName} bid ${getFormattedAmount('${invoiceBid.amount}', context)} '
+        ', reserved: ${invoiceBid.reservePercent} % at: ${getFormattedDateHour(DateTime.now().toIso8601String())}';
     bidsArrived.add(invoiceBid);
     var tot = 0.00;
     bidsArrived.forEach((bid) {

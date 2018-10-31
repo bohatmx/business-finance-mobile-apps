@@ -9,6 +9,7 @@ import 'package:businesslibrary/data/dashboard_data.dart';
 import 'package:businesslibrary/data/delivery_acceptance.dart';
 import 'package:businesslibrary/data/delivery_note.dart';
 import 'package:businesslibrary/data/govt_entity.dart';
+import 'package:businesslibrary/data/investor-unsettled-summary.dart';
 import 'package:businesslibrary/data/investor.dart';
 import 'package:businesslibrary/data/investor_profile.dart';
 import 'package:businesslibrary/data/invoice.dart';
@@ -611,14 +612,18 @@ class ListAPI {
   }
 
   static Future<DashboardData> getSupplierDashboardData(
-      String supplierId) async {
+      String supplierId, String documentId) async {
     print('ListAPI.getSupplierDashboardData ..........');
-    var data = DashboardParms(id: supplierId);
+    var data = DashboardParms(id: supplierId, documentId: documentId);
 
-    DashboardData result =
-        await _doDashboardHTTP(getFunctionsURL() + 'supplierDashboard', data);
-    prettyPrint(result.toJson(), '### Dashboard Data:');
-    return result;
+    try {
+      DashboardData result =
+          await _doDashboardHTTP(getFunctionsURL() + 'supplierDashboard', data);
+      prettyPrint(result.toJson(), '### Supplier Dashboard Data:');
+      return result;
+    } catch (e) {
+      throw e;
+    }
   }
 
   static Future<DashboardData> getInvestorDashboardData(
@@ -741,6 +746,48 @@ class ListAPI {
     return summary;
   }
 
+  static Future<InvestorUnsettledBidSummary> getInvestorUnsettledBidSummary(
+      String investorId) async {
+    InvestorUnsettledBidSummary summary;
+    Map<String, String> headers = {
+      'Content-type': 'application/json',
+      'Accept': 'application/json',
+    };
+
+    var mUrl = getFunctionsURL() + 'getInvestorsSummary';
+    Map<String, dynamic> map;
+    map = {'investorId': investorId};
+
+    var start = DateTime.now();
+    try {
+      var client = new http.Client();
+      var resp = await client
+          .post(
+        mUrl,
+        body: json.encode(map),
+        headers: headers,
+      )
+          .whenComplete(() {
+        client.close();
+      });
+      print(
+          'ListAPI.getInvestorUnsettledBidSummary .... ## Query via Cloud Functions: status: ${resp.statusCode}');
+      if (resp.statusCode == 200) {
+        summary = InvestorUnsettledBidSummary.fromJson(json.decode(resp.body));
+        prettyPrint(summary.toJson(),
+            'ListAPI.getInvestorUnsettledBidSummary summary:');
+      } else {
+        print(resp.body);
+      }
+    } catch (e) {
+      print('ListAPI.getInvestorUnsettledBidSummary $e');
+    }
+    var end = DateTime.now();
+    print(
+        'ListAPI.getInvestorUnsettledBidSummary ### elapsed: ${end.difference(start).inSeconds} seconds');
+    return summary;
+  }
+
   static Future<DashboardData> _doDashboardHTTP(
       String mUrl, DashboardParms dashParms) async {
     DashboardData data;
@@ -763,16 +810,20 @@ class ListAPI {
       print(
           'ListAPI.doHTTP .... ################ Query via Cloud Functions: status: ${resp.statusCode}');
       if (resp.statusCode == 200) {
-        data = DashboardData.fromJson(json.decode(resp.body));
-      } else {
         print(resp.body);
+        data = DashboardData.fromJson(json.decode(resp.body));
+        var end = DateTime.now();
+        print(
+            '\n\nListAPI._doHTTP ### elapsed: ${end.difference(start).inSeconds} seconds');
+        return data;
+      } else {
+        throw Exception('Dashboard data query failed');
       }
     } catch (e) {
       print('ListAPI._doHTTP $e');
+      throw e;
     }
-    var end = DateTime.now();
-    print(
-        '\n\nListAPI._doHTTP ### elapsed: ${end.difference(start).inSeconds} seconds');
+
     return data;
   }
 
@@ -835,10 +886,10 @@ class ListAPI {
     });
     print(
         'ListAPI.getInvoicesOpenForOffers ################## found: ${list.length}');
-    list.forEach((inv) {
-      prettyPrint(inv.toJson(),
-          'getInvoicesOpenForOffers INVOICE NUMBER: ${inv.invoiceNumber}');
-    });
+//    list.forEach((inv) {
+//      prettyPrint(inv.toJson(),
+//          'getInvoicesOpenForOffers INVOICE NUMBER: ${inv.invoiceNumber}');
+//    });
     return list;
   }
 

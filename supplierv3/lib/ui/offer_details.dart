@@ -84,9 +84,7 @@ class _OfferDetailsState extends State<OfferDetails>
                   Padding(
                     padding: const EdgeInsets.only(left: 8.0),
                     child: Text(
-                      offer == null
-                          ? ''
-                          : getFormattedDateShort('${offer.date}', context),
+                      offer == null ? '' : offer.date,
                       style: Styles.whiteBoldLarge,
                     ),
                   ),

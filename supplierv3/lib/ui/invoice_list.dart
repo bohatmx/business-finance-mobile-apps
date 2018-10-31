@@ -19,6 +19,10 @@ import 'package:supplierv3/ui/delivery_note_list.dart';
 import 'package:supplierv3/ui/make_offer.dart';
 
 class InvoiceList extends StatefulWidget {
+  final List<Invoice> mList;
+
+  InvoiceList(this.mList);
+
   @override
   _InvoiceListState createState() => _InvoiceListState();
 }
@@ -60,7 +64,7 @@ class _InvoiceListState extends State<InvoiceList>
     user = await SharedPrefs.getUser();
     supplier = await SharedPrefs.getSupplier();
     setState(() {});
-    _getInvoices();
+    //_getInvoices();
   }
 
   bool haveListened = false;
@@ -96,6 +100,23 @@ class _InvoiceListState extends State<InvoiceList>
     if (_scaffoldKey.currentState != null) {
       _scaffoldKey.currentState.hideCurrentSnackBar();
     }
+  }
+
+  void _split() {
+    widget.mList.forEach((i) {
+      if (i.isOnOffer) {
+        invoicesOnOffer.add((i));
+      }
+      if (i.isSettled) {
+        invoicesSettled.add((i));
+      }
+      if (!i.isOnOffer) {
+        invoicesOpen.add((i));
+      }
+    });
+    _calculateOpen();
+    _calculateSettled();
+    _calculateOnOffer();
   }
 
   void _calculateOpen() {
@@ -140,9 +161,13 @@ class _InvoiceListState extends State<InvoiceList>
   }
 
   String totalOpen = '0.00', totalOnOffer = '0.00', totalSettled = '0.00';
+
   @override
   Widget build(BuildContext context) {
     print('_InvoiceListState.build');
+    if (invoicesOpen.isEmpty) {
+      _split();
+    }
     return DefaultTabController(
       length: 3,
       child: Scaffold(
@@ -375,9 +400,7 @@ class _InvoiceListState extends State<InvoiceList>
   void _onInvoiceAdd() {
     Navigator.push(
       context,
-      new MaterialPageRoute(
-          builder: (context) =>
-              new DeliveryNoteList('Tap a Delivery Note to create Invoice')),
+      new MaterialPageRoute(builder: (context) => new DeliveryNoteList()),
     );
   }
 
@@ -640,7 +663,7 @@ class InvoiceCard extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      getFormattedLongestDate(invoice.date),
+                      getFormattedDateLong(invoice.date, context),
                       style: TextStyle(
                           color: Colors.black,
                           fontSize: 16.0,

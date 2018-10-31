@@ -468,4 +468,9 @@ class _SignUpPageState extends State<SignUpPage>
   onInvalidTrade(InvalidTrade invalidTrade) {
     // TODO: implement onInvalidTrade
   }
+
+  @override
+  onHeartbeat(Map map) {
+    // TODO: implement onHeartbeat
+  }
 }

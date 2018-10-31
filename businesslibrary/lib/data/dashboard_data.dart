@@ -3,7 +3,12 @@ class DashboardData {
       totalUnsettledBids = 0,
       totalSettledBids = 0,
       totalBids = 0,
-      totalOffers = 0;
+      totalOffers = 0,
+      purchaseOrders = 0,
+      invoices = 0,
+      deliveryNotes = 0,
+      cancelledOffers = 0,
+      closedOffers = 0;
   double totalOpenOfferAmount = 0.00,
       totalUnsettledAmount = 0.00,
       totalSettledAmount = 0.00,
@@ -11,7 +16,7 @@ class DashboardData {
       totalOfferAmount = 0.00,
       averageBidAmount = 0.00,
       averageDiscountPerc = 0.0;
-  String investorId, supplierId, govtEntityId, name, date;
+  String date;
 
   DashboardData(
       {this.totalOpenOffers,
@@ -19,6 +24,11 @@ class DashboardData {
       this.totalSettledBids,
       this.totalBids,
       this.totalOffers,
+      this.purchaseOrders,
+      this.invoices,
+      this.deliveryNotes,
+      this.cancelledOffers,
+      this.closedOffers,
       this.totalOpenOfferAmount,
       this.totalUnsettledAmount,
       this.totalSettledAmount,
@@ -26,10 +36,6 @@ class DashboardData {
       this.totalOfferAmount,
       this.averageBidAmount,
       this.averageDiscountPerc,
-      this.investorId,
-      this.supplierId,
-      this.govtEntityId,
-      this.name,
       this.date});
 
   DashboardData.fromJson(Map data) {
@@ -38,18 +44,24 @@ class DashboardData {
     this.totalSettledBids = data['totalSettledBids'];
     this.totalBids = data['totalBids'];
     this.totalOffers = data['totalOffers'];
-    this.totalOpenOfferAmount = data['totalOpenOfferAmount'] * 1.0;
+    try {
+      this.totalOpenOfferAmount = data['totalOpenOfferAmount'] * 1.0;
+    } catch (e) {
+      print('DashboardData.fromJson $e');
+    }
     this.totalUnsettledAmount = data['totalUnsettledAmount'] * 1.0;
     this.totalSettledAmount = data['totalSettledAmount'] * 1.0;
     this.totalBidAmount = data['totalBidAmount'] * 1.0;
     this.totalOfferAmount = data['totalOfferAmount'] * 1.0;
     this.averageBidAmount = data['averageBidAmount'] * 1.0;
     this.averageDiscountPerc = data['averageDiscountPerc'] * 1.0;
-    this.investorId = data['investorId'];
-    this.supplierId = data['supplierId'];
-    this.govtEntityId = data['govtEntityId'];
-    this.name = data['name'];
     this.date = data['date'];
+
+    this.deliveryNotes = data['deliveryNotes'];
+    this.purchaseOrders = data['purchaseOrders'];
+    this.invoices = data['invoices'];
+    this.closedOffers = data['closedOffers'];
+    this.cancelledOffers = data['cancelledOffers'];
   }
 
   Map<String, dynamic> toJson() => <String, dynamic>{
@@ -65,10 +77,11 @@ class DashboardData {
         'totalOfferAmount': totalOfferAmount,
         'averageBidAmount': averageBidAmount,
         'averageDiscountPerc': averageDiscountPerc,
-        'investorId': investorId,
-        'supplierId': supplierId,
-        'govtEntityId': govtEntityId,
-        'name': name,
+        'closedOffers': closedOffers,
         'date': date,
+        'deliveryNotes': deliveryNotes,
+        'purchaseOrders': purchaseOrders,
+        'invoices': invoices,
+        'cancelledOffers': cancelledOffers,
       };
 }

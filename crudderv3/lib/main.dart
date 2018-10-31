@@ -867,17 +867,15 @@ class _MyHomePageState extends State<MyHomePage>
       return Container();
     }
     setState(() {
-      prefSize = 300.0;
+      prefSize = 400.0;
     });
     return Padding(
-      padding: const EdgeInsets.all(12.0),
-      child: RaisedButton(
-        onPressed: null,
-        elevation: 16.0,
-        color: Colors.red.shade800,
+      padding: const EdgeInsets.all(8.0),
+      child: Container(
+        color: Colors.pink.shade800,
         child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Text(message, style: Styles.whiteBoldMedium),
+          padding: const EdgeInsets.only(left: 20.0, right: 20.0, top: 20.0),
+          child: Text(message, style: Styles.whiteSmall),
         ),
       ),
     );

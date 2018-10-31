@@ -546,4 +546,9 @@ class _SignUpPageState extends State<SignUpPage>
     'Dept of Social Services',
     'Brits Mining Works',
   ];
+
+  @override
+  onHeartbeat(Map map) {
+    // TODO: implement onHeartbeat
+  }
 }

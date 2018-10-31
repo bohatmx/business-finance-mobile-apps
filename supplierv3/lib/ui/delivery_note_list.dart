@@ -13,10 +13,6 @@ import 'package:supplierv3/ui/delivery_note_page.dart';
 import 'package:supplierv3/ui/invoice_page.dart';
 
 class DeliveryNoteList extends StatefulWidget {
-  final String message;
-
-  DeliveryNoteList(this.message);
-
   @override
   _DeliveryNoteListState createState() => _DeliveryNoteListState();
 }
@@ -27,7 +23,7 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
         DeliveryNoteCardListener,
         DeliveryAcceptanceListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
-  List<DeliveryNote> deliveryNotes;
+  List<DeliveryNote> mDeliveryNotes;
   DeliveryNote deliveryNote;
   User user;
   Supplier supplier;
@@ -36,7 +32,14 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
   @override
   void initState() {
     super.initState();
+    _getCached();
+  }
+
+  void _getCached() async {
+    user = await SharedPrefs.getUser();
+    supplier = await SharedPrefs.getSupplier();
     _getDeliveryNotes();
+    setState(() {});
   }
 
   _getDeliveryNotes() async {
@@ -45,15 +48,16 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
         message: 'Loading delivery notes',
         textColor: Colors.white,
         backgroundColor: Colors.black);
-    user = await SharedPrefs.getUser();
-    supplier = await SharedPrefs.getSupplier();
+
     listenForDeliveryAcceptance(supplier.documentReference, this);
 
-    deliveryNotes =
+    mDeliveryNotes =
         await ListAPI.getDeliveryNotes(supplier.documentReference, 'suppliers');
-    _scaffoldKey.currentState.hideCurrentSnackBar();
+    if (_scaffoldKey.currentState != null) {
+      _scaffoldKey.currentState.hideCurrentSnackBar();
+    }
     print(
-        '_DeliveryNoteListState._getDeliveryNotes ############ found: ${deliveryNotes.length}');
+        '_DeliveryNoteListState._getDeliveryNotes ############ found: ${mDeliveryNotes.length}');
 
     setState(() {});
   }
@@ -62,14 +66,13 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
   String message;
   @override
   Widget build(BuildContext context) {
-    message = widget.message;
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
         title: Text('Delivery Notes'),
         bottom: PreferredSize(
             child: Padding(
-              padding: const EdgeInsets.only(bottom: 28.0),
+              padding: const EdgeInsets.only(bottom: 28.0, left: 20.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: <Widget>[
@@ -77,16 +80,16 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
                     supplier == null ? 'No Supplier?' : supplier.name,
                     style: TextStyle(
                         color: Colors.white,
-                        fontSize: 20.0,
-                        fontWeight: FontWeight.bold),
+                        fontSize: 16.0,
+                        fontWeight: FontWeight.normal),
                   ),
                   Padding(
-                    padding: const EdgeInsets.only(left: 48.0, right: 20.0),
+                    padding: const EdgeInsets.only(left: 20.0, right: 20.0),
                     child: Text(
-                      deliveryNotes == null ? '0' : '${deliveryNotes.length}',
+                      mDeliveryNotes == null ? '0' : '${mDeliveryNotes.length}',
                       style: TextStyle(
                           color: Colors.yellow,
-                          fontSize: 30.0,
+                          fontSize: 24.0,
                           fontWeight: FontWeight.w900),
                     ),
                   ),
@@ -105,31 +108,30 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
           ),
         ],
       ),
-      body: Card(
-        elevation: 4.0,
-        child: new Column(
-          children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: Text(message == null ? '' : message),
-            ),
-            new Flexible(
-              child: new ListView.builder(
-                  itemCount: deliveryNotes == null ? 0 : deliveryNotes.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    return new InkWell(
+      body: new Column(
+        children: <Widget>[
+          Flexible(
+            child: new ListView.builder(
+                itemCount: mDeliveryNotes == null ? 0 : mDeliveryNotes.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return Padding(
+                    padding: const EdgeInsets.only(top: 4.0),
+                    child: InkWell(
                       onTap: () {
-                        onNoteTapped(deliveryNotes.elementAt(index));
+                        onNoteTapped(mDeliveryNotes.elementAt(index));
                       },
-                      child: DeliveryNoteCard(
-                        deliveryNote: deliveryNotes.elementAt(index),
-                        listener: this,
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 20.0, right: 20.0),
+                        child: DeliveryNoteCard(
+                          deliveryNote: mDeliveryNotes.elementAt(index),
+                          listener: this,
+                        ),
                       ),
-                    );
-                  }),
-            ),
-          ],
-        ),
+                    ),
+                  );
+                }),
+          ),
+        ],
       ),
     );
   }
@@ -299,39 +301,51 @@ class DeliveryNoteCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (deliveryNote.date == null) {
+      return Text('Delivery Note has no Date');
+    }
+    String getDate() {
+      if (deliveryNote.date == null) {
+        return 'NULL';
+      } else {
+        return getFormattedDateLongWithTime(deliveryNote.date, context);
+      }
+    }
+
     return Padding(
       padding: const EdgeInsets.all(2.0),
       child: Card(
-        elevation: 4.0,
-        color: Colors.grey.shade50,
+        elevation: 1.0,
+        color: Colors.indigo.shade50,
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.only(
+              left: 20.0, right: 20.0, bottom: 2.0, top: 20.0),
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
             children: <Widget>[
               Row(
                 children: <Widget>[
-//                  Padding(
-//                    padding: const EdgeInsets.all(8.0),
-//                    child: Icon(
-//                      Icons.event,
-//                      color: Colors.grey,
-//                    ),
-//                  ),
                   Text(
-                    getFormattedDateShort(deliveryNote.date, context),
+                    '${getDate()}',
                     style: TextStyle(
                         color: Colors.blue,
                         fontSize: 16.0,
                         fontWeight: FontWeight.normal),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 8.0),
-                    child: Text(
-                      deliveryNote.customerName,
-                      style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 16.0,
-                          fontWeight: FontWeight.normal),
+                ],
+              ),
+              Row(
+                children: <Widget>[
+                  Flexible(
+                    child: Container(
+                      child: Text(
+                        deliveryNote.customerName,
+                        overflow: TextOverflow.clip,
+                        style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 16.0,
+                            fontWeight: FontWeight.normal),
+                      ),
                     ),
                   )
                 ],

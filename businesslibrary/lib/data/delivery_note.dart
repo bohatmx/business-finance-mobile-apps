@@ -47,8 +47,24 @@ class DeliveryNote {
     this.user = data['user'];
     this.deliveryNoteURL = data['deliveryNoteURL'];
     this.remarks = data['remarks'];
+
+    print(
+        '\n\nDeliveryNote.fromJson RAW, UNADULTERATED date: ${data['date']}'); //2018-10-23T04:52:32.333Z
+    //print('*** DateTime.parse: ${DateTime.parse(data['date'])}');
+
+    //this.date = data['date'];
+    // print('DeliveryNote.fromJson afterwards??? date: ${this.date}\n\n');
+//    try {
+//      var s = DateTime.parse(data['date']);
+//      print('---------- Parsed date: ${s.toLocal().toIso8601String()}');
+//      this.date = s.toLocal();
+//      print(
+//          '----------- did anything happen?, this.date: ${this.date.toIso8601String()}');
+//    } catch (e) {
+//      print(e);
+//    }
     this.date = data['date'];
-    this.dateAccepted = data['dateAccepted'];
+    // this.dateAccepted = data['dateAccepted'];
     this.acceptedBy = data['acceptedBy'];
     this.documentReference = data['documentReference'];
     this.supplierName = data['supplierName'];
@@ -65,28 +81,30 @@ class DeliveryNote {
     this.vat = data['vat'] * 1.00;
     this.totalAmount = data['totalAmount'] * 1.00;
   }
-
-  Map<String, dynamic> toJson() => <String, dynamic>{
-        'deliveryNoteId': deliveryNoteId,
-        'purchaseOrder': purchaseOrder,
-        'company': company,
-        'govtEntity': govtEntity,
-        'user': user,
-        'deliveryNoteURL': deliveryNoteURL,
-        'remarks': remarks,
-        'date': date,
-        'dateAccepted': dateAccepted,
-        'acceptedBy': acceptedBy,
-        'documentReference': documentReference,
-        'supplierName': supplierName,
-        'supplier': supplier,
-        'govtDocumentRef': govtDocumentRef,
-        'supplierDocumentRef': supplierDocumentRef,
-        'companyDocumentRef': companyDocumentRef,
-        'purchaseOrderNumber': purchaseOrderNumber,
-        'customerName': customerName,
-        'amount': amount,
-        'vat': vat,
-        'totalAmount': totalAmount,
-      };
+  Map<String, dynamic> toJson() {
+    var map = {
+      'deliveryNoteId': deliveryNoteId,
+      'purchaseOrder': purchaseOrder,
+      'company': company,
+      'govtEntity': govtEntity,
+      'user': user,
+      'deliveryNoteURL': deliveryNoteURL,
+      'remarks': remarks,
+      'date': date,
+      'dateAccepted': dateAccepted,
+      'acceptedBy': acceptedBy,
+      'documentReference': documentReference,
+      'supplierName': supplierName,
+      'supplier': supplier,
+      'govtDocumentRef': govtDocumentRef,
+      'supplierDocumentRef': supplierDocumentRef,
+      'companyDocumentRef': companyDocumentRef,
+      'purchaseOrderNumber': purchaseOrderNumber,
+      'customerName': customerName,
+      'amount': amount,
+      'vat': vat,
+      'totalAmount': totalAmount,
+    };
+    return map;
+  }
 }

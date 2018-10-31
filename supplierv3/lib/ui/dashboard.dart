@@ -1,8 +1,8 @@
 import 'dart:async';
 
-import 'package:businesslibrary/api/firestore_list_api.dart';
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
+import 'package:businesslibrary/data/dashboard_data.dart';
 import 'package:businesslibrary/data/delivery_acceptance.dart';
 import 'package:businesslibrary/data/delivery_note.dart';
 import 'package:businesslibrary/data/invoice.dart';
@@ -64,6 +64,7 @@ class _DashboardState extends State<Dashboard>
   User user;
   String fullName;
   DeliveryAcceptance acceptance;
+  DashboardData dashboardData = DashboardData();
   @override
   initState() {
     super.initState();
@@ -91,13 +92,25 @@ class _DashboardState extends State<Dashboard>
         message: 'Loading dashboard data',
         textColor: Colors.white,
         backgroundColor: Colors.black);
-    await _getPurchaseOrders();
-    await _getDelNotes();
-    await _getInvoices();
-    await _getSettlements();
-    await _getOffers();
+    try {
+      dashboardData = await ListAPI.getSupplierDashboardData(
+          supplier.participantId, supplier.documentReference);
+      prettyPrint(
+          dashboardData.toJson(), '\n\n@@@@@@@@@@@ RETURNED dash data:');
+      setState(() {});
+    } catch (e) {
+      AppSnackbar.showErrorSnackbar(
+          scaffoldKey: _scaffoldKey,
+          message: '$e',
+          listener: this,
+          actionLabel: 'close');
+      return;
+    }
 
-    _scaffoldKey.currentState.hideCurrentSnackBar();
+    try {
+      _scaffoldKey.currentState.hideCurrentSnackBar();
+    } catch (e) {}
+    //
   }
 
   Future _getCachedPrefs() async {
@@ -115,89 +128,15 @@ class _DashboardState extends State<Dashboard>
   }
 
   _listenForBids() async {
-    allOffers = await ListAPI.getOpenOffersBySupplier(supplier.participantId);
-    allOffers.forEach((i) {
-      listenForInvoiceBid(i.offerId, this);
-    });
-  }
-
-  Future _getSettlements() async {
-    investorSettlements =
-        await FirestoreListAPI.getSupplierInvestorSettlements(supplier);
-    govtSettlements =
-        await FirestoreListAPI.getSupplierGovtSettlements(supplier);
-    companySettlements =
-        await FirestoreListAPI.getSupplierCompanySettlements(supplier);
-    setState(() {
-      totalPayments = investorSettlements.length +
-          govtSettlements.length +
-          companySettlements.length;
-    });
-  }
-
-  Future _getInvoices() async {
-    invoices =
-        await ListAPI.getInvoices(supplier.documentReference, 'suppliers');
-    if (invoices.isNotEmpty) {
-      lastInvoice = invoices.last;
-    }
-    setState(() {
-      totalInvoices = invoices.length;
-    });
-    _listenForBids();
-  }
-
-  Future _getDelNotes() async {
-    deliveryNotes =
-        await ListAPI.getDeliveryNotes(supplier.documentReference, 'suppliers');
-    setState(() {
-      totalNotes = deliveryNotes.length;
-    });
-  }
-
-  Future _getOffers() async {
-    allOffers = await ListAPI.getOffersBySupplier(supplier.participantId);
-    setState(() {});
-    allOffers.forEach((offer) {
-      if (offer.isOpen) {
-        listenForInvoiceBid(offer.offerId, this);
-      }
-    });
-  }
-
-  Future _getPurchaseOrders() async {
-    purchaseOrders =
-        await ListAPI.getSupplierPurchaseOrders(supplier.documentReference);
-    setState(() {
-      totalPOs = purchaseOrders.length;
-    });
+//    allOffers = await ListAPI.getOpenOffersBySupplier(supplier.participantId);
+//    allOffers.forEach((i) {
+//      listenForInvoiceBid(i.offerId, this);
+//    });
   }
 
   Invoice lastInvoice;
   PurchaseOrder lastPO;
   DeliveryNote lastNote;
-
-  int totalInvoices, totalPOs, totalNotes, totalPayments;
-  final invoiceStyle = TextStyle(
-    fontWeight: FontWeight.w900,
-    fontSize: 28.0,
-    color: Colors.pink,
-  );
-  final poStyle = TextStyle(
-    fontWeight: FontWeight.w900,
-    fontSize: 28.0,
-    color: Colors.black,
-  );
-  final delNoteStyle = TextStyle(
-    fontWeight: FontWeight.w900,
-    fontSize: 28.0,
-    color: Colors.blue,
-  );
-  final paymentStyle = TextStyle(
-    fontWeight: FontWeight.w900,
-    fontSize: 28.0,
-    color: Colors.teal,
-  );
 
   double opacity = 1.0;
   String name;
@@ -291,40 +230,48 @@ class _DashboardState extends State<Dashboard>
                     new GestureDetector(
                       onTap: _onPaymentsTapped,
                       child: SummaryCard(
-                        total: totalPayments == null ? 0 : totalPayments,
+                        total: dashboardData == null ? 0 : 0,
                         label: 'Payments',
-                        totalStyle: paymentStyle,
+                        totalStyle: Styles.greyLabelMedium,
                       ),
                     ),
                     new GestureDetector(
                       onTap: _onInvoiceTapped,
-                      child: SummaryCard(
-                        total: totalInvoices == null ? 0 : totalInvoices,
-                        label: 'Invoices',
-                        totalStyle: invoiceStyle,
-                      ),
+                      child: dashboardData == null
+                          ? Container()
+                          : SummaryCard(
+                              total: dashboardData.invoices,
+                              label: 'Invoices',
+                              totalStyle: Styles.pinkBoldLarge,
+                            ),
                     ),
                     new GestureDetector(
                       onTap: _onPurchaseOrdersTapped,
-                      child: SummaryCard(
-                        total: totalPOs == null ? 0 : totalPOs,
-                        label: 'Purchase Orders',
-                        totalStyle: poStyle,
-                      ),
+                      child: dashboardData == null
+                          ? Container()
+                          : SummaryCard(
+                              total: dashboardData.purchaseOrders,
+                              label: 'Purchase Orders',
+                              totalStyle: Styles.blueBoldLarge,
+                            ),
                     ),
                     new GestureDetector(
                       onTap: _onDeliveryNotesTapped,
-                      child: SummaryCard(
-                        total: totalNotes == null ? 0 : totalNotes,
-                        label: 'Delivery Notes',
-                        totalStyle: delNoteStyle,
-                      ),
+                      child: dashboardData == null
+                          ? Container()
+                          : SummaryCard(
+                              total: dashboardData.deliveryNotes,
+                              label: 'Delivery Notes',
+                              totalStyle: Styles.blackBoldLarge,
+                            ),
                     ),
                     new GestureDetector(
                       onTap: _onOffersTapped,
                       child: Padding(
                         padding: const EdgeInsets.only(left: 30.0, right: 30.0),
-                        child: OfferSummaryCard(allOffers),
+                        child: dashboardData == null
+                            ? Container()
+                            : OfferSummaryCard(dashboardData),
                       ),
                     ),
                   ],
@@ -362,7 +309,7 @@ class _DashboardState extends State<Dashboard>
     print('_MainPageState._onInvoiceTapped ... go  to list of invoices');
     Navigator.push(
       context,
-      new MaterialPageRoute(builder: (context) => new InvoiceList()),
+      new MaterialPageRoute(builder: (context) => new InvoiceList(invoices)),
     );
   }
 
@@ -379,7 +326,7 @@ class _DashboardState extends State<Dashboard>
     print('_MainPageState._onDeliveryNotesTapped go to  delivery notes');
     Navigator.push(
       context,
-      new MaterialPageRoute(builder: (context) => new DeliveryNoteList(null)),
+      new MaterialPageRoute(builder: (context) => new DeliveryNoteList()),
     );
   }
 
@@ -484,7 +431,7 @@ class _DashboardState extends State<Dashboard>
         icon: Icons.message,
         action: PurchaseOrderConstant);
 
-    _getPurchaseOrders();
+    _getSummaryData();
   }
 
   DeliveryAcceptance deliveryAcceptance;
@@ -561,26 +508,12 @@ class _DashboardState extends State<Dashboard>
 }
 
 class OfferSummaryCard extends StatelessWidget {
-  final List<Offer> offers;
+  final DashboardData data;
 
-  OfferSummaryCard(this.offers);
+  OfferSummaryCard(this.data);
 
   @override
   Widget build(BuildContext context) {
-    var open = 0;
-    var closed = 0;
-    var cancelled = 0;
-    offers.forEach((m) {
-      if (m.isOpen) {
-        open++;
-      }
-      if (!m.isOpen) {
-        closed++;
-      }
-      if (m.isCancelled) {
-        cancelled++;
-      }
-    });
     return Card(
       elevation: 6.0,
       child: Padding(
@@ -597,7 +530,7 @@ class OfferSummaryCard extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.only(left: 12.0),
                   child: Text(
-                    '$open',
+                    '${data.totalOpenOffers}',
                     style: Styles.tealBoldLarge,
                   ),
                 ),
@@ -613,7 +546,7 @@ class OfferSummaryCard extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.only(left: 12.0),
                   child: Text(
-                    '$closed',
+                    '${data.closedOffers}',
                     style: Styles.pinkBoldLarge,
                   ),
                 ),
@@ -629,7 +562,7 @@ class OfferSummaryCard extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.only(left: 12.0),
                   child: Text(
-                    '$cancelled',
+                    '${data.cancelledOffers}',
                     style: Styles.blackBoldLarge,
                   ),
                 ),

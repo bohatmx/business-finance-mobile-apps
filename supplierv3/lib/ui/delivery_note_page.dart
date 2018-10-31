@@ -318,9 +318,12 @@ class _DeliveryNotePageState extends State<DeliveryNotePage>
   }
 
   String _getFormattedDate() {
-    DateTime d = DateTime.parse(_purchaseOrder.date);
-    var format = new DateFormat.yMMMd();
-    return format.format(d);
+//    DateTime d = DateTime.parse(_purchaseOrder.date);
+//    var format = new DateFormat.yMMMd();
+//    return format.format(d);
+    print(
+        '_DeliveryNotePageState._getFormattedDate ${_purchaseOrder.date}'); //Sun, 28 Oct 2018 23:56:35 GMT
+    return _purchaseOrder.date;
   }
 
   String _getFormattedAmount() {
@@ -370,7 +373,7 @@ class _DeliveryNotePageState extends State<DeliveryNotePage>
       supplierDocumentRef: _purchaseOrder.supplierDocumentRef,
       govtDocumentRef: _purchaseOrder.govtDocumentRef,
       user: NameSpaceUser + _user.userId,
-      date: new DateTime.now().toIso8601String(),
+      date: DateTime.now().toIso8601String(),
       purchaseOrderNumber: _purchaseOrder.purchaseOrderNumber,
       customerName: _purchaseOrder.purchaserName,
       amount: double.parse(amount),

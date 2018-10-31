@@ -219,7 +219,7 @@ class SupplierContractCard extends StatelessWidget {
                   child: Icon(Icons.event),
                 ),
                 Text(
-                  getFormattedLongestDate(supplierContract.date),
+                  getFormattedDateLong(supplierContract.date, context),
                   style: TextStyle(
                       color: Colors.black,
                       fontSize: 16.0,

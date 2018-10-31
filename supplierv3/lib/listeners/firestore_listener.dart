@@ -3,7 +3,6 @@ import 'package:businesslibrary/data/invoice_acceptance.dart';
 import 'package:businesslibrary/data/invoice_bid.dart';
 import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
-import 'package:businesslibrary/util/lookups.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 abstract class PurchaseOrderListener {
@@ -29,25 +28,29 @@ void listenForPurchaseOrder(
       .document(supplierDocRef)
       .collection('purchaseOrders');
 
-  reference.snapshots().listen((querySnapshot) {
-    querySnapshot.documentChanges.forEach((change) {
-      if (change.type == DocumentChangeType.added) {
-        var po = PurchaseOrder.fromJson(querySnapshot.documents.last.data);
-        assert(po != null);
-
-        var now = DateTime.now();
-        var diff = now.difference(DateTime.parse(po.date));
-        if (diff.inSeconds < SECONDS) {
-          prettyPrint(po.toJson(),
-              '\n\n###################  listenForPurchaseOrder  reference.snapshots().listen((querySnapshot) - found:');
-          listener.onPurchaseOrder(po);
-        } else {
-          print(
-              'listenForPurchaseOrder ---------------------------------------- ignored, OLDER than $SECONDS secs ....');
-        }
-      }
-    });
-  });
+//  try {
+//    reference.snapshots().listen((querySnapshot) {
+//      querySnapshot.documentChanges.forEach((change) {
+//        if (change.type == DocumentChangeType.added) {
+//          var po = PurchaseOrder.fromJson(querySnapshot.documents.last.data);
+//          assert(po != null);
+////          print('listenForPurchaseOrder date: ${po.date}');
+//          var now = DateTime.now();
+//          var diff = now.difference(DateTime.parse(po.date));
+//          if (diff.inSeconds < SECONDS) {
+////            prettyPrint(po.toJson(),
+////                '\n\n###################  listenForPurchaseOrder  reference.snapshots().listen((querySnapshot) - found:');
+//            listener.onPurchaseOrder(po);
+//          } else {
+////            print(
+////                'listenForPurchaseOrder ---------------------------------------- ignored, OLDER than $SECONDS secs ....');
+//          }
+//        }
+//      });
+//    });
+//  } catch (e) {
+//    print(e);
+//  }
 }
 
 void listenForDeliveryAcceptance(
@@ -59,32 +62,32 @@ void listenForDeliveryAcceptance(
       .collection('suppliers')
       .document(supplierDocRef)
       .collection('deliveryAcceptances');
-
-  reference.snapshots().listen((querySnapshot) {
-    querySnapshot.documentChanges.forEach((change) {
-      if (change.type == DocumentChangeType.added) {
-        var da = DeliveryAcceptance.fromJson(change.document.data);
-        assert(da != null);
-
-        var now = DateTime.now();
-        var diff = now.difference(DateTime.parse(da.date));
-        if (diff.inSeconds < SECONDS) {
-          prettyPrint(da.toJson(),
-              '\n\n###################  listenForDeliveryAcceptance  reference.snapshots().listen((querySnapshot) - found:');
-          listener.onDeliveryAcceptance(da);
-        } else {
-          print(
-              'listenForDeliveryAcceptance ---------------------------------------- ignored, OLDER than $SECONDS secs ....');
-        }
-      }
-    });
-  });
+//
+//  reference.snapshots().listen((querySnapshot) {
+//    querySnapshot.documentChanges.forEach((change) {
+//      if (change.type == DocumentChangeType.added) {
+//        var da = DeliveryAcceptance.fromJson(change.document.data);
+//        assert(da != null);
+//
+////        var now = DateTime.now();
+////        var diff = now.difference(DateTime.parse(da.date));
+////        if (diff.inSeconds < SECONDS) {
+////          prettyPrint(da.toJson(),
+////              '\n\n###################  listenForDeliveryAcceptance  reference.snapshots().listen((querySnapshot) - found:');
+////          listener.onDeliveryAcceptance(da);
+////        } else {
+////          print(
+////              'listenForDeliveryAcceptance ---------------------------------------- ignored, OLDER than $SECONDS secs ....');
+////        }
+//      }
+//    });
+//  });
 }
 
 void listenForInvoiceAcceptance(
     String supplierDocRef, InvoiceAcceptanceListener listener) async {
-  print(
-      '\n\nlistenForInvoiceAcceptance ########## listening for InvoiceAcceptance ........\n\n');
+//  print(
+//      '\n\nlistenForInvoiceAcceptance ########## listening for InvoiceAcceptance ........\n\n');
   CollectionReference reference = Firestore.instance
       .collection('suppliers')
       .document(supplierDocRef)
@@ -99,12 +102,12 @@ void listenForInvoiceAcceptance(
         var now = DateTime.now();
         var diff = now.difference(DateTime.parse(ia.date));
         if (diff.inSeconds < SECONDS) {
-          prettyPrint(ia.toJson(),
-              '\n\n###################  listenForInvoiceAcceptance  reference.snapshots().listen((querySnapshot) - found:');
+//          prettyPrint(ia.toJson(),
+//              '\n\n###################  listenForInvoiceAcceptance  reference.snapshots().listen((querySnapshot) - found:');
           listener.onInvoiceAcceptance(ia);
         } else {
-          print(
-              'listenForInvoiceAcceptance ---------------------------------------- ignored, OLDER than $SECONDS secs ....');
+//          print(
+//              'listenForInvoiceAcceptance ---------------------------------------- ignored, OLDER than $SECONDS secs ....');
         }
       }
     });
@@ -126,9 +129,9 @@ void listenForInvoiceBid(String offerId, InvoiceBidListener listener) async {
   String offerDocRef = qs.documents.first.documentID;
   var offer = Offer.fromJson(qs.documents.first.data);
 
-  print(
-      '\n\n listenForInvoiceBid ########## listening for Invoice Bids .......: offerId: $offerId  ....');
-  prettyPrint(offer.toJson(), '###### Listening for bids for this OFFER:');
+//  print(
+//      '\n\n listenForInvoiceBid ########## listening for Invoice Bids .......: offerId: $offerId  ....');
+  //prettyPrint(offer.toJson(), '###### Listening for bids for this OFFER:');
   CollectionReference reference = Firestore.instance
       .collection('invoiceOffers')
       .document(offerDocRef)
@@ -143,12 +146,12 @@ void listenForInvoiceBid(String offerId, InvoiceBidListener listener) async {
         var now = DateTime.now();
         var diff = now.difference(DateTime.parse(bid.date));
         if (diff.inSeconds < SECONDS) {
-          prettyPrint(bid.toJson(),
-              '\n\n###################  listenForInvoiceBid  reference.snapshots().listen((querySnapshot) - found:');
+//          prettyPrint(bid.toJson(),
+//              '\n\n###################  listenForInvoiceBid  reference.snapshots().listen((querySnapshot) - found:');
           listener.onInvoiceBid(bid);
         } else {
-          print(
-              'listenForInvoiceBid ---------------------------------------- ignored, OLDER than $SECONDS secs ....');
+//          print(
+//              'listenForInvoiceBid ---------------------------------------- ignored, OLDER than $SECONDS secs ....');
         }
       }
     });
