@@ -662,6 +662,30 @@ class ListAPI {
     return summary;
   }
 
+  static Future<PurchaseOrderSummary> getSupplierPurchaseOrdersWithPaging(
+      {int lastDate, int pageLimit, String documentId}) async {
+    PurchaseOrderSummary summary = await _doPurchaseOrderHTTP(
+        mUrl: getFunctionsURL() + 'getPurchaseOrdersWithPaging',
+        date: lastDate,
+        pageLimit: pageLimit,
+        collection: 'suppliers',
+        documentId: documentId);
+
+    return summary;
+  }
+
+  static Future<PurchaseOrderSummary> getCustomerPurchaseOrdersWithPaging(
+      {int lastDate, int pageLimit, String documentId}) async {
+    PurchaseOrderSummary summary = await _doPurchaseOrderHTTP(
+        mUrl: getFunctionsURL() + 'getPurchaseOrdersWithPaging',
+        date: lastDate,
+        pageLimit: pageLimit,
+        collection: 'govtEntities',
+        documentId: documentId);
+
+    return summary;
+  }
+
   static Future<OpenOfferSummary> _doOpenOffersHTTP(
       String mUrl, int date, int pageLimit) async {
     OpenOfferSummary summary = OpenOfferSummary();
@@ -704,6 +728,66 @@ class ListAPI {
     var end = DateTime.now();
     print(
         'ListAPI._doOpenOffersHTTP ### elapsed: ${end.difference(start).inSeconds} seconds');
+    return summary;
+  }
+
+  static Future<PurchaseOrderSummary> _doPurchaseOrderHTTP(
+      {String mUrl,
+      int date,
+      int pageLimit,
+      String documentId,
+      String collection}) async {
+    PurchaseOrderSummary summary;
+    ;
+    Map<String, String> headers = {
+      'Content-type': 'application/json',
+      'Accept': 'application/json',
+    };
+
+    Map<String, dynamic> map;
+    if (date != null) {
+      map = {
+        'date': date,
+        'pageLimit': pageLimit,
+        'collection': collection,
+        'documentId': documentId
+      };
+    } else {
+      map = {
+        'pageLimit': pageLimit,
+        'collection': collection,
+        'documentId': documentId
+      };
+    }
+    print('ListAPI._doPurchaseOrderHTTP ------- parameters: $map');
+    var start = DateTime.now();
+    try {
+      var client = new http.Client();
+      var resp = await client
+          .post(
+        mUrl,
+        body: json.encode(map),
+        headers: headers,
+      )
+          .whenComplete(() {
+        client.close();
+      });
+      print(
+          'ListAPI._doPurchaseOrderHTTP .... ## Query via Cloud Functions: status: ${resp.statusCode}');
+      if (resp.statusCode == 200) {
+        print(resp.body);
+        summary = PurchaseOrderSummary.fromJson(json.decode(resp.body));
+        print(
+            'ListAPI._doPurchaseOrderHTTP summary,: ${summary.purchaseOrders.length} purchase orders found');
+      } else {
+        print(resp.body);
+      }
+    } catch (e) {
+      print('ListAPI._doPurchaseOrderHTTP $e');
+    }
+    var end = DateTime.now();
+    print(
+        'ListAPI._doPurchaseOrderHTTP ### elapsed: ${end.difference(start).inSeconds} seconds');
     return summary;
   }
 
@@ -1609,5 +1693,35 @@ class OpenOfferSummary {
         'startedAfter': startedAfter,
         'totalOfferAmount': totalOfferAmount,
         'offers': offers,
+      };
+}
+
+class PurchaseOrderSummary {
+  List<PurchaseOrder> purchaseOrders = List();
+  int totalPurchaseOrders = 0;
+  double totalAmount = 0.00;
+  int startedAfter;
+
+  PurchaseOrderSummary(this.purchaseOrders, this.totalPurchaseOrders,
+      this.totalAmount, this.startedAfter);
+
+  PurchaseOrderSummary.fromJson(Map data) {
+    this.totalPurchaseOrders = data['totalPurchaseOrders'];
+    this.totalAmount = data['totalAmount'] * 1.0;
+    this.startedAfter = data['startedAfter'];
+    if (data['purchaseOrders'] != null) {
+      List mPOs = data['purchaseOrders'];
+      purchaseOrders = List();
+      mPOs.forEach((o) {
+        purchaseOrders.add(PurchaseOrder.fromJson(o));
+      });
+    }
+  }
+
+  Map<String, dynamic> toJson() => <String, dynamic>{
+        'totalPurchaseOrders': totalPurchaseOrders,
+        'startedAfter': startedAfter,
+        'totalAmount': totalAmount,
+        'purchaseOrders': purchaseOrders,
       };
 }

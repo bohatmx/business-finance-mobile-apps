@@ -9,7 +9,6 @@ import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/auditor.dart';
 import 'package:businesslibrary/data/auto_trade_order.dart';
 import 'package:businesslibrary/data/bank.dart';
-import 'package:businesslibrary/data/company.dart';
 import 'package:businesslibrary/data/delivery_acceptance.dart';
 import 'package:businesslibrary/data/delivery_note.dart';
 import 'package:businesslibrary/data/govt_entity.dart';
@@ -500,46 +499,6 @@ class DataAPI {
       }
     } catch (e) {
       print('DataAPI.addWallet ERROR $e');
-      return '0';
-    }
-  }
-
-  static Future<String> addCompany(Company company) async {
-    company.participantId = getKey();
-    company.dateRegistered = getUTCDate();
-
-    print('DataAPI.addCompany ${getURL() + COMPANY}');
-    try {
-      var httpClient = new HttpClient();
-      HttpClientRequest mRequest =
-          await httpClient.postUrl(Uri.parse(getURL() + COMPANY));
-      mRequest.headers.contentType = _contentType;
-      mRequest.write(json.encode(company.toJson()));
-      HttpClientResponse mResponse = await mRequest.close();
-      print(
-          'DataAPI.addCompany blockchain response status code:  ${mResponse.statusCode}');
-      if (mResponse.statusCode == 200) {
-        var ref = await _firestore
-            .collection('companies')
-            .add(company.toJson())
-            .catchError((e) {
-          print('DataAPI.addCompany ERROR adding to Firestore $e');
-          return '0';
-        });
-        print('DataAPI.addCompany added to Firestore: ${ref.path}');
-        company.documentReference = ref.documentID;
-        await SharedPrefs.saveCompany(company);
-        return company.participantId;
-      } else {
-        mResponse.transform(utf8.decoder).listen((contents) {
-          print('DataAPI.addCompany  $contents');
-        });
-
-        print('DataAPI.addCompany ERROR  ${mResponse.reasonPhrase}');
-        return "0";
-      }
-    } catch (e) {
-      print('DataAPI.addCompany ERROR $e');
       return '0';
     }
   }

@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/auditor.dart';
-import 'package:businesslibrary/data/company.dart';
 import 'package:businesslibrary/data/govt_entity.dart';
 import 'package:businesslibrary/data/investor.dart';
 import 'package:businesslibrary/data/oneconnect.dart';
@@ -117,27 +116,7 @@ class SignIn {
       await SharedPrefs.saveSupplier(supplier);
       return Success;
     }
-    if (user.company != null) {
-      var partId = user.company.split("#").elementAt(1);
-      var qSnap = await _firestore
-          .collection('companies')
-          .where('participantId', isEqualTo: partId)
-          .getDocuments()
-          .catchError((e) {
-        return ErrorNoOwningEntity;
-      });
-      Company company;
-      qSnap.documents.forEach((doc) {
-        company = new Company.fromJson(doc.data);
-        company.documentReference = doc.documentID;
-      });
-      if (company == null) {
-        print('SignIn.signIn ERROR  company not found in Firestore');
-        return ErrorSignIn;
-      }
-      await SharedPrefs.saveCompany(company);
-      return Success;
-    }
+
     if (user.auditor != null) {
       var partId = user.auditor.split("#").elementAt(1);
       var qSnap = await _firestore

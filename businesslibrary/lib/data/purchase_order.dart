@@ -5,6 +5,7 @@ class PurchaseOrder {
   String purchaseOrderId;
   String date, deliveryDateRequired;
   double amount;
+  int intDate;
 
   String description;
   String deliveryAddress;
@@ -25,6 +26,7 @@ class PurchaseOrder {
       this.user,
       this.purchaseOrderId,
       this.date,
+      this.intDate,
       this.deliveryDateRequired,
       this.amount,
       this.description,
@@ -48,6 +50,8 @@ class PurchaseOrder {
     this.purchaseOrderId = data['purchaseOrderId'];
     this.user = data['user'];
     this.date = data['date'];
+    this.intDate = data['intDate'];
+    print('PurchaseOrder.fromJson  ********* this.date: ${this.intDate}');
     this.deliveryDateRequired = data['deliveryDateRequired'];
     this.amount = data['amount'] * 1.0;
     this.description = data['description'];
@@ -64,48 +68,31 @@ class PurchaseOrder {
     this.contractURL = data['contractURL'];
     this.items = List();
   }
+  Map<String, dynamic> toJson() {
+    print('PurchaseOrder.toJson ************ intDate: $intDate');
 
-//  Map<String, dynamic> toJsonWithDynamic() => <String, dynamic>{
-//        'supplier': supplier,
-//        'purchaseOrderId': purchaseOrderId,
-//        'company': company,
-//        'govtEntity': govtEntity,
-//        'user': user,
-//        'date': date,
-//        'deliveryDateRequired': deliveryDateRequired,
-//        'amount': amount,
-//        'description': description,
-//        'deliveryAddress': deliveryAddress,
-//        'reference': reference,
-//        'purchaseOrderNumber': purchaseOrderNumber,
-//        'purchaseOrderURL': purchaseOrderURL,
-//        'documentReference': documentReference,
-//        'supplierDocumentRef': supplierDocumentRef,
-//        'govtDocumentRef': govtDocumentRef,
-//        'companyDocumentRef': companyDocumentRef,
-//        'supplierName': supplierName,
-//        'purchaserName': purchaserName,
-//        'contractURL': contractURL,
-//      };
-  Map<String, dynamic> toJson() => <String, dynamic>{
-        'supplier': supplier,
-        'purchaseOrderId': purchaseOrderId,
-        'company': company,
-        'govtEntity': govtEntity,
-        'user': user,
-        'date': date,
-        'deliveryDateRequired': deliveryDateRequired,
-        'amount': amount,
-        'description': description,
-        'deliveryAddress': deliveryAddress,
-        'reference': reference,
-        'purchaseOrderNumber': purchaseOrderNumber,
-        'purchaseOrderURL': purchaseOrderURL,
-        'documentReference': documentReference,
-        'supplierDocumentRef': supplierDocumentRef,
-        'govtDocumentRef': govtDocumentRef,
-        'companyDocumentRef': companyDocumentRef,
-        'supplierName': supplierName,
-        'purchaserName': purchaserName,
-      };
+    var map = {
+      'supplier': supplier,
+      'purchaseOrderId': purchaseOrderId,
+      'company': company,
+      'govtEntity': govtEntity,
+      'user': user,
+      'date': date,
+      'intDate': intDate,
+      'deliveryDateRequired': deliveryDateRequired,
+      'amount': amount,
+      'description': description,
+      'deliveryAddress': deliveryAddress,
+      'reference': reference,
+      'purchaseOrderNumber': purchaseOrderNumber,
+      'purchaseOrderURL': purchaseOrderURL,
+      'documentReference': documentReference,
+      'supplierDocumentRef': supplierDocumentRef,
+      'govtDocumentRef': govtDocumentRef,
+      'companyDocumentRef': companyDocumentRef,
+      'supplierName': supplierName,
+      'purchaserName': purchaserName,
+    };
+    return map;
+  }
 }

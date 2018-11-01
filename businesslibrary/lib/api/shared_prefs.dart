@@ -5,7 +5,7 @@ import 'package:businesslibrary/data/auditor.dart';
 import 'package:businesslibrary/data/auto_start_stop.dart';
 import 'package:businesslibrary/data/auto_trade_order.dart';
 import 'package:businesslibrary/data/bank.dart';
-import 'package:businesslibrary/data/company.dart';
+import 'package:businesslibrary/data/dashboard_data.dart';
 import 'package:businesslibrary/data/govt_entity.dart';
 import 'package:businesslibrary/data/investor.dart';
 import 'package:businesslibrary/data/investor_profile.dart';
@@ -185,27 +185,27 @@ class SharedPrefs {
     }
   }
 
-  static Future saveCompany(Company company) async {
+  static Future saveDashboardData(DashboardData data) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
-    Map jsonx = company.toJson();
+    Map jsonx = data.toJson();
     var jx = json.encode(jsonx);
     print(jx);
-    prefs.setString('company', jx);
+    prefs.setString('dashboard', jx);
     //prefs.commit();
-    print("SharedPrefs.saveCompany =========  data SAVED.........");
+    print("SharedPrefs.saveDashboardData =========  data SAVED.........");
   }
 
-  static Future<Company> getCompany() async {
+  static Future<DashboardData> getDashboardData() async {
     var prefs = await SharedPreferences.getInstance();
-    var string = prefs.getString('company');
+    var string = prefs.getString('dashboard');
     if (string == null) {
       return null;
     }
     var jx = json.decode(string);
-    prettyPrint(jx, 'Company from cache: ');
-    Company company = new Company.fromJson(jx);
-    return company;
+    prettyPrint(jx, 'DashboardData from cache: ');
+    DashboardData data = new DashboardData.fromJson(jx);
+    return data;
   }
 
   static Future saveSupplier(Supplier company) async {

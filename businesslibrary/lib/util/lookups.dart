@@ -355,6 +355,25 @@ String getFormattedDateShortest(String date, BuildContext context) {
   }
 }
 
+int getIntDate(String date, BuildContext context) {
+  print(
+      '\n\n---------------> getIntDate $date'); //Sun, 28 Oct 2018 23:59:49 GMT
+  assert(context != null);
+  initializeDateFormatting();
+  try {
+    if (date.contains('GMT')) {
+      var mDate = getLocalDateFromGMT(date, context);
+      return mDate.millisecondsSinceEpoch;
+    } else {
+      var mDate = DateTime.parse(date);
+      return mDate.millisecondsSinceEpoch;
+    }
+  } catch (e) {
+    print(e);
+    return 0;
+  }
+}
+
 String getFormattedDateHourMinute(String date, BuildContext context) {
   print('\n\getFormattedDateHourMinute $date'); //Sun, 28 Oct 2018 23:59:49 GMT
   Locale myLocale = Localizations.localeOf(context);

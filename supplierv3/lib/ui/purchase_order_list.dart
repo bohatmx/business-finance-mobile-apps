@@ -5,8 +5,11 @@ import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/lookups.dart';
+import 'package:businesslibrary/util/pager.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
+import 'package:businesslibrary/util/styles.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:supplierv3/ui/delivery_note_page.dart';
 import 'package:supplierv3/ui/invoice_page.dart';
 
@@ -16,7 +19,7 @@ class PurchaseOrderListPage extends StatefulWidget {
 }
 
 class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
-    implements SnackBarListener, POListener {
+    implements SnackBarListener, POListener, PagerListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   List<PurchaseOrder> purchaseOrders;
 
@@ -26,10 +29,23 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
   bool isPurchaseOrder = false, isDeliveryAcceptance = false;
   DeliveryAcceptance acceptance;
   User user;
+  PurchaseOrderSummary summary;
+  int pageLimit = 2;
+  int lastDate;
+  bool isBackPressed = false;
+  int previousStartKey;
 
   @override
   void initState() {
     super.initState();
+    _getCached();
+//    _fix();
+  }
+
+  void _getCached() async {
+    user = await SharedPrefs.getUser();
+    supplier = await SharedPrefs.getSupplier();
+    pageLimit = await SharedPrefs.getPageLimit();
     _getPurchaseOrders();
   }
 
@@ -39,51 +55,82 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
         message: 'Loading purchase orders',
         textColor: Colors.white,
         backgroundColor: Colors.black);
-    user = await SharedPrefs.getUser();
-    supplier = await SharedPrefs.getSupplier();
-    purchaseOrders =
-        await ListAPI.getSupplierPurchaseOrders(supplier.documentReference);
+    print(
+        '_PurchaseOrderListPageState._getPurchaseOrders: ====================> lastDate before query: $lastDate');
+    try {
+      summary = await ListAPI.getSupplierPurchaseOrdersWithPaging(
+          pageLimit: pageLimit,
+          lastDate: currentStartKey,
+          documentId: supplier.documentReference);
+    } catch (e) {
+      AppSnackbar.showErrorSnackbar(
+          scaffoldKey: _scaffoldKey,
+          message: 'Problem with query',
+          listener: this,
+          actionLabel: 'close');
+      return;
+    }
+    print(
+        '\n\n_PurchaseOrderListPageState._getPurchaseOrders ${summary.purchaseOrders.length} purchase orders');
+    print(
+        '\n\ngetPurchaseOrders #######  currentIndex: $currentIndex currentStartKey: $currentStartKey');
+    purchaseOrders = summary.purchaseOrders;
     _scaffoldKey.currentState.hideCurrentSnackBar();
+    if (!isBackPressed) {
+      var item = KeyItem(currentIndex, currentStartKey);
+      keyItems.addItem(item);
+    }
+
+    if (purchaseOrders.isNotEmpty) {
+      lastDate = purchaseOrders.first.intDate;
+      previousStartKey = currentStartKey;
+      currentStartKey = purchaseOrders.last.intDate;
+      var count = 1;
+      purchaseOrders.forEach((po) {
+        prettyPrint(
+            po.toJson(), '################# PO from Query: count: $count');
+        count++;
+      });
+      print(
+          '\n\n_PurchaseOrderListPageState._getPurchaseOrders: ====> lastDate saved, after query: $lastDate ');
+      keyItems.doPrint();
+      print('############ CURRENT INDEX: $currentIndex');
+    } else {
+      AppSnackbar.showErrorSnackbar(
+          scaffoldKey: _scaffoldKey,
+          message: 'No purchase orders found',
+          listener: this,
+          actionLabel: 'close');
+      ;
+    }
     setState(() {});
   }
 
+  Widget _getBottom() {
+    return PreferredSize(
+      preferredSize: const Size.fromHeight(100.0),
+      child: Column(
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.only(bottom: 20.0),
+            child: Pager(
+              listener: this,
+              itemName: 'POrders',
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  ScrollController scrollController = ScrollController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
         title: Text('Purchase Orders'),
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(50.0),
-          child: new Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: <Widget>[
-                new Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    'Existing Purchase Orders',
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16.0,
-                        fontWeight: FontWeight.normal),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(right: 12.0),
-                  child: Text(
-                    purchaseOrders == null ? '0' : '${purchaseOrders.length}',
-                    style: TextStyle(
-                        color: Colors.yellow,
-                        fontSize: 20.0,
-                        fontWeight: FontWeight.w900),
-                  ),
-                )
-              ],
-            ),
-          ),
-        ),
+        bottom: _getBottom(),
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.refresh),
@@ -91,20 +138,12 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
           ),
         ],
       ),
-      body: new Padding(
+      body: Padding(
         padding: const EdgeInsets.all(10.0),
-        child: new Column(
+        child: Column(
           children: <Widget>[
-            new Flexible(
-              child: new ListView.builder(
-                  itemCount: purchaseOrders == null ? 0 : purchaseOrders.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    return PurchaseOrderCard(
-                      purchaseOrder: purchaseOrders.elementAt(index),
-                      listener: this,
-                      elevation: elevation,
-                    );
-                  }),
+            Flexible(
+              child: _getListView(),
             ),
           ],
         ),
@@ -112,9 +151,31 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
     );
   }
 
+  Widget _getListView() {
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      scrollController.animateTo(
+        scrollController.position.minScrollExtent,
+        duration: const Duration(milliseconds: 10),
+        curve: Curves.easeOut,
+      );
+    });
+
+    return ListView.builder(
+        itemCount: purchaseOrders == null ? 0 : purchaseOrders.length,
+        controller: scrollController,
+        itemBuilder: (BuildContext context, int index) {
+          return PurchaseOrderCard(
+            purchaseOrder: purchaseOrders.elementAt(index),
+            listener: this,
+            elevation: elevation,
+          );
+        });
+  }
+
   double elevation = 2.0;
   void _refresh() {
     print('_PurchaseOrderListPageState._refresh ..................');
+    _getPurchaseOrders();
   }
 
   @override
@@ -153,6 +214,50 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
         message: 'Upload Under Constructtion',
         textColor: Colors.white,
         backgroundColor: Colors.black);
+  }
+
+  int currentIndex = 0;
+  int currentStartKey;
+  KeyItems keyItems = KeyItems();
+
+  @override
+  onEvent(int action, int number) async {
+    pageLimit = number;
+    SharedPrefs.savePageLimit(pageLimit);
+    print(
+        '\n\nonEvent ********** currentIndex: $currentIndex currentStartKey: $currentStartKey');
+    switch (action) {
+      case Pager.Back:
+        currentIndex--;
+        if (currentIndex < 0) {
+          currentIndex = 0;
+          currentStartKey = null;
+        } else {
+          if (currentIndex < keyItems.items.length) {
+            currentStartKey = keyItems.items.elementAt(currentIndex).startKey;
+          } else {
+            currentStartKey = null;
+          }
+        }
+        print(
+            'onEvent; -------------- BACK pressed: currentStartKey: $currentStartKey');
+        _getPurchaseOrders();
+        break;
+      case Pager.Next:
+        currentIndex++;
+        if (currentIndex < keyItems.items.length) {
+          currentStartKey = keyItems.items.elementAt(currentIndex).startKey;
+        }
+        print(
+            'onEvent; +++++++++++ NEXT pressed: currentStartKey: $currentStartKey');
+        _getPurchaseOrders();
+        break;
+    }
+  }
+
+  @override
+  onPrompt() {
+    // TODO: implement onPrompt
   }
 }
 
@@ -203,7 +308,7 @@ class PurchaseOrderCard extends StatelessWidget {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.only(left: 40.0, bottom: 20.0),
+              padding: const EdgeInsets.only(left: 40.0, bottom: 8.0),
               child: Row(
                 children: <Widget>[
                   new Padding(
@@ -223,6 +328,18 @@ class PurchaseOrderCard extends StatelessWidget {
                           fontWeight: FontWeight.w900,
                           color: Colors.teal),
                     ),
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 40.0, bottom: 20.0),
+              child: Row(
+                children: <Widget>[
+                  Text(
+                    getFormattedDateLongWithTime(
+                        '${purchaseOrder.date}', context),
+                    style: Styles.blueBoldSmall,
                   ),
                 ],
               ),

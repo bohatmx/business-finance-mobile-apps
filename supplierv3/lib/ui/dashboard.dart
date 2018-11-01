@@ -64,7 +64,7 @@ class _DashboardState extends State<Dashboard>
   User user;
   String fullName;
   DeliveryAcceptance acceptance;
-  DashboardData dashboardData = DashboardData();
+  DashboardData dashboardData;
   @override
   initState() {
     super.initState();
@@ -95,6 +95,7 @@ class _DashboardState extends State<Dashboard>
     try {
       dashboardData = await ListAPI.getSupplierDashboardData(
           supplier.participantId, supplier.documentReference);
+      await SharedPrefs.saveDashboardData(dashboardData);
       prettyPrint(
           dashboardData.toJson(), '\n\n@@@@@@@@@@@ RETURNED dash data:');
       setState(() {});
@@ -117,6 +118,7 @@ class _DashboardState extends State<Dashboard>
     user = await SharedPrefs.getUser();
     fullName = user.firstName + ' ' + user.lastName;
     supplier = await SharedPrefs.getSupplier();
+    dashboardData = await SharedPrefs.getDashboardData();
     assert(supplier != null);
     name = supplier.name;
     setState(() {});
