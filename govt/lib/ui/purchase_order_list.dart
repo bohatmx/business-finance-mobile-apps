@@ -1,13 +1,17 @@
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
+import 'package:businesslibrary/data/delivery_note.dart';
 import 'package:businesslibrary/data/govt_entity.dart';
+import 'package:businesslibrary/data/invoice.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/supplier.dart';
+import 'package:businesslibrary/util/FCM.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/selectors.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:businesslibrary/util/util.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:govt/ui/purchase_order_page.dart';
 
@@ -16,8 +20,10 @@ class PurchaseOrderListPage extends StatefulWidget {
   _PurchaseOrderListPageState createState() => _PurchaseOrderListPageState();
 }
 
-class _PurchaseOrderListPageState extends State<PurchaseOrderListPage> {
+class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
+    implements InvoiceListener, DeliveryNoteListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  FirebaseMessaging _fcm = FirebaseMessaging();
   PurchaseOrder purchaseOrder;
   List<Supplier> suppliers;
   List<PurchaseOrder> purchaseOrders;
@@ -43,6 +49,13 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage> {
     _scaffoldKey.currentState.removeCurrentSnackBar();
     print(
         '_DashboardState._getSummaryData @@@@@@@@@@@@ purchaseOrders: ${purchaseOrders.length}');
+    FCM.configureFCM(
+      deliveryNoteListener: this,
+      invoiceListener: this,
+    );
+    _fcm.subscribeToTopic(FCM.TOPIC_DELIVERY_NOTES + entity.participantId);
+    _fcm.subscribeToTopic(FCM.TOPIC_INVOICES + entity.participantId);
+
     setState(() {});
   }
 
@@ -131,6 +144,25 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage> {
   }
 
   void _onPurchaseOrderTapped() {}
+  @override
+  onDeliveryNoteMessage(DeliveryNote deliveryNote) {
+    prettyPrint(deliveryNote.toJson(), '### Delivery Note Arrived');
+    AppSnackbar.showSnackbar(
+        scaffoldKey: _scaffoldKey,
+        message: 'Delivery Note Arrived',
+        textColor: Styles.lightBlue,
+        backgroundColor: Styles.black);
+  }
+
+  @override
+  onInvoiceMessage(Invoice invoice) {
+    prettyPrint(invoice.toJson(), '### Invoice Arrived');
+    AppSnackbar.showSnackbar(
+        scaffoldKey: _scaffoldKey,
+        message: 'Invoice Arrived',
+        textColor: Styles.lightGreen,
+        backgroundColor: Styles.black);
+  }
 }
 
 class PurchaseOrderCard extends StatelessWidget {

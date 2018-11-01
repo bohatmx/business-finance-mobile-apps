@@ -10,11 +10,11 @@ import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/data/offerCancellation.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
+import 'package:businesslibrary/util/FCM.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:flutter/material.dart';
-import 'package:supplierv3/listeners/firestore_listener.dart';
 import 'package:supplierv3/ui/delivery_note_list.dart';
 import 'package:supplierv3/ui/make_offer.dart';
 
@@ -53,11 +53,11 @@ class _InvoiceListState extends State<InvoiceList>
   }
 
   _listenForBids() async {
-    invoicesOnOffer.forEach((i) {
-      listenForInvoiceBid(i.offer.split('#').elementAt(1), this);
-    });
-
-    listenForInvoiceAcceptance(supplier.documentReference, this);
+//    invoicesOnOffer.forEach((i) {
+//      listenForInvoiceBid(i.offer.split('#').elementAt(1), this);
+//    });
+//
+//    listenForInvoiceAcceptance(supplier.documentReference, this);
   }
 
   _getCached() async {
@@ -610,6 +610,16 @@ class _InvoiceListState extends State<InvoiceList>
         textColor: Colors.lightGreen,
         backgroundColor: Colors.black);
     _getInvoices();
+  }
+
+  @override
+  onInvoiceAcceptanceMessage(InvoiceAcceptance acceptance) {
+    // TODO: implement onInvoiceAcceptanceMessage
+  }
+
+  @override
+  onInvoiceBidMessage(InvoiceBid invoiceBid) {
+    // TODO: implement onInvoiceBidMessage
   }
 }
 

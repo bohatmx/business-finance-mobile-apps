@@ -8,12 +8,12 @@ import 'package:businesslibrary/data/invoice_acceptance.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/supplier_contract.dart';
 import 'package:businesslibrary/data/user.dart';
+import 'package:businesslibrary/util/FCM.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:businesslibrary/util/util.dart';
 import 'package:flutter/material.dart';
-import 'package:supplierv3/listeners/firestore_listener.dart';
 import 'package:supplierv3/ui/make_offer.dart';
 
 class NewInvoicePage extends StatefulWidget {
@@ -75,9 +75,6 @@ class _NewInvoicePageState extends State<NewInvoicePage>
     _getContracts();
     _getDeliveryNote();
     _getDeliveryAcceptances();
-
-    listenForDeliveryAcceptance(supplier.documentReference, this);
-    listenForInvoiceAcceptance(supplier.documentReference, this);
   }
 
   static const NameSpace = 'resource:com.oneconnect.biz.';
@@ -538,6 +535,16 @@ class _NewInvoicePageState extends State<NewInvoicePage>
         actionLabel: 'OK',
         listener: this,
         backgroundColor: Colors.teal.shade600);
+  }
+
+  @override
+  onDeliveryAcceptanceMessage(DeliveryAcceptance acceptance) {
+    // TODO: implement onDeliveryAcceptanceMessage
+  }
+
+  @override
+  onInvoiceAcceptanceMessage(InvoiceAcceptance acceptance) {
+    // TODO: implement onInvoiceAcceptanceMessage
   }
 }
 

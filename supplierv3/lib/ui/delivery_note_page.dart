@@ -7,13 +7,13 @@ import 'package:businesslibrary/data/invoice.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
+import 'package:businesslibrary/util/FCM.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/selectors.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:supplierv3/listeners/firestore_listener.dart';
 import 'package:supplierv3/ui/invoice_page.dart';
 
 class DeliveryNotePage extends StatefulWidget {
@@ -45,7 +45,6 @@ class _DeliveryNotePageState extends State<DeliveryNotePage>
     supplier = await SharedPrefs.getSupplier();
     userName = _user.firstName + ' ' + _user.lastName;
 
-    listenForDeliveryAcceptance(supplier.documentReference, this);
     if (widget.purchaseOrder == null) {
       _getPurchaseOrders();
     }
@@ -511,5 +510,10 @@ class _DeliveryNotePageState extends State<DeliveryNotePage>
         listener: this,
         icon: Icons.done,
         action: 1);
+  }
+
+  @override
+  onDeliveryAcceptanceMessage(DeliveryAcceptance acceptance) {
+    // TODO: implement onDeliveryAcceptanceMessage
   }
 }

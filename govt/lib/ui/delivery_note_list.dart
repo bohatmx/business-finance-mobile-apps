@@ -4,13 +4,15 @@ import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/delivery_acceptance.dart';
 import 'package:businesslibrary/data/delivery_note.dart';
 import 'package:businesslibrary/data/govt_entity.dart';
+import 'package:businesslibrary/data/invoice.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
+import 'package:businesslibrary/util/FCM.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:govt/ui/firestore_listener.dart';
 
 class DeliveryNoteList extends StatefulWidget {
   @override
@@ -20,9 +22,11 @@ class DeliveryNoteList extends StatefulWidget {
 class _DeliveryNoteListState extends State<DeliveryNoteList>
     implements
         SnackBarListener,
-        DeliveryNoteCardListener,
-        DeliveryNoteArrivedListener {
+        DeliveryNoteListener,
+        InvoiceListener,
+        DeliveryNoteCardListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  final FirebaseMessaging _fcm = FirebaseMessaging();
   List<Supplier> suppliers;
   List<DeliveryNote> deliveryNotes;
   User user;
@@ -36,7 +40,15 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
   _getCachedPrefs() async {
     user = await SharedPrefs.getUser();
     govtEntity = await SharedPrefs.getGovEntity();
-    listenForDeliveryNote(govtEntity.documentReference, this);
+
+    FCM.configureFCM(
+      deliveryNoteListener: this,
+      invoiceListener: this,
+    );
+    _fcm.subscribeToTopic(FCM.TOPIC_DELIVERY_NOTES + govtEntity.participantId);
+    _fcm.subscribeToTopic(FCM.TOPIC_INVOICES + govtEntity.participantId);
+    _fcm.subscribeToTopic(FCM.TOPIC_GENERAL_MESSAGE);
+
     _getDeliveryNotes();
   }
 
@@ -293,6 +305,26 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
     }
     deliveryNotes.insert(0, note);
     setState(() {});
+  }
+
+  @override
+  onDeliveryNoteMessage(DeliveryNote deliveryNote) {
+    prettyPrint(deliveryNote.toJson(), '### Delivery Note Arrived');
+    AppSnackbar.showSnackbar(
+        scaffoldKey: _scaffoldKey,
+        message: 'Delivery Note Arrived',
+        textColor: Styles.lightBlue,
+        backgroundColor: Styles.black);
+  }
+
+  @override
+  onInvoiceMessage(Invoice invoice) {
+    prettyPrint(invoice.toJson(), '### Invoice Arrived');
+    AppSnackbar.showSnackbar(
+        scaffoldKey: _scaffoldKey,
+        message: 'Invoice Arrived',
+        textColor: Styles.lightGreen,
+        backgroundColor: Styles.black);
   }
 }
 

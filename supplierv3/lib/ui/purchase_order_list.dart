@@ -22,7 +22,7 @@ class PurchaseOrderListPage extends StatefulWidget {
 }
 
 class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
-    implements SnackBarListener, POListener, PagerListener, Pager2Listener {
+    implements SnackBarListener, POListener, Pager2Listener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   List<PurchaseOrder> purchaseOrders;
 
@@ -175,7 +175,7 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
                   padding: const EdgeInsets.only(left: 8.0),
                   child: Text(
                     '$pageNumber',
-                    style: Styles.blackBoldMedium,
+                    style: Styles.blackBoldSmall,
                   ),
                 ),
                 Padding(
@@ -186,10 +186,23 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(left: 8.0),
+                  padding: const EdgeInsets.only(left: 8.0, right: 40.0),
                   child: Text(
                     dashboardData == null ? '00' : '${_getTotalPages()}',
-                    style: Styles.blackBoldMedium,
+                    style: Styles.blackBoldSmall,
+                  ),
+                ),
+                Text(
+                  dashboardData == null
+                      ? '0'
+                      : '${dashboardData.purchaseOrders}',
+                  style: Styles.blackBoldSmall,
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 8.0),
+                  child: Text(
+                    'Purchase Orders',
+                    style: Styles.whiteSmall,
                   ),
                 ),
               ],
@@ -216,12 +229,6 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
       appBar: AppBar(
         title: Text('Purchase Orders'),
         bottom: _getBottom(),
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.refresh),
-            onPressed: _refresh,
-          ),
-        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(10.0),
@@ -305,41 +312,6 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
   int currentStartKey;
   KeyItems keyItems = KeyItems();
   int pageNumber = 1;
-
-  @override
-  onEvent(int action, int number) async {
-    pageLimit = number;
-    SharedPrefs.savePageLimit(pageLimit);
-    print(
-        '\n\nonEvent ********** currentIndex: $currentIndex currentStartKey: $currentStartKey');
-    switch (action) {
-      case Pager.Back:
-        currentIndex--;
-        if (currentIndex < 0) {
-          currentIndex = 0;
-          currentStartKey = null;
-        } else {
-          if (currentIndex < keyItems.items.length) {
-            currentStartKey = keyItems.items.elementAt(currentIndex).startKey;
-          } else {
-            currentStartKey = null;
-          }
-        }
-        print(
-            'onEvent; -------------- BACK pressed: currentStartKey: $currentStartKey');
-        _getPurchaseOrders();
-        break;
-      case Pager.Next:
-        currentIndex++;
-        if (currentIndex < keyItems.items.length) {
-          currentStartKey = keyItems.items.elementAt(currentIndex).startKey;
-        }
-        print(
-            'onEvent; +++++++++++ NEXT pressed: currentStartKey: $currentStartKey');
-        _getPurchaseOrders();
-        break;
-    }
-  }
 
   @override
   onPrompt() {

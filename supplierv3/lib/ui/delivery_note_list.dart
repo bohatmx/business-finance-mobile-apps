@@ -3,12 +3,14 @@ import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/delivery_acceptance.dart';
 import 'package:businesslibrary/data/delivery_note.dart';
 import 'package:businesslibrary/data/invoice.dart';
+import 'package:businesslibrary/data/invoice_acceptance.dart';
+import 'package:businesslibrary/data/invoice_bid.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
+import 'package:businesslibrary/util/FCM.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:flutter/material.dart';
-import 'package:supplierv3/listeners/firestore_listener.dart';
 import 'package:supplierv3/ui/delivery_note_page.dart';
 import 'package:supplierv3/ui/invoice_page.dart';
 
@@ -21,6 +23,8 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
     implements
         SnackBarListener,
         DeliveryNoteCardListener,
+        InvoiceBidListener,
+        InvoiceAcceptanceListener,
         DeliveryAcceptanceListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   List<DeliveryNote> mDeliveryNotes;
@@ -48,8 +52,6 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
         message: 'Loading delivery notes',
         textColor: Colors.white,
         backgroundColor: Colors.black);
-
-    listenForDeliveryAcceptance(supplier.documentReference, this);
 
     mDeliveryNotes =
         await ListAPI.getDeliveryNotes(supplier.documentReference, 'suppliers');
@@ -277,13 +279,39 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
   }
 
   @override
-  onDeliveryAcceptance(DeliveryAcceptance da) {
-    print(
-        '_DeliveryNoteListState.onDeliveryAcceptance ******** purchaseOrderNumber ${da.purchaseOrderNumber} acceptanceId: ${da.acceptanceId}');
-    _scaffoldKey.currentState.hideCurrentSnackBar();
+  onDeliveryAcceptanceMessage(DeliveryAcceptance acceptance) {
+    prettyPrint(acceptance.toJson(), "## Acceptance arrived: ");
     AppSnackbar.showSnackbarWithAction(
         scaffoldKey: _scaffoldKey,
         message: 'Delivery acceptance arrived',
+        textColor: Colors.yellow,
+        action: 5,
+        listener: this,
+        actionLabel: 'OK',
+        icon: Icons.done_all,
+        backgroundColor: Colors.black);
+  }
+
+  @override
+  onInvoiceAcceptanceMessage(InvoiceAcceptance acceptance) {
+    prettyPrint(acceptance.toJson(), "## Invoice acceptance arrived:");
+    AppSnackbar.showSnackbarWithAction(
+        scaffoldKey: _scaffoldKey,
+        message: 'Invoice Acceptance arrived',
+        textColor: Colors.yellow,
+        action: 5,
+        listener: this,
+        actionLabel: 'OK',
+        icon: Icons.done_all,
+        backgroundColor: Colors.black);
+  }
+
+  @override
+  onInvoiceBidMessage(InvoiceBid invoiceBid) {
+    prettyPrint(invoiceBid.toJson(), '## Invoice Bid arrived');
+    AppSnackbar.showSnackbarWithAction(
+        scaffoldKey: _scaffoldKey,
+        message: 'Invoice Bid arrived',
         textColor: Colors.yellow,
         action: 5,
         listener: this,

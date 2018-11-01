@@ -10,12 +10,12 @@ import 'package:businesslibrary/data/sector.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/data/wallet.dart';
+import 'package:businesslibrary/util/FCM.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/selectors.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:flutter/material.dart';
-import 'package:supplierv3/listeners/firestore_listener.dart';
 import 'package:supplierv3/ui/offer_details.dart';
 
 class MakeOfferPage extends StatefulWidget {
@@ -251,7 +251,7 @@ class _MakeOfferPageState extends State<MakeOfferPage>
       } else {
         offerId = resultOffer.offerId;
         needRefresh = true;
-        listenForInvoiceBid(offerId, this);
+//        listenForInvoiceBid(offerId, this);
         AppSnackbar.showSnackbarWithAction(
             scaffoldKey: _scaffoldKey,
             message: 'Ivoice Offer suubmitted OK',
@@ -911,5 +911,10 @@ class _MakeOfferPageState extends State<MakeOfferPage>
         listener: this,
         icon: Icons.done_all,
         action: 1);
+  }
+
+  @override
+  onInvoiceBidMessage(InvoiceBid invoiceBid) {
+    // TODO: implement onInvoiceBidMessage
   }
 }

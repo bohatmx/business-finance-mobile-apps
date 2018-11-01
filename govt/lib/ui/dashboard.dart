@@ -7,15 +7,16 @@ import 'package:businesslibrary/data/invoice.dart';
 import 'package:businesslibrary/data/invoice_settlement.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/user.dart';
+import 'package:businesslibrary/util/FCM.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:businesslibrary/util/wallet_page.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:govt/sounds.dart';
 import 'package:govt/ui/acceptance.dart';
 import 'package:govt/ui/delivery_note_list.dart';
-import 'package:govt/ui/firestore_listener.dart';
 import 'package:govt/ui/invoice_list.dart';
 import 'package:govt/ui/purchase_order_list.dart';
 import 'package:govt/ui/summary_card.dart';
@@ -32,16 +33,14 @@ class Dashboard extends StatefulWidget {
 
 class _DashboardState extends State<Dashboard>
     with TickerProviderStateMixin
-    implements
-        SnackBarListener,
-        DeliveryNoteArrivedListener,
-        InvoiceArrivedListener {
+    implements SnackBarListener, DeliveryNoteListener, InvoiceListener {
   static const Payments = 1,
       Invoices = 2,
       PurchaseOrders = 3,
       DeliveryNotes = 4,
       DeliveryAcceptances = 5;
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  FirebaseMessaging _fcm = FirebaseMessaging();
   AnimationController animationController;
   Animation<double> animation;
   GovtEntity govtEntity;
@@ -54,6 +53,7 @@ class _DashboardState extends State<Dashboard>
   int messageReceived;
   String message;
   bool listenersStarted = false;
+
   @override
   initState() {
     super.initState();
@@ -79,15 +79,15 @@ class _DashboardState extends State<Dashboard>
     govtEntity = await SharedPrefs.getGovEntity();
     assert(govtEntity != null);
     name = govtEntity.name;
-    //todo - remove after dev
-    govtEntity.allowAutoAccept = true;
 
-    if (!listenersStarted) {
-      listenForDeliveryNote(govtEntity.documentReference, this);
-      listenForInvoice(govtEntity.documentReference, this);
-      listenersStarted = true;
-      print('_DashboardState._getCachedPrefs listeners started ......');
-    }
+    FCM.configureFCM(
+      deliveryNoteListener: this,
+      invoiceListener: this,
+    );
+    _fcm.subscribeToTopic(FCM.TOPIC_DELIVERY_NOTES + govtEntity.participantId);
+    _fcm.subscribeToTopic(FCM.TOPIC_INVOICES + govtEntity.participantId);
+    _fcm.subscribeToTopic(FCM.TOPIC_GENERAL_MESSAGE);
+
     print(
         '_DashboardState._getSummaryData ....... govt documentId: ${govtEntity.documentReference}');
     setState(() {});
@@ -188,6 +188,7 @@ class _DashboardState extends State<Dashboard>
 
   double opacity = 1.0;
   String name;
+
   @override
   Widget build(BuildContext context) {
     message = widget.message;
@@ -367,9 +368,8 @@ class _DashboardState extends State<Dashboard>
   }
 
   @override
-  onDeliveryNoteArrived(DeliveryNote note) async {
-    prettyPrint(note.toJson(), 'DeliveryNote arrived: ');
-    messageReceived = DeliveryNotes;
+  onDeliveryNoteMessage(DeliveryNote deliveryNote) {
+    prettyPrint(deliveryNote.toJson(), '#### Delivery Note Arrived');
     AppSnackbar.showSnackbarWithAction(
         scaffoldKey: _scaffoldKey,
         message: 'Delivery Note arrived',
@@ -380,29 +380,16 @@ class _DashboardState extends State<Dashboard>
         action: DeliveryNoteConstant,
         icon: Icons.create);
 
-//    if (govtEntity.allowAutoAccept != null) {
-//      if (govtEntity.allowAutoAccept) {
-//        var res = await Accept.sendAcceptance(note, user);
-//        if (res != '0') {
-//          AppSnackbar.showSnackbar(
-//              scaffoldKey: _scaffoldKey,
-//              message: 'Delivery Note accepted',
-//              textColor: Styles.white,
-//              backgroundColor: Styles.black);
-//        }
-//      }
-//    }
     if (deliveryNotes == null) {
       deliveryNotes = List();
     }
-    deliveryNotes.insert(0, note);
+    deliveryNotes.insert(0, deliveryNote);
     setState(() {});
   }
 
   @override
-  onInvoiceArrived(Invoice inv) async {
-    prettyPrint(inv.toJson(), 'Invoice arrived: ');
-    messageReceived = DeliveryNotes;
+  onInvoiceMessage(Invoice invoice) async {
+    prettyPrint(invoice.toJson(), '#### Invoice Arrived');
     AppSnackbar.showSnackbarWithAction(
         scaffoldKey: _scaffoldKey,
         message: 'Invoice arrived',
@@ -417,7 +404,7 @@ class _DashboardState extends State<Dashboard>
 
     if (govtEntity.allowAutoAccept != null) {
       if (govtEntity.allowAutoAccept) {
-        var res = await Accept.sendInvoiceAcceptance(inv, user);
+        var res = await Accept.sendInvoiceAcceptance(invoice, user);
         if (res != '0') {
           AppSnackbar.showSnackbar(
               scaffoldKey: _scaffoldKey,

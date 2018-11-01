@@ -3,12 +3,12 @@ import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/invoice_bid.dart';
 import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/data/supplier.dart';
+import 'package:businesslibrary/util/FCM.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:businesslibrary/util/util.dart';
 import 'package:flutter/material.dart';
-import 'package:supplierv3/listeners/firestore_listener.dart';
 import 'package:supplierv3/ui/offer_details.dart';
 
 class OfferList extends StatefulWidget {
@@ -60,7 +60,7 @@ class _OfferListState extends State<OfferList>
     _scaffoldKey.currentState.hideCurrentSnackBar();
     offers.forEach((offer) {
       if (offer.isOpen) {
-        listenForInvoiceBid(offer.offerId, this);
+//        listenForInvoiceBid(offer.offerId, this);
       }
     });
   }
@@ -346,6 +346,11 @@ class _OfferListState extends State<OfferList>
         message: 'Invoice Bid arrived',
         textColor: Styles.white,
         backgroundColor: Styles.black);
+  }
+
+  @override
+  onInvoiceBidMessage(InvoiceBid invoiceBid) {
+    // TODO: implement onInvoiceBidMessage
   }
 }
 

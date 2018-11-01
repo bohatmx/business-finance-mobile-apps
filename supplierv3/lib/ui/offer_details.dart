@@ -1,11 +1,11 @@
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/data/invoice_bid.dart';
 import 'package:businesslibrary/data/offer.dart';
+import 'package:businesslibrary/util/FCM.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:flutter/material.dart';
-import 'package:supplierv3/listeners/firestore_listener.dart';
 
 class OfferDetails extends StatefulWidget {
   final String offerId;
@@ -255,6 +255,11 @@ class _OfferDetailsState extends State<OfferDetails>
         backgroundColor: Styles.black);
 
     _getBids();
+  }
+
+  @override
+  onInvoiceBidMessage(InvoiceBid invoiceBid) {
+    // TODO: implement onInvoiceBidMessage
   }
 }
 

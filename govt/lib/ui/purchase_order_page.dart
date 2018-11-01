@@ -117,11 +117,10 @@ class _PurchaseOrderPageState extends State<PurchaseOrderPageGovt>
           textColor: Colors.white,
           backgroundColor: Colors.deepPurple.shade700);
       //todo - check if this PO exists
-//-LOgb4poza3eLtedkXMq
       var po = await DataAPI3.registerPurchaseOrder(purchaseOrder);
       print('_PurchaseOrderPageState._submitPurchaseOrder $po');
       _scaffoldKey.currentState.hideCurrentSnackBar();
-      if (po != null) {
+      if (po == null) {
         AppSnackbar.showErrorSnackbar(
             listener: this,
             scaffoldKey: _scaffoldKey,

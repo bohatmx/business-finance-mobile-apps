@@ -13,13 +13,13 @@ import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
+import 'package:businesslibrary/util/FCM.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:businesslibrary/util/wallet_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:supplierv3/listeners/firestore_listener.dart';
 import 'package:supplierv3/ui/contract_list.dart';
 import 'package:supplierv3/ui/delivery_acceptance_list.dart';
 import 'package:supplierv3/ui/delivery_note_list.dart';
@@ -124,9 +124,12 @@ class _DashboardState extends State<Dashboard>
     setState(() {});
     _getSummaryData();
     //
-    listenForPurchaseOrder(supplier.documentReference, this);
-    listenForDeliveryAcceptance(supplier.documentReference, this);
-    listenForInvoiceAcceptance(supplier.documentReference, this);
+    FCM.configureFCM(
+      purchaseOrderListener: this,
+      deliveryAcceptanceListener: this,
+      invoiceAcceptanceListener: this,
+      invoiceBidListener: this,
+    );
   }
 
   _listenForBids() async {
@@ -505,6 +508,26 @@ class _DashboardState extends State<Dashboard>
         listener: this,
         icon: Icons.message,
         action: InvoiceBidConstant);
+  }
+
+  @override
+  onDeliveryAcceptanceMessage(DeliveryAcceptance acceptance) {
+    // TODO: implement onDeliveryAcceptanceMessage
+  }
+
+  @override
+  onInvoiceAcceptanceMessage(InvoiceAcceptance acceptance) {
+    // TODO: implement onInvoiceAcceptanceMessage
+  }
+
+  @override
+  onInvoiceBidMessage(InvoiceBid invoiceBid) {
+    // TODO: implement onInvoiceBidMessage
+  }
+
+  @override
+  onPurchaseOrderMessage(PurchaseOrder purchaseOrder) {
+    // TODO: implement onPurchaseOrderMessage
   }
 }
 
