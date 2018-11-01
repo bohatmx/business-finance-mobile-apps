@@ -1,11 +1,14 @@
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
+import 'package:businesslibrary/data/dashboard_data.dart';
 import 'package:businesslibrary/data/delivery_acceptance.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/pager.dart';
+import 'package:businesslibrary/util/pager2.dart';
+import 'package:businesslibrary/util/selectors.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:flutter/material.dart';
@@ -19,7 +22,7 @@ class PurchaseOrderListPage extends StatefulWidget {
 }
 
 class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
-    implements SnackBarListener, POListener, PagerListener {
+    implements SnackBarListener, POListener, PagerListener, Pager2Listener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   List<PurchaseOrder> purchaseOrders;
 
@@ -34,6 +37,7 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
   int lastDate;
   bool isBackPressed = false;
   int previousStartKey;
+  DashboardData dashboardData;
 
   @override
   void initState() {
@@ -46,7 +50,10 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
     user = await SharedPrefs.getUser();
     supplier = await SharedPrefs.getSupplier();
     pageLimit = await SharedPrefs.getPageLimit();
-    _getPurchaseOrders();
+    dashboardData = await SharedPrefs.getDashboardData();
+    currentIndex = 0;
+    setState(() {});
+    onNext(pageLimit, 1);
   }
 
   _getPurchaseOrders() async {
@@ -56,11 +63,11 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
         textColor: Colors.white,
         backgroundColor: Colors.black);
     print(
-        '_PurchaseOrderListPageState._getPurchaseOrders: ====================> lastDate before query: $lastDate');
+        '\n\n\n\n_PurchaseOrderListPageState._getPurchaseOrders: ==========> currentStartKey before query: $currentStartKey');
     try {
       summary = await ListAPI.getSupplierPurchaseOrdersWithPaging(
           pageLimit: pageLimit,
-          lastDate: currentStartKey,
+          startKey: currentStartKey,
           documentId: supplier.documentReference);
     } catch (e) {
       AppSnackbar.showErrorSnackbar(
@@ -76,46 +83,124 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
         '\n\ngetPurchaseOrders #######  currentIndex: $currentIndex currentStartKey: $currentStartKey');
     purchaseOrders = summary.purchaseOrders;
     _scaffoldKey.currentState.hideCurrentSnackBar();
-    if (!isBackPressed) {
-      var item = KeyItem(currentIndex, currentStartKey);
-      keyItems.addItem(item);
-    }
-
     if (purchaseOrders.isNotEmpty) {
-      lastDate = purchaseOrders.first.intDate;
-      previousStartKey = currentStartKey;
       currentStartKey = purchaseOrders.last.intDate;
-      var count = 1;
-      purchaseOrders.forEach((po) {
-        prettyPrint(
-            po.toJson(), '################# PO from Query: count: $count');
-        count++;
-      });
-      print(
-          '\n\n_PurchaseOrderListPageState._getPurchaseOrders: ====> lastDate saved, after query: $lastDate ');
-      keyItems.doPrint();
-      print('############ CURRENT INDEX: $currentIndex');
     } else {
       AppSnackbar.showErrorSnackbar(
           scaffoldKey: _scaffoldKey,
           message: 'No purchase orders found',
           listener: this,
           actionLabel: 'close');
-      ;
     }
     setState(() {});
   }
 
+  var totalPages = 0;
+  int _getTotalPages() {
+    var rem = dashboardData.purchaseOrders % pageLimit;
+    print('_PurchaseOrderListPageState._getTotalPages remainder: $rem');
+    try {
+      if (rem > 0) {
+        totalPages = int.parse('${dashboardData.purchaseOrders ~/ pageLimit}');
+        totalPages++;
+      } else {
+        totalPages = int.parse('${dashboardData.purchaseOrders ~/ pageLimit}');
+      }
+    } catch (e) {
+      print('########### cannot make total .........))))))))))');
+    }
+    return totalPages;
+  }
+
+  String _getPageValue() {
+    var t = 0.0;
+    purchaseOrders.forEach((po) {
+      t += po.amount;
+    });
+    return getFormattedAmount('$t', context);
+  }
+
   Widget _getBottom() {
     return PreferredSize(
-      preferredSize: const Size.fromHeight(100.0),
+      preferredSize: const Size.fromHeight(200.0),
       child: Column(
         children: <Widget>[
           Padding(
+            padding: const EdgeInsets.only(left: 20.0, bottom: 8.0),
+            child: Row(
+              children: <Widget>[
+                Text(
+                  'Total Value:',
+                  style: Styles.whiteSmall,
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 8.0),
+                  child: Text(
+                    dashboardData == null
+                        ? '0.00'
+                        : '${getFormattedAmount('${dashboardData.totalPurchaseOrderAmount}', context)}',
+                    style: Styles.brownBoldMedium,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 20.0, bottom: 20.0),
+            child: Row(
+              children: <Widget>[
+                Text(
+                  'Page Value:',
+                  style: Styles.whiteSmall,
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 8.0),
+                  child: Text(
+                    purchaseOrders == null ? '0.00' : _getPageValue(),
+                    style: Styles.blackBoldMedium,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 20.0, bottom: 10.0),
+            child: Row(
+              children: <Widget>[
+                Text(
+                  "Page",
+                  style: Styles.whiteSmall,
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 8.0),
+                  child: Text(
+                    '$pageNumber',
+                    style: Styles.blackBoldMedium,
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 8.0),
+                  child: Text(
+                    'of',
+                    style: Styles.whiteSmall,
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 8.0),
+                  child: Text(
+                    dashboardData == null ? '00' : '${_getTotalPages()}',
+                    style: Styles.blackBoldMedium,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Padding(
             padding: const EdgeInsets.only(bottom: 20.0),
-            child: Pager(
+            child: Pager2(
               listener: this,
               itemName: 'POrders',
+              currentStartKey: currentStartKey,
             ),
           ),
         ],
@@ -219,6 +304,7 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
   int currentIndex = 0;
   int currentStartKey;
   KeyItems keyItems = KeyItems();
+  int pageNumber = 1;
 
   @override
   onEvent(int action, int number) async {
@@ -257,7 +343,35 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
 
   @override
   onPrompt() {
-    // TODO: implement onPrompt
+    print('_PurchaseOrderListPageState.onPrompt ...............');
+  }
+
+  @override
+  onBack(int pageLimit, int startKey, int pageNumber) {
+    print(
+        '\n\n\n\n_PurchaseOrderListPageState.onBack ..............................');
+    this.pageLimit = pageLimit;
+    this.pageNumber = pageNumber;
+    currentStartKey = startKey;
+    currentIndex--;
+    if (currentIndex < 0) {
+      currentIndex = 0;
+    }
+    setState(() {});
+    _getPurchaseOrders();
+  }
+
+  @override
+  onNext(int pageLimit, int pageNumber) {
+    print('_PurchaseOrderListPageState.onNext .......................');
+    this.pageLimit = pageLimit;
+    this.pageNumber = pageNumber;
+    currentIndex++;
+    if (currentIndex > pageLimit) {
+      currentIndex = 0;
+    }
+    setState(() {});
+    _getPurchaseOrders();
   }
 }
 
@@ -288,7 +402,7 @@ class PurchaseOrderCard extends StatelessWidget {
                     padding: const EdgeInsets.only(left: 8.0),
                     child: Icon(
                       Icons.apps,
-                      color: Colors.purple.shade200,
+                      color: getRandomColor(),
                     ),
                   ),
                   new Padding(
@@ -333,7 +447,7 @@ class PurchaseOrderCard extends StatelessWidget {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.only(left: 40.0, bottom: 20.0),
+              padding: const EdgeInsets.only(left: 40.0, bottom: 10.0),
               child: Row(
                 children: <Widget>[
                   Text(

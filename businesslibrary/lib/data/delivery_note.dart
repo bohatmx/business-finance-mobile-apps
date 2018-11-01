@@ -48,23 +48,8 @@ class DeliveryNote {
     this.deliveryNoteURL = data['deliveryNoteURL'];
     this.remarks = data['remarks'];
 
-    print(
-        '\n\nDeliveryNote.fromJson RAW, UNADULTERATED date: ${data['date']}'); //2018-10-23T04:52:32.333Z
-    //print('*** DateTime.parse: ${DateTime.parse(data['date'])}');
-
-    //this.date = data['date'];
-    // print('DeliveryNote.fromJson afterwards??? date: ${this.date}\n\n');
-//    try {
-//      var s = DateTime.parse(data['date']);
-//      print('---------- Parsed date: ${s.toLocal().toIso8601String()}');
-//      this.date = s.toLocal();
-//      print(
-//          '----------- did anything happen?, this.date: ${this.date.toIso8601String()}');
-//    } catch (e) {
-//      print(e);
-//    }
     this.date = data['date'];
-    // this.dateAccepted = data['dateAccepted'];
+    this.dateAccepted = data['dateAccepted'];
     this.acceptedBy = data['acceptedBy'];
     this.documentReference = data['documentReference'];
     this.supplierName = data['supplierName'];

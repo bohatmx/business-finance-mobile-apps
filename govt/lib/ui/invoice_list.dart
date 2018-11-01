@@ -381,7 +381,7 @@ class InvoiceCard extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      getFormattedLongestDate(invoice.date),
+                      getFormattedDateLongWithTime(invoice.date, context),
                       style: TextStyle(
                           color: Colors.black,
                           fontSize: 16.0,

@@ -63,10 +63,7 @@ class _PurchaseOrderPageState extends State<PurchaseOrderPageGovt>
     if (govtEntity != null) {
       name = govtEntity.name;
     }
-    company = await SharedPrefs.getCompany();
-    if (company != null) {
-      name = company.name;
-    }
+
     setState(() {});
   }
 

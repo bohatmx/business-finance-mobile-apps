@@ -267,8 +267,8 @@ class Country {
 }
 
 String getFormattedDateLongWithTime(String date, BuildContext context) {
-  print(
-      '\n\getFormattedDateLongWithTime $date'); //Sun, 28 Oct 2018 23:59:49 GMT
+//  print(
+//      '\n\getFormattedDateLongWithTime $date'); //Sun, 28 Oct 2018 23:59:49 GMT
   Locale myLocale = Localizations.localeOf(context);
 
   initializeDateFormatting();
@@ -276,8 +276,8 @@ String getFormattedDateLongWithTime(String date, BuildContext context) {
   try {
     if (date.contains('GMT')) {
       var mDate = getLocalDateFromGMT(date, context);
-      print(
-          '++++++++++++++ Formatted date with locale == ${format.format(mDate.toLocal())}');
+//      print(
+//          '++++++++++++++ Formatted date with locale == ${format.format(mDate.toLocal())}');
       return format.format(mDate.toLocal());
     } else {
       var mDate = DateTime.parse(date);
@@ -397,10 +397,10 @@ String getFormattedDateHourMinute(String date, BuildContext context) {
 }
 
 DateTime getLocalDateFromGMT(String date, BuildContext context) {
-  print('getLocalDateFromGMT string: $date'); //Sun, 28 Oct 2018 23:59:49 GMT
+  //print('getLocalDateFromGMT string: $date'); //Sun, 28 Oct 2018 23:59:49 GMT
   Locale myLocale = Localizations.localeOf(context);
 
-  print('+++++++++++++++ locale: ${myLocale.toString()}');
+  //print('+++++++++++++++ locale: ${myLocale.toString()}');
   initializeDateFormatting();
   try {
     var mDate = translateGMTString(date);
@@ -422,8 +422,8 @@ DateTime translateGMTString(String date) {
   var sec = int.parse(time[2]);
   var cc = DateTime.utc(year, getMonth(mth), day, hour, min, sec);
 
-  print('##### translated date: ${cc.toIso8601String()}');
-  print('##### translated local: ${cc.toLocal().toIso8601String()}');
+  //print('##### translated date: ${cc.toIso8601String()}');
+  //print('##### translated local: ${cc.toLocal().toIso8601String()}');
 
   return cc;
 }

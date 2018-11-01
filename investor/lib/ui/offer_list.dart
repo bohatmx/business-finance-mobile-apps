@@ -455,7 +455,7 @@ class _OfferListState extends State<OfferList>
               style: getTitleTextWhite(),
             ),
           ),
-          Pager(this, 'Offers'),
+          Pager(listener: this, itemName: 'Offers'),
           Padding(
             padding: const EdgeInsets.only(left: 8.0, top: 8.0, right: 20.0),
             child: Row(

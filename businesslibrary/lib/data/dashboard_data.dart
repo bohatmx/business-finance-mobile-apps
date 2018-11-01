@@ -15,6 +15,8 @@ class DashboardData {
       totalBidAmount = 0.0,
       totalOfferAmount = 0.00,
       averageBidAmount = 0.00,
+      totalPurchaseOrderAmount = 0.00,
+      totalInvoiceAmount = 0.00,
       averageDiscountPerc = 0.0;
   String date;
 
@@ -29,6 +31,8 @@ class DashboardData {
       this.deliveryNotes,
       this.cancelledOffers,
       this.closedOffers,
+      this.totalPurchaseOrderAmount,
+      this.totalInvoiceAmount,
       this.totalOpenOfferAmount,
       this.totalUnsettledAmount,
       this.totalSettledAmount,
@@ -55,6 +59,10 @@ class DashboardData {
     this.totalOfferAmount = data['totalOfferAmount'] * 1.0;
     this.averageBidAmount = data['averageBidAmount'] * 1.0;
     this.averageDiscountPerc = data['averageDiscountPerc'] * 1.0;
+
+    this.totalPurchaseOrderAmount = data['totalPurchaseOrderAmount'] * 1.0;
+    this.totalInvoiceAmount = data['totalInvoiceAmount'] * 1.0;
+
     this.date = data['date'];
 
     this.deliveryNotes = data['deliveryNotes'];
@@ -70,6 +78,8 @@ class DashboardData {
         'totalSettledBids': totalSettledBids,
         'totalBids': totalBids,
         'totalOffers': totalOffers,
+        'totalPurchaseOrderAmount': totalPurchaseOrderAmount,
+        'totalInvoiceAmount': totalInvoiceAmount,
         'totalOpenOfferAmount': totalOpenOfferAmount,
         'totalUnsettledAmount': totalUnsettledAmount,
         'totalSettledAmount': totalSettledAmount,

@@ -663,10 +663,10 @@ class ListAPI {
   }
 
   static Future<PurchaseOrderSummary> getSupplierPurchaseOrdersWithPaging(
-      {int lastDate, int pageLimit, String documentId}) async {
+      {int startKey, int pageLimit, String documentId}) async {
     PurchaseOrderSummary summary = await _doPurchaseOrderHTTP(
         mUrl: getFunctionsURL() + 'getPurchaseOrdersWithPaging',
-        date: lastDate,
+        date: startKey,
         pageLimit: pageLimit,
         collection: 'suppliers',
         documentId: documentId);
@@ -775,7 +775,7 @@ class ListAPI {
       print(
           'ListAPI._doPurchaseOrderHTTP .... ## Query via Cloud Functions: status: ${resp.statusCode}');
       if (resp.statusCode == 200) {
-        print(resp.body);
+        //print(resp.body);
         summary = PurchaseOrderSummary.fromJson(json.decode(resp.body));
         print(
             'ListAPI._doPurchaseOrderHTTP summary,: ${summary.purchaseOrders.length} purchase orders found');
