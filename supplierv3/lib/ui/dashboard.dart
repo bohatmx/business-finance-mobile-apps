@@ -18,6 +18,7 @@ import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:businesslibrary/util/wallet_page.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:supplierv3/ui/contract_list.dart';
@@ -50,6 +51,7 @@ class _DashboardState extends State<Dashboard>
         InvoiceBidListener {
   static GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   static const platform = const MethodChannel('com.oneconnect.files/pdf');
+  FirebaseMessaging _fcm = FirebaseMessaging();
   String message;
   AnimationController animationController;
   Animation<double> animation;
@@ -130,13 +132,25 @@ class _DashboardState extends State<Dashboard>
       invoiceAcceptanceListener: this,
       invoiceBidListener: this,
     );
+    _subscribeToFCMTopics();
   }
 
-  _listenForBids() async {
-//    allOffers = await ListAPI.getOpenOffersBySupplier(supplier.participantId);
-//    allOffers.forEach((i) {
-//      listenForInvoiceBid(i.offerId, this);
-//    });
+  _subscribeToFCMTopics() async {
+    _fcm.subscribeToTopic(FCM.TOPIC_PURCHASE_ORDERS + supplier.participantId);
+    _fcm.subscribeToTopic(
+        FCM.TOPIC_DELIVERY_ACCEPTANCES + supplier.participantId);
+    _fcm.subscribeToTopic(
+        FCM.TOPIC_INVOICE_ACCEPTANCES + supplier.participantId);
+
+    print(
+        '_DashboardState._subscribeToFCMTopics subscribed to topis - POs, Delivery acceptance, Invoice acceptance');
+
+    allOffers = await ListAPI.getOpenOffersBySupplier(supplier.participantId);
+    allOffers.forEach((i) {
+      _fcm.subscribeToTopic(FCM.TOPIC_INVOICE_BIDS + i.offerId);
+    });
+    print(
+        '_DashboardState._listenForBids -n subscribed to invoice bid topics: ${allOffers.length}');
   }
 
   Invoice lastInvoice;

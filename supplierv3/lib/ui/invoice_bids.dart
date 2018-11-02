@@ -1,14 +1,17 @@
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
+import 'package:businesslibrary/data/invoice_acceptance.dart';
 import 'package:businesslibrary/data/invoice_bid.dart';
 import 'package:businesslibrary/data/offer.dart';
+import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
+import 'package:businesslibrary/util/FCM.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:supplierv3/ui/delivery_acceptance_list.dart';
-import 'package:supplierv3/ui/fcm_handler.dart';
 
 class InvoiceBids extends StatefulWidget {
   final OfferBag offerBag;
@@ -20,8 +23,14 @@ class InvoiceBids extends StatefulWidget {
 }
 
 class _InvoiceBidsState extends State<InvoiceBids>
-    implements SnackBarListener, FCMessageListener {
+    implements
+        SnackBarListener,
+        InvoiceBidListener,
+        PurchaseOrderListener,
+        InvoiceAcceptanceListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  final FirebaseMessaging _fcm = FirebaseMessaging();
+
   static const MakeOffer = '1', CancelOffer = '2', EditInvoice = '3';
   List<InvoiceBid> invoiceBids;
 
@@ -287,43 +296,19 @@ class _InvoiceBidsState extends State<InvoiceBids>
   }
 
   @override
-  onCompanySettlement() {
-    print('_InvoiceBidsState.onCompanySettlement');
-    _showSnack('Invoice Settlement arrived', Colors.lightGreen);
-  }
-
-  @override
-  onDeliveryAcceptance() {
-    print('_InvoiceBidsState.onDeliveryAcceptance');
-    _showSnack('Invoice Settlement arrived', Colors.lightGreen);
-  }
-
-  @override
-  onGovtInvoiceSettlement() {
-    print('_InvoiceBidsState.onGovtInvoiceSettlement');
-    _showSnack('Invoice Settlement arrived', Colors.lightGreen);
-  }
-
-  @override
-  onInvestorSettlement() {
-    print('_InvoiceBidsState.onInvestorSettlement');
-    _showSnack('Invoice Settlement arrived', Colors.lightGreen);
-  }
-
-  @override
-  onInvoiceAcceptance() {
+  onInvoiceAcceptanceMessage(InvoiceAcceptance acc) {
     print('_InvoiceBidsState.onInvoiceAcceptance');
     _showSnack('Invoice Acceptance arrived', Colors.lightBlue);
   }
 
   @override
-  onInvoiceBidMessage() {
+  onInvoiceBidMessage(InvoiceBid bid) {
     print('_InvoiceBidsState.onInvoiceBidMessage');
     _showSnack('Invoice Bid arrived', Colors.yellow);
   }
 
   @override
-  onPurchaseOrderMessage() {
+  onPurchaseOrderMessage(PurchaseOrder order) {
     print('_InvoiceBidsState.onPurchaseOrderMessage');
     _showSnack('Purchase Order arrived', Colors.white);
   }

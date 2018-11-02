@@ -15,6 +15,7 @@ import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/selectors.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:supplierv3/ui/offer_details.dart';
 
@@ -30,9 +31,10 @@ class MakeOfferPage extends StatefulWidget {
 }
 
 class _MakeOfferPageState extends State<MakeOfferPage>
-    implements SnackBarListener, InvoiceBidListener {
+    implements SnackBarListener, InvoiceBidListener, PurchaseOrderListener {
   static const NameSpace = 'resource:com.oneconnect.biz.';
   static GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  FirebaseMessaging _fcm = FirebaseMessaging();
 
   Invoice invoice;
   Supplier supplier;
@@ -106,6 +108,18 @@ class _MakeOfferPageState extends State<MakeOfferPage>
   _getSupplier() async {
     supplier = await SharedPrefs.getSupplier();
     user = await SharedPrefs.getUser();
+    FCM.configureFCM(
+      invoiceBidListener: this,
+      purchaseOrderListener: this,
+    );
+
+    var offers = await ListAPI.getOpenOffersBySupplier(supplier.participantId);
+    offers.forEach((o) {
+      _fcm.subscribeToTopic(FCM.TOPIC_INVOICE_BIDS + o.offerId);
+    });
+    print(
+        '_MakeOfferPageState._getSupplier SUBSCRIBED to ${offers.length} INVOICE BID topics');
+    _fcm.subscribeToTopic(FCM.TOPIC_PURCHASE_ORDERS + supplier.participantId);
   }
 
   _getStartTime() async {
@@ -898,7 +912,10 @@ class _MakeOfferPageState extends State<MakeOfferPage>
 
   InvoiceBid bid;
   @override
-  onInvoiceBid(InvoiceBid bid) async {
+  onInvoiceBid(InvoiceBid bid) async {}
+
+  @override
+  onInvoiceBidMessage(InvoiceBid invoiceBid) {
     prettyPrint(bid.toJson(), 'Invoice Bid arrived .......');
 
     this.bid = bid;
@@ -914,7 +931,18 @@ class _MakeOfferPageState extends State<MakeOfferPage>
   }
 
   @override
-  onInvoiceBidMessage(InvoiceBid invoiceBid) {
-    // TODO: implement onInvoiceBidMessage
+  onPurchaseOrderMessage(PurchaseOrder purchaseOrder) {
+    prettyPrint(purchaseOrder.toJson(), 'Purchase Order arrived .......');
+
+    this.bid = bid;
+    AppSnackbar.showSnackbarWithAction(
+        scaffoldKey: _scaffoldKey,
+        message: 'Purchase Order arrived',
+        textColor: Styles.white,
+        backgroundColor: Styles.teal,
+        actionLabel: 'Details',
+        listener: this,
+        icon: Icons.done_all,
+        action: 1);
   }
 }

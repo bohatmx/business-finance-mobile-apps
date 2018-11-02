@@ -1,11 +1,15 @@
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/delivery_acceptance.dart';
+import 'package:businesslibrary/data/invoice_acceptance.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
+import 'package:businesslibrary/util/FCM.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
+import 'package:businesslibrary/util/styles.dart';
 import 'package:businesslibrary/util/util.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:supplierv3/ui/invoice_page.dart';
 
@@ -15,8 +19,13 @@ class DeliveryAcceptanceList extends StatefulWidget {
 }
 
 class _DeliveryAcceptanceListState extends State<DeliveryAcceptanceList>
-    implements SnackBarListener {
+    implements
+        SnackBarListener,
+        DeliveryAcceptanceListener,
+        InvoiceAcceptanceListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  FirebaseMessaging _fcm = FirebaseMessaging();
+
   List<DeliveryAcceptance> acceptances;
   DeliveryAcceptance deliveryAcceptance;
   User user;
@@ -34,6 +43,17 @@ class _DeliveryAcceptanceListState extends State<DeliveryAcceptanceList>
   _getAcceptances() async {
     user = await SharedPrefs.getUser();
     supplier = await SharedPrefs.getSupplier();
+    FCM.configureFCM(
+      deliveryAcceptanceListener: this,
+      invoiceAcceptanceListener: this,
+    );
+
+    _fcm.subscribeToTopic(
+        FCM.TOPIC_DELIVERY_ACCEPTANCES + supplier.participantId);
+    _fcm.subscribeToTopic(
+        FCM.TOPIC_INVOICE_ACCEPTANCES + supplier.participantId);
+    print(
+        '_DeliveryAcceptanceListState._getAcceptances SUBSCRIBED to delivery and invoice acceptance topics');
 
     setState(() {});
     AppSnackbar.showSnackbarWithProgressIndicator(
@@ -173,6 +193,23 @@ class _DeliveryAcceptanceListState extends State<DeliveryAcceptanceList>
   onActionPressed(int action) {
     print('_DeliveryAcceptanceListState.onActionPressed');
     Navigator.pop(context);
+  }
+
+  @override
+  onDeliveryAcceptanceMessage(DeliveryAcceptance acceptance) {
+    _showSnack('Delivery Note accepted', Styles.lightBlue);
+  }
+
+  @override
+  onInvoiceAcceptanceMessage(InvoiceAcceptance acceptance) {
+    _showSnack('Invoice Acceptance arrived', Styles.lightBlue);
+  }
+  void _showSnack(String message, Color color) {
+    AppSnackbar.showSnackbar(
+        scaffoldKey: _scaffoldKey,
+        message: message,
+        textColor: color,
+        backgroundColor: Styles.black);
   }
 }
 

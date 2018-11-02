@@ -10,6 +10,7 @@ import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/FCM.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:supplierv3/ui/delivery_note_page.dart';
 import 'package:supplierv3/ui/invoice_page.dart';
@@ -28,6 +29,7 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
         DeliveryAcceptanceListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   List<DeliveryNote> mDeliveryNotes;
+  FirebaseMessaging _fcm = FirebaseMessaging();
   DeliveryNote deliveryNote;
   User user;
   Supplier supplier;
@@ -42,6 +44,14 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
   void _getCached() async {
     user = await SharedPrefs.getUser();
     supplier = await SharedPrefs.getSupplier();
+    FCM.configureFCM(
+      deliveryAcceptanceListener: this,
+    );
+    _fcm.subscribeToTopic(
+        FCM.TOPIC_DELIVERY_ACCEPTANCES + supplier.participantId);
+    _fcm.subscribeToTopic(FCM.TOPIC_GENERAL_MESSAGE);
+    _fcm.subscribeToTopic(
+        FCM.TOPIC_INVOICE_ACCEPTANCES + supplier.participantId);
     _getDeliveryNotes();
     setState(() {});
   }

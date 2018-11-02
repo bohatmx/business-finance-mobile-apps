@@ -8,6 +8,7 @@ import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:businesslibrary/util/util.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:supplierv3/ui/offer_details.dart';
 
@@ -22,6 +23,7 @@ class _OfferListState extends State<OfferList>
     with WidgetsBindingObserver
     implements InvoiceBidListener, SnackBarListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  FirebaseMessaging _fcm = FirebaseMessaging();
   DateTime startTime, endTime;
   List<Offer> offers = List();
   Supplier supplier;
@@ -54,15 +56,17 @@ class _OfferListState extends State<OfferList>
         textColor: Colors.yellow,
         backgroundColor: Colors.black);
     offers = await ListAPI.getOffersBySupplier(supplier.participantId);
-    print(
-        '_OfferListState._getOffers offers in period: ${offers.length}  over $_days days');
     setState(() {});
     _scaffoldKey.currentState.hideCurrentSnackBar();
+    var cnt = 0;
+    FCM.configureFCM(invoiceBidListener: this);
     offers.forEach((offer) {
       if (offer.isOpen) {
-//        listenForInvoiceBid(offer.offerId, this);
+        _fcm.subscribeToTopic(FCM.TOPIC_INVOICE_BIDS + offer.offerId);
+        cnt++;
       }
     });
+    print('_OfferListState._getOffers - subscribed to invoiceBids: $cnt');
   }
 
   _checkBids(Offer offer) async {
@@ -338,19 +342,15 @@ class _OfferListState extends State<OfferList>
   }
 
   List<InvoiceBid> bids = List();
+
   @override
-  onInvoiceBid(InvoiceBid bid) {
-    bids.add(bid);
+  onInvoiceBidMessage(InvoiceBid invoiceBid) {
+    bids.add(invoiceBid);
     AppSnackbar.showSnackbar(
         scaffoldKey: _scaffoldKey,
         message: 'Invoice Bid arrived',
         textColor: Styles.white,
         backgroundColor: Styles.black);
-  }
-
-  @override
-  onInvoiceBidMessage(InvoiceBid invoiceBid) {
-    // TODO: implement onInvoiceBidMessage
   }
 }
 

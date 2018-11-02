@@ -5,12 +5,14 @@ import 'package:businesslibrary/data/delivery_acceptance.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
+import 'package:businesslibrary/util/FCM.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/pager.dart';
 import 'package:businesslibrary/util/pager2.dart';
 import 'package:businesslibrary/util/selectors.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:supplierv3/ui/delivery_note_page.dart';
@@ -22,9 +24,14 @@ class PurchaseOrderListPage extends StatefulWidget {
 }
 
 class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
-    implements SnackBarListener, POListener, Pager2Listener {
+    implements
+        SnackBarListener,
+        POListener,
+        Pager2Listener,
+        PurchaseOrderListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   List<PurchaseOrder> purchaseOrders;
+  FirebaseMessaging _fcm = FirebaseMessaging();
 
   PurchaseOrder purchaseOrder;
   List<Supplier> suppliers;
@@ -52,6 +59,11 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
     pageLimit = await SharedPrefs.getPageLimit();
     dashboardData = await SharedPrefs.getDashboardData();
     currentIndex = 0;
+    FCM.configureFCM(
+      purchaseOrderListener: this,
+    );
+    _fcm.subscribeToTopic(FCM.TOPIC_PURCHASE_ORDERS + supplier.participantId);
+    print('_PurchaseOrderListPageState._getCached SUBSCRIBED to PO topic');
     setState(() {});
     onNext(pageLimit, 1);
   }
@@ -344,6 +356,15 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
     }
     setState(() {});
     _getPurchaseOrders();
+  }
+
+  @override
+  onPurchaseOrderMessage(PurchaseOrder purchaseOrder) {
+    AppSnackbar.showSnackbar(
+        scaffoldKey: _scaffoldKey,
+        message: 'Purchase Order arrived',
+        textColor: Styles.lightGreen,
+        backgroundColor: Styles.black);
   }
 }
 

@@ -12,6 +12,7 @@ import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/selectors.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:supplierv3/ui/invoice_page.dart';
@@ -26,8 +27,12 @@ class DeliveryNotePage extends StatefulWidget {
 }
 
 class _DeliveryNotePageState extends State<DeliveryNotePage>
-    implements SnackBarListener, DeliveryAcceptanceListener {
+    implements
+        SnackBarListener,
+        DeliveryAcceptanceListener,
+        PurchaseOrderListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  FirebaseMessaging _fcm = FirebaseMessaging();
   PurchaseOrder _purchaseOrder;
   List<PurchaseOrder> _purchaseOrders;
   User _user;
@@ -45,12 +50,19 @@ class _DeliveryNotePageState extends State<DeliveryNotePage>
     supplier = await SharedPrefs.getSupplier();
     userName = _user.firstName + ' ' + _user.lastName;
 
+    FCM.configureFCM(
+      deliveryAcceptanceListener: this,
+      purchaseOrderListener: this,
+    );
+    _fcm.subscribeToTopic(
+        FCM.TOPIC_DELIVERY_ACCEPTANCES + supplier.participantId);
+    _fcm.subscribeToTopic(FCM.TOPIC_PURCHASE_ORDERS + supplier.participantId);
     if (widget.purchaseOrder == null) {
       _getPurchaseOrders();
     }
   }
 
-  _getPurchaseOrders() async {
+  void _getPurchaseOrders() async {
     AppSnackbar.showSnackbarWithProgressIndicator(
         scaffoldKey: _scaffoldKey,
         message: 'Loading  purchase orders',
@@ -499,8 +511,11 @@ class _DeliveryNotePageState extends State<DeliveryNotePage>
 
   DeliveryAcceptance deliveryAcceptance;
   @override
-  onDeliveryAcceptance(DeliveryAcceptance da) {
-    deliveryAcceptance = da;
+  onDeliveryAcceptance(DeliveryAcceptance da) {}
+
+  @override
+  onDeliveryAcceptanceMessage(DeliveryAcceptance acceptance) {
+    deliveryAcceptance = acceptance;
     AppSnackbar.showSnackbarWithAction(
         scaffoldKey: _scaffoldKey,
         message: 'Delivery Acceptance arrived',
@@ -513,7 +528,15 @@ class _DeliveryNotePageState extends State<DeliveryNotePage>
   }
 
   @override
-  onDeliveryAcceptanceMessage(DeliveryAcceptance acceptance) {
-    // TODO: implement onDeliveryAcceptanceMessage
+  onPurchaseOrderMessage(PurchaseOrder purchaseOrder) {
+    AppSnackbar.showSnackbarWithAction(
+        scaffoldKey: _scaffoldKey,
+        message: 'Purchase Order arrived',
+        textColor: Styles.white,
+        backgroundColor: Styles.blue,
+        actionLabel: 'OK',
+        listener: this,
+        icon: Icons.done,
+        action: 1);
   }
 }
