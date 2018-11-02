@@ -48,7 +48,8 @@ class _DashboardState extends State<Dashboard>
         PurchaseOrderListener,
         DeliveryAcceptanceListener,
         InvoiceAcceptanceListener,
-        InvoiceBidListener {
+        InvoiceBidListener,
+        GeneralMessageListener {
   static GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   static const platform = const MethodChannel('com.oneconnect.files/pdf');
   FirebaseMessaging _fcm = FirebaseMessaging();
@@ -131,6 +132,7 @@ class _DashboardState extends State<Dashboard>
       deliveryAcceptanceListener: this,
       invoiceAcceptanceListener: this,
       invoiceBidListener: this,
+      generalMessageListener: this,
     );
     _subscribeToFCMTopics();
   }
@@ -141,9 +143,10 @@ class _DashboardState extends State<Dashboard>
         FCM.TOPIC_DELIVERY_ACCEPTANCES + supplier.participantId);
     _fcm.subscribeToTopic(
         FCM.TOPIC_INVOICE_ACCEPTANCES + supplier.participantId);
+    _fcm.subscribeToTopic(FCM.TOPIC_GENERAL_MESSAGE);
 
     print(
-        '_DashboardState._subscribeToFCMTopics subscribed to topis - POs, Delivery acceptance, Invoice acceptance');
+        '\n\n_DashboardState._subscribeToFCMTopics SUBSCRIBED to topis - POs, Delivery acceptance, Invoice acceptance');
 
     allOffers = await ListAPI.getOpenOffersBySupplier(supplier.participantId);
     allOffers.forEach((i) {
@@ -501,47 +504,38 @@ class _DashboardState extends State<Dashboard>
   }
 
   InvoiceBid invoiceBid;
-  @override
-  onInvoiceBid(InvoiceBid bid) {
-    prettyPrint(bid.toJson(), '_DashboardState.onInvoiceAcceptance');
-    var now = DateTime.now();
-    var date = DateTime.parse(bid.date);
-    var difference = now.difference(date);
-    if (difference.inHours > 1) {
-      print(
-          '.onInvoiceBid -  IGNORED: older than 1 hours  --------bid done  ${difference.inHours} hours ago.');
-      return;
-    }
-    invoiceBid = bid;
-    AppSnackbar.showSnackbarWithAction(
-        scaffoldKey: _scaffoldKey,
-        message: 'A bid has been made',
-        textColor: Colors.green,
-        backgroundColor: Colors.black,
-        actionLabel: 'OK',
-        listener: this,
-        icon: Icons.message,
-        action: InvoiceBidConstant);
-  }
 
   @override
   onDeliveryAcceptanceMessage(DeliveryAcceptance acceptance) {
-    // TODO: implement onDeliveryAcceptanceMessage
+    _showSnack('Delivery Acceptance arrived', Colors.green);
   }
 
   @override
   onInvoiceAcceptanceMessage(InvoiceAcceptance acceptance) {
-    // TODO: implement onInvoiceAcceptanceMessage
+    _showSnack('Invoice Acceptance arrived', Colors.yellow);
   }
 
   @override
   onInvoiceBidMessage(InvoiceBid invoiceBid) {
-    // TODO: implement onInvoiceBidMessage
+    _showSnack('Invoice Bid  arrived', Colors.lightBlue);
   }
 
   @override
   onPurchaseOrderMessage(PurchaseOrder purchaseOrder) {
-    // TODO: implement onPurchaseOrderMessage
+    _showSnack('Purchase Order arrived', Colors.lime);
+  }
+
+  @override
+  onGeneralMessage(Map map) {
+    _showSnack(map['message'], Colors.white);
+  }
+
+  void _showSnack(String message, Color color) {
+    AppSnackbar.showSnackbar(
+        scaffoldKey: _scaffoldKey,
+        message: message,
+        textColor: color,
+        backgroundColor: Colors.black);
   }
 }
 

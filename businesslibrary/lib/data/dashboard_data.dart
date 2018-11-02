@@ -48,20 +48,35 @@ class DashboardData {
     this.totalSettledBids = data['totalSettledBids'];
     this.totalBids = data['totalBids'];
     this.totalOffers = data['totalOffers'];
-    try {
-      this.totalOpenOfferAmount = data['totalOpenOfferAmount'] * 1.0;
-    } catch (e) {
-      print('DashboardData.fromJson $e');
-    }
-    this.totalUnsettledAmount = data['totalUnsettledAmount'] * 1.0;
-    this.totalSettledAmount = data['totalSettledAmount'] * 1.0;
-    this.totalBidAmount = data['totalBidAmount'] * 1.0;
-    this.totalOfferAmount = data['totalOfferAmount'] * 1.0;
-    this.averageBidAmount = data['averageBidAmount'] * 1.0;
-    this.averageDiscountPerc = data['averageDiscountPerc'] * 1.0;
 
-    this.totalPurchaseOrderAmount = data['totalPurchaseOrderAmount'] * 1.0;
-    this.totalInvoiceAmount = data['totalInvoiceAmount'] * 1.0;
+    if (data['totalOpenOfferAmount'] != null) {
+      this.totalOpenOfferAmount = data['totalOpenOfferAmount'] * 1.0;
+    }
+    if (data['totalUnsettledAmount'] != null) {
+      this.totalUnsettledAmount = data['totalUnsettledAmount'] * 1.0;
+    }
+    if (data['totalSettledAmount'] != null) {
+      this.totalSettledAmount = data['totalSettledAmount'] * 1.0;
+    }
+
+    if (data['totalBidAmount'] != null) {
+      this.totalBidAmount = data['totalBidAmount'] * 1.0;
+    }
+    if (data['totalOfferAmount'] != null) {
+      this.totalOfferAmount = data['totalOfferAmount'] * 1.0;
+    }
+    if (data['averageBidAmount'] != null) {
+      this.averageBidAmount = data['averageBidAmount'] * 1.0;
+    }
+    if (data['averageDiscountPerc'] != null) {
+      this.averageDiscountPerc = data['averageDiscountPerc'] * 1.0;
+    }
+    if (data['totalPurchaseOrderAmount'] != null) {
+      this.totalPurchaseOrderAmount = data['totalPurchaseOrderAmount'] * 1.0;
+    }
+    if (data['totalInvoiceAmount'] != null) {
+      this.totalInvoiceAmount = data['totalInvoiceAmount'] * 1.0;
+    }
 
     this.date = data['date'];
 

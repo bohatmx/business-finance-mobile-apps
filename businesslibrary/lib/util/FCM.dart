@@ -44,6 +44,7 @@ class FCM {
     InvestorListener investorListener,
     CustomerListener customerListener,
     HeartbeatListener heartbeatListener,
+    GeneralMessageListener generalMessageListener,
   }) async {
     print(
         '\n\n\ ################ CONFIGURE FCM MESSAGE ###########  starting _firebaseMessaging');
@@ -57,34 +58,46 @@ class FCM {
           switch (messageType) {
             case 'PURCHASE_ORDER':
               var m = PurchaseOrder.fromJson(json.decode(data['json']));
+              prettyPrint(
+                  m.toJson(), '\n\n########## FCM PURCHASE_ORDER MESSAGE :');
               purchaseOrderListener.onPurchaseOrderMessage(m);
               break;
             case 'DELIVERY_NOTE':
               var m = DeliveryNote.fromJson(json.decode(data['json']));
+              prettyPrint(
+                  m.toJson(), '\n\n########## FCM DELIVERY_NOTE MESSAGE :');
               deliveryNoteListener.onDeliveryNoteMessage(m);
               break;
             case 'DELIVERY_ACCEPTANCE':
               var m = DeliveryAcceptance.fromJson(json.decode(data['json']));
+              prettyPrint(m.toJson(),
+                  '\n\n########## FCM DELIVERY_ACCEPTANCE MESSAGE :');
               deliveryAcceptanceListener.onDeliveryAcceptanceMessage(m);
               break;
             case 'INVOICE':
               var m = Invoice.fromJson(json.decode(data['json']));
+              prettyPrint(m.toJson(), '\n\n########## FCM MINVOICE ESSAGE :');
               invoiceListener.onInvoiceMessage(m);
               break;
             case 'INVOICE_ACCEPTANCE':
               var m = InvoiceAcceptance.fromJson(json.decode(data['json']));
+              prettyPrint(m.toJson(), ' FCM INVOICE_ACCEPTANCE MESSAGE :');
               invoiceAcceptanceListener.onInvoiceAcceptanceMessage(m);
               break;
             case 'OFFER':
               var m = Offer.fromJson(json.decode(data['json']));
+              prettyPrint(m.toJson(), '\n\n########## FCM OFFER MESSAGE :');
               offerListener.onOfferMessage(m);
               break;
             case 'INVOICE_BID':
               var m = InvoiceBid.fromJson(json.decode(data['json']));
+              prettyPrint(
+                  m.toJson(), '\n\n########## FCM INVOICE_BID MESSAGE :');
               invoiceBidListener.onInvoiceBidMessage(m);
               break;
             case 'HEARTBEAT':
               Map map = json.decode(data['json']);
+              prettyPrint(map, '\n\n########## FCM HEARTBEAT MESSAGE :');
               heartbeatListener.onHeartbeat(map);
               break;
           }
@@ -116,7 +129,7 @@ class FCM {
         print('configureMessaging fcm token saved: $token');
         _updateToken(token);
       } else {
-        print('configureMessaging: token has not changed. no need to save');
+        print('\nFCM: access token has not changed. no need to save. duh!');
       }
     }).catchError((e) {
       print('configureMessaging ERROR fcmToken $e');
@@ -191,4 +204,8 @@ abstract class InvestorListener {
 
 abstract class HeartbeatListener {
   onHeartbeat(Map map);
+}
+
+abstract class GeneralMessageListener {
+  onGeneralMessage(Map map);
 }

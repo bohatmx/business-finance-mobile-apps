@@ -17,14 +17,15 @@ class SummaryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var opacity = 1.0;
-    var height = 80.0, top = 12.0;
+    var height = 80.0, top = 16.0;
 
     return new Container(
       height: height,
       child: new Padding(
         padding: const EdgeInsets.all(8.0),
         child: Card(
-          elevation: 4.0,
+          elevation: 6.0,
+          color: Colors.blueGrey.shade50,
           child: Column(
             children: <Widget>[
               new Padding(

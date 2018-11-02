@@ -2,13 +2,18 @@ import 'package:businesslibrary/api/data_api3.dart';
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/company.dart';
+import 'package:businesslibrary/data/delivery_note.dart';
 import 'package:businesslibrary/data/govt_entity.dart';
+import 'package:businesslibrary/data/invoice.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
+import 'package:businesslibrary/util/FCM.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/selectors.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
+import 'package:businesslibrary/util/styles.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 
 class PurchaseOrderPageGovt extends StatefulWidget {
@@ -21,9 +26,10 @@ class PurchaseOrderPageGovt extends StatefulWidget {
 }
 
 class _PurchaseOrderPageState extends State<PurchaseOrderPageGovt>
-    implements SnackBarListener {
+    implements SnackBarListener, DeliveryNoteListener, InvoiceListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   final GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
+  FirebaseMessaging _fcm = FirebaseMessaging();
 
   PurchaseOrder purchaseOrder = PurchaseOrder();
   User user;
@@ -60,6 +66,16 @@ class _PurchaseOrderPageState extends State<PurchaseOrderPageGovt>
       userName = user.firstName + ' ' + user.lastName;
     }
     govtEntity = await SharedPrefs.getGovEntity();
+    assert(govtEntity != null);
+    FCM.configureFCM(
+      deliveryNoteListener: this,
+      invoiceListener: this,
+    );
+    _fcm.subscribeToTopic(FCM.TOPIC_DELIVERY_NOTES + govtEntity.participantId);
+    _fcm.subscribeToTopic(FCM.TOPIC_INVOICES + govtEntity.participantId);
+    print(
+        '_PurchaseOrderPageState._getCachedPrefs SUBSCRIBED to delivery note and invoice topics');
+
     if (govtEntity != null) {
       name = govtEntity.name;
     }
@@ -334,5 +350,23 @@ class _PurchaseOrderPageState extends State<PurchaseOrderPageGovt>
         Navigator.pop(context, purchaseOrder);
         break;
     }
+  }
+
+  @override
+  onDeliveryNoteMessage(DeliveryNote deliveryNote) {
+    _showSnack('Delivery Note has arrived', Colors.lime);
+  }
+
+  @override
+  onInvoiceMessage(Invoice invoice) {
+    _showSnack('Invoice has arrived', Colors.white);
+  }
+
+  void _showSnack(String message, Color textColor) {
+    AppSnackbar.showSnackbar(
+        scaffoldKey: _scaffoldKey,
+        message: message,
+        textColor: textColor,
+        backgroundColor: Styles.black);
   }
 }

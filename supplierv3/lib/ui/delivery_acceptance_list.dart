@@ -204,6 +204,7 @@ class _DeliveryAcceptanceListState extends State<DeliveryAcceptanceList>
   onInvoiceAcceptanceMessage(InvoiceAcceptance acceptance) {
     _showSnack('Invoice Acceptance arrived', Styles.lightBlue);
   }
+
   void _showSnack(String message, Color color) {
     AppSnackbar.showSnackbar(
         scaffoldKey: _scaffoldKey,

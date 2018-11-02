@@ -1676,8 +1676,16 @@ class OpenOfferSummary {
       this.totalOfferAmount,
       this.startedAfter});
   OpenOfferSummary.fromJson(Map data) {
-    this.totalOpenOffers = data['totalOpenOffers'];
-    this.totalOfferAmount = data['totalOfferAmount'] * 1.0;
+    if (data['totalOpenOffers'] != null) {
+      this.totalOpenOffers = data['totalOpenOffers'];
+    } else {
+      this.totalOpenOffers = 0;
+    }
+    if (data['totalOfferAmount'] != null) {
+      this.totalOfferAmount = data['totalOfferAmount'] * 1.0;
+    } else {
+      this.totalOfferAmount = 0.00;
+    }
     this.startedAfter = data['startedAfter'];
     if (data['offers'] != null) {
       List mOffers = data['offers'];

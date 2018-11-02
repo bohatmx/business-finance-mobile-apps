@@ -33,7 +33,11 @@ class Dashboard extends StatefulWidget {
 
 class _DashboardState extends State<Dashboard>
     with TickerProviderStateMixin
-    implements SnackBarListener, DeliveryNoteListener, InvoiceListener {
+    implements
+        SnackBarListener,
+        DeliveryNoteListener,
+        InvoiceListener,
+        GeneralMessageListener {
   static const Payments = 1,
       Invoices = 2,
       PurchaseOrders = 3,
@@ -414,5 +418,18 @@ class _DashboardState extends State<Dashboard>
         }
       }
     }
+  }
+
+  @override
+  onGeneralMessage(Map map) {
+    AppSnackbar.showSnackbarWithAction(
+        scaffoldKey: _scaffoldKey,
+        message: 'General message arrived',
+        textColor: Colors.white,
+        backgroundColor: Colors.deepPurple,
+        actionLabel: 'Close',
+        listener: this,
+        action: InvoiceConstant,
+        icon: Icons.collections_bookmark);
   }
 }

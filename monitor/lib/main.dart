@@ -118,6 +118,9 @@ class _MyHomePageState extends State<MyHomePage>
             '_MyHomePageState._start:\n\n\n TIMER tripping - starting AUTO TRADE cycle .......time: '
             '${DateTime.now().toIso8601String()}.  mTimer.tick: ${mTimer.tick}...\n\n');
         summary = await ListAPI.getOpenOffersSummary();
+        if (summary.totalOpenOffers == null) {
+          summary.totalOpenOffers = 0;
+        }
 
         if (summary.totalOpenOffers > 0) {
           setState(() {

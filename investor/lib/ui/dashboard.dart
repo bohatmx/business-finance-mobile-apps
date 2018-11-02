@@ -119,6 +119,10 @@ class _DashboardState extends State<Dashboard>
     if (summaryBusy) {
       return;
     }
+    dashboardData = await SharedPrefs.getDashboardData();
+    if (dashboardData != null) {
+      setState(() {});
+    }
     summaryBusy = true;
     AppSnackbar.showSnackbarWithProgressIndicator(
         scaffoldKey: _scaffoldKey,
@@ -126,44 +130,9 @@ class _DashboardState extends State<Dashboard>
         textColor: Colors.white,
         backgroundColor: Colors.black);
 
-//    OpenOfferSummary summ1 =
-//        await ListAPI.getOpenOffersWithPaging(lastDate: null, pageLimit: 28);
-//    if (summ1.offers.isNotEmpty) {
-//      print('\n\n FIRST ROW: .................');
-//      print(summ1.offers.elementAt(0).toJson());
-//      print('\n\n LAST ROW: .................');
-//      print(summ1.offers.elementAt(summ1.offers.length - 1).toJson());
-//    }
-//
-//    print(
-//        '\n\n################# PAGE 2: run again with non null date: ${summ1.offers.elementAt(summ1.offers.length - 1).date}\n\n');
-//
-//    OpenOfferSummary page2 = await ListAPI.getOpenOffersWithPaging(
-//        lastDate: summ1.offers.elementAt(summ1.offers.length - 1).date,
-//        pageLimit: 32);
-//
-//    if (page2.offers.isNotEmpty) {
-//      print('\n\n FIRST ROW: .................');
-//      print(page2.offers.elementAt(0).toJson());
-//      print('\n\n LAST ROW: .................');
-//      print(page2.offers.elementAt(page2.offers.length - 1).toJson());
-//    }
-//    print(
-//        '\n\n################# PAGE 3: run again with non null date: ${page2.offers.elementAt(page2.offers.length - 1).date}\n\n');
-//    var page3 = await ListAPI.getOpenOffersWithPaging(
-//        lastDate: page2.offers.elementAt(page2.offers.length - 1).date,
-//        pageLimit: 36);
-//
-//    if (page3.offers.isNotEmpty) {
-//      print('\n\n FIRST ROW: .................');
-//      print(page3.offers.elementAt(0).toJson());
-//      print('\n\n LAST ROW: .................');
-//      print(page3.offers.elementAt(page3.offers.length - 1).toJson());
-//    }
-
     dashboardData = await ListAPI.getInvestorDashboardData(
         investor.participantId, investor.documentReference);
-
+    await SharedPrefs.saveDashboardData(dashboardData);
     _scaffoldKey.currentState.hideCurrentSnackBar();
     summaryBusy = false;
     setState(() {});
@@ -198,7 +167,7 @@ class _DashboardState extends State<Dashboard>
       child: Scaffold(
         key: _scaffoldKey,
         appBar: AppBar(
-          elevation: 3.0,
+          elevation: 6.0,
           title: Text(
             'Business Finance Network',
             style: Styles.whiteSmall,
@@ -223,7 +192,7 @@ class _DashboardState extends State<Dashboard>
         body: Stack(
           children: <Widget>[
             new Opacity(
-              opacity: 0.5,
+              opacity: 0.0,
               child: Container(
                 decoration: BoxDecoration(
                   image: DecorationImage(
@@ -240,14 +209,6 @@ class _DashboardState extends State<Dashboard>
                 child: ListView(
                   children: <Widget>[
                     new InkWell(
-                      onTap: _onPaymentsTapped,
-                      child: SummaryCard(
-                        total: dashboardData == null ? 0 : 0,
-                        label: 'Bids Settled',
-                        totalStyle: Styles.blueBoldLarge,
-                      ),
-                    ),
-                    new InkWell(
                       onTap: _onOffersTapped,
                       child: SummaryCard(
                         total: dashboardData.totalOpenOffers == null
@@ -260,6 +221,14 @@ class _DashboardState extends State<Dashboard>
                     new InkWell(
                       onTap: _onInvoiceBidsTapped,
                       child: InvestorSummaryCard(dashboardData, context),
+                    ),
+                    new InkWell(
+                      onTap: _onPaymentsTapped,
+                      child: SummaryCard(
+                        total: dashboardData == null ? 0 : 0,
+                        label: 'Bids Settled',
+                        totalStyle: Styles.blueBoldLarge,
+                      ),
                     ),
                   ],
                 ),
@@ -499,117 +468,106 @@ class InvestorSummaryCard extends StatelessWidget {
   InvestorSummaryCard(this.dashboardData, this.context);
 
   Widget _getTotalBids() {
-    return Padding(
-      padding: EdgeInsets.only(left: 12.0, top: 8.0, bottom: 8.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: <Widget>[
-          Text(
-            'Number of Bids',
-            style: Styles.greyLabelSmall,
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: <Widget>[
+        Text(
+          'Number of Bids',
+          style: Styles.greyLabelMedium,
+        ),
+        Padding(
+          padding: const EdgeInsets.only(left: 10.0, right: 10.0),
+          child: Text(
+            dashboardData.totalBids == null
+                ? '0'
+                : '${dashboardData.totalBids}',
+            style: Styles.blackBoldMedium,
           ),
-          Padding(
-            padding: const EdgeInsets.only(left: 10.0, right: 10.0),
-            child: Text(
-              dashboardData.totalBids == null
-                  ? '0'
-                  : '${dashboardData.totalBids}',
-              style: Styles.blackBoldSmall,
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
   Widget _getTotalBidValue() {
-    return Padding(
-      padding: EdgeInsets.only(left: 12.0, top: 8.0, bottom: 8.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: <Widget>[
-          Text(
-            'Total Bids',
-            style: Styles.greyLabelSmall,
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: <Widget>[
+        Text(
+          'Total Bids',
+          style: Styles.greyLabelMedium,
+        ),
+        Padding(
+          padding: const EdgeInsets.only(left: 10.0, right: 10.0),
+          child: Text(
+            dashboardData.totalBidAmount == null
+                ? '0'
+                : '${getFormattedAmount('${dashboardData.totalBidAmount}', context)}',
+            style: Styles.pinkBoldLarge,
           ),
-          Padding(
-            padding: const EdgeInsets.only(left: 10.0, right: 10.0),
-            child: Text(
-              dashboardData.totalBidAmount == null
-                  ? '0'
-                  : '${getFormattedAmount('${dashboardData.totalBidAmount}', context)}',
-              style: Styles.pinkBoldLarge,
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
   Widget _getAverageDiscount() {
-    return Padding(
-      padding: EdgeInsets.only(left: 12.0, top: 8.0, bottom: 8.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: <Widget>[
-          Text(
-            'Average Discount',
-            style: Styles.greyLabelSmall,
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: <Widget>[
+        Text(
+          'Average Discount',
+          style: Styles.greyLabelMedium,
+        ),
+        Padding(
+          padding: const EdgeInsets.only(left: 10.0, right: 10.0),
+          child: Text(
+            dashboardData.averageDiscountPerc == null
+                ? '0'
+                : '${getFormattedAmount('${dashboardData.averageDiscountPerc}', context)}%',
+            style: Styles.purpleBoldMedium,
           ),
-          Padding(
-            padding: const EdgeInsets.only(left: 10.0, right: 10.0),
-            child: Text(
-              dashboardData.averageDiscountPerc == null
-                  ? '0'
-                  : '${getFormattedAmount('${dashboardData.averageDiscountPerc}', context)}%',
-              style: Styles.purpleBoldSmall,
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
   Widget _getAverageBidAmount() {
-    return Padding(
-      padding: EdgeInsets.only(left: 12.0, top: 8.0, bottom: 8.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: <Widget>[
-          Text(
-            'Average Bid Amount',
-            style: Styles.greyLabelSmall,
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: <Widget>[
+        Text(
+          'Average Bid',
+          style: Styles.greyLabelMedium,
+        ),
+        Padding(
+          padding: const EdgeInsets.only(left: 10.0, right: 10.0),
+          child: Text(
+            dashboardData.averageBidAmount == null
+                ? '0'
+                : '${getFormattedAmount('${dashboardData.averageBidAmount}', context)}',
+            style: Styles.blackBoldMedium,
           ),
-          Padding(
-            padding: const EdgeInsets.only(left: 10.0, right: 10.0),
-            child: Text(
-              dashboardData.averageBidAmount == null
-                  ? '0'
-                  : '${getFormattedAmount('${dashboardData.averageBidAmount}', context)}',
-              style: Styles.blackBoldSmall,
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 450.0,
+      height: 440.0,
       child: new Padding(
         padding: const EdgeInsets.all(10.0),
         child: Card(
-          elevation: 8.0,
+          elevation: 6.0,
+          color: Colors.brown.shade50,
           child: Column(
             children: <Widget>[
               Container(
-                height: 140.0,
+                height: 120.0,
                 child: Container(
                   decoration: BoxDecoration(
                     image: DecorationImage(
@@ -619,17 +577,30 @@ class InvestorSummaryCard extends StatelessWidget {
                   ),
                 ),
               ),
-              _getTotalBids(),
-              _getTotalBidValue(),
-              _getAverageBidAmount(),
-              _getAverageDiscount(),
-              Container(
+              Padding(
+                padding: const EdgeInsets.only(top: 20.0, left: 20.0),
+                child: _getTotalBids(),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 20.0, left: 20.0),
+                child: _getTotalBidValue(),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 20.0, left: 20.0),
+                child: _getAverageBidAmount(),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 20.0, left: 20.0),
+                child: _getAverageDiscount(),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 18.0, bottom: 20.0),
                 child: RaisedButton(
                   elevation: 6.0,
                   color: Colors.indigo.shade400,
                   onPressed: _onBtnPressed,
                   child: Padding(
-                    padding: const EdgeInsets.all(8.0),
+                    padding: const EdgeInsets.all(12.0),
                     child: Text(
                       'Show Charts',
                       style: Styles.whiteSmall,

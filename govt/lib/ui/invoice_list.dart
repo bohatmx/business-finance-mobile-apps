@@ -5,10 +5,12 @@ import 'package:businesslibrary/data/govt_entity.dart';
 import 'package:businesslibrary/data/invoice.dart';
 import 'package:businesslibrary/data/invoice_acceptance.dart';
 import 'package:businesslibrary/data/user.dart';
+import 'package:businesslibrary/util/FCM.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/selectors.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:govt/ui/invoice_settlement.dart';
 
@@ -21,8 +23,11 @@ class InvoiceList extends StatefulWidget {
   _InvoiceListState createState() => _InvoiceListState();
 }
 
-class _InvoiceListState extends State<InvoiceList> implements SnackBarListener {
+class _InvoiceListState extends State<InvoiceList>
+    implements SnackBarListener, InvoiceListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  FirebaseMessaging _fcm = FirebaseMessaging();
+
   GovtEntity entity;
   List<Invoice> invoices;
   Invoice invoice;
@@ -52,6 +57,11 @@ class _InvoiceListState extends State<InvoiceList> implements SnackBarListener {
   _getCached() async {
     entity = await SharedPrefs.getGovEntity();
     user = await SharedPrefs.getUser();
+    FCM.configureFCM(
+      invoiceListener: this,
+    );
+    _fcm.subscribeToTopic(FCM.TOPIC_INVOICES + entity.participantId);
+    print('_InvoiceListState._getCached SUBSCRIBED to invoices topic');
     _getInvoices();
     setState(() {});
   }
@@ -350,6 +360,15 @@ class _InvoiceListState extends State<InvoiceList> implements SnackBarListener {
   onActionPressed(int action) {
     // TODO: implement onActionPressed
   }
+
+  @override
+  onInvoiceMessage(Invoice invoice) {
+    AppSnackbar.showSnackbar(
+        scaffoldKey: _scaffoldKey,
+        message: 'Invoice arrived',
+        textColor: Styles.lightGreen,
+        backgroundColor: Styles.black);
+  }
 }
 
 class InvoiceCard extends StatelessWidget {
@@ -359,6 +378,12 @@ class InvoiceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    String amount;
+    String _getFormattedAmt() {
+      amount = '${invoice.totalAmount}';
+      return amount;
+    }
+
     amount = _getFormattedAmt();
     return Padding(
       padding: const EdgeInsets.only(left: 12.0, right: 12.0, bottom: 4.0),
@@ -515,11 +540,5 @@ class InvoiceCard extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  String amount;
-  String _getFormattedAmt() {
-    amount = '${invoice.totalAmount}';
-    return amount;
   }
 }
