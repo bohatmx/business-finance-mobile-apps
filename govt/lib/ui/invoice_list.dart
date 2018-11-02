@@ -15,10 +15,6 @@ import 'package:flutter/material.dart';
 import 'package:govt/ui/invoice_settlement.dart';
 
 class InvoiceList extends StatefulWidget {
-  final List<Invoice> invoices;
-
-  InvoiceList(this.invoices);
-
   @override
   _InvoiceListState createState() => _InvoiceListState();
 }

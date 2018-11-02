@@ -1,10 +1,9 @@
-import 'package:businesslibrary/api/firestore_list_api.dart';
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
+import 'package:businesslibrary/data/dashboard_data.dart';
 import 'package:businesslibrary/data/delivery_note.dart';
 import 'package:businesslibrary/data/govt_entity.dart';
 import 'package:businesslibrary/data/invoice.dart';
-import 'package:businesslibrary/data/invoice_settlement.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/FCM.dart';
@@ -48,10 +47,10 @@ class _DashboardState extends State<Dashboard>
   AnimationController animationController;
   Animation<double> animation;
   GovtEntity govtEntity;
-  List<Invoice> invoices;
-  List<DeliveryNote> deliveryNotes;
-  List<PurchaseOrder> purchaseOrders;
-  List<GovtInvoiceSettlement> govtSettlements;
+//  List<Invoice> invoices;
+//  List<DeliveryNote> deliveryNotes;
+//  List<PurchaseOrder> purchaseOrders;
+//  List<GovtInvoiceSettlement> govtSettlements;
   User user;
   String fullName;
   int messageReceived;
@@ -81,6 +80,10 @@ class _DashboardState extends State<Dashboard>
     user = await SharedPrefs.getUser();
     fullName = user.firstName + ' ' + user.lastName;
     govtEntity = await SharedPrefs.getGovEntity();
+    dashboardData = await SharedPrefs.getDashboardData();
+    if (dashboardData != null) {
+      setState(() {});
+    }
     assert(govtEntity != null);
     name = govtEntity.name;
 
@@ -92,61 +95,10 @@ class _DashboardState extends State<Dashboard>
     _fcm.subscribeToTopic(FCM.TOPIC_INVOICES + govtEntity.participantId);
     _fcm.subscribeToTopic(FCM.TOPIC_GENERAL_MESSAGE);
 
-    print(
-        '_DashboardState._getSummaryData ....... govt documentId: ${govtEntity.documentReference}');
-    setState(() {});
-    print(
-        '_MainPageState._getSummaryData ......... GOVT_ENTITY -  ${govtEntity.toJson()}');
     _getSummaryData();
   }
 
-  ///get  summaries from Firestore
-  _getPOData() async {
-    print('_DashboardState._getPOData ................');
-
-    purchaseOrders =
-        await ListAPI.getCustomerPurchaseOrders(govtEntity.documentReference);
-    print(
-        '_DashboardState._getSummaryData @@@@@@@@@@@@ purchaseOrders: ${purchaseOrders.length}');
-    setState(() {
-      totalPOs = purchaseOrders.length;
-    });
-  }
-
-  _getInvoices() async {
-    print('_DashboardState._getInvoices ................');
-    invoices =
-        await ListAPI.getInvoices(govtEntity.documentReference, 'govtEntities');
-    if (invoices.isNotEmpty) {
-      lastInvoice = invoices.last;
-    }
-    setState(() {
-      totalInvoices = invoices.length;
-      print(
-          '_DashboardState._getSummaryData ++++++++++++  invoices: ${invoices.length}');
-    });
-  }
-
-  _getNotes() async {
-    print('_DashboardState._getNotes ......................');
-    deliveryNotes = await ListAPI.getDeliveryNotes(
-        govtEntity.documentReference, 'govtEntities');
-    setState(() {
-      totalNotes = deliveryNotes.length;
-      print(
-          '_DashboardState._getSummaryData ========== deliveryNotes:  ${deliveryNotes.length}');
-    });
-  }
-
-  _getSettlements() async {
-    govtSettlements = await FirestoreListAPI.getGovtSettlements(govtEntity);
-    setState(() {
-      totalPayments = govtSettlements.length;
-      print(
-          '_DashboardState._getSummaryData ------------  payments: $totalPayments');
-    });
-  }
-
+  DashboardData dashboardData;
   _getSummaryData() async {
     print('_DashboardState._getSummaryData ..................................');
     AppSnackbar.showSnackbarWithProgressIndicator(
@@ -154,14 +106,15 @@ class _DashboardState extends State<Dashboard>
         message: 'Loading fresh data',
         textColor: Colors.white,
         backgroundColor: Colors.black);
-
-    await _getPOData();
-    await _getInvoices();
-    await _getNotes();
-    await _getSettlements();
+    dashboardData =
+        await ListAPI.getCustomerDashboardData(govtEntity.documentReference);
+    setState(() {});
+    SharedPrefs.saveDashboardData(dashboardData);
     Sounds.playChime();
 
-    _scaffoldKey.currentState.hideCurrentSnackBar();
+    if (_scaffoldKey.currentState != null) {
+      _scaffoldKey.currentState.hideCurrentSnackBar();
+    }
   }
 
   Invoice lastInvoice;
@@ -278,7 +231,7 @@ class _DashboardState extends State<Dashboard>
                     new InkWell(
                       onTap: _onPaymentsTapped,
                       child: SummaryCard(
-                        total: totalPayments == null ? 0 : totalPayments,
+                        total: dashboardData == null ? 0 : 0,
                         label: 'Payments',
                         totalStyle: paymentStyle,
                       ),
@@ -286,7 +239,8 @@ class _DashboardState extends State<Dashboard>
                     new InkWell(
                       onTap: _onInvoicesTapped,
                       child: SummaryCard(
-                        total: totalInvoices == null ? 0 : totalInvoices,
+                        total:
+                            dashboardData == null ? 0 : dashboardData.invoices,
                         label: 'Invoices',
                         totalStyle: invoiceStyle,
                       ),
@@ -294,7 +248,9 @@ class _DashboardState extends State<Dashboard>
                     new InkWell(
                       onTap: _onPurchaseOrdersTapped,
                       child: SummaryCard(
-                        total: totalPOs == null ? 0 : totalPOs,
+                        total: dashboardData == null
+                            ? 0
+                            : dashboardData.purchaseOrders,
                         label: 'Purchase Orders',
                         totalStyle: poStyle,
                       ),
@@ -302,7 +258,9 @@ class _DashboardState extends State<Dashboard>
                     new InkWell(
                       onTap: _onDeliveryNotesTapped,
                       child: SummaryCard(
-                        total: totalNotes == null ? 0 : totalNotes,
+                        total: dashboardData == null
+                            ? 0
+                            : dashboardData.deliveryNotes,
                         label: 'Delivery Notes',
                         totalStyle: delNoteStyle,
                       ),
@@ -333,7 +291,7 @@ class _DashboardState extends State<Dashboard>
     print('_MainPageState._onInvoicesTapped ... go  to list of invoices');
     Navigator.push(
       context,
-      new MaterialPageRoute(builder: (context) => new InvoiceList(invoices)),
+      new MaterialPageRoute(builder: (context) => new InvoiceList()),
     );
   }
 
@@ -384,10 +342,7 @@ class _DashboardState extends State<Dashboard>
         action: DeliveryNoteConstant,
         icon: Icons.create);
 
-    if (deliveryNotes == null) {
-      deliveryNotes = List();
-    }
-    deliveryNotes.insert(0, deliveryNote);
+    _getSummaryData();
     setState(() {});
   }
 
@@ -404,7 +359,7 @@ class _DashboardState extends State<Dashboard>
         action: InvoiceConstant,
         icon: Icons.collections_bookmark);
 
-    _getInvoices();
+    _getSummaryData();
 
     if (govtEntity.allowAutoAccept != null) {
       if (govtEntity.allowAutoAccept) {

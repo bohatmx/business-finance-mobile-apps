@@ -641,13 +641,13 @@ class ListAPI {
   }
 
   static Future<DashboardData> getCustomerDashboardData(
-      String govtEntityId) async {
+      String documentId) async {
     print('ListAPI.getCustomerDashboardData ..........');
-    var data = DashboardParms(id: govtEntityId);
+    var data = DashboardParms(documentId: documentId);
 
     DashboardData result =
         await _doDashboardHTTP(getFunctionsURL() + 'customerDashboard', data);
-    prettyPrint(result.toJson(), '### Dashboard Data:');
+    prettyPrint(result.toJson(), '### Dashboard Data from function call:');
     return result;
   }
 
