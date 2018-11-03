@@ -129,6 +129,15 @@ class _InvoiceListState extends State<InvoiceList>
   }
 
   @override
+  onNoMoreData() {
+    AppSnackbar.showSnackbar(
+        scaffoldKey: _scaffoldKey,
+        message: 'No mas. No more.',
+        textColor: Styles.white,
+        backgroundColor: Colors.purple);
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,

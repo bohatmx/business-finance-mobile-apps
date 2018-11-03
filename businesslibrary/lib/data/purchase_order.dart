@@ -1,6 +1,7 @@
 import 'package:businesslibrary/data/item.dart';
+import 'package:businesslibrary/util/Finders.dart';
 
-class PurchaseOrder {
+class PurchaseOrder extends Findable {
   String supplier, company, govtEntity, user;
   String purchaseOrderId;
   String date, deliveryDateRequired;

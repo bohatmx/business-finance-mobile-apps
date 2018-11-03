@@ -78,27 +78,27 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
       _findOrders(currentStartKey);
     }
     print(
-        '_PurchaseOrderListPageState._getPurchaseOrders %%%%%%%% baseList has: ${baseList.length}');
+        '_PurchaseOrderListPageState._getPurchaseOrders %%%%%%%% baseList has: ${baseList.length} purchase orders');
 
     if (_scaffoldKey.currentState != null) {
       _scaffoldKey.currentState.removeCurrentSnackBar();
     }
-    //purchaseOrders = poSummary.purchaseOrders;
-    currentStartKey = purchaseOrders.last.intDate;
-    print(
-        '_DashboardState._getSummaryData @@@@@@@@@@@@ purchaseOrders: ${purchaseOrders.length}');
 
     setState(() {});
   }
 
   void _findOrders(int intDate) {
     purchaseOrders.clear();
-    var result = Finder.findPurchaseOrders(
+    var result = Finder.find(
       intDate: intDate,
       pageLimit: pageLimit,
       baseList: baseList,
     );
-    purchaseOrders = result.purchaseOrders;
+    result.items.forEach((item) {
+      if (item is PurchaseOrder) {
+        purchaseOrders.add(item);
+      }
+    });
     currentStartKey = result.startKey;
     setState(() {});
   }
@@ -277,6 +277,15 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
     this.pageLimit = pageLimit;
     currentStartKey = null;
     _getPurchaseOrders();
+  }
+
+  @override
+  onNoMoreData() {
+    AppSnackbar.showSnackbar(
+        scaffoldKey: _scaffoldKey,
+        message: 'No mas. No more. Have not.',
+        textColor: Styles.white,
+        backgroundColor: Colors.brown.shade300);
   }
 }
 

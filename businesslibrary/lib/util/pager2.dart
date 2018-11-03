@@ -7,6 +7,7 @@ abstract class PagerListener {
   onNext(int pageLimit, int pageNumber);
   onBack(int pageLimit, int startKey, int pageNumber);
   onPrompt(int pageLimit);
+  onNoMoreData();
 }
 
 class Pager extends StatefulWidget {
@@ -60,6 +61,7 @@ class _PagerState extends State<Pager> {
       pageNumber--;
       print(
           '_PagerState._forwardPressed ... hey Toto, we not in Kansas nomore ....');
+      widget.listener.onNoMoreData();
       return;
     } else {
       pagerItems.addItem(PagerItem(currentIndex, widget.currentStartKey));
@@ -78,6 +80,7 @@ class _PagerState extends State<Pager> {
       pageNumber = 1;
       print(
           '_PagerState._rewindPressed ...... cant go back in time, Jojo Kiss!');
+      widget.listener.onNoMoreData();
       return;
     }
     print(
