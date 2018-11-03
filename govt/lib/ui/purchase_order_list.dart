@@ -7,6 +7,7 @@ import 'package:businesslibrary/data/invoice.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/util/FCM.dart';
+import 'package:businesslibrary/util/Finders.dart';
 import 'package:businesslibrary/util/database.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/pager2.dart';
@@ -92,39 +93,14 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
 
   void _findOrders(int intDate) {
     purchaseOrders.clear();
-    int index = 0;
-    bool isFound = false;
-    for (var po in baseList) {
-      if (intDate == po.intDate) {
-        isFound = true;
-        break;
-      }
-      index++;
-    }
-    if (!isFound) {
-      index = 0;
-    } else {
-      index++;
-      if (index >= baseList.length) {
-        index = 0;
-      }
-    }
-    for (var i = 0; i < pageLimit; i++) {
-      if (i + index < baseList.length) {
-        purchaseOrders.add(baseList.elementAt(i + index));
-      }
-    }
-    if (purchaseOrders.isNotEmpty) {
-      currentStartKey = purchaseOrders.last.intDate;
-    }
-    print(
-        '\n\n_PurchaseOrderListPageState._findOrders -----LOCAL CACHE: ${purchaseOrders.length}');
-    int count = 1;
-    purchaseOrders.forEach((x) {
-      print(
-          ' ${x.date} - ${x.intDate} ## $count ${x.purchaserName} for ${x.supplierName}');
-      count++;
-    });
+    var result = Finder.findPurchaseOrders(
+      intDate: intDate,
+      pageLimit: pageLimit,
+      baseList: baseList,
+    );
+    purchaseOrders = result.purchaseOrders;
+    currentStartKey = result.startKey;
+    setState(() {});
   }
 
   int currentStartKey;

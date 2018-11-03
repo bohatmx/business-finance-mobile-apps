@@ -28,6 +28,7 @@ class Invoice {
   String customerName, purchaseOrderNumber;
   List<String> investorInvoiceSettlements;
   double amount, totalAmount, valueAddedTax;
+  int intDate;
 
   Invoice(
       {this.supplier,
@@ -38,6 +39,7 @@ class Invoice {
       this.govtEntity,
       this.wallet,
       this.user,
+      this.intDate,
       this.companyInvoiceSettlement,
       this.govtInvoiceSettlement,
       this.investorInvoiceSettlements,
@@ -82,6 +84,7 @@ class Invoice {
     this.description = data['description'];
     this.reference = data['reference'];
     this.date = data['date'];
+    this.intDate = data['intDate'];
     this.datePaymentRequired = data['datePaymentRequired'];
 
     this.documentReference = data['documentReference'];
@@ -123,6 +126,7 @@ class Invoice {
     map['description'] = description;
     map['reference'] = reference;
     map['date'] = date;
+    map['intDate'] = intDate;
     map['datePaymentRequired'] = datePaymentRequired;
     map['amount'] = amount;
     map['documentReference'] = documentReference;
