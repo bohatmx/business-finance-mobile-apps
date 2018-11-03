@@ -57,6 +57,11 @@ class Styles {
     fontSize: 14.0,
     color: Colors.black,
   );
+  static TextStyle blackSmall = TextStyle(
+    fontWeight: FontWeight.normal,
+    fontSize: 14.0,
+    color: Colors.black,
+  );
   static TextStyle blackBoldMedium = TextStyle(
     fontWeight: FontWeight.bold,
     fontSize: 20.0,

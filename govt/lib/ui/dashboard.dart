@@ -38,11 +38,11 @@ class _DashboardState extends State<Dashboard>
         DeliveryNoteListener,
         InvoiceListener,
         GeneralMessageListener {
-  static const Payments = 1,
-      Invoices = 2,
+  static const actionPayments = 1,
+      actionInvoices = 2,
       actionPurchaseOrders = 3,
-      DeliveryNotes = 4,
-      DeliveryAcceptances = 5;
+      actionDeliveryNotes = 4,
+      actionDeliveryAcceptances = 5;
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   FirebaseMessaging _fcm = FirebaseMessaging();
   AnimationController animationController;
@@ -131,7 +131,9 @@ class _DashboardState extends State<Dashboard>
         '\n\n_DashboardState._getDetailData ###################################');
     var m =
         await ListAPI.getCustomerPurchaseOrders(govtEntity.documentReference);
+    var x = await ListAPI.getCustomerInvoices(govtEntity.documentReference);
     await Database.savePurchaseOrders(PurchaseOrders(m));
+    await Database.saveInvoices(Invoices(x));
     int count = 1;
     m.forEach((x) {
       print(

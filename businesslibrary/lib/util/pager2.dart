@@ -15,9 +15,15 @@ class Pager extends StatefulWidget {
   final int currentStartKey;
   final int totalItems;
   final String itemName;
+  final int pageLimit;
   static const Back = 1, Next = 2;
 
-  Pager({this.listener, this.currentStartKey, this.totalItems, this.itemName});
+  Pager(
+      {this.listener,
+      this.currentStartKey,
+      this.totalItems,
+      this.itemName,
+      this.pageLimit});
   static const DefaultPageLimit = 4;
 
   @override
@@ -29,6 +35,8 @@ class _PagerState extends State<Pager> {
   final List<DropdownMenuItem<int>> items = List();
   int currentIndex = 0;
   int previousStartKey, pageNumber = 1;
+  int localPageLimit;
+
   PagerItems pagerItems = PagerItems();
 
   void _buildItems() {
@@ -36,6 +44,7 @@ class _PagerState extends State<Pager> {
         '\n\n\n_Pager2State._buildItems widget.currentStartKey: ${widget.currentStartKey} currentIndex: $currentIndex');
     if (currentIndex == 0) {
       pagerItems.addItem(PagerItem(0, null));
+      _setPageLimit();
     }
     numbers.forEach((num) {
       var item = DropdownMenuItem<int>(
@@ -70,7 +79,7 @@ class _PagerState extends State<Pager> {
 
     print(
         '++++++++++++++++++++++++++ Pager2._forwardPressed currentIndex: $currentIndex previousStartKey: $previousStartKey\n');
-    widget.listener.onNext(pageLimit, currentIndex + 1);
+    widget.listener.onNext(localPageLimit, currentIndex + 1);
   }
 
   void _rewindPressed() {
@@ -90,43 +99,51 @@ class _PagerState extends State<Pager> {
     }
     if (currentIndex == 0) {
       pagerItems = PagerItems();
+      pagerItems.addItem(PagerItem(0, null));
       pageNumber = 1;
       previousStartKey = null;
     } else {
       previousStartKey = pagerItems.items.elementAt(currentIndex).startKey;
     }
-
-    widget.listener.onBack(pageLimit, previousStartKey, currentIndex);
+    print(
+        '_Pager2State._rewindPressed -------- currentIndex: $currentIndex previousStartKey: $previousStartKey -- after manipulation');
+    pagerItems.doPrint();
+    widget.listener.onBack(localPageLimit, previousStartKey, currentIndex);
   }
 
-  int pageLimit = 4;
   void _onNumber(int value) async {
-    print('Pager2._onNumber ---------------> value: $value');
+    print('Pager2._onNumber #################---------------> value: $value');
     SharedPrefs.savePageLimit(value);
     setState(() {
-      pageLimit = value;
+      localPageLimit = value;
     });
-    widget.listener.onPrompt(pageLimit);
+    widget.listener.onPrompt(localPageLimit);
   }
 
   @override
   void initState() {
     super.initState();
-    _buildItems();
     _setPageLimit();
+    _buildItems();
   }
 
   void _setPageLimit() async {
-    pageLimit = await SharedPrefs.getPageLimit();
-    setState(() {});
+    if (localPageLimit == null) {
+      localPageLimit = await SharedPrefs.getPageLimit();
+      setState(() {});
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    if (localPageLimit == null) {
+      print('_PagerState.build setting localPageLimit: ${widget.pageLimit}');
+      localPageLimit = widget.pageLimit;
+    }
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Card(
-        elevation: 16.0,
+        elevation: 8.0,
         child: Column(
           children: <Widget>[
             Padding(
@@ -141,7 +158,7 @@ class _PagerState extends State<Pager> {
                   Padding(
                     padding: const EdgeInsets.only(left: 8.0, right: 10.0),
                     child: Text(
-                      '$pageLimit',
+                      '$localPageLimit',
                       style: Styles.pinkBoldSmall,
                     ),
                   ),
@@ -151,7 +168,7 @@ class _PagerState extends State<Pager> {
                   IconButton(
                     icon: Icon(
                       Icons.fast_rewind,
-                      color: Colors.indigo,
+                      color: Colors.black,
                       size: 36.0,
                     ),
                     onPressed: _rewindPressed,
@@ -165,7 +182,7 @@ class _PagerState extends State<Pager> {
                   IconButton(
                     icon: Icon(
                       Icons.fast_forward,
-                      color: Colors.teal,
+                      color: Colors.black,
                       size: 36.0,
                     ),
                     onPressed: _forwardPressed,
@@ -224,8 +241,8 @@ class _PagerState extends State<Pager> {
   }
 
   String _getTotalPages() {
-    int rem = widget.totalItems % pageLimit;
-    int pages = widget.totalItems ~/ pageLimit;
+    int rem = widget.totalItems % localPageLimit;
+    int pages = widget.totalItems ~/ localPageLimit;
 
     if (rem > 0) {
       pages++;

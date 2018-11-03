@@ -1,4 +1,6 @@
-class InvoiceBid {
+import 'package:businesslibrary/util/Finders.dart';
+
+class InvoiceBid extends Findable {
   String invoiceBidId;
   String startTime;
   String endTime;
@@ -41,6 +43,7 @@ class InvoiceBid {
     this.offer = data['offer'];
     this.investor = data['investor'];
     this.user = data['user'];
+    this.intDate = data['intDate'];
     this.invoiceBidAcceptance = data['invoiceBidAcceptance'];
     this.documentReference = data['documentReference'];
     this.user = data['user'];
@@ -63,6 +66,7 @@ class InvoiceBid {
         'investor': investor,
         'user': user,
         'date': date,
+        'intDate': intDate,
         'invoiceBidAcceptance': invoiceBidAcceptance,
         'documentReference': documentReference,
         'supplierFCMToken': supplierFCMToken,

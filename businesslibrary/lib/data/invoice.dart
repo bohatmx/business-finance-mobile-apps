@@ -1,4 +1,6 @@
-class Invoice {
+import 'package:businesslibrary/util/Finders.dart';
+
+class Invoice extends Findable {
   String supplier,
       purchaseOrder,
       invoiceId,
@@ -28,7 +30,6 @@ class Invoice {
   String customerName, purchaseOrderNumber;
   List<String> investorInvoiceSettlements;
   double amount, totalAmount, valueAddedTax;
-  int intDate;
 
   Invoice(
       {this.supplier,
@@ -39,7 +40,6 @@ class Invoice {
       this.govtEntity,
       this.wallet,
       this.user,
-      this.intDate,
       this.companyInvoiceSettlement,
       this.govtInvoiceSettlement,
       this.investorInvoiceSettlements,

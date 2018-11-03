@@ -1,4 +1,6 @@
-class DeliveryNote {
+import 'package:businesslibrary/util/Finders.dart';
+
+class DeliveryNote extends Findable {
   String deliveryNoteId,
       purchaseOrder,
       company,
@@ -15,7 +17,6 @@ class DeliveryNote {
   String companyDocumentRef, purchaseOrderNumber, customerName;
   String supplierDocumentRef;
   String govtDocumentRef;
-  int intDate;
 
   DeliveryNote(
       {this.deliveryNoteId,
@@ -23,7 +24,6 @@ class DeliveryNote {
       this.company,
       this.govtEntity,
       this.user,
-      this.intDate,
       this.acceptedBy,
       this.deliveryNoteURL,
       this.documentReference,

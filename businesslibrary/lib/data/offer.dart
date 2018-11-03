@@ -1,5 +1,6 @@
-//some sort of error toJSON produces an error when sent
-class Offer {
+import 'package:businesslibrary/util/Finders.dart';
+
+class Offer extends Findable {
   String offerId;
   String startTime;
   String endTime, offerCancellation;
@@ -11,12 +12,10 @@ class Offer {
   String supplierDocumentRef, supplierFCMToken;
   double invoiceAmount, offerAmount, discountPercent;
   bool isCancelled, isOpen;
-  int intDate;
   String sector, sectorName;
   List<String> invoiceBids;
   Offer(
       {this.offerId,
-      this.intDate,
       this.startTime,
       this.endTime,
       this.discountPercent,

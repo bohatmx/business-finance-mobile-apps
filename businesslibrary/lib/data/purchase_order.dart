@@ -6,7 +6,6 @@ class PurchaseOrder extends Findable {
   String purchaseOrderId;
   String date, deliveryDateRequired;
   double amount;
-  int intDate;
 
   String description;
   String deliveryAddress;
@@ -27,7 +26,6 @@ class PurchaseOrder extends Findable {
       this.user,
       this.purchaseOrderId,
       this.date,
-      this.intDate,
       this.deliveryDateRequired,
       this.amount,
       this.description,

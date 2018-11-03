@@ -566,11 +566,11 @@ class ListAPI {
   }
 
   static Future<List<PurchaseOrder>> getCustomerPurchaseOrders(
-      String govtDocRef) async {
+      String documentId) async {
     List<PurchaseOrder> list = List();
     var querySnapshot = await _firestore
         .collection('govtEntities')
-        .document(govtDocRef)
+        .document(documentId)
         .collection('purchaseOrders')
         .orderBy('date', descending: true)
         .getDocuments()
@@ -585,6 +585,27 @@ class ListAPI {
     });
     print(
         'ListAPI.getCustomerPurchaseOrders &&&&&&&&&&& found: ${list.length} ');
+    return list;
+  }
+
+  static Future<List<Invoice>> getCustomerInvoices(String documentId) async {
+    List<Invoice> list = List();
+    var querySnapshot = await _firestore
+        .collection('govtEntities')
+        .document(documentId)
+        .collection('invoices')
+        .orderBy('date', descending: true)
+        .getDocuments()
+        .catchError((e) {
+      print('ListAPI.getCustomerInvoices  ERROR $e');
+      return list;
+    });
+    querySnapshot.documents.forEach((doc) {
+      var m = new Invoice.fromJson(doc.data);
+      m.documentReference = doc.documentID;
+      list.add(m);
+    });
+    print('ListAPI.getCustomerInvoices &&&&&&&&&&& found: ${list.length} ');
     return list;
   }
 
