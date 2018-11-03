@@ -15,6 +15,7 @@ class DeliveryNote {
   String companyDocumentRef, purchaseOrderNumber, customerName;
   String supplierDocumentRef;
   String govtDocumentRef;
+  int intDate;
 
   DeliveryNote(
       {this.deliveryNoteId,
@@ -22,6 +23,7 @@ class DeliveryNote {
       this.company,
       this.govtEntity,
       this.user,
+      this.intDate,
       this.acceptedBy,
       this.deliveryNoteURL,
       this.documentReference,
@@ -49,6 +51,8 @@ class DeliveryNote {
     this.remarks = data['remarks'];
 
     this.date = data['date'];
+    this.intDate = data['intDate'];
+
     this.dateAccepted = data['dateAccepted'];
     this.acceptedBy = data['acceptedBy'];
     this.documentReference = data['documentReference'];
@@ -62,9 +66,21 @@ class DeliveryNote {
     this.purchaseOrderNumber = data['purchaseOrderNumber'];
     this.customerName = data['customerName'];
 
-    this.amount = data['amount'] * 1.00;
-    this.vat = data['vat'] * 1.00;
-    this.totalAmount = data['totalAmount'] * 1.00;
+    if (data['amount'] == null) {
+      this.amount = 0.00;
+    } else {
+      this.amount = data['amount'] * 1.0;
+    }
+    if (data['vat'] == null) {
+      this.vat = 0.00;
+    } else {
+      this.vat = data['vat'] * 1.0;
+    }
+    if (data['totalAmount'] == null) {
+      this.totalAmount = 0.00;
+    } else {
+      this.totalAmount = data['totalAmount'] * 1.0;
+    }
   }
   Map<String, dynamic> toJson() {
     var map = {
@@ -76,6 +92,7 @@ class DeliveryNote {
       'deliveryNoteURL': deliveryNoteURL,
       'remarks': remarks,
       'date': date,
+      'intDate': intDate,
       'dateAccepted': dateAccepted,
       'acceptedBy': acceptedBy,
       'documentReference': documentReference,

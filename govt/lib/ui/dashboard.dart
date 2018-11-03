@@ -4,13 +4,14 @@ import 'package:businesslibrary/data/dashboard_data.dart';
 import 'package:businesslibrary/data/delivery_note.dart';
 import 'package:businesslibrary/data/govt_entity.dart';
 import 'package:businesslibrary/data/invoice.dart';
-import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/FCM.dart';
+import 'package:businesslibrary/util/database.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:businesslibrary/util/wallet_page.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:govt/sounds.dart';
@@ -39,7 +40,7 @@ class _DashboardState extends State<Dashboard>
         GeneralMessageListener {
   static const Payments = 1,
       Invoices = 2,
-      PurchaseOrders = 3,
+      actionPurchaseOrders = 3,
       DeliveryNotes = 4,
       DeliveryAcceptances = 5;
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
@@ -68,6 +69,7 @@ class _DashboardState extends State<Dashboard>
     animation = new Tween(begin: 0.0, end: 1.0).animate(animationController);
 
     _getCachedPrefs();
+    //startFix();
   }
 
   @override
@@ -98,6 +100,12 @@ class _DashboardState extends State<Dashboard>
     _getSummaryData();
   }
 
+  int index = 0;
+
+  Firestore fs = Firestore.instance;
+
+  void startFix() async {}
+
   DashboardData dashboardData;
   _getSummaryData() async {
     print('_DashboardState._getSummaryData ..................................');
@@ -115,33 +123,24 @@ class _DashboardState extends State<Dashboard>
     if (_scaffoldKey.currentState != null) {
       _scaffoldKey.currentState.hideCurrentSnackBar();
     }
+    _getDetailData();
   }
 
-  Invoice lastInvoice;
-  PurchaseOrder lastPO;
-  DeliveryNote lastNote;
+  void _getDetailData() async {
+    print(
+        '\n\n_DashboardState._getDetailData ###################################');
+    var m =
+        await ListAPI.getCustomerPurchaseOrders(govtEntity.documentReference);
+    await Database.savePurchaseOrders(PurchaseOrders(m));
+    int count = 1;
+    m.forEach((x) {
+      print(
+          ' ${x.date} - ${x.intDate} ## $count ${x.purchaserName} for ${x.supplierName}');
+      count++;
+    });
+  }
 
   int totalInvoices, totalPOs, totalNotes, totalPayments;
-  final invoiceStyle = TextStyle(
-    fontWeight: FontWeight.w900,
-    fontSize: 28.0,
-    color: Colors.pink,
-  );
-  final poStyle = TextStyle(
-    fontWeight: FontWeight.w900,
-    fontSize: 28.0,
-    color: Colors.black,
-  );
-  final delNoteStyle = TextStyle(
-    fontWeight: FontWeight.w900,
-    fontSize: 28.0,
-    color: Colors.blue,
-  );
-  final paymentStyle = TextStyle(
-    fontWeight: FontWeight.w900,
-    fontSize: 28.0,
-    color: Colors.teal,
-  );
 
   double opacity = 1.0;
   String name;
@@ -233,7 +232,7 @@ class _DashboardState extends State<Dashboard>
                       child: SummaryCard(
                         total: dashboardData == null ? 0 : 0,
                         label: 'Payments',
-                        totalStyle: paymentStyle,
+                        totalStyle: Styles.blueBoldLarge,
                       ),
                     ),
                     new InkWell(
@@ -242,7 +241,7 @@ class _DashboardState extends State<Dashboard>
                         total:
                             dashboardData == null ? 0 : dashboardData.invoices,
                         label: 'Invoices',
-                        totalStyle: invoiceStyle,
+                        totalStyle: Styles.pinkBoldLarge,
                       ),
                     ),
                     new InkWell(
@@ -252,7 +251,7 @@ class _DashboardState extends State<Dashboard>
                             ? 0
                             : dashboardData.purchaseOrders,
                         label: 'Purchase Orders',
-                        totalStyle: poStyle,
+                        totalStyle: Styles.tealBoldLarge,
                       ),
                     ),
                     new InkWell(
@@ -262,7 +261,7 @@ class _DashboardState extends State<Dashboard>
                             ? 0
                             : dashboardData.deliveryNotes,
                         label: 'Delivery Notes',
-                        totalStyle: delNoteStyle,
+                        totalStyle: Styles.blackBoldLarge,
                       ),
                     ),
                   ],

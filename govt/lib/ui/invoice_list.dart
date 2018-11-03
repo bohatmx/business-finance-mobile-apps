@@ -1,12 +1,15 @@
 import 'package:businesslibrary/api/data_api3.dart';
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
+import 'package:businesslibrary/data/dashboard_data.dart';
 import 'package:businesslibrary/data/govt_entity.dart';
 import 'package:businesslibrary/data/invoice.dart';
 import 'package:businesslibrary/data/invoice_acceptance.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/FCM.dart';
 import 'package:businesslibrary/util/lookups.dart';
+import 'package:businesslibrary/util/pager2.dart';
+import 'package:businesslibrary/util/pager_helper.dart';
 import 'package:businesslibrary/util/selectors.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
@@ -20,7 +23,7 @@ class InvoiceList extends StatefulWidget {
 }
 
 class _InvoiceListState extends State<InvoiceList>
-    implements SnackBarListener, InvoiceListener {
+    implements SnackBarListener, InvoiceListener, PagerListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   FirebaseMessaging _fcm = FirebaseMessaging();
 
@@ -28,6 +31,11 @@ class _InvoiceListState extends State<InvoiceList>
   List<Invoice> invoices;
   Invoice invoice;
   User user;
+  int currentStartKey;
+  DashboardData dashboardData;
+  int totalPages = 0;
+  int pageNumber = 1;
+  double pageValue = 0.0;
 
   @override
   initState() {
@@ -53,6 +61,7 @@ class _InvoiceListState extends State<InvoiceList>
   _getCached() async {
     entity = await SharedPrefs.getGovEntity();
     user = await SharedPrefs.getUser();
+    dashboardData = await SharedPrefs.getDashboardData();
     FCM.configureFCM(
       invoiceListener: this,
     );
@@ -137,36 +146,22 @@ class _InvoiceListState extends State<InvoiceList>
         bottom: PreferredSize(
             child: Column(
               children: <Widget>[
+                PagerHelper(
+                  dashboardData: dashboardData,
+                  pageNumber: pageNumber,
+                  totalPages: totalPages,
+                  pageValue: pageValue,
+                ),
                 Padding(
-                  padding: const EdgeInsets.only(bottom: 20.0, right: 20.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: <Widget>[
-                      Text(
-                        entity == null ? '' : entity.name,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20.0,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 28.0),
-                        child: Text(
-                          invoices == null ? '0' : '${invoices.length}',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 20.0,
-                            fontWeight: FontWeight.normal,
-                          ),
-                        ),
-                      ),
-                    ],
+                  padding: const EdgeInsets.only(top: 18.0, bottom: 10.0),
+                  child: Pager(
+                    currentStartKey: currentStartKey,
+                    listener: this,
                   ),
                 ),
               ],
             ),
-            preferredSize: Size.fromHeight(60.0)),
+            preferredSize: Size.fromHeight(200.0)),
       ),
       body: Padding(
         padding: const EdgeInsets.only(top: 12.0),
@@ -365,6 +360,21 @@ class _InvoiceListState extends State<InvoiceList>
         textColor: Styles.lightGreen,
         backgroundColor: Styles.black);
   }
+
+  @override
+  onBack(int pageLimit, int startKey, int pageNumber) {
+    // TODO: implement onBack
+  }
+
+  @override
+  onNext(int pageLimit, int pageNumber) {
+    // TODO: implement onNext
+  }
+
+  @override
+  onPrompt(int pageLimit) {
+    print('_InvoiceListState.onPrompt');
+  }
 }
 
 class InvoiceCard extends StatelessWidget {
@@ -387,43 +397,33 @@ class InvoiceCard extends StatelessWidget {
         elevation: 4.0,
         color: Colors.amber.shade50,
         child: Padding(
-          padding: const EdgeInsets.all(12.0),
+          padding: const EdgeInsets.only(left: 12.0),
           child: Column(
             children: <Widget>[
               Padding(
-                padding: const EdgeInsets.only(top: 8.0),
+                padding: const EdgeInsets.only(top: 20.0),
                 child: Row(
                   children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Icon(
-                        Icons.description,
-                        color: getRandomColor(),
-                      ),
-                    ),
                     Text(
                       getFormattedDateLongWithTime(invoice.date, context),
                       style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 16.0,
+                          color: Colors.blue,
+                          fontSize: 14.0,
                           fontWeight: FontWeight.normal),
                     ),
                   ],
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.only(left: 24.0, top: 16.0),
+                padding: const EdgeInsets.only(left: 0.0, top: 16.0),
                 child: Row(
                   children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.only(left: 8.0),
-                      child: Text(
-                        invoice.supplierName,
-                        style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 16.0,
-                            fontWeight: FontWeight.bold),
-                      ),
+                    Text(
+                      invoice.supplierName,
+                      style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 18.0,
+                          fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),
@@ -447,7 +447,7 @@ class InvoiceCard extends StatelessWidget {
                             ? '0.00'
                             : getFormattedAmount('$amount', context),
                         style: TextStyle(
-                            fontSize: 24.0,
+                            fontSize: 20.0,
                             fontWeight: FontWeight.bold,
                             color: Colors.teal.shade200),
                       ),
@@ -473,7 +473,7 @@ class InvoiceCard extends StatelessWidget {
                         invoice == null ? '0.00' : invoice.invoiceNumber,
                         style: TextStyle(
                             fontSize: 16.0,
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.normal,
                             color: Colors.blue),
                       ),
                     ),
@@ -487,7 +487,10 @@ class InvoiceCard extends StatelessWidget {
                   children: <Widget>[
                     Padding(
                       padding: const EdgeInsets.only(right: 8.0),
-                      child: Text('Accepted'),
+                      child: Text(
+                        'Accepted',
+                        style: TextStyle(fontSize: 12.0),
+                      ),
                     ),
                     Text(
                       invoice.invoiceAcceptance == null ? 'NO' : 'YES',
@@ -499,7 +502,8 @@ class InvoiceCard extends StatelessWidget {
                         opacity: invoice.invoiceAcceptance == null ? 0.0 : 1.0,
                         child: Icon(
                           Icons.done,
-                          color: Colors.purple,
+                          size: 36.0,
+                          color: getRandomColor(),
                         ),
                       ),
                     ),
@@ -507,12 +511,15 @@ class InvoiceCard extends StatelessWidget {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.only(left: 30.0, bottom: 10.0),
+                padding: const EdgeInsets.only(left: 30.0, bottom: 30.0),
                 child: Row(
                   children: <Widget>[
                     Padding(
                       padding: const EdgeInsets.only(right: 8.0),
-                      child: Text('Settled'),
+                      child: Text(
+                        'Settled',
+                        style: TextStyle(fontSize: 12.0),
+                      ),
                     ),
                     Text(
                       invoice.isSettled == false ? 'NO' : 'YES',

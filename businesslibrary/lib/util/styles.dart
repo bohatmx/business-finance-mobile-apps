@@ -166,6 +166,11 @@ class Styles {
     fontSize: 14.0,
     color: Colors.blue,
   );
+  static TextStyle blueSmall = TextStyle(
+    fontWeight: FontWeight.normal,
+    fontSize: 14.0,
+    color: Colors.blue,
+  );
   static TextStyle blueBoldMedium = TextStyle(
     fontWeight: FontWeight.bold,
     fontSize: 20.0,

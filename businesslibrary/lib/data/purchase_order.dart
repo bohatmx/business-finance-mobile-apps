@@ -51,7 +51,6 @@ class PurchaseOrder {
     this.user = data['user'];
     this.date = data['date'];
     this.intDate = data['intDate'];
-    print('PurchaseOrder.fromJson  ********* this.date: ${this.intDate}');
     this.deliveryDateRequired = data['deliveryDateRequired'];
     this.amount = data['amount'] * 1.0;
     this.description = data['description'];
@@ -69,8 +68,6 @@ class PurchaseOrder {
     this.items = List();
   }
   Map<String, dynamic> toJson() {
-    print('PurchaseOrder.toJson ************ intDate: $intDate');
-
     var map = {
       'supplier': supplier,
       'purchaseOrderId': purchaseOrderId,

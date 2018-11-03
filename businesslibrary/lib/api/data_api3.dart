@@ -320,7 +320,7 @@ class DataAPI3 {
     print(
         'DataAPI3.addGovtEntity ==============>>>> ........... ${govtEntity.toJson()}');
     print(
-        'DataAPI3.addGovtEntity ))))))) URL: $getFunctionsURL()$ADD_PARTICIPANT');
+        'DataAPI3.addGovtEntity ))))))) URL: ${getFunctionsURL()}$ADD_PARTICIPANT');
     govtEntity.participantId = getKey();
     govtEntity.dateRegistered = getUTCDate();
     admin.userId = getKey();
@@ -349,15 +349,16 @@ class DataAPI3 {
      */
     try {
       var resp = await _doHTTP(getFunctionsURL() + ADD_PARTICIPANT, bag);
+      print(resp.body);
       if (resp.statusCode == 200) {
-        Map<String, String> map = json.decode(resp.body);
+        Map map = json.decode(resp.body);
         govtEntity.documentReference =
-            map['participantPath'].split('#').elementAt(1);
+            map['participantPath'].split('/').elementAt(1);
         await SharedPrefs.saveGovtEntity(govtEntity);
         await SharedPrefs.saveUser(admin);
         var qs = await fs
             .collection('wallets')
-            .document(map['walletPath'].split('#').elementAt(1))
+            .document(map['walletPath'].split('/').elementAt(1))
             .get();
         if (qs.exists) {
           var wallet = Wallet.fromJson(qs.data);
@@ -456,10 +457,7 @@ class DataAPI3 {
   }
 
   static Future<int> addAutoTradeOrder(AutoTradeOrder order) async {
-    if (USE_LOCAL_BLOCKCHAIN) {
-      var res = await DataAPI.addAutoTradeOrder(order);
-      return res == '0' ? DataAPI3.BlockchainError : DataAPI3.Success;
-    }
+
     order.autoTradeOrderId = getKey();
     order.date = getUTCDate();
     order.isCancelled = false;
@@ -608,14 +606,14 @@ class DataAPI3 {
     try {
       var mResponse = await _doHTTP(getFunctionsURL() + ADD_PARTICIPANT, bag);
       if (mResponse.statusCode == 200) {
-        Map<String, String> map = json.decode(mResponse.body);
+        Map map = json.decode(mResponse.body);
         supplier.documentReference =
-            map['participantPath'].split('#').elementAt(1);
+            map['participantPath'].split('/').elementAt(1);
         await SharedPrefs.saveSupplier(supplier);
         await SharedPrefs.saveUser(admin);
         var qs = await fs
             .collection('wallets')
-            .document(map['walletPath'].split('#').elementAt(1))
+            .document(map['walletPath'].split('/').elementAt(1))
             .get();
         if (qs.exists) {
           var wallet = Wallet.fromJson(qs.data);
@@ -704,14 +702,14 @@ class DataAPI3 {
     try {
       var mResponse = await _doHTTP(getFunctionsURL() + ADD_PARTICIPANT, bag);
       if (mResponse.statusCode == 200) {
-        Map<String, String> map = json.decode(mResponse.body);
+        Map map = json.decode(mResponse.body);
         investor.documentReference =
-            map['participantPath'].split('#').elementAt(1);
+            map['participantPath'].split('/').elementAt(1);
         await SharedPrefs.saveInvestor(investor);
         await SharedPrefs.saveUser(admin);
         var qs = await fs
             .collection('wallets')
-            .document(map['walletPath'].split('#').elementAt(1))
+            .document(map['walletPath'].split('/').elementAt(1))
             .get();
         if (qs.exists) {
           var wallet = Wallet.fromJson(qs.data);

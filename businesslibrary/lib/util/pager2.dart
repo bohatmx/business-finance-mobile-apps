@@ -3,28 +3,31 @@ import 'package:businesslibrary/util/selectors.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:flutter/material.dart';
 
-abstract class Pager2Listener {
+abstract class PagerListener {
   onNext(int pageLimit, int pageNumber);
   onBack(int pageLimit, int startKey, int pageNumber);
-  onPrompt();
+  onPrompt(int pageLimit);
 }
 
-class Pager2 extends StatefulWidget {
-  final Pager2Listener listener;
-  final String itemName;
+class Pager extends StatefulWidget {
+  final PagerListener listener;
   final int currentStartKey;
+  final int totalItems;
+  final String itemName;
   static const Back = 1, Next = 2;
-  Pager2({this.listener, this.itemName, this.currentStartKey});
+
+  Pager({this.listener, this.currentStartKey, this.totalItems, this.itemName});
+  static const DefaultPageLimit = 4;
 
   @override
-  _Pager2State createState() => _Pager2State();
+  _PagerState createState() => _PagerState();
 }
 
-class _Pager2State extends State<Pager2> {
+class _PagerState extends State<Pager> {
   static const numbers = [2, 4, 6, 8, 10, 20, 30, 40, 50, 60, 70, 80, 100];
   final List<DropdownMenuItem<int>> items = List();
   int currentIndex = 0;
-  int previousStartKey;
+  int previousStartKey, pageNumber = 1;
   PagerItems pagerItems = PagerItems();
 
   void _buildItems() {
@@ -52,8 +55,16 @@ class _Pager2State extends State<Pager2> {
 
   void _forwardPressed() {
     currentIndex++;
-    pagerItems.addItem(PagerItem(currentIndex, widget.currentStartKey));
-    pagerItems.doPrint();
+    pageNumber++;
+    if (pageNumber > int.parse(_getTotalPages())) {
+      pageNumber--;
+      print(
+          '_PagerState._forwardPressed ... hey Toto, we not in Kansas nomore ....');
+      return;
+    } else {
+      pagerItems.addItem(PagerItem(currentIndex, widget.currentStartKey));
+      pagerItems.doPrint();
+    }
 
     print(
         '++++++++++++++++++++++++++ Pager2._forwardPressed currentIndex: $currentIndex previousStartKey: $previousStartKey\n');
@@ -62,23 +73,37 @@ class _Pager2State extends State<Pager2> {
 
   void _rewindPressed() {
     currentIndex--;
+    pageNumber--;
+    if (pageNumber == 0) {
+      pageNumber = 1;
+      print(
+          '_PagerState._rewindPressed ...... cant go back in time, Jojo Kiss!');
+      return;
+    }
     print(
         '\n\n\n_Pager2State._rewindPressed -------- currentIndex: $currentIndex previousStartKey: $previousStartKey');
     if (currentIndex < 0) {
       currentIndex = 0;
     }
-    previousStartKey = pagerItems.items.elementAt(currentIndex).startKey;
-    widget.listener.onBack(pageLimit, previousStartKey, currentIndex + 1);
+    if (currentIndex == 0) {
+      pagerItems = PagerItems();
+      pageNumber = 1;
+      previousStartKey = null;
+    } else {
+      previousStartKey = pagerItems.items.elementAt(currentIndex).startKey;
+    }
+
+    widget.listener.onBack(pageLimit, previousStartKey, currentIndex);
   }
 
-  int pageLimit = 10;
+  int pageLimit = 4;
   void _onNumber(int value) async {
     print('Pager2._onNumber ---------------> value: $value');
     SharedPrefs.savePageLimit(value);
     setState(() {
       pageLimit = value;
     });
-    widget.listener.onPrompt();
+    widget.listener.onPrompt(pageLimit);
   }
 
   @override
@@ -102,12 +127,12 @@ class _Pager2State extends State<Pager2> {
         child: Column(
           children: <Widget>[
             Padding(
-              padding: const EdgeInsets.only(left: 8.0, right: 8.0),
+              padding: const EdgeInsets.only(left: 8.0, right: 8.0, top: 10.0),
               child: Row(
                 children: <Widget>[
                   DropdownButton<int>(
                     items: items,
-                    hint: Text(widget.itemName),
+                    hint: Text('Per Page'),
                     onChanged: _onNumber,
                   ),
                   Padding(
@@ -145,10 +170,64 @@ class _Pager2State extends State<Pager2> {
                 ],
               ),
             ),
+            Padding(
+              padding:
+                  const EdgeInsets.only(left: 20.0, bottom: 20.0, top: 20.0),
+              child: Row(
+                children: <Widget>[
+                  Text(
+                    "Page",
+                    style: Styles.blueSmall,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 8.0),
+                    child: Text(
+                      '$pageNumber',
+                      style: Styles.blackBoldSmall,
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 8.0),
+                    child: Text(
+                      'of',
+                      style: Styles.blueSmall,
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 8.0, right: 60.0),
+                    child: Text(
+                      _getTotalPages(),
+                      style: Styles.blackBoldSmall,
+                    ),
+                  ),
+                  Text(
+                    '${widget.totalItems}',
+                    style: Styles.pinkBoldSmall,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 8.0),
+                    child: Text(
+                      widget.itemName,
+                      style: Styles.blackBoldSmall,
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
       ),
     );
+  }
+
+  String _getTotalPages() {
+    int rem = widget.totalItems % pageLimit;
+    int pages = widget.totalItems ~/ pageLimit;
+
+    if (rem > 0) {
+      pages++;
+    }
+    return '$pages';
   }
 }
 

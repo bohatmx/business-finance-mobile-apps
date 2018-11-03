@@ -686,6 +686,18 @@ class ListAPI {
     return summary;
   }
 
+  static Future<PurchaseOrderSummary> getCustomerInvoicessWithPaging(
+      {int lastDate, int pageLimit, String documentId}) async {
+    PurchaseOrderSummary summary = await _doPurchaseOrderHTTP(
+        mUrl: getFunctionsURL() + 'getPurchaseOrdersWithPaging',
+        date: lastDate,
+        pageLimit: pageLimit,
+        collection: 'govtEntities',
+        documentId: documentId);
+
+    return summary;
+  }
+
   static Future<OpenOfferSummary> _doOpenOffersHTTP(
       String mUrl, int date, int pageLimit) async {
     OpenOfferSummary summary = OpenOfferSummary();
@@ -1731,5 +1743,35 @@ class PurchaseOrderSummary {
         'startedAfter': startedAfter,
         'totalAmount': totalAmount,
         'purchaseOrders': purchaseOrders,
+      };
+}
+
+class InvoiceSummary {
+  List<Invoice> invoices = List();
+  int totalInvoices = 0;
+  double totalAmount = 0.00;
+  int startedAfter;
+
+  InvoiceSummary(
+      this.invoices, this.totalInvoices, this.totalAmount, this.startedAfter);
+
+  InvoiceSummary.fromJson(Map data) {
+    this.totalInvoices = data['totalInvoices'];
+    this.totalAmount = data['totalAmount'] * 1.0;
+    this.startedAfter = data['startedAfter'];
+    if (data['invoices'] != null) {
+      List mPOs = data['invoices'];
+      invoices = List();
+      mPOs.forEach((o) {
+        invoices.add(Invoice.fromJson(o));
+      });
+    }
+  }
+
+  Map<String, dynamic> toJson() => <String, dynamic>{
+        'totalInvoices': totalInvoices,
+        'startedAfter': startedAfter,
+        'totalAmount': totalAmount,
+        'invoices': invoices,
       };
 }

@@ -63,6 +63,7 @@ class _MyHomePageState extends State<MyHomePage>
   }
 
   void _generateBrandNewNetwork() async {
+    Navigator.pop(context);
     if (!isBrandNew) {
       print(
           '_MyHomePageState._generateBrandNewNetwork - NETWORK ALREADY PAST Genesis. IGNORED. OUT.');
@@ -83,34 +84,46 @@ class _MyHomePageState extends State<MyHomePage>
     }
     isBusy = true;
     var start = DateTime.now();
-    await _cleanUp();
+
     setState(() {
-      btnText = 'Working...';
+      msgList.add('Removing authenticated users ...');
+    });
+    await _removeUsers();
+    setState(() {
+      msgList.add('Authenticated users removed');
+    });
+
+    setState(() {
+      btnText = 'Working...Please Wait';
       phases = SIX;
       _phaseCounter++;
       msgList.add('### GENESIS : Demo data cleanup is complete');
+      msgList.add('Adding sectors ...');
     });
     await DataAPI3.addSectors();
     //TODO - add countries and VAT schedules
     setState(() {
-      msgList.add('### GENESIS : Sectors added to BFN and Firestore');
+      msgList.add('Sectors added to BFN and Firestore');
+      msgList.add('Adding customers ...');
       _phaseCounter++;
     });
-
     await _addCustomers();
     setState(() {
       _phaseCounter++;
       msgList.add('### GENESIS : Customers added to BFN and Firestore');
+      msgList.add('Adding suppliers ...');
     });
     await _generateSuppliers();
     setState(() {
       _phaseCounter++;
       msgList.add('### GENESIS : Suppliers added to BFN and Firestore');
+      msgList.add('Adding investors ...');
     });
     await _addInvestors();
     setState(() {
       _phaseCounter++;
       msgList.add('### GENESIS : Investors added to BFN and Firestore');
+      msgList.add('Generating data ...');
     });
 
     //generate PurchaseOrders thru Offers
@@ -172,7 +185,7 @@ class _MyHomePageState extends State<MyHomePage>
         '\n\n_MyHomePageState._start  #####################################  Demo Data COMPLETED!');
   }
 
-  static const FIVE = '5', SIX = '6';
+  static const FIVE = '5', SIX = '5';
   List<String> msgList = List();
 
   Future fixInvestorProfiles() async {
@@ -220,18 +233,13 @@ class _MyHomePageState extends State<MyHomePage>
         maxInvestableAmount: getRandomMax(invoiceAmount),
         minimumDiscount: Generator.getRandomDisc(),
         name: investor.name);
-    var result = await DataAPI3.addInvestorProfile(investorProfile);
-    if (result > 0) {
-      print('_MyHomePageState._addCustomers .... quit...');
-      throw Exception('Bad juju. eh?');
-    }
-    result = await _addAutoTradeOrder(investor, investorProfile, user, wallet);
-    if (result > 0) {
-      print('_MyHomePageState._addCustomers .... quit...');
-      throw Exception('Bad juju. eh?');
-    }
+
+    await DataAPI3.addInvestorProfile(investorProfile);
+    await _addAutoTradeOrder(investor, investorProfile, user, wallet);
+
     setState(() {
-      msgList.add('Investor Profile added: ${investorProfile.name}');
+      msgList.add(
+          'Investor Profile and AutoTradeOrder added: ${investorProfile.name}');
       recordCounter++;
     });
   }
@@ -247,12 +255,7 @@ class _MyHomePageState extends State<MyHomePage>
         wallet: NameSpace + 'Wallet#${wallet.stellarPublicKey}',
         investorName: c.name);
 
-    var result = await DataAPI3.addAutoTradeOrder(autoTradeOrder);
-    if (result > 0) {
-      print('_MyHomePageState._addCustomers .... quit...');
-      throw Exception('Bad juju. eh?');
-    }
-
+    await DataAPI3.addAutoTradeOrder(autoTradeOrder);
     setState(() {
       msgList.add('AutoTradeOrder added: ${p.name}');
       recordCounter++;
@@ -284,20 +287,20 @@ class _MyHomePageState extends State<MyHomePage>
     return seed;
   }
 
-  _addCustomers() async {
+  Future _addCustomers() async {
     var result;
     GovtEntity e1 = new GovtEntity(
-      name: 'Pretoria Engineering',
-      email: 'info@ptavengineersa.com',
+      name: 'Atteridgeville MetalWorks Ltd',
+      email: 'info@works.com',
       country: 'South Africa',
       allowAutoAccept: true,
     );
     User u1 = new User(
-        firstName: 'Fanyana',
-        lastName: 'Maluleke',
+        firstName: 'Jonathan B.',
+        lastName: 'Zondi',
         password: 'pass123',
         isAdministrator: true,
-        email: 'fanyana@ptaengineers.com');
+        email: 'jzondi@works.com');
     result = await SignUp.signUpGovtEntity(e1, u1);
     if (result > 0) {
       print('_MyHomePageState._addCustomers .... quit...');
@@ -397,7 +400,7 @@ class _MyHomePageState extends State<MyHomePage>
     });
   }
 
-  _addInvestors() async {
+  Future _addInvestors() async {
     var result;
     Investor investor;
     User user;
@@ -538,7 +541,7 @@ class _MyHomePageState extends State<MyHomePage>
     });
   }
 
-  _removeUsers() async {
+  Future _removeUsers() async {
     var fs = Firestore.instance;
     var now = getUTCDate();
     var data = {'now': now, 'desc': 'Trigger deletion of auth users'};
@@ -546,263 +549,12 @@ class _MyHomePageState extends State<MyHomePage>
     print(res);
     setState(() {
       msgList.add(
-          'Users being removed from Firestore, will pause 15 seconds to let the process finish');
+          'Users being removed from Firestore, will pause 10 seconds to let the process finish');
     });
     print(
-        '\n\n\n_MyHomePageState.cleanUp ... sleeping for 15 seconds .......${DateTime.now().toIso8601String()}');
-    sleep(Duration(seconds: 15));
-  }
-
-  Future<int> _cleanUp() async {
-    print(
-        '\n\n\nGenerator.cleanUp ................ ########  ................\n\n');
-    setState(() {
-      msgList.add('Firestore and Auth user clean up started');
-    });
-    await _removeUsers();
-    print(
-        '_MyHomePageState.cleanUp ... slept for 15 seconds. waking up: ....${DateTime.now().toIso8601String()}\n\n\n');
-    var fs = Firestore.instance;
-    try {
-      var qs0 = await fs.collection('users').getDocuments();
-      qs0.documents.forEach((doc) async {
-        await doc.reference.delete();
-      });
-      print('Generator.cleanUp users deleted from Firestore ################');
-      var qs = await fs.collection('wallets').getDocuments();
-      qs.documents.forEach((doc) async {
-        await doc.reference.delete();
-      });
-      print(
-          'Generator.cleanUp wallets deleted from Firestore ################');
-      var qsx = await fs.collection('walletsFailed').getDocuments();
-      qsx.documents.forEach((doc) async {
-        await doc.reference.delete();
-      });
-      print(
-          'Generator.cleanUp walletsFailed deleted from Firestore ################');
-      var qs1 = await fs.collection('oneConnect').getDocuments();
-      qs1.documents.forEach((doc) async {
-        await doc.reference.delete();
-      });
-      print(
-          'Generator.cleanUp oneConnect deleted from Firestore ################');
-      /////
-      var qs2 = await fs.collection('govtEntities').getDocuments();
-      qs2.documents.forEach((doc) async {
-        var msnap =
-            await doc.reference.collection('purchaseOrders').getDocuments();
-        msnap.documents.forEach((x) async {
-          await x.reference.delete();
-        });
-        var msnap2 =
-            await doc.reference.collection('deliveryNotes').getDocuments();
-        msnap2.documents.forEach((x) async {
-          await x.reference.delete();
-        });
-        var msnap3 = await doc.reference.collection('invoices').getDocuments();
-        msnap3.documents.forEach((x) async {
-          await x.reference.delete();
-        });
-
-        var msnap4 = await doc.reference
-            .collection('deliveryAcceptances')
-            .getDocuments();
-        msnap4.documents.forEach((x) async {
-          await x.reference.delete();
-        });
-        var msnap6 =
-            await doc.reference.collection('invoiceAcceptances').getDocuments();
-        msnap6.documents.forEach((x) async {
-          await x.reference.delete();
-        });
-        await doc.reference.delete();
-      });
-      print(
-          'Generator.cleanUp govtEntities deleted from Firestore ################');
-
-      var qs3 = await fs.collection('suppliers').getDocuments();
-      qs3.documents.forEach((doc) async {
-        var msnapx =
-            await doc.reference.collection('purchaseOrders').getDocuments();
-        msnapx.documents.forEach((x) async {
-          await x.reference.delete();
-        });
-        var msnap2 =
-            await doc.reference.collection('deliveryNotes').getDocuments();
-        msnap2.documents.forEach((x) async {
-          await x.reference.delete();
-        });
-        var msnap2a = await doc.reference
-            .collection('deliveryAcceptances')
-            .getDocuments();
-        msnap2a.documents.forEach((x) async {
-          await x.reference.delete();
-        });
-        var msnap3 = await doc.reference.collection('invoices').getDocuments();
-        msnap3.documents.forEach((x) async {
-          await x.reference.delete();
-        });
-        var msnap4 =
-            await doc.reference.collection('supplierContracts').getDocuments();
-        msnap4.documents.forEach((x) async {
-          await x.reference.delete();
-        });
-        var msnap5 = await doc.reference
-            .collection('deliveryAcceptances')
-            .getDocuments();
-        msnap5.documents.forEach((x) async {
-          await x.reference.delete();
-        });
-        var msnap6 =
-            await doc.reference.collection('invoiceAcceptances').getDocuments();
-        msnap6.documents.forEach((x) async {
-          await x.reference.delete();
-        });
-        await doc.reference.delete();
-      });
-      print('Generator.cleanUp suppliers deleted from Firestore #############');
-
-      var qs5 = await fs.collection('investors').getDocuments();
-      qs5.documents.forEach((doc) async {
-        var msnap4 =
-            await doc.reference.collection('invoiceBids').getDocuments();
-        msnap4.documents.forEach((x) async {
-          await x.reference.delete();
-        });
-
-        await doc.reference.delete();
-      });
-
-      print(
-          'Generator.cleanUp investors deleted from Firestore ######################');
-      var qs6 = await fs.collection('procurementOffices').getDocuments();
-      qs6.documents.forEach((doc) async {
-        await doc.reference.delete();
-      });
-      print(
-          'Generator.cleanUp investors deleted from Firestore ######################');
-
-      var qs7 = await fs.collection('companies').getDocuments();
-      qs7.documents.forEach((doc) async {
-        var msnap =
-            await doc.reference.collection('purchaseOrders').getDocuments();
-        msnap.documents.forEach((x) async {
-          await x.reference.delete();
-        });
-        var msnap2 =
-            await doc.reference.collection('deliveryNotes').getDocuments();
-        msnap2.documents.forEach((x) async {
-          await x.reference.delete();
-        });
-        var msnap3 = await doc.reference.collection('invoices').getDocuments();
-        msnap3.documents.forEach((x) async {
-          await x.reference.delete();
-        });
-        var msnap4 = await doc.reference
-            .collection('deliveryAcceptances')
-            .getDocuments();
-        msnap4.documents.forEach((x) async {
-          await x.reference.delete();
-        });
-        await doc.reference.delete();
-      });
-      print(
-          'Generator.cleanUp companies deleted from Firestore ###############');
-      var qs8 = await fs.collection('banks').getDocuments();
-      qs8.documents.forEach((doc) async {
-        var msnap =
-            await doc.reference.collection('purchaseOrders').getDocuments();
-        msnap.documents.forEach((x) async {
-          await x.reference.delete();
-        });
-        var msnap2 =
-            await doc.reference.collection('deliveryNotes').getDocuments();
-        msnap2.documents.forEach((x) async {
-          await x.reference.delete();
-        });
-        var msnap3 = await doc.reference.collection('invoices').getDocuments();
-        msnap3.documents.forEach((x) async {
-          await x.reference.delete();
-        });
-        await doc.reference.delete();
-      });
-      print('Generator.cleanUp banks deleted from Firestore ##############');
-      var qs9 = await fs.collection('procurementOffices').getDocuments();
-      qs9.documents.forEach((doc) async {
-        var msnap =
-            await doc.reference.collection('purchaseOrders').getDocuments();
-        msnap.documents.forEach((x) async {
-          await x.reference.delete();
-        });
-        var msnap2 =
-            await doc.reference.collection('deliveryNotes').getDocuments();
-        msnap2.documents.forEach((x) async {
-          await x.reference.delete();
-        });
-        var msnap3 = await doc.reference.collection('invoices').getDocuments();
-        msnap3.documents.forEach((x) async {
-          await x.reference.delete();
-        });
-        await doc.reference.delete();
-      });
-      print(
-          'Generator.cleanUp procurementOffices deleted from Firestore   #############');
-      var qs10 = await fs.collection('auditors').getDocuments();
-      qs10.documents.forEach((doc) async {
-        var msnap =
-            await doc.reference.collection('purchaseOrders').getDocuments();
-        msnap.documents.forEach((x) async {
-          await x.reference.delete();
-        });
-        var msnap2 =
-            await doc.reference.collection('deliveryNotes').getDocuments();
-        msnap2.documents.forEach((x) async {
-          await x.reference.delete();
-        });
-        var msnap3 = await doc.reference.collection('invoices').getDocuments();
-        msnap3.documents.forEach((x) async {
-          await x.reference.delete();
-        });
-        await doc.reference.delete();
-      });
-      print('Generator.cleanUp auditors deleted from Firestore ##############');
-      var qs11 = await fs.collection('invoiceOffers').getDocuments();
-      qs11.documents.forEach((doc) async {
-        var msnap =
-            await doc.reference.collection('invoiceBids').getDocuments();
-        msnap.documents.forEach((x) async {
-          await x.reference.delete();
-        });
-
-        await doc.reference.delete();
-      });
-      var qs12 = await fs.collection('sectors').getDocuments();
-      qs12.documents.forEach((doc) async {
-        doc.reference.delete();
-      });
-      var qs13 = await fs.collection('autoTradeOrders').getDocuments();
-      qs13.documents.forEach((doc) async {
-        doc.reference.delete();
-      });
-      var qs14 = await fs.collection('investorProfiles').getDocuments();
-      qs14.documents.forEach((doc) async {
-        doc.reference.delete();
-      });
-      var qs15 = await fs.collection('autoTradeStarts').getDocuments();
-      qs15.documents.forEach((doc) async {
-        doc.reference.delete();
-      });
-
-      print(
-          'Generator.cleanUp invoiceOffers and invoiceBids deleted from Firestore and FirebaseStorage ##############');
-    } catch (e) {
-      print('Generator.cleanUp ERROR $e');
-      return 1;
-    }
-
-    print('Generator.cleanUp COMPLETED........... start the real work!!');
-    return 0;
+        '\n\n\n_MyHomePageState.cleanUp ... sleeping for 10 seconds .......${DateTime.now().toIso8601String()}');
+    sleep(Duration(seconds: 10));
+    return null;
   }
 
   Color btnColor = Colors.orange.shade800;
