@@ -15,6 +15,7 @@ import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/sector.dart';
 import 'package:businesslibrary/data/user.dart';
+import 'package:businesslibrary/util/database.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
@@ -144,6 +145,7 @@ class _DashboardState extends State<Dashboard>
     investor = await SharedPrefs.getInvestor();
 
     assert(investor != null);
+    _getOffers();
     name = investor.name;
     setState(() {});
     _getSummaryData();
@@ -319,9 +321,10 @@ class _DashboardState extends State<Dashboard>
 
   Future _getOffers() async {
     offers = await ListAPI.getOpenOffers();
+    await Database.saveOffers(Offers(offers));
     setState(() {});
     print(
-        '\n\n_DashboardState._getOffers ................ ${offers.length}\n\n');
+        '\n\n_DashboardState._getOffers ....######### ............ ${offers.length}\n\n');
   }
 
   void _onOffersTapped() {

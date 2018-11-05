@@ -6,12 +6,12 @@ import 'package:businesslibrary/data/investor_profile.dart';
 import 'package:businesslibrary/data/invoice_bid.dart';
 import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/util/lookups.dart';
+import 'package:businesslibrary/util/offer_card.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:businesslibrary/util/util.dart';
 import 'package:flutter/material.dart';
 import 'package:investor/ui/invoice_bidder.dart';
-import 'package:investor/ui/offer_list.dart';
 
 class OffersAndBids extends StatefulWidget {
   @override
@@ -210,9 +210,10 @@ class _OffersAndBidsState extends State<OffersAndBids> {
                   child: Padding(
                     padding: const EdgeInsets.only(
                         top: 4.0, bottom: 4.0, left: 12.0, right: 12.0),
-                    child: OfferPanel(
+                    child: OfferCard(
                       offer: openOffers.elementAt(index),
                       number: index + 1,
+                      elevation: 2.0,
                     ),
                   ),
                 );

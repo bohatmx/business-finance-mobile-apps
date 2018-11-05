@@ -7,12 +7,12 @@ import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/data/wallet.dart';
 import 'package:businesslibrary/util/lookups.dart';
+import 'package:businesslibrary/util/offer_card.dart';
 import 'package:businesslibrary/util/selectors.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:investor/ui/invoice_bid_list.dart';
 import 'package:investor/ui/invoice_due_diligence.dart';
 
 class InvoiceBidder extends StatefulWidget {
@@ -75,7 +75,7 @@ class _InvoiceBidderState extends State<InvoiceBidder>
           'Make Invoice Bid',
           style: Styles.whiteSmall,
         ),
-        elevation: 8.0,
+        elevation: 4.0,
         bottom: _getBottom(),
         actions: <Widget>[
           IconButton(icon: Icon(Icons.refresh), onPressed: _getExistingBids),
@@ -105,7 +105,7 @@ class _InvoiceBidderState extends State<InvoiceBidder>
 
   Widget _getBottom() {
     return PreferredSize(
-      preferredSize: Size.fromHeight(180.0),
+      preferredSize: Size.fromHeight(140.0),
       child: Padding(
         padding: const EdgeInsets.only(bottom: 12.0, right: 20.0),
         child: Column(
@@ -151,7 +151,7 @@ class _InvoiceBidderState extends State<InvoiceBidder>
               ],
             ),
             Padding(
-              padding: const EdgeInsets.only(top: 30.0, left: 20.0),
+              padding: const EdgeInsets.only(top: 10.0, left: 20.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: <Widget>[
@@ -202,100 +202,110 @@ class _InvoiceBidderState extends State<InvoiceBidder>
   }
 
   Widget _getBody() {
-    return ListView(
-      children: <Widget>[
-        Padding(
-          padding: const EdgeInsets.only(left: 12.0, right: 12.0),
-          child: OfferCard(
-            offer: offer,
-            color: Colors.indigo.shade50,
+    return Container(
+      color: Colors.brown.shade100,
+      child: ListView(
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.only(left: 12.0, right: 12.0, top: 12.0),
+            child: OfferCard(
+              offer: offer,
+              elevation: 2.0,
+            ),
           ),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(bottom: 0.0, left: 20.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.only(left: 8.0),
-                child: Text(
-                  'Invoice Due Diligence',
-                  style: TextStyle(
-                      fontSize: 16.0,
-                      color: Colors.grey,
-                      fontWeight: FontWeight.bold),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(left: 12.0, right: 12.0),
-                child: IconButton(
-                  icon: Icon(
-                    Icons.search,
-                    color: Colors.pink,
+          Padding(
+            padding: const EdgeInsets.only(bottom: 0.0, left: 20.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.only(left: 8.0),
+                  child: Text(
+                    'Invoice Due Diligence',
+                    style: TextStyle(
+                        fontSize: 16.0,
+                        color: Colors.grey,
+                        fontWeight: FontWeight.bold),
                   ),
-                  onPressed: _onSearch,
                 ),
-              ),
-            ],
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(
-              left: 20.0, top: 0.0, right: 20.0, bottom: 0.0),
-          child: Center(
-            child: DropdownButton<double>(
-              items: items,
-              elevation: 8,
-              hint: Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: Text(
-                  'Select Percentage',
-                  style: Styles.greyLabelMedium,
+                Padding(
+                  padding: const EdgeInsets.only(left: 12.0, right: 12.0),
+                  child: IconButton(
+                    icon: Icon(
+                      Icons.search,
+                      color: Colors.pink,
+                    ),
+                    onPressed: _onSearch,
+                  ),
                 ),
-              ),
-              onChanged: _onChanged,
+              ],
             ),
           ),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(left: 36.0, top: 0.0),
-          child: Row(
-            children: <Widget>[
-              Text(
-                percentage == null ? '0.0 %' : '$percentage %',
-                style: Styles.blackBoldMedium,
-              ),
-              Padding(
-                padding: const EdgeInsets.only(left: 16.0),
-                child: Text(
-                  amount == null
-                      ? '0.00'
-                      : getFormattedAmount('$amount', context),
-                  style: TextStyle(
-                      fontSize: 28.0,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.pink.shade200),
+          Padding(
+            padding: const EdgeInsets.only(
+                left: 20.0, top: 0.0, right: 20.0, bottom: 0.0),
+            child: Row(
+              children: <Widget>[
+                DropdownButton<double>(
+                  items: items,
+                  elevation: 8,
+                  hint: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Text(
+                      'Select Percentage',
+                      style: Styles.greyLabelSmall,
+                    ),
+                  ),
+                  onChanged: _onChanged,
                 ),
-              ),
-            ],
+                Padding(
+                  padding: const EdgeInsets.only(left: 10.0),
+                  child: Text(
+                    percentage == null ? '0.0 %' : '$percentage %',
+                    style: Styles.blackBoldReallyLarge,
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(left: 80.0, right: 80.0, top: 20.0),
-          child: RaisedButton(
-            onPressed: _showConfirmDialog,
-            elevation: 8.0,
-            color: Colors.indigo.shade300,
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Text(
-                'Make  Bid',
-                style: Styles.whiteMedium,
+          Padding(
+            padding: const EdgeInsets.only(left: 30.0, top: 0.0),
+            child: Row(
+              children: <Widget>[
+                Text(
+                  'Bid Amount:',
+                  style: Styles.blackSmall,
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 8.0),
+                  child: Text(
+                    amount == null
+                        ? '0.00'
+                        : getFormattedAmount('$amount', context),
+                    style: Styles.tealBoldReallyLarge,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(
+                left: 80.0, right: 80.0, top: 20.0, bottom: 30.0),
+            child: RaisedButton(
+              onPressed: _showConfirmDialog,
+              elevation: 8.0,
+              color: Colors.indigo.shade300,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  'Make  Bid',
+                  style: Styles.whiteSmall,
+                ),
               ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 

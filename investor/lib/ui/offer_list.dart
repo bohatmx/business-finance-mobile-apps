@@ -2,11 +2,15 @@ import 'dart:async';
 
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
+import 'package:businesslibrary/data/dashboard_data.dart';
 import 'package:businesslibrary/data/investor.dart';
 import 'package:businesslibrary/data/offer.dart';
+import 'package:businesslibrary/util/Finders.dart';
+import 'package:businesslibrary/util/database.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/offer_card.dart';
 import 'package:businesslibrary/util/pager2.dart';
+import 'package:businesslibrary/util/pager_helper.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:businesslibrary/util/util.dart';
@@ -25,7 +29,7 @@ class _OfferListState extends State<OfferList>
     implements PagerListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   DateTime startTime, endTime;
-  List<Offer> offers = List();
+  List<Offer> baseList;
 
   List<Offer> openOffers = List();
   List<Offer> closedOffers = List();
@@ -43,22 +47,31 @@ class _OfferListState extends State<OfferList>
     WidgetsBinding.instance.addObserver(this);
 
     _buildDaysDropDownItems();
-
     _getCached();
-    _getPageLimit();
-    _getOffers(false);
   }
 
   void _getCached() async {
     investor = await SharedPrefs.getInvestor();
+    pageLimit = await SharedPrefs.getPageLimit();
+    dashboardData = await SharedPrefs.getDashboardData();
+    var list = await Database.getOffers();
+    print(
+        '_OfferListState._getCached ############# offers from cache: ${list.length}');
+    if (baseList == null) {
+      baseList = List();
+    }
+    baseList.clear();
+    list.forEach((o) {
+      if (o.isOpen) {
+        baseList.add(o);
+      }
+    });
+    print('_OfferListState._getCached, baseList : ${baseList.length}');
     setState(() {});
+    _getOffers();
   }
 
-  void _getPageLimit() async {
-    setState(() {});
-  }
-
-  void _getOffers(bool isBackPressed) async {
+  void _getOffers() async {
     print('\n\n\n_OfferListState._getOffers .......................');
 
     AppSnackbar.showSnackbarWithProgressIndicator(
@@ -67,27 +80,28 @@ class _OfferListState extends State<OfferList>
         textColor: Colors.yellow,
         backgroundColor: Colors.black);
     setState(() {
-      _opacity = 1.0;
+      _opacity = 0.0;
     });
 
-    if (numberOfOffers == null) {
-      numberOfOffers = await SharedPrefs.getPageLimit();
-    }
     print('_OfferListState._getOffers ## ...currentStartKey: $currentStartKey');
-    summary = await ListAPI.getOpenOffersWithPaging(
-        lastDate: currentStartKey, pageLimit: numberOfOffers);
 
-    openOffers = summary.offers;
-    if (openOffers != null) {
-      if (openOffers.isNotEmpty) {
-        previousStartKey = currentStartKey;
-        openOffers.forEach((o) {
-          currentStartKey = o.intDate;
-        });
-      }
-    } else {
-      print('_OfferListState._getOffers ... ERROR');
+    var res = Finder.find(
+      intDate: currentStartKey,
+      baseList: baseList,
+      pageLimit: pageLimit,
+    );
+    print(res);
+    openOffers.clear();
+    if (res.items.isNotEmpty) {
+      res.items.forEach((item) {
+        openOffers.add(item as Offer);
+      });
     }
+    if (openOffers.isNotEmpty) {
+      currentStartKey = openOffers.last.intDate;
+    }
+    print(
+        '_OfferListState._getOffers after find, openOffers: ${openOffers.length}');
     setState(() {
       _opacity = 0.0;
     });
@@ -386,6 +400,14 @@ class _OfferListState extends State<OfferList>
     return items;
   }
 
+  double _getTotalValue() {
+    var t = 0.00;
+    openOffers.forEach((o) {
+      t += o.offerAmount;
+    });
+    return t;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -397,7 +419,7 @@ class _OfferListState extends State<OfferList>
         ),
         bottom: PreferredSize(
           child: _getBottom(),
-          preferredSize: Size.fromHeight(160.0),
+          preferredSize: Size.fromHeight(200.0),
         ),
         actions: <Widget>[
           IconButton(
@@ -436,16 +458,24 @@ class _OfferListState extends State<OfferList>
 
   List<DropdownMenuItem<int>> items = List();
   int currentIndex = 0;
+  DashboardData dashboardData;
 
   Widget _getBottom() {
     return Column(
       children: <Widget>[
+        PagerHelper(
+          dashboardData: dashboardData,
+          itemName: 'Offers',
+          totalPages: 0,
+          pageValue: _getTotalValue(),
+          type: PagerHelper.OFFER,
+        ),
         Pager(
           listener: this,
           itemName: 'Offers',
           elevation: 8.0,
           currentStartKey: currentStartKey,
-          totalItems: offers.length,
+          totalItems: openOffers.length,
           pageLimit: pageLimit,
         ),
         Padding(
@@ -468,17 +498,6 @@ class _OfferListState extends State<OfferList>
                         ),
                       ),
                     )),
-              ),
-              Text(
-                'Invoice Offers',
-                style: getTextWhiteSmall(),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(left: 8.0),
-                child: Text(
-                  openOffers == null ? '0' : '${openOffers.length}',
-                  style: getTitleTextWhite(),
-                ),
               ),
             ],
           ),
@@ -505,15 +524,14 @@ class _OfferListState extends State<OfferList>
     if (refresh == null) {
       return;
     }
-    //print
-//        '_OfferListState._onInvoiceBidRequired back from Bidder, refresh: $refresh');
+
     if (refresh) {
-      _getOffers(false);
+      _getOffers();
     }
   }
 
   void _refresh() {
-    _getOffers(false);
+    _getOffers();
   }
 
   int pageLimit = 2;
@@ -656,176 +674,6 @@ class OfferListCard extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-}
-
-class OfferPanel extends StatelessWidget {
-  final Offer offer;
-  final int number;
-  Color color, amountColor;
-  double elevation = 4.0;
-
-  OfferPanel({this.offer, this.number});
-
-  TextStyle getTextStyle() {
-    if (offer.dateClosed == null) {
-      return TextStyle(
-          color: Colors.teal, fontSize: 20.0, fontWeight: FontWeight.bold);
-    } else {
-      return TextStyle(
-          color: Colors.pink, fontSize: 14.0, fontWeight: FontWeight.normal);
-    }
-  }
-
-  Widget getStatus() {
-    if (offer.isOpen) {
-      color = Colors.white;
-      return Text(
-        'Open',
-        style: Styles.blackBoldSmall,
-      );
-    } else {
-      color = Colors.grey.shade600;
-      return Text(
-        'Closed',
-        style: TextStyle(
-          fontSize: 14.0,
-          fontWeight: FontWeight.bold,
-          color: Colors.grey.shade600,
-        ),
-      );
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (offer.isOpen) {
-      color = Colors.white;
-      amountColor = Colors.teal.shade700;
-      elevation = 4.0;
-    } else {
-      color = Colors.grey.shade300;
-      amountColor = Colors.blueGrey.shade300;
-      elevation = 2.0;
-    }
-    double width = 60.0;
-    return Padding(
-      padding: const EdgeInsets.only(left: 12.0, right: 12.0),
-      child: Card(
-        elevation: elevation,
-        color: color == null ? Colors.white : color,
-        child: Padding(
-          padding: const EdgeInsets.all(10.0),
-          child: Column(
-            children: <Widget>[
-              Row(
-                children: <Widget>[
-                  Container(
-                    width: 30.0,
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 8.0),
-                      child: Text(
-                        '$number',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
-                        ),
-                      ),
-                    ),
-                  ),
-                  Container(
-                    width: width,
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 0.0),
-                      child: getStatus(),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 0.0),
-                    child: Text(
-                      getFormattedDateHour(offer.date),
-                      style: TextStyle(
-                          color: Colors.purple,
-                          fontSize: 16.0,
-                          fontWeight: FontWeight.normal),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 8.0),
-                    child: Text(
-                      getFormattedAmount('${offer.offerAmount}', context),
-                      style: TextStyle(
-                          color: amountColor,
-                          fontSize: 20.0,
-                          fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                ],
-              ),
-              Padding(
-                padding: const EdgeInsets.only(left: 20.0, top: 20.0),
-                child: Row(
-                  children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.only(right: 8.0),
-                      child: Text(
-                        'Supplier',
-                        style: TextStyle(
-                            color: Colors.grey,
-                            fontSize: 10.0,
-                            fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                    Flexible(
-                      child: Container(
-                        child: Text(
-                          offer.supplierName == null ? '' : offer.supplierName,
-                          overflow: TextOverflow.clip,
-                          style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 14.0,
-                              fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Padding(
-                padding:
-                    const EdgeInsets.only(left: 20.0, top: 4.0, bottom: 20.0),
-                child: Row(
-                  children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.only(right: 8.0),
-                      child: Text(
-                        'Customer',
-                        style: TextStyle(
-                            color: Colors.grey,
-                            fontSize: 10.0,
-                            fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                    Flexible(
-                      child: Container(
-                        child: Text(
-                          offer.customerName == null ? '' : offer.customerName,
-                          overflow: TextOverflow.clip,
-                          style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 14.0,
-                              fontWeight: FontWeight.normal),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
     );
   }
 }
