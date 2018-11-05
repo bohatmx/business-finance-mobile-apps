@@ -1,10 +1,10 @@
-import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/invoice_bid.dart';
 import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/util/FCM.dart';
-import 'package:businesslibrary/util/lookups.dart';
+import 'package:businesslibrary/util/database.dart';
+import 'package:businesslibrary/util/offer_card.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:businesslibrary/util/util.dart';
@@ -55,7 +55,7 @@ class _OfferListState extends State<OfferList>
         message: 'Loading  Offers ...',
         textColor: Colors.yellow,
         backgroundColor: Colors.black);
-    offers = await ListAPI.getOffersBySupplier(supplier.participantId);
+    offers = await Database.getOffers();
     setState(() {});
     _scaffoldKey.currentState.hideCurrentSnackBar();
     var cnt = 0;
@@ -285,10 +285,11 @@ class _OfferListState extends State<OfferList>
               },
               child: Padding(
                 padding: const EdgeInsets.all(2.0),
-                child: OfferPanel(
-                    offer: offers.elementAt(index),
-                    number: index + 1,
-                    color: Colors.indigo.shade50),
+                child: OfferCard(
+                  offer: offers.elementAt(index),
+                  number: index + 1,
+                  elevation: 2.0,
+                ),
               ),
             );
           }),
@@ -354,234 +355,91 @@ class _OfferListState extends State<OfferList>
   }
 }
 
-class OfferListCard extends StatelessWidget {
-  final Offer offer;
-  final Color color;
-
-  OfferListCard({this.offer, this.color});
-  final boldStyle = TextStyle(
-    color: Colors.black,
-    fontSize: 16.0,
-    fontWeight: FontWeight.bold,
-  );
-  final amtStyle = TextStyle(
-    color: Colors.teal,
-    fontSize: 18.0,
-    fontWeight: FontWeight.w900,
-  );
-
-  @override
-  Widget build(BuildContext context) {
-    print('OfferListCard.build');
-    return Column(
-      children: <Widget>[
-        Row(
-          children: <Widget>[
-            Text(
-                offer.supplierName == null ? 'Unknown yet' : offer.supplierName,
-                style: boldStyle),
-          ],
-        ),
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Row(
-            children: <Widget>[
-              Container(width: 30.0, child: Text('For')),
-              Text(
-                  offer.customerName == null
-                      ? 'Unknown yet'
-                      : offer.customerName,
-                  style: boldStyle),
-            ],
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(left: 8.0, top: 20.0),
-          child: Row(
-            children: <Widget>[
-              Container(width: 40.0, child: Text('Start')),
-              Text(
-                  offer.startTime == null
-                      ? 'Unknown yet'
-                      : getFormattedDate(offer.startTime),
-                  style: TextStyle(fontSize: 14.0, color: Colors.deepPurple)),
-            ],
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Row(
-            children: <Widget>[
-              Container(width: 40.0, child: Text('End')),
-              Text(
-                  offer.endTime == null
-                      ? 'Unknown yet'
-                      : getFormattedDate(offer.endTime),
-                  style: TextStyle(
-                      fontSize: 14.0,
-                      color: Colors.red,
-                      fontWeight: FontWeight.bold)),
-            ],
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Row(
-            children: <Widget>[
-              Container(width: 70.0, child: Text('Amount')),
-              Text(
-                offer.offerAmount == null
-                    ? 'Unknown yet'
-                    : getFormattedAmount('${offer.offerAmount}', context),
-                style: amtStyle,
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class OfferPanel extends StatelessWidget {
-  final Offer offer;
-  final int number;
-  Color color;
-  String status;
-
-  OfferPanel({this.offer, this.number, this.color});
-
-  TextStyle getTextStyle() {
-    if (offer.dateClosed == null) {
-      return TextStyle(
-          color: Colors.teal, fontSize: 20.0, fontWeight: FontWeight.bold);
-    } else {
-      return TextStyle(
-          color: Colors.pink, fontSize: 14.0, fontWeight: FontWeight.normal);
-    }
-  }
-
-  void getStatus() {
-    if (offer.isOpen == true) {
-      color = Colors.purple.shade50;
-      status = 'Open';
-    } else {
-      status = 'Closed';
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    getStatus();
-    return Padding(
-      padding: const EdgeInsets.only(left: 12.0, right: 12.0),
-      child: Card(
-        elevation: 3.0,
-        color: color == null ? Colors.white : color,
-        child: Padding(
-          padding: const EdgeInsets.all(10.0),
-          child: Column(
-            children: <Widget>[
-              Row(
-                children: <Widget>[
-                  Container(
-                    width: 30.0,
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 8.0),
-                      child: Text(
-                        '$number',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
-                        ),
-                      ),
-                    ),
-                  ),
-                  Container(
-                    width: 60.0,
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 0.0),
-                      child: Text(
-                        status,
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 0.0),
-                    child: Text(
-                      getFormattedDateHour(offer.date),
-                      style: TextStyle(
-                          color: Colors.purple,
-                          fontSize: 16.0,
-                          fontWeight: FontWeight.normal),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 8.0),
-                    child: Text(
-                      getFormattedAmount('${offer.offerAmount}', context),
-                      style: TextStyle(
-                          color: Colors.teal.shade300,
-                          fontSize: 20.0,
-                          fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                ],
-              ),
-              Padding(
-                padding: const EdgeInsets.only(left: 20.0, top: 20.0),
-                child: Row(
-                  children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.only(right: 8.0),
-                      child: Text(
-                        'Supplier',
-                        style: TextStyle(
-                            color: Colors.grey,
-                            fontSize: 10.0,
-                            fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                    Text(
-                      offer.supplierName == null ? '' : offer.supplierName,
-                      style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 14.0,
-                          fontWeight: FontWeight.bold),
-                    ),
-                  ],
-                ),
-              ),
-              Padding(
-                padding:
-                    const EdgeInsets.only(left: 20.0, top: 4.0, bottom: 20.0),
-                child: Row(
-                  children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.only(right: 8.0),
-                      child: Text(
-                        'Customer',
-                        style: TextStyle(
-                            color: Colors.grey,
-                            fontSize: 10.0,
-                            fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                    Text(
-                      offer.customerName == null ? '' : offer.customerName,
-                      style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 14.0,
-                          fontWeight: FontWeight.normal),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
+//class OfferListCard extends StatelessWidget {
+//  final Offer offer;
+//  final Color color;
+//
+//  OfferListCard({this.offer, this.color});
+//  final boldStyle = TextStyle(
+//    color: Colors.black,
+//    fontSize: 16.0,
+//    fontWeight: FontWeight.bold,
+//  );
+//  final amtStyle = TextStyle(
+//    color: Colors.teal,
+//    fontSize: 18.0,
+//    fontWeight: FontWeight.w900,
+//  );
+//
+//  @override
+//  Widget build(BuildContext context) {
+//    print('OfferListCard.build');
+//    return Column(
+//      children: <Widget>[
+//        Row(
+//          children: <Widget>[
+//            Text(
+//                offer.supplierName == null ? 'Unknown yet' : offer.supplierName,
+//                style: boldStyle),
+//          ],
+//        ),
+//        Padding(
+//          padding: const EdgeInsets.all(8.0),
+//          child: Row(
+//            children: <Widget>[
+//              Container(width: 30.0, child: Text('For')),
+//              Text(
+//                  offer.customerName == null
+//                      ? 'Unknown yet'
+//                      : offer.customerName,
+//                  style: boldStyle),
+//            ],
+//          ),
+//        ),
+//        Padding(
+//          padding: const EdgeInsets.only(left: 8.0, top: 20.0),
+//          child: Row(
+//            children: <Widget>[
+//              Container(width: 40.0, child: Text('Start')),
+//              Text(
+//                  offer.startTime == null
+//                      ? 'Unknown yet'
+//                      : getFormattedDate(offer.startTime),
+//                  style: TextStyle(fontSize: 14.0, color: Colors.deepPurple)),
+//            ],
+//          ),
+//        ),
+//        Padding(
+//          padding: const EdgeInsets.all(8.0),
+//          child: Row(
+//            children: <Widget>[
+//              Container(width: 40.0, child: Text('End')),
+//              Text(
+//                  offer.endTime == null
+//                      ? 'Unknown yet'
+//                      : getFormattedDate(offer.endTime),
+//                  style: TextStyle(
+//                      fontSize: 14.0,
+//                      color: Colors.red,
+//                      fontWeight: FontWeight.bold)),
+//            ],
+//          ),
+//        ),
+//        Padding(
+//          padding: const EdgeInsets.all(8.0),
+//          child: Row(
+//            children: <Widget>[
+//              Container(width: 70.0, child: Text('Amount')),
+//              Text(
+//                offer.offerAmount == null
+//                    ? 'Unknown yet'
+//                    : getFormattedAmount('${offer.offerAmount}', context),
+//                style: amtStyle,
+//              ),
+//            ],
+//          ),
+//        ),
+//      ],
+//    );
+//  }
+//}

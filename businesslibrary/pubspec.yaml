@@ -26,6 +26,7 @@ dependencies:
     email_validator: ^1.0.0
     colorize: ^2.0.0
     http: ^0.11.3+17
+    swipedetector: ^1.2.0
 
 
 #    oktoast: ^1.0.1+2

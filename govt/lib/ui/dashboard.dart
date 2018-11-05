@@ -132,8 +132,11 @@ class _DashboardState extends State<Dashboard>
     var m =
         await ListAPI.getCustomerPurchaseOrders(govtEntity.documentReference);
     var x = await ListAPI.getCustomerInvoices(govtEntity.documentReference);
+    var z = await ListAPI.getDeliveryNotes(
+        govtEntity.documentReference, 'govtEntities');
     await Database.savePurchaseOrders(PurchaseOrders(m));
     await Database.saveInvoices(Invoices(x));
+    await Database.saveDeliveryNotes(DeliveryNotes(z));
     int count = 1;
     m.forEach((x) {
       print(

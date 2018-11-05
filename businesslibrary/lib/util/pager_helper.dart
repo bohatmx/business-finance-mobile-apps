@@ -7,20 +7,43 @@ class PagerHelper extends StatelessWidget {
   final DashboardData dashboardData;
   final int pageNumber, totalPages;
   final double pageValue;
-  final String itemName;
+  final String itemName, type;
   final TextStyle totalValueStyle, pageValueStyle;
 
+  static const PURCHASE_ORDER = 'po',
+      DELIVERY_NOTE = 'note',
+      INVOICE = 'invoice',
+      OFFER = 'offer';
   PagerHelper(
       {this.dashboardData,
       this.pageNumber,
       this.pageValue,
       this.itemName,
+      this.type,
       this.totalValueStyle,
       this.pageValueStyle,
       this.totalPages});
 
   @override
   Widget build(BuildContext context) {
+    double getTotalValue() {
+      if (dashboardData == null) {
+        return 0.00;
+      }
+      switch (type) {
+        case PURCHASE_ORDER:
+          return dashboardData.totalPurchaseOrderAmount;
+        case DELIVERY_NOTE:
+          return dashboardData.totalDeliveryNoteAmount;
+        case INVOICE:
+          return dashboardData.totalInvoiceAmount;
+        case OFFER:
+          return dashboardData.totalOfferAmount;
+        default:
+          return 999999.9999;
+      }
+    }
+
     return Column(
       children: <Widget>[
         Padding(
@@ -34,9 +57,7 @@ class PagerHelper extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(left: 8.0),
                 child: Text(
-                  dashboardData == null
-                      ? '0.00'
-                      : '${getFormattedAmount('${dashboardData.totalPurchaseOrderAmount}', context)}',
+                  '${getFormattedAmount('${getTotalValue()}', context)}',
                   style: totalValueStyle == null
                       ? Styles.brownBoldMedium
                       : totalValueStyle,

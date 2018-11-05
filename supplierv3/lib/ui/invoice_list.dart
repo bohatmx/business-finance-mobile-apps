@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:businesslibrary/api/data_api.dart';
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
+import 'package:businesslibrary/data/dashboard_data.dart';
 import 'package:businesslibrary/data/invoice.dart';
 import 'package:businesslibrary/data/invoice_acceptance.dart';
 import 'package:businesslibrary/data/invoice_bid.dart';
@@ -11,6 +12,7 @@ import 'package:businesslibrary/data/offerCancellation.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/FCM.dart';
+import 'package:businesslibrary/util/database.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
@@ -19,10 +21,6 @@ import 'package:supplierv3/ui/delivery_note_list.dart';
 import 'package:supplierv3/ui/make_offer.dart';
 
 class InvoiceList extends StatefulWidget {
-  final List<Invoice> mList;
-
-  InvoiceList(this.mList);
-
   @override
   _InvoiceListState createState() => _InvoiceListState();
 }
@@ -43,7 +41,9 @@ class _InvoiceListState extends State<InvoiceList>
   Supplier supplier;
   bool isPurchaseOrder, isInvoice;
   List<DropdownMenuItem<String>> items = List();
-  List<Invoice> invoices;
+  List<Invoice> invoices = List(), baseList;
+  int pageLimit = 2, currentStartKey;
+  DashboardData dashboardData;
 
   @override
   void initState() {
@@ -52,19 +52,16 @@ class _InvoiceListState extends State<InvoiceList>
     _getCached();
   }
 
-  _listenForBids() async {
-//    invoicesOnOffer.forEach((i) {
-//      listenForInvoiceBid(i.offer.split('#').elementAt(1), this);
-//    });
-//
-//    listenForInvoiceAcceptance(supplier.documentReference, this);
-  }
+  _listenForBids() async {}
 
   _getCached() async {
     user = await SharedPrefs.getUser();
     supplier = await SharedPrefs.getSupplier();
+    dashboardData = await SharedPrefs.getDashboardData();
+    baseList = await Database.getInvoices();
+    pageLimit = await SharedPrefs.getPageLimit();
+    _getInvoices();
     setState(() {});
-    //_getInvoices();
   }
 
   bool haveListened = false;
@@ -80,43 +77,35 @@ class _InvoiceListState extends State<InvoiceList>
     totalSettled = '0.00';
     invoicesOpen = await ListAPI.getInvoicesOpenForOffers(
         supplier.documentReference, 'suppliers');
+
+    invoicesOpen.clear();
+    invoicesOnOffer.clear();
+    invoicesSettled.clear();
+
+    baseList.forEach((inv) {
+      if (inv.isOnOffer) {
+        invoicesOnOffer.add(inv);
+      } else {
+        if (inv.isSettled) {
+          invoicesSettled.add(inv);
+        } else {
+          invoicesOpen.add(inv);
+        }
+      }
+    });
+
     invoicesOpen.sort((a, b) => b.date.compareTo(a.date));
-    _calculateOpen();
-
-    invoicesOnOffer = await ListAPI.getInvoicesOnOffer(
-        supplier.documentReference, 'suppliers');
     invoicesOnOffer.sort((a, b) => b.date.compareTo(a.date));
-    if (!haveListened) {
-      _listenForBids();
-      haveListened = true;
-    }
-    _calculateOnOffer();
-
-    invoicesSettled = await ListAPI.getInvoicesSettled(
-        supplier.documentReference, 'suppliers');
     invoicesSettled.sort((a, b) => b.date.compareTo(a.date));
+
+    _calculateOpen();
+    _calculateOnOffer();
     _calculateSettled();
+    setState(() {});
 
     if (_scaffoldKey.currentState != null) {
       _scaffoldKey.currentState.hideCurrentSnackBar();
     }
-  }
-
-  void _split() {
-    widget.mList.forEach((i) {
-      if (i.isOnOffer) {
-        invoicesOnOffer.add((i));
-      }
-      if (i.isSettled) {
-        invoicesSettled.add((i));
-      }
-      if (!i.isOnOffer) {
-        invoicesOpen.add((i));
-      }
-    });
-    _calculateOpen();
-    _calculateSettled();
-    _calculateOnOffer();
   }
 
   void _calculateOpen() {
@@ -164,10 +153,6 @@ class _InvoiceListState extends State<InvoiceList>
 
   @override
   Widget build(BuildContext context) {
-    print('_InvoiceListState.build');
-    if (invoicesOpen.isEmpty) {
-      _split();
-    }
     return DefaultTabController(
       length: 3,
       child: Scaffold(
@@ -228,10 +213,7 @@ class _InvoiceListState extends State<InvoiceList>
               ),
               Text(
                 totalOnOffer == null ? '0.00' : totalOnOffer,
-                style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 28.0,
-                    color: Colors.purple),
+                style: Styles.pinkBoldMedium,
               ),
             ],
           ),
@@ -262,47 +244,44 @@ class _InvoiceListState extends State<InvoiceList>
 
   Widget _getOpenView() {
     _calculateOpen();
-    return Column(
-      children: <Widget>[
-        Padding(
-          padding: const EdgeInsets.only(left: 40.0, top: 20.0),
-          child: Row(
-            children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.only(right: 8.0, left: 20.0),
-                child: Text('Total Value'),
-              ),
-              Text(
-                totalOpen == null ? '0.00' : totalOpen,
-                style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 28.0,
-                    color: Colors.purple.shade200),
-              ),
-            ],
+    return Container(
+      color: Colors.brown.shade100,
+      child: Column(
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.only(left: 40.0, top: 12.0, bottom: 12.0),
+            child: Row(
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.only(right: 8.0, left: 20.0),
+                  child: Text('Total Value'),
+                ),
+                Text(
+                  totalOpen == null ? '0.00' : totalOpen,
+                  style: Styles.pinkBoldMedium,
+                ),
+              ],
+            ),
           ),
-        ),
-        new Flexible(
-          child: new ListView.builder(
-              itemCount: invoicesOpen == null ? 0 : invoicesOpen.length,
-              itemBuilder: (BuildContext context, int index) {
-                return new GestureDetector(
-                  onTap: () {
-                    _confirm(invoicesOpen.elementAt(index));
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.all(0.0),
+          new Flexible(
+            child: new ListView.builder(
+                itemCount: invoicesOpen == null ? 0 : invoicesOpen.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return new GestureDetector(
+                    onTap: () {
+                      _confirm(invoicesOpen.elementAt(index));
+                    },
                     child: InvoiceCard(
                       invoice: invoicesOpen.elementAt(index),
                       context: context,
                       listener: this,
                       type: Open,
                     ),
-                  ),
-                );
-              }),
-        ),
-      ],
+                  );
+                }),
+          ),
+        ],
+      ),
     );
   }
 
@@ -320,7 +299,7 @@ class _InvoiceListState extends State<InvoiceList>
               ),
               Text(
                 totalSettled == null ? '0.00' : totalSettled,
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),
+                style: Styles.pinkBoldMedium,
               ),
             ],
           ),
@@ -641,7 +620,7 @@ class InvoiceCard extends StatelessWidget {
       case OnOffer:
         return Colors.brown.shade50;
       case Open:
-        return Colors.teal.shade50;
+        return Colors.white;
       case Settled:
         return Colors.grey.shade50;
     }
@@ -651,98 +630,127 @@ class InvoiceCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding:
-          const EdgeInsets.only(left: 4.0, right: 4.0, bottom: 4.0, top: 4.0),
+      padding: const EdgeInsets.only(left: 12.0, right: 12.0, bottom: 8.0),
       child: GestureDetector(
         onTap: _process,
         child: Card(
-          elevation: 4.0,
+          elevation: 2.0,
           color: _getColor(),
-          child: Column(
-            children: <Widget>[
-              Padding(
-                padding:
-                    const EdgeInsets.only(left: 8.0, right: 20.0, top: 20.0),
-                child: Row(
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              children: <Widget>[
+                Row(
                   children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Icon(
-                        Icons.description,
-                        color: Colors.purple,
-                      ),
-                    ),
                     Text(
-                      getFormattedDateLong(invoice.date, context),
-                      style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 16.0,
-                          fontWeight: FontWeight.normal),
+                      getFormattedDateLongWithTime(invoice.date, context),
+                      style: Styles.blueSmall,
                     ),
                   ],
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(left: 24.0, top: 20.0),
-                child: Row(
-                  children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.only(left: 8.0),
-                      child: GestureDetector(
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 20.0, top: 10.0),
+                  child: Row(
+                    children: <Widget>[
+                      GestureDetector(
                         onTap: _process,
                         child: Text(
                           invoice.customerName,
-                          style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 18.0,
-                              fontWeight: FontWeight.w900),
+                          style: Styles.blackBoldMedium,
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-              Padding(
-                padding:
-                    const EdgeInsets.only(left: 30.0, bottom: 0.0, top: 10.0),
-                child: Row(
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8.0),
+                  child: Row(
+                    children: <Widget>[
+                      Container(
+                        width: 60.0,
+                        child: Text(
+                          'Amount',
+                          style: Styles.greyLabelSmall,
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 8.0),
+                        child: Text(
+                          invoice.amount == null ? '0.00' : _getFormattedAmt(),
+                          style: Styles.blackSmall,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8.0),
+                  child: Row(
+                    children: <Widget>[
+                      Container(
+                        width: 60.0,
+                        child: Text(
+                          'VAT',
+                          style: Styles.greyLabelSmall,
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 8.0),
+                        child: Text(
+                          invoice.valueAddedTax == null
+                              ? '0.00'
+                              : _getFormattedAmt(),
+                          style: Styles.blackSmall,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Row(
                   children: <Widget>[
-                    Text('Amount'),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 8.0),
+                    Container(
+                      width: 60.0,
                       child: Text(
-                        invoice.amount == null ? '0.00' : _getFormattedAmt(),
-                        style: TextStyle(
-                            fontSize: 28.0,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.teal),
+                        'Invoice',
+                        style: Styles.greyLabelSmall,
                       ),
                     ),
-                  ],
-                ),
-              ),
-              Padding(
-                padding:
-                    const EdgeInsets.only(left: 30.0, bottom: 30.0, top: 10.0),
-                child: Row(
-                  children: <Widget>[
-                    Text('Invoice Number'),
                     Padding(
                       padding: const EdgeInsets.only(left: 8.0),
                       child: Text(
                         invoice.invoiceNumber == null
                             ? ''
                             : invoice.invoiceNumber,
-                        style: TextStyle(
-                            fontSize: 20.0,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black),
+                        style: Styles.blackSmall,
                       ),
                     ),
                   ],
                 ),
-              ),
-            ],
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8.0, top: 20.0),
+                  child: Row(
+                    children: <Widget>[
+                      Container(
+                        width: 60.0,
+                        child: Text(
+                          'Total',
+                          style: Styles.greyLabelSmall,
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 8.0),
+                        child: Text(
+                          invoice.totalAmount == null
+                              ? '0.00'
+                              : _getFormattedAmt(),
+                          style: Styles.tealBoldMedium,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

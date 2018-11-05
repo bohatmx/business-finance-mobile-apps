@@ -64,17 +64,17 @@ class Styles {
   );
   static TextStyle blackBoldMedium = TextStyle(
     fontWeight: FontWeight.bold,
-    fontSize: 20.0,
+    fontSize: 16.0,
     color: Colors.black,
   );
   static TextStyle blackMedium = TextStyle(
     fontWeight: FontWeight.normal,
-    fontSize: 20.0,
+    fontSize: 16.0,
     color: Colors.black,
   );
   static TextStyle blackBoldLarge = TextStyle(
     fontWeight: FontWeight.w900,
-    fontSize: 24.0,
+    fontSize: 20.0,
     color: Colors.black,
   );
   static TextStyle blackBoldReallyLarge = TextStyle(

@@ -84,7 +84,7 @@ class _MakeOfferPageState extends State<MakeOfferPage>
         child: Row(
           children: <Widget>[
             Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.all(4.0),
               child: Icon(
                 Icons.apps,
                 color: Colors.blue,
@@ -100,7 +100,7 @@ class _MakeOfferPageState extends State<MakeOfferPage>
         items: sectorItems,
         hint: Text(
           'Select Customer Sector',
-          style: Styles.whiteBoldMedium,
+          style: Styles.whiteMedium,
         ),
         onChanged: _onSector);
   }
@@ -294,7 +294,10 @@ class _MakeOfferPageState extends State<MakeOfferPage>
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
-        title: Text('Make Invoice Offer'),
+        title: Text(
+          'Make Offer',
+          style: Styles.whiteBoldMedium,
+        ),
         bottom: PreferredSize(
             child: Column(
               children: <Widget>[
@@ -303,12 +306,12 @@ class _MakeOfferPageState extends State<MakeOfferPage>
                   padding: const EdgeInsets.only(bottom: 20.0),
                   child: Text(
                     sector == null ? '' : sector.sectorName,
-                    style: Styles.whiteBoldLarge,
+                    style: Styles.whiteBoldMedium,
                   ),
                 ),
               ],
             ),
-            preferredSize: Size.fromHeight(80.0)),
+            preferredSize: Size.fromHeight(88.0)),
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -321,7 +324,7 @@ class _MakeOfferPageState extends State<MakeOfferPage>
                     const EdgeInsets.only(left: 28.0, bottom: 8.0, top: 8.0),
                 child: Text(
                   invoice.customerName,
-                  style: Styles.greyLabelMedium,
+                  style: Styles.blackBoldLarge,
                 ),
               ),
               Row(
@@ -336,7 +339,7 @@ class _MakeOfferPageState extends State<MakeOfferPage>
                         color: Colors.blue,
                         child: Text(
                           'Start Date',
-                          style: TextStyle(color: Colors.white, fontSize: 16.0),
+                          style: Styles.whiteSmall,
                         ),
                       ),
                     ),
@@ -347,16 +350,13 @@ class _MakeOfferPageState extends State<MakeOfferPage>
                       startTime == null
                           ? ''
                           : getFormattedDate(startTime.toIso8601String()),
-                      style: TextStyle(
-                          fontSize: 20.0,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black),
+                      style: Styles.blackMedium,
                     ),
                   ),
                 ],
               ),
               Padding(
-                padding: const EdgeInsets.only(top: 10.0, left: 28.0),
+                padding: const EdgeInsets.only(top: 2.0, left: 28.0),
                 child: Row(
                   children: <Widget>[
                     Container(
@@ -367,7 +367,7 @@ class _MakeOfferPageState extends State<MakeOfferPage>
                         color: Colors.teal.shade800,
                         child: Text(
                           'End Date',
-                          style: TextStyle(color: Colors.white, fontSize: 16.0),
+                          style: Styles.whiteSmall,
                         ),
                       ),
                     ),
@@ -377,10 +377,7 @@ class _MakeOfferPageState extends State<MakeOfferPage>
                         endTime == null
                             ? ''
                             : getFormattedDate(endTime.toIso8601String()),
-                        style: TextStyle(
-                            fontSize: 20.0,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black),
+                        style: Styles.blackMedium,
                       ),
                     ),
                   ],
@@ -392,17 +389,13 @@ class _MakeOfferPageState extends State<MakeOfferPage>
                   children: <Widget>[
                     Text(
                       days == null ? '0' : '$days',
-                      style: TextStyle(
-                          fontSize: 40.0,
-                          fontWeight: FontWeight.w900,
-                          color: Colors.purple.shade700),
+                      style: Styles.purpleBoldReallyLarge,
                     ),
                     Padding(
                       padding: const EdgeInsets.only(left: 18.0, top: 8.0),
                       child: Text(
                         'Days',
-                        style: TextStyle(
-                            fontWeight: FontWeight.normal, fontSize: 20.0),
+                        style: Styles.blackMedium,
                       ),
                     ),
                   ],
@@ -417,8 +410,7 @@ class _MakeOfferPageState extends State<MakeOfferPage>
                       padding: const EdgeInsets.only(left: 8.0),
                       child: Text(
                         invoice.invoiceNumber,
-                        style: TextStyle(
-                            fontSize: 20.0, fontWeight: FontWeight.bold),
+                        style: Styles.blackMedium,
                       ),
                     )
                   ],
@@ -434,8 +426,7 @@ class _MakeOfferPageState extends State<MakeOfferPage>
                       padding: const EdgeInsets.only(left: 8.0),
                       child: Text(
                         getFormattedAmount('${invoice.totalAmount}', context),
-                        style: TextStyle(
-                            fontSize: 20.0, fontWeight: FontWeight.bold),
+                        style: Styles.blackMedium,
                       ),
                     )
                   ],
@@ -450,15 +441,14 @@ class _MakeOfferPageState extends State<MakeOfferPage>
                       padding: const EdgeInsets.only(left: 8.0),
                       child: Text(
                         getFormattedDate(invoice.date),
-                        style: TextStyle(
-                            fontSize: 20.0, fontWeight: FontWeight.bold),
+                        style: Styles.blackMedium,
                       ),
                     )
                   ],
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.only(left: 20.0, top: 10.0),
+                padding: const EdgeInsets.only(left: 20.0, top: 2.0),
                 child: Row(
                   children: <Widget>[
                     Padding(
@@ -479,20 +469,13 @@ class _MakeOfferPageState extends State<MakeOfferPage>
                     ),
                     Text(
                       percentage == null ? '' : percentage,
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.w900,
-                        fontSize: 28.0,
-                      ),
+                      style: Styles.blackBoldLarge,
                     ),
                     Padding(
                       padding: const EdgeInsets.only(left: 8.0),
                       child: Text(
                         '%',
-                        style: TextStyle(
-                            fontSize: 28.0,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.pink),
+                        style: Styles.pinkBoldLarge,
                       ),
                     )
                   ],
@@ -521,7 +504,7 @@ class _MakeOfferPageState extends State<MakeOfferPage>
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.only(left: 10.0, top: 20.0),
+                padding: const EdgeInsets.only(left: 10.0, top: 10.0),
                 child: Padding(
                   padding: const EdgeInsets.only(
                       left: 28.0, right: 28.0, bottom: 28.0),
@@ -532,10 +515,10 @@ class _MakeOfferPageState extends State<MakeOfferPage>
                       onPressed: _submitOffer,
                       color: Colors.indigo.shade300,
                       child: Padding(
-                        padding: const EdgeInsets.all(12.0),
+                        padding: const EdgeInsets.all(8.0),
                         child: Text(
                           'Submit Offer',
-                          style: TextStyle(color: Colors.white, fontSize: 20.0),
+                          style: Styles.whiteSmall,
                         ),
                       ),
                     ),

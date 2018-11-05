@@ -1,5 +1,6 @@
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
+import 'package:businesslibrary/data/dashboard_data.dart';
 import 'package:businesslibrary/data/delivery_acceptance.dart';
 import 'package:businesslibrary/data/delivery_note.dart';
 import 'package:businesslibrary/data/invoice.dart';
@@ -8,10 +9,16 @@ import 'package:businesslibrary/data/invoice_bid.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/FCM.dart';
+import 'package:businesslibrary/util/Finders.dart';
+import 'package:businesslibrary/util/database.dart';
 import 'package:businesslibrary/util/lookups.dart';
+import 'package:businesslibrary/util/pager2.dart';
+import 'package:businesslibrary/util/pager_helper.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
+import 'package:businesslibrary/util/styles.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:supplierv3/ui/delivery_note_page.dart';
 import 'package:supplierv3/ui/invoice_page.dart';
 
@@ -26,14 +33,17 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
         DeliveryNoteCardListener,
         InvoiceBidListener,
         InvoiceAcceptanceListener,
+        PagerListener,
         DeliveryAcceptanceListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
-  List<DeliveryNote> mDeliveryNotes;
+  List<DeliveryNote> mDeliveryNotes = List(), baseList;
   FirebaseMessaging _fcm = FirebaseMessaging();
   DeliveryNote deliveryNote;
   User user;
   Supplier supplier;
   bool isPurchaseOrder, isDeliveryNote, messageShown = false;
+  int currentStartKey, pageLimit;
+  DashboardData dashboardData;
 
   @override
   void initState() {
@@ -44,6 +54,10 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
   void _getCached() async {
     user = await SharedPrefs.getUser();
     supplier = await SharedPrefs.getSupplier();
+    pageLimit = await SharedPrefs.getPageLimit();
+    baseList = await Database.getDeliveryNotes();
+    dashboardData = await SharedPrefs.getDashboardData();
+
     FCM.configureFCM(
       deliveryAcceptanceListener: this,
     );
@@ -63,52 +77,110 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
         textColor: Colors.white,
         backgroundColor: Colors.black);
 
-    mDeliveryNotes =
-        await ListAPI.getDeliveryNotes(supplier.documentReference, 'suppliers');
+    var res = Finder.find(
+        intDate: currentStartKey, pageLimit: pageLimit, baseList: baseList);
+
+    if (res.items.isNotEmpty) {
+      mDeliveryNotes.clear();
+      res.items.forEach((item) {
+        mDeliveryNotes.add(item);
+      });
+      currentStartKey = mDeliveryNotes.last.intDate;
+      mDeliveryNotes.forEach((n) {
+        print(
+            '${n.intDate} ${n.date} ${n.supplierName} --> to ${n.customerName} ${n.totalAmount}');
+      });
+    }
+
     if (_scaffoldKey.currentState != null) {
       _scaffoldKey.currentState.hideCurrentSnackBar();
     }
-    print(
-        '_DeliveryNoteListState._getDeliveryNotes ############ found: ${mDeliveryNotes.length}');
-
     setState(() {});
   }
 
+  @override
+  onPrompt(int pageLimit) {
+    print('_PurchaseOrderListPageState.onPrompt ...............');
+  }
+
+  @override
+  onBack(int startKey, int pageNumber) {
+    print('\n\n_DeliveryNoteListState.onBack -------- startKey: $startKey');
+    currentStartKey = startKey;
+    _getDeliveryNotes();
+  }
+
+  @override
+  onNext(int pageNumber) {
+    print('_PurchaseOrderListPageState.onNext .......................');
+    _getDeliveryNotes();
+  }
+
+  @override
+  onNoMoreData() {
+    // TODO: implement onNoMoreData
+  }
   int count;
   String message;
+  double _getPageValue() {
+    var t = 0.00;
+    mDeliveryNotes.forEach((n) {
+      t += n.amount;
+    });
+    return t;
+  }
+
+  int _getTotalPages() {
+    if (baseList == null) {
+      return 0;
+    }
+    var rem = baseList.length % pageLimit;
+    var t = baseList.length ~/ pageLimit;
+    if (rem > 0) {
+      t++;
+    }
+    return t;
+  }
+
+  Widget _getBottom() {
+    return PreferredSize(
+        child: Column(
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.only(bottom: 18.0),
+              child: PagerHelper(
+                dashboardData: dashboardData,
+                type: PagerHelper.DELIVERY_NOTE,
+                pageValue: _getPageValue(),
+                itemName: 'Delivery Notes',
+                totalPages: _getTotalPages(),
+              ),
+            ),
+            baseList == null || baseList.length < 5
+                ? Container()
+                : Padding(
+                    padding: const EdgeInsets.only(bottom: 4.0),
+                    child: Pager(
+                      itemName: 'Delivery Notes',
+                      pageLimit: pageLimit,
+                      totalItems: baseList == null ? 0 : baseList.length,
+                      listener: this,
+                      currentStartKey: currentStartKey,
+                      elevation: 16.0,
+                    ),
+                  ),
+          ],
+        ),
+        preferredSize: Size.fromHeight(200.0));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
         title: Text('Delivery Notes'),
-        bottom: PreferredSize(
-            child: Padding(
-              padding: const EdgeInsets.only(bottom: 28.0, left: 20.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: <Widget>[
-                  Text(
-                    supplier == null ? 'No Supplier?' : supplier.name,
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16.0,
-                        fontWeight: FontWeight.normal),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 20.0, right: 20.0),
-                    child: Text(
-                      mDeliveryNotes == null ? '0' : '${mDeliveryNotes.length}',
-                      style: TextStyle(
-                          color: Colors.yellow,
-                          fontSize: 20.0,
-                          fontWeight: FontWeight.w900),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            preferredSize: Size.fromHeight(80.0)),
+        bottom: _getBottom(),
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.add),
@@ -123,29 +195,43 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
       body: new Column(
         children: <Widget>[
           Flexible(
-            child: new ListView.builder(
-                itemCount: mDeliveryNotes == null ? 0 : mDeliveryNotes.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return Padding(
-                    padding: const EdgeInsets.only(top: 4.0),
-                    child: InkWell(
-                      onTap: () {
-                        onNoteTapped(mDeliveryNotes.elementAt(index));
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 20.0, right: 20.0),
-                        child: DeliveryNoteCard(
-                          deliveryNote: mDeliveryNotes.elementAt(index),
-                          listener: this,
-                        ),
-                      ),
-                    ),
-                  );
-                }),
+            child: _getListView(),
           ),
         ],
       ),
     );
+  }
+
+  ScrollController scrollController = ScrollController();
+
+  Widget _getListView() {
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      scrollController.animateTo(
+        scrollController.position.minScrollExtent,
+        duration: const Duration(milliseconds: 10),
+        curve: Curves.easeOut,
+      );
+    });
+    return ListView.builder(
+        itemCount: mDeliveryNotes == null ? 0 : mDeliveryNotes.length,
+        controller: scrollController,
+        itemBuilder: (BuildContext context, int index) {
+          return Padding(
+            padding: const EdgeInsets.only(top: 4.0),
+            child: InkWell(
+              onTap: () {
+                onNoteTapped(mDeliveryNotes.elementAt(index));
+              },
+              child: Padding(
+                padding: const EdgeInsets.only(left: 20.0, right: 20.0),
+                child: DeliveryNoteCard(
+                  deliveryNote: mDeliveryNotes.elementAt(index),
+                  listener: this,
+                ),
+              ),
+            ),
+          );
+        });
   }
 
   @override
@@ -354,23 +440,23 @@ class DeliveryNoteCard extends StatelessWidget {
       padding: const EdgeInsets.all(2.0),
       child: Card(
         elevation: 1.0,
-        color: Colors.indigo.shade50,
+        color: Colors.brown.shade50,
         child: Padding(
           padding: const EdgeInsets.only(
-              left: 20.0, right: 20.0, bottom: 2.0, top: 20.0),
+              left: 30.0, right: 30.0, bottom: 2.0, top: 10.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: <Widget>[
-              Row(
-                children: <Widget>[
-                  Text(
-                    '${getDate()}',
-                    style: TextStyle(
-                        color: Colors.blue,
-                        fontSize: 16.0,
-                        fontWeight: FontWeight.normal),
-                  ),
-                ],
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8.0, top: 8.0),
+                child: Row(
+                  children: <Widget>[
+                    Text(
+                      '${getDate()}',
+                      style: Styles.blueSmall,
+                    ),
+                  ],
+                ),
               ),
               Row(
                 children: <Widget>[
@@ -379,10 +465,7 @@ class DeliveryNoteCard extends StatelessWidget {
                       child: Text(
                         deliveryNote.customerName,
                         overflow: TextOverflow.clip,
-                        style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 16.0,
-                            fontWeight: FontWeight.bold),
+                        style: Styles.blackBoldMedium,
                       ),
                     ),
                   )
@@ -398,20 +481,14 @@ class DeliveryNoteCard extends StatelessWidget {
                         width: 100.0,
                         child: Text(
                           'PO Number',
-                          style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 14.0,
-                              fontWeight: FontWeight.normal),
+                          style: Styles.blackSmall,
                         ),
                       ),
                       Padding(
                         padding: const EdgeInsets.only(left: 8.0),
                         child: Text(
                           deliveryNote.purchaseOrderNumber,
-                          style: TextStyle(
-                              color: Colors.purple.shade300,
-                              fontSize: 18.0,
-                              fontWeight: FontWeight.bold),
+                          style: Styles.blackSmall,
                         ),
                       )
                     ],
@@ -428,10 +505,7 @@ class DeliveryNoteCard extends StatelessWidget {
                         width: 100.0,
                         child: Text(
                           'Note Amount',
-                          style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 14.0,
-                              fontWeight: FontWeight.normal),
+                          style: Styles.blackSmall,
                         ),
                       ),
                       Padding(
@@ -443,10 +517,7 @@ class DeliveryNoteCard extends StatelessWidget {
                               ? '0.00'
                               : getFormattedAmount(
                                   '${deliveryNote.amount}', context),
-                          style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 18.0,
-                              fontWeight: FontWeight.bold),
+                          style: Styles.blackSmall,
                         ),
                       )
                     ],
@@ -454,38 +525,29 @@ class DeliveryNoteCard extends StatelessWidget {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.only(left: 0.0),
-                child: Padding(
-                  padding: const EdgeInsets.only(bottom: 8.0),
-                  child: Row(
-                    children: <Widget>[
-                      Container(
-                        width: 100.0,
-                        child: Text(
-                          'Note VAT',
-                          style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 14.0,
-                              fontWeight: FontWeight.normal),
-                        ),
+                padding: const EdgeInsets.only(bottom: 16.0),
+                child: Row(
+                  children: <Widget>[
+                    Container(
+                      width: 100.0,
+                      child: Text(
+                        'Note VAT',
+                        style: Styles.blackSmall,
                       ),
-                      Padding(
-                        padding: const EdgeInsets.only(
-                          left: 8.0,
-                        ),
-                        child: Text(
-                          deliveryNote.vat == null
-                              ? '0.00'
-                              : getFormattedAmount(
-                                  '${deliveryNote.vat}', context),
-                          style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 16.0,
-                              fontWeight: FontWeight.bold),
-                        ),
-                      )
-                    ],
-                  ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(
+                        left: 8.0,
+                      ),
+                      child: Text(
+                        deliveryNote.vat == null
+                            ? '0.00'
+                            : getFormattedAmount(
+                                '${deliveryNote.vat}', context),
+                        style: Styles.blackSmall,
+                      ),
+                    )
+                  ],
                 ),
               ),
               Padding(
@@ -513,10 +575,7 @@ class DeliveryNoteCard extends StatelessWidget {
                               ? '0.00'
                               : getFormattedAmount(
                                   '${deliveryNote.totalAmount}', context),
-                          style: TextStyle(
-                              color: Colors.teal,
-                              fontSize: 24.0,
-                              fontWeight: FontWeight.bold),
+                          style: Styles.tealBoldMedium,
                         ),
                       )
                     ],

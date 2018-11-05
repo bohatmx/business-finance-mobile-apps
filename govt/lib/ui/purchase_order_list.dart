@@ -136,7 +136,7 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
 
   Widget _getBottom() {
     return PreferredSize(
-      preferredSize: const Size.fromHeight(240.0),
+      preferredSize: const Size.fromHeight(200.0),
       child: Column(
         children: <Widget>[
           PagerHelper(
@@ -152,7 +152,8 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
               currentStartKey: currentStartKey,
               listener: this,
               itemName: 'Purchase Orders',
-              totalItems: dashboardData.purchaseOrders,
+              totalItems:
+                  dashboardData == null ? 0 : dashboardData.purchaseOrders,
             ),
           ),
         ],
@@ -255,7 +256,7 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
 
   List<PurchaseOrder> lastList;
   @override
-  onBack(int pageLimit, int startKey, int pageNumber) {
+  onBack(int startKey, int pageNumber) {
     print(
         '\n\n\n_PurchaseOrderListPageState.onBack ###### this.pageNumber ${this.pageNumber} pageNumber: $pageNumber startKey: $startKey');
 
@@ -264,7 +265,7 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
   }
 
   @override
-  onNext(int pageLimit, int pageNumber) {
+  onNext(int pageNumber) {
     print(
         '_PurchaseOrderListPageState.onNext pageLimit $pageLimit pageNumber: ####### currentStartKey $pageNumber $currentStartKey');
     _findOrders(currentStartKey);

@@ -4,8 +4,8 @@ import 'package:businesslibrary/util/styles.dart';
 import 'package:flutter/material.dart';
 
 abstract class PagerListener {
-  onNext(int pageLimit, int pageNumber);
-  onBack(int pageLimit, int startKey, int pageNumber);
+  onNext(int pageNumber);
+  onBack(int startKey, int pageNumber);
   onPrompt(int pageLimit);
   onNoMoreData();
 }
@@ -16,6 +16,7 @@ class Pager extends StatefulWidget {
   final int totalItems;
   final String itemName;
   final int pageLimit;
+  final double elevation;
   static const Back = 1, Next = 2;
 
   Pager(
@@ -23,6 +24,7 @@ class Pager extends StatefulWidget {
       this.currentStartKey,
       this.totalItems,
       this.itemName,
+      this.elevation,
       this.pageLimit});
   static const DefaultPageLimit = 4;
 
@@ -31,7 +33,7 @@ class Pager extends StatefulWidget {
 }
 
 class _PagerState extends State<Pager> {
-  static const numbers = [2, 4, 6, 8, 10, 20, 30, 40, 50, 60, 70, 80, 100];
+  static const numbers = [2, 4, 6, 8, 10, 20];
   final List<DropdownMenuItem<int>> items = List();
   int currentIndex = 0;
   int previousStartKey, pageNumber = 1;
@@ -79,7 +81,7 @@ class _PagerState extends State<Pager> {
 
     print(
         '++++++++++++++++++++++++++ Pager2._forwardPressed currentIndex: $currentIndex previousStartKey: $previousStartKey\n');
-    widget.listener.onNext(localPageLimit, currentIndex + 1);
+    widget.listener.onNext(currentIndex + 1);
   }
 
   void _rewindPressed() {
@@ -108,7 +110,7 @@ class _PagerState extends State<Pager> {
     print(
         '_Pager2State._rewindPressed -------- currentIndex: $currentIndex previousStartKey: $previousStartKey -- after manipulation');
     pagerItems.doPrint();
-    widget.listener.onBack(localPageLimit, previousStartKey, currentIndex);
+    widget.listener.onBack(previousStartKey, currentIndex);
   }
 
   void _onNumber(int value) async {
@@ -143,7 +145,7 @@ class _PagerState extends State<Pager> {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Card(
-        elevation: 8.0,
+        elevation: widget.elevation == null ? 16.0 : widget.elevation,
         child: Column(
           children: <Widget>[
             Padding(
@@ -162,37 +164,47 @@ class _PagerState extends State<Pager> {
                       style: Styles.pinkBoldSmall,
                     ),
                   ),
-                  InkWell(
-                      onTap: _rewindPressed,
-                      child: Text('Back', style: Styles.blackBoldSmall)),
-                  IconButton(
-                    icon: Icon(
-                      Icons.fast_rewind,
-                      color: Colors.black,
-                      size: 36.0,
+                  GestureDetector(
+                    onTap: _rewindPressed,
+                    child: Row(
+                      children: <Widget>[
+                        Text('Back', style: Styles.blackSmall),
+                        IconButton(
+                          icon: Icon(
+                            Icons.fast_rewind,
+                            color: Colors.black,
+                            size: 36.0,
+                          ),
+                          onPressed: _rewindPressed,
+                        ),
+                      ],
                     ),
-                    onPressed: _rewindPressed,
                   ),
                   Padding(
-                    padding: const EdgeInsets.only(left: 12.0),
-                    child: InkWell(
-                        onTap: _forwardPressed,
-                        child: Text('Next', style: Styles.blackBoldSmall)),
-                  ),
-                  IconButton(
-                    icon: Icon(
-                      Icons.fast_forward,
-                      color: Colors.black,
-                      size: 36.0,
+                    padding: const EdgeInsets.only(left: 28.0),
+                    child: GestureDetector(
+                      onTap: _forwardPressed,
+                      child: Row(
+                        children: <Widget>[
+                          Text('Next', style: Styles.blackSmall),
+                          IconButton(
+                            icon: Icon(
+                              Icons.fast_forward,
+                              color: Colors.black,
+                              size: 36.0,
+                            ),
+                            onPressed: _forwardPressed,
+                          ),
+                        ],
+                      ),
                     ),
-                    onPressed: _forwardPressed,
                   ),
                 ],
               ),
             ),
             Padding(
               padding:
-                  const EdgeInsets.only(left: 20.0, bottom: 20.0, top: 20.0),
+                  const EdgeInsets.only(left: 20.0, bottom: 20.0, top: 10.0),
               child: Row(
                 children: <Widget>[
                   Text(
@@ -203,7 +215,7 @@ class _PagerState extends State<Pager> {
                     padding: const EdgeInsets.only(left: 8.0),
                     child: Text(
                       '$pageNumber',
-                      style: Styles.blackBoldSmall,
+                      style: Styles.blackSmall,
                     ),
                   ),
                   Padding(
@@ -217,7 +229,7 @@ class _PagerState extends State<Pager> {
                     padding: const EdgeInsets.only(left: 8.0, right: 60.0),
                     child: Text(
                       _getTotalPages(),
-                      style: Styles.blackBoldSmall,
+                      style: Styles.blackSmall,
                     ),
                   ),
                   Text(
@@ -228,7 +240,7 @@ class _PagerState extends State<Pager> {
                     padding: const EdgeInsets.only(left: 8.0),
                     child: Text(
                       widget.itemName,
-                      style: Styles.blackBoldSmall,
+                      style: Styles.blackSmall,
                     ),
                   ),
                 ],

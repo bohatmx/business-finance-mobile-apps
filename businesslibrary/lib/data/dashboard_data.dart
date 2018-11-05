@@ -16,6 +16,7 @@ class DashboardData {
       totalOfferAmount = 0.00,
       averageBidAmount = 0.00,
       totalPurchaseOrderAmount = 0.00,
+      totalDeliveryNoteAmount = 0.00,
       totalInvoiceAmount = 0.00,
       averageDiscountPerc = 0.0;
   String date;
@@ -28,6 +29,7 @@ class DashboardData {
       this.totalOffers,
       this.purchaseOrders,
       this.invoices,
+      this.totalDeliveryNoteAmount,
       this.deliveryNotes,
       this.cancelledOffers,
       this.closedOffers,
@@ -51,6 +53,9 @@ class DashboardData {
 
     if (data['totalOpenOfferAmount'] != null) {
       this.totalOpenOfferAmount = data['totalOpenOfferAmount'] * 1.0;
+    }
+    if (data['totalDeliveryNoteAmount'] != null) {
+      this.totalDeliveryNoteAmount = data['totalDeliveryNoteAmount'] * 1.0;
     }
     if (data['totalUnsettledAmount'] != null) {
       this.totalUnsettledAmount = data['totalUnsettledAmount'] * 1.0;
@@ -89,6 +94,7 @@ class DashboardData {
 
   Map<String, dynamic> toJson() => <String, dynamic>{
         'totalOpenOffers': totalOpenOffers,
+        'totalDeliveryNoteAmount': totalDeliveryNoteAmount,
         'totalUnsettledBids': totalUnsettledBids,
         'totalSettledBids': totalSettledBids,
         'totalBids': totalBids,

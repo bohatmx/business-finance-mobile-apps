@@ -411,7 +411,7 @@ class _InvoiceListState extends State<InvoiceList>
   }
 
   @override
-  onBack(int pageLimit, int startKey, int pageNumber) {
+  onBack(int startKey, int pageNumber) {
     print(
         '\n\n\n_PurchaseOrderListPageState.onBack ###### this.pageNumber ${this.pageNumber} pageNumber: $pageNumber startKey: $startKey');
     if (this.pageNumber == 1 && pageNumber == 0) {
@@ -426,7 +426,7 @@ class _InvoiceListState extends State<InvoiceList>
   }
 
   @override
-  onNext(int pageLimit, int pageNumber) {
+  onNext(int pageNumber) {
     print(
         '_PurchaseOrderListPageState.onNext pageLimit $pageLimit pageNumber: $pageNumber ####### currentStartKey  $currentStartKey');
     _getInvoicePageItems();

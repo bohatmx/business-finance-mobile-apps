@@ -5,7 +5,8 @@ import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/investor.dart';
 import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/util/lookups.dart';
-import 'package:businesslibrary/util/pager.dart';
+import 'package:businesslibrary/util/offer_card.dart';
+import 'package:businesslibrary/util/pager2.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:businesslibrary/util/util.dart';
@@ -34,7 +35,6 @@ class _OfferListState extends State<OfferList>
   int currentStartKey, previousStartKey;
   OpenOfferSummary summary = OpenOfferSummary();
   List<int> keys = List();
-  KeyItems keyItems = KeyItems();
   double _opacity = 0.0;
 
   @override
@@ -76,14 +76,7 @@ class _OfferListState extends State<OfferList>
     print('_OfferListState._getOffers ## ...currentStartKey: $currentStartKey');
     summary = await ListAPI.getOpenOffersWithPaging(
         lastDate: currentStartKey, pageLimit: numberOfOffers);
-    if (!isBackPressed) {
-      var item = KeyItem(currentIndex, currentStartKey);
-      keyItems.addItem(item);
-      keyItems.doPrint();
-      print(
-          '\n\n_getOffers #######  currentIndex: $currentIndex currentStartKey: $currentStartKey');
-      keys.add(currentStartKey);
-    }
+
     openOffers = summary.offers;
     if (openOffers != null) {
       if (openOffers.isNotEmpty) {
@@ -421,10 +414,11 @@ class _OfferListState extends State<OfferList>
                 _checkBid(openOffers.elementAt(index));
               },
               child: Padding(
-                padding: const EdgeInsets.all(2.0),
-                child: OfferPanel(
+                padding: const EdgeInsets.all(8.0),
+                child: OfferCard(
                   offer: _getOffer(index),
                   number: index + 1,
+                  elevation: 1.0,
                 ),
               ),
             );
@@ -444,55 +438,52 @@ class _OfferListState extends State<OfferList>
   int currentIndex = 0;
 
   Widget _getBottom() {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 18.0, left: 8.0, right: 8.0),
-      child: Column(
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.only(bottom: 8.0, top: 8.0),
-            child: Text(
-              investor == null ? '' : investor.name,
-              style: getTitleTextWhite(),
-            ),
-          ),
-          Pager(listener: this, itemName: 'Offers'),
-          Padding(
-            padding: const EdgeInsets.only(left: 8.0, top: 8.0, right: 20.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.only(right: 28.0),
-                  child: Opacity(
-                      opacity: _opacity,
-                      child: Container(
-                        width: 20.0,
-                        height: 20.0,
-                        child: Padding(
-                          padding: const EdgeInsets.all(4.0),
-                          child: CircularProgressIndicator(
-                            backgroundColor: Colors.yellow,
-                            strokeWidth: 3.0,
-                          ),
+    return Column(
+      children: <Widget>[
+        Pager(
+          listener: this,
+          itemName: 'Offers',
+          elevation: 8.0,
+          currentStartKey: currentStartKey,
+          totalItems: offers.length,
+          pageLimit: pageLimit,
+        ),
+        Padding(
+          padding: const EdgeInsets.only(left: 8.0, top: 8.0, right: 20.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.only(right: 28.0),
+                child: Opacity(
+                    opacity: _opacity,
+                    child: Container(
+                      width: 20.0,
+                      height: 20.0,
+                      child: Padding(
+                        padding: const EdgeInsets.all(4.0),
+                        child: CircularProgressIndicator(
+                          backgroundColor: Colors.yellow,
+                          strokeWidth: 3.0,
                         ),
-                      )),
+                      ),
+                    )),
+              ),
+              Text(
+                'Invoice Offers',
+                style: getTextWhiteSmall(),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: 8.0),
+                child: Text(
+                  openOffers == null ? '0' : '${openOffers.length}',
+                  style: getTitleTextWhite(),
                 ),
-                Text(
-                  'Invoice Offers',
-                  style: getTextWhiteSmall(),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(left: 8.0),
-                  child: Text(
-                    openOffers == null ? '0' : '${openOffers.length}',
-                    style: getTitleTextWhite(),
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -525,46 +516,25 @@ class _OfferListState extends State<OfferList>
     _getOffers(false);
   }
 
+  int pageLimit = 2;
   @override
-  onEvent(int action, int numberOfOffers) {
-    this.numberOfOffers = numberOfOffers;
-    print(
-        '\n\nonEvent ********** currentIndex: $currentIndex currentStartKey: $currentStartKey');
-    switch (action) {
-      case Pager.Back:
-        currentIndex--;
-        if (currentIndex < 0) {
-          currentStartKey = null;
-        } else {
-          if (currentIndex < keyItems.items.length) {
-            currentStartKey = keyItems.items.elementAt(currentIndex).startKey;
-          } else {
-            currentStartKey = null;
-          }
-        }
-        print(
-            'onEvent; -------------- BACK pressed: currentStartKey: $currentStartKey');
-        _getOffers(true);
-        break;
-      case Pager.Next:
-        currentIndex++;
-        if (currentIndex < keyItems.items.length) {
-          currentStartKey = keyItems.items.elementAt(currentIndex).startKey;
-        }
-        print(
-            'onEvent; +++++++++++ NEXT pressed: currentStartKey: $currentStartKey');
-        _getOffers(false);
-        break;
-    }
+  onPrompt(int pageLimit) {
+    this.pageLimit = pageLimit;
   }
 
   @override
-  onPrompt() {
-    AppSnackbar.showSnackbar(
-        scaffoldKey: _scaffoldKey,
-        message: 'Press Back or Next icon',
-        textColor: Styles.yellow,
-        backgroundColor: Styles.black);
+  onBack(int startKey, int pageNumber) {
+    // TODO: implement onBack
+  }
+
+  @override
+  onNext(int pageNumber) {
+    // TODO: implement onNext
+  }
+
+  @override
+  onNoMoreData() {
+    // TODO: implement onNoMoreData
   }
 }
 

@@ -14,6 +14,7 @@ import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/FCM.dart';
+import 'package:businesslibrary/util/database.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
@@ -102,6 +103,7 @@ class _DashboardState extends State<Dashboard>
       prettyPrint(
           dashboardData.toJson(), '\n\n@@@@@@@@@@@ RETURNED dash data:');
       setState(() {});
+      _getDetailData();
     } catch (e) {
       AppSnackbar.showErrorSnackbar(
           scaffoldKey: _scaffoldKey,
@@ -115,6 +117,21 @@ class _DashboardState extends State<Dashboard>
       _scaffoldKey.currentState.hideCurrentSnackBar();
     } catch (e) {}
     //
+  }
+
+  void _getDetailData() async {
+    print('\n\n_DashboardState._getDetailData ############ get Supplier data');
+    var m = await ListAPI.getSupplierPurchaseOrders(supplier.documentReference);
+    await Database.savePurchaseOrders(PurchaseOrders(m));
+    var n =
+        await ListAPI.getDeliveryNotes(supplier.documentReference, 'suppliers');
+    await Database.saveDeliveryNotes(DeliveryNotes(n));
+    var p = await ListAPI.getInvoices(supplier.documentReference, 'suppliers');
+    await Database.saveInvoices(Invoices(p));
+    var o = await ListAPI.getOffersBySupplier(supplier.participantId);
+    await Database.saveOffers(Offers(o));
+    print(
+        '\n\n_DashboardState._getDetailData ######### done getting supplier data');
   }
 
   Future _getCachedPrefs() async {
@@ -162,6 +179,47 @@ class _DashboardState extends State<Dashboard>
 
   double opacity = 1.0;
   String name;
+  Widget _getBottom() {
+    return PreferredSize(
+      preferredSize: const Size.fromHeight(80.0),
+      child: new Column(
+        children: <Widget>[
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              new Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  name == null ? 'Organisation' : name,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w900,
+                    fontSize: 20.0,
+                  ),
+                ),
+              )
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              new Padding(
+                padding: const EdgeInsets.only(top: 0.0, bottom: 20.0),
+                child: Text(
+                  fullName == null ? 'user' : fullName,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.normal,
+                  ),
+                ),
+              )
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     message = widget.message;
@@ -177,44 +235,7 @@ class _DashboardState extends State<Dashboard>
             style: TextStyle(fontWeight: FontWeight.normal),
           ),
           leading: Container(),
-          bottom: PreferredSize(
-            preferredSize: const Size.fromHeight(80.0),
-            child: new Column(
-              children: <Widget>[
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    new Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        name == null ? 'Organisation' : name,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w900,
-                          fontSize: 20.0,
-                        ),
-                      ),
-                    )
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    new Padding(
-                      padding: const EdgeInsets.only(top: 0.0, bottom: 20.0),
-                      child: Text(
-                        fullName == null ? 'user' : fullName,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.normal,
-                        ),
-                      ),
-                    )
-                  ],
-                ),
-              ],
-            ),
-          ),
+          bottom: _getBottom(),
           actions: <Widget>[
             IconButton(
               icon: Icon(Icons.library_books),
@@ -331,7 +352,7 @@ class _DashboardState extends State<Dashboard>
     print('_MainPageState._onInvoiceTapped ... go  to list of invoices');
     Navigator.push(
       context,
-      new MaterialPageRoute(builder: (context) => new InvoiceList(invoices)),
+      new MaterialPageRoute(builder: (context) => new InvoiceList()),
     );
   }
 

@@ -1,6 +1,7 @@
 import 'package:businesslibrary/api/data_api3.dart';
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
+import 'package:businesslibrary/data/dashboard_data.dart';
 import 'package:businesslibrary/data/delivery_acceptance.dart';
 import 'package:businesslibrary/data/delivery_note.dart';
 import 'package:businesslibrary/data/govt_entity.dart';
@@ -8,11 +9,16 @@ import 'package:businesslibrary/data/invoice.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/FCM.dart';
+import 'package:businesslibrary/util/Finders.dart';
+import 'package:businesslibrary/util/database.dart';
 import 'package:businesslibrary/util/lookups.dart';
+import 'package:businesslibrary/util/pager2.dart';
+import 'package:businesslibrary/util/pager_helper.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 
 class DeliveryNoteList extends StatefulWidget {
   @override
@@ -24,13 +30,15 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
         SnackBarListener,
         DeliveryNoteListener,
         InvoiceListener,
+        PagerListener,
         DeliveryNoteCardListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   final FirebaseMessaging _fcm = FirebaseMessaging();
   List<Supplier> suppliers;
-  List<DeliveryNote> deliveryNotes;
+  List<DeliveryNote> deliveryNotes = List();
   User user;
   GovtEntity govtEntity;
+  List<DeliveryNote> baseList;
   @override
   void initState() {
     super.initState();
@@ -40,7 +48,9 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
   _getCachedPrefs() async {
     user = await SharedPrefs.getUser();
     govtEntity = await SharedPrefs.getGovEntity();
-
+    dashboardData = await SharedPrefs.getDashboardData();
+    baseList = await Database.getDeliveryNotes();
+    pageLimit = await SharedPrefs.getPageLimit();
     FCM.configureFCM(
       deliveryNoteListener: this,
       invoiceListener: this,
@@ -58,63 +68,88 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
       key: _scaffoldKey,
       appBar: AppBar(
         title: Text('Delivery Notes', style: Styles.whiteBoldMedium),
-        bottom: PreferredSize(
-          preferredSize: new Size.fromHeight(40.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: <Widget>[
-              new Padding(
-                padding: const EdgeInsets.only(bottom: 18.0, right: 16.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: <Widget>[
-                    Text(
-                      govtEntity == null ? 'No Govt' : govtEntity.name,
-                      style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 20.0,
-                          fontWeight: FontWeight.w900),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 20.0),
-                      child: Text(
-                        deliveryNotes == null ? '0' : '${deliveryNotes.length}',
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 20.0,
-                            fontWeight: FontWeight.normal),
-                      ),
-                    )
-                  ],
-                ),
-              )
-            ],
-          ),
-        ),
+        bottom: _getBottom(),
         actions: <Widget>[
           IconButton(icon: Icon(Icons.refresh), onPressed: _getDeliveryNotes),
         ],
       ),
-      body: new Padding(
-        padding: const EdgeInsets.all(10.0),
-        child: new Column(
-          children: <Widget>[
-            new Flexible(
-              child: new ListView.builder(
-                  itemCount: deliveryNotes == null ? 0 : deliveryNotes.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    return new Padding(
-                      padding: const EdgeInsets.only(bottom: 0.0),
-                      child: new DeliveryNoteCard(
-                          deliveryNote: deliveryNotes.elementAt(index),
-                          listener: this),
-                    );
-                  }),
-            ),
-          ],
+      body: Container(
+        color: Colors.brown.shade100,
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: new Column(
+            children: <Widget>[
+              new Flexible(
+                child: _buildList(),
+              ),
+            ],
+          ),
         ),
       ),
     );
+  }
+
+  DashboardData dashboardData;
+  Widget _getBottom() {
+    return PreferredSize(
+      preferredSize: new Size.fromHeight(200.0),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: <Widget>[
+          PagerHelper(
+            dashboardData: dashboardData,
+            pageNumber: pageNumber,
+            totalPages: _getTotalPages(),
+            pageValue: _getPageValue(),
+            pageValueStyle: Styles.blackMedium,
+            totalValueStyle: Styles.brownBoldMedium,
+            type: PagerHelper.DELIVERY_NOTE,
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: 0.0, bottom: 10.0),
+            child: Pager(
+              currentStartKey: currentStartKey,
+              listener: this,
+              totalItems: baseList == null ? 0 : baseList.length,
+              pageLimit: pageLimit,
+              itemName: 'Delivery Notes',
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  int pageNumber = 1;
+  int _getTotalPages() {}
+  double _getPageValue() {
+    var t = 0.0;
+    deliveryNotes.forEach((n) {
+      t += n.amount;
+    });
+
+    return t;
+  }
+
+  ScrollController controller1 = ScrollController();
+  Widget _buildList() {
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      controller1.animateTo(
+        controller1.position.minScrollExtent,
+        duration: const Duration(milliseconds: 10),
+        curve: Curves.easeOut,
+      );
+    });
+    return ListView.builder(
+        itemCount: deliveryNotes == null ? 0 : deliveryNotes.length,
+        controller: controller1,
+        itemBuilder: (BuildContext context, int index) {
+          return new Padding(
+            padding: const EdgeInsets.only(bottom: 0.0),
+            child: new DeliveryNoteCard(
+                deliveryNote: deliveryNotes.elementAt(index), listener: this),
+          );
+        });
   }
 
   DeliveryNote deliveryNote;
@@ -285,6 +320,7 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
     }
   }
 
+  int pageLimit = 2, currentStartKey;
   void _getDeliveryNotes() async {
     AppSnackbar.showSnackbarWithProgressIndicator(
         scaffoldKey: _scaffoldKey,
@@ -292,8 +328,22 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
         textColor: Colors.white,
         backgroundColor: Colors.black);
 
-    deliveryNotes = await ListAPI.getDeliveryNotes(
-        govtEntity.documentReference, 'govtEntities');
+    var result = Finder.find(
+      baseList: baseList,
+      pageLimit: pageLimit,
+      intDate: currentStartKey,
+    );
+    print(result);
+    deliveryNotes.clear();
+    result.items.forEach((n) {
+      deliveryNotes.add(n);
+      var m = n as DeliveryNote;
+      print(
+          '${m.intDate} ${m.date} ${m.supplierName} note to ${m.customerName}');
+    });
+    if (deliveryNotes.isNotEmpty) {
+      currentStartKey = deliveryNotes.last.intDate;
+    }
     _scaffoldKey.currentState.removeCurrentSnackBar();
     setState(() {});
   }
@@ -310,6 +360,11 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
   @override
   onDeliveryNoteMessage(DeliveryNote deliveryNote) {
     prettyPrint(deliveryNote.toJson(), '### Delivery Note Arrived');
+    baseList.insert(0, deliveryNote);
+    pageNumber = 1;
+    currentStartKey = null;
+    _getDeliveryNotes();
+
     AppSnackbar.showSnackbar(
         scaffoldKey: _scaffoldKey,
         message: 'Delivery Note Arrived',
@@ -320,11 +375,54 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
   @override
   onInvoiceMessage(Invoice invoice) {
     prettyPrint(invoice.toJson(), '### Invoice Arrived');
+
     AppSnackbar.showSnackbar(
         scaffoldKey: _scaffoldKey,
         message: 'Invoice Arrived',
         textColor: Styles.lightGreen,
         backgroundColor: Styles.black);
+  }
+
+  @override
+  onBack(int startKey, int pageNumber) {
+    print(
+        '\n\n\n_PurchaseOrderListPageState.onBack ###### this.pageNumber ${this.pageNumber} pageNumber: $pageNumber startKey: $startKey');
+    if (this.pageNumber == 1 && pageNumber == 0) {
+      print('....restart from the beginning with startKey NULL');
+      currentStartKey = null;
+    } else {
+      currentStartKey = startKey;
+    }
+
+    _getDeliveryNotes();
+    setState(() {});
+  }
+
+  @override
+  onNext(int pageNumber) {
+    print(
+        '_PurchaseOrderListPageState.onNext pageLimit $pageLimit pageNumber: $pageNumber ####### currentStartKey  $currentStartKey');
+    _getDeliveryNotes();
+    setState(() {});
+  }
+
+  @override
+  onPrompt(int pageLimit) {
+    print('\n\n########### _PurchaseOrderListPageState.onPrompt');
+    this.pageLimit = pageLimit;
+    currentStartKey = null;
+    deliveryNotes.clear();
+    setState(() {});
+    _getDeliveryNotes();
+  }
+
+  @override
+  onNoMoreData() {
+    AppSnackbar.showSnackbar(
+        scaffoldKey: _scaffoldKey,
+        message: 'No mas. No more. Have not.',
+        textColor: Styles.white,
+        backgroundColor: Colors.brown.shade300);
   }
 }
 
@@ -350,23 +448,21 @@ class DeliveryNoteCard extends StatelessWidget {
                 Row(
                   children: <Widget>[
                     Text(
-                      getFormattedDateShort(deliveryNote.date, context),
-                      style: TextStyle(
-                          color: Colors.blue,
-                          fontSize: 16.0,
-                          fontWeight: FontWeight.normal),
+                      getFormattedDateLongWithTime(deliveryNote.date, context),
+                      style: Styles.blueSmall,
                     ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 8.0),
-                      child: Text(
-                        deliveryNote.supplierName,
-                        style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 16.0,
-                            fontWeight: FontWeight.normal),
-                      ),
-                    )
                   ],
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: Row(
+                    children: <Widget>[
+                      Text(
+                        deliveryNote.supplierName,
+                        style: Styles.blackBoldMedium,
+                      )
+                    ],
+                  ),
                 ),
                 Padding(
                   padding: const EdgeInsets.only(left: 0.0),
@@ -378,20 +474,14 @@ class DeliveryNoteCard extends StatelessWidget {
                           width: 100.0,
                           child: Text(
                             'PO Number',
-                            style: TextStyle(
-                                color: Colors.black,
-                                fontSize: 14.0,
-                                fontWeight: FontWeight.normal),
+                            style: Styles.blackSmall,
                           ),
                         ),
                         Padding(
                           padding: const EdgeInsets.only(left: 0.0),
                           child: Text(
                             deliveryNote.purchaseOrderNumber,
-                            style: TextStyle(
-                                color: Colors.purple.shade300,
-                                fontSize: 18.0,
-                                fontWeight: FontWeight.bold),
+                            style: Styles.blackSmall,
                           ),
                         )
                       ],
@@ -408,26 +498,15 @@ class DeliveryNoteCard extends StatelessWidget {
                           width: 100.0,
                           child: Text(
                             'Note Amount',
-                            style: TextStyle(
-                                color: Colors.black,
-                                fontSize: 14.0,
-                                fontWeight: FontWeight.normal),
+                            style: Styles.blackSmall,
                           ),
                         ),
-                        Padding(
-                          padding: const EdgeInsets.only(
-                            left: 8.0,
-                          ),
-                          child: Text(
-                            deliveryNote.amount == null
-                                ? '0.00'
-                                : getFormattedAmount(
-                                    '${deliveryNote.amount}', context),
-                            style: TextStyle(
-                                color: Colors.black,
-                                fontSize: 18.0,
-                                fontWeight: FontWeight.bold),
-                          ),
+                        Text(
+                          deliveryNote.amount == null
+                              ? '0.00'
+                              : getFormattedAmount(
+                                  '${deliveryNote.amount}', context),
+                          style: Styles.blackSmall,
                         )
                       ],
                     ),
@@ -435,72 +514,44 @@ class DeliveryNoteCard extends StatelessWidget {
                 ),
                 Padding(
                   padding: const EdgeInsets.only(left: 0.0),
-                  child: Padding(
-                    padding: const EdgeInsets.only(bottom: 8.0),
-                    child: Row(
-                      children: <Widget>[
-                        Container(
-                          width: 100.0,
-                          child: Text(
-                            'Note VAT',
-                            style: TextStyle(
-                                color: Colors.black,
-                                fontSize: 14.0,
-                                fontWeight: FontWeight.normal),
-                          ),
+                  child: Row(
+                    children: <Widget>[
+                      Container(
+                        width: 100.0,
+                        child: Text(
+                          'Note VAT',
+                          style: Styles.blackSmall,
                         ),
-                        Padding(
-                          padding: const EdgeInsets.only(
-                            left: 8.0,
-                          ),
-                          child: Text(
-                            deliveryNote.vat == null
-                                ? '0.00'
-                                : getFormattedAmount(
-                                    '${deliveryNote.vat}', context),
-                            style: TextStyle(
-                                color: Colors.black,
-                                fontSize: 16.0,
-                                fontWeight: FontWeight.bold),
-                          ),
-                        )
-                      ],
-                    ),
+                      ),
+                      Text(
+                        deliveryNote.vat == null
+                            ? '0.00'
+                            : getFormattedAmount(
+                                '${deliveryNote.vat}', context),
+                        style: Styles.blackSmall,
+                      )
+                    ],
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(left: 0.0),
-                  child: Padding(
-                    padding: const EdgeInsets.only(bottom: 20.0),
-                    child: Row(
-                      children: <Widget>[
-                        Container(
-                          width: 100.0,
-                          child: Text(
-                            'Note Total',
-                            style: TextStyle(
-                                color: Colors.black,
-                                fontSize: 14.0,
-                                fontWeight: FontWeight.normal),
-                          ),
+                  padding: const EdgeInsets.only(bottom: 10.0, top: 10.0),
+                  child: Row(
+                    children: <Widget>[
+                      Container(
+                        width: 100.0,
+                        child: Text(
+                          'Note Total',
+                          style: Styles.blackSmall,
                         ),
-                        Padding(
-                          padding: const EdgeInsets.only(
-                            left: 8.0,
-                          ),
-                          child: Text(
-                            deliveryNote.totalAmount == null
-                                ? '0.00'
-                                : getFormattedAmount(
-                                    '${deliveryNote.totalAmount}', context),
-                            style: TextStyle(
-                                color: Colors.teal,
-                                fontSize: 24.0,
-                                fontWeight: FontWeight.bold),
-                          ),
-                        )
-                      ],
-                    ),
+                      ),
+                      Text(
+                        deliveryNote.totalAmount == null
+                            ? '0.00'
+                            : getFormattedAmount(
+                                '${deliveryNote.totalAmount}', context),
+                        style: Styles.tealBoldMedium,
+                      )
+                    ],
                   ),
                 ),
               ],

@@ -65,7 +65,7 @@ class _OfferDetailsState extends State<OfferDetails>
                     offer == null
                         ? '0.00'
                         : getFormattedAmount('${offer.offerAmount}', context),
-                    style: Styles.whiteBoldReallyLarge,
+                    style: Styles.whiteBoldLarge,
                   ),
                 ),
               ],
@@ -84,17 +84,10 @@ class _OfferDetailsState extends State<OfferDetails>
                   Padding(
                     padding: const EdgeInsets.only(left: 8.0),
                     child: Text(
-                      offer == null ? '' : offer.date,
-                      style: Styles.whiteBoldLarge,
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 8.0),
-                    child: Text(
                       offer == null
                           ? ''
-                          : getFormattedDateHour('${offer.date}'),
-                      style: Styles.whiteBoldLarge,
+                          : '${getFormattedDateLongWithTime(offer.date, context)}',
+                      style: Styles.whiteSmall,
                     ),
                   ),
                 ],
@@ -220,22 +213,33 @@ class _OfferDetailsState extends State<OfferDetails>
           ),
         ],
       ),
-      body: ListView.builder(
-          itemCount: bids == null ? 0 : bids.length,
-          itemBuilder: (BuildContext context, int index) {
-            return new InkWell(
-              onTap: () {
-                _acceptBid(bids.elementAt(index));
-              },
+      body: bids.isEmpty
+          ? Container(
+//              color: Colors.indigo.shade400,
               child: Padding(
-                padding:
-                    const EdgeInsets.only(top: 8.0, left: 20.0, right: 20.0),
-                child: BidCard(
-                  invoiceBid: bids.elementAt(index),
+                padding: const EdgeInsets.all(20.0),
+                child: Text(
+                  'No bids on the blockchain',
+                  style: Styles.greyLabelMedium,
                 ),
               ),
-            );
-          }),
+            )
+          : ListView.builder(
+              itemCount: bids == null ? 0 : bids.length,
+              itemBuilder: (BuildContext context, int index) {
+                return new InkWell(
+                  onTap: () {
+                    _acceptBid(bids.elementAt(index));
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.only(
+                        top: 8.0, left: 20.0, right: 20.0),
+                    child: BidCard(
+                      invoiceBid: bids.elementAt(index),
+                    ),
+                  ),
+                );
+              }),
     );
   }
 
