@@ -64,6 +64,7 @@ class _OfferListState extends State<OfferList>
     list.forEach((o) {
       if (o.isOpen) {
         baseList.add(o);
+        dashboardData.totalOfferAmount += o.offerAmount;
       }
     });
     print('_OfferListState._getCached, baseList : ${baseList.length}');
@@ -105,7 +106,9 @@ class _OfferListState extends State<OfferList>
     setState(() {
       _opacity = 0.0;
     });
-    _scaffoldKey.currentState.hideCurrentSnackBar();
+    if (_scaffoldKey.currentState != null) {
+      _scaffoldKey.currentState.hideCurrentSnackBar();
+    }
   }
 
   _checkBid(Offer offer) async {
@@ -475,7 +478,7 @@ class _OfferListState extends State<OfferList>
           itemName: 'Offers',
           elevation: 8.0,
           currentStartKey: currentStartKey,
-          totalItems: openOffers.length,
+          totalItems: baseList.length,
           pageLimit: pageLimit,
         ),
         Padding(
@@ -507,7 +510,6 @@ class _OfferListState extends State<OfferList>
   }
 
   String text = 'OPEN';
-  int numberOfOffers;
 
   void _onNoPressed() {
     //print'_OfferListState._onNoPressed');
@@ -538,6 +540,8 @@ class _OfferListState extends State<OfferList>
   @override
   onPrompt(int pageLimit) {
     this.pageLimit = pageLimit;
+    currentStartKey = null;
+    _getOffers();
   }
 
   @override

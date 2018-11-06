@@ -65,6 +65,7 @@ class DeliveryNote extends Findable {
 
     this.purchaseOrderNumber = data['purchaseOrderNumber'];
     this.customerName = data['customerName'];
+    this.itemNumber = data['itemNumber'];
 
     if (data['amount'] == null) {
       this.amount = 0.00;
@@ -106,6 +107,7 @@ class DeliveryNote extends Findable {
       'amount': amount,
       'vat': vat,
       'totalAmount': totalAmount,
+      'itemNumber': itemNumber,
     };
     return map;
   }

@@ -106,6 +106,7 @@ class Invoice extends Findable {
     this.invoiceAcceptance = data['invoiceAcceptance'];
     this.deliveryAcceptance = data['deliveryAcceptance'];
     this.contractURL = data['contractURL'];
+    this.itemNumber = data['itemNumber'];
   }
 
   Map<String, dynamic> toJson() {
@@ -148,6 +149,8 @@ class Invoice extends Findable {
     map['invoiceAcceptance'] = invoiceAcceptance;
     map['deliveryAcceptance'] = deliveryAcceptance;
     map['contractURL'] = contractURL;
+    map['itemNumber'] = itemNumber;
+
     return map;
   }
 }

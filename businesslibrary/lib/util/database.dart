@@ -27,7 +27,7 @@ class Database {
       String string = await jsonFile.readAsString();
       Map map = json.decode(string);
       Sectors w = new Sectors.fromJson(map);
-      print('Database ## returning payments found: ${w.sectors.length}');
+      print('Database ## returning sectors found: ${w.sectors.length}');
       return w.sectors;
     } else {
       return null;
@@ -107,11 +107,10 @@ class Database {
       Map map = json.decode(string);
       PurchaseOrders w = new PurchaseOrders.fromJson(map);
       print('Database ## returning PurchaseOrders found: ${w.orders.length}');
-      w.printFirstAndLast();
+      //w.printFirstAndLast();
       return w.orders;
-    } else {
-      return null;
     }
+    return null;
   }
 
   static Future<int> savePurchaseOrders(PurchaseOrders purchaseOrders) async {
@@ -150,10 +149,10 @@ class Database {
       DeliveryNotes w = new DeliveryNotes.fromJson(map);
       print(
           'Database ## returning PurchaseOrders )))))))))) found: ${w.notes.length}');
-      w.printFirstAndLast();
+      //w.printFirstAndLast();
       return w.notes;
     } else {
-      return null;
+      return List<DeliveryNote>();
     }
   }
 
@@ -192,10 +191,10 @@ class Database {
       Invoices w = new Invoices.fromJson(map);
       print(
           'Database ## returning invoices )))))))))) found: ${w.invoices.length}');
-      w.printFirstAndLast();
+//      w.printFirstAndLast();
       return w.invoices;
     } else {
-      return null;
+      return List();
     }
   }
 
@@ -233,8 +232,8 @@ class Database {
       Map map = json.decode(string);
       Offers w = new Offers.fromJson(map);
       print(
-          'Database ## returning invoices )))))))))) found: ${w.offers.length}');
-      w.printFirstAndLast();
+          'Database ## returning offers )))))))))) found: ${w.offers.length}');
+      //w.printFirstAndLast();
       return w.offers;
     } else {
       return null;
@@ -288,7 +287,6 @@ class PurchaseOrders {
   PurchaseOrders(this.orders);
 
   void printFirstAndLast() {
-    print('\n\nPurchaseOrders.printFirstAndLast ......................');
     if (orders.isNotEmpty) {
       prettyPrint(orders.first.toJson(), 'FIRST PURCHASE ORDER: ');
       prettyPrint(orders.last.toJson(), 'LAST PURCHASE ORDER: ');
@@ -332,7 +330,6 @@ class Offers {
   Offers(this.offers);
 
   void printFirstAndLast() {
-    print('\n\nOffers.printFirstAndLast ......................');
     if (offers.isNotEmpty) {
       prettyPrint(offers.first.toJson(), 'FIRST Offer: ');
       prettyPrint(offers.last.toJson(), 'LAST Offer: ');

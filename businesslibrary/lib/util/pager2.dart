@@ -1,4 +1,5 @@
 import 'package:businesslibrary/api/shared_prefs.dart';
+import 'package:businesslibrary/util/Finders.dart';
 import 'package:businesslibrary/util/selectors.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:flutter/material.dart';
@@ -17,6 +18,7 @@ class Pager extends StatefulWidget {
   final String itemName;
   final int pageLimit;
   final double elevation;
+  final List<Findable> items;
   static const Back = 1, Next = 2;
 
   Pager(
@@ -25,6 +27,7 @@ class Pager extends StatefulWidget {
       this.totalItems,
       this.itemName,
       this.elevation,
+      this.items,
       this.pageLimit});
   static const DefaultPageLimit = 4;
 

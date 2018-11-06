@@ -2,7 +2,7 @@ class Finder {
   static FindableResult find(
       {int intDate, int pageLimit, List<Findable> baseList}) {
     List<Findable> list = List();
-    if (baseList.isEmpty) {
+    if (baseList == null || baseList.isEmpty) {
       return FindableResult(list, intDate);
     }
     int index = 0;
@@ -24,7 +24,9 @@ class Finder {
     }
     for (var i = 0; i < pageLimit; i++) {
       if (i + index < baseList.length) {
-        list.add(baseList.elementAt(i + index));
+        var findable = baseList.elementAt(i + index);
+        findable.itemNumber = i + index + 1;
+        list.add(findable);
       }
     }
     print('\n\n_Finder._find  -----Findables in LOCAL CACHE: ${list.length}');
@@ -39,6 +41,7 @@ class Finder {
 
 abstract class Findable {
   int intDate;
+  int itemNumber;
 }
 
 class FindableResult {

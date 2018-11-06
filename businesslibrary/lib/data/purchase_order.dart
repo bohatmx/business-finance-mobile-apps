@@ -64,6 +64,7 @@ class PurchaseOrder extends Findable {
     this.supplierName = data['supplierName'];
     this.purchaserName = data['purchaserName'];
     this.contractURL = data['contractURL'];
+    this.itemNumber = data['itemNumber'];
     this.items = List();
   }
   Map<String, dynamic> toJson() {
@@ -88,6 +89,7 @@ class PurchaseOrder extends Findable {
       'companyDocumentRef': companyDocumentRef,
       'supplierName': supplierName,
       'purchaserName': purchaserName,
+      'itemNumber': itemNumber,
     };
     return map;
   }

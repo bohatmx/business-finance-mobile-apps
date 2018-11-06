@@ -137,6 +137,14 @@ class _DashboardState extends State<Dashboard>
     _scaffoldKey.currentState.hideCurrentSnackBar();
     summaryBusy = false;
     setState(() {});
+    _getDetailData();
+  }
+
+  Future _getDetailData() async {
+    var m = await ListAPI.getInvoiceBidsByInvestor(investor.documentReference);
+    await Database.saveInvoiceBids(InvoiceBids(m));
+    var o = await ListAPI.getOpenOffers();
+    await Database.saveOffers(Offers(o));
   }
 
   Future _getCachedPrefs() async {

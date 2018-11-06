@@ -1,15 +1,19 @@
 import 'package:businesslibrary/api/shared_prefs.dart';
+import 'package:businesslibrary/data/dashboard_data.dart';
 import 'package:businesslibrary/data/invoice_bid.dart';
 import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/util/FCM.dart';
+import 'package:businesslibrary/util/Finders.dart';
 import 'package:businesslibrary/util/database.dart';
 import 'package:businesslibrary/util/offer_card.dart';
+import 'package:businesslibrary/util/pager.dart';
+import 'package:businesslibrary/util/pager_helper.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
-import 'package:businesslibrary/util/util.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:supplierv3/ui/offer_details.dart';
 
 class OfferList extends StatefulWidget {
@@ -21,34 +25,37 @@ class OfferList extends StatefulWidget {
 
 class _OfferListState extends State<OfferList>
     with WidgetsBindingObserver
-    implements InvoiceBidListener, SnackBarListener {
+    implements InvoiceBidListener, SnackBarListener, Pager3Listener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   FirebaseMessaging _fcm = FirebaseMessaging();
-  DateTime startTime, endTime;
   List<Offer> offers = List();
   Supplier supplier;
   Offer offer;
+  DashboardData dashboardData;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-
-    _buildDaysDropDownItems();
-
     _getCached();
+  }
+
+  @override
+  void didUpdateWidget(Widget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    print('_OfferListState.didUpdateWidget ++++++++++++++++++++++++++++++++++');
   }
 
   void _getCached() async {
     supplier = await SharedPrefs.getSupplier();
     assert(supplier != null);
+    dashboardData = await SharedPrefs.getDashboardData();
     _getOffers();
   }
 
+  double totalValue = 0.00;
   void _getOffers() async {
     print('_OfferListState._getOffers .......................');
-    endTime = DateTime.now();
-    startTime = endTime.subtract(Duration(days: _days));
 
     AppSnackbar.showSnackbarWithProgressIndicator(
         scaffoldKey: _scaffoldKey,
@@ -56,6 +63,11 @@ class _OfferListState extends State<OfferList>
         textColor: Colors.yellow,
         backgroundColor: Colors.black);
     offers = await Database.getOffers();
+    totalValue = 0.0;
+    offers.forEach((o) {
+      totalValue += o.offerAmount;
+    });
+    dashboardData.totalOfferAmount = totalValue;
     setState(() {});
     _scaffoldKey.currentState.hideCurrentSnackBar();
     var cnt = 0;
@@ -79,186 +91,6 @@ class _OfferListState extends State<OfferList>
     );
   }
 
-  TextStyle white = TextStyle(color: Colors.black, fontSize: 16.0);
-
-  List<DropdownMenuItem<int>> _buildDaysDropDownItems() {
-    var item0 = DropdownMenuItem<int>(
-      value: 1,
-      child: Row(
-        children: <Widget>[
-          Icon(
-            Icons.apps,
-            color: Colors.black,
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 12.0),
-            child: Text(
-              '1 Day Under Review',
-              style: bold,
-            ),
-          ),
-        ],
-      ),
-    );
-    items.add(item0);
-    var itema = DropdownMenuItem<int>(
-      value: 3,
-      child: Row(
-        children: <Widget>[
-          Icon(
-            Icons.apps,
-            color: Colors.black,
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 12.0),
-            child: Text(
-              '3 Days Under Review',
-              style: bold,
-            ),
-          ),
-        ],
-      ),
-    );
-    items.add(itema);
-    var item1 = DropdownMenuItem<int>(
-      value: 7,
-      child: Row(
-        children: <Widget>[
-          Icon(
-            Icons.apps,
-            color: Colors.black,
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 12.0),
-            child: Text(
-              '7 Days Under Review',
-              style: bold,
-            ),
-          ),
-        ],
-      ),
-    );
-    items.add(item1);
-    var item2 = DropdownMenuItem<int>(
-      value: 14,
-      child: Row(
-        children: <Widget>[
-          Icon(
-            Icons.apps,
-            color: Colors.teal,
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 12.0),
-            child: Text(
-              '14 Days Under Review',
-              style: bold,
-            ),
-          ),
-        ],
-      ),
-    );
-    items.add(item2);
-
-    var item3 = DropdownMenuItem<int>(
-      value: 30,
-      child: Row(
-        children: <Widget>[
-          Icon(
-            Icons.apps,
-            color: Colors.brown,
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 12.0),
-            child: Text(
-              '30 Days Under Review',
-              style: bold,
-            ),
-          ),
-        ],
-      ),
-    );
-    items.add(item3);
-    var item4 = DropdownMenuItem<int>(
-      value: 60,
-      child: Row(
-        children: <Widget>[
-          Icon(
-            Icons.apps,
-            color: Colors.purple,
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 12.0),
-            child: Text(
-              '60 Days Under Review',
-              style: bold,
-            ),
-          ),
-        ],
-      ),
-    );
-    items.add(item4);
-    var item5 = DropdownMenuItem<int>(
-      value: 90,
-      child: Row(
-        children: <Widget>[
-          Icon(
-            Icons.apps,
-            color: Colors.deepOrange,
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 12.0),
-            child: Text(
-              '90 Days Under Review',
-              style: bold,
-            ),
-          ),
-        ],
-      ),
-    );
-    items.add(item5);
-
-    var item6 = DropdownMenuItem<int>(
-      value: 120,
-      child: Row(
-        children: <Widget>[
-          Icon(
-            Icons.apps,
-            color: Colors.blue,
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 12.0),
-            child: Text(
-              '120 Days Under Review',
-              style: bold,
-            ),
-          ),
-        ],
-      ),
-    );
-    items.add(item6);
-    var item7 = DropdownMenuItem<int>(
-      value: 365,
-      child: Row(
-        children: <Widget>[
-          Icon(
-            Icons.apps,
-            color: Colors.grey,
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 12.0),
-            child: Text(
-              '365 Days Under Review',
-              style: bold,
-            ),
-          ),
-        ],
-      ),
-    );
-    items.add(item7);
-
-    return items;
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -267,7 +99,7 @@ class _OfferListState extends State<OfferList>
         title: Text('Invoice Offers'),
         bottom: PreferredSize(
           child: _getBottom(),
-          preferredSize: Size.fromHeight(80.0),
+          preferredSize: Size.fromHeight(200.0),
         ),
         actions: <Widget>[
           IconButton(
@@ -276,56 +108,65 @@ class _OfferListState extends State<OfferList>
           ),
         ],
       ),
-      body: new ListView.builder(
-          itemCount: offers == null ? 0 : offers.length,
-          itemBuilder: (BuildContext context, int index) {
-            return new InkWell(
-              onTap: () {
-                _checkBids(offers.elementAt(index));
-              },
-              child: Padding(
-                padding: const EdgeInsets.all(2.0),
-                child: OfferCard(
-                  offer: offers.elementAt(index),
-                  number: index + 1,
-                  elevation: 2.0,
-                ),
-              ),
-            );
-          }),
+      body: _getList(),
       backgroundColor: Colors.brown.shade100,
     );
   }
 
   List<DropdownMenuItem<int>> items = List();
-  int _days = 7;
+  int pageLimit;
+  double pageValue;
+  ScrollController scrollController = ScrollController();
+  Widget _getList() {
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      scrollController.animateTo(
+        scrollController.position.minScrollExtent,
+        duration: const Duration(milliseconds: 10),
+        curve: Curves.easeOut,
+      );
+    });
+    return ListView.builder(
+        itemCount: currentPage == null ? 0 : currentPage.length,
+        controller: scrollController,
+        itemBuilder: (BuildContext context, int index) {
+          return new InkWell(
+            onTap: () {
+              _checkBids(currentPage.elementAt(index));
+            },
+            child: Padding(
+              padding: const EdgeInsets.only(left: 12.0, right: 12.0, top: 4.0),
+              child: OfferCard(
+                offer: currentPage.elementAt(index),
+                number: index + 1,
+                elevation: 1.0,
+                showSupplier: false,
+                showCustomer: true,
+              ),
+            ),
+          );
+        });
+  }
 
   Widget _getBottom() {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 18.0, left: 20.0),
+      padding: const EdgeInsets.only(bottom: 18.0, left: 0.0),
       child: Column(
         children: <Widget>[
-          Text(
-            supplier == null ? '' : supplier.name,
-            style: getTitleTextWhite(),
+          PagerHelper(
+            dashboardData: dashboardData,
+            itemName: 'Offers',
+            type: PagerHelper.OFFER,
+            pageValue: pageValue == null ? 0.00 : pageValue,
+            totalValueStyle: Styles.whiteBoldMedium,
           ),
           Padding(
-            padding: const EdgeInsets.only(left: 8.0, top: 8.0, right: 20.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: <Widget>[
-                Text(
-                  'Invoice Offers',
-                  style: getTextWhiteSmall(),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(left: 8.0),
-                  child: Text(
-                    offers == null ? '' : '${offers.length}',
-                    style: getTitleTextWhite(),
-                  ),
-                ),
-              ],
+            padding: const EdgeInsets.all(8.0),
+            child: Pager3(
+              elevation: 16.0,
+              itemName: 'Offers',
+              items: offers,
+              pageLimit: pageLimit,
+              listener: this,
             ),
           ),
         ],
@@ -353,93 +194,44 @@ class _OfferListState extends State<OfferList>
         textColor: Styles.white,
         backgroundColor: Styles.black);
   }
-}
 
-//class OfferListCard extends StatelessWidget {
-//  final Offer offer;
-//  final Color color;
-//
-//  OfferListCard({this.offer, this.color});
-//  final boldStyle = TextStyle(
-//    color: Colors.black,
-//    fontSize: 16.0,
-//    fontWeight: FontWeight.bold,
-//  );
-//  final amtStyle = TextStyle(
-//    color: Colors.teal,
-//    fontSize: 18.0,
-//    fontWeight: FontWeight.w900,
-//  );
-//
-//  @override
-//  Widget build(BuildContext context) {
-//    print('OfferListCard.build');
-//    return Column(
-//      children: <Widget>[
-//        Row(
-//          children: <Widget>[
-//            Text(
-//                offer.supplierName == null ? 'Unknown yet' : offer.supplierName,
-//                style: boldStyle),
-//          ],
-//        ),
-//        Padding(
-//          padding: const EdgeInsets.all(8.0),
-//          child: Row(
-//            children: <Widget>[
-//              Container(width: 30.0, child: Text('For')),
-//              Text(
-//                  offer.customerName == null
-//                      ? 'Unknown yet'
-//                      : offer.customerName,
-//                  style: boldStyle),
-//            ],
-//          ),
-//        ),
-//        Padding(
-//          padding: const EdgeInsets.only(left: 8.0, top: 20.0),
-//          child: Row(
-//            children: <Widget>[
-//              Container(width: 40.0, child: Text('Start')),
-//              Text(
-//                  offer.startTime == null
-//                      ? 'Unknown yet'
-//                      : getFormattedDate(offer.startTime),
-//                  style: TextStyle(fontSize: 14.0, color: Colors.deepPurple)),
-//            ],
-//          ),
-//        ),
-//        Padding(
-//          padding: const EdgeInsets.all(8.0),
-//          child: Row(
-//            children: <Widget>[
-//              Container(width: 40.0, child: Text('End')),
-//              Text(
-//                  offer.endTime == null
-//                      ? 'Unknown yet'
-//                      : getFormattedDate(offer.endTime),
-//                  style: TextStyle(
-//                      fontSize: 14.0,
-//                      color: Colors.red,
-//                      fontWeight: FontWeight.bold)),
-//            ],
-//          ),
-//        ),
-//        Padding(
-//          padding: const EdgeInsets.all(8.0),
-//          child: Row(
-//            children: <Widget>[
-//              Container(width: 70.0, child: Text('Amount')),
-//              Text(
-//                offer.offerAmount == null
-//                    ? 'Unknown yet'
-//                    : getFormattedAmount('${offer.offerAmount}', context),
-//                style: amtStyle,
-//              ),
-//            ],
-//          ),
-//        ),
-//      ],
-//    );
-//  }
-//}
+  @override
+  onNoMoreData() {
+    AppSnackbar.showSnackbar(
+        scaffoldKey: _scaffoldKey,
+        message: 'No mas. No more. Done.',
+        textColor: Styles.white,
+        backgroundColor: Colors.teal.shade300);
+  }
+
+  List<Offer> currentPage = List();
+  @override
+  onPage(List<Findable> items) {
+    print('\n\n_OfferListState.onPage ############# items: ${items.length}');
+    currentPage.clear();
+    items.forEach((f) {
+      currentPage.add(f as Offer);
+    });
+    pageValue = 0.00;
+    currentPage.forEach((o) {
+      pageValue += o.offerAmount;
+    });
+    print('_OfferListState.onPage ---- pageValue: $pageValue');
+    try {
+      setState(() {});
+      print('_OfferListState.onPage state has been set');
+    } catch (e) {
+      print('\n\n************* setState() took a hit ******************');
+    }
+  }
+
+  @override
+  onInitialPage(List<Findable> items) {
+    print('_OfferListState.onInitialPage *******************************');
+    currentPage.clear();
+    items.forEach((i) {
+      currentPage.add(i as Offer);
+    });
+    //
+  }
+}

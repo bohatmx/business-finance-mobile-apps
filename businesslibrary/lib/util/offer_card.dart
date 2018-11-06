@@ -7,8 +7,14 @@ class OfferCard extends StatelessWidget {
   final Offer offer;
   final int number;
   final double elevation;
+  final bool showSupplier, showCustomer;
 
-  OfferCard({this.offer, this.number, this.elevation});
+  OfferCard(
+      {this.offer,
+      this.number,
+      this.elevation,
+      this.showCustomer,
+      this.showSupplier});
 
   TextStyle getTextStyle() {
     if (offer.dateClosed == null) {
@@ -60,7 +66,7 @@ class OfferCard extends StatelessWidget {
                   Container(
                     width: 30.0,
                     child: Text(
-                      number == null ? '' : '$number',
+                      offer.itemNumber == null ? '0' : '${offer.itemNumber}',
                       style: Styles.blackBoldSmall,
                     ),
                   ),
@@ -75,56 +81,63 @@ class OfferCard extends StatelessWidget {
                 ],
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.only(left: 20.0, top: 4.0, bottom: 0.0),
-              child: Row(
-                children: <Widget>[
-                  Padding(
-                    padding: const EdgeInsets.only(right: 8.0),
-                    child: Container(
-                      width: 80.0,
-                      child: Text(
-                        'Customer',
-                        style: Styles.greyLabelSmall,
-                      ),
+            showCustomer == false
+                ? Container()
+                : Padding(
+                    padding: const EdgeInsets.only(
+                        left: 20.0, top: 4.0, bottom: 0.0),
+                    child: Row(
+                      children: <Widget>[
+                        Padding(
+                          padding: const EdgeInsets.only(right: 8.0),
+                          child: Container(
+                            width: 80.0,
+                            child: Text(
+                              'Customer',
+                              style: Styles.greyLabelSmall,
+                            ),
+                          ),
+                        ),
+                        Flexible(
+                          child: Container(
+                            child: Text(
+                              offer.customerName == null
+                                  ? ''
+                                  : offer.customerName,
+                              overflow: TextOverflow.clip,
+                              style: Styles.blackBoldSmall,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  Flexible(
-                    child: Container(
-                      child: Text(
-                        offer.customerName == null ? '' : offer.customerName,
-                        overflow: TextOverflow.clip,
-                        style: Styles.blackBoldSmall,
-                      ),
+            showSupplier == false
+                ? Container()
+                : Padding(
+                    padding: const EdgeInsets.only(left: 20.0, top: 10.0),
+                    child: Row(
+                      children: <Widget>[
+                        Padding(
+                          padding: const EdgeInsets.only(right: 8.0),
+                          child: Container(
+                            width: 80.0,
+                            child: Text(
+                              'Supplier',
+                              style: Styles.greyLabelSmall,
+                            ),
+                          ),
+                        ),
+                        Text(
+                          offer.supplierName == null ? '' : offer.supplierName,
+                          style: Styles.blackSmall,
+                        ),
+                      ],
                     ),
                   ),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(left: 20.0, top: 10.0),
-              child: Row(
-                children: <Widget>[
-                  Padding(
-                    padding: const EdgeInsets.only(right: 8.0),
-                    child: Container(
-                      width: 80.0,
-                      child: Text(
-                        'Supplier',
-                        style: Styles.greyLabelSmall,
-                      ),
-                    ),
-                  ),
-                  Text(
-                    offer.supplierName == null ? '' : offer.supplierName,
-                    style: Styles.blackSmall,
-                  ),
-                ],
-              ),
-            ),
             Padding(
               padding:
-                  const EdgeInsets.only(left: 20.0, top: 4.0, bottom: 20.0),
+                  const EdgeInsets.only(left: 20.0, top: 4.0, bottom: 10.0),
               child: Row(
                 children: <Widget>[
                   Padding(
@@ -185,10 +198,10 @@ class OfferCard extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    offer.startTime == null
+                    offer.endTime == null
                         ? 'N/A'
                         : '${getFormattedDateShort(offer.endTime, context)}',
-                    style: Styles.blackSmall,
+                    style: Styles.blackBoldSmall,
                   ),
                 ],
               ),

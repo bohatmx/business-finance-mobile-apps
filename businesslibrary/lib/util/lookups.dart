@@ -312,7 +312,6 @@ String getFormattedDateLong(String date, BuildContext context) {
 }
 
 String getFormattedDateShort(String date, BuildContext context) {
-  print('\n\ngetFormattedDateShort $date'); //Sun, 28 Oct 2018 23:59:49 GMT
   Locale myLocale = Localizations.localeOf(context);
 
   initializeDateFormatting();
@@ -334,7 +333,6 @@ String getFormattedDateShort(String date, BuildContext context) {
 }
 
 String getFormattedDateShortest(String date, BuildContext context) {
-  print('\n\ngetFormattedDateShort $date'); //Sun, 28 Oct 2018 23:59:49 GMT
   Locale myLocale = Localizations.localeOf(context);
 
   initializeDateFormatting();

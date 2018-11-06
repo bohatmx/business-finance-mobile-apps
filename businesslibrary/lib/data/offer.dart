@@ -75,6 +75,7 @@ class Offer extends Findable {
     this.sector = data['sector'];
     this.sectorName = data['sectorName'];
     this.isOpen = data['isOpen'];
+    this.itemNumber = data['itemNumber'];
   }
 
   Map<String, dynamic> toJson() => <String, dynamic>{
@@ -106,5 +107,6 @@ class Offer extends Findable {
         'sector': sector,
         'sectorName': sectorName,
         'isOpen': isOpen,
+        'itemNumber': itemNumber,
       };
 }
