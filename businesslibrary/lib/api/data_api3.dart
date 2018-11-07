@@ -160,7 +160,7 @@ class DataAPI3 {
     }
   }
 
-  static Future registerInvoice(Invoice invoice) async {
+  static Future<int> registerInvoice(Invoice invoice) async {
     invoice.invoiceId = getKey();
     invoice.isOnOffer = false;
     invoice.isSettled = false;
@@ -179,12 +179,12 @@ class DataAPI3 {
       switch (mResponse.statusCode) {
         case 200:
           print('DataAPI3.registerInvoice: invoice registered');
-          return Invoice.fromJson(json.decode(mResponse.body));
+          return DataAPI3.InvoiceRegistered;
           break;
         case 201: //invoice auto accepted
           print(
               '\n\nDataAPI3.registerInvoice: invoice auto accepted #########################################\n');
-          return Invoice.fromJson(json.decode(mResponse.body));
+          return DataAPI3.InvoiceRegisteredAccepted;
           break;
         default:
           var e = Exception('Register Invoice failed: ${mResponse.body}');
@@ -457,7 +457,6 @@ class DataAPI3 {
   }
 
   static Future<int> addAutoTradeOrder(AutoTradeOrder order) async {
-
     order.autoTradeOrderId = getKey();
     order.date = getUTCDate();
     order.isCancelled = false;

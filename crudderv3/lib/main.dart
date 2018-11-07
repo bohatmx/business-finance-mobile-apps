@@ -89,6 +89,7 @@ class _MyHomePageState extends State<MyHomePage>
       msgList.add('Removing authenticated users ...');
     });
     await _removeUsers();
+    sleep(Duration(seconds: 10));
     setState(() {
       msgList.add('Authenticated users removed');
     });
@@ -157,6 +158,7 @@ class _MyHomePageState extends State<MyHomePage>
   }
 
   void _generateWorkingData() async {
+    await Generator.generateOffers(this, context);
     if (isBusy) {
       AppSnackbar.showSnackbar(
           scaffoldKey: _scaffoldKey,
@@ -169,6 +171,11 @@ class _MyHomePageState extends State<MyHomePage>
     _phaseCounter = 0;
 
     var start = DateTime.now();
+//    //todo remove after test
+//    await Generator.generateOffers(this, context);
+//    if (start is DateTime) {
+//      return;
+//    }
     await Generator.generate(this, context);
 
     isBusy = false;
@@ -553,7 +560,6 @@ class _MyHomePageState extends State<MyHomePage>
     });
     print(
         '\n\n\n_MyHomePageState.cleanUp ... sleeping for 10 seconds .......${DateTime.now().toIso8601String()}');
-    sleep(Duration(seconds: 10));
     return null;
   }
 
@@ -1111,6 +1117,8 @@ class _MyHomePageState extends State<MyHomePage>
 
   @override
   onError(String message) {
+    print(message);
+    prefSize = 400.0;
     setState(() {
       weHaveMELTDOWN = true;
       this.message = message;

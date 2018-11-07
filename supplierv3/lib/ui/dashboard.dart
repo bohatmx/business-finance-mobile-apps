@@ -547,11 +547,13 @@ class _DashboardState extends State<Dashboard>
   @override
   onInvoiceBidMessage(InvoiceBid invoiceBid) {
     _showSnack('Invoice Bid  arrived', Colors.lightBlue);
+    _getSummaryData();
   }
 
   @override
   onPurchaseOrderMessage(PurchaseOrder purchaseOrder) {
     _showSnack('Purchase Order arrived', Colors.lime);
+    _getSummaryData();
   }
 
   @override
@@ -607,7 +609,7 @@ class OfferSummaryCard extends StatelessWidget {
                   padding: const EdgeInsets.only(left: 12.0),
                   child: Text(
                     '${data.totalOpenOffers}',
-                    style: Styles.tealBoldMedium,
+                    style: Styles.blackBoldMedium,
                   ),
                 ),
               ],

@@ -19,7 +19,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:supplierv3/ui/delivery_note_page.dart';
 import 'package:supplierv3/ui/invoice_page.dart';
-import 'package:swipedetector/swipedetector.dart';
 
 class PurchaseOrderListPage extends StatefulWidget {
   @override
@@ -43,7 +42,7 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
   DeliveryAcceptance acceptance;
   User user;
   PurchaseOrderSummary summary;
-  int pageLimit = 2;
+  int pageLimit;
   int lastDate;
   bool isBackPressed = false;
   int previousStartKey;
@@ -61,6 +60,7 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
     pageLimit = await SharedPrefs.getPageLimit();
     dashboardData = await SharedPrefs.getDashboardData();
     baseList = await Database.getPurchaseOrders();
+    pageLimit = await SharedPrefs.getPageLimit();
     currentIndex = 0;
     _getPurchaseOrders();
     FCM.configureFCM(
@@ -204,14 +204,10 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
         itemCount: purchaseOrders == null ? 0 : purchaseOrders.length,
         controller: scrollController,
         itemBuilder: (BuildContext context, int index) {
-          return SwipeDetector(
-            onSwipeLeft: _onSwipeLeft,
-            onSwipeRight: _onSwipeRight,
-            child: PurchaseOrderCard(
-              purchaseOrder: purchaseOrders.elementAt(index),
-              listener: this,
-              elevation: elevation,
-            ),
+          return PurchaseOrderCard(
+            purchaseOrder: purchaseOrders.elementAt(index),
+            listener: this,
+            elevation: elevation,
           );
         });
   }
@@ -267,6 +263,12 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
   @override
   onPrompt(int pageLimit) {
     print('_PurchaseOrderListPageState.onPrompt ...............');
+    if (this.pageLimit == pageLimit) {
+      return;
+    }
+    this.pageLimit = pageLimit;
+    currentStartKey = null;
+    _getPurchaseOrders();
   }
 
   @override

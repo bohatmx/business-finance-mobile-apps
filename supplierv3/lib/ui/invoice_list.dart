@@ -52,15 +52,14 @@ class _InvoiceListState extends State<InvoiceList>
     _getCached();
   }
 
-  _listenForBids() async {}
-
   _getCached() async {
     user = await SharedPrefs.getUser();
     supplier = await SharedPrefs.getSupplier();
     dashboardData = await SharedPrefs.getDashboardData();
     baseList = await Database.getInvoices();
     pageLimit = await SharedPrefs.getPageLimit();
-    _getInvoices();
+    currentStartKey = null;
+    await _getInvoices();
     setState(() {});
   }
 
@@ -431,8 +430,7 @@ class _InvoiceListState extends State<InvoiceList>
         new MaterialPageRoute(builder: (context) => new MakeOfferPage(invoice)),
       );
       if (refresh != null && refresh) {
-        _getInvoices();
-        _listenForBids();
+        _getCached();
       }
     } else {
       AppSnackbar.showErrorSnackbar(

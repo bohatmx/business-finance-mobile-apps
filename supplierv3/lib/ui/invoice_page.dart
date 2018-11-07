@@ -134,9 +134,11 @@ class _NewInvoicePageState extends State<NewInvoicePage>
           backgroundColor: Colors.black);
 
       //check for possible duplicate
-      var xx = await ListAPI.getInvoice(invoice.purchaseOrderNumber,
-          invoice.invoiceNumber, invoice.supplierDocumentRef);
-      if (xx != null) {
+      var existingInvoice = await ListAPI.getInvoice(
+          invoice.purchaseOrderNumber,
+          invoice.invoiceNumber,
+          invoice.supplierDocumentRef);
+      if (existingInvoice != null) {
         print('DataAPI.registerInvoice - possible DUPLICATE invoice');
         AppSnackbar.showErrorSnackbar(
             scaffoldKey: _scaffoldKey,
@@ -153,20 +155,18 @@ class _NewInvoicePageState extends State<NewInvoicePage>
           setState(() {
             _opacity = 0.0;
           });
-          AppSnackbar.showSnackbar(
-              scaffoldKey: _scaffoldKey,
-              message: 'Invoice registered',
-              textColor: Styles.white,
-              backgroundColor: Styles.black);
+          _showRegistered();
           break;
         case DataAPI3.InvoiceRegisteredAccepted:
           isSuccess = true;
           setState(() {
             _opacity = 0.0;
           });
-          InvoiceAcceptance acc = await ListAPI.getLastInvoiceAcceptance(
+
+          invoiceAcceptance = await ListAPI.getLastInvoiceAcceptance(
               supplier.documentReference);
-          onInvoiceAcceptance(acc);
+          _showRegisteredAccepted();
+
           break;
         default:
           isSuccess = false;
@@ -178,6 +178,32 @@ class _NewInvoicePageState extends State<NewInvoicePage>
           break;
       }
     }
+  }
+
+  InvoiceAcceptance invoiceAcceptance;
+  static const InvoiceAcceptanceAvailable = 1, Done = 2;
+  void _showRegisteredAccepted() {
+    AppSnackbar.showSnackbarWithAction(
+        scaffoldKey: _scaffoldKey,
+        message: 'Invoice registered\nTap Make Offer to start',
+        textColor: Styles.white,
+        listener: this,
+        actionLabel: 'Offer',
+        icon: Icons.done_all,
+        action: InvoiceAcceptanceAvailable,
+        backgroundColor: Styles.black);
+  }
+
+  void _showRegistered() {
+    AppSnackbar.showSnackbarWithAction(
+        scaffoldKey: _scaffoldKey,
+        message: 'Invoice registered',
+        textColor: Styles.white,
+        listener: this,
+        actionLabel: 'Done',
+        icon: Icons.done,
+        action: Done,
+        backgroundColor: Styles.black);
   }
 
   _getContracts() async {
@@ -486,13 +512,17 @@ class _NewInvoicePageState extends State<NewInvoicePage>
   onActionPressed(int action) {
     print('_NewInvoicePageState.onActionPressed');
     switch (action) {
-      case 1:
+      case InvoiceAcceptanceAvailable:
         Navigator.pop(context);
         Navigator.push(
           context,
           new MaterialPageRoute(
               builder: (context) => new MakeOfferPage(invoice)),
         );
+        break;
+      case Done:
+        Navigator.pop(context);
+        Navigator.pop(context);
         break;
       default:
         Navigator.pop(context);
@@ -512,30 +542,6 @@ class _NewInvoicePageState extends State<NewInvoicePage>
   }
 
   DeliveryAcceptance daArrived;
-  @override
-  onDeliveryAcceptance(DeliveryAcceptance da) {
-    daArrived = da;
-    AppSnackbar.showSnackbar(
-        scaffoldKey: _scaffoldKey,
-        message: 'Delivery Accepted',
-        textColor: Styles.white,
-        backgroundColor: Styles.black);
-  }
-
-  InvoiceAcceptance invoiceAcceptance;
-  @override
-  onInvoiceAcceptance(InvoiceAcceptance ia) {
-    invoiceAcceptance = ia;
-    AppSnackbar.showSnackbarWithAction(
-        scaffoldKey: _scaffoldKey,
-        message: 'Invoice Accepted',
-        textColor: Styles.white,
-        icon: Icons.done,
-        action: 1,
-        actionLabel: 'OK',
-        listener: this,
-        backgroundColor: Colors.teal.shade600);
-  }
 
   @override
   onDeliveryAcceptanceMessage(DeliveryAcceptance acceptance) {
@@ -544,7 +550,11 @@ class _NewInvoicePageState extends State<NewInvoicePage>
 
   @override
   onInvoiceAcceptanceMessage(InvoiceAcceptance acceptance) {
-    // TODO: implement onInvoiceAcceptanceMessage
+    this.invoiceAcceptance = acceptance;
+    Navigator.push(
+      context,
+      new MaterialPageRoute(builder: (context) => new MakeOfferPage(invoice)),
+    );
   }
 }
 

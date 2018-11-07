@@ -17,7 +17,7 @@ import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:supplierv3/ui/offer_details.dart';
+import 'package:supplierv3/ui/summary_helper.dart';
 
 class MakeOfferPage extends StatefulWidget {
   final Invoice invoice;
@@ -52,6 +52,7 @@ class _MakeOfferPageState extends State<MakeOfferPage>
   Sector sector;
   List<Sector> sectors = List();
   String offerId;
+  Offer resultOffer;
   @override
   initState() {
     super.initState();
@@ -171,6 +172,11 @@ class _MakeOfferPageState extends State<MakeOfferPage>
   }
 
   bool submitting = false;
+
+  _refreshData() async {
+    await Refresh.refresh(supplier);
+  }
+
   _submitOffer() async {
     print(
         'MakeOfferPage._submitOffer ########### invoice: ${invoice.invoiceNumber} --------------\n\n');
@@ -254,7 +260,7 @@ class _MakeOfferPageState extends State<MakeOfferPage>
       return;
     }
     try {
-      var resultOffer = await DataAPI3.makeOffer(offer);
+      resultOffer = await DataAPI3.makeOffer(offer);
       if (resultOffer == null) {
         AppSnackbar.showErrorSnackbar(
             scaffoldKey: _scaffoldKey,
@@ -264,11 +270,14 @@ class _MakeOfferPageState extends State<MakeOfferPage>
         submitting = false;
       } else {
         offerId = resultOffer.offerId;
+        FirebaseMessaging mg = FirebaseMessaging();
+        mg.subscribeToTopic(FCM.TOPIC_INVOICE_BIDS + offerId);
         needRefresh = true;
-//        listenForInvoiceBid(offerId, this);
+        await _refreshData();
+
         AppSnackbar.showSnackbarWithAction(
             scaffoldKey: _scaffoldKey,
-            message: 'Ivoice Offer suubmitted OK',
+            message: 'Ivoice Offer submitted OK',
             textColor: Colors.white,
             backgroundColor: Colors.teal.shade800,
             actionLabel: "DONE",
@@ -282,6 +291,7 @@ class _MakeOfferPageState extends State<MakeOfferPage>
           message: 'Invoice Offer failed',
           listener: this,
           actionLabel: 'Close');
+      needRefresh = false;
       submitting = false;
     }
   }
@@ -542,18 +552,15 @@ class _MakeOfferPageState extends State<MakeOfferPage>
   onActionPressed(int action) async {
     print('_MakeOfferPageState.onActionPressed');
     switch (action) {
-      case 1:
-        //navigate to offer details
-        var offerBag =
-            await ListAPI.getOfferById(bid.offer.split('#').elementAt(1));
-        Navigator.push(
-            context,
-            new MaterialPageRoute(
-              builder: (context) => OfferDetails(offerBag.offer),
-            ));
+      case OfferSubmitted:
+        Navigator.pop(context);
+        Navigator.pop(context, needRefresh);
+        break;
+      default:
+        Navigator.pop(context);
+        Navigator.pop(context, false);
         break;
     }
-    Navigator.pop(context, needRefresh);
   }
 
   void _onSector(Sector value) {

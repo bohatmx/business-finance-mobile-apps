@@ -12,6 +12,7 @@ import 'package:businesslibrary/data/procurement_office.dart';
 import 'package:businesslibrary/data/sector.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/wallet.dart';
+import 'package:businesslibrary/util/FCM.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/selectors.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
@@ -285,16 +286,9 @@ class _SignInPageState extends State<SignInPage> implements SnackBarListener {
   }
 
   void _subscribeToFCM() {
-    _firebaseMessaging
-        .subscribeToTopic('purchaseOrders' + supplier.documentReference);
-    _firebaseMessaging.subscribeToTopic('general');
-    _firebaseMessaging
-        .subscribeToTopic('settlements' + supplier.documentReference);
-    _firebaseMessaging
-        .subscribeToTopic('invoiceBids' + supplier.documentReference);
-    _firebaseMessaging
-        .subscribeToTopic('deliveryAcceptances' + supplier.documentReference);
-    print('_SignUpPageState._subscribe to 5 topics');
+    _firebaseMessaging.subscribeToTopic(FCM.TOPIC_GENERAL_MESSAGE);
+
+    print('_SignUpPageState._subscribe to general topic');
   }
 
   @override
