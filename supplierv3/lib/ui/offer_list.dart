@@ -86,8 +86,7 @@ class _OfferListState extends State<OfferList>
 
     Navigator.push(
       context,
-      new MaterialPageRoute(
-          builder: (context) => new OfferDetails(offer.offerId)),
+      new MaterialPageRoute(builder: (context) => new OfferDetails(offer)),
     );
   }
 

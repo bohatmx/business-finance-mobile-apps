@@ -264,57 +264,67 @@ class _DashboardState extends State<Dashboard>
                 ),
               ),
             ),
-            new Opacity(
+            Opacity(
               opacity: opacity,
-              child: new Padding(
+              child: Padding(
                 padding: const EdgeInsets.only(top: 10.0),
                 child: ListView(
                   children: <Widget>[
-                    new GestureDetector(
-                      onTap: _onPaymentsTapped,
-                      child: SummaryCard(
-                        total: dashboardData == null ? 0 : 0,
-                        label: 'Payments',
-                        totalStyle: Styles.greyLabelMedium,
-                      ),
-                    ),
-                    new GestureDetector(
+                    GestureDetector(
                       onTap: _onInvoiceTapped,
                       child: dashboardData == null
                           ? Container()
                           : SummaryCard(
-                              total: dashboardData.invoices,
-                              label: 'Invoices',
-                              totalStyle: Styles.pinkBoldLarge,
+                              totalCount: dashboardData.invoices,
+                              totalCountLabel: 'Invoices',
+                              totalCountStyle: Styles.pinkBoldLarge,
+                              totalValue: dashboardData == null
+                                  ? 0.0
+                                  : dashboardData.totalInvoiceAmount,
                             ),
                     ),
-                    new GestureDetector(
+                    GestureDetector(
+                      onTap: _onOffersTapped,
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 20.0, right: 20.0),
+                        child: dashboardData == null
+                            ? Container()
+                            : OfferSummaryCard(dashboardData),
+                      ),
+                    ),
+                    GestureDetector(
                       onTap: _onPurchaseOrdersTapped,
                       child: dashboardData == null
                           ? Container()
                           : SummaryCard(
-                              total: dashboardData.purchaseOrders,
-                              label: 'Purchase Orders',
-                              totalStyle: Styles.blueBoldLarge,
+                              totalCount: dashboardData.purchaseOrders,
+                              totalCountLabel: 'Purchase Orders',
+                              totalCountStyle: Styles.blueBoldLarge,
+                              totalValue: dashboardData == null
+                                  ? 0.0
+                                  : dashboardData.totalPurchaseOrderAmount,
                             ),
                     ),
-                    new GestureDetector(
+                    GestureDetector(
                       onTap: _onDeliveryNotesTapped,
                       child: dashboardData == null
                           ? Container()
                           : SummaryCard(
-                              total: dashboardData.deliveryNotes,
-                              label: 'Delivery Notes',
-                              totalStyle: Styles.blackBoldLarge,
+                              totalCount: dashboardData.deliveryNotes,
+                              totalCountLabel: 'Delivery Notes',
+                              totalCountStyle: Styles.blackBoldLarge,
+                              totalValue: dashboardData == null
+                                  ? 0.0
+                                  : dashboardData.totalDeliveryNoteAmount,
                             ),
                     ),
-                    new GestureDetector(
-                      onTap: _onOffersTapped,
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 30.0, right: 30.0),
-                        child: dashboardData == null
-                            ? Container()
-                            : OfferSummaryCard(dashboardData),
+                    GestureDetector(
+                      onTap: _onPaymentsTapped,
+                      child: SummaryCard(
+                        totalCount: dashboardData == null ? 0 : 0,
+                        totalCountLabel: 'Payments',
+                        totalCountStyle: Styles.greyLabelMedium,
+                        totalValue: 0.0,
                       ),
                     ),
                   ],
@@ -331,7 +341,7 @@ class _DashboardState extends State<Dashboard>
     print('_DashboardState._onOffersTapped ...............');
     Navigator.push(
         context,
-        new MaterialPageRoute(
+        MaterialPageRoute(
           builder: (context) => OfferList(),
         ));
   }
@@ -340,8 +350,8 @@ class _DashboardState extends State<Dashboard>
     print('_MainPageState._goToWalletPage .... ');
     Navigator.push(
       context,
-      new MaterialPageRoute(
-          builder: (context) => new WalletPage(
+      MaterialPageRoute(
+          builder: (context) => WalletPage(
               name: supplier.name,
               participantId: supplier.participantId,
               type: SupplierType)),
@@ -352,7 +362,7 @@ class _DashboardState extends State<Dashboard>
     print('_MainPageState._onInvoiceTapped ... go  to list of invoices');
     Navigator.push(
       context,
-      new MaterialPageRoute(builder: (context) => new InvoiceList()),
+      MaterialPageRoute(builder: (context) => InvoiceList()),
     );
   }
 
@@ -360,7 +370,7 @@ class _DashboardState extends State<Dashboard>
     print('_MainPageState._onPurchaseOrdersTapped  go to list of pos');
     Navigator.push(
       context,
-      new MaterialPageRoute(builder: (context) => new PurchaseOrderListPage()),
+      MaterialPageRoute(builder: (context) => PurchaseOrderListPage()),
     );
   }
 
@@ -368,7 +378,7 @@ class _DashboardState extends State<Dashboard>
     print('_MainPageState._onDeliveryNotesTapped go to  delivery notes');
     Navigator.push(
       context,
-      new MaterialPageRoute(builder: (context) => new DeliveryNoteList()),
+      MaterialPageRoute(builder: (context) => DeliveryNoteList()),
     );
   }
 
@@ -391,15 +401,13 @@ class _DashboardState extends State<Dashboard>
       case PurchaseOrderConstant:
         Navigator.push(
           context,
-          new MaterialPageRoute(
-              builder: (context) => new PurchaseOrderListPage()),
+          MaterialPageRoute(builder: (context) => PurchaseOrderListPage()),
         );
         break;
       case DeliveryAcceptanceConstant:
         Navigator.push(
           context,
-          new MaterialPageRoute(
-              builder: (context) => new DeliveryAcceptanceList()),
+          MaterialPageRoute(builder: (context) => DeliveryAcceptanceList()),
         );
         break;
       case InvoiceAcceptedConstant:
@@ -429,7 +437,7 @@ class _DashboardState extends State<Dashboard>
     _scaffoldKey.currentState.hideCurrentSnackBar();
     Navigator.push(
       context,
-      new MaterialPageRoute(builder: (context) => new MakeOfferPage(inv)),
+      MaterialPageRoute(builder: (context) => MakeOfferPage(inv)),
     );
   }
 
@@ -437,7 +445,7 @@ class _DashboardState extends State<Dashboard>
     print('_DashboardState._goToContracts .......');
     Navigator.push(
       context,
-      new MaterialPageRoute(builder: (context) => new ContractList()),
+      MaterialPageRoute(builder: (context) => ContractList()),
     );
   }
 
@@ -568,55 +576,98 @@ class OfferSummaryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      elevation: 6.0,
+      elevation: 16.0,
+      color: Colors.brown.shade100,
       child: Padding(
-        padding: const EdgeInsets.all(12.0),
+        padding: const EdgeInsets.all(20.0),
         child: Column(
           children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.only(top: 10.0, bottom: 10.0),
+              child: Row(
+                children: <Widget>[
+                  Text(
+                    'Invoice Offers',
+                    style: Styles.blackBoldMedium,
+                  )
+                ],
+              ),
+            ),
             Row(
-              mainAxisAlignment: MainAxisAlignment.end,
+              mainAxisAlignment: MainAxisAlignment.start,
               children: <Widget>[
-                Text(
-                  'Open Offers',
-                  style: Styles.greyLabelSmall,
+                Container(
+                  width: 120.0,
+                  child: Text(
+                    'Open Offers',
+                    style: Styles.greyLabelSmall,
+                  ),
                 ),
                 Padding(
                   padding: const EdgeInsets.only(left: 12.0),
                   child: Text(
                     '${data.totalOpenOffers}',
-                    style: Styles.tealBoldLarge,
+                    style: Styles.tealBoldMedium,
                   ),
                 ),
               ],
             ),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 10.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: <Widget>[
+                  Container(
+                    width: 120.0,
+                    child: Text(
+                      'Open Offer Total',
+                      style: Styles.greyLabelSmall,
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 12.0),
+                    child: Text(
+                      '${getFormattedAmount('${data.totalOpenOfferAmount}', context)}',
+                      style: Styles.tealBoldMedium,
+                    ),
+                  ),
+                ],
+              ),
+            ),
             Row(
-              mainAxisAlignment: MainAxisAlignment.end,
+              mainAxisAlignment: MainAxisAlignment.start,
               children: <Widget>[
-                Text(
-                  'Closed Offers',
-                  style: Styles.greyLabelSmall,
+                Container(
+                  width: 120.0,
+                  child: Text(
+                    'Closed Offers',
+                    style: Styles.greyLabelSmall,
+                  ),
                 ),
                 Padding(
                   padding: const EdgeInsets.only(left: 12.0),
                   child: Text(
                     '${data.closedOffers}',
-                    style: Styles.pinkBoldLarge,
+                    style: Styles.greyLabelMedium,
                   ),
                 ),
               ],
             ),
             Row(
-              mainAxisAlignment: MainAxisAlignment.end,
+              mainAxisAlignment: MainAxisAlignment.start,
               children: <Widget>[
-                Text(
-                  'Cancelled Offers',
-                  style: Styles.greyLabelSmall,
+                Container(
+                  width: 120.0,
+                  child: Text(
+                    'Cancelled Offers',
+                    style: Styles.greyLabelSmall,
+                  ),
                 ),
                 Padding(
                   padding: const EdgeInsets.only(left: 12.0),
                   child: Text(
                     '${data.cancelledOffers}',
-                    style: Styles.blackBoldLarge,
+                    style: Styles.greyLabelMedium,
                   ),
                 ),
               ],

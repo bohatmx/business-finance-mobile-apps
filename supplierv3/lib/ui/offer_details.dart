@@ -8,9 +8,9 @@ import 'package:businesslibrary/util/styles.dart';
 import 'package:flutter/material.dart';
 
 class OfferDetails extends StatefulWidget {
-  final String offerId;
+  final Offer mOffer;
 
-  OfferDetails(this.offerId);
+  OfferDetails(this.mOffer);
 
   @override
   _OfferDetailsState createState() => _OfferDetailsState();
@@ -35,7 +35,7 @@ class _OfferDetailsState extends State<OfferDetails>
         textColor: Styles.white,
         backgroundColor: Styles.black);
 
-    bag = await ListAPI.getOfferWithBids(widget.offerId);
+    bag = await ListAPI.getOfferWithBids(widget.mOffer.offerId);
     bids = bag.invoiceBids;
     offer = bag.offer;
     _scaffoldKey.currentState.removeCurrentSnackBar();
@@ -201,6 +201,7 @@ class _OfferDetailsState extends State<OfferDetails>
 
   @override
   Widget build(BuildContext context) {
+    offer = widget.mOffer;
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(

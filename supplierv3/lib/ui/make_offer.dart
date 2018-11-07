@@ -539,16 +539,17 @@ class _MakeOfferPageState extends State<MakeOfferPage>
   }
 
   @override
-  onActionPressed(int action) {
+  onActionPressed(int action) async {
     print('_MakeOfferPageState.onActionPressed');
     switch (action) {
       case 1:
         //navigate to offer details
+        var offerBag =
+            await ListAPI.getOfferById(bid.offer.split('#').elementAt(1));
         Navigator.push(
             context,
             new MaterialPageRoute(
-              builder: (context) =>
-                  OfferDetails(bid.offer.split('#').elementAt(1)),
+              builder: (context) => OfferDetails(offerBag.offer),
             ));
         break;
     }

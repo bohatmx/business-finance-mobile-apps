@@ -149,6 +149,46 @@ class _DashboardState extends State<Dashboard>
 
   double opacity = 1.0;
   String name;
+  Widget _getBottom() {
+    return PreferredSize(
+      preferredSize: const Size.fromHeight(80.0),
+      child: new Column(
+        children: <Widget>[
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              new Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  name == null ? 'Organisation' : name,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20.0,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              )
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              new Padding(
+                padding: const EdgeInsets.only(top: 0.0, bottom: 20.0),
+                child: Text(
+                  fullName == null ? 'user' : fullName,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.normal,
+                  ),
+                ),
+              )
+            ],
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -164,44 +204,7 @@ class _DashboardState extends State<Dashboard>
             style: TextStyle(fontWeight: FontWeight.normal),
           ),
           leading: Container(),
-          bottom: PreferredSize(
-            preferredSize: const Size.fromHeight(80.0),
-            child: new Column(
-              children: <Widget>[
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    new Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        name == null ? 'Organisation' : name,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20.0,
-                          fontWeight: FontWeight.w900,
-                        ),
-                      ),
-                    )
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    new Padding(
-                      padding: const EdgeInsets.only(top: 0.0, bottom: 20.0),
-                      child: Text(
-                        fullName == null ? 'user' : fullName,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.normal,
-                        ),
-                      ),
-                    )
-                  ],
-                ),
-              ],
-            ),
-          ),
+          bottom: _getBottom(),
           actions: <Widget>[
             IconButton(
               icon: Icon(Icons.refresh),
@@ -226,55 +229,92 @@ class _DashboardState extends State<Dashboard>
                 ),
               ),
             ),
-            new Opacity(
-              opacity: opacity,
-              child: new Padding(
-                padding: const EdgeInsets.only(top: 20.0),
-                child: ListView(
-                  children: <Widget>[
-                    new InkWell(
-                      onTap: _onPaymentsTapped,
-                      child: SummaryCard(
-                        total: dashboardData == null ? 0 : 0,
-                        label: 'Payments',
-                        totalStyle: Styles.blueBoldLarge,
-                      ),
-                    ),
-                    new InkWell(
-                      onTap: _onInvoicesTapped,
-                      child: SummaryCard(
-                        total:
-                            dashboardData == null ? 0 : dashboardData.invoices,
-                        label: 'Invoices',
-                        totalStyle: Styles.pinkBoldLarge,
-                      ),
-                    ),
-                    new InkWell(
-                      onTap: _onPurchaseOrdersTapped,
-                      child: SummaryCard(
-                        total: dashboardData == null
-                            ? 0
-                            : dashboardData.purchaseOrders,
-                        label: 'Purchase Orders',
-                        totalStyle: Styles.tealBoldLarge,
-                      ),
-                    ),
-                    new InkWell(
-                      onTap: _onDeliveryNotesTapped,
-                      child: SummaryCard(
-                        total: dashboardData == null
-                            ? 0
-                            : dashboardData.deliveryNotes,
-                        label: 'Delivery Notes',
-                        totalStyle: Styles.blackBoldLarge,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
+            _getListView(),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _getGridView() {
+    return GridView.count(
+      crossAxisCount: 2,
+      crossAxisSpacing: 1.0,
+      children: <Widget>[
+        new InkWell(
+          onTap: _onPaymentsTapped,
+          child: SummaryCard(
+            total: dashboardData == null ? 0 : 0,
+            label: 'Payments',
+            totalStyle: Styles.blueBoldLarge,
+          ),
+        ),
+        new InkWell(
+          onTap: _onInvoicesTapped,
+          child: SummaryCard(
+            total: dashboardData == null ? 0 : dashboardData.invoices,
+            label: 'Invoices',
+            totalStyle: Styles.pinkBoldLarge,
+          ),
+        ),
+        new InkWell(
+          onTap: _onPurchaseOrdersTapped,
+          child: SummaryCard(
+            total: dashboardData == null ? 0 : dashboardData.purchaseOrders,
+            label: 'Purchase Orders',
+            totalStyle: Styles.tealBoldLarge,
+          ),
+        ),
+        new InkWell(
+          onTap: _onDeliveryNotesTapped,
+          child: SummaryCard(
+            total: dashboardData == null ? 0 : dashboardData.deliveryNotes,
+            label: 'Delivery Notes',
+            totalStyle: Styles.blackBoldLarge,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _getListView() {
+    return Padding(
+      padding: const EdgeInsets.only(top: 20.0),
+      child: ListView(
+        children: <Widget>[
+          new InkWell(
+            onTap: _onPaymentsTapped,
+            child: SummaryCard(
+              total: dashboardData == null ? 0 : 0,
+              label: 'Payments',
+              totalStyle: Styles.blueBoldLarge,
+            ),
+          ),
+          new InkWell(
+            onTap: _onInvoicesTapped,
+            child: SummaryCard(
+              total: dashboardData == null ? 0 : dashboardData.invoices,
+              label: 'Invoices',
+              totalStyle: Styles.pinkBoldLarge,
+            ),
+          ),
+          new InkWell(
+            onTap: _onPurchaseOrdersTapped,
+            child: SummaryCard(
+              total: dashboardData == null ? 0 : dashboardData.purchaseOrders,
+              label: 'Purchase Orders',
+              totalStyle: Styles.tealBoldLarge,
+            ),
+          ),
+          new InkWell(
+            onTap: _onDeliveryNotesTapped,
+            child: SummaryCard(
+              total: dashboardData == null ? 0 : dashboardData.deliveryNotes,
+              label: 'Delivery Notes',
+              totalStyle: Styles.blackBoldLarge,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -390,5 +430,30 @@ class _DashboardState extends State<Dashboard>
         listener: this,
         action: InvoiceConstant,
         icon: Icons.collections_bookmark);
+  }
+}
+
+class DashboardCard extends StatelessWidget {
+  final String countTitle, totalTitle;
+  final int count;
+  final double total;
+  final Color countColor, totalColor, cardColor;
+
+  DashboardCard(this.countTitle, this.totalTitle, this.count, this.total,
+      this.countColor, this.totalColor, this.cardColor);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 240.0,
+      child: Card(
+        elevation: 2.0,
+        child: Column(
+          children: <Widget>[
+            Text(''),
+          ],
+        ),
+      ),
+    );
   }
 }
