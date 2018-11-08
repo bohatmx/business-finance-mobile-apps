@@ -44,7 +44,7 @@ class _PagerState extends State<Pager> {
   static const numbers = [2, 4, 6, 8, 10, 20];
   final List<DropdownMenuItem<int>> items = List();
   int currentIndex = 0;
-  int previousStartKey, pageNumber = 1;
+  int pageNumber = 1;
   int localPageLimit;
   DashboardData dashboardData;
 
@@ -89,7 +89,7 @@ class _PagerState extends State<Pager> {
     }
 
     print(
-        '++++++++++++++++++++++++++ Pager2._forwardPressed currentIndex: $currentIndex previousStartKey: $previousStartKey\n');
+        '++++++++++++++++++++++++++ Pager2._forwardPressed currentIndex: $currentIndex \n');
     widget.listener.onNext(currentIndex + 1);
   }
 
@@ -104,7 +104,7 @@ class _PagerState extends State<Pager> {
       return;
     }
     print(
-        '\n\n\n_Pager2State._rewindPressed -------- currentIndex: $currentIndex previousStartKey: $previousStartKey');
+        '\n\n\n_Pager2State._rewindPressed -------- currentIndex: $currentIndex ');
     if (currentIndex < 0) {
       currentIndex = 0;
     }
@@ -112,14 +112,12 @@ class _PagerState extends State<Pager> {
       pagerItems = PagerItems();
       pagerItems.addItem(PagerItem(0, null));
       pageNumber = 1;
-      previousStartKey = null;
-    } else {
-      previousStartKey = pagerItems.items.elementAt(currentIndex).startKey;
     }
     print(
-        '_Pager2State._rewindPressed -------- currentIndex: $currentIndex previousStartKey: $previousStartKey -- after manipulation');
+        '_Pager2State._rewindPressed -------- currentIndex: $currentIndex  -- after manipulation');
     pagerItems.doPrint();
-    widget.listener.onBack(previousStartKey, currentIndex);
+    widget.listener.onBack(
+        pagerItems.items.elementAt(currentIndex).startKey, currentIndex);
   }
 
   void _onNumber(int value) async {

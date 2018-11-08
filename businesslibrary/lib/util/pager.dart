@@ -43,17 +43,20 @@ class _Pager3State extends State<Pager3> {
   static const numbers = [2, 4, 6, 8, 10, 20];
   final List<DropdownMenuItem<int>> dropDownItems = List();
   DashboardData dashboardData;
-  int previousStartKey, pageNumber = 1, startKey;
+  int pageNumber = 1, startKey;
   int localPageLimit = 2;
   List<Findable> currentPage = List();
   double totalValue = 0.00;
+  KeyItems keyItems = KeyItems();
+  int currentIndex = 0;
+  Pages pages = Pages();
 
   @override
   void initState() {
     super.initState();
     print('_Pager3State.initState ..........................');
     _setPageLimit();
-    _buildItems();
+    _buildNumberItems();
     _getDashData();
   }
 
@@ -61,57 +64,72 @@ class _Pager3State extends State<Pager3> {
     print('_Pager3State._getDashData ...........................');
     if (widget.addHeader == true) {
       dashboardData = await SharedPrefs.getDashboardData();
-      int mIndex = 0;
-      widget.items.forEach((f) {
-        widget.items.elementAt(mIndex).itemNumber = mIndex + 1;
-        mIndex++;
-        if (f is PurchaseOrder) {
-          totalValue += f.amount;
-          dashboardData.totalPurchaseOrderAmount = totalValue;
-        }
-        if (f is DeliveryNote) {
-          totalValue += f.amount;
-          dashboardData.totalDeliveryNoteAmount = totalValue;
-        }
-        if (f is Invoice) {
-          totalValue += f.amount;
-          dashboardData.totalInvoiceAmount = totalValue;
-        }
-        if (f is Offer) {
-          totalValue += f.offerAmount;
-          dashboardData.totalOpenOfferAmount = totalValue;
-        }
-      });
-      print('_Pager3State._getDashData ...... calling _forwardPressed');
+      print('_Pager3State._getDashData ...... calling _getInitialPage');
+    }
+    setState(() {});
+
+    int mIndex = 0;
+    widget.items.forEach((f) {
+      widget.items.elementAt(mIndex).itemNumber = mIndex + 1;
+      mIndex++;
+      if (f is PurchaseOrder) {
+        totalValue += f.amount;
+        dashboardData.totalPurchaseOrderAmount = totalValue;
+      }
+      if (f is DeliveryNote) {
+        totalValue += f.amount;
+        dashboardData.totalDeliveryNoteAmount = totalValue;
+      }
+      if (f is Invoice) {
+        totalValue += f.amount;
+        dashboardData.totalInvoiceAmount = totalValue;
+      }
+      if (f is Offer) {
+        totalValue += f.offerAmount;
+        dashboardData.totalOpenOfferAmount = totalValue;
+      }
+    });
+    _buildPages();
+    _getInitialPage();
+  }
+
+  void _buildPages() {
+    /////
+    var rem = widget.items.length % localPageLimit;
+    var numPages = widget.items.length ~/ localPageLimit;
+    if (rem > 0) {
+      numPages++;
+    }
+    startKey = null;
+    currentIndex = 0;
+    pageNumber = 1;
+
+    for (var i = 0; i < numPages; i++) {
+      //build page
       var result = Finder.find(
           intDate: startKey, pageLimit: localPageLimit, baseList: widget.items);
-      if (result.items.isNotEmpty) {
-        currentPage = result.items;
-        startKey = currentPage.last.intDate;
-      }
-      setState(() {});
-      print(
-          '_Pager3State._getDashData - calling widget.listener.onPage(currentPage)');
-      widget.listener.onPage(currentPage);
+      var page = Page(
+          index: currentIndex, pageNumber: pageNumber, items: result.items);
+      pages.addPage(page);
+      currentIndex++;
+      pageNumber++;
+      startKey = result.startKey;
     }
+    pages.doPrint();
   }
 
   void _getInitialPage() {
-    startKey = null;
-    previousStartKey = null;
-    pageNumber = 1;
+    print('\n\n\n_Pager3State._getInitialPage .... starting over ............');
 
-    var result = Finder.find(
-        intDate: startKey, pageLimit: localPageLimit, baseList: widget.items);
-    if (result.items.isNotEmpty) {
-      currentPage = result.items;
-      startKey = result.startKey;
-    }
+    var page = pages.getPage(0);
+    currentPage = page.items;
+    currentIndex = 0;
+    pageNumber = 1;
     setState(() {});
     widget.listener.onPage(currentPage);
   }
 
-  void _buildItems() {
+  void _buildNumberItems() {
     numbers.forEach((num) {
       var item = DropdownMenuItem<int>(
         value: num,
@@ -130,73 +148,71 @@ class _Pager3State extends State<Pager3> {
   }
 
   void _forwardPressed() {
+    currentIndex++;
     pageNumber++;
-    var titPages = int.parse(_getTotalPages());
-    if (pageNumber > titPages) {
+    if (pageNumber > pages._pages.length) {
+      print(
+          '_PagerState._forwardPressed ... hey Toto, we not in Kansas nomore ....pageNumber: $pageNumber');
       pageNumber = 1;
       startKey = null;
-      print(
-          '_PagerState._forwardPressed ... hey Houston, aint no more ....pageNumber: $pageNumber');
-      setState(() {});
-      //widget.listener.onNoMoreData();
-      //return;
+      currentIndex = 0;
     }
-    previousStartKey = startKey;
+
+    currentPage = pages.getPage(currentIndex).items;
     print(
-        '++++++++++++++++++++++++++ Pager2._forwardPressed startKey: $startKey previousStartKey: $previousStartKey\n');
-    var result = Finder.find(
-        intDate: startKey, pageLimit: localPageLimit, baseList: widget.items);
-    if (result.items.isNotEmpty) {
-      currentPage = result.items;
-      startKey = currentPage.last.intDate;
-    }
+        '\n#### FORWARD pressed ---- page below to listener: currentIndex: $currentIndex');
+    currentPage.forEach((c) {
+      if (c is Offer) {
+        print(
+            'itemNumber: ${c.itemNumber} intDate: ${c.intDate} supplier: ${c.supplierName} customer: ${c.customerName} ${c.offerAmount}');
+      }
+    });
+
     setState(() {});
     widget.listener.onPage(currentPage);
   }
 
   void _backPressed() {
+    print(
+        '_Pager3State._backPressed currentIndex: $currentIndex at the top, pageNumber: $pageNumber');
+    currentIndex--;
     pageNumber--;
-    if (pageNumber < 0) {
-      pageNumber = 1;
-      print(
-          '_PagerState._backPressed ...... cant go back in time, Dani Daniels!');
-      setState(() {});
-      widget.listener.onNoMoreData();
-    }
     if (pageNumber == 0) {
       pageNumber = 1;
-      print('_PagerState._backPressed ...... cant go back in time, Jojo Kiss!');
-      setState(() {});
+      print(
+          '_PagerState._rewindPressed ...... cant go back in time, Jojo Kiss!');
       widget.listener.onNoMoreData();
       return;
     }
-    startKey = previousStartKey;
-    print(
-        '\n\n\n_Pager2State._backPressed -------- startKey: $startKey  previousStartKey: $previousStartKey');
-    if (pageNumber == 1) {
-      _getInitialPage();
-      return;
+
+    if (currentIndex < 0) {
+      currentIndex = 0;
     }
 
     print(
-        '_Pager2State._backPressed -------- startKey: $startKey  previousStartKey: $previousStartKey -- after manipulation');
+        '_Pager3State._backPressed currentIndex: $currentIndex after process, , pageNumber: $pageNumber - about to get page');
 
-    var result = Finder.find(
-        intDate: startKey, pageLimit: localPageLimit, baseList: widget.items);
-    if (result.items.isNotEmpty) {
-      currentPage = result.items;
-      startKey = result.startKey;
-    }
+    currentPage = pages.getPage(currentIndex).items;
+    print(
+        '######## BACK pressed: -------- currentPage - to listener ##################### currentIndex: $currentIndex');
+    currentPage.forEach((c) {
+      if (c is Offer) {
+        print(
+            'itemNumber: ${c.itemNumber} intDate: ${c.intDate} supplier: ${c.supplierName} customer: ${c.customerName} ${c.offerAmount}');
+      }
+    });
     widget.listener.onPage(currentPage);
   }
 
   void _onNumber(int value) async {
-    print('Pager2._onNumber #################---------------> value: $value');
+    print('Pager._onNumber #################---------------> value: $value');
     if (localPageLimit == value) {
       return;
     }
     localPageLimit = value;
     SharedPrefs.savePageLimit(value);
+    pages = Pages();
+    _buildPages();
     _getInitialPage();
     setState(() {
       localPageLimit = value;
@@ -375,5 +391,73 @@ class _Pager3State extends State<Pager3> {
       pages++;
     }
     return '$pages';
+  }
+}
+
+class KeyItem {
+  final int index;
+  final int startKey;
+
+  KeyItem(this.index, this.startKey);
+}
+
+class KeyItems {
+  final List<KeyItem> items = List();
+
+  void addItem(KeyItem item) {
+//    items.add(item);
+    var isFound = false;
+    items.forEach((i) {
+      if (i.startKey == item.startKey) {
+        isFound = true;
+      }
+    });
+    if (!isFound) {
+      items.add(item);
+    }
+  }
+
+  doPrint() {
+    print('\n\n################################################');
+    items.forEach((i) {
+      print('keyItem:index: ${i.index} startKey: ${i.startKey}');
+    });
+    print('################################################\n\n');
+  }
+}
+
+class Page {
+  final int pageNumber;
+  final int index;
+  final List<Findable> items;
+
+  Page({this.pageNumber, this.items, this.index});
+}
+
+class Pages {
+  List<Page> _pages = List();
+
+  void addPage(Page page) {
+    _pages.add(page);
+  }
+
+  Page getPage(int index) {
+    print('Pages.getPage ........... index: $index');
+    return _pages.elementAt(index);
+  }
+
+  doPrint() {
+    print('\n\n##############################################');
+    print('Pages.doPrint .... pages: ${_pages.length}');
+    _pages.forEach((p) {
+      print('\n\npageNumber: ${p.pageNumber} items: ${p.items.length}');
+      p.items.forEach((i) {
+        if (i is Offer) {
+          print(
+              '${i.itemNumber} ${i.intDate} ${i.date} ${i.supplierName} customer: ${i.customerName} ${i.offerAmount}');
+        }
+      });
+    });
+    print('\n##############################################\n\n');
   }
 }

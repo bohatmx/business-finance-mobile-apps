@@ -28,7 +28,8 @@ class Finder {
         list.add(findable);
       }
     }
-    print('\n\n_Finder._find  -----Findables in LOCAL CACHE: ${list.length}');
+    print(
+        '\n\n_Finder._find  -----Findables in LOCAL CACHE: ${list.length} - STARTKEY used: $intDate');
 
     if (list.isNotEmpty) {
       list.forEach((f) {
