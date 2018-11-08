@@ -2,6 +2,7 @@ import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/dashboard_data.dart';
 import 'package:businesslibrary/data/delivery_note.dart';
 import 'package:businesslibrary/data/invoice.dart';
+import 'package:businesslibrary/data/invoice_bid.dart';
 import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/util/Finders.dart';
@@ -160,12 +161,7 @@ class _Pager3State extends State<Pager3> {
     currentPage = pages.getPage(currentIndex).items;
     print(
         '\n#### FORWARD pressed ---- page below to listener: currentIndex: $currentIndex');
-    currentPage.forEach((c) {
-      if (c is Offer) {
-        print(
-            'itemNumber: ${c.itemNumber} intDate: ${c.intDate} supplier: ${c.supplierName} customer: ${c.customerName} ${c.offerAmount}');
-      }
-    });
+    doPrint();
 
     setState(() {});
     widget.listener.onPage(currentPage);
@@ -195,6 +191,11 @@ class _Pager3State extends State<Pager3> {
     currentPage = pages.getPage(currentIndex).items;
     print(
         '######## BACK pressed: -------- currentPage - to listener ##################### currentIndex: $currentIndex');
+    doPrint();
+    widget.listener.onPage(currentPage);
+  }
+
+  void doPrint() {
     currentPage.forEach((i) {
       if (i is Offer) {
         print(
@@ -213,7 +214,6 @@ class _Pager3State extends State<Pager3> {
             'itemNumber: ${i.itemNumber} ${i.intDate} ${i.date} ${i.supplierName} customer: ${i.customerName} ${i.amount}');
       }
     });
-    widget.listener.onPage(currentPage);
   }
 
   void _onNumber(int value) async {
@@ -479,6 +479,10 @@ class Pages {
         if (i is Invoice) {
           print(
               'itemNumber: ${i.itemNumber} ${i.intDate} ${i.date} ${i.supplierName} customer: ${i.customerName} ${i.amount}');
+        }
+        if (i is InvoiceBid) {
+          print(
+              'itemNumber: ${i.itemNumber} ${i.intDate} ${i.date} ${i.investorName} reservePercent: ${i.reservePercent} ${i.amount}');
         }
       });
     });

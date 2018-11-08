@@ -11,7 +11,6 @@ import 'package:businesslibrary/util/database.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/pager.dart';
 import 'package:businesslibrary/util/pager_helper.dart';
-import 'package:businesslibrary/util/selectors.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -267,35 +266,48 @@ class PurchaseOrderCard extends StatelessWidget {
         color: Colors.brown.shade50,
         child: Column(
           children: <Widget>[
+            Row(
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.only(
+                      left: 20.0, top: 10.0, bottom: 10.0),
+                  child: Row(
+                    children: <Widget>[
+                      Text(
+                        '${purchaseOrder.itemNumber}',
+                        style: Styles.blackBoldSmall,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 18.0),
+                        child: Text(
+                          getFormattedDateLongWithTime(
+                              '${purchaseOrder.date}', context),
+                          style: Styles.blackSmall,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
             Padding(
-              padding: const EdgeInsets.only(top: 20.0, bottom: 8.0),
+              padding: const EdgeInsets.only(top: 10.0, bottom: 8.0),
               child: new Row(
                 children: <Widget>[
                   new Padding(
-                    padding: const EdgeInsets.only(left: 8.0),
-                    child: Icon(
-                      Icons.apps,
-                      color: getRandomColor(),
-                    ),
-                  ),
-                  new Padding(
-                    padding: const EdgeInsets.only(left: 8.0),
+                    padding: const EdgeInsets.only(left: 20.0),
                     child: Text(
                       purchaseOrder.purchaserName == null
                           ? 'Unknown Purchaser'
                           : purchaseOrder.purchaserName,
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black,
-                        fontSize: 16.0,
-                      ),
+                      style: Styles.blackBoldMedium,
                     ),
                   ),
                 ],
               ),
             ),
             Padding(
-              padding: const EdgeInsets.only(left: 40.0, bottom: 8.0),
+              padding: const EdgeInsets.only(left: 20.0, bottom: 8.0),
               child: Row(
                 children: <Widget>[
                   new Padding(
@@ -307,26 +319,11 @@ class PurchaseOrderCard extends StatelessWidget {
                     ),
                   ),
                   new Padding(
-                    padding: const EdgeInsets.only(left: 8.0),
+                    padding: const EdgeInsets.only(left: 8.0, bottom: 16.0),
                     child: Text(
                       getFormattedAmount('${purchaseOrder.amount}', context),
-                      style: TextStyle(
-                          fontSize: 20.0,
-                          fontWeight: FontWeight.w900,
-                          color: Colors.teal),
+                      style: Styles.tealBoldLarge,
                     ),
-                  ),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(left: 40.0, bottom: 10.0),
-              child: Row(
-                children: <Widget>[
-                  Text(
-                    getFormattedDateLongWithTime(
-                        '${purchaseOrder.date}', context),
-                    style: Styles.blueBoldSmall,
                   ),
                 ],
               ),
@@ -354,7 +351,7 @@ class PurchaseOrderCard extends StatelessWidget {
                 ),
                 Text(
                   'Upload PO',
-                  style: TextStyle(fontSize: 14.0, color: Colors.purple),
+                  style: Styles.greyLabelSmall,
                 ),
               ],
             ),
@@ -371,7 +368,7 @@ class PurchaseOrderCard extends StatelessWidget {
                     ),
                     Text(
                       'Delivery Note',
-                      style: TextStyle(fontSize: 14.0, color: Colors.purple),
+                      style: Styles.greyLabelSmall,
                     ),
                   ],
                 ),
