@@ -49,12 +49,19 @@ class OfferCard extends StatelessWidget {
         child: Column(
           children: <Widget>[
             Padding(
-              padding: const EdgeInsets.only(bottom: 8.0),
+              padding: const EdgeInsets.only(bottom: 8.0, top: 8.0),
               child: Row(
                 children: <Widget>[
+                  Container(
+                    width: 20.0,
+                    child: Text(
+                      offer.itemNumber == null ? '0' : '${offer.itemNumber}',
+                      style: Styles.blackBoldSmall,
+                    ),
+                  ),
                   Text(
                     getFormattedDateLongWithTime(offer.date, context),
-                    style: Styles.blueSmall,
+                    style: Styles.blackSmall,
                   ),
                 ],
               ),
@@ -63,14 +70,10 @@ class OfferCard extends StatelessWidget {
               padding: const EdgeInsets.only(bottom: 20.0),
               child: Row(
                 children: <Widget>[
-                  Container(
-                    width: 30.0,
-                    child: Text(
-                      offer.itemNumber == null ? '0' : '${offer.itemNumber}',
-                      style: Styles.blackBoldSmall,
-                    ),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 20.0),
+                    child: _getStatus(),
                   ),
-                  _getStatus(),
                   Padding(
                     padding: const EdgeInsets.only(left: 28.0),
                     child: Text(

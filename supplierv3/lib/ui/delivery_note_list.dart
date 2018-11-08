@@ -12,7 +12,7 @@ import 'package:businesslibrary/util/FCM.dart';
 import 'package:businesslibrary/util/Finders.dart';
 import 'package:businesslibrary/util/database.dart';
 import 'package:businesslibrary/util/lookups.dart';
-import 'package:businesslibrary/util/pager2.dart';
+import 'package:businesslibrary/util/pager.dart';
 import 'package:businesslibrary/util/pager_helper.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
@@ -21,6 +21,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:supplierv3/ui/delivery_note_page.dart';
 import 'package:supplierv3/ui/invoice_page.dart';
+import 'package:supplierv3/ui/summary_helper.dart';
 
 class DeliveryNoteList extends StatefulWidget {
   @override
@@ -33,7 +34,7 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
         DeliveryNoteCardListener,
         InvoiceBidListener,
         InvoiceAcceptanceListener,
-        PagerListener,
+        Pager3Listener,
         DeliveryAcceptanceListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   List<DeliveryNote> mDeliveryNotes = List(), baseList;
@@ -66,107 +67,39 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
     _fcm.subscribeToTopic(FCM.TOPIC_GENERAL_MESSAGE);
     _fcm.subscribeToTopic(
         FCM.TOPIC_INVOICE_ACCEPTANCES + supplier.participantId);
-    _getDeliveryNotes();
+
     setState(() {});
-  }
-
-  _getDeliveryNotes() async {
-    AppSnackbar.showSnackbarWithProgressIndicator(
-        scaffoldKey: _scaffoldKey,
-        message: 'Loading delivery notes',
-        textColor: Colors.white,
-        backgroundColor: Colors.black);
-
-    var res = Finder.find(
-        intDate: currentStartKey, pageLimit: pageLimit, baseList: baseList);
-
-    if (res.items.isNotEmpty) {
-      mDeliveryNotes.clear();
-      res.items.forEach((item) {
-        mDeliveryNotes.add(item);
-      });
-      currentStartKey = mDeliveryNotes.last.intDate;
-      mDeliveryNotes.forEach((n) {
-        print(
-            '${n.intDate} ${n.date} ${n.supplierName} --> to ${n.customerName} ${n.totalAmount}');
-      });
-    }
-
-    if (_scaffoldKey.currentState != null) {
-      _scaffoldKey.currentState.hideCurrentSnackBar();
-    }
-    setState(() {});
-  }
-
-  @override
-  onPrompt(int pageLimit) {
-    print('_PurchaseOrderListPageState.onPrompt ...............');
-  }
-
-  @override
-  onBack(int startKey, int pageNumber) {
-    print('\n\n_DeliveryNoteListState.onBack -------- startKey: $startKey');
-    currentStartKey = startKey;
-    _getDeliveryNotes();
-  }
-
-  @override
-  onNext(int pageNumber) {
-    print('_PurchaseOrderListPageState.onNext .......................');
-    _getDeliveryNotes();
   }
 
   @override
   onNoMoreData() {
-    // TODO: implement onNoMoreData
-  }
-  int count;
-  String message;
-  double _getPageValue() {
-    var t = 0.00;
-    mDeliveryNotes.forEach((n) {
-      t += n.amount;
-    });
-    return t;
+    AppSnackbar.showSnackbar(
+        scaffoldKey: _scaffoldKey,
+        message: 'No more. No mas.',
+        textColor: Styles.white,
+        backgroundColor: Styles.teal);
   }
 
-  int _getTotalPages() {
-    if (baseList == null) {
-      return 0;
-    }
-    var rem = baseList.length % pageLimit;
-    var t = baseList.length ~/ pageLimit;
-    if (rem > 0) {
-      t++;
-    }
-    return t;
-  }
+  int count;
+  String message;
 
   Widget _getBottom() {
     return PreferredSize(
         child: Column(
           children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.only(bottom: 18.0),
-              child: PagerHelper(
-                dashboardData: dashboardData,
-                type: PagerHelper.DELIVERY_NOTE,
-                pageValue: _getPageValue(),
-                itemName: 'Delivery Notes',
-                totalPages: _getTotalPages(),
-              ),
-            ),
-            baseList == null || baseList.length < 5
+            baseList == null
                 ? Container()
                 : Padding(
-                    padding: const EdgeInsets.only(bottom: 4.0),
-                    child: Pager(
+                    padding: const EdgeInsets.only(
+                        bottom: 12.0, left: 8.0, right: 8.0),
+                    child: Pager3(
                       itemName: 'Delivery Notes',
                       pageLimit: pageLimit,
-                      totalItems: baseList == null ? 0 : baseList.length,
-                      listener: this,
-                      currentStartKey: currentStartKey,
+                      type: PagerHelper.DELIVERY_NOTE,
                       elevation: 16.0,
+                      addHeader: true,
+                      items: baseList,
+                      listener: this,
                     ),
                   ),
           ],
@@ -186,10 +119,10 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
             icon: Icon(Icons.add),
             onPressed: _addDeliveryNote,
           ),
-          IconButton(
-            icon: Icon(Icons.refresh),
-            onPressed: _getDeliveryNotes,
-          ),
+//          IconButton(
+//            icon: Icon(Icons.refresh),
+//            onPressed: _getDeliveryNotes,
+//          ),
         ],
       ),
       body: new Column(
@@ -237,7 +170,6 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
   @override
   onActionPressed(int action) {
     print('_DeliveryNoteListState.onActionPressed');
-    _getDeliveryNotes();
   }
 
   DeliveryAcceptance deliveryAcceptance;
@@ -299,7 +231,7 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
       new MaterialPageRoute(builder: (context) => new DeliveryNotePage(null)),
     );
     if (res != null && res) {
-      _getDeliveryNotes();
+      await Refresh.refresh(supplier);
     }
   }
 
@@ -370,7 +302,7 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
           builder: (context) => new NewInvoicePage(deliveryAcceptance)),
     );
     if (res != null && res) {
-      _getDeliveryNotes();
+      await Refresh.refresh(supplier);
     }
   }
 
@@ -415,6 +347,28 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
         icon: Icons.done_all,
         backgroundColor: Colors.black);
   }
+
+  @override
+  onInitialPage(List<Findable> items) {
+    mDeliveryNotes.clear();
+    items.forEach((f) {
+      if (f is DeliveryNote) {
+        mDeliveryNotes.add(f);
+      }
+    });
+    setState(() {});
+  }
+
+  @override
+  onPage(List<Findable> items) {
+    mDeliveryNotes.clear();
+    items.forEach((f) {
+      if (f is DeliveryNote) {
+        mDeliveryNotes.add(f);
+      }
+    });
+    setState(() {});
+  }
 }
 
 class DeliveryNoteCard extends StatelessWidget {
@@ -443,7 +397,7 @@ class DeliveryNoteCard extends StatelessWidget {
         color: Colors.brown.shade50,
         child: Padding(
           padding: const EdgeInsets.only(
-              left: 30.0, right: 30.0, bottom: 2.0, top: 10.0),
+              left: 20.0, right: 20.0, bottom: 2.0, top: 10.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: <Widget>[
@@ -451,6 +405,13 @@ class DeliveryNoteCard extends StatelessWidget {
                 padding: const EdgeInsets.only(bottom: 8.0, top: 8.0),
                 child: Row(
                   children: <Widget>[
+                    Padding(
+                      padding: const EdgeInsets.only(right: 8.0),
+                      child: Text(
+                        '${deliveryNote.itemNumber}',
+                        style: Styles.blackBoldSmall,
+                      ),
+                    ),
                     Text(
                       '${getDate()}',
                       style: Styles.blueSmall,

@@ -25,7 +25,7 @@ import 'package:flutter/services.dart';
 import 'package:supplierv3/ui/contract_list.dart';
 import 'package:supplierv3/ui/delivery_acceptance_list.dart';
 import 'package:supplierv3/ui/delivery_note_list.dart';
-import 'package:supplierv3/ui/invoice_list.dart';
+import 'package:supplierv3/ui/invoices_on_offer.dart';
 import 'package:supplierv3/ui/make_offer.dart';
 import 'package:supplierv3/ui/offer_list.dart';
 import 'package:supplierv3/ui/purchase_order_list.dart';
@@ -362,7 +362,7 @@ class _DashboardState extends State<Dashboard>
     print('_MainPageState._onInvoiceTapped ... go  to list of invoices');
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => InvoiceList()),
+      MaterialPageRoute(builder: (context) => InvoicesOnOffer()),
     );
   }
 

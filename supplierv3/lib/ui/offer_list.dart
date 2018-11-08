@@ -92,10 +92,12 @@ class _OfferListState extends State<OfferList>
       key: _scaffoldKey,
       appBar: AppBar(
         title: Text('Invoice Offers'),
+        elevation: 2.0,
         bottom: PreferredSize(
           child: _getBottom(),
           preferredSize: Size.fromHeight(200.0),
         ),
+        backgroundColor: Colors.indigo.shade200,
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.refresh),
