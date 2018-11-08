@@ -307,6 +307,7 @@ class _InvoicesOnOfferState extends State<InvoicesOnOffer>
       key: _scaffoldKey,
       appBar: AppBar(
         title: Text('Invoices'),
+        backgroundColor: Colors.brown.shade200,
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.refresh),
@@ -358,15 +359,16 @@ class _InvoicesOnOfferState extends State<InvoicesOnOffer>
 class InvoiceOnOfferCard extends StatelessWidget {
   final Invoice invoice;
   final BuildContext context;
+  final double elevation;
 
-  InvoiceOnOfferCard({this.invoice, this.context});
+  InvoiceOnOfferCard({this.invoice, this.context, this.elevation});
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(left: 12.0, right: 12.0, bottom: 8.0),
       child: Card(
-        elevation: 2.0,
+        elevation: elevation == null ? 2.0 : elevation,
         child: Padding(
           padding: const EdgeInsets.all(20.0),
           child: Column(
@@ -382,7 +384,7 @@ class InvoiceOnOfferCard extends StatelessWidget {
                   ),
                   Text(
                     getFormattedDateLongWithTime(invoice.date, context),
-                    style: Styles.blueSmall,
+                    style: Styles.blackSmall,
                   ),
                 ],
               ),

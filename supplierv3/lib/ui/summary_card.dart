@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 ///summary card used in dashboards
 class SummaryCard extends StatelessWidget {
   final int totalCount;
-  final double totalValue;
+  final double totalValue, elevation;
   final String totalCountLabel, totalValueLabel;
   final TextStyle totalCountStyle, totalValueStyle;
 
@@ -14,6 +14,7 @@ class SummaryCard extends StatelessWidget {
       this.totalValue,
       this.totalCountLabel,
       this.totalValueLabel,
+      this.elevation,
       this.totalCountStyle,
       this.totalValueStyle});
 
@@ -26,7 +27,7 @@ class SummaryCard extends StatelessWidget {
       child: new Padding(
         padding: const EdgeInsets.only(left: 20.0, right: 20.0, bottom: 4.0),
         child: Card(
-          elevation: 4.0,
+          elevation: elevation == null ? 2.0 : elevation,
           child: Column(
             children: <Widget>[
               totalCount == null

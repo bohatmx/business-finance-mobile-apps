@@ -25,7 +25,7 @@ import 'package:flutter/services.dart';
 import 'package:supplierv3/ui/contract_list.dart';
 import 'package:supplierv3/ui/delivery_acceptance_list.dart';
 import 'package:supplierv3/ui/delivery_note_list.dart';
-import 'package:supplierv3/ui/invoices_on_offer.dart';
+import 'package:supplierv3/ui/invoices.dart';
 import 'package:supplierv3/ui/make_offer.dart';
 import 'package:supplierv3/ui/offer_list.dart';
 import 'package:supplierv3/ui/purchase_order_list.dart';
@@ -181,36 +181,17 @@ class _DashboardState extends State<Dashboard>
   String name;
   Widget _getBottom() {
     return PreferredSize(
-      preferredSize: const Size.fromHeight(80.0),
+      preferredSize: const Size.fromHeight(40.0),
       child: new Column(
         children: <Widget>[
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               new Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: const EdgeInsets.only(bottom: 20.0),
                 child: Text(
                   name == null ? 'Organisation' : name,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w900,
-                    fontSize: 20.0,
-                  ),
-                ),
-              )
-            ],
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              new Padding(
-                padding: const EdgeInsets.only(top: 0.0, bottom: 20.0),
-                child: Text(
-                  fullName == null ? 'user' : fullName,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.normal,
-                  ),
+                  style: Styles.whiteBoldMedium,
                 ),
               )
             ],
@@ -251,19 +232,20 @@ class _DashboardState extends State<Dashboard>
             ),
           ],
         ),
+        backgroundColor: Colors.white,
         body: Stack(
           children: <Widget>[
-            new Opacity(
-              opacity: 0.5,
-              child: Container(
-                decoration: BoxDecoration(
-                  image: DecorationImage(
-                    image: AssetImage('assets/fincash.jpg'),
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              ),
-            ),
+//            new Opacity(
+//              opacity: 0.2,
+//              child: Container(
+//                decoration: BoxDecoration(
+//                  image: DecorationImage(
+//                    image: AssetImage('assets/fincash.jpg'),
+//                    fit: BoxFit.cover,
+//                  ),
+//                ),
+//              ),
+//            ),
             Opacity(
               opacity: opacity,
               child: Padding(
@@ -289,7 +271,10 @@ class _DashboardState extends State<Dashboard>
                         padding: const EdgeInsets.only(left: 20.0, right: 20.0),
                         child: dashboardData == null
                             ? Container()
-                            : OfferSummaryCard(dashboardData),
+                            : OfferSummaryCard(
+                                data: dashboardData,
+                                elevation: 20.0,
+                              ),
                       ),
                     ),
                     GestureDetector(
@@ -572,13 +557,13 @@ class _DashboardState extends State<Dashboard>
 
 class OfferSummaryCard extends StatelessWidget {
   final DashboardData data;
-
-  OfferSummaryCard(this.data);
+  final double elevation;
+  OfferSummaryCard({this.data, this.elevation});
 
   @override
   Widget build(BuildContext context) {
     return Card(
-      elevation: 16.0,
+      elevation: elevation == null ? 16.0 : elevation,
       color: Colors.brown.shade100,
       child: Padding(
         padding: const EdgeInsets.all(20.0),

@@ -125,6 +125,7 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
 //          ),
         ],
       ),
+      backgroundColor: Colors.white,
       body: new Column(
         children: <Widget>[
           Flexible(
@@ -393,7 +394,7 @@ class DeliveryNoteCard extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(2.0),
       child: Card(
-        elevation: 1.0,
+        elevation: 2.0,
         color: Colors.brown.shade50,
         child: Padding(
           padding: const EdgeInsets.only(

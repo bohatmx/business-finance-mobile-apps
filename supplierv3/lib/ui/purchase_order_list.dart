@@ -127,7 +127,9 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
       appBar: AppBar(
         title: Text('Purchase Orders'),
         bottom: _getBottom(),
+        backgroundColor: Colors.pink.shade200,
       ),
+      backgroundColor: Colors.pink.shade50,
       body: Container(
 //        color: Colors.teal.shade50,
         child: Padding(
