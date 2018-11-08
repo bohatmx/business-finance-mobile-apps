@@ -11,7 +11,7 @@ class PagerHelper extends StatelessWidget {
   final TextStyle labelStyle;
   final TextStyle totalValueStyle, pageValueStyle;
 
-  static const PURCHASE_ORDER = 'po',
+  static const String PURCHASE_ORDER = 'po',
       DELIVERY_NOTE = 'note',
       INVOICE = 'invoice',
       OFFER = 'offer';
@@ -34,13 +34,21 @@ class PagerHelper extends StatelessWidget {
       }
       switch (type) {
         case PURCHASE_ORDER:
-          return dashboardData.totalPurchaseOrderAmount;
+          return dashboardData.totalPurchaseOrderAmount == null
+              ? 0.00
+              : dashboardData.totalPurchaseOrderAmount;
         case DELIVERY_NOTE:
-          return dashboardData.totalDeliveryNoteAmount;
+          return dashboardData.totalDeliveryNoteAmount == null
+              ? 0.00
+              : dashboardData.totalDeliveryNoteAmount;
         case INVOICE:
-          return dashboardData.totalInvoiceAmount;
+          return dashboardData.totalInvoiceAmount == null
+              ? 0.00
+              : dashboardData.totalInvoiceAmount;
         case OFFER:
-          return dashboardData.totalOpenOfferAmount;
+          return dashboardData.totalOpenOfferAmount == null
+              ? 0.00
+              : dashboardData.totalOpenOfferAmount;
         default:
           return 999999.9999;
       }

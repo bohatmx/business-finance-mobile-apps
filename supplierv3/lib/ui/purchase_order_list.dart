@@ -9,7 +9,7 @@ import 'package:businesslibrary/util/FCM.dart';
 import 'package:businesslibrary/util/Finders.dart';
 import 'package:businesslibrary/util/database.dart';
 import 'package:businesslibrary/util/lookups.dart';
-import 'package:businesslibrary/util/pager2.dart';
+import 'package:businesslibrary/util/pager.dart';
 import 'package:businesslibrary/util/pager_helper.dart';
 import 'package:businesslibrary/util/selectors.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
@@ -29,7 +29,7 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
     implements
         SnackBarListener,
         POListener,
-        PagerListener,
+        Pager3Listener,
         PurchaseOrderListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   List<PurchaseOrder> purchaseOrders = List(), baseList;
@@ -61,57 +61,12 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
     dashboardData = await SharedPrefs.getDashboardData();
     baseList = await Database.getPurchaseOrders();
     pageLimit = await SharedPrefs.getPageLimit();
-    currentIndex = 0;
-    _getPurchaseOrders();
+
     FCM.configureFCM(
       purchaseOrderListener: this,
     );
     _fcm.subscribeToTopic(FCM.TOPIC_PURCHASE_ORDERS + supplier.participantId);
     print('\n\n_PurchaseOrderListPageState._getCached SUBSCRIBED to PO topic');
-    setState(() {});
-  }
-
-  _getPurchaseOrders() async {
-    AppSnackbar.showSnackbarWithProgressIndicator(
-        scaffoldKey: _scaffoldKey,
-        message: 'Loading purchase orders',
-        textColor: Colors.white,
-        backgroundColor: Colors.black);
-    print(
-        '\n\n\n\n_PurchaseOrderListPageState._getPurchaseOrders: ==========> currentStartKey before query: $currentStartKey');
-
-    var result = Finder.find(
-      intDate: currentStartKey,
-      pageLimit: pageLimit,
-      baseList: baseList,
-    );
-    purchaseOrders.clear();
-    result.items.forEach((m) {
-      purchaseOrders.add(m as PurchaseOrder);
-    });
-    if (purchaseOrders.isNotEmpty) {
-      currentStartKey = purchaseOrders.last.intDate;
-      print(
-          '\n\n_PurchaseOrderListPageState._getPurchaseOrders ################## pos in page $pageNumber');
-      purchaseOrders.forEach((po) {
-        print(
-            '${po.intDate} ${po.date} ${po.purchaserName} to --> ${po.supplierName} ${po.amount}');
-      });
-    }
-
-    setState(() {});
-    print(
-        '\n\ngetPurchaseOrders #######  currentIndex: $currentIndex currentStartKey: $currentStartKey');
-    _scaffoldKey.currentState.hideCurrentSnackBar();
-    if (purchaseOrders.isNotEmpty) {
-      currentStartKey = purchaseOrders.last.intDate;
-    } else {
-      AppSnackbar.showErrorSnackbar(
-          scaffoldKey: _scaffoldKey,
-          message: 'No purchase orders found',
-          listener: this,
-          actionLabel: 'close');
-    }
     setState(() {});
   }
 
@@ -145,21 +100,19 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
       preferredSize: const Size.fromHeight(200.0),
       child: Column(
         children: <Widget>[
-          PagerHelper(
-            dashboardData: dashboardData,
-            type: PagerHelper.PURCHASE_ORDER,
-            itemName: 'Purchase Orders',
-            pageValue: _getPageValue(),
-          ),
           Padding(
-            padding: const EdgeInsets.only(bottom: 20.0),
-            child: Pager(
-              listener: this,
-              itemName: 'Purchase Orders',
-              pageLimit: pageLimit,
-              totalItems: baseList == null ? 0 : baseList.length,
-              currentStartKey: currentStartKey,
-            ),
+            padding: const EdgeInsets.only(left: 8.0, right: 8.0, bottom: 12.0),
+            child: baseList == null
+                ? Container()
+                : Pager3(
+                    addHeader: true,
+                    type: PagerHelper.PURCHASE_ORDER,
+                    itemName: 'Purchase Orders',
+                    elevation: 8.0,
+                    pageLimit: pageLimit,
+                    items: baseList,
+                    listener: this,
+                  ),
           ),
         ],
       ),
@@ -213,10 +166,6 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
   }
 
   double elevation = 2.0;
-  void _refresh() {
-    print('_PurchaseOrderListPageState._refresh ..................');
-    _getPurchaseOrders();
-  }
 
   @override
   onActionPressed(int action) {
@@ -256,49 +205,6 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
         backgroundColor: Colors.black);
   }
 
-  int currentIndex = 0;
-  int currentStartKey;
-  int pageNumber = 1;
-
-  @override
-  onPrompt(int pageLimit) {
-    print('_PurchaseOrderListPageState.onPrompt ...............');
-    if (this.pageLimit == pageLimit) {
-      return;
-    }
-    this.pageLimit = pageLimit;
-    currentStartKey = null;
-    _getPurchaseOrders();
-  }
-
-  @override
-  onBack(int startKey, int pageNumber) {
-    print(
-        '\n\n\n\n_PurchaseOrderListPageState.onBack ..............................');
-    this.pageLimit = pageLimit;
-    this.pageNumber = pageNumber;
-    currentStartKey = startKey;
-    currentIndex--;
-    if (currentIndex < 0) {
-      currentIndex = 0;
-    }
-    setState(() {});
-    _getPurchaseOrders();
-  }
-
-  @override
-  onNext(int pageNumber) {
-    print('_PurchaseOrderListPageState.onNext .......................');
-    this.pageLimit = pageLimit;
-    this.pageNumber = pageNumber;
-    currentIndex++;
-    if (currentIndex > pageLimit) {
-      currentIndex = 0;
-    }
-    setState(() {});
-    _getPurchaseOrders();
-  }
-
   @override
   onPurchaseOrderMessage(PurchaseOrder purchaseOrder) {
     AppSnackbar.showSnackbar(
@@ -310,17 +216,33 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
 
   @override
   onNoMoreData() {
-    // TODO: implement onNoMoreData
+    AppSnackbar.showSnackbar(
+        scaffoldKey: _scaffoldKey,
+        message: 'No more. No mas.',
+        textColor: Styles.white,
+        backgroundColor: Styles.teal);
   }
 
-  _onSwipeRight() {
-    print('_PurchaseOrderListPageState._onSwipeRight');
-    onBack(null, pageNumber);
+  @override
+  onInitialPage(List<Findable> items) {
+    purchaseOrders.clear();
+    items.forEach((f) {
+      if (f is PurchaseOrder) {
+        purchaseOrders.add(f);
+      }
+    });
+    setState(() {});
   }
 
-  _onSwipeLeft() {
-    print('_PurchaseOrderListPageState._onSwipeLeft');
-    onNext(pageNumber);
+  @override
+  onPage(List<Findable> items) {
+    purchaseOrders.clear();
+    items.forEach((f) {
+      if (f is PurchaseOrder) {
+        purchaseOrders.add(f);
+      }
+    });
+    setState(() {});
   }
 }
 

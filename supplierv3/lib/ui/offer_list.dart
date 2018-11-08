@@ -8,6 +8,7 @@ import 'package:businesslibrary/util/Finders.dart';
 import 'package:businesslibrary/util/database.dart';
 import 'package:businesslibrary/util/offer_card.dart';
 import 'package:businesslibrary/util/pager.dart';
+import 'package:businesslibrary/util/pager_helper.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -39,12 +40,6 @@ class _OfferListState extends State<OfferList>
     _getCached();
   }
 
-  @override
-  void didUpdateWidget(Widget oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    print('_OfferListState.didUpdateWidget ++++++++++++++++++++++++++++++++++');
-  }
-
   void _getCached() async {
     supplier = await SharedPrefs.getSupplier();
     assert(supplier != null);
@@ -64,6 +59,7 @@ class _OfferListState extends State<OfferList>
 
     offers = await Database.getOffers();
     totalValue = 0.0;
+
     offers.forEach((o) {
       totalValue += o.offerAmount;
     });
@@ -161,7 +157,7 @@ class _OfferListState extends State<OfferList>
                     items: offers,
                     pageLimit: pageLimit,
                     listener: this,
-                    type: 'offer',
+                    type: PagerHelper.OFFER,
                     addHeader: true,
                   ),
                 ),

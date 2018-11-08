@@ -42,7 +42,7 @@ class Pager3 extends StatefulWidget {
 class _Pager3State extends State<Pager3> {
   static const numbers = [2, 4, 6, 8, 10, 20];
   final List<DropdownMenuItem<int>> dropDownItems = List();
-  DashboardData dashboardData;
+  DashboardData dashboardData = DashboardData();
   int pageNumber = 1, startKey;
   int localPageLimit = 2;
   List<Findable> currentPage = List();
@@ -61,13 +61,12 @@ class _Pager3State extends State<Pager3> {
   }
 
   void _getDashData() async {
-    print('_Pager3State._getDashData ...........................');
+    print('\n_Pager3State._getDashData ...........................');
     if (widget.addHeader == true) {
       dashboardData = await SharedPrefs.getDashboardData();
       print('_Pager3State._getDashData ...... calling _getInitialPage');
     }
     setState(() {});
-
     int mIndex = 0;
     widget.items.forEach((f) {
       widget.items.elementAt(mIndex).itemNumber = mIndex + 1;
@@ -179,6 +178,7 @@ class _Pager3State extends State<Pager3> {
     pageNumber--;
     if (pageNumber == 0) {
       pageNumber = 1;
+      currentIndex = 0;
       print(
           '_PagerState._rewindPressed ...... cant go back in time, Jojo Kiss!');
       widget.listener.onNoMoreData();
@@ -195,10 +195,22 @@ class _Pager3State extends State<Pager3> {
     currentPage = pages.getPage(currentIndex).items;
     print(
         '######## BACK pressed: -------- currentPage - to listener ##################### currentIndex: $currentIndex');
-    currentPage.forEach((c) {
-      if (c is Offer) {
+    currentPage.forEach((i) {
+      if (i is Offer) {
         print(
-            'itemNumber: ${c.itemNumber} intDate: ${c.intDate} supplier: ${c.supplierName} customer: ${c.customerName} ${c.offerAmount}');
+            'itemNumber: ${i.itemNumber} intDate: ${i.intDate} supplier: ${i.supplierName} customer: ${i.customerName} ${i.offerAmount}');
+      }
+      if (i is PurchaseOrder) {
+        print(
+            'itemNumber: ${i.itemNumber} ${i.intDate} ${i.date} ${i.supplierName} customer: ${i.purchaserName} ${i.amount}');
+      }
+      if (i is DeliveryNote) {
+        print(
+            'itemNumber: ${i.itemNumber} ${i.intDate} ${i.date} ${i.supplierName} customer: ${i.customerName} ${i.amount}');
+      }
+      if (i is Invoice) {
+        print(
+            'itemNumber: ${i.itemNumber} ${i.intDate} ${i.date} ${i.supplierName} customer: ${i.customerName} ${i.amount}');
       }
     });
     widget.listener.onPage(currentPage);
@@ -454,7 +466,19 @@ class Pages {
       p.items.forEach((i) {
         if (i is Offer) {
           print(
-              '${i.itemNumber} ${i.intDate} ${i.date} ${i.supplierName} customer: ${i.customerName} ${i.offerAmount}');
+              'itemNumber: ${i.itemNumber} ${i.intDate} ${i.date} ${i.supplierName} customer: ${i.customerName} ${i.offerAmount}');
+        }
+        if (i is PurchaseOrder) {
+          print(
+              'itemNumber: ${i.itemNumber} ${i.intDate} ${i.date} ${i.supplierName} customer: ${i.purchaserName} ${i.amount}');
+        }
+        if (i is DeliveryNote) {
+          print(
+              'itemNumber: ${i.itemNumber} ${i.intDate} ${i.date} ${i.supplierName} customer: ${i.customerName} ${i.amount}');
+        }
+        if (i is Invoice) {
+          print(
+              'itemNumber: ${i.itemNumber} ${i.intDate} ${i.date} ${i.supplierName} customer: ${i.customerName} ${i.amount}');
         }
       });
     });

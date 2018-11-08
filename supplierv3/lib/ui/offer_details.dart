@@ -44,6 +44,7 @@ class _OfferDetailsState extends State<OfferDetails>
   }
 
   Widget _getBottom() {
+    const width = 70.0;
     return PreferredSize(
       preferredSize: Size.fromHeight(260.0),
       child: Padding(
@@ -53,7 +54,7 @@ class _OfferDetailsState extends State<OfferDetails>
             Row(
               children: <Widget>[
                 Container(
-                  width: 80.0,
+                  width: width,
                   child: Text(
                     'Offer Amount',
                     style: Styles.whiteSmall,
@@ -75,7 +76,7 @@ class _OfferDetailsState extends State<OfferDetails>
               child: Row(
                 children: <Widget>[
                   Container(
-                    width: 80.0,
+                    width: width,
                     child: Text(
                       'Offer Date',
                       style: Styles.whiteSmall,
@@ -98,7 +99,7 @@ class _OfferDetailsState extends State<OfferDetails>
               child: Row(
                 children: <Widget>[
                   Container(
-                    width: 80.0,
+                    width: width,
                     child: Text(
                       'Invoice Discount',
                       style: Styles.whiteSmall,
@@ -249,22 +250,15 @@ class _OfferDetailsState extends State<OfferDetails>
   }
 
   @override
-  onInvoiceBid(InvoiceBid bid) {
-    print(
-        '_OfferDetailsState.onInvoiceBid ##########################\n ${bid.toJson()}');
-
+  onInvoiceBidMessage(InvoiceBid invoiceBid) {
+    // TODO: implement onInvoiceBidMessage
+    bids.insert(0, invoiceBid);
+    setState(() {});
     AppSnackbar.showSnackbar(
         scaffoldKey: _scaffoldKey,
         message: 'Invoice Bid arrived',
-        textColor: Styles.yellow,
-        backgroundColor: Styles.black);
-
-    _getBids();
-  }
-
-  @override
-  onInvoiceBidMessage(InvoiceBid invoiceBid) {
-    // TODO: implement onInvoiceBidMessage
+        textColor: Styles.white,
+        backgroundColor: Styles.teal);
   }
 }
 
