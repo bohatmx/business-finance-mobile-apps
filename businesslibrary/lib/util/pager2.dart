@@ -1,5 +1,7 @@
 import 'package:businesslibrary/api/shared_prefs.dart';
+import 'package:businesslibrary/data/dashboard_data.dart';
 import 'package:businesslibrary/util/Finders.dart';
+import 'package:businesslibrary/util/pager_helper.dart';
 import 'package:businesslibrary/util/selectors.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:flutter/material.dart';
@@ -15,9 +17,10 @@ class Pager extends StatefulWidget {
   final PagerListener listener;
   final int currentStartKey;
   final int totalItems;
-  final String itemName;
+  final String itemName, type;
   final int pageLimit;
-  final double elevation;
+  final double elevation, pageValue;
+
   final List<Findable> items;
   static const Back = 1, Next = 2;
 
@@ -28,6 +31,8 @@ class Pager extends StatefulWidget {
       this.itemName,
       this.elevation,
       this.items,
+      this.type,
+      this.pageValue,
       this.pageLimit});
   static const DefaultPageLimit = 4;
 
@@ -41,6 +46,7 @@ class _PagerState extends State<Pager> {
   int currentIndex = 0;
   int previousStartKey, pageNumber = 1;
   int localPageLimit;
+  DashboardData dashboardData;
 
   PagerItems pagerItems = PagerItems();
 
@@ -151,6 +157,12 @@ class _PagerState extends State<Pager> {
         elevation: widget.elevation == null ? 16.0 : widget.elevation,
         child: Column(
           children: <Widget>[
+            PagerHelper(
+              dashboardData: dashboardData,
+              pageValue: widget.pageValue,
+              type: widget.type,
+              itemName: widget.itemName,
+            ),
             Padding(
               padding: const EdgeInsets.only(left: 8.0, right: 8.0, top: 10.0),
               child: Row(

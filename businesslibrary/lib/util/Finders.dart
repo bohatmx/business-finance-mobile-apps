@@ -25,13 +25,15 @@ class Finder {
     for (var i = 0; i < pageLimit; i++) {
       if (i + index < baseList.length) {
         var findable = baseList.elementAt(i + index);
-        findable.itemNumber = i + index + 1;
         list.add(findable);
       }
     }
     print('\n\n_Finder._find  -----Findables in LOCAL CACHE: ${list.length}');
 
     if (list.isNotEmpty) {
+      list.forEach((f) {
+        print('itemNumber: ${f.itemNumber} ${f.intDate}');
+      });
       return FindableResult(list, list.last.intDate);
     } else {
       return FindableResult(list, intDate);

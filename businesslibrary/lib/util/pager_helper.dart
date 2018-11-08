@@ -8,6 +8,7 @@ class PagerHelper extends StatelessWidget {
   final int pageNumber, totalPages;
   final double pageValue;
   final String itemName, type;
+  final TextStyle labelStyle;
   final TextStyle totalValueStyle, pageValueStyle;
 
   static const PURCHASE_ORDER = 'po',
@@ -20,6 +21,7 @@ class PagerHelper extends StatelessWidget {
       this.pageValue,
       this.itemName,
       this.type,
+      this.labelStyle,
       this.totalValueStyle,
       this.pageValueStyle,
       this.totalPages});
@@ -38,7 +40,7 @@ class PagerHelper extends StatelessWidget {
         case INVOICE:
           return dashboardData.totalInvoiceAmount;
         case OFFER:
-          return dashboardData.totalOfferAmount;
+          return dashboardData.totalOpenOfferAmount;
         default:
           return 999999.9999;
       }
@@ -52,7 +54,7 @@ class PagerHelper extends StatelessWidget {
             children: <Widget>[
               Text(
                 'Total Value:',
-                style: Styles.whiteSmall,
+                style: labelStyle == null ? Styles.greyLabelSmall : labelStyle,
               ),
               Padding(
                 padding: const EdgeInsets.only(left: 8.0),
@@ -72,7 +74,7 @@ class PagerHelper extends StatelessWidget {
             children: <Widget>[
               Text(
                 'Page Value:',
-                style: Styles.whiteSmall,
+                style: labelStyle == null ? Styles.greyLabelSmall : labelStyle,
               ),
               Padding(
                 padding: const EdgeInsets.only(left: 8.0),

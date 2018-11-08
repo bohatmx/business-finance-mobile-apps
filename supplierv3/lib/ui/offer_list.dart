@@ -8,7 +8,6 @@ import 'package:businesslibrary/util/Finders.dart';
 import 'package:businesslibrary/util/database.dart';
 import 'package:businesslibrary/util/offer_card.dart';
 import 'package:businesslibrary/util/pager.dart';
-import 'package:businesslibrary/util/pager_helper.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -62,6 +61,7 @@ class _OfferListState extends State<OfferList>
         message: 'Loading  Offers ...',
         textColor: Colors.yellow,
         backgroundColor: Colors.black);
+
     offers = await Database.getOffers();
     totalValue = 0.0;
     offers.forEach((o) {
@@ -151,23 +151,20 @@ class _OfferListState extends State<OfferList>
       padding: const EdgeInsets.only(bottom: 18.0, left: 0.0),
       child: Column(
         children: <Widget>[
-          PagerHelper(
-            dashboardData: dashboardData,
-            itemName: 'Offers',
-            type: PagerHelper.OFFER,
-            pageValue: pageValue == null ? 0.00 : pageValue,
-            totalValueStyle: Styles.whiteBoldMedium,
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Pager3(
-              elevation: 16.0,
-              itemName: 'Offers',
-              items: offers,
-              pageLimit: pageLimit,
-              listener: this,
-            ),
-          ),
+          offers.isEmpty
+              ? Container()
+              : Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Pager3(
+                    elevation: 16.0,
+                    itemName: 'Offers',
+                    items: offers,
+                    pageLimit: pageLimit,
+                    listener: this,
+                    type: 'offer',
+                    addHeader: true,
+                  ),
+                ),
         ],
       ),
     );
@@ -226,11 +223,11 @@ class _OfferListState extends State<OfferList>
 
   @override
   onInitialPage(List<Findable> items) {
-    print('_OfferListState.onInitialPage *******************************');
+    print(
+        '\n\n\n_OfferListState.onInitialPage *******************************\n\n');
     currentPage.clear();
     items.forEach((i) {
       currentPage.add(i as Offer);
     });
-    //
   }
 }
