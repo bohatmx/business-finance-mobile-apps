@@ -484,7 +484,7 @@ class _OfferListState extends State<OfferList>
     return Column(
       children: <Widget>[
         Padding(
-          padding: const EdgeInsets.only(left: 8.0, top: 8.0, right: 8.0),
+          padding: const EdgeInsets.only(left: 8.0, top: 0.0, right: 8.0),
           child: baseList == null
               ? Container()
               : Pager3(
