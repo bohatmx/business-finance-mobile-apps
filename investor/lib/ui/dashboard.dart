@@ -181,10 +181,16 @@ class _DashboardState extends State<Dashboard>
         appBar: AppBar(
           elevation: 6.0,
           title: Text(
-            'Business Finance Network',
-            style: Styles.whiteSmall,
+            'BFN',
+            style: TextStyle(
+                fontSize: 20.0,
+                fontWeight: FontWeight.w900,
+                color: Colors.white),
           ),
-          leading: Container(),
+          leading: Icon(
+            Icons.apps,
+            color: Colors.indigo.shade900,
+          ),
           bottom: _getBottom(),
           actions: <Widget>[
             IconButton(
@@ -216,8 +222,7 @@ class _DashboardState extends State<Dashboard>
 //              ),
 //            ),
             new Padding(
-              padding:
-                  const EdgeInsets.only(top: 10.0, left: 10.0, right: 10.0),
+              padding: const EdgeInsets.only(top: 0.0, left: 10.0, right: 10.0),
               child: ListView(
                 children: <Widget>[
                   new InkWell(
@@ -228,6 +233,9 @@ class _DashboardState extends State<Dashboard>
                           : dashboardData.totalOpenOffers,
                       label: 'Open Invoice Offers',
                       totalStyle: Styles.pinkBoldMedium,
+                      totalValue: dashboardData.totalOpenOfferAmount == null
+                          ? 0.00
+                          : dashboardData.totalOpenOfferAmount,
                     ),
                   ),
                   new InkWell(
@@ -240,6 +248,7 @@ class _DashboardState extends State<Dashboard>
                       total: dashboardData == null ? 0 : 0,
                       label: 'Bids Settled',
                       totalStyle: Styles.blueBoldLarge,
+                      elevation: 2.0,
                     ),
                   ),
                 ],
@@ -522,7 +531,7 @@ class InvestorSummaryCard extends StatelessWidget {
             dashboardData.totalBidAmount == null
                 ? '0.00'
                 : '${getFormattedAmount('${dashboardData.totalBidAmount}', context)}',
-            style: Styles.pinkBoldLarge,
+            style: Styles.blackBoldLarge,
           ),
         ),
       ],
@@ -547,7 +556,7 @@ class InvestorSummaryCard extends StatelessWidget {
             dashboardData.averageDiscountPerc == null
                 ? '0'
                 : '${'${dashboardData.averageDiscountPerc}'}%',
-            style: Styles.purpleBoldLarge,
+            style: Styles.purpleMedium,
           ),
         ),
       ],
@@ -572,7 +581,7 @@ class InvestorSummaryCard extends StatelessWidget {
             dashboardData.averageBidAmount == null
                 ? '0'
                 : '${getFormattedAmount('${dashboardData.averageBidAmount}', context)}',
-            style: Styles.blackBoldLarge,
+            style: Styles.blackMedium,
           ),
         ),
       ],
@@ -584,7 +593,7 @@ class InvestorSummaryCard extends StatelessWidget {
     return new Padding(
       padding: const EdgeInsets.all(10.0),
       child: Card(
-        elevation: 6.0,
+        elevation: 2.0,
         color: Colors.brown.shade50,
         child: Column(
           children: <Widget>[
@@ -604,19 +613,19 @@ class InvestorSummaryCard extends StatelessWidget {
               child: _getTotalBids(),
             ),
             Padding(
-              padding: const EdgeInsets.only(top: 20.0, left: 20.0),
+              padding: const EdgeInsets.only(top: 10.0, left: 20.0),
               child: _getTotalBidValue(),
             ),
             Padding(
-              padding: const EdgeInsets.only(top: 20.0, left: 20.0),
+              padding: const EdgeInsets.only(top: 10.0, left: 20.0),
               child: _getAverageBidAmount(),
             ),
             Padding(
-              padding: const EdgeInsets.only(top: 20.0, left: 20.0),
+              padding: const EdgeInsets.only(top: 10.0, left: 20.0),
               child: _getAverageDiscount(),
             ),
             Padding(
-              padding: const EdgeInsets.only(top: 18.0, bottom: 20.0),
+              padding: const EdgeInsets.only(top: 10.0, bottom: 20.0),
               child: RaisedButton(
                 elevation: 6.0,
                 color: Colors.indigo.shade400,

@@ -61,7 +61,11 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
     _fcm.subscribeToTopic(FCM.TOPIC_GENERAL_MESSAGE);
 
     setState(() {});
-    _refresh();
+    _refresh(false);
+  }
+
+  void _onRefreshPressed() {
+    _refresh(true);
   }
 
   @override
@@ -73,7 +77,7 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
         bottom: _getBottom(),
         backgroundColor: Colors.indigo.shade200,
         actions: <Widget>[
-          IconButton(icon: Icon(Icons.refresh), onPressed: _refresh),
+          IconButton(icon: Icon(Icons.refresh), onPressed: _onRefreshPressed),
         ],
       ),
       body: Container(
@@ -92,12 +96,14 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
     );
   }
 
-  Future _refresh() async {
-    AppSnackbar.showSnackbarWithProgressIndicator(
-        scaffoldKey: _scaffoldKey,
-        message: 'Refreshing data ...',
-        textColor: Styles.white,
-        backgroundColor: Styles.black);
+  Future _refresh(bool showSnack) async {
+    if (showSnack) {
+      AppSnackbar.showSnackbarWithProgressIndicator(
+          scaffoldKey: _scaffoldKey,
+          message: 'Refreshing data ...',
+          textColor: Styles.white,
+          backgroundColor: Styles.black);
+    }
     await Refresh.refresh(govtEntity);
     if (_scaffoldKey.currentState != null) {
       _scaffoldKey.currentState.removeCurrentSnackBar();

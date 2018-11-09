@@ -173,13 +173,13 @@ class _OffersAndBidsState extends State<OffersAndBids> {
             children: <Widget>[
               Padding(
                 padding: const EdgeInsets.only(right: 8.0),
-                child: Text('Total'),
+                child: Text('Total Value'),
               ),
               Text(
                 totalOpenOffers == null
                     ? '0.00'
                     : getFormattedAmount('$totalOpenOffers', context),
-                style: Styles.purpleBoldReallyLarge,
+                style: Styles.purpleBoldLarge,
               ),
             ],
           ),
@@ -282,6 +282,39 @@ class _OffersAndBidsState extends State<OffersAndBids> {
     );
   }
 
+  Widget _getBottom() {
+    return PreferredSize(
+      preferredSize: Size.fromHeight(80.0),
+      child: Column(
+        children: <Widget>[
+          TabBar(tabs: [
+            Tab(
+              text: 'Open Bids',
+              icon: Icon(
+                Icons.add_shopping_cart,
+                color: Colors.white,
+              ),
+            ),
+            Tab(
+              text: 'Open Offers',
+              icon: Icon(
+                Icons.attach_money,
+                color: Colors.white,
+              ),
+            ),
+            Tab(
+              text: 'Settled Bids',
+              icon: Icon(
+                Icons.done_all,
+                color: Colors.white,
+              ),
+            ),
+          ]),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
@@ -291,43 +324,10 @@ class _OffersAndBidsState extends State<OffersAndBids> {
         appBar: AppBar(
           title: Text(
             'Offers and Bids',
-            style: Styles.whiteMedium,
+            style: Styles.whiteBoldMedium,
           ),
           elevation: 16.0,
-          bottom: PreferredSize(
-            preferredSize: Size.fromHeight(100.0),
-            child: Column(
-              children: <Widget>[
-                Text(
-                  investor == null ? '' : '${investor.name}',
-                  style: Styles.whiteBoldMedium,
-                ),
-                TabBar(tabs: [
-                  Tab(
-                    text: 'Open Bids',
-                    icon: Icon(
-                      Icons.add_shopping_cart,
-                      color: Colors.white,
-                    ),
-                  ),
-                  Tab(
-                    text: 'Open Offers',
-                    icon: Icon(
-                      Icons.attach_money,
-                      color: Colors.white,
-                    ),
-                  ),
-                  Tab(
-                    text: 'Settled Bids',
-                    icon: Icon(
-                      Icons.done_all,
-                      color: Colors.white,
-                    ),
-                  ),
-                ]),
-              ],
-            ),
-          ),
+          bottom: _getBottom(),
           actions: <Widget>[
             IconButton(
               icon: Icon(Icons.refresh),
@@ -335,6 +335,7 @@ class _OffersAndBidsState extends State<OffersAndBids> {
             ),
           ],
         ),
+        backgroundColor: Colors.brown.shade100,
         body: TabBarView(children: [
           _createUnsettledBids(),
           _createOpenOffers(),
