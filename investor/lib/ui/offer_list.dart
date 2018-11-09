@@ -9,13 +9,15 @@ import 'package:businesslibrary/util/Finders.dart';
 import 'package:businesslibrary/util/database.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/offer_card.dart';
-import 'package:businesslibrary/util/pager2.dart';
+import 'package:businesslibrary/util/pager.dart';
 import 'package:businesslibrary/util/pager_helper.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:businesslibrary/util/util.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:investor/ui/invoice_bidder.dart';
+import 'package:investor/ui/refresh.dart';
 
 class OfferList extends StatefulWidget {
   static _OfferListState of(BuildContext context) =>
@@ -26,7 +28,7 @@ class OfferList extends StatefulWidget {
 
 class _OfferListState extends State<OfferList>
     with WidgetsBindingObserver
-    implements PagerListener {
+    implements Pager3Listener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   DateTime startTime, endTime;
   List<Offer> baseList;
@@ -56,15 +58,18 @@ class _OfferListState extends State<OfferList>
     dashboardData = await SharedPrefs.getDashboardData();
     var list = await Database.getOffers();
     print(
-        '_OfferListState._getCached ############# offers from cache: ${list.length}');
+        '_OfferListState._getCached ############# offers from cache: ${list.length} pageLimit: $pageLimit');
     if (baseList == null) {
       baseList = List();
     }
     baseList.clear();
+    int count = 1;
     list.forEach((o) {
       if (o.isOpen) {
+        o.itemNumber = count;
         baseList.add(o);
         dashboardData.totalOfferAmount += o.offerAmount;
+        count++;
       }
     });
     print('_OfferListState._getCached, baseList : ${baseList.length}');
@@ -418,7 +423,7 @@ class _OfferListState extends State<OfferList>
       appBar: AppBar(
         title: Text(
           'Open Invoice Offers',
-          style: Styles.whiteSmall,
+          style: Styles.whiteBoldMedium,
         ),
         bottom: PreferredSize(
           child: _getBottom(),
@@ -431,23 +436,7 @@ class _OfferListState extends State<OfferList>
           ),
         ],
       ),
-      body: ListView.builder(
-          itemCount: openOffers == null ? 0 : openOffers.length,
-          itemBuilder: (BuildContext context, int index) {
-            return new InkWell(
-              onTap: () {
-                _checkBid(openOffers.elementAt(index));
-              },
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: OfferCard(
-                  offer: _getOffer(index),
-                  number: index + 1,
-                  elevation: 1.0,
-                ),
-              ),
-            );
-          }),
+      body: _getListView(),
       backgroundColor: Colors.indigo.shade50,
     );
   }
@@ -462,24 +451,51 @@ class _OfferListState extends State<OfferList>
   List<DropdownMenuItem<int>> items = List();
   int currentIndex = 0;
   DashboardData dashboardData;
+  ScrollController scrollController = ScrollController();
+  Widget _getListView() {
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      scrollController.animateTo(
+        scrollController.position.minScrollExtent,
+        duration: const Duration(milliseconds: 10),
+        curve: Curves.easeOut,
+      );
+    });
+    return ListView.builder(
+        itemCount: openOffers == null ? 0 : openOffers.length,
+        controller: scrollController,
+        itemBuilder: (BuildContext context, int index) {
+          return new InkWell(
+            onTap: () {
+              _checkBid(openOffers.elementAt(index));
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: OfferCard(
+                offer: _getOffer(index),
+                number: index + 1,
+                elevation: 1.0,
+              ),
+            ),
+          );
+        });
+  }
 
   Widget _getBottom() {
     return Column(
       children: <Widget>[
-        PagerHelper(
-          dashboardData: dashboardData,
-          itemName: 'Offers',
-          totalPages: 0,
-          pageValue: _getTotalValue(),
-          type: PagerHelper.OFFER,
-        ),
-        Pager(
-          listener: this,
-          itemName: 'Offers',
-          elevation: 8.0,
-          currentStartKey: currentStartKey,
-          totalItems: baseList.length,
-          pageLimit: pageLimit,
+        Padding(
+          padding: const EdgeInsets.only(left: 8.0, top: 8.0, right: 8.0),
+          child: baseList == null
+              ? Container()
+              : Pager3(
+                  listener: this,
+                  itemName: 'Offers',
+                  elevation: 8.0,
+                  items: baseList,
+                  addHeader: true,
+                  type: PagerHelper.OFFER,
+                  pageLimit: pageLimit == null ? 10 : pageLimit,
+                ),
         ),
         Padding(
           padding: const EdgeInsets.only(left: 8.0, top: 8.0, right: 20.0),
@@ -528,35 +544,42 @@ class _OfferListState extends State<OfferList>
     }
 
     if (refresh) {
-      _getOffers();
+      _refresh();
     }
   }
 
-  void _refresh() {
-    _getOffers();
+  void _refresh() async {
+    await Refresh.refresh(investor);
+    _getCached();
   }
 
-  int pageLimit = 2;
-  @override
-  onPrompt(int pageLimit) {
-    this.pageLimit = pageLimit;
-    currentStartKey = null;
-    _getOffers();
-  }
-
-  @override
-  onBack(int startKey, int pageNumber) {
-    // TODO: implement onBack
-  }
-
-  @override
-  onNext(int pageNumber) {
-    // TODO: implement onNext
-  }
+  int pageLimit;
 
   @override
   onNoMoreData() {
-    // TODO: implement onNoMoreData
+    AppSnackbar.showSnackbar(
+        scaffoldKey: _scaffoldKey,
+        message: 'No more. No mas.',
+        textColor: Styles.white,
+        backgroundColor: Colors.indigo);
+  }
+
+  @override
+  onInitialPage(List<Findable> items) {
+    setOffers(items);
+  }
+
+  @override
+  onPage(List<Findable> items) {
+    setOffers(items);
+  }
+
+  void setOffers(List<Findable> items) {
+    openOffers.clear();
+    items.forEach((f) {
+      openOffers.add(f);
+    });
+    setState(() {});
   }
 }
 

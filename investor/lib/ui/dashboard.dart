@@ -134,7 +134,9 @@ class _DashboardState extends State<Dashboard>
     dashboardData = await ListAPI.getInvestorDashboardData(
         investor.participantId, investor.documentReference);
     await SharedPrefs.saveDashboardData(dashboardData);
-    _scaffoldKey.currentState.hideCurrentSnackBar();
+    if (_scaffoldKey.currentState != null) {
+      _scaffoldKey.currentState.hideCurrentSnackBar();
+    }
     summaryBusy = false;
     setState(() {});
     _getDetailData();
@@ -199,49 +201,48 @@ class _DashboardState extends State<Dashboard>
             ),
           ],
         ),
+        backgroundColor: Colors.brown.shade100,
         body: Stack(
           children: <Widget>[
-            new Opacity(
-              opacity: 0.0,
-              child: Container(
-                decoration: BoxDecoration(
-                  image: DecorationImage(
-                    image: AssetImage('assets/fincash.jpg'),
-                    fit: BoxFit.cover,
+//            new Opacity(
+//              opacity: 0.0,
+//              child: Container(
+//                decoration: BoxDecoration(
+//                  image: DecorationImage(
+//                    image: AssetImage('assets/fincash.jpg'),
+//                    fit: BoxFit.cover,
+//                  ),
+//                ),
+//              ),
+//            ),
+            new Padding(
+              padding:
+                  const EdgeInsets.only(top: 10.0, left: 10.0, right: 10.0),
+              child: ListView(
+                children: <Widget>[
+                  new InkWell(
+                    onTap: _onOffersTapped,
+                    child: SummaryCard(
+                      total: dashboardData.totalOpenOffers == null
+                          ? 0
+                          : dashboardData.totalOpenOffers,
+                      label: 'Open Invoice Offers',
+                      totalStyle: Styles.pinkBoldMedium,
+                    ),
                   ),
-                ),
-              ),
-            ),
-            new Opacity(
-              opacity: opacity,
-              child: new Padding(
-                padding: const EdgeInsets.only(top: 4.0),
-                child: ListView(
-                  children: <Widget>[
-                    new InkWell(
-                      onTap: _onOffersTapped,
-                      child: SummaryCard(
-                        total: dashboardData.totalOpenOffers == null
-                            ? 0
-                            : dashboardData.totalOpenOffers,
-                        label: 'Open Invoice Offers',
-                        totalStyle: Styles.pinkBoldMedium,
-                      ),
+                  new InkWell(
+                    onTap: _onInvoiceBidsTapped,
+                    child: InvestorSummaryCard(dashboardData, context),
+                  ),
+                  new InkWell(
+                    onTap: _onPaymentsTapped,
+                    child: SummaryCard(
+                      total: dashboardData == null ? 0 : 0,
+                      label: 'Bids Settled',
+                      totalStyle: Styles.blueBoldLarge,
                     ),
-                    new InkWell(
-                      onTap: _onInvoiceBidsTapped,
-                      child: InvestorSummaryCard(dashboardData, context),
-                    ),
-                    new InkWell(
-                      onTap: _onPaymentsTapped,
-                      child: SummaryCard(
-                        total: dashboardData == null ? 0 : 0,
-                        label: 'Bids Settled',
-                        totalStyle: Styles.blueBoldLarge,
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ],
@@ -483,17 +484,20 @@ class InvestorSummaryCard extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
-        Text(
-          'Number of Bids',
-          style: Styles.greyLabelMedium,
+        Container(
+          width: 100.0,
+          child: Text(
+            'Bids',
+            style: Styles.greyLabelSmall,
+          ),
         ),
         Padding(
-          padding: const EdgeInsets.only(left: 10.0, right: 10.0),
+          padding: const EdgeInsets.only(left: 10.0),
           child: Text(
             dashboardData.totalBids == null
                 ? '0'
                 : '${dashboardData.totalBids}',
-            style: Styles.blackBoldMedium,
+            style: Styles.blackBoldLarge,
           ),
         ),
       ],
@@ -505,15 +509,18 @@ class InvestorSummaryCard extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
-        Text(
-          'Total Bids',
-          style: Styles.greyLabelMedium,
+        Container(
+          width: 100.0,
+          child: Text(
+            'Total Bids',
+            style: Styles.greyLabelSmall,
+          ),
         ),
         Padding(
           padding: const EdgeInsets.only(left: 10.0, right: 10.0),
           child: Text(
             dashboardData.totalBidAmount == null
-                ? '0'
+                ? '0.00'
                 : '${getFormattedAmount('${dashboardData.totalBidAmount}', context)}',
             style: Styles.pinkBoldLarge,
           ),
@@ -527,17 +534,20 @@ class InvestorSummaryCard extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
-        Text(
-          'Average Discount',
-          style: Styles.greyLabelMedium,
+        Container(
+          width: 100.0,
+          child: Text(
+            'Avg Discount',
+            style: Styles.greyLabelSmall,
+          ),
         ),
         Padding(
           padding: const EdgeInsets.only(left: 10.0, right: 10.0),
           child: Text(
             dashboardData.averageDiscountPerc == null
                 ? '0'
-                : '${getFormattedAmount('${dashboardData.averageDiscountPerc}', context)}%',
-            style: Styles.purpleBoldMedium,
+                : '${'${dashboardData.averageDiscountPerc}'}%',
+            style: Styles.purpleBoldLarge,
           ),
         ),
       ],
@@ -549,9 +559,12 @@ class InvestorSummaryCard extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
-        Text(
-          'Average Bid',
-          style: Styles.greyLabelMedium,
+        Container(
+          width: 100.0,
+          child: Text(
+            'Average Bid',
+            style: Styles.greyLabelSmall,
+          ),
         ),
         Padding(
           padding: const EdgeInsets.only(left: 10.0, right: 10.0),
@@ -559,7 +572,7 @@ class InvestorSummaryCard extends StatelessWidget {
             dashboardData.averageBidAmount == null
                 ? '0'
                 : '${getFormattedAmount('${dashboardData.averageBidAmount}', context)}',
-            style: Styles.blackBoldMedium,
+            style: Styles.blackBoldLarge,
           ),
         ),
       ],
@@ -568,59 +581,56 @@ class InvestorSummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 440.0,
-      child: new Padding(
-        padding: const EdgeInsets.all(10.0),
-        child: Card(
-          elevation: 6.0,
-          color: Colors.brown.shade50,
-          child: Column(
-            children: <Widget>[
-              Container(
-                height: 120.0,
-                child: Container(
-                  decoration: BoxDecoration(
-                    image: DecorationImage(
-                      image: AssetImage('assets/fincash.jpg'),
-                      fit: BoxFit.cover,
-                    ),
+    return new Padding(
+      padding: const EdgeInsets.all(10.0),
+      child: Card(
+        elevation: 6.0,
+        color: Colors.brown.shade50,
+        child: Column(
+          children: <Widget>[
+//            Container(
+//              height: 100.0,
+//              child: Container(
+//                decoration: BoxDecoration(
+//                  image: DecorationImage(
+//                    image: AssetImage('assets/fincash.jpg'),
+//                    fit: BoxFit.cover,
+//                  ),
+//                ),
+//              ),
+//            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 20.0, left: 20.0),
+              child: _getTotalBids(),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 20.0, left: 20.0),
+              child: _getTotalBidValue(),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 20.0, left: 20.0),
+              child: _getAverageBidAmount(),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 20.0, left: 20.0),
+              child: _getAverageDiscount(),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 18.0, bottom: 20.0),
+              child: RaisedButton(
+                elevation: 6.0,
+                color: Colors.indigo.shade400,
+                onPressed: _onBtnPressed,
+                child: Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: Text(
+                    'Show Charts',
+                    style: Styles.whiteSmall,
                   ),
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.only(top: 20.0, left: 20.0),
-                child: _getTotalBids(),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top: 20.0, left: 20.0),
-                child: _getTotalBidValue(),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top: 20.0, left: 20.0),
-                child: _getAverageBidAmount(),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top: 20.0, left: 20.0),
-                child: _getAverageDiscount(),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top: 18.0, bottom: 20.0),
-                child: RaisedButton(
-                  elevation: 6.0,
-                  color: Colors.indigo.shade400,
-                  onPressed: _onBtnPressed,
-                  child: Padding(
-                    padding: const EdgeInsets.all(12.0),
-                    child: Text(
-                      'Show Charts',
-                      style: Styles.whiteSmall,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

@@ -53,7 +53,7 @@ class OfferCard extends StatelessWidget {
               child: Row(
                 children: <Widget>[
                   Container(
-                    width: 20.0,
+                    width: 30.0,
                     child: Text(
                       offer.itemNumber == null ? '0' : '${offer.itemNumber}',
                       style: Styles.blackBoldSmall,

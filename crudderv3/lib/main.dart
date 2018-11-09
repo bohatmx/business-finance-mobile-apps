@@ -158,7 +158,7 @@ class _MyHomePageState extends State<MyHomePage>
   }
 
   void _generateWorkingData() async {
-    await Generator.generateOffers(this, context);
+//    await Generator.generateOffers(this, context);
     if (isBusy) {
       AppSnackbar.showSnackbar(
           scaffoldKey: _scaffoldKey,
@@ -171,11 +171,6 @@ class _MyHomePageState extends State<MyHomePage>
     _phaseCounter = 0;
 
     var start = DateTime.now();
-//    //todo remove after test
-//    await Generator.generateOffers(this, context);
-//    if (start is DateTime) {
-//      return;
-//    }
     await Generator.generate(this, context);
 
     isBusy = false;

@@ -285,7 +285,7 @@ class Generator {
       date: new DateTime.now().toIso8601String(),
     );
     try {
-      var i = await DataAPI3.registerInvoice(invoice);
+      var i = await DataAPI3.saveInvoice(invoice);
       invoices.add(i);
       genListener.onEvent(
           'Invoice added: ${invoice.invoiceNumber} - ${getFormattedAmount('${invoice.totalAmount}', context)} ${note.customerName} to ${note.supplierName} ',

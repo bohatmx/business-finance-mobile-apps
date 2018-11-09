@@ -197,6 +197,43 @@ class DataAPI3 {
     }
   }
 
+  static Future<Invoice> saveInvoice(Invoice invoice) async {
+    invoice.invoiceId = getKey();
+    invoice.isOnOffer = false;
+    invoice.isSettled = false;
+    invoice.date = getUTCDate();
+
+    var bag = APIBag(
+      debug: isInDebugMode,
+      data: invoice.toJson(),
+    );
+
+    print('DataAPI3.saveInvoice url: ${getFunctionsURL() + REGISTER_INVOICE}');
+
+    try {
+      var mResponse = await _doHTTP(getFunctionsURL() + REGISTER_INVOICE, bag);
+      print(mResponse);
+      switch (mResponse.statusCode) {
+        case 200:
+          print('DataAPI3.saveInvoice: invoice registered');
+          return Invoice.fromJson(json.decode(mResponse.body));
+          break;
+        case 201: //invoice auto accepted
+          print(
+              '\n\nDataAPI3.saveInvoice: invoice auto accepted #########################################\n');
+          return Invoice.fromJson(json.decode(mResponse.body));
+          break;
+        default:
+          var e = Exception('Register Invoice failed: ${mResponse.body}');
+          throw e;
+          break;
+      }
+    } catch (e) {
+      print('DataAPI3.saveInvoice ERROR $e');
+      throw e;
+    }
+  }
+
   static Future<InvoiceAcceptance> acceptInvoice(
       InvoiceAcceptance acceptance) async {
     acceptance.acceptanceId = getKey();
