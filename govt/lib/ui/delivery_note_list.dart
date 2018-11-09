@@ -12,13 +12,14 @@ import 'package:businesslibrary/util/FCM.dart';
 import 'package:businesslibrary/util/Finders.dart';
 import 'package:businesslibrary/util/database.dart';
 import 'package:businesslibrary/util/lookups.dart';
-import 'package:businesslibrary/util/pager2.dart';
+import 'package:businesslibrary/util/pager.dart';
 import 'package:businesslibrary/util/pager_helper.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:govt/ui/refresh.dart';
 
 class DeliveryNoteList extends StatefulWidget {
   @override
@@ -30,7 +31,7 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
         SnackBarListener,
         DeliveryNoteListener,
         InvoiceListener,
-        PagerListener,
+        Pager3Listener,
         DeliveryNoteCardListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   final FirebaseMessaging _fcm = FirebaseMessaging();
@@ -59,7 +60,8 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
     _fcm.subscribeToTopic(FCM.TOPIC_INVOICES + govtEntity.participantId);
     _fcm.subscribeToTopic(FCM.TOPIC_GENERAL_MESSAGE);
 
-    _getDeliveryNotes();
+    setState(() {});
+    _refresh();
   }
 
   @override
@@ -69,8 +71,9 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
       appBar: AppBar(
         title: Text('Delivery Notes', style: Styles.whiteBoldMedium),
         bottom: _getBottom(),
+        backgroundColor: Colors.indigo.shade200,
         actions: <Widget>[
-          IconButton(icon: Icon(Icons.refresh), onPressed: _getDeliveryNotes),
+          IconButton(icon: Icon(Icons.refresh), onPressed: _refresh),
         ],
       ),
       body: Container(
@@ -89,6 +92,20 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
     );
   }
 
+  Future _refresh() async {
+    AppSnackbar.showSnackbarWithProgressIndicator(
+        scaffoldKey: _scaffoldKey,
+        message: 'Refreshing data ...',
+        textColor: Styles.white,
+        backgroundColor: Styles.black);
+    await Refresh.refresh(govtEntity);
+    if (_scaffoldKey.currentState != null) {
+      _scaffoldKey.currentState.removeCurrentSnackBar();
+    }
+    baseList = await Database.getDeliveryNotes();
+    setState(() {});
+  }
+
   DashboardData dashboardData;
   Widget _getBottom() {
     return PreferredSize(
@@ -96,39 +113,24 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
       child: Column(
         mainAxisAlignment: MainAxisAlignment.end,
         children: <Widget>[
-          PagerHelper(
-            dashboardData: dashboardData,
-            pageNumber: pageNumber,
-            totalPages: _getTotalPages(),
-            pageValue: _getPageValue(),
-            pageValueStyle: Styles.blackMedium,
-            totalValueStyle: Styles.brownBoldMedium,
-            type: PagerHelper.DELIVERY_NOTE,
-          ),
-          Padding(
-            padding: const EdgeInsets.only(top: 0.0, bottom: 10.0),
-            child: Pager(
-              currentStartKey: currentStartKey,
-              listener: this,
-              totalItems: baseList == null ? 0 : baseList.length,
-              pageLimit: pageLimit,
-              itemName: 'Delivery Notes',
-            ),
-          ),
+          baseList == null
+              ? Container()
+              : Padding(
+                  padding: const EdgeInsets.only(
+                      top: 10.0, bottom: 20.0, left: 8.0, right: 8.0),
+                  child: Pager3(
+                    addHeader: true,
+                    listener: this,
+                    type: PagerHelper.DELIVERY_NOTE,
+                    pageLimit: pageLimit == null ? 4 : pageLimit,
+                    itemName: 'Delivery Notes',
+                    items: baseList,
+                    elevation: 16.0,
+                  ),
+                ),
         ],
       ),
     );
-  }
-
-  int pageNumber = 1;
-  int _getTotalPages() {}
-  double _getPageValue() {
-    var t = 0.0;
-    deliveryNotes.forEach((n) {
-      t += n.amount;
-    });
-
-    return t;
   }
 
   ScrollController controller1 = ScrollController();
@@ -320,33 +322,7 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
     }
   }
 
-  int pageLimit = 2, currentStartKey;
-  void _getDeliveryNotes() async {
-    AppSnackbar.showSnackbarWithProgressIndicator(
-        scaffoldKey: _scaffoldKey,
-        message: 'Getting Delivery Notes',
-        textColor: Colors.white,
-        backgroundColor: Colors.black);
-
-    var result = Finder.find(
-      baseList: baseList,
-      pageLimit: pageLimit,
-      intDate: currentStartKey,
-    );
-    print(result);
-    deliveryNotes.clear();
-    result.items.forEach((n) {
-      deliveryNotes.add(n);
-      var m = n as DeliveryNote;
-      print(
-          '${m.intDate} ${m.date} ${m.supplierName} note to ${m.customerName}');
-    });
-    if (deliveryNotes.isNotEmpty) {
-      currentStartKey = deliveryNotes.last.intDate;
-    }
-    _scaffoldKey.currentState.removeCurrentSnackBar();
-    setState(() {});
-  }
+  int pageLimit;
 
   @override
   onDeliveryNoteArrived(DeliveryNote note) {
@@ -361,9 +337,7 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
   onDeliveryNoteMessage(DeliveryNote deliveryNote) {
     prettyPrint(deliveryNote.toJson(), '### Delivery Note Arrived');
     baseList.insert(0, deliveryNote);
-    pageNumber = 1;
-    currentStartKey = null;
-    _getDeliveryNotes();
+    setState(() {});
 
     AppSnackbar.showSnackbar(
         scaffoldKey: _scaffoldKey,
@@ -384,45 +358,30 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
   }
 
   @override
-  onBack(int startKey, int pageNumber) {
-    print(
-        '\n\n\n_PurchaseOrderListPageState.onBack ###### this.pageNumber ${this.pageNumber} pageNumber: $pageNumber startKey: $startKey');
-    if (this.pageNumber == 1 && pageNumber == 0) {
-      print('....restart from the beginning with startKey NULL');
-      currentStartKey = null;
-    } else {
-      currentStartKey = startKey;
-    }
-
-    _getDeliveryNotes();
-    setState(() {});
-  }
-
-  @override
-  onNext(int pageNumber) {
-    print(
-        '_PurchaseOrderListPageState.onNext pageLimit $pageLimit pageNumber: $pageNumber ####### currentStartKey  $currentStartKey');
-    _getDeliveryNotes();
-    setState(() {});
-  }
-
-  @override
-  onPrompt(int pageLimit) {
-    print('\n\n########### _PurchaseOrderListPageState.onPrompt');
-    this.pageLimit = pageLimit;
-    currentStartKey = null;
-    deliveryNotes.clear();
-    setState(() {});
-    _getDeliveryNotes();
-  }
-
-  @override
   onNoMoreData() {
     AppSnackbar.showSnackbar(
         scaffoldKey: _scaffoldKey,
         message: 'No mas. No more. Have not.',
         textColor: Styles.white,
         backgroundColor: Colors.brown.shade300);
+  }
+
+  @override
+  onInitialPage(List<Findable> items) {
+    _setNotes(items);
+  }
+
+  @override
+  onPage(List<Findable> items) {
+    _setNotes(items);
+  }
+
+  void _setNotes(List<Findable> items) {
+    deliveryNotes.clear();
+    items.forEach((f) {
+      deliveryNotes.add(f);
+    });
+    setState(() {});
   }
 }
 
@@ -439,7 +398,7 @@ class DeliveryNoteCard extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.only(left: 8.0, right: 8.0, bottom: 4.0),
         child: Card(
-          elevation: 4.0,
+          elevation: 2.0,
           color: Colors.grey.shade200,
           child: Padding(
             padding: const EdgeInsets.all(16.0),
@@ -447,14 +406,23 @@ class DeliveryNoteCard extends StatelessWidget {
               children: <Widget>[
                 Row(
                   children: <Widget>[
+                    Padding(
+                      padding: const EdgeInsets.only(right: 16.0),
+                      child: Text(
+                        deliveryNote.itemNumber == null
+                            ? '0'
+                            : '${deliveryNote.itemNumber}',
+                        style: Styles.blackBoldSmall,
+                      ),
+                    ),
                     Text(
                       getFormattedDateLongWithTime(deliveryNote.date, context),
-                      style: Styles.blueSmall,
+                      style: Styles.blackSmall,
                     ),
                   ],
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(top: 8.0),
+                  padding: const EdgeInsets.only(top: 16.0, bottom: 16.0),
                   child: Row(
                     children: <Widget>[
                       Text(

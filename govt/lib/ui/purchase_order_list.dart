@@ -10,7 +10,7 @@ import 'package:businesslibrary/util/FCM.dart';
 import 'package:businesslibrary/util/Finders.dart';
 import 'package:businesslibrary/util/database.dart';
 import 'package:businesslibrary/util/lookups.dart';
-import 'package:businesslibrary/util/pager2.dart';
+import 'package:businesslibrary/util/pager.dart';
 import 'package:businesslibrary/util/pager_helper.dart';
 import 'package:businesslibrary/util/selectors.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
@@ -27,7 +27,7 @@ class PurchaseOrderListPage extends StatefulWidget {
 }
 
 class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
-    implements InvoiceListener, DeliveryNoteListener, PagerListener {
+    implements InvoiceListener, DeliveryNoteListener, Pager3Listener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   FirebaseMessaging _fcm = FirebaseMessaging();
   PurchaseOrder purchaseOrder;
@@ -105,57 +105,28 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
 
   int currentStartKey;
   DashboardData dashboardData;
-  double pageValue = 0.0;
-  int totalPages = 0, pageNumber = 1;
-  int pageLimit = Pager.DefaultPageLimit;
 
-  int _getTotalPages() {
-    if (poSummary == null) {
-      totalPages = 0;
-      return totalPages;
-    }
-    var rem = poSummary.totalPurchaseOrders % pageLimit;
-    totalPages = poSummary.totalPurchaseOrders ~/ pageLimit;
-    if (rem > 0) {
-      totalPages++;
-    }
-    return totalPages;
-  }
-
-  double _getPageVaulue() {
-    if (poSummary == null) {
-      pageValue = 0.00;
-      return pageValue;
-    }
-    pageValue = 0.0;
-    purchaseOrders.forEach((po) {
-      pageValue += po.amount;
-    });
-    return pageValue;
-  }
+  int pageLimit;
 
   Widget _getBottom() {
     return PreferredSize(
       preferredSize: const Size.fromHeight(200.0),
       child: Column(
         children: <Widget>[
-          PagerHelper(
-            dashboardData: dashboardData,
-            pageValue: _getPageVaulue(),
-            totalPages: _getTotalPages(),
-            pageNumber: pageNumber,
-            itemName: 'Purchase Orders',
-          ),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 18.0),
-            child: Pager(
-              currentStartKey: currentStartKey,
-              listener: this,
-              itemName: 'Purchase Orders',
-              totalItems:
-                  dashboardData == null ? 0 : dashboardData.purchaseOrders,
-            ),
-          ),
+          baseList == null
+              ? Container()
+              : Padding(
+                  padding: const EdgeInsets.only(
+                      left: 8.0, right: 8.0, bottom: 18.0),
+                  child: Pager3(
+                    addHeader: true,
+                    listener: this,
+                    itemName: 'Purchase Orders',
+                    pageLimit: pageLimit == null ? 4 : pageLimit,
+                    items: baseList,
+                    type: PagerHelper.PURCHASE_ORDER,
+                  ),
+                ),
         ],
       ),
     );
@@ -254,32 +225,6 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
         backgroundColor: Styles.black);
   }
 
-  List<PurchaseOrder> lastList;
-  @override
-  onBack(int startKey, int pageNumber) {
-    print(
-        '\n\n\n_PurchaseOrderListPageState.onBack ###### this.pageNumber ${this.pageNumber} pageNumber: $pageNumber startKey: $startKey');
-
-    _findOrders(startKey);
-    setState(() {});
-  }
-
-  @override
-  onNext(int pageNumber) {
-    print(
-        '_PurchaseOrderListPageState.onNext pageLimit $pageLimit pageNumber: ####### currentStartKey $pageNumber $currentStartKey');
-    _findOrders(currentStartKey);
-    setState(() {});
-  }
-
-  @override
-  onPrompt(int pageLimit) {
-    print('\n\n########### _PurchaseOrderListPageState.onPrompt');
-    this.pageLimit = pageLimit;
-    currentStartKey = null;
-    _getPurchaseOrders();
-  }
-
   @override
   onNoMoreData() {
     AppSnackbar.showSnackbar(
@@ -287,6 +232,24 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
         message: 'No mas. No more. Have not.',
         textColor: Styles.white,
         backgroundColor: Colors.brown.shade300);
+  }
+
+  @override
+  onInitialPage(List<Findable> items) {
+    _setPurchaseOrders(items);
+  }
+
+  @override
+  onPage(List<Findable> items) {
+    _setPurchaseOrders(items);
+  }
+
+  void _setPurchaseOrders(List<Findable> items) {
+    purchaseOrders.clear();
+    items.forEach((f) {
+      purchaseOrders.add(f);
+    });
+    setState(() {});
   }
 }
 
@@ -300,12 +263,35 @@ class PurchaseOrderCard extends StatelessWidget {
     return new Padding(
       padding: const EdgeInsets.only(left: 8.0, right: 8.0, bottom: 4.0),
       child: Card(
-        elevation: 3.0,
+        elevation: 2.0,
         color: Colors.brown.shade50,
         child: Column(
           children: <Widget>[
             Padding(
-              padding: const EdgeInsets.only(top: 20.0),
+              padding:
+                  const EdgeInsets.only(left: 10.0, bottom: 10.0, top: 20.0),
+              child: Row(
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.only(right: 16.0),
+                    child: Text(
+                      purchaseOrder.itemNumber == null
+                          ? '0'
+                          : '${purchaseOrder.itemNumber}',
+                      style: Styles.blackBoldSmall,
+                    ),
+                  ),
+                  Text(
+                    getFormattedDateLongWithTime(purchaseOrder.date, context),
+                    style: Styles.blackSmall,
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(
+                top: 0.0,
+              ),
               child: new Row(
                 children: <Widget>[
                   new Padding(
@@ -332,7 +318,8 @@ class PurchaseOrderCard extends StatelessWidget {
               ),
             ),
             new Padding(
-              padding: const EdgeInsets.only(left: 40.0, bottom: 8.0, top: 4.0),
+              padding:
+                  const EdgeInsets.only(left: 40.0, bottom: 20.0, top: 4.0),
               child: Row(
                 children: <Widget>[
                   new Padding(
@@ -356,23 +343,9 @@ class PurchaseOrderCard extends StatelessWidget {
                 ],
               ),
             ),
-            Padding(
-              padding:
-                  const EdgeInsets.only(left: 40.0, bottom: 20.0, top: 4.0),
-              child: Row(
-                children: <Widget>[
-                  Text(
-                    getFormattedDateLongWithTime(purchaseOrder.date, context),
-                    style: Styles.blueSmall,
-                  ),
-                ],
-              ),
-            ),
           ],
         ),
       ),
     );
   }
-
-  void _uploadPOdoc() {}
 }

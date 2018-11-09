@@ -6,7 +6,6 @@ import 'package:businesslibrary/data/govt_entity.dart';
 import 'package:businesslibrary/data/invoice.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/FCM.dart';
-import 'package:businesslibrary/util/database.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
@@ -19,6 +18,7 @@ import 'package:govt/ui/acceptance.dart';
 import 'package:govt/ui/delivery_note_list.dart';
 import 'package:govt/ui/invoice_list.dart';
 import 'package:govt/ui/purchase_order_list.dart';
+import 'package:govt/ui/refresh.dart';
 import 'package:govt/ui/summary_card.dart';
 import 'package:govt/ui/theme_util.dart';
 
@@ -85,102 +85,72 @@ class _DashboardState extends State<Dashboard>
     dashboardData = await SharedPrefs.getDashboardData();
     if (dashboardData != null) {
       setState(() {});
+    } else {
+      AppSnackbar.showSnackbarWithProgressIndicator(
+          scaffoldKey: _scaffoldKey,
+          message: 'Loading fresh data',
+          textColor: Colors.white,
+          backgroundColor: Colors.black);
+      dashboardData =
+          await ListAPI.getCustomerDashboardData(govtEntity.documentReference);
+      if (_scaffoldKey.currentState != null) {
+        _scaffoldKey.currentState.hideCurrentSnackBar();
+      }
+      setState(() {});
     }
     assert(govtEntity != null);
-    name = govtEntity.name;
+    _prepareFCM();
+    _getSummaryData(false);
+  }
 
+  void _prepareFCM() {
     FCM.configureFCM(
       deliveryNoteListener: this,
       invoiceListener: this,
+      generalMessageListener: this,
     );
+
     _fcm.subscribeToTopic(FCM.TOPIC_DELIVERY_NOTES + govtEntity.participantId);
     _fcm.subscribeToTopic(FCM.TOPIC_INVOICES + govtEntity.participantId);
     _fcm.subscribeToTopic(FCM.TOPIC_GENERAL_MESSAGE);
-
-    _getSummaryData();
   }
-
-  int index = 0;
 
   Firestore fs = Firestore.instance;
-
-  void startFix() async {}
-
   DashboardData dashboardData;
-  _getSummaryData() async {
+
+  _getSummaryData(bool showSnack) async {
     print('_DashboardState._getSummaryData ..................................');
-    AppSnackbar.showSnackbarWithProgressIndicator(
-        scaffoldKey: _scaffoldKey,
-        message: 'Loading fresh data',
-        textColor: Colors.white,
-        backgroundColor: Colors.black);
-    dashboardData =
-        await ListAPI.getCustomerDashboardData(govtEntity.documentReference);
-    setState(() {});
-    SharedPrefs.saveDashboardData(dashboardData);
     Sounds.playChime();
-
-    if (_scaffoldKey.currentState != null) {
-      _scaffoldKey.currentState.hideCurrentSnackBar();
+    if (showSnack) {
+      AppSnackbar.showSnackbarWithProgressIndicator(
+          scaffoldKey: _scaffoldKey,
+          message: 'Loading fresh data',
+          textColor: Styles.white,
+          backgroundColor: Styles.black);
     }
-    _getDetailData();
+    await Refresh.refresh(govtEntity);
+    dashboardData = await SharedPrefs.getDashboardData();
+    setState(() {});
+
+    print('_DashboardState._getSummaryData REFRESH COMPLETE .......');
+    if (_scaffoldKey.currentState != null) {
+      _scaffoldKey.currentState.removeCurrentSnackBar();
+    }
   }
 
-  void _getDetailData() async {
-    print(
-        '\n\n_DashboardState._getDetailData ###################################');
-    var m =
-        await ListAPI.getCustomerPurchaseOrders(govtEntity.documentReference);
-    var x = await ListAPI.getCustomerInvoices(govtEntity.documentReference);
-    var z = await ListAPI.getDeliveryNotes(
-        govtEntity.documentReference, 'govtEntities');
-    await Database.savePurchaseOrders(PurchaseOrders(m));
-    await Database.saveInvoices(Invoices(x));
-    await Database.saveDeliveryNotes(DeliveryNotes(z));
-    int count = 1;
-    m.forEach((x) {
-      print(
-          ' ${x.date} - ${x.intDate} ## $count ${x.purchaserName} for ${x.supplierName}');
-      count++;
-    });
-  }
-
-  int totalInvoices, totalPOs, totalNotes, totalPayments;
-
-  double opacity = 1.0;
-  String name;
   Widget _getBottom() {
     return PreferredSize(
-      preferredSize: const Size.fromHeight(80.0),
+      preferredSize: const Size.fromHeight(60.0),
       child: new Column(
         children: <Widget>[
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               new Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: const EdgeInsets.only(bottom: 20.0),
                 child: Text(
-                  name == null ? 'Organisation' : name,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20.0,
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-              )
-            ],
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              new Padding(
-                padding: const EdgeInsets.only(top: 0.0, bottom: 20.0),
-                child: Text(
-                  fullName == null ? 'user' : fullName,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.normal,
-                  ),
+                  govtEntity == null ? 'Customer Name' : govtEntity.name,
+                  style: Styles.whiteBoldMedium,
                 ),
               )
             ],
@@ -188,6 +158,10 @@ class _DashboardState extends State<Dashboard>
         ],
       ),
     );
+  }
+
+  void _onRefreshPressed() {
+    _getSummaryData(true);
   }
 
   @override
@@ -201,14 +175,14 @@ class _DashboardState extends State<Dashboard>
           elevation: 16.0,
           title: Text(
             'BFN - Dashboard',
-            style: TextStyle(fontWeight: FontWeight.normal),
+            style: TextStyle(fontWeight: FontWeight.w900),
           ),
           leading: Container(),
           bottom: _getBottom(),
           actions: <Widget>[
             IconButton(
               icon: Icon(Icons.refresh),
-              onPressed: _getSummaryData,
+              onPressed: _onRefreshPressed,
             ),
             IconButton(
               icon: Icon(Icons.attach_money),
@@ -216,64 +190,24 @@ class _DashboardState extends State<Dashboard>
             ),
           ],
         ),
+        backgroundColor: Colors.brown.shade100,
         body: Stack(
           children: <Widget>[
-            new Opacity(
-              opacity: 0.5,
-              child: Container(
-                decoration: BoxDecoration(
-                  image: DecorationImage(
-                    image: AssetImage('assets/fincash.jpg'),
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              ),
-            ),
+//            new Opacity(
+//              opacity: 0.5,
+//              child: Container(
+//                decoration: BoxDecoration(
+//                  image: DecorationImage(
+//                    image: AssetImage('assets/fincash.jpg'),
+//                    fit: BoxFit.cover,
+//                  ),
+//                ),
+//              ),
+//            ),
             _getListView(),
           ],
         ),
       ),
-    );
-  }
-
-  Widget _getGridView() {
-    return GridView.count(
-      crossAxisCount: 2,
-      crossAxisSpacing: 1.0,
-      children: <Widget>[
-        new InkWell(
-          onTap: _onPaymentsTapped,
-          child: SummaryCard(
-            total: dashboardData == null ? 0 : 0,
-            label: 'Payments',
-            totalStyle: Styles.blueBoldLarge,
-          ),
-        ),
-        new InkWell(
-          onTap: _onInvoicesTapped,
-          child: SummaryCard(
-            total: dashboardData == null ? 0 : dashboardData.invoices,
-            label: 'Invoices',
-            totalStyle: Styles.pinkBoldLarge,
-          ),
-        ),
-        new InkWell(
-          onTap: _onPurchaseOrdersTapped,
-          child: SummaryCard(
-            total: dashboardData == null ? 0 : dashboardData.purchaseOrders,
-            label: 'Purchase Orders',
-            totalStyle: Styles.tealBoldLarge,
-          ),
-        ),
-        new InkWell(
-          onTap: _onDeliveryNotesTapped,
-          child: SummaryCard(
-            total: dashboardData == null ? 0 : dashboardData.deliveryNotes,
-            label: 'Delivery Notes',
-            totalStyle: Styles.blackBoldLarge,
-          ),
-        ),
-      ],
     );
   }
 
@@ -283,19 +217,16 @@ class _DashboardState extends State<Dashboard>
       child: ListView(
         children: <Widget>[
           new InkWell(
-            onTap: _onPaymentsTapped,
-            child: SummaryCard(
-              total: dashboardData == null ? 0 : 0,
-              label: 'Payments',
-              totalStyle: Styles.blueBoldLarge,
-            ),
-          ),
-          new InkWell(
             onTap: _onInvoicesTapped,
             child: SummaryCard(
               total: dashboardData == null ? 0 : dashboardData.invoices,
               label: 'Invoices',
               totalStyle: Styles.pinkBoldLarge,
+              totalValue: dashboardData == null
+                  ? 0.0
+                  : dashboardData.totalInvoiceAmount,
+              totalValueStyle: Styles.blackBoldMedium,
+              elevation: 16.0,
             ),
           ),
           new InkWell(
@@ -304,6 +235,10 @@ class _DashboardState extends State<Dashboard>
               total: dashboardData == null ? 0 : dashboardData.purchaseOrders,
               label: 'Purchase Orders',
               totalStyle: Styles.tealBoldLarge,
+              totalValue: dashboardData == null
+                  ? 0.0
+                  : dashboardData.totalPurchaseOrderAmount,
+              elevation: 2.0,
             ),
           ),
           new InkWell(
@@ -312,6 +247,19 @@ class _DashboardState extends State<Dashboard>
               total: dashboardData == null ? 0 : dashboardData.deliveryNotes,
               label: 'Delivery Notes',
               totalStyle: Styles.blackBoldLarge,
+              totalValue: dashboardData == null
+                  ? 0.0
+                  : dashboardData.totalDeliveryNoteAmount,
+              elevation: 2.0,
+            ),
+          ),
+          new InkWell(
+            onTap: _onPaymentsTapped,
+            child: SummaryCard(
+              total: dashboardData == null ? 0 : 0,
+              label: 'Payments',
+              totalStyle: Styles.blueBoldLarge,
+              elevation: 2.0,
             ),
           ),
         ],
@@ -386,8 +334,7 @@ class _DashboardState extends State<Dashboard>
         action: DeliveryNoteConstant,
         icon: Icons.create);
 
-    _getSummaryData();
-    setState(() {});
+    _getSummaryData(true);
   }
 
   @override
@@ -403,7 +350,7 @@ class _DashboardState extends State<Dashboard>
         action: InvoiceConstant,
         icon: Icons.collections_bookmark);
 
-    _getSummaryData();
+    _getSummaryData(true);
 
     if (govtEntity.allowAutoAccept != null) {
       if (govtEntity.allowAutoAccept) {

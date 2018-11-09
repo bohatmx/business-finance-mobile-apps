@@ -104,6 +104,7 @@ class Database {
     if (fileExists) {
       print("Database ## file exists, reading ...");
       String string = await jsonFile.readAsString();
+      print(string);
       Map map = json.decode(string);
       PurchaseOrders w = new PurchaseOrders.fromJson(map);
       print('Database ## returning PurchaseOrders found: ${w.orders.length}');

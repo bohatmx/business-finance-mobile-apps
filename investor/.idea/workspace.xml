@@ -1,10 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="b840dc6a-331e-46d9-b624-92fa4c1707ed" name="Default" comment="paging ui refactored">
+    <list default="true" id="b840dc6a-331e-46d9-b624-92fa4c1707ed" name="Default" comment="shutdown for the morning. things looking sweet!">
+      <change afterPath="$PROJECT_DIR$/../govt/lib/ui/refresh.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/util/database.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/util/database.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../crudderv3/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../crudderv3/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../govt/lib/ui/dashboard.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../govt/lib/ui/dashboard.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../govt/lib/ui/delivery_note_list.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../govt/lib/ui/delivery_note_list.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../govt/lib/ui/invoice_list.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../govt/lib/ui/invoice_list.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../govt/lib/ui/purchase_order_list.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../govt/lib/ui/purchase_order_list.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../govt/lib/ui/summary_card.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../govt/lib/ui/summary_card.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/ui/offer_list.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/ui/offer_list.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../monitor/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../monitor/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../supplierv3/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/.idea/workspace.xml" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
@@ -79,7 +86,7 @@
         <counts>
           <entry key="dart" value="26064" />
           <entry key="gradle" value="1" />
-          <entry key="txt" value="606" />
+          <entry key="txt" value="653" />
           <entry key="yaml" value="6" />
         </counts>
       </usages-collector>
@@ -95,7 +102,7 @@
         <counts>
           <entry key="Dart" value="26064" />
           <entry key="Groovy" value="1" />
-          <entry key="PLAIN_TEXT" value="606" />
+          <entry key="PLAIN_TEXT" value="653" />
           <entry key="YAML" value="6" />
         </counts>
       </usages-collector>
@@ -141,8 +148,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/../businesslibrary/lib/util/pager.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="436">
-              <caret line="404" column="3" lean-forward="true" selection-start-line="404" selection-start-column="3" selection-end-line="404" selection-end-column="3" />
+            <state relative-caret-position="388">
+              <caret line="411" column="37" selection-start-line="411" selection-start-column="37" selection-end-line="411" selection-end-column="37" />
               <folding>
                 <element signature="e#0#55#0" expanded="true" />
                 <element signature="e#1706#1864#0" expanded="true" />
@@ -298,8 +305,9 @@
   </component>
   <component name="ProjectFrameBounds" fullScreen="true">
     <option name="x" value="1440" />
+    <option name="y" value="23" />
     <option name="width" value="1920" />
-    <option name="height" value="1080" />
+    <option name="height" value="1005" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true">
     <ConfirmationsSetting value="2" id="Add" />
@@ -363,7 +371,7 @@
   </component>
   <component name="PropertiesComponent">
     <property name="android.sdk.path" value="$USER_HOME$/Library/Android/sdk" />
-    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1541739455845" />
+    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1541785263228" />
     <property name="dart.analysis.tool.window.force.activate" value="false" />
     <property name="io.flutter.reload.alreadyRun" value="true" />
     <property name="settings.editor.selected.configurable" value="flutter.settings" />
@@ -633,7 +641,14 @@
       <option name="project" value="LOCAL" />
       <updated>1541739281938</updated>
     </task>
-    <option name="localTasksCounter" value="31" />
+    <task id="LOCAL-00031" summary="shutdown for the morning. things looking sweet!">
+      <created>1541740020670</created>
+      <option name="number" value="00031" />
+      <option name="presentableId" value="LOCAL-00031" />
+      <option name="project" value="LOCAL" />
+      <updated>1541740020670</updated>
+    </task>
+    <option name="localTasksCounter" value="32" />
     <servers />
   </component>
   <component name="TodoView">
@@ -689,7 +704,6 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="refactored offers and bids" />
     <MESSAGE value="refactored investor offers and bids" />
     <MESSAGE value="upgraded flutter" />
     <MESSAGE value="added investor profile ui" />
@@ -714,7 +728,8 @@
     <MESSAGE value="general mods and fixes" />
     <MESSAGE value="general mods and fixes II" />
     <MESSAGE value="paging ui refactored" />
-    <option name="LAST_COMMIT_MESSAGE" value="paging ui refactored" />
+    <MESSAGE value="shutdown for the morning. things looking sweet!" />
+    <option name="LAST_COMMIT_MESSAGE" value="shutdown for the morning. things looking sweet!" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -1101,8 +1116,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/../businesslibrary/lib/util/pager.dart">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="436">
-          <caret line="404" column="3" lean-forward="true" selection-start-line="404" selection-start-column="3" selection-end-line="404" selection-end-column="3" />
+        <state relative-caret-position="388">
+          <caret line="411" column="37" selection-start-line="411" selection-start-column="37" selection-end-line="411" selection-end-column="37" />
           <folding>
             <element signature="e#0#55#0" expanded="true" />
             <element signature="e#1706#1864#0" expanded="true" />

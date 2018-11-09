@@ -9,7 +9,7 @@ import 'package:businesslibrary/util/FCM.dart';
 import 'package:businesslibrary/util/Finders.dart';
 import 'package:businesslibrary/util/database.dart';
 import 'package:businesslibrary/util/lookups.dart';
-import 'package:businesslibrary/util/pager2.dart';
+import 'package:businesslibrary/util/pager.dart';
 import 'package:businesslibrary/util/pager_helper.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
@@ -24,7 +24,7 @@ class InvoiceList extends StatefulWidget {
 }
 
 class _InvoiceListState extends State<InvoiceList>
-    implements SnackBarListener, InvoiceListener, PagerListener {
+    implements SnackBarListener, InvoiceListener, Pager3Listener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   FirebaseMessaging _fcm = FirebaseMessaging();
 
@@ -35,9 +35,7 @@ class _InvoiceListState extends State<InvoiceList>
   User user;
   int currentStartKey;
   DashboardData dashboardData;
-  int totalPages = 0, pageLimit = Pager.DefaultPageLimit;
-  int pageNumber = 1;
-  double pageValue = 0.0;
+  int pageLimit;
 
   @override
   initState() {
@@ -147,15 +145,28 @@ class _InvoiceListState extends State<InvoiceList>
     );
   }
 
-  double _getPageValue() {
-    if (invoices == null) {
-      return 0.00;
-    }
-    pageValue = 0.0;
-    invoices.forEach((i) {
-      pageValue += i.amount;
-    });
-    return pageValue;
+  Widget _getBottom() {
+    return PreferredSize(
+        child: Column(
+          children: <Widget>[
+            baseList == null
+                ? Container()
+                : Padding(
+                    padding: const EdgeInsets.only(
+                        top: 0.0, bottom: 10.0, left: 8.0, right: 8.0),
+                    child: Pager3(
+                      addHeader: true,
+                      listener: this,
+                      elevation: 8.0,
+                      items: baseList,
+                      pageLimit: pageLimit == null ? 4 : pageLimit,
+                      itemName: 'Invoices',
+                      type: PagerHelper.INVOICE,
+                    ),
+                  ),
+          ],
+        ),
+        preferredSize: Size.fromHeight(200.0));
   }
 
   @override
@@ -167,37 +178,16 @@ class _InvoiceListState extends State<InvoiceList>
           'Invoices',
           style: Styles.blackBoldMedium,
         ),
+        backgroundColor: Colors.pink.shade200,
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.refresh),
             onPressed: _getInvoices,
           )
         ],
-        bottom: PreferredSize(
-            child: Column(
-              children: <Widget>[
-                PagerHelper(
-                  dashboardData: dashboardData,
-                  pageNumber: pageNumber,
-                  totalPages: totalPages,
-                  pageValue: _getPageValue(),
-                  pageValueStyle: Styles.blackMedium,
-                  totalValueStyle: Styles.brownBoldMedium,
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 0.0, bottom: 10.0),
-                  child: Pager(
-                    currentStartKey: currentStartKey,
-                    listener: this,
-                    totalItems: baseList == null ? 0 : baseList.length,
-                    pageLimit: pageLimit,
-                    itemName: 'Invoices',
-                  ),
-                ),
-              ],
-            ),
-            preferredSize: Size.fromHeight(200.0)),
+        bottom: _getBottom(),
       ),
+      backgroundColor: Colors.brown.shade100,
       body: Padding(
         padding: const EdgeInsets.only(top: 12.0),
         child: new Column(
@@ -408,39 +398,8 @@ class _InvoiceListState extends State<InvoiceList>
         message: 'Invoice arrived',
         textColor: Styles.lightGreen,
         backgroundColor: Styles.black);
-  }
-
-  @override
-  onBack(int startKey, int pageNumber) {
-    print(
-        '\n\n\n_PurchaseOrderListPageState.onBack ###### this.pageNumber ${this.pageNumber} pageNumber: $pageNumber startKey: $startKey');
-    if (this.pageNumber == 1 && pageNumber == 0) {
-      print('....restart from the beginning with startKey NULL');
-      currentStartKey = null;
-    } else {
-      currentStartKey = startKey;
-    }
-
-    _getInvoicePageItems();
+    baseList.insert(0, invoice);
     setState(() {});
-  }
-
-  @override
-  onNext(int pageNumber) {
-    print(
-        '_PurchaseOrderListPageState.onNext pageLimit $pageLimit pageNumber: $pageNumber ####### currentStartKey  $currentStartKey');
-    _getInvoicePageItems();
-    setState(() {});
-  }
-
-  @override
-  onPrompt(int pageLimit) {
-    print('\n\n########### _PurchaseOrderListPageState.onPrompt');
-    this.pageLimit = pageLimit;
-    currentStartKey = null;
-    invoices.clear();
-    setState(() {});
-    _getInvoicePageItems();
   }
 
   @override
@@ -450,6 +409,24 @@ class _InvoiceListState extends State<InvoiceList>
         message: 'No mas. No more. Have not.',
         textColor: Styles.white,
         backgroundColor: Colors.brown.shade300);
+  }
+
+  @override
+  onInitialPage(List<Findable> items) {
+    _setInvoices(items);
+  }
+
+  @override
+  onPage(List<Findable> items) {
+    _setInvoices(items);
+  }
+
+  void _setInvoices(List<Findable> items) {
+    invoices.clear();
+    items.forEach((f) {
+      invoices.add(f);
+    });
+    setState(() {});
   }
 }
 
@@ -471,25 +448,34 @@ class InvoiceCard extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(left: 12.0, right: 12.0, bottom: 4.0),
       child: Card(
-        elevation: 4.0,
-        color: Colors.amber.shade50,
+        elevation: 2.0,
         child: Padding(
           padding: const EdgeInsets.only(left: 12.0),
           child: Column(
             children: <Widget>[
               Padding(
-                padding: const EdgeInsets.only(top: 8.0),
+                padding: const EdgeInsets.only(top: 16.0, bottom: 10.0),
                 child: Row(
                   children: <Widget>[
+                    Padding(
+                      padding: const EdgeInsets.only(right: 16.0),
+                      child: Text(
+                        invoice.itemNumber == null
+                            ? '0'
+                            : '${invoice.itemNumber}',
+                        style: Styles.blackBoldSmall,
+                      ),
+                    ),
                     Text(
                       getFormattedDateLongWithTime(invoice.date, context),
-                      style: Styles.blueSmall,
+                      style: Styles.blackSmall,
                     ),
                   ],
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.only(left: 0.0, top: 8.0),
+                padding:
+                    const EdgeInsets.only(left: 0.0, top: 8.0, bottom: 8.0),
                 child: Row(
                   children: <Widget>[
                     Flexible(
@@ -590,7 +576,7 @@ class InvoiceCard extends StatelessWidget {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.only(left: 30.0, bottom: 10.0),
+                padding: const EdgeInsets.only(left: 30.0, bottom: 20.0),
                 child: Row(
                   children: <Widget>[
                     Padding(
