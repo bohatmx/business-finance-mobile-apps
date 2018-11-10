@@ -89,13 +89,15 @@ class _DashboardState extends State<Dashboard>
   }
 
   ///get  summaries from Firestore
-  _getSummaryData() async {
+  _getSummaryData(bool showSnack) async {
     prettyPrint(supplier.toJson(), 'Dashboard_getSummaryData: ');
-    AppSnackbar.showSnackbarWithProgressIndicator(
-        scaffoldKey: _scaffoldKey,
-        message: 'Loading dashboard data',
-        textColor: Colors.white,
-        backgroundColor: Colors.black);
+    if (showSnack) {
+      AppSnackbar.showSnackbarWithProgressIndicator(
+          scaffoldKey: _scaffoldKey,
+          message: 'Loading dashboard data',
+          textColor: Colors.white,
+          backgroundColor: Colors.black);
+    }
     try {
       dashboardData = await ListAPI.getSupplierDashboardData(
           supplier.participantId, supplier.documentReference);
@@ -142,7 +144,7 @@ class _DashboardState extends State<Dashboard>
     assert(supplier != null);
     name = supplier.name;
     setState(() {});
-    _getSummaryData();
+    _getSummaryData(false);
     //
     FCM.configureFCM(
       purchaseOrderListener: this,
@@ -201,6 +203,10 @@ class _DashboardState extends State<Dashboard>
     );
   }
 
+  void _onRefreshPressed() {
+    _getSummaryData(true);
+  }
+
   @override
   Widget build(BuildContext context) {
     message = widget.message;
@@ -213,9 +219,12 @@ class _DashboardState extends State<Dashboard>
           elevation: 3.0,
           title: Text(
             'BFN',
-            style: TextStyle(fontWeight: FontWeight.normal),
+            style: TextStyle(fontWeight: FontWeight.w900),
           ),
-          leading: Container(),
+          leading: Icon(
+            Icons.apps,
+            color: Colors.white,
+          ),
           bottom: _getBottom(),
           actions: <Widget>[
             IconButton(
@@ -224,7 +233,7 @@ class _DashboardState extends State<Dashboard>
             ),
             IconButton(
               icon: Icon(Icons.refresh),
-              onPressed: _getSummaryData,
+              onPressed: _onRefreshPressed,
             ),
             IconButton(
               icon: Icon(Icons.attach_money),
@@ -232,7 +241,7 @@ class _DashboardState extends State<Dashboard>
             ),
           ],
         ),
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.brown.shade100,
         body: Stack(
           children: <Widget>[
 //            new Opacity(
@@ -263,6 +272,7 @@ class _DashboardState extends State<Dashboard>
                               totalValue: dashboardData == null
                                   ? 0.0
                                   : dashboardData.totalInvoiceAmount,
+                              elevation: 2.0,
                             ),
                     ),
                     GestureDetector(
@@ -273,7 +283,7 @@ class _DashboardState extends State<Dashboard>
                             ? Container()
                             : OfferSummaryCard(
                                 data: dashboardData,
-                                elevation: 20.0,
+                                elevation: 16.0,
                               ),
                       ),
                     ),
@@ -374,7 +384,7 @@ class _DashboardState extends State<Dashboard>
   refresh() {
     print(
         '_DashboardState.refresh: ################## REFRESH called. getSummary ...');
-    _getSummaryData();
+    _getSummaryData(false);
   }
 
   @override
@@ -444,78 +454,10 @@ class _DashboardState extends State<Dashboard>
       InvoiceAcceptedConstant = 8;
 
   PurchaseOrder purchaseOrder;
-  @override
-  onPurchaseOrder(PurchaseOrder po) {
-    prettyPrint(po.toJson(), '_DashboardState.onPurchaseOrder');
-    purchaseOrder = po;
-    var now = DateTime.now();
-    var date = DateTime.parse(po.date);
-    var difference = now.difference(date);
-    if (difference.inHours > 1) {
-      print(
-          'onPurchaseOrder -  IGNORED: older than 1 hours  --------bid done  ${difference.inHours} hours ago.');
-      return;
-    }
-    AppSnackbar.showSnackbarWithAction(
-        scaffoldKey: _scaffoldKey,
-        message: 'Purchase Order arrived',
-        textColor: Colors.white,
-        backgroundColor: Colors.black,
-        actionLabel: 'OK',
-        listener: this,
-        icon: Icons.message,
-        action: PurchaseOrderConstant);
-
-    _getSummaryData();
-  }
 
   DeliveryAcceptance deliveryAcceptance;
-  @override
-  onDeliveryAcceptance(DeliveryAcceptance da) {
-    prettyPrint(da.toJson(), '_DashboardState.onDeliveryAcceptance');
-    deliveryAcceptance = da;
-    var now = DateTime.now();
-    var date = DateTime.parse(da.date);
-    var difference = now.difference(date);
-    if (difference.inSeconds > 30) {
-      print(
-          'onDeliveryAcceptance-  IGNORED: older than 1 hours  --------bid done  ${difference.inHours} hours ago.');
-      return;
-    }
-    AppSnackbar.showSnackbarWithAction(
-        scaffoldKey: _scaffoldKey,
-        message: 'Delivery Note Accepted',
-        textColor: Colors.white,
-        backgroundColor: Colors.black,
-        actionLabel: 'OK',
-        listener: this,
-        icon: Icons.message,
-        action: DeliveryAcceptanceConstant);
-  }
 
   InvoiceAcceptance invoiceAcceptance;
-  @override
-  onInvoiceAcceptance(InvoiceAcceptance ia) {
-    prettyPrint(ia.toJson(), '_DashboardState.onInvoiceAcceptance');
-    invoiceAcceptance = ia;
-    var now = DateTime.now();
-    var date = DateTime.parse(ia.date);
-    var difference = now.difference(date);
-    if (difference.inSeconds > 30) {
-      print(
-          '_InvoiceListState.onInvoiceBid -  IGNORED: older than 1 hours  --------bid done  ${difference.inHours} hours ago.');
-      return;
-    }
-    AppSnackbar.showSnackbarWithAction(
-        scaffoldKey: _scaffoldKey,
-        message: 'Invoice Accepted',
-        textColor: Colors.lightGreen,
-        backgroundColor: Colors.black,
-        actionLabel: 'OK',
-        listener: this,
-        icon: Icons.message,
-        action: InvoiceAcceptedConstant);
-  }
 
   InvoiceBid invoiceBid;
 
@@ -532,13 +474,13 @@ class _DashboardState extends State<Dashboard>
   @override
   onInvoiceBidMessage(InvoiceBid invoiceBid) {
     _showSnack('Invoice Bid  arrived', Colors.lightBlue);
-    _getSummaryData();
+    _getSummaryData(true);
   }
 
   @override
   onPurchaseOrderMessage(PurchaseOrder purchaseOrder) {
     _showSnack('Purchase Order arrived', Colors.lime);
-    _getSummaryData();
+    _getSummaryData(true);
   }
 
   @override
@@ -564,7 +506,7 @@ class OfferSummaryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       elevation: elevation == null ? 16.0 : elevation,
-      color: Colors.brown.shade100,
+      color: Colors.pink.shade50,
       child: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Column(

@@ -73,18 +73,25 @@ class _MyHomePageState extends State<MyHomePage>
   }
 
   _getLists(bool showSnack) async {
-    if (showSnack) {
+    if (showSnack == true) {
       AppSnackbar.showSnackbarWithProgressIndicator(
           scaffoldKey: _scaffoldKey,
           message: 'Loading data for trades ...',
           textColor: Styles.white,
           backgroundColor: Styles.black);
     }
+
+    opacity = 1.0;
+    await _getMinutes();
+
     _orders = await ListAPI.getAutoTradeOrders();
     _profiles = await ListAPI.getInvestorProfiles();
     summary = await ListAPI.getOpenOffersSummary();
+
+    setState(() {
+      opacity = 0.0;
+    });
     _scaffoldKey.currentState.hideCurrentSnackBar();
-    await _getMinutes();
 
     if (_orders.isNotEmpty && _profiles.isNotEmpty) {
       _start();
@@ -180,6 +187,7 @@ class _MyHomePageState extends State<MyHomePage>
   List<InvoiceBid> bids = List();
 
   String time, count, amount;
+  double opacity = 0.0;
 
   void summarize() {
     double t = 0.00;
@@ -263,14 +271,14 @@ class _MyHomePageState extends State<MyHomePage>
   Widget _getBottom() {
     return PreferredSize(
       preferredSize: const Size.fromHeight(40.0),
-      child: new Column(
+      child: Column(
         children: <Widget>[
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              new Padding(
-                padding: const EdgeInsets.only(bottom: 20.0),
-                child: Text(
+          Padding(
+            padding: const EdgeInsets.only(bottom: 20.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Text(
                   'OneConnect - BFN',
                   style: TextStyle(
                     color: Colors.white,
@@ -278,8 +286,21 @@ class _MyHomePageState extends State<MyHomePage>
                     fontSize: 18.0,
                   ),
                 ),
-              )
-            ],
+                Opacity(
+                  opacity: opacity,
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Container(
+                      width: 12.0,
+                      height: 12.0,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 4.0,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -299,8 +320,14 @@ class _MyHomePageState extends State<MyHomePage>
       appBar: AppBar(
         title: Text(
           'BFN Monitor',
-          style: Styles.whiteSmall,
+          style: Styles.whiteBoldMedium,
         ),
+        leading: IconButton(
+            icon: Icon(
+              Icons.apps,
+              color: Colors.white,
+            ),
+            onPressed: null),
         bottom: _getBottom(),
         actions: <Widget>[
           IconButton(

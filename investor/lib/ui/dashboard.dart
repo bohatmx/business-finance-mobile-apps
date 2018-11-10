@@ -15,6 +15,7 @@ import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/sector.dart';
 import 'package:businesslibrary/data/user.dart';
+import 'package:businesslibrary/util/FCM.dart';
 import 'package:businesslibrary/util/database.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
@@ -25,7 +26,6 @@ import 'package:businesslibrary/util/wallet_page.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:investor/ui/firestore_listener.dart';
 import 'package:investor/ui/offer_list.dart';
 import 'package:investor/ui/offers_and_bids.dart';
 import 'package:investor/ui/profile.dart';
@@ -43,7 +43,7 @@ class Dashboard extends StatefulWidget {
 
 class _DashboardState extends State<Dashboard>
     with TickerProviderStateMixin, WidgetsBindingObserver
-    implements SnackBarListener, OfferListener, BidListener, FCMListener {
+    implements SnackBarListener, InvoiceBidListener, OfferListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   static const platform = const MethodChannel('com.oneconnect.biz.CHANNEL');
   final FirebaseMessaging _firebaseMessaging = new FirebaseMessaging();
@@ -89,9 +89,9 @@ class _DashboardState extends State<Dashboard>
   }
 
   void _subscribeToFCM() {
-    configureMessaging(this);
-    _firebaseMessaging.subscribeToTopic('invoiceBids');
-    _firebaseMessaging.subscribeToTopic('offers');
+    FCM.configureFCM(invoiceBidListener: this, offerListener: this);
+    _firebaseMessaging.subscribeToTopic(FCM.TOPIC_INVOICE_BIDS);
+    _firebaseMessaging.subscribeToTopic(FCM.TOPIC_OFFERS);
     print('_DashboardState._subscribeToFCM ########## subscribed!');
   }
 
@@ -139,6 +139,7 @@ class _DashboardState extends State<Dashboard>
     }
     summaryBusy = false;
     setState(() {});
+
     _getDetailData();
   }
 
@@ -228,12 +229,12 @@ class _DashboardState extends State<Dashboard>
                   new InkWell(
                     onTap: _onOffersTapped,
                     child: SummaryCard(
-                      total: dashboardData.totalOpenOffers == null
+                      total: dashboardData == null
                           ? 0
                           : dashboardData.totalOpenOffers,
                       label: 'Open Invoice Offers',
                       totalStyle: Styles.pinkBoldMedium,
-                      totalValue: dashboardData.totalOpenOfferAmount == null
+                      totalValue: dashboardData == null
                           ? 0.00
                           : dashboardData.totalOpenOfferAmount,
                     ),
@@ -397,89 +398,34 @@ class _DashboardState extends State<Dashboard>
     );
   }
 
-  final bigLabel = TextStyle(
-    fontWeight: FontWeight.w900,
-    fontSize: 20.0,
-    color: Colors.grey,
-  );
-  final smallLabel = TextStyle(
-    fontWeight: FontWeight.bold,
-    fontSize: 14.0,
-    color: Colors.grey,
-  );
-  final totalStyle = TextStyle(
-    fontWeight: FontWeight.w900,
-    fontSize: 20.0,
-    color: Colors.pink,
-  );
-  final totalStyleBlack = TextStyle(
-    fontWeight: FontWeight.w900,
-    fontSize: 20.0,
-    color: Colors.black,
-  );
-  final totalStyleTeal = TextStyle(
-    fontWeight: FontWeight.w900,
-    fontSize: 28.0,
-    color: Colors.teal,
-  );
-
-  @override
-  onInvoiceBid(InvoiceBid bid) async {
-    print(
-        '\n\n_DashboardState.onInvoiceBid +++++++++++++ arrived safely. Bueno Senor!......... ${bid.investorName} ${bid.amount}\n\n');
-
-    invoiceBids.insert(0, bid);
-    setState(() {});
-    await _getOffers();
-    print('_DashboardState.onInvoiceBidMessage ############ ${offers.length}');
-    setState(() {});
-  }
-
-  @override
-  onOfferMessage(Offer offer) {
-    print('_DashboardState.onOfferMessage');
-    prettyPrint(offer.toJson(), 'OFFER arrived via FCM');
-  }
-
   @override
   onInvoiceBidMessage(invoiceBid) async {
     print('\n\n_DashboardState.onInvoiceBidMessage \n${invoiceBid.toJson()}');
-    invoiceBids.insert(0, invoiceBid);
-    setState(() {});
-    await _getOffers();
+    await _getSummaryData();
     print('_DashboardState.onInvoiceBidMessage ############ ${offers.length}');
     setState(() {});
+    _showSnack(
+        'Invoice Bid made: ${getFormattedAmount('${invoiceBid.amount}', context)}');
   }
-
-//  int totalInvoiceBids, totalOffers, totalNotes, totalPayments;
-//  double totalInvoiceBidAmount = 0.00;
-  final invoiceStyle = TextStyle(
-    fontWeight: FontWeight.w900,
-    fontSize: 28.0,
-    color: Colors.pink,
-  );
-  final poStyle = TextStyle(
-    fontWeight: FontWeight.w900,
-    fontSize: 28.0,
-    color: Colors.black,
-  );
-  final delNoteStyle = TextStyle(
-    fontWeight: FontWeight.w900,
-    fontSize: 28.0,
-    color: Colors.blue,
-  );
-  final paymentStyle = TextStyle(
-    fontWeight: FontWeight.w900,
-    fontSize: 28.0,
-    color: Colors.teal,
-  );
 
   double opacity = 1.0;
   String name;
 
   @override
-  onHeartbeat(Map map) {
-    // TODO: implement onHeartbeat
+  onOfferMessage(Offer offer) async {
+    print('_DashboardState.onOfferMessage ${offer.toJson()}');
+    await _getSummaryData();
+    setState(() {});
+    _showSnack(
+        'Offer arrived ${getFormattedAmount('${offer.offerAmount}', context)}');
+  }
+
+  void _showSnack(String message) {
+    AppSnackbar.showSnackbar(
+        scaffoldKey: _scaffoldKey,
+        message: message,
+        textColor: Styles.white,
+        backgroundColor: Theme.of(context).primaryColor);
   }
 }
 
@@ -494,19 +440,17 @@ class InvestorSummaryCard extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
         Container(
-          width: 100.0,
+          width: 70.0,
           child: Text(
-            'Bids',
+            '# Bids',
             style: Styles.greyLabelSmall,
           ),
         ),
         Padding(
           padding: const EdgeInsets.only(left: 10.0),
           child: Text(
-            dashboardData.totalBids == null
-                ? '0'
-                : '${dashboardData.totalBids}',
-            style: Styles.blackBoldLarge,
+            dashboardData == null ? '0' : '${dashboardData.totalBids}',
+            style: Styles.blackBoldMedium,
           ),
         ),
       ],
@@ -519,7 +463,7 @@ class InvestorSummaryCard extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
         Container(
-          width: 100.0,
+          width: 70.0,
           child: Text(
             'Total Bids',
             style: Styles.greyLabelSmall,
@@ -528,7 +472,7 @@ class InvestorSummaryCard extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.only(left: 10.0, right: 10.0),
           child: Text(
-            dashboardData.totalBidAmount == null
+            dashboardData == null
                 ? '0.00'
                 : '${getFormattedAmount('${dashboardData.totalBidAmount}', context)}',
             style: Styles.blackBoldLarge,
@@ -553,14 +497,22 @@ class InvestorSummaryCard extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.only(left: 10.0, right: 10.0),
           child: Text(
-            dashboardData.averageDiscountPerc == null
-                ? '0'
-                : '${'${dashboardData.averageDiscountPerc}'}%',
+            dashboardData == null ? '0.0%' : _getAvgDiscount(),
             style: Styles.purpleMedium,
           ),
         ),
       ],
     );
+  }
+
+  String _getAvgDiscount() {
+    if (dashboardData == null) {
+      return '0.0%';
+    }
+    if (dashboardData.averageDiscountPerc == null) {
+      return '0.0%';
+    }
+    return dashboardData.averageDiscountPerc.toStringAsFixed(2) + '%';
   }
 
   Widget _getAverageBidAmount() {
@@ -578,7 +530,7 @@ class InvestorSummaryCard extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.only(left: 10.0, right: 10.0),
           child: Text(
-            dashboardData.averageBidAmount == null
+            dashboardData == null
                 ? '0'
                 : '${getFormattedAmount('${dashboardData.averageBidAmount}', context)}',
             style: Styles.blackMedium,
@@ -613,7 +565,8 @@ class InvestorSummaryCard extends StatelessWidget {
               child: _getTotalBids(),
             ),
             Padding(
-              padding: const EdgeInsets.only(top: 10.0, left: 20.0),
+              padding:
+                  const EdgeInsets.only(top: 10.0, left: 20.0, bottom: 20.0),
               child: _getTotalBidValue(),
             ),
             Padding(

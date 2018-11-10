@@ -497,13 +497,17 @@ String getFormattedNumber(int number, BuildContext context) {
 }
 
 String getFormattedAmount(String amount, BuildContext context) {
+  assert(amount != null);
   Locale myLocale = Localizations.localeOf(context);
   var val = myLocale.languageCode + '_' + myLocale.countryCode;
   //print('getFormattedAmount ----------- locale is  $val');
   final oCcy = new NumberFormat("#,##0.00", val);
-  double m = double.parse(amount);
-
-  return oCcy.format(m);
+  try {
+    double m = double.parse(amount);
+    return oCcy.format(m);
+  } catch (e) {
+    return amount;
+  }
 }
 
 prettyPrint(Map map, String name) {
