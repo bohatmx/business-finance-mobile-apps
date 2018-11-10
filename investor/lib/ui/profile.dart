@@ -41,11 +41,11 @@ class _ProfilePageState extends State<ProfilePage> implements SnackBarListener {
   void _getCachedData() async {
     print('_ProfilePageState._getCachedData ................................');
     investor = await SharedPrefs.getInvestor();
+    autoTradeOrder = await SharedPrefs.getAutoTradeOrder();
     assert(investor != null);
     setState(() {});
     profile = await SharedPrefs.getInvestorProfile();
-    order = await SharedPrefs.getAutoTradeOrder();
-    if (profile == null || order == null) {
+    if (profile == null || autoTradeOrder == null) {
       print('_ProfilePageState._getCachedData profile == null');
       await _getProfileFromFirestore();
     } else {
@@ -90,7 +90,11 @@ class _ProfilePageState extends State<ProfilePage> implements SnackBarListener {
     }
   }
 
+  AutoTradeOrder autoTradeOrder;
   _showAutoTradeDialog() async {
+    if (autoTradeOrder != null) {
+      return;
+    }
     showDialog(
         context: context,
         builder: (_) => new AlertDialog(
@@ -340,20 +344,38 @@ class _ProfilePageState extends State<ProfilePage> implements SnackBarListener {
           ],
         ),
         Padding(
-          padding: const EdgeInsets.all(28.0),
+          padding: const EdgeInsets.only(top: 20.0, left: 30.0, right: 30.0),
           child: RaisedButton(
             onPressed: _onSubmit,
-            elevation: 16.0,
-            color: _setColor(),
+            elevation: 8.0,
+            color: Colors.indigo.shade300,
             child: Padding(
               padding: const EdgeInsets.all(10.0),
               child: Text(
                 _setButton(),
-                style: Styles.whiteMedium,
+                style: Styles.whiteSmall,
               ),
             ),
           ),
         ),
+        autoTradeOrder == null
+            ? Padding(
+                padding: const EdgeInsets.only(
+                    bottom: 20.0, left: 30.0, right: 30.0, top: 10.0),
+                child: RaisedButton(
+                  onPressed: _onSubmit,
+                  elevation: 8.0,
+                  color: Colors.indigo.shade300,
+                  child: Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Text(
+                      'Add Auto Trade Order',
+                      style: Styles.whiteSmall,
+                    ),
+                  ),
+                ),
+              )
+            : Container(),
       ],
     );
   }
@@ -389,7 +411,7 @@ class _ProfilePageState extends State<ProfilePage> implements SnackBarListener {
         textColor: Styles.white,
         backgroundColor: Styles.black);
     profile = await ListAPI.getInvestorProfile(investor.participantId);
-    order = await ListAPI.getAutoTradeOrder(investor.participantId);
+    autoTradeOrder = await ListAPI.getAutoTradeOrder(investor.participantId);
     _scaffoldKey.currentState.removeCurrentSnackBar();
 
     if (profile != null) {

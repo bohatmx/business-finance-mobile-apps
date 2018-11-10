@@ -1532,13 +1532,12 @@ class ListAPI {
     return list;
   }
 
-  static Future<InvestorProfile> getInvestorProfile(
-      String participantId) async {
+  static Future<InvestorProfile> getInvestorProfile(String investorId) async {
     InvestorProfile profile;
     var qs = await _firestore
         .collection('investorProfiles')
         .where('investor',
-            isEqualTo: 'resource:com.oneconnect.biz.Investor#$participantId')
+            isEqualTo: 'resource:com.oneconnect.biz.Investor#$investorId')
         .getDocuments()
         .catchError((e) {
       print('ListAPI.getInvestorProfiles $e');
