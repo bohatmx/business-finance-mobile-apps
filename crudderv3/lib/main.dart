@@ -1124,9 +1124,8 @@ class _MyHomePageState extends State<MyHomePage>
   @override
   onError(String message) {
     print(message);
-    prefSize = 400.0;
+    msgList.add(message);
     setState(() {
-      weHaveMELTDOWN = true;
       this.message = message;
     });
   }
