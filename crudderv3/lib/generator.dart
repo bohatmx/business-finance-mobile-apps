@@ -51,12 +51,14 @@ class Generator {
   }
 
   static Future generateOffers(GenListener listener, BuildContext ctx) async {
-    listener.onEvent('## Making mass offers ...', false);
+    listener.onEvent(
+        '## Checking if accepted invoices need offers generated ...', false);
     suppliers = await ListAPI.getSuppliers();
     sectors = await ListAPI.getSectors();
     genListener = listener;
     context = ctx;
-
+    index = 0;
+    offers = List();
     for (var supplier in suppliers) {
       invoices =
           await ListAPI.getInvoices(supplier.documentReference, 'suppliers');

@@ -237,6 +237,7 @@ class _DashboardState extends State<Dashboard>
                       totalValue: dashboardData == null
                           ? 0.00
                           : dashboardData.totalOpenOfferAmount,
+                      totalValueStyle: Styles.tealBoldSmall,
                     ),
                   ),
                   new InkWell(

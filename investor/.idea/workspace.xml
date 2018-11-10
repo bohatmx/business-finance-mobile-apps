@@ -1,24 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="b840dc6a-331e-46d9-b624-92fa4c1707ed" name="Default" comment="investor ui tweaks">
-      <change afterPath="$PROJECT_DIR$/../monitor/ios/Runner/GoogleService-Info.plist" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/util/lookups.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/util/lookups.dart" afterDir="false" />
+    <list default="true" id="b840dc6a-331e-46d9-b624-92fa4c1707ed" name="Default" comment="fixed auto trade messaging - cool shit!">
+      <change beforePath="$PROJECT_DIR$/../crudderv3/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../crudderv3/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../crudderv3/lib/generator.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../crudderv3/lib/generator.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../crudderv3/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../crudderv3/lib/main.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/investor.iml" beforeDir="false" afterPath="$PROJECT_DIR$/investor.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ios/Runner.xcodeproj/project.pbxproj" beforeDir="false" afterPath="$PROJECT_DIR$/ios/Runner.xcodeproj/project.pbxproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ios/Runner.xcworkspace/contents.xcworkspacedata" beforeDir="false" afterPath="$PROJECT_DIR$/ios/Runner.xcworkspace/contents.xcworkspacedata" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/ui/dashboard.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/ui/dashboard.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/ui/firestore_listener.dart" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/../monitor/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../monitor/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../monitor/ios/Podfile" beforeDir="false" afterPath="$PROJECT_DIR$/../monitor/ios/Podfile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../monitor/ios/Runner.xcodeproj/project.pbxproj" beforeDir="false" afterPath="$PROJECT_DIR$/../monitor/ios/Runner.xcodeproj/project.pbxproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../monitor/ios/Runner.xcworkspace/contents.xcworkspacedata" beforeDir="false" afterPath="$PROJECT_DIR$/../monitor/ios/Runner.xcworkspace/contents.xcworkspacedata" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../monitor/ios/Runner/AppDelegate.swift" beforeDir="false" afterPath="$PROJECT_DIR$/../monitor/ios/Runner/AppDelegate.swift" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../monitor/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../monitor/lib/main.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../monitor/monitor.iml" beforeDir="false" afterPath="$PROJECT_DIR$/../monitor/monitor.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../supplierv3/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../supplierv3/lib/ui/dashboard.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/lib/ui/dashboard.dart" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -92,9 +82,9 @@
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="dart" value="26842" />
+          <entry key="dart" value="26856" />
           <entry key="gradle" value="1" />
-          <entry key="txt" value="671" />
+          <entry key="txt" value="710" />
           <entry key="yaml" value="6" />
         </counts>
       </usages-collector>
@@ -108,9 +98,9 @@
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="Dart" value="26842" />
+          <entry key="Dart" value="26856" />
           <entry key="Groovy" value="1" />
-          <entry key="PLAIN_TEXT" value="671" />
+          <entry key="PLAIN_TEXT" value="710" />
           <entry key="YAML" value="6" />
         </counts>
       </usages-collector>
@@ -122,8 +112,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/lib/ui/dashboard.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="45">
-              <caret line="300" lean-forward="true" selection-start-line="300" selection-end-line="300" />
+            <state relative-caret-position="405">
+              <caret line="239" column="59" selection-start-line="239" selection-start-column="59" selection-end-line="239" selection-end-column="59" />
               <folding>
                 <element signature="n#!!block;n#Dashboard#0" />
                 <element signature="e#1838#1855#0" />
@@ -132,25 +122,21 @@
                 <element signature="e#2965#2987#0" />
                 <element signature="e#4137#4952#0" expanded="true" />
                 <element signature="e#5237#5508#0" expanded="true" />
-                <element signature="e#5807#8536#0" />
                 <element signature="e#6301#6309#0" />
                 <element signature="e#6806#6814#0" />
                 <element signature="e#6816#6842#0" />
-                <element signature="e#7203#8496#0" />
                 <element signature="e#7249#7284#0" />
                 <element signature="e#7343#7351#0" />
-                <element signature="e#7382#7912#0" />
                 <element signature="e#7943#8085#0" />
                 <element signature="e#8116#8445#0" />
                 <element signature="e#8683#8855#0" />
                 <element signature="e#8731#8854#0" />
                 <element signature="e#9266#9305#0" />
                 <element signature="e#9625#9668#0" />
+                <element signature="e#9704#10389#0" expanded="true" />
                 <element signature="e#9774#9780#0" />
-                <element signature="e#9805#10377#0" />
                 <element signature="e#9825#9833#0" />
                 <element signature="e#9929#9937#0" />
-                <element signature="e#9964#10330#0" />
                 <element signature="e#10012#10026#0" />
                 <element signature="e#10512#10737#0" expanded="true" />
                 <element signature="e#10874#10913#0" />
@@ -382,9 +368,8 @@
   </component>
   <component name="ProjectFrameBounds" extendedState="6" fullScreen="true">
     <option name="x" value="1440" />
-    <option name="y" value="23" />
     <option name="width" value="1920" />
-    <option name="height" value="1005" />
+    <option name="height" value="1080" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true">
     <ConfirmationsSetting value="2" id="Add" />
@@ -430,7 +415,7 @@
   </component>
   <component name="PropertiesComponent">
     <property name="android.sdk.path" value="$USER_HOME$/Library/Android/sdk" />
-    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1541825120178" />
+    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1541844596000" />
     <property name="dart.analysis.tool.window.force.activate" value="false" />
     <property name="io.flutter.reload.alreadyRun" value="true" />
     <property name="settings.editor.selected.configurable" value="flutter.settings" />
@@ -714,7 +699,14 @@
       <option name="project" value="LOCAL" />
       <updated>1541788398463</updated>
     </task>
-    <option name="localTasksCounter" value="33" />
+    <task id="LOCAL-00033" summary="fixed auto trade messaging - cool shit!">
+      <created>1541828344190</created>
+      <option name="number" value="00033" />
+      <option name="presentableId" value="LOCAL-00033" />
+      <option name="project" value="LOCAL" />
+      <updated>1541828344190</updated>
+    </task>
+    <option name="localTasksCounter" value="34" />
     <servers />
   </component>
   <component name="TodoView">
@@ -770,7 +762,6 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="upgraded flutter" />
     <MESSAGE value="added investor profile ui" />
     <MESSAGE value="added supplier selection ui" />
     <MESSAGE value="added auto trade order + ui" />
@@ -795,7 +786,8 @@
     <MESSAGE value="paging ui refactored" />
     <MESSAGE value="shutdown for the morning. things looking sweet!" />
     <MESSAGE value="investor ui tweaks" />
-    <option name="LAST_COMMIT_MESSAGE" value="investor ui tweaks" />
+    <MESSAGE value="fixed auto trade messaging - cool shit!" />
+    <option name="LAST_COMMIT_MESSAGE" value="fixed auto trade messaging - cool shit!" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -923,7 +915,13 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/../businesslibrary/lib/api/data_api3.dart">
-      <provider selected="true" editor-type-id="text-editor" />
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <folding>
+            <element signature="e#0#20#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/../businesslibrary/lib/data/invoice_acceptance.dart">
       <provider selected="true" editor-type-id="text-editor">
@@ -1072,6 +1070,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="192">
           <caret line="23" column="16" selection-start-line="23" selection-start-column="16" selection-end-line="23" selection-end-column="16" />
+          <folding>
+            <element signature="e#0#51#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -1089,6 +1090,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1008">
           <caret line="489" column="18" selection-start-line="489" selection-start-column="18" selection-end-line="489" selection-end-column="18" />
+          <folding>
+            <element signature="n#!!block;n#OfferListCard#0" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -1103,6 +1107,10 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="417">
           <caret line="332" column="40" selection-start-line="332" selection-start-column="40" selection-end-line="332" selection-end-column="40" />
+          <folding>
+            <element signature="e#1493#2372#0" expanded="true" />
+            <element signature="e#5144#7078#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -1195,8 +1203,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/lib/ui/dashboard.dart">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="45">
-          <caret line="300" lean-forward="true" selection-start-line="300" selection-end-line="300" />
+        <state relative-caret-position="405">
+          <caret line="239" column="59" selection-start-line="239" selection-start-column="59" selection-end-line="239" selection-end-column="59" />
           <folding>
             <element signature="n#!!block;n#Dashboard#0" />
             <element signature="e#1838#1855#0" />
@@ -1205,25 +1213,21 @@
             <element signature="e#2965#2987#0" />
             <element signature="e#4137#4952#0" expanded="true" />
             <element signature="e#5237#5508#0" expanded="true" />
-            <element signature="e#5807#8536#0" />
             <element signature="e#6301#6309#0" />
             <element signature="e#6806#6814#0" />
             <element signature="e#6816#6842#0" />
-            <element signature="e#7203#8496#0" />
             <element signature="e#7249#7284#0" />
             <element signature="e#7343#7351#0" />
-            <element signature="e#7382#7912#0" />
             <element signature="e#7943#8085#0" />
             <element signature="e#8116#8445#0" />
             <element signature="e#8683#8855#0" />
             <element signature="e#8731#8854#0" />
             <element signature="e#9266#9305#0" />
             <element signature="e#9625#9668#0" />
+            <element signature="e#9704#10389#0" expanded="true" />
             <element signature="e#9774#9780#0" />
-            <element signature="e#9805#10377#0" />
             <element signature="e#9825#9833#0" />
             <element signature="e#9929#9937#0" />
-            <element signature="e#9964#10330#0" />
             <element signature="e#10012#10026#0" />
             <element signature="e#10512#10737#0" expanded="true" />
             <element signature="e#10874#10913#0" />

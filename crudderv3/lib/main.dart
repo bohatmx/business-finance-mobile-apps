@@ -158,7 +158,6 @@ class _MyHomePageState extends State<MyHomePage>
   }
 
   void _generateWorkingData() async {
-//    await Generator.generateOffers(this, context);
     if (isBusy) {
       AppSnackbar.showSnackbar(
           scaffoldKey: _scaffoldKey,
@@ -167,10 +166,16 @@ class _MyHomePageState extends State<MyHomePage>
           backgroundColor: Styles.black);
       return;
     }
+
     isBusy = true;
-    _phaseCounter = 0;
+    setState(() {
+      recordCounter = 0;
+      _phaseCounter = 0;
+      msgList.clear();
+    });
 
     var start = DateTime.now();
+    await Generator.generateOffers(this, context);
     await Generator.generate(this, context);
 
     isBusy = false;
@@ -562,17 +567,33 @@ class _MyHomePageState extends State<MyHomePage>
   ScrollController controller1 = ScrollController();
   bool weHaveMELTDOWN = false;
   double prefSize = 200.0;
-  @override
-  Widget build(BuildContext context) {
-    return new Scaffold(
-        key: _scaffoldKey,
-        appBar: AppBar(
-          title: Text('BFN Demo Data Generator'),
-          bottom: PreferredSize(
-            preferredSize: Size.fromHeight(prefSize),
-            child: Column(
-              children: <Widget>[
-                Padding(
+
+  Widget _getBottom() {
+    return PreferredSize(
+      preferredSize: Size.fromHeight(prefSize),
+      child: Column(
+        children: <Widget>[
+          weHaveMELTDOWN == false
+              ? Container()
+              : Padding(
+                  padding:
+                      const EdgeInsets.only(left: 8.0, bottom: 20.0, top: 20.0),
+                  child: Container(
+                    color: Colors.pink.shade800,
+                    child: Padding(
+                      padding: const EdgeInsets.only(
+                          left: 20.0, right: 20.0, top: 20.0, bottom: 20.0),
+                      child: Text(
+                          message == null
+                              ? 'Testing the error message\nTesting the error message\nTesting the error message\nTesting the error message\nTesting the error message\nweHaveMELTDOWN == true\nweHaveMELTDOWN == true\nweHaveMELTDOWN == true\n'
+                              : message,
+                          style: Styles.whiteSmall),
+                    ),
+                  ),
+                ),
+          weHaveMELTDOWN == true
+              ? Container()
+              : Padding(
                   padding: const EdgeInsets.only(left: 44.0, bottom: 12.0),
                   child: Row(
                     children: <Widget>[
@@ -591,7 +612,9 @@ class _MyHomePageState extends State<MyHomePage>
                     ],
                   ),
                 ),
-                Padding(
+          weHaveMELTDOWN == true
+              ? Container()
+              : Padding(
                   padding: const EdgeInsets.only(left: 10.0),
                   child: RaisedButton(
                     onPressed: _chooseMode,
@@ -606,32 +629,21 @@ class _MyHomePageState extends State<MyHomePage>
                     ),
                   ),
                 ),
-                _getPhaseMessage(),
-                _getErrorView(),
-              ],
-            ),
-          ),
-        ),
-        body: _getListView());
-  }
-
-  Widget _getErrorView() {
-    if (!weHaveMELTDOWN) {
-      return Container();
-    }
-    setState(() {
-      prefSize = 400.0;
-    });
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Container(
-        color: Colors.pink.shade800,
-        child: Padding(
-          padding: const EdgeInsets.only(left: 20.0, right: 20.0, top: 20.0),
-          child: Text(message, style: Styles.whiteSmall),
-        ),
+          _getPhaseMessage(),
+        ],
       ),
     );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return new Scaffold(
+        key: _scaffoldKey,
+        appBar: AppBar(
+          title: Text('BFN Demo Data Generator'),
+          bottom: _getBottom(),
+        ),
+        body: _getListView());
   }
 
   String message;
@@ -1101,7 +1113,6 @@ class _MyHomePageState extends State<MyHomePage>
   onPhaseComplete() {
     setState(() {
       _phaseCounter++;
-      msgList.add('');
     });
   }
 
