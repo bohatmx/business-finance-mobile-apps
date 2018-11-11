@@ -203,7 +203,7 @@ class _DashboardState extends State<Dashboard>
                 padding: const EdgeInsets.only(bottom: 20.0),
                 child: Text(
                   name == null ? 'Organisation' : name,
-                  style: Styles.whiteBoldMedium,
+                  style: Styles.whiteBoldSmall,
                 ),
               )
             ],

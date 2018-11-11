@@ -377,26 +377,26 @@ class _ContractPageState extends State<ContractPage>
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
-        title: Text(title == null ? '' : title),
+        title: Text(
+          title == null ? '' : title,
+          style: Styles.whiteBoldMedium,
+        ),
         elevation: 16.0,
         bottom: PreferredSize(
             child: Column(
               children: <Widget>[
                 Padding(
-                  padding: const EdgeInsets.only(bottom: 18.0),
+                  padding: const EdgeInsets.only(bottom: 10.0),
                   child: Text(
                     supplier == null ? '' : supplier.name,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 20.0,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: Styles.whiteSmall,
                   ),
                 ),
               ],
             ),
-            preferredSize: Size.fromHeight(80.0)),
+            preferredSize: Size.fromHeight(20.0)),
       ),
+      backgroundColor: Colors.brown.shade100,
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Card(
@@ -414,12 +414,8 @@ class _ContractPageState extends State<ContractPage>
                       hint: Padding(
                         padding: const EdgeInsets.all(0.0),
                         child: Text(
-                          'Government Entity',
-                          style: TextStyle(
-                            fontSize: 24.0,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.blue,
-                          ),
+                          'Customer',
+                          style: Styles.blackBoldMedium,
                         ),
                       ),
                     ),
@@ -429,8 +425,10 @@ class _ContractPageState extends State<ContractPage>
                     child: FlatButton(
                       onPressed: _createDummy,
                       child: Text(
-                        'Upload dummy contracts for Dev',
-                        style: TextStyle(color: Colors.pink, fontSize: 20.0),
+                        isInDebugMode == true
+                            ? 'Upload dummy contracts for Dev'
+                            : '',
+                        style: Styles.blackSmall,
                       ),
                     ),
                   ),
@@ -438,14 +436,11 @@ class _ContractPageState extends State<ContractPage>
                     padding: const EdgeInsets.only(top: 10.0, bottom: 10.0),
                     child: Text(
                       entity == null ? '' : entity.name,
-                      style: TextStyle(
-                        fontSize: 24.0,
-                        fontWeight: FontWeight.w900,
-                      ),
+                      style: Styles.blackBoldMedium,
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.only(bottom: 16.0),
+                    padding: const EdgeInsets.only(bottom: 10.0),
                     child: Row(
                       children: <Widget>[
                         Container(
@@ -456,10 +451,7 @@ class _ContractPageState extends State<ContractPage>
                             color: Theme.of(context).primaryColor,
                             child: Text(
                               'Start Date',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 14.0,
-                              ),
+                              style: Styles.whiteSmall,
                             ),
                           ),
                         ),
@@ -469,11 +461,7 @@ class _ContractPageState extends State<ContractPage>
                             startTime == null
                                 ? ''
                                 : getFormattedDate(startTime.toIso8601String()),
-                            style: TextStyle(
-                              fontSize: 20.0,
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                            ),
+                            style: Styles.blackSmall,
                           ),
                         ),
                       ],
@@ -489,10 +477,7 @@ class _ContractPageState extends State<ContractPage>
                           color: Theme.of(context).primaryColor,
                           child: Text(
                             'End Date',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 14.0,
-                            ),
+                            style: Styles.whiteSmall,
                           ),
                         ),
                       ),
@@ -502,22 +487,15 @@ class _ContractPageState extends State<ContractPage>
                           endTime == null
                               ? ''
                               : getFormattedDate(endTime.toIso8601String()),
-                          style: TextStyle(
-                            fontSize: 20.0,
-                            color: Colors.pink,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: Styles.pinkBoldSmall,
                         ),
                       ),
                     ],
                   ),
                   Padding(
-                    padding: const EdgeInsets.only(top: 18.0),
+                    padding: const EdgeInsets.only(top: 0.0),
                     child: TextField(
-                      style: TextStyle(
-                          color: Colors.teal,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 28.0),
+                      style: Styles.tealBoldMedium,
                       decoration: InputDecoration(
                         labelText: 'Contract Value',
                         hintText: 'Enter Contract Value',
@@ -529,46 +507,38 @@ class _ContractPageState extends State<ContractPage>
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.only(top: 18.0),
-                    child: Container(
-                      width: 400.0,
-                      child: DropdownButton<String>(
-                        items: fileItems,
-                        onChanged: _onFileTapped,
-                        elevation: 16,
-                        hint: Text(
-                          'Contract PDF',
-                          style: TextStyle(
-                            fontSize: 24.0,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.blue,
-                          ),
-                        ),
+                    padding: const EdgeInsets.only(top: 10.0),
+                    child: DropdownButton<String>(
+                      items: fileItems,
+                      onChanged: _onFileTapped,
+                      elevation: 16,
+                      hint: Text(
+                        'Contract PDF',
+                        style: Styles.blueBoldMedium,
                       ),
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8.0, bottom: 30.0),
-                    child: Text(
-                      fileName == null ? 'File not selected yet' : fileName,
-                      style: TextStyle(
-                          fontSize: 16.0, fontWeight: FontWeight.bold),
+                  Container(
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 8.0, bottom: 10.0),
+                      child: Text(
+                        fileName == null ? 'File not selected yet' : fileName,
+                        style: Styles.blackSmall,
+                      ),
                     ),
                   ),
                   Opacity(
                     opacity: opacity,
                     child: RaisedButton(
-                      elevation: 8.0,
+                      elevation: 16.0,
                       onPressed: _confirm,
                       color: Colors.pink,
                       child: Padding(
-                        padding: const EdgeInsets.all(12.0),
+                        padding: const EdgeInsets.only(
+                            left: 20, right: 20.0, bottom: 20.0, top: 20.0),
                         child: Text(
                           'Upload Contract',
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 18.0,
-                              fontWeight: FontWeight.bold),
+                          style: Styles.whiteSmall,
                         ),
                       ),
                     ),
@@ -585,7 +555,7 @@ class _ContractPageState extends State<ContractPage>
   void setTitle() {
     contract = widget.contract;
     if (widget.contract == null) {
-      title = 'Upload New Contract';
+      title = 'Upload Contract Document';
     } else {
       title = 'Edit Existing Contract';
     }

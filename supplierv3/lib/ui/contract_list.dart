@@ -4,6 +4,7 @@ import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/supplier_contract.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/lookups.dart';
+import 'package:businesslibrary/util/styles.dart';
 import 'package:flutter/material.dart';
 import 'package:supplierv3/ui/contract_page.dart';
 
@@ -106,7 +107,10 @@ class _ContractListState extends State<ContractList> {
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
-        title: Text('Supplier  Contracts'),
+        title: Text(
+          'Contracts',
+          style: Styles.whiteBoldMedium,
+        ),
         bottom: PreferredSize(
             child: Padding(
               padding: const EdgeInsets.all(20.0),
@@ -114,11 +118,7 @@ class _ContractListState extends State<ContractList> {
                 children: <Widget>[
                   Text(
                     supplier == null ? '' : supplier.name,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w900,
-                      fontSize: 20.0,
-                    ),
+                    style: Styles.whiteSmall,
                   ),
                   Padding(
                     padding: const EdgeInsets.only(left: 20.0, top: 20.0),
@@ -132,7 +132,7 @@ class _ContractListState extends State<ContractList> {
                           padding: const EdgeInsets.only(left: 10.0),
                           child: Text(
                             totalValue == null ? '0.00' : totalValue,
-                            style: getBoldWhiteText(),
+                            style: Styles.whiteBoldMedium,
                           ),
                         ),
                       ],
@@ -153,30 +153,26 @@ class _ContractListState extends State<ContractList> {
           ),
         ],
       ),
+      backgroundColor: Colors.brown.shade100,
       body: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Card(
-          elevation: 4.0,
-          child: new Column(
-            children: <Widget>[
-              new Flexible(
-                child: new ListView.builder(
-                    itemCount: contracts == null ? 0 : contracts.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      return new InkWell(
-                        onTap: () {
-                          _confirm(contracts.elementAt(index));
-                        },
-                        child: SupplierContractCard(
-                          supplierContract: contracts.elementAt(index),
-                          context: context,
-                        ),
-                      );
-                    }),
-              ),
-            ],
-          ),
-        ),
+        padding: const EdgeInsets.all(4.0),
+        child: new ListView.builder(
+            itemCount: contracts == null ? 0 : contracts.length,
+            itemBuilder: (BuildContext context, int index) {
+              return new InkWell(
+                onTap: () {
+                  _confirm(contracts.elementAt(index));
+                },
+                child: Padding(
+                  padding:
+                      const EdgeInsets.only(left: 10.0, right: 10.0, top: 5.0),
+                  child: SupplierContractCard(
+                    supplierContract: contracts.elementAt(index),
+                    context: context,
+                  ),
+                ),
+              );
+            }),
       ),
     );
   }
@@ -205,86 +201,72 @@ class SupplierContractCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     amount = _getFormattedAmt();
-    return Padding(
-      padding: const EdgeInsets.all(10.0),
-      child: Card(
-        elevation: 3.0,
-        color: Colors.indigo.shade50,
-        child: Column(
-          children: <Widget>[
-            Row(
+    return Card(
+      elevation: 2.0,
+      color: Colors.indigo.shade50,
+      child: Column(
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.only(left: 20.0, top: 20.0, bottom: 10.0),
+            child: Row(
               children: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Icon(Icons.event),
-                ),
                 Text(
                   getFormattedDateLong(supplierContract.date, context),
-                  style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 16.0,
-                      fontWeight: FontWeight.normal),
+                  style: Styles.blackSmall,
                 ),
               ],
             ),
-            Padding(
-              padding: const EdgeInsets.only(left: 24.0),
-              child: Row(
-                children: <Widget>[
-                  Padding(
-                    padding: const EdgeInsets.only(left: 8.0),
-                    child: Text(
-                      supplierContract.customerName,
-                      style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 18.0,
-                          fontWeight: FontWeight.w900),
-                    ),
-                  ),
-                ],
-              ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 20.0),
+            child: Row(
+              children: <Widget>[
+                Text(
+                  supplierContract.customerName,
+                  style: Styles.blackBoldSmall,
+                ),
+              ],
             ),
-            Padding(
-              padding:
-                  const EdgeInsets.only(left: 40.0, bottom: 10.0, top: 20.0),
-              child: Row(
-                children: <Widget>[
-                  Text('Value'),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 8.0),
-                    child: Text(
-                      amount == null ? '0.00' : amount,
-                      style: TextStyle(
-                          fontSize: 20.0,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.pink),
-                    ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 20.0, bottom: 10.0, top: 10.0),
+            child: Row(
+              children: <Widget>[
+                Text(
+                  'Value',
+                  style: Styles.greyLabelSmall,
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 8.0),
+                  child: Text(
+                    amount == null ? '0.00' : amount,
+                    style: Styles.tealBoldMedium,
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-            Padding(
-              padding: const EdgeInsets.only(left: 40.0, bottom: 20.0),
-              child: Row(
-                children: <Widget>[
-                  Text('Expiry Date'),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 8.0),
-                    child: Text(
-                      supplierContract == null
-                          ? 'No Date'
-                          : getFormattedDate(supplierContract.endDate),
-                      style: TextStyle(
-                          fontSize: 18.0,
-                          fontWeight: FontWeight.normal,
-                          color: Colors.black),
-                    ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 20.0, bottom: 20.0),
+            child: Row(
+              children: <Widget>[
+                Text(
+                  'Expiry Date',
+                  style: Styles.greyLabelSmall,
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 8.0),
+                  child: Text(
+                    supplierContract == null
+                        ? 'No Date'
+                        : getFormattedDate(supplierContract.endDate),
+                    style: Styles.blackBoldSmall,
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
