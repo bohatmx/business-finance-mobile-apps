@@ -192,10 +192,7 @@ class _DashboardState extends State<Dashboard>
           elevation: 6.0,
           title: Text(
             'BFN',
-            style: TextStyle(
-                fontSize: 20.0,
-                fontWeight: FontWeight.w900,
-                color: Colors.white),
+            style: Styles.whiteSmall,
           ),
           leading: Icon(
             Icons.apps,
@@ -340,11 +337,7 @@ class _DashboardState extends State<Dashboard>
                 padding: const EdgeInsets.only(bottom: 28.0),
                 child: Text(
                   name == null ? 'Organisation' : name,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w900,
-                    fontSize: 20.0,
-                  ),
+                  style: Styles.whiteBoldSmall,
                 ),
               )
             ],

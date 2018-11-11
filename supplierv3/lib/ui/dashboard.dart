@@ -469,9 +469,12 @@ class _DashboardState extends State<Dashboard>
   }
 
   @override
-  onInvoiceBidMessage(InvoiceBid invoiceBid) {
+  onInvoiceBidMessage(InvoiceBid invoiceBid) async {
+    print(
+        '\n\n\n_DashboardState.onInvoiceBidMessage ################ INVOICE BID incoming! ${invoiceBid.investorName}');
     _showSnack('Invoice Bid  arrived', Colors.lightBlue);
-    _getSummaryData(true);
+    await _getSummaryData(true);
+    setState(() {});
   }
 
   @override
@@ -514,7 +517,7 @@ class OfferSummaryCard extends StatelessWidget {
                 children: <Widget>[
                   Text(
                     'Invoice Offers',
-                    style: Styles.blackBoldMedium,
+                    style: Styles.blackBoldSmall,
                   )
                 ],
               ),
@@ -539,7 +542,7 @@ class OfferSummaryCard extends StatelessWidget {
               ],
             ),
             Padding(
-              padding: const EdgeInsets.only(bottom: 10.0),
+              padding: const EdgeInsets.only(bottom: 20.0, top: 8.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: <Widget>[
@@ -574,29 +577,32 @@ class OfferSummaryCard extends StatelessWidget {
                   padding: const EdgeInsets.only(left: 12.0),
                   child: Text(
                     '${data.closedOffers}',
-                    style: Styles.greyLabelMedium,
+                    style: Styles.greyLabelSmall,
                   ),
                 ),
               ],
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: <Widget>[
-                Container(
-                  width: 120.0,
-                  child: Text(
-                    'Cancelled Offers',
-                    style: Styles.greyLabelSmall,
+            Padding(
+              padding: const EdgeInsets.only(top: 8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: <Widget>[
+                  Container(
+                    width: 120.0,
+                    child: Text(
+                      'Cancelled Offers',
+                      style: Styles.greyLabelSmall,
+                    ),
                   ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(left: 12.0),
-                  child: Text(
-                    '${data.cancelledOffers}',
-                    style: Styles.greyLabelMedium,
+                  Padding(
+                    padding: const EdgeInsets.only(left: 12.0),
+                    child: Text(
+                      '${data.cancelledOffers}',
+                      style: Styles.greyLabelSmall,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ],
         ),

@@ -4,13 +4,13 @@
     <option name="TOOL_WINDOW_CONFIGURED_FILTER" value="Show only selected application" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="80b8d4ed-f360-4af7-bada-dfcc0519f100" name="Default" comment="completed pager refactoring">
-      <change beforePath="$PROJECT_DIR$/../govt/lib/sounds.dart" beforeDir="false" />
+    <list default="true" id="80b8d4ed-f360-4af7-bada-dfcc0519f100" name="Default" comment="refactored supplier contract uploads">
       <change beforePath="$PROJECT_DIR$/../investor/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../investor/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../investor/lib/ui/dashboard.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../investor/lib/ui/dashboard.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../investor/lib/ui/profile.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../investor/lib/ui/profile.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../monitor/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../monitor/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/ui/contract_list.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/ui/contract_list.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/ui/contract_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/ui/contract_page.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/ui/dashboard.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/ui/dashboard.dart" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
@@ -315,9 +315,9 @@
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="dart" value="39400" />
+          <entry key="dart" value="39672" />
           <entry key="gradle" value="2" />
-          <entry key="txt" value="985" />
+          <entry key="txt" value="1023" />
           <entry key="yaml" value="4" />
         </counts>
       </usages-collector>
@@ -330,9 +330,9 @@
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="Dart" value="39400" />
+          <entry key="Dart" value="39672" />
           <entry key="Groovy" value="2" />
-          <entry key="PLAIN_TEXT" value="985" />
+          <entry key="PLAIN_TEXT" value="1023" />
           <entry key="YAML" value="4" />
         </counts>
       </usages-collector>
@@ -391,10 +391,11 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/lib/ui/contract_list.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="476">
-              <caret line="143" column="45" selection-start-line="143" selection-start-column="45" selection-end-line="143" selection-end-column="45" />
+            <state relative-caret-position="358">
+              <caret line="254" column="26" selection-start-line="254" selection-start-column="26" selection-end-line="254" selection-end-column="26" />
               <folding>
-                <element signature="e#6343#9155#0" expanded="true" />
+                <element signature="e#897#1512#0" expanded="true" />
+                <element signature="e#3354#5737#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -403,12 +404,14 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/lib/ui/dashboard.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="389">
-              <caret line="205" column="46" selection-start-line="205" selection-start-column="46" selection-end-line="205" selection-end-column="46" />
+            <state relative-caret-position="277">
+              <caret line="477" column="6" selection-start-line="477" selection-start-column="6" selection-end-line="477" selection-end-column="6" />
               <folding>
                 <element signature="e#0#20#0" expanded="true" />
                 <element signature="e#2940#3259#0" expanded="true" />
+                <element signature="e#3422#4359#0" expanded="true" />
                 <element signature="e#5127#5735#0" expanded="true" />
+                <element signature="e#6607#7158#0" expanded="true" />
                 <element signature="e#7270#11869#0" expanded="true" />
                 <element signature="e#11891#12079#0" expanded="true" />
                 <element signature="e#12106#12397#0" expanded="true" />
@@ -420,6 +423,10 @@
                 <element signature="e#13347#14139#0" expanded="true" />
                 <element signature="e#14162#14639#0" expanded="true" />
                 <element signature="e#14665#14828#0" expanded="true" />
+                <element signature="e#15308#15374#0" expanded="true" />
+                <element signature="e#15447#15513#0" expanded="true" />
+                <element signature="e#15730#15817#0" expanded="true" />
+                <element signature="e#16327#19572#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -601,7 +608,7 @@
   </component>
   <component name="PropertiesComponent">
     <property name="android.sdk.path" value="$USER_HOME$/Library/Android/sdk" />
-    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1541922682240" />
+    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1541926585988" />
     <property name="dart.analysis.tool.window.force.activate" value="false" />
     <property name="io.flutter.reload.alreadyRun" value="true" />
     <property name="settings.editor.selected.configurable" value="dart.settings" />
@@ -922,7 +929,14 @@
       <option name="project" value="LOCAL" />
       <updated>1541712078908</updated>
     </task>
-    <option name="localTasksCounter" value="38" />
+    <task id="LOCAL-00038" summary="refactored supplier contract uploads">
+      <created>1541922770856</created>
+      <option name="number" value="00038" />
+      <option name="presentableId" value="LOCAL-00038" />
+      <option name="project" value="LOCAL" />
+      <updated>1541922770857</updated>
+    </task>
+    <option name="localTasksCounter" value="39" />
     <servers />
   </component>
   <component name="TodoView">
@@ -1014,7 +1028,6 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="refactored coordination flow between apps" />
     <MESSAGE value="added auto order executtioon" />
     <MESSAGE value="in the flow - delivery note to auto-trade woorrking!!!" />
     <MESSAGE value="refactored firestore listeners" />
@@ -1039,7 +1052,8 @@
     <MESSAGE value="ui refactorings - supplier pos, invoices etc." />
     <MESSAGE value="ui refactorings - supplier pos, invoices etc. II" />
     <MESSAGE value="completed pager refactoring" />
-    <option name="LAST_COMMIT_MESSAGE" value="completed pager refactoring" />
+    <MESSAGE value="refactored supplier contract uploads" />
+    <option name="LAST_COMMIT_MESSAGE" value="refactored supplier contract uploads" />
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/lib/ui/govt_entities_list.dart">
@@ -1486,22 +1500,25 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/lib/ui/contract_list.dart">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="476">
-          <caret line="143" column="45" selection-start-line="143" selection-start-column="45" selection-end-line="143" selection-end-column="45" />
+        <state relative-caret-position="358">
+          <caret line="254" column="26" selection-start-line="254" selection-start-column="26" selection-end-line="254" selection-end-column="26" />
           <folding>
-            <element signature="e#6343#9155#0" expanded="true" />
+            <element signature="e#897#1512#0" expanded="true" />
+            <element signature="e#3354#5737#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/lib/ui/dashboard.dart">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="389">
-          <caret line="205" column="46" selection-start-line="205" selection-start-column="46" selection-end-line="205" selection-end-column="46" />
+        <state relative-caret-position="277">
+          <caret line="477" column="6" selection-start-line="477" selection-start-column="6" selection-end-line="477" selection-end-column="6" />
           <folding>
             <element signature="e#0#20#0" expanded="true" />
             <element signature="e#2940#3259#0" expanded="true" />
+            <element signature="e#3422#4359#0" expanded="true" />
             <element signature="e#5127#5735#0" expanded="true" />
+            <element signature="e#6607#7158#0" expanded="true" />
             <element signature="e#7270#11869#0" expanded="true" />
             <element signature="e#11891#12079#0" expanded="true" />
             <element signature="e#12106#12397#0" expanded="true" />
@@ -1513,6 +1530,10 @@
             <element signature="e#13347#14139#0" expanded="true" />
             <element signature="e#14162#14639#0" expanded="true" />
             <element signature="e#14665#14828#0" expanded="true" />
+            <element signature="e#15308#15374#0" expanded="true" />
+            <element signature="e#15447#15513#0" expanded="true" />
+            <element signature="e#15730#15817#0" expanded="true" />
+            <element signature="e#16327#19572#0" expanded="true" />
           </folding>
         </state>
       </provider>

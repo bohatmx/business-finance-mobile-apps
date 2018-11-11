@@ -19,6 +19,8 @@ class _ContractListState extends State<ContractList> {
   List<SupplierContract> contracts;
   Supplier supplier;
   User user;
+
+  double _opacity = 0.0;
   @override
   void initState() {
     super.initState();
@@ -27,20 +29,25 @@ class _ContractListState extends State<ContractList> {
   }
 
   _getCachedPrefs() async {
+    _opacity = 1.0;
+    setState(() {});
     user = await SharedPrefs.getUser();
     supplier = await SharedPrefs.getSupplier();
-
     contracts = await ListAPI.getSupplierContracts(supplier.documentReference);
     if (contracts == null || contracts.isEmpty) {
       _showNoContractsDialog();
     } else {
       double total = 0.00;
       contracts.forEach((ct) {
-        double val = double.parse(ct.estimatedValue);
-        total += val;
+        var end = DateTime.parse(ct.endDate).toUtc();
+        if (DateTime.now().isBefore(end)) {
+          double val = double.parse(ct.estimatedValue);
+          total += val;
+        }
       });
       totalValue = getFormattedAmount('$total', context);
     }
+    _opacity = 0.0;
     setState(() {});
   }
 
@@ -125,14 +132,26 @@ class _ContractListState extends State<ContractList> {
                     child: Row(
                       children: <Widget>[
                         Text(
-                          'Total Value:',
-                          style: getWhiteText(),
+                          'Current Value:',
+                          style: Styles.whiteSmall,
                         ),
                         Padding(
                           padding: const EdgeInsets.only(left: 10.0),
                           child: Text(
                             totalValue == null ? '0.00' : totalValue,
                             style: Styles.whiteBoldMedium,
+                          ),
+                        ),
+                        Opacity(
+                          opacity: _opacity,
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 28.0),
+                            child: Container(
+                                width: 16.0,
+                                height: 16.0,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 3.0,
+                                )),
                           ),
                         ),
                       ],
@@ -229,7 +248,7 @@ class SupplierContractCard extends StatelessWidget {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.only(left: 20.0, bottom: 10.0, top: 10.0),
+            padding: const EdgeInsets.only(left: 20.0, bottom: 0.0, top: 10.0),
             child: Row(
               children: <Widget>[
                 Text(
