@@ -359,6 +359,7 @@ class _MyHomePageState extends State<MyHomePage>
 
       floatingActionButton: FloatingActionButton(
         onPressed: _restart,
+        elevation: 16.0,
         tooltip: 'Restart',
         child: Icon(Icons.directions_bike),
       ), // This trailing comma makes auto-formatting nicer for build methods.

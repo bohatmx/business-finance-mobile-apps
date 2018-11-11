@@ -4,14 +4,8 @@
     <option name="TOOL_WINDOW_CONFIGURED_FILTER" value="Show only selected application" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="80b8d4ed-f360-4af7-bada-dfcc0519f100" name="Default" comment="refactored supplier contract uploads">
-      <change beforePath="$PROJECT_DIR$/../investor/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../investor/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../investor/lib/ui/dashboard.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../investor/lib/ui/dashboard.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../investor/lib/ui/profile.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../investor/lib/ui/profile.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../monitor/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../monitor/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/ui/contract_list.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/ui/contract_list.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/ui/dashboard.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/ui/dashboard.dart" afterDir="false" />
+    <list default="true" id="80b8d4ed-f360-4af7-bada-dfcc0519f100" name="Default" comment="passed complete auto trade test - all respondents alive and well!">
+      <change beforePath="$PROJECT_DIR$/../monitor/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../monitor/lib/main.dart" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <ignored path="../.gradle/4.4/fileChanges/last-build.bin" />
@@ -317,7 +311,7 @@
         <counts>
           <entry key="dart" value="39672" />
           <entry key="gradle" value="2" />
-          <entry key="txt" value="1023" />
+          <entry key="txt" value="1088" />
           <entry key="yaml" value="4" />
         </counts>
       </usages-collector>
@@ -332,7 +326,7 @@
         <counts>
           <entry key="Dart" value="39672" />
           <entry key="Groovy" value="2" />
-          <entry key="PLAIN_TEXT" value="1023" />
+          <entry key="PLAIN_TEXT" value="1088" />
           <entry key="YAML" value="4" />
         </counts>
       </usages-collector>
@@ -404,8 +398,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/lib/ui/dashboard.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="277">
-              <caret line="477" column="6" selection-start-line="477" selection-start-column="6" selection-end-line="477" selection-end-column="6" />
+            <state relative-caret-position="261">
+              <caret line="476" column="17" selection-start-line="476" selection-start-column="17" selection-end-line="476" selection-end-column="17" />
               <folding>
                 <element signature="e#0#20#0" expanded="true" />
                 <element signature="e#2940#3259#0" expanded="true" />
@@ -608,7 +602,7 @@
   </component>
   <component name="PropertiesComponent">
     <property name="android.sdk.path" value="$USER_HOME$/Library/Android/sdk" />
-    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1541926585988" />
+    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1541927758306" />
     <property name="dart.analysis.tool.window.force.activate" value="false" />
     <property name="io.flutter.reload.alreadyRun" value="true" />
     <property name="settings.editor.selected.configurable" value="dart.settings" />
@@ -936,7 +930,14 @@
       <option name="project" value="LOCAL" />
       <updated>1541922770857</updated>
     </task>
-    <option name="localTasksCounter" value="39" />
+    <task id="LOCAL-00039" summary="passed complete auto trade test - all respondents alive and well!">
+      <created>1541926809482</created>
+      <option name="number" value="00039" />
+      <option name="presentableId" value="LOCAL-00039" />
+      <option name="project" value="LOCAL" />
+      <updated>1541926809483</updated>
+    </task>
+    <option name="localTasksCounter" value="40" />
     <servers />
   </component>
   <component name="TodoView">
@@ -953,7 +954,7 @@
     <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" sideWeight="0.49359885" visible="true" weight="0.18477103" />
-      <window_info active="true" id="Structure" order="1" sideWeight="0.5064011" side_tool="true" visible="true" weight="0.18903089" />
+      <window_info id="Structure" order="1" sideWeight="0.5064011" side_tool="true" visible="true" weight="0.18903089" />
       <window_info id="Designer" order="2" />
       <window_info id="Build Variants" order="3" sideWeight="0.5203956" side_tool="true" weight="0.25656688" />
       <window_info id="Image Layers" order="4" />
@@ -963,7 +964,7 @@
       <window_info id="UI Designer" order="8" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32772276" />
-      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.7976072" visible="true" weight="0.3891089" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.7976072" visible="true" weight="0.3891089" />
       <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.74125874" weight="0.3980198" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -1028,7 +1029,6 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="added auto order executtioon" />
     <MESSAGE value="in the flow - delivery note to auto-trade woorrking!!!" />
     <MESSAGE value="refactored firestore listeners" />
     <MESSAGE value="added offer details ui" />
@@ -1053,7 +1053,8 @@
     <MESSAGE value="ui refactorings - supplier pos, invoices etc. II" />
     <MESSAGE value="completed pager refactoring" />
     <MESSAGE value="refactored supplier contract uploads" />
-    <option name="LAST_COMMIT_MESSAGE" value="refactored supplier contract uploads" />
+    <MESSAGE value="passed complete auto trade test - all respondents alive and well!" />
+    <option name="LAST_COMMIT_MESSAGE" value="passed complete auto trade test - all respondents alive and well!" />
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/lib/ui/govt_entities_list.dart">
@@ -1511,8 +1512,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/lib/ui/dashboard.dart">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="277">
-          <caret line="477" column="6" selection-start-line="477" selection-start-column="6" selection-end-line="477" selection-end-column="6" />
+        <state relative-caret-position="261">
+          <caret line="476" column="17" selection-start-line="476" selection-start-column="17" selection-end-line="476" selection-end-column="17" />
           <folding>
             <element signature="e#0#20#0" expanded="true" />
             <element signature="e#2940#3259#0" expanded="true" />
