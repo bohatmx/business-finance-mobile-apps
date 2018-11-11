@@ -150,6 +150,11 @@ class Styles {
     fontSize: medium,
     color: Colors.purple,
   );
+  static TextStyle purpleSmall = TextStyle(
+    fontWeight: FontWeight.normal,
+    fontSize: small,
+    color: Colors.purple,
+  );
   static TextStyle purpleBoldLarge = TextStyle(
     fontWeight: FontWeight.bold,
     fontSize: large,

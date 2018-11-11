@@ -437,7 +437,7 @@ class _OfferListState extends State<OfferList>
         ],
       ),
       body: _getListView(),
-      backgroundColor: Colors.indigo.shade50,
+      backgroundColor: Colors.brown.shade100,
     );
   }
 
@@ -549,7 +549,13 @@ class _OfferListState extends State<OfferList>
   }
 
   void _refresh() async {
+    AppSnackbar.showSnackbarWithProgressIndicator(
+        scaffoldKey: _scaffoldKey,
+        message: 'Loading fresh data',
+        textColor: Styles.white,
+        backgroundColor: Styles.brown);
     await Refresh.refresh(investor);
+    _scaffoldKey.currentState.removeCurrentSnackBar();
     _getCached();
   }
 

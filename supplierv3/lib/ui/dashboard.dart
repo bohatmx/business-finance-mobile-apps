@@ -22,6 +22,7 @@ import 'package:businesslibrary/util/wallet_page.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:supplierv3/main.dart';
 import 'package:supplierv3/ui/contract_list.dart';
 import 'package:supplierv3/ui/delivery_acceptance_list.dart';
 import 'package:supplierv3/ui/delivery_note_list.dart';
@@ -137,9 +138,18 @@ class _DashboardState extends State<Dashboard>
   }
 
   Future _getCachedPrefs() async {
+    supplier = await SharedPrefs.getSupplier();
+    if (supplier == null) {
+      Navigator.pop(context);
+      Navigator.push(
+        context,
+        new MaterialPageRoute(builder: (context) => new StartPage()),
+      );
+      return;
+    }
     user = await SharedPrefs.getUser();
     fullName = user.firstName + ' ' + user.lastName;
-    supplier = await SharedPrefs.getSupplier();
+
     dashboardData = await SharedPrefs.getDashboardData();
     assert(supplier != null);
     name = supplier.name;
@@ -209,8 +219,6 @@ class _DashboardState extends State<Dashboard>
 
   @override
   Widget build(BuildContext context) {
-    message = widget.message;
-
     return new WillPopScope(
       onWillPop: () async => false,
       child: Scaffold(
@@ -244,17 +252,6 @@ class _DashboardState extends State<Dashboard>
         backgroundColor: Colors.brown.shade100,
         body: Stack(
           children: <Widget>[
-//            new Opacity(
-//              opacity: 0.2,
-//              child: Container(
-//                decoration: BoxDecoration(
-//                  image: DecorationImage(
-//                    image: AssetImage('assets/fincash.jpg'),
-//                    fit: BoxFit.cover,
-//                  ),
-//                ),
-//              ),
-//            ),
             Opacity(
               opacity: opacity,
               child: Padding(

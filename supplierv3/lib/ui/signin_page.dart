@@ -11,6 +11,7 @@ import 'package:businesslibrary/data/investor.dart';
 import 'package:businesslibrary/data/procurement_office.dart';
 import 'package:businesslibrary/data/sector.dart';
 import 'package:businesslibrary/data/supplier.dart';
+import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/data/wallet.dart';
 import 'package:businesslibrary/util/FCM.dart';
 import 'package:businesslibrary/util/lookups.dart';
@@ -46,10 +47,6 @@ class _SignInPageState extends State<SignInPage> implements SnackBarListener {
   initState() {
     super.initState();
 
-    isDebug = isInDebugMode;
-    if (isDebug) {
-      _buildUserList();
-    }
     _checkSectors();
   }
 
@@ -58,6 +55,13 @@ class _SignInPageState extends State<SignInPage> implements SnackBarListener {
     if (sectors.isEmpty) {
       DataAPI3.addSectors();
     }
+
+    isDebug = isInDebugMode;
+    if (isDebug) {
+      var users = await ListAPI.getSupplierUsers();
+      _buildUserList(users);
+    }
+    setState(() {});
   }
 
   List<Sector> sectors;
@@ -298,8 +302,7 @@ class _SignInPageState extends State<SignInPage> implements SnackBarListener {
 
   bool isDebug;
 
-  void _buildUserList() async {
-    var users = await ListAPI.getSupplierUsers();
+  void _buildUserList(List<User> users) async {
     users.forEach((user) {
       var item1 = new DropdownMenuItem(
         child: Row(

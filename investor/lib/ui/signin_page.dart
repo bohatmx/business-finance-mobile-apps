@@ -6,6 +6,7 @@ import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/api/signin.dart';
 import 'package:businesslibrary/data/investor.dart';
 import 'package:businesslibrary/data/sector.dart';
+import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/data/wallet.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/util.dart';
@@ -28,22 +29,24 @@ class _SignInPageState extends State<SignInPage> implements SnackBarListener {
   Investor investor;
   String participationId;
   List<DropdownMenuItem> items = List();
+  List<User> users;
   @override
   initState() {
     super.initState();
-
-    isDebug = isInDebugMode;
-    if (isDebug) {
-      _buildUserList();
-    }
-    _checkSectors();
+    _getCached();
   }
 
-  void _checkSectors() async {
+  void _getCached() async {
     sectors = await ListAPI.getSectors();
     if (sectors.isEmpty) {
       DataAPI3.addSectors();
     }
+    isDebug = isInDebugMode;
+    if (isDebug) {
+      users = await ListAPI.getInvestorUsers();
+      _buildUserList();
+    }
+    setState(() {});
   }
 
   List<Sector> sectors;
@@ -209,7 +212,6 @@ class _SignInPageState extends State<SignInPage> implements SnackBarListener {
   bool isDebug;
 
   void _buildUserList() async {
-    var users = await ListAPI.getInvestorUsers();
     users.forEach((user) {
       var item1 = new DropdownMenuItem(
         child: Row(

@@ -7,6 +7,7 @@ import 'package:businesslibrary/data/auto_trade_order.dart';
 import 'package:businesslibrary/data/dashboard_data.dart';
 import 'package:businesslibrary/data/delivery_acceptance.dart';
 import 'package:businesslibrary/data/delivery_note.dart';
+import 'package:businesslibrary/data/investor-unsettled-summary.dart';
 import 'package:businesslibrary/data/investor.dart';
 import 'package:businesslibrary/data/investor_profile.dart';
 import 'package:businesslibrary/data/invoice_bid.dart';
@@ -26,6 +27,8 @@ import 'package:businesslibrary/util/wallet_page.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:investor/main.dart';
+import 'package:investor/ui/charts.dart';
 import 'package:investor/ui/offer_list.dart';
 import 'package:investor/ui/offers_and_bids.dart';
 import 'package:investor/ui/profile.dart';
@@ -81,6 +84,8 @@ class _DashboardState extends State<Dashboard>
   void didChangeAppLifecycleState(AppLifecycleState state) {
     print('_DashboardState.didChangeAppLifecycleState state: $state');
     if (state == AppLifecycleState.resumed) {
+      print(
+          '_DashboardState.didChangeAppLifecycleState _getSummaryData calling ....');
       _getSummaryData();
     }
     setState(() {
@@ -103,6 +108,7 @@ class _DashboardState extends State<Dashboard>
   }
 
   List<Sector> sectors;
+  InvestorUnsettledBidSummary unsettledBidSummary;
 
   @override
   void dispose() {
@@ -134,6 +140,8 @@ class _DashboardState extends State<Dashboard>
     dashboardData = await ListAPI.getInvestorDashboardData(
         investor.participantId, investor.documentReference);
     await SharedPrefs.saveDashboardData(dashboardData);
+    unsettledBidSummary =
+        await ListAPI.getInvestorUnsettledBidSummary(investor.participantId);
     if (_scaffoldKey.currentState != null) {
       _scaffoldKey.currentState.hideCurrentSnackBar();
     }
@@ -146,25 +154,26 @@ class _DashboardState extends State<Dashboard>
   Future _getDetailData() async {
     var m = await ListAPI.getInvoiceBidsByInvestor(investor.documentReference);
     await Database.saveInvoiceBids(InvoiceBids(m));
+
     var o = await ListAPI.getOpenOffers();
     await Database.saveOffers(Offers(o));
   }
 
   Future _getCachedPrefs() async {
-    user = await SharedPrefs.getUser();
-    fullName = user.firstName + ' ' + user.lastName;
     investor = await SharedPrefs.getInvestor();
 
-    assert(investor != null);
-    _getOffers();
+    if (investor == null) {
+      Navigator.push(
+        context,
+        new MaterialPageRoute(builder: (context) => StartPage()),
+      );
+      return;
+    }
+    user = await SharedPrefs.getUser();
+    fullName = user.firstName + ' ' + user.lastName;
     name = investor.name;
     setState(() {});
     _getSummaryData();
-  }
-
-  //4075980089
-  Future _getSettlements() async {
-    print('_DashboardState._getSettlements ......');
   }
 
   InvoiceBid lastInvoiceBid;
@@ -223,34 +232,45 @@ class _DashboardState extends State<Dashboard>
 //              ),
 //            ),
             new Padding(
-              padding: const EdgeInsets.only(top: 0.0, left: 10.0, right: 10.0),
+              padding:
+                  const EdgeInsets.only(top: 10.0, left: 20.0, right: 20.0),
               child: ListView(
                 children: <Widget>[
                   new InkWell(
                     onTap: _onOffersTapped,
-                    child: SummaryCard(
-                      total: dashboardData == null
-                          ? 0
-                          : dashboardData.totalOpenOffers,
-                      label: 'Open Invoice Offers',
-                      totalStyle: Styles.pinkBoldMedium,
-                      totalValue: dashboardData == null
-                          ? 0.00
-                          : dashboardData.totalOpenOfferAmount,
-                      totalValueStyle: Styles.tealBoldSmall,
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 10.0),
+                      child: SummaryCard(
+                        total: dashboardData == null
+                            ? 0
+                            : dashboardData.totalOpenOffers,
+                        label: 'Invoice Offers',
+                        totalStyle: Styles.pinkBoldMedium,
+                        totalValue: dashboardData == null
+                            ? 0.00
+                            : dashboardData.totalOpenOfferAmount,
+                        totalValueStyle: Styles.tealBoldSmall,
+                      ),
                     ),
                   ),
                   new InkWell(
                     onTap: _onInvoiceBidsTapped,
-                    child: InvestorSummaryCard(dashboardData, context),
+                    child: InvestorSummaryCard(
+                      context: context,
+                      dashboardData: dashboardData,
+                      unsettledBidSummary: unsettledBidSummary,
+                    ),
                   ),
                   new InkWell(
                     onTap: _onPaymentsTapped,
-                    child: SummaryCard(
-                      total: dashboardData == null ? 0 : 0,
-                      label: 'Bids Settled',
-                      totalStyle: Styles.blueBoldLarge,
-                      elevation: 2.0,
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: SummaryCard(
+                        total: dashboardData == null ? 0 : 0,
+                        label: 'Bids Settled',
+                        totalStyle: Styles.blueBoldLarge,
+                        elevation: 2.0,
+                      ),
                     ),
                   ),
                 ],
@@ -336,16 +356,18 @@ class _DashboardState extends State<Dashboard>
 
   AutoTradeOrder order;
   InvestorProfile profile;
+  OpenOfferSummary offerSummary;
 
   List<DropdownMenuItem<int>> items = List();
 
-  Future _getOffers() async {
-    offers = await ListAPI.getOpenOffers();
-    await Database.saveOffers(Offers(offers));
-    setState(() {});
-    print(
-        '\n\n_DashboardState._getOffers ....######### ............ ${offers.length}\n\n');
-  }
+//  Future _getOffers() async {
+//    offerSummary = await ListAPI.getOpenOffersSummary();
+//    await SharedPrefs.saveOpenOfferSummary(offerSummary);
+//    offers = offerSummary.offers;
+//    setState(() {});
+//    print(
+//        '\n\n_DashboardState._getOffers ....######### ............ ${offerSummary.offers.length}\n\n');
+//  }
 
   void _onOffersTapped() {
     print('_DashboardState._onOffersTapped');
@@ -433,7 +455,10 @@ class _DashboardState extends State<Dashboard>
 class InvestorSummaryCard extends StatelessWidget {
   final DashboardData dashboardData;
   final BuildContext context;
-  InvestorSummaryCard(this.dashboardData, this.context);
+  final InvestorUnsettledBidSummary unsettledBidSummary;
+
+  InvestorSummaryCard(
+      {this.dashboardData, this.context, this.unsettledBidSummary});
 
   Widget _getTotalBids() {
     return Row(
@@ -499,7 +524,7 @@ class InvestorSummaryCard extends StatelessWidget {
           padding: const EdgeInsets.only(left: 10.0, right: 10.0),
           child: Text(
             dashboardData == null ? '0.0%' : _getAvgDiscount(),
-            style: Styles.purpleMedium,
+            style: Styles.purpleSmall,
           ),
         ),
       ],
@@ -534,7 +559,7 @@ class InvestorSummaryCard extends StatelessWidget {
             dashboardData == null
                 ? '0'
                 : '${getFormattedAmount('${dashboardData.averageBidAmount}', context)}',
-            style: Styles.blackMedium,
+            style: Styles.blackSmall,
           ),
         ),
       ],
@@ -543,13 +568,11 @@ class InvestorSummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return new Padding(
-      padding: const EdgeInsets.all(10.0),
-      child: Card(
-        elevation: 2.0,
-        color: Colors.brown.shade50,
-        child: Column(
-          children: <Widget>[
+    return Card(
+      elevation: 2.0,
+      color: Colors.brown.shade50,
+      child: Column(
+        children: <Widget>[
 //            Container(
 //              height: 100.0,
 //              child: Container(
@@ -561,43 +584,99 @@ class InvestorSummaryCard extends StatelessWidget {
 //                ),
 //              ),
 //            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 20.0, left: 20.0),
-              child: _getTotalBids(),
+          Padding(
+            padding: const EdgeInsets.only(top: 20.0, left: 20.0),
+            child: _getTotalBids(),
+          ),
+
+          Padding(
+            padding: const EdgeInsets.only(top: 10.0, left: 20.0, bottom: 20.0),
+            child: _getTotalBidValue(),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 30.0, right: 30.0),
+            child: Divider(
+              color: Colors.grey,
             ),
-            Padding(
-              padding:
-                  const EdgeInsets.only(top: 10.0, left: 20.0, bottom: 20.0),
-              child: _getTotalBidValue(),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: 10.0, left: 20.0),
+            child: _getAverageBidAmount(),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: 10.0, left: 20.0),
+            child: _getAverageDiscount(),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 30.0, right: 30.0, top: 10.0),
+            child: Divider(
+              color: Colors.grey,
             ),
-            Padding(
-              padding: const EdgeInsets.only(top: 10.0, left: 20.0),
-              child: _getAverageBidAmount(),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 10.0, left: 20.0),
-              child: _getAverageDiscount(),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 10.0, bottom: 20.0),
-              child: RaisedButton(
-                elevation: 6.0,
-                color: Colors.indigo.shade400,
-                onPressed: _onBtnPressed,
-                child: Padding(
-                  padding: const EdgeInsets.all(12.0),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: 10.0, left: 20.0),
+            child: Row(
+              children: <Widget>[
+                Container(
+                  width: 120.0,
                   child: Text(
-                    'Show Charts',
-                    style: Styles.whiteSmall,
+                    'Unsettled  Bids',
+                    style: Styles.greyLabelSmall,
                   ),
+                ),
+                Text(
+                  unsettledBidSummary == null
+                      ? '0.00'
+                      : '${unsettledBidSummary.totalUnsettledBids}',
+                  style: Styles.blackSmall,
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 20.0, top: 10.0, bottom: 10.0),
+            child: Row(
+              children: <Widget>[
+                Container(
+                  width: 120.0,
+                  child: Text(
+                    'Unsettled Total',
+                    style: Styles.greyLabelSmall,
+                  ),
+                ),
+                Text(
+                  unsettledBidSummary == null
+                      ? '0.00'
+                      : '${getFormattedAmount('${unsettledBidSummary.totalUnsettledBidAmount}', context)}',
+                  style: Styles.blackSmall,
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: 10.0, bottom: 20.0),
+            child: RaisedButton(
+              elevation: 6.0,
+              color: Colors.indigo.shade400,
+              onPressed: _onBtnPressed,
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Text(
+                  'Show Charts',
+                  style: Styles.whiteSmall,
                 ),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 
-  void _onBtnPressed() {}
+  void _onBtnPressed() {
+    Navigator.push(
+      context,
+      new MaterialPageRoute(builder: (context) => new Charts()),
+    );
+  }
 }

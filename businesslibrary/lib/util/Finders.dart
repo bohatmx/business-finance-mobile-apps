@@ -28,13 +28,13 @@ class Finder {
         list.add(findable);
       }
     }
-    print(
-        '\n\n_Finder._find  -----Findables in LOCAL CACHE: ${list.length} - STARTKEY used: $intDate');
+//    print(
+//        '\n\n_Finder._find  -----Findables in LOCAL CACHE: ${list.length} - STARTKEY used: $intDate');
 
     if (list.isNotEmpty) {
-      list.forEach((f) {
-        print('itemNumber: ${f.itemNumber} ${f.intDate}');
-      });
+//      list.forEach((f) {
+//        print('itemNumber: ${f.itemNumber} ${f.intDate}');
+//      });
       return FindableResult(list, list.last.intDate);
     } else {
       return FindableResult(list, intDate);

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/data/auditor.dart';
 import 'package:businesslibrary/data/auto_start_stop.dart';
 import 'package:businesslibrary/data/auto_trade_order.dart';
@@ -469,5 +470,28 @@ class SharedPrefs {
     }
     print("=================== SharedPrefs pageLimit: $pageLimit");
     return pageLimit;
+  }
+
+  static Future saveOpenOfferSummary(OpenOfferSummary data) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    Map jsonx = data.toJson();
+    var jx = json.encode(jsonx);
+    print(jx);
+    prefs.setString('OpenOfferSummary', jx);
+    //prefs.commit();
+    print("SharedPrefs.saveDashboardData =========  data SAVED.........");
+  }
+
+  static Future<OpenOfferSummary> getOpenOfferSummary() async {
+    var prefs = await SharedPreferences.getInstance();
+    var string = prefs.getString('OpenOfferSummary');
+    if (string == null) {
+      return null;
+    }
+    var jx = json.decode(string);
+    prettyPrint(jx, 'OpenOfferSummary from cache: ');
+    OpenOfferSummary data = new OpenOfferSummary.fromJson(jx);
+    return data;
   }
 }

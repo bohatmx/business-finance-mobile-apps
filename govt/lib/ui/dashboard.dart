@@ -13,7 +13,7 @@ import 'package:businesslibrary/util/wallet_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:govt/sounds.dart';
+import 'package:govt/main.dart';
 import 'package:govt/ui/acceptance.dart';
 import 'package:govt/ui/delivery_note_list.dart';
 import 'package:govt/ui/invoice_list.dart';
@@ -69,7 +69,6 @@ class _DashboardState extends State<Dashboard>
     animation = new Tween(begin: 0.0, end: 1.0).animate(animationController);
 
     _getCachedPrefs();
-    //startFix();
   }
 
   @override
@@ -79,9 +78,18 @@ class _DashboardState extends State<Dashboard>
   }
 
   _getCachedPrefs() async {
+    govtEntity = await SharedPrefs.getGovEntity();
+    if (govtEntity == null) {
+      Navigator.pop(context);
+      Navigator.push(
+        context,
+        new MaterialPageRoute(builder: (context) => StartPage()),
+      );
+      return;
+    }
     user = await SharedPrefs.getUser();
     fullName = user.firstName + ' ' + user.lastName;
-    govtEntity = await SharedPrefs.getGovEntity();
+
     dashboardData = await SharedPrefs.getDashboardData();
     if (dashboardData != null) {
       setState(() {});
@@ -120,7 +128,7 @@ class _DashboardState extends State<Dashboard>
 
   _getSummaryData(bool showSnack) async {
     print('_DashboardState._getSummaryData ..................................');
-    Sounds.playChime();
+
     if (showSnack) {
       AppSnackbar.showSnackbarWithProgressIndicator(
           scaffoldKey: _scaffoldKey,

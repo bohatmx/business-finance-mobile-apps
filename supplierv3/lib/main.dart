@@ -1,9 +1,7 @@
-import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/lookups.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:supplierv3/ui/dashboard.dart';
 import 'package:supplierv3/ui/signin_page.dart';
@@ -11,8 +9,6 @@ import 'package:supplierv3/ui/signup_page.dart';
 import 'package:supplierv3/ui/theme_util.dart';
 
 void main() => runApp(new SupplierApp());
-
-final FirebaseAuth _auth = FirebaseAuth.instance;
 
 class SupplierApp extends StatelessWidget {
   // This widget is the root of your application.
@@ -22,7 +18,7 @@ class SupplierApp extends StatelessWidget {
       title: 'FinanceNetwork',
       debugShowCheckedModeBanner: false,
       theme: getTheme(),
-      home: new StartPage(title: 'Business Finance - Supplier'),
+      home: new Dashboard(null),
     );
   }
 }
@@ -43,25 +39,13 @@ class _StartPageState extends State<StartPage> {
   @override
   initState() {
     super.initState();
-    checkUser();
-  }
-
-  checkUser() async {
-    user = await SharedPrefs.getUser();
-    supplier = await SharedPrefs.getSupplier();
-    if (supplier != null) {
-      await Navigator.push(
-        context,
-        new MaterialPageRoute(builder: (context) => new Dashboard(null)),
-      );
-    }
   }
 
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
       appBar: new AppBar(
-        title: new Text(widget.title),
+        title: new Text('Business Finance Network'),
       ),
       body: Stack(
         children: <Widget>[

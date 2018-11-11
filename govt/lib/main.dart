@@ -1,4 +1,3 @@
-import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/govt_entity.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -20,7 +19,7 @@ class GovtApp extends StatelessWidget {
       title: 'FinanceNetwork',
       debugShowCheckedModeBanner: false,
       theme: getTheme(),
-      home: new StartPage(title: 'Business Finance Network'),
+      home: new Dashboard('Business Finance Network'),
     );
   }
 }
@@ -41,17 +40,6 @@ class _StartPageState extends State<StartPage> implements SnackBarListener {
   @override
   initState() {
     super.initState();
-    checkUser();
-  }
-
-  checkUser() async {
-    customer = await SharedPrefs.getGovEntity();
-    if (customer != null) {
-      await Navigator.push(
-        context,
-        new MaterialPageRoute(builder: (context) => new Dashboard(null)),
-      );
-    }
   }
 
   @override
@@ -59,7 +47,7 @@ class _StartPageState extends State<StartPage> implements SnackBarListener {
     return new Scaffold(
       key: _scaffoldKey,
       appBar: new AppBar(
-        title: new Text(widget.title),
+        title: new Text('BFN'),
       ),
       body: Stack(
         children: <Widget>[

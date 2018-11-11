@@ -480,7 +480,7 @@ String getFormattedDateHour(String date) {
   try {
     DateTime d = DateTime.parse(date);
     var format = new DateFormat.Hm();
-    return format.format(d);
+    return format.format(d.toUtc());
   } catch (e) {
     DateTime d = DateTime.now();
     var format = new DateFormat.Hm();

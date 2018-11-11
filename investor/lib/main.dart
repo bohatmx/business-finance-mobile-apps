@@ -1,7 +1,6 @@
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/investor.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:investor/ui/dashboard.dart';
 import 'package:investor/ui/signin_page.dart';
@@ -9,8 +8,6 @@ import 'package:investor/ui/signup_page.dart';
 import 'package:investor/ui/theme_util.dart';
 
 void main() => runApp(new InvestorApp());
-
-final FirebaseAuth _auth = FirebaseAuth.instance;
 
 class InvestorApp extends StatelessWidget {
   // This widget is the root of your application.
@@ -20,7 +17,7 @@ class InvestorApp extends StatelessWidget {
       title: 'FinanceNetwork',
       debugShowCheckedModeBanner: false,
       theme: getTheme(),
-      home: new StartPage(title: 'Business Finance - Investor'),
+      home: new Dashboard(''),
     );
   }
 }
@@ -40,10 +37,10 @@ class _StartPageState extends State<StartPage> {
   @override
   initState() {
     super.initState();
-    checkUser();
+    _checkUser();
   }
 
-  checkUser() async {
+  _checkUser() async {
     investor = await SharedPrefs.getInvestor();
     if (investor != null) {
       await Navigator.push(
@@ -57,7 +54,7 @@ class _StartPageState extends State<StartPage> {
   Widget build(BuildContext context) {
     return new Scaffold(
       appBar: new AppBar(
-        title: new Text(widget.title),
+        title: new Text('Business Finance Network'),
       ),
       body: Stack(
         children: <Widget>[
