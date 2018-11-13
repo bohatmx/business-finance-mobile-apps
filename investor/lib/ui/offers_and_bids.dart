@@ -12,6 +12,7 @@ import 'package:businesslibrary/util/styles.dart';
 import 'package:businesslibrary/util/util.dart';
 import 'package:flutter/material.dart';
 import 'package:investor/ui/invoice_bidder.dart';
+import 'package:investor/ui/settle_invoice_bid.dart';
 
 class OffersAndBids extends StatefulWidget {
   @override
@@ -85,29 +86,6 @@ class _OffersAndBidsState extends State<OffersAndBids> {
         '\n\n_OfferListsState._createUnsettledBids ####################################\n\n');
     return Column(
       children: <Widget>[
-//        Row(
-//          children: <Widget>[
-//            Padding(
-//              padding: const EdgeInsets.only(left: 28.0, top: 8.0),
-//              child: DropdownButton<int>(
-//                items: items,
-//                elevation: 8,
-//                hint: Text(
-//                  'Period in Days',
-//                  style: Styles.blueMedium,
-//                ),
-//                onChanged: _onDropDownChanged,
-//              ),
-//            ),
-//            Padding(
-//              padding: const EdgeInsets.only(left: 8.0),
-//              child: Text(
-//                '$days',
-//                style: Styles.blackBoldReallyLarge,
-//              ),
-//            ),
-//          ],
-//        ),
         Padding(
           padding: const EdgeInsets.only(left: 28.0, top: 10.0),
           child: Row(
@@ -345,8 +323,10 @@ class _OffersAndBidsState extends State<OffersAndBids> {
     );
   }
 
+  InvoiceBid invoiceBid;
   void _showBidDialog(InvoiceBid bid) {
     print('_OffersAndBidsState._showBidDetail ......${bid.toJson()}');
+    this.invoiceBid = bid;
     showDialog(
         context: context,
         builder: (_) => new AlertDialog(
@@ -506,6 +486,10 @@ class _OffersAndBidsState extends State<OffersAndBids> {
 
   _startSettlement() {
     Navigator.pop(context);
+    Navigator.push(
+      context,
+      new MaterialPageRoute(builder: (context) => SettleInvoiceBid(invoiceBid)),
+    );
   }
 
   _startBid() async {

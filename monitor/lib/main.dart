@@ -10,11 +10,15 @@ import 'package:businesslibrary/data/investor_profile.dart';
 import 'package:businesslibrary/data/invoice_bid.dart';
 import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/util/lookups.dart';
+import 'package:businesslibrary/util/peach.dart';
 import 'package:businesslibrary/util/selectors.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
+import 'package:businesslibrary/util/util.dart';
+import 'package:businesslibrary/util/webview.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 import 'package:monitor/ui/theme_util.dart';
 
 void main() => runApp(new MyApp());
@@ -27,7 +31,15 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Demo',
       debugShowCheckedModeBanner: false,
       theme: getTheme(),
-      home: new MyHomePage(title: 'Flutter Demo Home Page'),
+//      home: new MyHomePage(title: 'Flutter Demo Home Page'),
+      routes: {
+        '/': (_) => MyHomePage(),
+        '/webview': (_) => WebviewScaffold(
+              url: 'https://www.youtube.com/',
+              appBar: AppBar(title: Text('YouTube')),
+              withJavascript: true,
+            ),
+      },
     );
   }
 }
@@ -50,6 +62,19 @@ class _MyHomePageState extends State<MyHomePage>
   List<InvestorProfile> _profiles;
   DateTime startDate;
   OpenOfferSummary summary;
+  String webViewTitle, webViewUrl;
+
+  void _showWebView() {
+    //Navigator.of(context).pushNamed('/webview');
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => BFNWebView(
+                title: webViewTitle,
+                url: webViewUrl,
+              )),
+    );
+  }
 
   @override
   void initState() {
@@ -60,13 +85,40 @@ class _MyHomePageState extends State<MyHomePage>
     _firebaseMessaging.subscribeToTopic('heartbeats');
     print(
         '_MyHomePageState.initState ############ subscribed to invoiceBids topic');
+    _getPaymentKey();
+  }
+
+  _getPaymentKey() async {
+    var paymnt = PeachPayment(
+      merchantReference: 'mref123456789',
+      amount: 3400000.95,
+//      beneficiaryAccountNumber: '42346370097',
+//      beneficiaryAccountType: 'cheque',
+//      beneficiaryBank: 'Standard',
+//      beneficiaryName: 'BigJoe',
+      successURL: getFunctionsURL() + 'peachSuccess',
+      cancelUrl: getFunctionsURL() + 'peachCancel',
+      errorUrl: getFunctionsURL() + 'peachError',
+      notifyUrl: getFunctionsURL() + 'peachNotify',
+    );
+    var key = await Peach.getPaymentKey(payment: paymnt);
+    print(
+        '\n\n_MyHomePageState._getPaymentKey ########### paymentKey: ${key.key} ${key.url}');
+    var result = await Peach.pay(key.key);
+    if (result == 200) {
+      print(
+          '\n\n_MyHomePageState._getPaymentKey %%%%%%%%%%%%%%%%% PAYMENT MADE ?? - looking GOOD...? maybe?');
+    } else {
+      print(
+          '_MyHomePageState._getPaymentKey FAILED . FAILED . status: $result ');
+    }
   }
 
   int minutes = 1;
   _getMinutes() async {
     minutes = await SharedPrefs.getMinutes();
     if (minutes == null || minutes == 0) {
-      minutes = 10;
+      minutes = 9999;
     }
     controller.text = '$minutes';
     setState(() {});
@@ -327,7 +379,7 @@ class _MyHomePageState extends State<MyHomePage>
               Icons.apps,
               color: Colors.white,
             ),
-            onPressed: null),
+            onPressed: _showWebView),
         bottom: _getBottom(),
         actions: <Widget>[
           IconButton(
@@ -840,31 +892,6 @@ class _MyHomePageState extends State<MyHomePage>
         message: msg,
         textColor: Styles.white,
         backgroundColor: Styles.teal);
-  }
-
-  @override
-  onInvalidTrade(InvalidTrade invalidTrade) {
-    prettyPrint(invalidTrade.toJson(), '\n\n###### InvalidTrade arrived:');
-    invaliTrades.add(invalidTrade);
-    if (autoTradeStart == null) {
-      autoTradeStart = AutoTradeStart();
-    }
-
-    setState(() {
-      autoTradeStart.dateEnded =
-          getFormattedDateHour('${DateTime.now().toIso8601String()}');
-      autoTradeStart.totalInvalidBids = invaliTrades.length;
-      autoTradeStart.elapsedSeconds =
-          DateTime.now().difference(startDate).inSeconds * 1.0;
-    });
-  }
-
-  String _getTotalInvalidAmount() {
-    double tot = 0.00;
-    invaliTrades.forEach((t) {
-      tot += t.offer.offerAmount;
-    });
-    return getFormattedAmount('$tot', context);
   }
 
   @override

@@ -13,6 +13,7 @@ import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/lookups.dart';
+import 'package:businesslibrary/util/peach.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
@@ -31,27 +32,34 @@ class FCM {
   static const TOPIC_SUPPLIERS = 'suppliers';
   static const TOPIC_CUSTOMERS = 'customers';
   static const TOPIC_INVESTORS = 'investors';
+  static const TOPIC_PEACH_NOTIFY = "peachNotify";
+  static const TOPIC_PEACH_ERROR = "peachError";
+  static const TOPIC_PEACH_CANCEL = "peachCancel";
+  static const TOPIC_PEACH_SUCCESS = "peachSuccess";
 
-  static configureFCM({
-    PurchaseOrderListener purchaseOrderListener,
-    DeliveryNoteListener deliveryNoteListener,
-    DeliveryAcceptanceListener deliveryAcceptanceListener,
-    InvoiceListener invoiceListener,
-    InvoiceAcceptanceListener invoiceAcceptanceListener,
-    OfferListener offerListener,
-    InvoiceBidListener invoiceBidListener,
-    SupplierListener supplierListener,
-    InvestorListener investorListener,
-    CustomerListener customerListener,
-    HeartbeatListener heartbeatListener,
-    GeneralMessageListener generalMessageListener,
-  }) async {
+  static configureFCM(
+      {PurchaseOrderListener purchaseOrderListener,
+      DeliveryNoteListener deliveryNoteListener,
+      DeliveryAcceptanceListener deliveryAcceptanceListener,
+      InvoiceListener invoiceListener,
+      InvoiceAcceptanceListener invoiceAcceptanceListener,
+      OfferListener offerListener,
+      InvoiceBidListener invoiceBidListener,
+      SupplierListener supplierListener,
+      InvestorListener investorListener,
+      CustomerListener customerListener,
+      HeartbeatListener heartbeatListener,
+      GeneralMessageListener generalMessageListener,
+      PeachCancelListener peachCancelListener,
+      PeachErrorListener peachErrorListener,
+      PeachSuccessListener peachSuccessListener,
+      PeachNotifyListener peachNotifyListener}) async {
     print(
         '\n\n\ ################ CONFIGURE FCM MESSAGE ###########  starting _firebaseMessaging');
 
     _firebaseMessaging.configure(
       onMessage: (Map<String, dynamic> message) async {
-        print('\n\nRECEIVED FCM message, onMessage:\n$message \n');
+        prettyPrint(message, '\n\nMessage from FCM ================>>>> :');
         var data = message['data'];
         String messageType = data["messageType"];
         try {
@@ -99,6 +107,27 @@ class FCM {
               Map map = json.decode(data['json']);
               prettyPrint(map, '\n\n########## FCM HEARTBEAT MESSAGE :');
               heartbeatListener.onHeartbeat(map);
+              break;
+            case 'PEACH_NOTIFY':
+              Map map = json.decode(data['json']);
+              prettyPrint(map, '\n\n########## FCM PEACH_NOTIFY :');
+              peachNotifyListener
+                  .onPeachNotify(PeachNotification.fromJson(map));
+              break;
+            case 'PEACH_SUCCESS':
+              Map map = json.decode(data['json']);
+              prettyPrint(map, '\n\n########## FCM PEACH_SUCCESS :');
+              peachSuccessListener.onPeachSuccess(map);
+              break;
+            case 'PEACH_CANCEL':
+              Map map = json.decode(data['json']);
+              prettyPrint(map, '\n\n########## FCM PEACH_CANCEL :');
+              peachCancelListener.onPeachCancel(map);
+              break;
+            case 'PEACH_ERROR':
+              Map map = json.decode(data['json']);
+              prettyPrint(map, '\n\n########## FCM PEACH_ERROR :');
+              peachErrorListener.onPeachError(PeachNotification.fromJson(map));
               break;
           }
         } catch (e) {
@@ -156,6 +185,22 @@ class FCM {
         .updateData(mUser.toJson());
     SharedPrefs.saveUser(mUser);
   }
+}
+
+abstract class PeachSuccessListener {
+  onPeachSuccess(Map map);
+}
+
+abstract class PeachErrorListener {
+  onPeachError(PeachNotification notification);
+}
+
+abstract class PeachCancelListener {
+  onPeachCancel(Map map);
+}
+
+abstract class PeachNotifyListener {
+  onPeachNotify(PeachNotification notification);
 }
 
 abstract class CustomerListener {
