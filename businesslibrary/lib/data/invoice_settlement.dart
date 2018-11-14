@@ -1,10 +1,9 @@
 class InvestorInvoiceSettlement {
   String invoiceSettlementId;
   String date;
-  String settlementPercent;
-  String amount;
-  String discountPercent;
-  String invoice;
+  double amount;
+  String peachPaymentKey;
+  String invoiceBid;
   String investor, supplier, offer;
   String user, documentReference;
   String wallet, supplierFCMToken;
@@ -12,10 +11,9 @@ class InvestorInvoiceSettlement {
   InvestorInvoiceSettlement(
       {this.invoiceSettlementId,
       this.date,
-      this.settlementPercent,
       this.amount,
-      this.discountPercent,
-      this.invoice,
+      this.peachPaymentKey,
+      this.invoiceBid,
       this.investor,
       this.supplierFCMToken,
       this.documentReference,
@@ -27,10 +25,9 @@ class InvestorInvoiceSettlement {
   InvestorInvoiceSettlement.fromJson(Map data) {
     this.invoiceSettlementId = data['invoiceSettlementId'];
     this.date = data['date'];
-    this.settlementPercent = data['settlementPercent'];
-    this.amount = data['amount'];
-    this.discountPercent = data['discountPercent'];
-    this.invoice = data['invoice'];
+    this.amount = data['amount'] * 1.0;
+    this.peachPaymentKey = data['peachPaymentKey'];
+    this.invoiceBid = data['invoiceBid'];
     this.investor = data['investor'];
     this.user = data['user'];
     this.wallet = data['wallet'];
@@ -40,13 +37,12 @@ class InvestorInvoiceSettlement {
     this.supplier = data['supplier'];
     this.offer = data['offer'];
   }
-  Map<String, String> toJson() => <String, String>{
+  Map<String, dynamic> toJson() => <String, dynamic>{
         'invoiceSettlementId': invoiceSettlementId,
         'date': date,
-        'settlementPercent': settlementPercent,
         'amount': amount,
-        'discountPercent': discountPercent,
-        'invoice': invoice,
+        'peachPaymentKey': peachPaymentKey,
+        'invoiceBid': invoiceBid,
         'investor': investor,
         'user': user,
         'wallet': wallet,

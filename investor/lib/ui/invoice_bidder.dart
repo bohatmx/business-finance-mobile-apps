@@ -514,7 +514,7 @@ class _InvoiceBidderState extends State<InvoiceBidder>
         endTime: offer.endTime,
         wallet: NameSpace + 'Wallet#${wallet.stellarPublicKey}',
         isSettled: false,
-        supplierId: offer.supplierDocumentRef);
+        supplierId: offer.supplier);
 
     try {
       var resultBid = await DataAPI3.makeInvoiceBid(bid);

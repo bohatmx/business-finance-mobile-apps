@@ -18,6 +18,7 @@ import 'package:businesslibrary/data/investor_profile.dart';
 import 'package:businesslibrary/data/invoice.dart';
 import 'package:businesslibrary/data/invoice_acceptance.dart';
 import 'package:businesslibrary/data/invoice_bid.dart';
+import 'package:businesslibrary/data/invoice_settlement.dart';
 import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/data/oneconnect.dart';
 import 'package:businesslibrary/data/procurement_office.dart';
@@ -46,6 +47,7 @@ class DataAPI3 {
       MAKE_OFFER = 'makeOffer',
       CLOSE_OFFER = 'closeOffer',
       MAKE_INVOICE_BID = 'makeInvoiceBid',
+      MAKE_INVESTOR_INVOICE_SETTLEMENT = 'makeInvestorInvoiceSettlement',
       ACCEPT_INVOICE = 'acceptInvoice';
   static const Success = 0,
       InvoiceRegistered = 6,
@@ -345,6 +347,34 @@ class DataAPI3 {
       }
     } catch (e) {
       print('DataAPI3.makeInvoiceBid ERROR $e');
+      throw e;
+    }
+  }
+
+  static Future<InvestorInvoiceSettlement> makeInvestorInvoiceSettlement(
+      InvestorInvoiceSettlement settlement) async {
+    settlement.invoiceSettlementId = getKey();
+    settlement.date = getUTCDate();
+    var bag = APIBag(
+      debug: isInDebugMode,
+      data: settlement.toJson(),
+    );
+    print(
+        'DataAPI3.makeInvestorInvoiceSettlement ${getFunctionsURL() + MAKE_INVESTOR_INVOICE_SETTLEMENT}');
+    try {
+      var mResponse = await _doHTTP(
+          getFunctionsURL() + MAKE_INVESTOR_INVOICE_SETTLEMENT, bag);
+      if (mResponse.statusCode == 200) {
+        return InvestorInvoiceSettlement.fromJson(json.decode(mResponse.body));
+      } else {
+        print(mResponse.body);
+        print(
+            'DataAPI3.makeInvestorInvoiceSettlement ERROR  ${mResponse.statusCode}');
+        throw Exception(
+            'makeInvestorInvoiceSettlement failed: ${mResponse.body}');
+      }
+    } catch (e) {
+      print('DataAPI3.makeInvestorInvoiceSettlement ERROR $e');
       throw e;
     }
   }

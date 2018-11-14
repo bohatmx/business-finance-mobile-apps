@@ -13,7 +13,6 @@ const RELEASE_URL_FUNCTIONS =
     'https://us-central1-business-finance-prod.cloudfunctions.net/';
 
 const USE_LOCAL_BLOCKCHAIN = false;
-const NameSpace = 'resource:com.oneconnect.biz.';
 
 String getURL() {
   var url;

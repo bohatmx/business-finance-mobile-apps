@@ -8,6 +8,7 @@ import 'package:businesslibrary/data/investor.dart';
 import 'package:businesslibrary/data/invoice.dart';
 import 'package:businesslibrary/data/invoice_acceptance.dart';
 import 'package:businesslibrary/data/invoice_bid.dart';
+import 'package:businesslibrary/data/invoice_settlement.dart';
 import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/supplier.dart';
@@ -36,6 +37,8 @@ class FCM {
   static const TOPIC_PEACH_ERROR = "peachError";
   static const TOPIC_PEACH_CANCEL = "peachCancel";
   static const TOPIC_PEACH_SUCCESS = "peachSuccess";
+  static const TOPIC_INVESTOR_INVOICE_SETTLEMENTS =
+      "investorInvoiceSettlements";
 
   static configureFCM(
       {PurchaseOrderListener purchaseOrderListener,
@@ -50,6 +53,7 @@ class FCM {
       CustomerListener customerListener,
       HeartbeatListener heartbeatListener,
       GeneralMessageListener generalMessageListener,
+      InvestorInvoiceSettlementListener investorInvoiceSettlementListener,
       PeachCancelListener peachCancelListener,
       PeachErrorListener peachErrorListener,
       PeachSuccessListener peachSuccessListener,
@@ -129,6 +133,13 @@ class FCM {
               prettyPrint(map, '\n\n########## FCM PEACH_ERROR :');
               peachErrorListener.onPeachError(PeachNotification.fromJson(map));
               break;
+            case 'INVESTOR_INVOICE_SETTLEMENT':
+              Map map = json.decode(data['json']);
+              prettyPrint(
+                  map, '\n\n########## FCM INVESTOR_INVOICE_SETTLEMENT :');
+              investorInvoiceSettlementListener.onInvestorInvoiceSettlement(
+                  InvestorInvoiceSettlement.fromJson(map));
+              break;
           }
         } catch (e) {
           print(e);
@@ -185,6 +196,10 @@ class FCM {
         .updateData(mUser.toJson());
     SharedPrefs.saveUser(mUser);
   }
+}
+
+abstract class InvestorInvoiceSettlementListener {
+  onInvestorInvoiceSettlement(InvestorInvoiceSettlement settlement);
 }
 
 abstract class PeachSuccessListener {

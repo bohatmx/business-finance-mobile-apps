@@ -1,6 +1,11 @@
+import 'package:businesslibrary/api/data_api3.dart';
 import 'package:businesslibrary/api/list_api.dart';
+import 'package:businesslibrary/api/shared_prefs.dart';
+import 'package:businesslibrary/data/investor.dart';
 import 'package:businesslibrary/data/invoice_bid.dart';
+import 'package:businesslibrary/data/invoice_settlement.dart';
 import 'package:businesslibrary/data/offer.dart';
+import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/FCM.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/peach.dart';
@@ -22,7 +27,7 @@ class SettleInvoiceBid extends StatefulWidget {
 }
 
 class _SettleInvoiceBid extends State<SettleInvoiceBid>
-    implements SnackBarListener, InvoiceBidListener {
+    implements SnackBarListener, InvoiceBidListener, PeachNotifyListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   final FirebaseMessaging fm = FirebaseMessaging();
 
@@ -31,12 +36,22 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
   OfferBag offerBag;
   PaymentKey paymentKey;
   double bottomHeight = 20.0;
+  bool isBusy = false;
+  User user;
+  Investor investor;
 
   @override
   void initState() {
     super.initState();
+    _getCache();
     _getOffer();
-    FCM.configureFCM(invoiceBidListener: this);
+    FCM.configureFCM(invoiceBidListener: this, peachNotifyListener: this);
+    fm.subscribeToTopic(FCM.TOPIC_PEACH_NOTIFY);
+  }
+
+  void _getCache() async {
+    user = await SharedPrefs.getUser();
+    investor = await SharedPrefs.getInvestor();
   }
 
   Future _getOffer() async {
@@ -54,6 +69,7 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
         fm.subscribeToTopic(FCM.TOPIC_INVOICE_BIDS + offer.offerId);
         setState(() {
           bottomHeight = 160.0;
+          _opacity = 1.0;
         });
         print(
             '_SettleInvoiceBid._getOffer - subscribed to invoiceBid topic for Offer: ${offer.offerId} ');
@@ -64,19 +80,63 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
     }
   }
 
-  void _showWebView() {
-    //Navigator.of(context).pushNamed('/webview');
-    Navigator.push(
+  void _showWebView() async {
+    if (isBusy) {
+      return;
+    }
+    isBusy = true;
+    int result = await Navigator.push(
       context,
       MaterialPageRoute(
           builder: (context) => BFNWebView(
                 title: webViewTitle,
                 url: webViewUrl,
+                peachNotifyListener: this,
               )),
     );
+    switch (result) {
+      case PeachSuccess:
+        AppSnackbar.showSnackbarWithAction(
+            scaffoldKey: _scaffoldKey,
+            message: 'Payment successful',
+            textColor: Styles.white,
+            backgroundColor: Colors.indigo.shade300,
+            actionLabel: 'Done',
+            listener: this,
+            icon: Icons.done_all,
+            action: PeachSuccess);
+        setState(() {
+          _opacity = 0.0;
+        });
+        break;
+      case PeachCancel:
+        isBusy = false;
+        AppSnackbar.showSnackbarWithAction(
+            scaffoldKey: _scaffoldKey,
+            message: 'Payment cancelled',
+            textColor: Styles.white,
+            backgroundColor: Colors.blueGrey.shade500,
+            actionLabel: 'OK',
+            listener: this,
+            icon: Icons.clear,
+            action: PeachCancel);
+        break;
+      case PeachError:
+        isBusy = false;
+        AppSnackbar.showErrorSnackbar(
+          scaffoldKey: _scaffoldKey,
+          message: 'There was an error making the payment',
+          actionLabel: 'Close',
+          listener: this,
+        );
+        break;
+    }
   }
 
   _getPaymentKey() async {
+    if (isBusy) {
+      return;
+    }
     var payment = PeachPayment(
 //      merchantReference: widget.invoiceBid.investor.split('#').elementAt(1),
       merchantReference: 'OneConnect',
@@ -198,6 +258,7 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
     );
   }
 
+  double _opacity = 0.0;
   Widget _getBody() {
     return ListView(
       children: <Widget>[
@@ -210,15 +271,18 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
         Padding(
           padding: const EdgeInsets.all(20.0),
           child: Center(
-            child: RaisedButton(
-              elevation: 16.0,
-              onPressed: _getPaymentKey,
-              color: Colors.pink.shade400,
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Text(
-                  'Settle Invoice Bid',
-                  style: Styles.whiteMedium,
+            child: Opacity(
+              opacity: _opacity,
+              child: RaisedButton(
+                elevation: 16.0,
+                onPressed: _getPaymentKey,
+                color: Colors.pink.shade400,
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Text(
+                    'Settle Invoice Bid',
+                    style: Styles.whiteMedium,
+                  ),
                 ),
               ),
             ),
@@ -250,8 +314,17 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
 
   @override
   onActionPressed(int action) {
-    // TODO: implement onActionPressed
-    return null;
+    switch (action) {
+      case PeachSuccess:
+        Navigator.pop(context);
+        break;
+      case PeachCancel:
+        break;
+      case PeachError:
+        break;
+      default:
+        break;
+    }
   }
 
   @override
@@ -268,5 +341,60 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
     });
 
     return getFormattedAmount('$t', context);
+  }
+
+  @override
+  onPeachNotify(PeachNotification notification) async {
+    print('_SettleInvoiceBid.onPeachNotify');
+    prettyPrint(notification.toJson(),
+        '######## notify message from Peach via Cloud Function via FCM:');
+
+    if (notification.payment_key != paymentKey.key) {
+      print('_SettleInvoiceBid.onPeachNotify - not our notification - quit');
+      return;
+    }
+    switch (notification.success) {
+      case '0': // error -
+        print('_SettleInvoiceBid.onPeachNotify ERROR from call - ignore?');
+        setState(() {
+          _opacity = 1.0;
+        });
+        return;
+      case '1': // success
+
+        break;
+    }
+    await _writeSettlement();
+  }
+
+  Future _writeSettlement() async {
+    var m = InvestorInvoiceSettlement(
+        amount: widget.invoiceBid.amount,
+        investor: widget.invoiceBid.investor,
+        user: NameSpace + 'User#${user.userId}',
+        peachPaymentKey: paymentKey.key,
+        offer: widget.invoiceBid.offer,
+        invoiceBid: NameSpace + 'InvoiceBid#${widget.invoiceBid.invoiceBidId}');
+
+    try {
+      var result = await DataAPI3.makeInvestorInvoiceSettlement(m);
+      print(
+          '_SettleInvoiceBid.onPeachNotify ####### SETTLEMENT registered on BFN and Firestore: ${result.toJson()}');
+      AppSnackbar.showSnackbarWithAction(
+          scaffoldKey: _scaffoldKey,
+          message: 'Payment registered',
+          textColor: Styles.white,
+          backgroundColor: Colors.teal,
+          actionLabel: 'Done',
+          listener: this,
+          icon: Icons.done,
+          action: 1);
+    } catch (e) {
+      AppSnackbar.showErrorSnackbar(
+          scaffoldKey: _scaffoldKey,
+          message: 'Error registering payment',
+          listener: this,
+          actionLabel: 'Close');
+    }
   }
 }

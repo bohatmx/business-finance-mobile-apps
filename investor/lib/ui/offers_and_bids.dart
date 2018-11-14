@@ -82,8 +82,6 @@ class _OffersAndBidsState extends State<OffersAndBids> {
   int days = 30;
 
   Widget _createUnsettledBids() {
-    print(
-        '\n\n_OfferListsState._createUnsettledBids ####################################\n\n');
     return Column(
       children: <Widget>[
         Padding(
@@ -141,8 +139,6 @@ class _OffersAndBidsState extends State<OffersAndBids> {
   }
 
   Widget _createOpenOffers() {
-    print(
-        '\n\n_OfferListsState._createOpenOffers ####################################\n\n');
     return Column(
       children: <Widget>[
         Padding(
@@ -202,8 +198,6 @@ class _OffersAndBidsState extends State<OffersAndBids> {
   }
 
   Widget _createSettledBids() {
-    print(
-        '\n\n_OfferListsState._createSettledBids ####################################\n\n');
     return Column(
       children: <Widget>[
         Padding(
