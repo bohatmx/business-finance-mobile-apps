@@ -529,42 +529,98 @@ class InvoiceBidCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       elevation: 4.0,
-      color: Colors.teal.shade50,
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(20.0),
         child: Column(
           children: <Widget>[
-            Row(
-              children: <Widget>[
-                Text('Bid Date', style: Styles.greyLabelSmall),
-                Padding(
-                  padding: const EdgeInsets.only(left: 8.0),
-                  child: Text(
-                      bid.date == null
-                          ? '0.00'
-                          : getFormattedDateLong('${bid.date}', context),
-                      style: Styles.blackBoldSmall),
-                ),
-              ],
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8.0),
+              child: Row(
+                children: <Widget>[
+                  Text('Bid Date', style: Styles.greyLabelSmall),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 8.0),
+                    child: Text(
+                        bid.date == null
+                            ? '0.00'
+                            : getFormattedDateLong('${bid.date}', context),
+                        style: Styles.blackSmall),
+                  ),
+                ],
+              ),
             ),
             Padding(
               padding: const EdgeInsets.only(top: 8.0),
               child: Row(
                 children: <Widget>[
-                  Text('Bid Time', style: Styles.greyLabelSmall),
+                  Container(
+                      width: 80.0,
+                      child: Text('Bid Time', style: Styles.greyLabelSmall)),
                   Padding(
                     padding: const EdgeInsets.only(left: 8.0),
                     child: Text(
                         bid.date == null
                             ? '0.00'
                             : getFormattedDateHour('${bid.date}'),
+                        style: Styles.blackSmall),
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 8.0),
+              child: Row(
+                children: <Widget>[
+                  Container(
+                      width: 80.0,
+                      child: Text('Reserved', style: Styles.greyLabelSmall)),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 8.0),
+                    child: Text(
+                        bid.reservePercent == null
+                            ? '0.0%'
+                            : '${bid.reservePercent.toStringAsFixed(1)} %',
                         style: Styles.purpleBoldSmall),
                   ),
                 ],
               ),
             ),
             Padding(
-              padding: const EdgeInsets.only(top: 16.0),
+              padding: const EdgeInsets.only(top: 8.0),
+              child: Row(
+                children: <Widget>[
+                  Container(
+                      width: 80.0,
+                      child: Text('Discount', style: Styles.greyLabelSmall)),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 8.0),
+                    child: Text(
+                        bid.discountPercent == null
+                            ? '0.0%'
+                            : '${bid.discountPercent.toStringAsFixed(1)} %',
+                        style: Styles.blackBoldSmall),
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 20.0),
+              child: Row(
+                children: <Widget>[
+                  Text('Expires', style: Styles.greyLabelSmall),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 8.0),
+                    child: Text(
+                        bid.endTime == null
+                            ? ''
+                            : '${getFormattedDateLong(bid.endTime, context)}',
+                        style: Styles.blackSmall),
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 4.0, bottom: 16.0),
               child: Row(
                 children: <Widget>[
                   Text('Type', style: Styles.greyLabelSmall),

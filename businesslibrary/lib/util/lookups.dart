@@ -290,7 +290,7 @@ String getFormattedDateLongWithTime(String date, BuildContext context) {
 }
 
 String getFormattedDateLong(String date, BuildContext context) {
-  print('\n\getFormattedDateLong $date'); //Sun, 28 Oct 2018 23:59:49 GMT
+//  print('\n\getFormattedDateLong $date'); //Sun, 28 Oct 2018 23:59:49 GMT
   Locale myLocale = Localizations.localeOf(context);
 
   initializeDateFormatting();
