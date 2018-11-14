@@ -39,7 +39,9 @@ class SummaryCard extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.only(left: 10.0, right: 10.0),
                   child: Text(
-                    '$total',
+                    total == null
+                        ? '0'
+                        : '${getFormattedNumber(total, context)}',
                     style:
                         totalStyle == null ? Styles.blackBoldLarge : totalStyle,
                   ),

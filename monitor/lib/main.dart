@@ -10,11 +10,9 @@ import 'package:businesslibrary/data/investor_profile.dart';
 import 'package:businesslibrary/data/invoice_bid.dart';
 import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/util/lookups.dart';
-import 'package:businesslibrary/util/peach.dart';
 import 'package:businesslibrary/util/selectors.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
-import 'package:businesslibrary/util/util.dart';
 import 'package:businesslibrary/util/webview.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -85,33 +83,6 @@ class _MyHomePageState extends State<MyHomePage>
     _firebaseMessaging.subscribeToTopic('heartbeats');
     print(
         '_MyHomePageState.initState ############ subscribed to invoiceBids topic');
-    _getPaymentKey();
-  }
-
-  _getPaymentKey() async {
-    var paymnt = PeachPayment(
-      merchantReference: 'mref123456789',
-      amount: 3400000.95,
-//      beneficiaryAccountNumber: '42346370097',
-//      beneficiaryAccountType: 'cheque',
-//      beneficiaryBank: 'Standard',
-//      beneficiaryName: 'BigJoe',
-      successURL: getFunctionsURL() + 'peachSuccess',
-      cancelUrl: getFunctionsURL() + 'peachCancel',
-      errorUrl: getFunctionsURL() + 'peachError',
-      notifyUrl: getFunctionsURL() + 'peachNotify',
-    );
-    var key = await Peach.getPaymentKey(payment: paymnt);
-    print(
-        '\n\n_MyHomePageState._getPaymentKey ########### paymentKey: ${key.key} ${key.url}');
-    var result = await Peach.pay(key.key);
-    if (result == 200) {
-      print(
-          '\n\n_MyHomePageState._getPaymentKey %%%%%%%%%%%%%%%%% PAYMENT MADE ?? - looking GOOD...? maybe?');
-    } else {
-      print(
-          '_MyHomePageState._getPaymentKey FAILED . FAILED . status: $result ');
-    }
   }
 
   int minutes = 1;
@@ -409,12 +380,12 @@ class _MyHomePageState extends State<MyHomePage>
         ],
       ),
 
-      floatingActionButton: FloatingActionButton(
-        onPressed: _restart,
-        elevation: 16.0,
-        tooltip: 'Restart',
-        child: Icon(Icons.directions_bike),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+//      floatingActionButton: FloatingActionButton(
+//        onPressed: _restart,
+//        elevation: 16.0,
+//        tooltip: 'Restart',
+//        child: Icon(Icons.directions_bike),
+//      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 
@@ -583,6 +554,21 @@ class _MyHomePageState extends State<MyHomePage>
                 ),
                 _getPossible(),
                 _getElapsed(),
+                Padding(
+                  padding: const EdgeInsets.only(top: 10.0),
+                  child: RaisedButton(
+                    color: Colors.purple.shade500,
+                    elevation: 8.0,
+                    onPressed: _restart,
+                    child: Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: Text(
+                        'Start Invoice Auto Trading',
+                        style: Styles.whiteSmall,
+                      ),
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
