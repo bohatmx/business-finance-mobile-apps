@@ -6,7 +6,6 @@ class InvoiceBid extends Findable {
   String endTime;
   double reservePercent;
   double amount;
-  double discountPercent;
   String offer, supplierFCMToken, investorFCMToken, customerFCMToken, wallet;
   String investor, date, autoTradeOrder;
   String user, documentReference, supplierId;
@@ -19,7 +18,6 @@ class InvoiceBid extends Findable {
       this.endTime,
       this.reservePercent,
       this.amount,
-      this.discountPercent,
       this.offer,
       this.investor,
       this.user,
@@ -41,7 +39,6 @@ class InvoiceBid extends Findable {
     this.endTime = data['endTime'];
     this.reservePercent = data['reservePercent'] * 1.0;
     this.amount = data['amount'] * 1.0;
-    this.discountPercent = data['discountPercent'] * 1.0;
     this.offer = data['offer'];
     this.investor = data['investor'];
     this.user = data['user'];
@@ -65,7 +62,6 @@ class InvoiceBid extends Findable {
         'endTime': endTime,
         'reservePercent': reservePercent,
         'amount': amount,
-        'discountPercent': discountPercent,
         'offer': offer,
         'investor': investor,
         'user': user,

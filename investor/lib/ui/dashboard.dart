@@ -436,10 +436,11 @@ class _DashboardState extends State<Dashboard>
     if (invoiceBid.investor == m) {
       unsettledBidSummary.totalUnsettledBids++;
       unsettledBidSummary.totalUnsettledBidAmount -= invoiceBid.amount;
-      _showSnack(
-          'Invoice Bid made: ${getFormattedAmount('${invoiceBid.amount}', context)}');
     }
+
     setState(() {});
+    _showSnack(
+        'Invoice Bid made: ${getFormattedAmount('${invoiceBid.amount}', context)} at ${getFormattedDateHour(invoiceBid.date)} GMT');
   }
 
   double opacity = 1.0;

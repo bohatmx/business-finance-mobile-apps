@@ -579,24 +579,24 @@ class InvoiceBidCard extends StatelessWidget {
                 ],
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.only(top: 8.0),
-              child: Row(
-                children: <Widget>[
-                  Container(
-                      width: 80.0,
-                      child: Text('Discount', style: Styles.greyLabelSmall)),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 8.0),
-                    child: Text(
-                        bid.discountPercent == null
-                            ? '0.0%'
-                            : '${bid.discountPercent.toStringAsFixed(1)} %',
-                        style: Styles.blackBoldSmall),
-                  ),
-                ],
-              ),
-            ),
+//            Padding(
+//              padding: const EdgeInsets.only(top: 8.0),
+//              child: Row(
+//                children: <Widget>[
+//                  Container(
+//                      width: 80.0,
+//                      child: Text('Discount', style: Styles.greyLabelSmall)),
+//                  Padding(
+//                    padding: const EdgeInsets.only(left: 8.0),
+//                    child: Text(
+//                        bid.discountPercent == null
+//                            ? '0.0%'
+//                            : '${bid.discountPercent.toStringAsFixed(1)} %',
+//                        style: Styles.blackBoldSmall),
+//                  ),
+//                ],
+//              ),
+//            ),
             Padding(
               padding: const EdgeInsets.only(top: 20.0),
               child: Row(
