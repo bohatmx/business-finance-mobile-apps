@@ -415,13 +415,31 @@ class _DashboardState extends State<Dashboard>
   }
 
   @override
-  onInvoiceBidMessage(invoiceBid) async {
-    print('\n\n_DashboardState.onInvoiceBidMessage \n${invoiceBid.toJson()}');
-    await _getSummaryData();
-    print('_DashboardState.onInvoiceBidMessage ############ ${offers.length}');
+  onInvoiceBidMessage(InvoiceBid invoiceBid) async {
+    print(
+        '_DashboardState.onInvoiceBidMessage invoiceBid arrived ###############################');
+    dashboardData.totalOpenOffers--;
+    dashboardData.totalOfferAmount -= invoiceBid.amount;
+    dashboardData.totalOpenOfferAmount -= invoiceBid.amount;
+    dashboardData.totalBids++;
+    dashboardData.totalBidAmount += invoiceBid.amount;
+    if (unsettledBidSummary == null) {
+      unsettledBidSummary = InvestorUnsettledBidSummary(
+        totalUnsettledBidAmount: 0.0,
+        totalUnsettledBids: 0,
+      );
+    }
+    String m = NameSpace + 'Investor#${investor.participantId}';
+    print(
+        '\n\n_DashboardState.onInvoiceBidMessage \n${invoiceBid.investorName} ${invoiceBid.investor}  - #### LOCAL:  ${investor.name} $m');
+
+    if (invoiceBid.investor == m) {
+      unsettledBidSummary.totalUnsettledBids++;
+      unsettledBidSummary.totalUnsettledBidAmount -= invoiceBid.amount;
+      _showSnack(
+          'Invoice Bid made: ${getFormattedAmount('${invoiceBid.amount}', context)}');
+    }
     setState(() {});
-    _showSnack(
-        'Invoice Bid made: ${getFormattedAmount('${invoiceBid.amount}', context)}');
   }
 
   double opacity = 1.0;
@@ -429,8 +447,12 @@ class _DashboardState extends State<Dashboard>
 
   @override
   onOfferMessage(Offer offer) async {
-    print('_DashboardState.onOfferMessage ${offer.toJson()}');
-    await _getSummaryData();
+    print(
+        '_DashboardState.onOfferMessage #################### ${offer.supplierName} ${offer.offerAmount}');
+    //await _getSummaryData();
+    dashboardData.totalOpenOffers++;
+    dashboardData.totalOpenOfferAmount += offer.offerAmount;
+
     setState(() {});
     _showSnack(
         'Offer arrived ${getFormattedAmount('${offer.offerAmount}', context)}');

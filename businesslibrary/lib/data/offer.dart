@@ -9,7 +9,7 @@ class Offer extends Findable {
   String user, date, supplier, contractURL;
   String invoiceDocumentRef, supplierName, customerName;
   String dateClosed;
-  String supplierDocumentRef, supplierFCMToken;
+  String supplierDocumentRef, supplierFCMToken, customerFCMToken;
   double invoiceAmount, offerAmount, discountPercent;
   bool isCancelled, isOpen;
   String sector, sectorName;
@@ -37,6 +37,7 @@ class Offer extends Findable {
       this.isCancelled,
       this.offerCancellation,
       this.supplierFCMToken,
+      this.customerFCMToken,
       this.invoiceDocumentRef,
       this.supplierDocumentRef,
       this.sector,
@@ -61,6 +62,7 @@ class Offer extends Findable {
     this.supplier = data['supplier'];
     this.invoiceBids = data['invoiceBids'];
     this.supplierFCMToken = data['supplierFCMToken'];
+    this.customerFCMToken = data['customerFCMToken'];
     this.dateClosed = data['dateClosed'];
     this.supplierName = data['supplierName'];
     this.customerName = data['customerName'];
@@ -95,6 +97,7 @@ class Offer extends Findable {
         'supplier': supplier,
         'invoiceBids': invoiceBids,
         'supplierFCMToken': supplierFCMToken,
+        'customerFCMToken': customerFCMToken,
         'dateClosed': dateClosed,
         'supplierName': supplierName,
         'customerName': customerName,

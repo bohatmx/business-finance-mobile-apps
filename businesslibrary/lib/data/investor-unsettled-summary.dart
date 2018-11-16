@@ -4,11 +4,11 @@ class InvestorUnsettledBidSummary {
   double totalUnsettledBidAmount = 0.0, maxInvestableAmount = 0.0;
 
   InvestorUnsettledBidSummary(
-      this.investorName,
+      {this.investorName,
       this.investorId,
       this.totalUnsettledBids,
       this.totalUnsettledBidAmount,
-      this.maxInvestableAmount);
+      this.maxInvestableAmount});
 
   InvestorUnsettledBidSummary.fromJson(Map data) {
     this.investorName = data['investorName'];

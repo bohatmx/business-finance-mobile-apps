@@ -63,78 +63,80 @@ class FCM {
 
     _firebaseMessaging.configure(
       onMessage: (Map<String, dynamic> message) async {
-        prettyPrint(message, '\n\nMessage from FCM ================>>>> :');
-        var data = message['data'];
-        String messageType = data["messageType"];
+        prettyPrint(message,
+            '\n\n################ Message from FCM ================>>>> :');
+        String messageType = message["messageType"];
+        print(
+            'FCM.configureFCM ************************** messageType: $messageType');
         try {
           switch (messageType) {
             case 'PURCHASE_ORDER':
-              var m = PurchaseOrder.fromJson(json.decode(data['json']));
+              var m = PurchaseOrder.fromJson(json.decode(message['json']));
               prettyPrint(
                   m.toJson(), '\n\n########## FCM PURCHASE_ORDER MESSAGE :');
               purchaseOrderListener.onPurchaseOrderMessage(m);
               break;
             case 'DELIVERY_NOTE':
-              var m = DeliveryNote.fromJson(json.decode(data['json']));
+              var m = DeliveryNote.fromJson(json.decode(message['json']));
               prettyPrint(
                   m.toJson(), '\n\n########## FCM DELIVERY_NOTE MESSAGE :');
               deliveryNoteListener.onDeliveryNoteMessage(m);
               break;
             case 'DELIVERY_ACCEPTANCE':
-              var m = DeliveryAcceptance.fromJson(json.decode(data['json']));
+              var m = DeliveryAcceptance.fromJson(json.decode(message['json']));
               prettyPrint(m.toJson(),
                   '\n\n########## FCM DELIVERY_ACCEPTANCE MESSAGE :');
               deliveryAcceptanceListener.onDeliveryAcceptanceMessage(m);
               break;
             case 'INVOICE':
-              var m = Invoice.fromJson(json.decode(data['json']));
+              var m = Invoice.fromJson(json.decode(message['json']));
               prettyPrint(m.toJson(), '\n\n########## FCM MINVOICE ESSAGE :');
               invoiceListener.onInvoiceMessage(m);
               break;
             case 'INVOICE_ACCEPTANCE':
-              var m = InvoiceAcceptance.fromJson(json.decode(data['json']));
+              var m = InvoiceAcceptance.fromJson(json.decode(message['json']));
               prettyPrint(m.toJson(), ' FCM INVOICE_ACCEPTANCE MESSAGE :');
               invoiceAcceptanceListener.onInvoiceAcceptanceMessage(m);
               break;
             case 'OFFER':
-              var m = Offer.fromJson(json.decode(data['json']));
+              var m = Offer.fromJson(json.decode(message['json']));
               prettyPrint(m.toJson(), '\n\n########## FCM OFFER MESSAGE :');
               offerListener.onOfferMessage(m);
               break;
             case 'INVOICE_BID':
-              var m = InvoiceBid.fromJson(json.decode(data['json']));
+              var m = InvoiceBid.fromJson(json.decode(message['json']));
               prettyPrint(
                   m.toJson(), '\n\n########## FCM INVOICE_BID MESSAGE :');
               invoiceBidListener.onInvoiceBidMessage(m);
               break;
             case 'HEARTBEAT':
-              Map map = json.decode(data['json']);
+              Map map = json.decode(message['json']);
               prettyPrint(map, '\n\n########## FCM HEARTBEAT MESSAGE :');
               heartbeatListener.onHeartbeat(map);
               break;
             case 'PEACH_NOTIFY':
-              Map map = json.decode(data['json']);
+              Map map = json.decode(message['json']);
               prettyPrint(map, '\n\n########## FCM PEACH_NOTIFY :');
               peachNotifyListener
                   .onPeachNotify(PeachNotification.fromJson(map));
               break;
             case 'PEACH_SUCCESS':
-              Map map = json.decode(data['json']);
+              Map map = json.decode(message['json']);
               prettyPrint(map, '\n\n########## FCM PEACH_SUCCESS :');
               peachSuccessListener.onPeachSuccess(map);
               break;
             case 'PEACH_CANCEL':
-              Map map = json.decode(data['json']);
+              Map map = json.decode(message['json']);
               prettyPrint(map, '\n\n########## FCM PEACH_CANCEL :');
               peachCancelListener.onPeachCancel(map);
               break;
             case 'PEACH_ERROR':
-              Map map = json.decode(data['json']);
+              Map map = json.decode(message['json']);
               prettyPrint(map, '\n\n########## FCM PEACH_ERROR :');
               peachErrorListener.onPeachError(PeachNotification.fromJson(map));
               break;
             case 'INVESTOR_INVOICE_SETTLEMENT':
-              Map map = json.decode(data['json']);
+              Map map = json.decode(message['json']);
               prettyPrint(
                   map, '\n\n########## FCM INVESTOR_INVOICE_SETTLEMENT :');
               investorInvoiceSettlementListener.onInvestorInvoiceSettlement(

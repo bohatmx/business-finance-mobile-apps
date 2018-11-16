@@ -10,9 +10,11 @@ import 'package:businesslibrary/data/auto_trade_order.dart';
 import 'package:businesslibrary/data/govt_entity.dart';
 import 'package:businesslibrary/data/investor.dart';
 import 'package:businesslibrary/data/investor_profile.dart';
+import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/data/wallet.dart';
+import 'package:businesslibrary/util/FCM.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
@@ -45,7 +47,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage>
-    implements GenListener, SnackBarListener {
+    implements GenListener, SnackBarListener, OfferListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
   int _phaseCounter = 0;
@@ -60,6 +62,9 @@ class _MyHomePageState extends State<MyHomePage>
   @override
   initState() {
     super.initState();
+    FCM.configureFCM(
+      offerListener: this,
+    );
   }
 
   void _generateBrandNewNetwork() async {
@@ -1128,6 +1133,13 @@ class _MyHomePageState extends State<MyHomePage>
     setState(() {
       this.message = message;
     });
+  }
+
+  @override
+  onOfferMessage(Offer offer) {
+    print(
+        '_MyHomePageState.onOfferMessage: ############ Offer received in Crudder: ${offer.supplierName} ${offer.offerAmount}');
+    return null;
   }
 }
 

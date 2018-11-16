@@ -227,6 +227,7 @@ class _MakeOfferPageState extends State<MakeOfferPage>
     var startTime = DateTime.now().toUtc();
     var endTime = startTime.add(new Duration(days: days)).toIso8601String();
 
+    var token = await _fcm.getToken();
     Offer offer = new Offer(
         supplier: NameSpace + 'Supplier#' + supplier.participantId,
         invoice: NameSpace + 'Invoice#' + invoice.invoiceId,
@@ -238,6 +239,7 @@ class _MakeOfferPageState extends State<MakeOfferPage>
         startTime: getUTCDate(),
         endTime: endTime,
         date: getUTCDate(),
+        supplierFCMToken: token,
         participantId: supplier.participantId,
         customerName: invoice.customerName,
         wallet: NameSpace + 'Wallet#${wallet.stellarPublicKey}',

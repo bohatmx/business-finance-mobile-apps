@@ -173,16 +173,9 @@ class _DashboardState extends State<Dashboard>
     _fcm.subscribeToTopic(
         FCM.TOPIC_INVOICE_ACCEPTANCES + supplier.participantId);
     _fcm.subscribeToTopic(FCM.TOPIC_GENERAL_MESSAGE);
-
+    _fcm.subscribeToTopic(FCM.TOPIC_INVOICE_BIDS + supplier.participantId);
     print(
         '\n\n_DashboardState._subscribeToFCMTopics SUBSCRIBED to topis - POs, Delivery acceptance, Invoice acceptance');
-
-    allOffers = await ListAPI.getOpenOffersBySupplier(supplier.participantId);
-    allOffers.forEach((i) {
-      _fcm.subscribeToTopic(FCM.TOPIC_INVOICE_BIDS + i.offerId);
-    });
-    print(
-        '_DashboardState._listenForBids -n subscribed to invoice bid topics: ${allOffers.length}');
   }
 
   Invoice lastInvoice;

@@ -14,6 +14,7 @@ import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 
 abstract class GenListener {
@@ -35,6 +36,7 @@ class Generator {
   static DateTime start;
   static GenListener genListener;
   static BuildContext context;
+  static final FirebaseMessaging _fcm = FirebaseMessaging();
 
   static Future fixEndDates() async {
     offers = await ListAPI.getOpenOffers();
@@ -302,6 +304,7 @@ class Generator {
     double disc = getRandomDisc();
     var sector = sectors.elementAt(rand.nextInt(sectors.length - 1));
     assert(sector != null);
+    var token = await _fcm.getToken();
     Offer offer = new Offer(
         supplier: invoice.supplier,
         invoice: NameSpace + 'Invoice#' + invoice.invoiceId,
@@ -312,6 +315,7 @@ class Generator {
         startTime: getUTCDate(),
         endTime: _getRandomEndDate(),
         date: getUTCDate(),
+        supplierFCMToken: token,
         participantId: supplier.participantId,
         customerName: invoice.customerName,
         supplierDocumentRef: supplier.documentReference,

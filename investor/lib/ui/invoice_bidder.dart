@@ -501,6 +501,7 @@ class _InvoiceBidderState extends State<InvoiceBidder>
 
     prettyPrint(offer.toJson(),
         '_InvoiceBidderState._onMakeBid ...........everything checks out. Making a bid:');
+    var token = await _firebaseMessaging.getToken();
     InvoiceBid bid = InvoiceBid(
         user: NameSpace + 'User#' + user.userId,
         reservePercent: percentage,
@@ -514,6 +515,8 @@ class _InvoiceBidderState extends State<InvoiceBidder>
         endTime: offer.endTime,
         wallet: NameSpace + 'Wallet#${wallet.stellarPublicKey}',
         isSettled: false,
+        supplierFCMToken: offer.supplierFCMToken,
+        investorFCMToken: token,
         supplierId: offer.supplier);
 
     try {

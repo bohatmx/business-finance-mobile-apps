@@ -61,6 +61,7 @@ class _MyHomePageState extends State<MyHomePage>
   DateTime startDate;
   OpenOfferSummary summary;
   String webViewTitle, webViewUrl;
+  AutoTradeStart autoTradeStart = AutoTradeStart();
 
   void _showWebView() {
     //Navigator.of(context).pushNamed('/webview');
@@ -104,18 +105,28 @@ class _MyHomePageState extends State<MyHomePage>
           backgroundColor: Styles.black);
     }
 
-    opacity = 1.0;
+    autoTradeStart = await SharedPrefs.getAutoTradeStart();
+    if (autoTradeStart == null) {
+      autoTradeStart = AutoTradeStart(
+          elapsedSeconds: 0.0,
+          dateEnded: getUTC(DateTime.now()),
+          possibleAmount: 0.0,
+          totalAmount: 0.0,
+          totalOffers: 0,
+          totalValidBids: 0);
+    }
     await _getMinutes();
+    setState(() {});
 
     _orders = await ListAPI.getAutoTradeOrders();
+    setState(() {});
     _profiles = await ListAPI.getInvestorProfiles();
     summary = await ListAPI.getOpenOffersSummary();
 
-    setState(() {
-      opacity = 0.0;
-    });
+    setState(() {});
     _scaffoldKey.currentState.hideCurrentSnackBar();
 
+    opacity = 1.0;
     if (_orders.isNotEmpty && _profiles.isNotEmpty) {
       _start();
     } else {
@@ -129,7 +140,6 @@ class _MyHomePageState extends State<MyHomePage>
   }
 
   Timer timer;
-  AutoTradeStart autoTradeStart = AutoTradeStart();
 
   ///start periodic timer to control AutoTradeExecutionBuilder
   _start() async {
@@ -161,6 +171,7 @@ class _MyHomePageState extends State<MyHomePage>
           });
           setState(() {
             messages.clear();
+            opacity = 0.0;
           });
           startDate = DateTime.now();
           autoTradeStart = await DataAPI3.executeAutoTrades();
@@ -210,7 +221,8 @@ class _MyHomePageState extends State<MyHomePage>
   List<InvoiceBid> bids = List();
 
   String time, count, amount;
-  double opacity = 0.0;
+  double opacity = 1.0;
+  double opacity2 = 0.0;
 
   void summarize() {
     double t = 0.00;
@@ -226,25 +238,36 @@ class _MyHomePageState extends State<MyHomePage>
   void _restart() async {
     print(
         '\n\n_MyHomePageState._restart ....starting auto trades ........... offers: $summary.totalOpenOffers\n\n');
-
     setState(() {
       messages.clear();
     });
+
     try {
       if (_orders.isNotEmpty &&
           _profiles.isNotEmpty &&
           summary.totalOpenOffers > 0) {
         setState(() {
           _showProgress = true;
-          autoTradeStart = AutoTradeStart();
+          autoTradeStart = AutoTradeStart(
+            totalAmount: 0.0,
+            possibleAmount: 0.0,
+            dateEnded: DateTime.now().toIso8601String(),
+            totalValidBids: 0,
+            elapsedSeconds: 0,
+          );
           invaliTrades.clear();
           bidsArrived.clear();
+          opacity = 0.0;
         });
         startDate = DateTime.now();
         autoTradeStart = await DataAPI3.executeAutoTrades();
-
+        await SharedPrefs.saveAutoTradeStart(autoTradeStart);
+        setState(() {
+          _showProgress = null;
+        });
         await _getInvestorSummaries();
-
+        setState(() {});
+        opacity = 1.0;
         if (autoTradeStart == null) {
           AppSnackbar.showErrorSnackbar(
               scaffoldKey: _scaffoldKey,
@@ -253,9 +276,6 @@ class _MyHomePageState extends State<MyHomePage>
               actionLabel: 'close');
         } else {
           print('_MyHomePageState._start ++++ summary in the house!');
-          setState(() {
-            _showProgress = null;
-          });
           AppSnackbar.showSnackbar(
               scaffoldKey: _scaffoldKey,
               message: 'Auto Trade Session complete',
@@ -310,7 +330,7 @@ class _MyHomePageState extends State<MyHomePage>
                   ),
                 ),
                 Opacity(
-                  opacity: opacity,
+                  opacity: opacity2,
                   child: Padding(
                     padding: const EdgeInsets.all(12.0),
                     child: Container(
@@ -341,6 +361,7 @@ class _MyHomePageState extends State<MyHomePage>
     return new Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
+        elevation: 8.0,
         title: Text(
           'BFN Monitor',
           style: Styles.whiteBoldMedium,
@@ -437,7 +458,7 @@ class _MyHomePageState extends State<MyHomePage>
     return ListView(
       children: <Widget>[
         Padding(
-          padding: const EdgeInsets.all(12.0),
+          padding: const EdgeInsets.only(top: 12.0, left: 12.0, right: 12.0),
           child: Card(
             elevation: 2.0,
             color: Colors.orange.shade50,
@@ -542,29 +563,34 @@ class _MyHomePageState extends State<MyHomePage>
           elevation: 8.0,
           color: Colors.purple.shade50,
           child: Padding(
-            padding: const EdgeInsets.all(20.0),
+            padding: const EdgeInsets.only(
+                top: 10.0, left: 20.0, right: 20.0, bottom: 20.0),
             child: Column(
               children: <Widget>[
                 _getHeader(),
                 _getTime(),
                 _getAmount(),
                 Padding(
-                  padding: const EdgeInsets.only(top: 18.0),
+                  padding: const EdgeInsets.only(top: 10.0),
                   child: _getTrades(),
                 ),
                 _getPossible(),
                 _getElapsed(),
                 Padding(
                   padding: const EdgeInsets.only(top: 10.0),
-                  child: RaisedButton(
-                    color: Colors.purple.shade500,
-                    elevation: 8.0,
-                    onPressed: _restart,
-                    child: Padding(
-                      padding: const EdgeInsets.all(12.0),
-                      child: Text(
-                        'Start Invoice Auto Trading',
-                        style: Styles.whiteSmall,
+                  child: AnimatedOpacity(
+                    opacity: opacity,
+                    duration: Duration(microseconds: 2000),
+                    child: RaisedButton(
+                      color: Colors.purple.shade500,
+                      elevation: 8.0,
+                      onPressed: _restart,
+                      child: Padding(
+                        padding: const EdgeInsets.all(12.0),
+                        child: Text(
+                          'Start Invoice Auto Trading',
+                          style: Styles.whiteSmall,
+                        ),
                       ),
                     ),
                   ),
@@ -579,23 +605,31 @@ class _MyHomePageState extends State<MyHomePage>
 
   Widget _getSubHeader() {
     return Padding(
-      padding: const EdgeInsets.only(top: 20.0),
+      padding: const EdgeInsets.only(top: 10.0),
       child: Column(
         children: <Widget>[
-          Text(
-            'Automatic Trade every',
-            style: Styles.greyLabelMedium,
+          Padding(
+            padding: const EdgeInsets.only(left: 20.0),
+            child: Row(
+              children: <Widget>[
+                Text(
+                  'Automatic Trade every',
+                  style: Styles.greyLabelMedium,
+                ),
+              ],
+            ),
           ),
           Padding(
             padding: const EdgeInsets.only(left: 60.0, right: 100.0),
             child: TextField(
               controller: controller,
+              textInputAction: TextInputAction.continueAction,
               keyboardType: TextInputType.numberWithOptions(),
               onChanged: _onMinutesChanged,
               maxLength: 4,
-              style: Styles.purpleBoldMedium,
+              style: Styles.blackBoldMedium,
               decoration: InputDecoration(
-                icon: Icon(Icons.access_time),
+                prefixIcon: Icon(Icons.access_time),
                 labelText: 'Minutes',
               ),
             ),
@@ -644,7 +678,7 @@ class _MyHomePageState extends State<MyHomePage>
               summary == null
                   ? '0'
                   : getFormattedNumber(summary.totalOpenOffers, context),
-              style: Styles.blueBoldMedium,
+              style: Styles.blueBoldLarge,
             ),
           ),
         ],
@@ -669,7 +703,7 @@ class _MyHomePageState extends State<MyHomePage>
             summary == null
                 ? '0.00'
                 : '${getFormattedAmount('${summary.totalOfferAmount}', context)}',
-            style: Styles.blackBoldMedium,
+            style: Styles.blackBoldLarge,
           ),
         ],
       ),
@@ -725,11 +759,24 @@ class _MyHomePageState extends State<MyHomePage>
         ),
         Padding(
           padding: const EdgeInsets.only(left: 2.0),
-          child: Text(
-            autoTradeStart.dateEnded == null
-                ? '00:00'
-                : getFormattedDateHour(autoTradeStart.dateEnded),
-            style: Styles.blackSmall,
+          child: Row(
+            children: <Widget>[
+              Text(
+                autoTradeStart == null
+                    ? '00:00'
+                    : getFormattedDateShort(autoTradeStart.dateEnded, context),
+                style: Styles.blackSmall,
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: 8.0),
+                child: Text(
+                  autoTradeStart == null
+                      ? '00:00'
+                      : getFormattedDateHour(autoTradeStart.dateEnded),
+                  style: Styles.blackSmall,
+                ),
+              ),
+            ],
           ),
         ),
       ],
@@ -751,7 +798,7 @@ class _MyHomePageState extends State<MyHomePage>
           Padding(
             padding: const EdgeInsets.only(left: 2.0),
             child: Text(
-              autoTradeStart.totalAmount == null
+              autoTradeStart == null
                   ? '0.00'
                   : getFormattedAmount(
                       '${autoTradeStart.totalAmount}', context),
@@ -765,7 +812,7 @@ class _MyHomePageState extends State<MyHomePage>
 
   Widget _getTrades() {
     return Padding(
-      padding: const EdgeInsets.only(top: 2.0, bottom: 10.0),
+      padding: const EdgeInsets.only(top: 2.0, bottom: 2.0),
       child: Row(
         children: <Widget>[
           Container(
@@ -778,9 +825,7 @@ class _MyHomePageState extends State<MyHomePage>
           Padding(
             padding: const EdgeInsets.only(left: 2.0),
             child: Text(
-              autoTradeStart.totalValidBids == null
-                  ? '0'
-                  : '${autoTradeStart.totalValidBids}',
+              autoTradeStart == null ? '0' : '${autoTradeStart.totalValidBids}',
               style: Styles.blackBoldMedium,
             ),
           ),
@@ -791,7 +836,7 @@ class _MyHomePageState extends State<MyHomePage>
 
   Widget _getPossible() {
     return Padding(
-      padding: const EdgeInsets.only(top: 0.0, bottom: 10.0),
+      padding: const EdgeInsets.only(top: 0.0, bottom: 0.0),
       child: Row(
         children: <Widget>[
           Container(
@@ -804,7 +849,7 @@ class _MyHomePageState extends State<MyHomePage>
           Padding(
             padding: const EdgeInsets.only(left: 2.0),
             child: Text(
-              autoTradeStart.possibleAmount == null
+              autoTradeStart == null
                   ? '0.00'
                   : getFormattedAmount(
                       '${autoTradeStart.possibleAmount}', context),
@@ -814,6 +859,26 @@ class _MyHomePageState extends State<MyHomePage>
         ],
       ),
     );
+  }
+
+  String translateTime() {
+    if (autoTradeStart == null) {
+      return '0 seconds';
+    }
+    if (autoTradeStart.elapsedSeconds == null) {
+      return '0 seconds';
+    }
+    if (autoTradeStart.elapsedSeconds < 60) {
+      return '${autoTradeStart.elapsedSeconds} seconds';
+    }
+    var min = autoTradeStart.elapsedSeconds ~/ 60;
+    var rem = autoTradeStart.elapsedSeconds % 60;
+    if (rem > 0) {
+      min++;
+      return '$min minutes ${rem.toStringAsFixed(0)} seconds';
+    } else {
+      return '$min minutes';
+    }
   }
 
   Widget _getElapsed() {
@@ -831,9 +896,7 @@ class _MyHomePageState extends State<MyHomePage>
           Padding(
             padding: const EdgeInsets.only(left: 2.0),
             child: Text(
-              autoTradeStart.elapsedSeconds == null
-                  ? '0.0'
-                  : '${autoTradeStart.elapsedSeconds} seconds',
+              autoTradeStart == null ? '0.0' : translateTime(),
               style: Styles.blueSmall,
             ),
           ),
@@ -862,11 +925,14 @@ class _MyHomePageState extends State<MyHomePage>
     }
     autoTradeStart.totalAmount = tot;
     autoTradeStart.totalValidBids = bidsArrived.length;
+    autoTradeStart.dateEnded = DateTime.now().toIso8601String();
     autoTradeStart.elapsedSeconds =
         DateTime.now().difference(startDate).inSeconds * 1.0;
     autoTradeStart.dateEnded =
         getFormattedDateHour('${DateTime.now().toIso8601String()}');
-    _getLists(false);
+    summary.totalOpenOffers--;
+    summary.totalOfferAmount -= invoiceBid.amount;
+    //_getLists(false);
     setState(() {
       messages.add(msg);
     });
