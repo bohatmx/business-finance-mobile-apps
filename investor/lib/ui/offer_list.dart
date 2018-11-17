@@ -555,7 +555,9 @@ class _OfferListState extends State<OfferList>
         textColor: Styles.white,
         backgroundColor: Styles.brown);
     await Refresh.refresh(investor);
-    _scaffoldKey.currentState.removeCurrentSnackBar();
+    try {
+      _scaffoldKey.currentState.removeCurrentSnackBar();
+    } catch (e) {}
     _getCached();
   }
 

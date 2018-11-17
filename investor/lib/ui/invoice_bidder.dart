@@ -517,7 +517,7 @@ class _InvoiceBidderState extends State<InvoiceBidder>
         isSettled: false,
         supplierFCMToken: offer.supplierFCMToken,
         investorFCMToken: token,
-        supplierId: offer.supplier);
+        supplier: offer.supplier);
 
     try {
       var resultBid = await DataAPI3.makeInvoiceBid(bid);

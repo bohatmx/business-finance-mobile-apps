@@ -5,7 +5,7 @@ import 'package:businesslibrary/util/database.dart';
 
 class Refresh {
   static Future refresh(Investor investor) async {
-    print('Refresh.refresh ===== refresh investor data');
+    print('Refresh.refresh ############## ===== refresh investor data');
 
     var dashboardData = await ListAPI.getInvestorDashboardData(
         investor.participantId, investor.documentReference);
@@ -20,7 +20,8 @@ class Refresh {
     var o = await ListAPI.getOpenOffers();
     await Database.saveOffers(Offers(o));
 
-    print('\n\nRefresh._getDetailData --------- investor data refreshed');
+    print(
+        '\n\nRefresh._getDetailData --------- ++++++++++++ investor data refreshed');
     return null;
   }
 }

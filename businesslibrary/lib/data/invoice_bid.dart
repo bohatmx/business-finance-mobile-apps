@@ -9,7 +9,7 @@ class InvoiceBid extends Findable {
   double discountPercent;
   String offer, supplierFCMToken, investorFCMToken, customerFCMToken, wallet;
   String investor, date, autoTradeOrder;
-  String user, documentReference, supplierId;
+  String user, documentReference, supplier;
   String invoiceBidAcceptance, investorName;
   bool isSettled;
 
@@ -28,7 +28,7 @@ class InvoiceBid extends Findable {
       this.autoTradeOrder,
       this.wallet,
       this.isSettled,
-      this.supplierId,
+      this.supplier,
       this.supplierFCMToken,
       this.investorFCMToken,
       this.customerFCMToken,
@@ -58,7 +58,7 @@ class InvoiceBid extends Findable {
     this.customerFCMToken = data['customerFCMToken'];
     this.investorName = data['investorName'];
     this.wallet = data['wallet'];
-    this.supplierId = data['supplierId'];
+    this.supplier = data['supplier'];
     this.date = data['date'];
     this.isSettled = data['isSettled'];
     this.autoTradeOrder = data['autoTradeOrder'];
@@ -82,7 +82,7 @@ class InvoiceBid extends Findable {
         'customerFCMToken': customerFCMToken,
         'investorName': investorName,
         'wallet': wallet,
-        'supplierId': supplierId,
+        'supplier': supplier,
         'isSettled': isSettled,
         'autoTradeOrder': autoTradeOrder,
       };
