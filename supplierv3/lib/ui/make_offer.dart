@@ -110,6 +110,7 @@ class _MakeOfferPageState extends State<MakeOfferPage>
     supplier = await SharedPrefs.getSupplier();
     user = await SharedPrefs.getUser();
     FCM.configureFCM(
+      context: context,
       invoiceBidListener: this,
       purchaseOrderListener: this,
     );

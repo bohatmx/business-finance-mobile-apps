@@ -68,6 +68,7 @@ class _PurchaseOrderPageState extends State<PurchaseOrderPageGovt>
     govtEntity = await SharedPrefs.getGovEntity();
     assert(govtEntity != null);
     FCM.configureFCM(
+      context: context,
       deliveryNoteListener: this,
       invoiceListener: this,
     );

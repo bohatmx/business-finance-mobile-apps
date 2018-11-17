@@ -18,6 +18,7 @@ import 'package:businesslibrary/data/sector.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/FCM.dart';
 import 'package:businesslibrary/util/database.dart';
+import 'package:businesslibrary/util/invoice_bid_card.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
@@ -76,8 +77,6 @@ class _DashboardState extends State<Dashboard>
     _getCachedPrefs();
 
     items = buildDaysDropDownItems();
-    _subscribeToFCM();
-    _checkSectors();
   }
 
   @override
@@ -94,7 +93,8 @@ class _DashboardState extends State<Dashboard>
   }
 
   void _subscribeToFCM() {
-    FCM.configureFCM(invoiceBidListener: this, offerListener: this);
+    FCM.configureFCM(
+        invoiceBidListener: this, offerListener: this, context: context);
     _firebaseMessaging.subscribeToTopic(FCM.TOPIC_INVOICE_BIDS);
     _firebaseMessaging.subscribeToTopic(FCM.TOPIC_OFFERS);
     print('_DashboardState._subscribeToFCM ########## subscribed!');
@@ -187,8 +187,10 @@ class _DashboardState extends State<Dashboard>
   }
 
   Future _getCachedPrefs() async {
+//    await SharedPrefs.removeInvestor();
     investor = await SharedPrefs.getInvestor();
-
+    print(
+        '\n\n\n_DashboardState._getCachedPrefs ################### $investor');
     if (investor == null) {
       Navigator.push(
         context,
@@ -196,6 +198,8 @@ class _DashboardState extends State<Dashboard>
       );
       return;
     }
+    _subscribeToFCM();
+    _checkSectors();
     user = await SharedPrefs.getUser();
     fullName = user.firstName + ' ' + user.lastName;
     name = investor.name;
@@ -442,6 +446,42 @@ class _DashboardState extends State<Dashboard>
     );
   }
 
+  _showBottomSheet(InvoiceBid bid) {
+    if (_scaffoldKey.currentState == null) return;
+    _scaffoldKey.currentState.showBottomSheet<Null>((BuildContext context) {
+      return AnimatedContainer(
+        curve: Curves.fastOutSlowIn,
+        duration: Duration(seconds: 2),
+        height: 360.0,
+        color: Colors.brown.shade200,
+        child: Column(
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.only(
+                left: 20.0,
+                top: 20.0,
+              ),
+              child: Row(
+                children: <Widget>[
+                  Text(
+                    'Trading Result',
+                    style: Styles.purpleBoldMedium,
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: InvoiceBidCard(
+                bid: bid,
+              ),
+            ),
+          ],
+        ),
+      );
+    });
+  }
+
   @override
   onInvoiceBidMessage(InvoiceBid invoiceBid) async {
     print(
@@ -462,7 +502,8 @@ class _DashboardState extends State<Dashboard>
 
     if (invoiceBid.investor == m) {
       unsettledBidSummary.totalUnsettledBids++;
-      unsettledBidSummary.totalUnsettledBidAmount -= invoiceBid.amount;
+      unsettledBidSummary.totalUnsettledBidAmount += invoiceBid.amount;
+      _showBottomSheet(invoiceBid);
     }
 
     setState(() {});

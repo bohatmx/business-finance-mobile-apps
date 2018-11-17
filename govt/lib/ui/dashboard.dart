@@ -113,6 +113,7 @@ class _DashboardState extends State<Dashboard>
 
   void _prepareFCM() {
     FCM.configureFCM(
+      context: context,
       deliveryNoteListener: this,
       invoiceListener: this,
       generalMessageListener: this,

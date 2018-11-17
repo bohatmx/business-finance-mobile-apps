@@ -7,6 +7,7 @@ import 'package:businesslibrary/data/invoice_settlement.dart';
 import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/FCM.dart';
+import 'package:businesslibrary/util/invoice_bid_card.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/peach.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
@@ -15,7 +16,6 @@ import 'package:businesslibrary/util/util.dart';
 import 'package:businesslibrary/util/webview.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:investor/ui/offers_and_bids.dart';
 
 class SettleInvoiceBid extends StatefulWidget {
   final InvoiceBid invoiceBid;
@@ -45,7 +45,8 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
     super.initState();
     _getCache();
     _getOffer();
-    FCM.configureFCM(invoiceBidListener: this, peachNotifyListener: this);
+    FCM.configureFCM(
+        context: context, invoiceBidListener: this, peachNotifyListener: this);
     fm.subscribeToTopic(FCM.TOPIC_PEACH_NOTIFY);
   }
 

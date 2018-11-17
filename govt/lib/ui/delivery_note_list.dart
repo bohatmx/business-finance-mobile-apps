@@ -53,6 +53,7 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
     baseList = await Database.getDeliveryNotes();
     pageLimit = await SharedPrefs.getPageLimit();
     FCM.configureFCM(
+      context: context,
       deliveryNoteListener: this,
       invoiceListener: this,
     );

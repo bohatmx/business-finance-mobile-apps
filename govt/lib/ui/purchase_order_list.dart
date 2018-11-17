@@ -50,6 +50,7 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
       setState(() {});
     }
     FCM.configureFCM(
+      context: context,
       deliveryNoteListener: this,
       invoiceListener: this,
     );

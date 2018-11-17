@@ -61,6 +61,7 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
 
     FCM.configureFCM(
       deliveryAcceptanceListener: this,
+      context: context,
     );
     _fcm.subscribeToTopic(
         FCM.TOPIC_DELIVERY_ACCEPTANCES + supplier.participantId);

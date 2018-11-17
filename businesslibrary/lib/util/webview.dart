@@ -25,6 +25,7 @@ class _BFNWebViewState extends State<BFNWebView>
   void initState() {
     super.initState();
     FCM.configureFCM(
+      context: context,
       peachSuccessListener: this,
       peachCancelListener: this,
       peachErrorListener: this,

@@ -15,6 +15,7 @@ import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/FCM.dart';
 import 'package:businesslibrary/util/database.dart';
+import 'package:businesslibrary/util/invoice_bid_card.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
@@ -157,6 +158,7 @@ class _DashboardState extends State<Dashboard>
     _getSummaryData(false);
     //
     FCM.configureFCM(
+      context: context,
       purchaseOrderListener: this,
       deliveryAcceptanceListener: this,
       invoiceAcceptanceListener: this,
@@ -176,6 +178,39 @@ class _DashboardState extends State<Dashboard>
     _fcm.subscribeToTopic(FCM.TOPIC_INVOICE_BIDS + supplier.participantId);
     print(
         '\n\n_DashboardState._subscribeToFCMTopics SUBSCRIBED to topis - POs, Delivery acceptance, Invoice acceptance');
+  }
+
+  _showBottomSheet(InvoiceBid bid) {
+    if (_scaffoldKey.currentState == null) return;
+    _scaffoldKey.currentState.showBottomSheet<Null>((BuildContext context) {
+      return AnimatedContainer(
+        duration: Duration(seconds: 2),
+        curve: Curves.fastOutSlowIn,
+        height: 350.0,
+        color: Colors.brown.shade200,
+        child: Column(
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.only(top: 20.0, left: 20.0),
+              child: Row(
+                children: <Widget>[
+                  Text(
+                    'Trading Result',
+                    style: Styles.purpleBoldMedium,
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: InvoiceBidCard(
+                bid: bid,
+              ),
+            ),
+          ],
+        ),
+      );
+    });
   }
 
   Invoice lastInvoice;
@@ -465,8 +500,7 @@ class _DashboardState extends State<Dashboard>
   onInvoiceBidMessage(InvoiceBid invoiceBid) async {
     print(
         '\n\n\n_DashboardState.onInvoiceBidMessage ################ INVOICE BID incoming! ${invoiceBid.investorName}');
-    _showSnack('Invoice Bid  arrived', Colors.lightBlue);
-    await _getSummaryData(true);
+    _showBottomSheet(invoiceBid);
     setState(() {});
   }
 

@@ -39,7 +39,11 @@ class InvoiceBid extends Findable {
     this.invoiceBidId = data['invoiceBidId'];
     this.startTime = data['startTime'];
     this.endTime = data['endTime'];
-    this.reservePercent = data['reservePercent'] * 1.0;
+    try {
+      this.reservePercent = data['reservePercent'] * 1.0;
+    } catch (e) {
+      this.reservePercent = 0.0;
+    }
     this.amount = data['amount'] * 1.0;
     try {
       this.discountPercent = data['discountPercent'] * 1.0;

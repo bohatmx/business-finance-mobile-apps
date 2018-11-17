@@ -12,11 +12,10 @@ import 'package:businesslibrary/data/invoice_settlement.dart';
 import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/supplier.dart';
-import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/peach.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/material.dart';
 
 class FCM {
   static final FirebaseMessaging _firebaseMessaging = new FirebaseMessaging();
@@ -30,6 +29,7 @@ class FCM {
   static const TOPIC_AUTO_TRADES = 'autoTrades';
   static const TOPIC_GENERAL_MESSAGE = 'messages';
   static const TOPIC_INVOICE_BIDS = 'invoiceBids';
+  static const TOPIC_HEARTBEATS = 'heartbeats';
   static const TOPIC_SUPPLIERS = 'suppliers';
   static const TOPIC_CUSTOMERS = 'customers';
   static const TOPIC_INVESTORS = 'investors';
@@ -41,7 +41,8 @@ class FCM {
       "investorInvoiceSettlements";
 
   static configureFCM(
-      {PurchaseOrderListener purchaseOrderListener,
+      {BuildContext context,
+      PurchaseOrderListener purchaseOrderListener,
       DeliveryNoteListener deliveryNoteListener,
       DeliveryAcceptanceListener deliveryAcceptanceListener,
       InvoiceListener invoiceListener,
@@ -60,83 +61,101 @@ class FCM {
       PeachNotifyListener peachNotifyListener}) async {
     print(
         '\n\n\ ################ CONFIGURE FCM MESSAGE ###########  starting _firebaseMessaging');
-
+/*
+################ Message from FCM ================>>>> : 	{
+I/flutter (  684): 	notification : {body: Invoice Bid from CashFlow Kings amount: 297321, title: Invoice Bid} ,
+I/flutter (  684): 	data : {messageType: INVOICE_BID, json: {"invoiceBidId":"2c7520c0-ea35-11e8-b1bd-a5190111f651","amount":297321,"reservePercent":100,"autoTradeOrder":"resource:com.oneconnect.biz.AutoTradeOrder#38c0b3a0-bd30-11e8-a376-7950af1e4f7d","investor":"resource:com.oneconnect.biz.Investor#319dc450-bd30-11e8-e859-abf5c10894c0","offer":"resource:com.oneconnect.biz.Offer#684cc990-e440-11e8-f5ef-e125c834330a","investorName":"CashFlow Kings","wallet":"resource:com.oneconnect.biz.Wallet#GDDX6YCRMYWX6VYTND5KBGZM4VZRKAYBNEB2AGII6IQUKFQYQA44TS6S","date":"2018-11-17T06:51:13.484Z","isSettled":false,"supplier":"resource:com.oneconnect.biz.Supplier#e0860820-bd30-11e8-d59e-91e011144075","discountPercent":7,"startTime":"2018-11-17T06:51:13.484Z","endTime":"2018-11-17T06:51:13.484Z"}} ,
+I/flutter (  684):
+I/flutter (  684): }
+ */
     _firebaseMessaging.configure(
-      onMessage: (Map<String, dynamic> message) async {
-        prettyPrint(message,
+      onMessage: (Map<String, dynamic> map) async {
+        prettyPrint(map,
             '\n\n################ Message from FCM ================>>>> :');
-        String messageType = message["messageType"];
+
+        bool ios = Theme.of(context).platform == TargetPlatform.iOS;
+        String messageType;
+        String mJSON;
+        if (ios) {
+          messageType = map["messageType"];
+          mJSON = map['json'];
+        } else {
+          var data = map['data'];
+          messageType = data["messageType"];
+          mJSON = data["json"];
+        }
+
         print(
             'FCM.configureFCM ************************** messageType: $messageType');
         try {
           switch (messageType) {
             case 'PURCHASE_ORDER':
-              var m = PurchaseOrder.fromJson(json.decode(message['json']));
+              var m = PurchaseOrder.fromJson(json.decode(mJSON));
               prettyPrint(
                   m.toJson(), '\n\n########## FCM PURCHASE_ORDER MESSAGE :');
               purchaseOrderListener.onPurchaseOrderMessage(m);
               break;
             case 'DELIVERY_NOTE':
-              var m = DeliveryNote.fromJson(json.decode(message['json']));
+              var m = DeliveryNote.fromJson(json.decode(mJSON));
               prettyPrint(
                   m.toJson(), '\n\n########## FCM DELIVERY_NOTE MESSAGE :');
               deliveryNoteListener.onDeliveryNoteMessage(m);
               break;
             case 'DELIVERY_ACCEPTANCE':
-              var m = DeliveryAcceptance.fromJson(json.decode(message['json']));
+              var m = DeliveryAcceptance.fromJson(json.decode(mJSON));
               prettyPrint(m.toJson(),
                   '\n\n########## FCM DELIVERY_ACCEPTANCE MESSAGE :');
               deliveryAcceptanceListener.onDeliveryAcceptanceMessage(m);
               break;
             case 'INVOICE':
-              var m = Invoice.fromJson(json.decode(message['json']));
+              var m = Invoice.fromJson(json.decode(mJSON));
               prettyPrint(m.toJson(), '\n\n########## FCM MINVOICE ESSAGE :');
               invoiceListener.onInvoiceMessage(m);
               break;
             case 'INVOICE_ACCEPTANCE':
-              var m = InvoiceAcceptance.fromJson(json.decode(message['json']));
+              var m = InvoiceAcceptance.fromJson(json.decode(mJSON));
               prettyPrint(m.toJson(), ' FCM INVOICE_ACCEPTANCE MESSAGE :');
               invoiceAcceptanceListener.onInvoiceAcceptanceMessage(m);
               break;
             case 'OFFER':
-              var m = Offer.fromJson(json.decode(message['json']));
+              var m = Offer.fromJson(json.decode(mJSON));
               prettyPrint(m.toJson(), '\n\n########## FCM OFFER MESSAGE :');
               offerListener.onOfferMessage(m);
               break;
             case 'INVOICE_BID':
-              var m = InvoiceBid.fromJson(json.decode(message['json']));
+              var m = InvoiceBid.fromJson(json.decode(mJSON));
               prettyPrint(
                   m.toJson(), '\n\n########## FCM INVOICE_BID MESSAGE :');
               invoiceBidListener.onInvoiceBidMessage(m);
               break;
             case 'HEARTBEAT':
-              Map map = json.decode(message['json']);
+              Map map = json.decode(mJSON);
               prettyPrint(map, '\n\n########## FCM HEARTBEAT MESSAGE :');
               heartbeatListener.onHeartbeat(map);
               break;
             case 'PEACH_NOTIFY':
-              Map map = json.decode(message['json']);
+              Map map = json.decode(mJSON);
               prettyPrint(map, '\n\n########## FCM PEACH_NOTIFY :');
               peachNotifyListener
                   .onPeachNotify(PeachNotification.fromJson(map));
               break;
             case 'PEACH_SUCCESS':
-              Map map = json.decode(message['json']);
+              Map map = json.decode(mJSON);
               prettyPrint(map, '\n\n########## FCM PEACH_SUCCESS :');
               peachSuccessListener.onPeachSuccess(map);
               break;
             case 'PEACH_CANCEL':
-              Map map = json.decode(message['json']);
+              Map map = json.decode(mJSON);
               prettyPrint(map, '\n\n########## FCM PEACH_CANCEL :');
               peachCancelListener.onPeachCancel(map);
               break;
             case 'PEACH_ERROR':
-              Map map = json.decode(message['json']);
+              Map map = json.decode(mJSON);
               prettyPrint(map, '\n\n########## FCM PEACH_ERROR :');
               peachErrorListener.onPeachError(PeachNotification.fromJson(map));
               break;
             case 'INVESTOR_INVOICE_SETTLEMENT':
-              Map map = json.decode(message['json']);
+              Map map = json.decode(mJSON);
               prettyPrint(
                   map, '\n\n########## FCM INVESTOR_INVOICE_SETTLEMENT :');
               investorInvoiceSettlementListener.onInvestorInvoiceSettlement(
@@ -185,18 +204,18 @@ class FCM {
       print('_updateToken - user NULL, no need to update -----');
       return;
     }
-    Firestore _firestore = Firestore.instance;
-    var qs = await _firestore
-        .collection('users')
-        .where('userId', isEqualTo: user.userId)
-        .getDocuments();
-    User mUser = User.fromJson(qs.documents.first.data);
-    mUser.fcmToken = token;
-    await _firestore
-        .collection('users')
-        .document(qs.documents.first.documentID)
-        .updateData(mUser.toJson());
-    SharedPrefs.saveUser(mUser);
+//    Firestore _firestore = Firestore.instance;
+//    var qs = await _firestore
+//        .collection('users')
+//        .where('userId', isEqualTo: user.userId)
+//        .getDocuments();
+//    User mUser = User.fromJson(qs.documents.first.data);
+//    mUser.fcmToken = token;
+//    await _firestore
+//        .collection('users')
+//        .document(qs.documents.first.documentID)
+//        .updateData(mUser.toJson());
+//    SharedPrefs.saveUser(mUser);
   }
 }
 

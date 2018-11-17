@@ -62,6 +62,7 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
     pageLimit = await SharedPrefs.getPageLimit();
 
     FCM.configureFCM(
+      context: context,
       purchaseOrderListener: this,
     );
     _fcm.subscribeToTopic(FCM.TOPIC_PURCHASE_ORDERS + supplier.participantId);

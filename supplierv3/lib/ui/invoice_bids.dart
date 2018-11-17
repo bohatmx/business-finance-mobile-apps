@@ -7,6 +7,7 @@ import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/FCM.dart';
+import 'package:businesslibrary/util/invoice_bid_card.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -257,8 +258,7 @@ class _InvoiceBidsState extends State<InvoiceBids>
                         _showMenuDialog(invoiceBids.elementAt(index));
                       },
                       child: InvoiceBidCard(
-                        invoiceBid: invoiceBids.elementAt(index),
-                        context: context,
+                        bid: invoiceBids.elementAt(index),
                       ),
                     );
                   }),
@@ -319,82 +319,5 @@ class _InvoiceBidsState extends State<InvoiceBids>
         message: message,
         textColor: textColor,
         backgroundColor: Colors.black);
-  }
-}
-
-class InvoiceBidCard extends StatelessWidget {
-  final InvoiceBid invoiceBid;
-  final BuildContext context;
-  InvoiceBidCard({this.invoiceBid, this.context});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 5.0, right: 5.0, bottom: 2.0),
-      child: Card(
-        elevation: 2.0,
-        color: Colors.brown.shade50,
-        child: Column(
-          children: <Widget>[
-            Row(
-              children: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Icon(
-                    Icons.description,
-                    color: Colors.grey,
-                  ),
-                ),
-                Text(
-                  getFormattedDateLongWithTime(invoiceBid.date, context),
-                  style: TextStyle(
-                      color: Colors.blue,
-                      fontSize: 16.0,
-                      fontWeight: FontWeight.normal),
-                ),
-              ],
-            ),
-            Padding(
-              padding: const EdgeInsets.only(left: 24.0),
-              child: Row(
-                children: <Widget>[
-                  Padding(
-                    padding: const EdgeInsets.only(left: 8.0),
-                    child: Text(
-                      invoiceBid.investorName,
-                      style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 18.0,
-                          fontWeight: FontWeight.w900),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Padding(
-              padding:
-                  const EdgeInsets.only(left: 40.0, bottom: 10.0, top: 10.0),
-              child: Row(
-                children: <Widget>[
-                  Text('Amount'),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 8.0),
-                    child: Text(
-                      invoiceBid.amount == null
-                          ? '0.00'
-                          : getFormattedAmount('${invoiceBid.amount}', context),
-                      style: TextStyle(
-                          fontSize: 20.0,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.teal),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
   }
 }

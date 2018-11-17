@@ -80,6 +80,7 @@ class _InvoiceListState extends State<InvoiceList>
     pageLimit = await SharedPrefs.getPageLimit();
 
     FCM.configureFCM(
+      context: context,
       invoiceListener: this,
     );
     _fcm.subscribeToTopic(FCM.TOPIC_INVOICES + entity.participantId);

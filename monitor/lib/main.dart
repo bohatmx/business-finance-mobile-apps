@@ -9,6 +9,7 @@ import 'package:businesslibrary/data/invalid_trade.dart';
 import 'package:businesslibrary/data/investor_profile.dart';
 import 'package:businesslibrary/data/invoice_bid.dart';
 import 'package:businesslibrary/data/offer.dart';
+import 'package:businesslibrary/util/FCM.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/selectors.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
@@ -51,7 +52,11 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage>
-    implements SnackBarListener, FCMListener {
+    implements
+        SnackBarListener,
+        InvoiceBidListener,
+        OfferListener,
+        HeartbeatListener {
   static const NUMBER_OF_BIDS_TO_MAKE = 2;
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   final FirebaseMessaging _firebaseMessaging = new FirebaseMessaging();
@@ -79,11 +84,17 @@ class _MyHomePageState extends State<MyHomePage>
   void initState() {
     super.initState();
     _getLists(true);
-    configureMessaging(this);
-    _firebaseMessaging.subscribeToTopic('invoiceBids');
-    _firebaseMessaging.subscribeToTopic('heartbeats');
+    FCM.configureFCM(
+      context: context,
+      invoiceBidListener: this,
+      heartbeatListener: this,
+      offerListener: this,
+    );
+    _firebaseMessaging.subscribeToTopic(FCM.TOPIC_INVOICE_BIDS);
+    _firebaseMessaging.subscribeToTopic(FCM.TOPIC_OFFERS);
+    _firebaseMessaging.subscribeToTopic(FCM.TOPIC_HEARTBEATS);
     print(
-        '_MyHomePageState.initState ############ subscribed to invoiceBids topic');
+        '_MyHomePageState.initState ############ subscribed to invoiceBids, heartbeats and offers topics');
   }
 
   int minutes = 1;
@@ -623,13 +634,11 @@ class _MyHomePageState extends State<MyHomePage>
             padding: const EdgeInsets.only(left: 60.0, right: 100.0),
             child: TextField(
               controller: controller,
-              textInputAction: TextInputAction.continueAction,
               keyboardType: TextInputType.numberWithOptions(),
               onChanged: _onMinutesChanged,
               maxLength: 4,
               style: Styles.blackBoldMedium,
               decoration: InputDecoration(
-                prefixIcon: Icon(Icons.access_time),
                 labelText: 'Minutes',
               ),
             ),

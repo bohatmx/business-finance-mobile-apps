@@ -53,6 +53,7 @@ class _DeliveryNotePageState extends State<DeliveryNotePage>
     FCM.configureFCM(
       deliveryAcceptanceListener: this,
       purchaseOrderListener: this,
+      context: context,
     );
     _fcm.subscribeToTopic(
         FCM.TOPIC_DELIVERY_ACCEPTANCES + supplier.participantId);

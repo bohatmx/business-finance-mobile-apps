@@ -153,7 +153,7 @@ class SharedPrefs {
 
   static Future saveUnsettled(InvestorUnsettledBidSummary summary) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-
+    if (summary == null) return null;
     Map jsonx = summary.toJson();
     var jx = json.encode(jsonx);
     prefs.setString('unsettled', jx);
@@ -338,11 +338,19 @@ class SharedPrefs {
     print("SharedPrefs.saveInvestor =========  data SAVED.........");
   }
 
+  static Future removeInvestor() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString('investor', null);
+    print("SharedPrefs.saveInvestor =========  data REMOVED.........");
+  }
+
   static Future<Investor> getInvestor() async {
+    print(
+        '\n\nSharedPrefs.getInvestor @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@');
     var prefs = await SharedPreferences.getInstance();
     var string = prefs.getString('investor');
     if (string == null) {
-      print('SharedPrefs.getInvestor  --------------- NO Investor here!');
+      print('\n\n\nSharedPrefs.getInvestor  --------------- NO Investor here!');
       return null;
     }
 

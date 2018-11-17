@@ -67,7 +67,7 @@ class _OfferListState extends State<OfferList>
     setState(() {});
     _scaffoldKey.currentState.hideCurrentSnackBar();
     var cnt = 0;
-    FCM.configureFCM(invoiceBidListener: this);
+    FCM.configureFCM(context: context, invoiceBidListener: this);
     offers.forEach((offer) {
       if (offer.isOpen) {
         _fcm.subscribeToTopic(FCM.TOPIC_INVOICE_BIDS + offer.offerId);

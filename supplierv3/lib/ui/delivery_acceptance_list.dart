@@ -44,6 +44,7 @@ class _DeliveryAcceptanceListState extends State<DeliveryAcceptanceList>
     user = await SharedPrefs.getUser();
     supplier = await SharedPrefs.getSupplier();
     FCM.configureFCM(
+      context: context,
       deliveryAcceptanceListener: this,
       invoiceAcceptanceListener: this,
     );

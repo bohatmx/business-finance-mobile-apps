@@ -17,7 +17,7 @@ class InvestorApp extends StatelessWidget {
       title: 'FinanceNetwork',
       debugShowCheckedModeBanner: false,
       theme: getTheme(),
-      home: new Dashboard(''),
+      home: new Dashboard(null),
     );
   }
 }
