@@ -126,9 +126,18 @@ class _DashboardState extends State<Dashboard>
     if (summaryBusy) {
       return;
     }
+
     dashboardData = await SharedPrefs.getDashboardData();
+    unsettledBidSummary = await SharedPrefs.getUnsettled();
     if (dashboardData != null) {
       setState(() {});
+    }
+    var refDate = await SharedPrefs.getRefreshDate();
+    var diff = DateTime.now().difference(refDate).inMinutes;
+    print('_DashboardState._getDetailData refresh data diff: $diff');
+    if (diff < 30) {
+      print('_DashboardState._getDetailData diff < 30 minutes');
+      return;
     }
     summaryBusy = true;
     AppSnackbar.showSnackbarWithProgressIndicator(
@@ -142,6 +151,8 @@ class _DashboardState extends State<Dashboard>
     await SharedPrefs.saveDashboardData(dashboardData);
     unsettledBidSummary =
         await ListAPI.getInvestorUnsettledBidSummary(investor.participantId);
+    await SharedPrefs.saveUnsettled(unsettledBidSummary);
+
     if (_scaffoldKey.currentState != null) {
       _scaffoldKey.currentState.hideCurrentSnackBar();
     }
@@ -151,12 +162,28 @@ class _DashboardState extends State<Dashboard>
     _getDetailData();
   }
 
-  Future _getDetailData() async {
-    var m = await ListAPI.getInvoiceBidsByInvestor(investor.documentReference);
-    await Database.saveInvoiceBids(InvoiceBids(m));
+  List<InvoiceBid> bids;
 
-    var o = await ListAPI.getOpenOffers();
-    await Database.saveOffers(Offers(o));
+  void _refresh() async {
+    await SharedPrefs.saveRefreshDate(
+        DateTime.now().subtract(Duration(days: 365)));
+    _getSummaryData();
+  }
+
+  Future _getDetailData() async {
+    var refDate = await SharedPrefs.getRefreshDate();
+    var diff = DateTime.now().difference(refDate).inMinutes;
+    print('_DashboardState._getDetailData refresh data diff: $diff');
+    if (diff < 30) {
+      print('_DashboardState._getDetailData diff < 30 minutes');
+      return;
+    }
+    bids = await ListAPI.getInvoiceBidsByInvestor(investor.documentReference);
+    await Database.saveInvoiceBids(InvoiceBids(bids));
+
+    offers = await ListAPI.getOpenOffers();
+    await Database.saveOffers(Offers(offers));
+    SharedPrefs.saveRefreshDate(DateTime.now());
   }
 
   Future _getCachedPrefs() async {
@@ -173,6 +200,7 @@ class _DashboardState extends State<Dashboard>
     fullName = user.firstName + ' ' + user.lastName;
     name = investor.name;
     setState(() {});
+
     _getSummaryData();
   }
 
@@ -206,7 +234,7 @@ class _DashboardState extends State<Dashboard>
             ),
             IconButton(
               icon: Icon(Icons.refresh),
-              onPressed: _getSummaryData,
+              onPressed: _refresh,
             ),
             IconButton(
               icon: Icon(Icons.attach_money),
@@ -421,8 +449,7 @@ class _DashboardState extends State<Dashboard>
     dashboardData.totalOpenOffers--;
     dashboardData.totalOfferAmount -= invoiceBid.amount;
     dashboardData.totalOpenOfferAmount -= invoiceBid.amount;
-    dashboardData.totalBids++;
-    dashboardData.totalBidAmount += invoiceBid.amount;
+
     if (unsettledBidSummary == null) {
       unsettledBidSummary = InvestorUnsettledBidSummary(
         totalUnsettledBidAmount: 0.0,
@@ -441,6 +468,15 @@ class _DashboardState extends State<Dashboard>
     setState(() {});
     _showSnack(
         'Invoice Bid made: ${getFormattedAmount('${invoiceBid.amount}', context)} at ${getFormattedDateHour(invoiceBid.date)} GMT');
+
+    if (invoiceBid.investor.split('#').elementAt(1) == investor.participantId) {
+      dashboardData.totalBids++;
+      dashboardData.totalBidAmount += invoiceBid.amount;
+      await SharedPrefs.saveDashboardData(dashboardData);
+      bids = await Database.getInvoiceBids();
+      bids.insert(0, invoiceBid);
+      await Database.saveInvoiceBids(InvoiceBids(bids));
+    }
   }
 
   double opacity = 1.0;
@@ -450,13 +486,18 @@ class _DashboardState extends State<Dashboard>
   onOfferMessage(Offer offer) async {
     print(
         '_DashboardState.onOfferMessage #################### ${offer.supplierName} ${offer.offerAmount}');
-    //await _getSummaryData();
+
     dashboardData.totalOpenOffers++;
     dashboardData.totalOpenOfferAmount += offer.offerAmount;
 
     setState(() {});
     _showSnack(
         'Offer arrived ${getFormattedAmount('${offer.offerAmount}', context)}');
+
+    await SharedPrefs.saveDashboardData(dashboardData);
+    offers = await Database.getOffers();
+    offers.insert(0, offer);
+    await Database.saveOffers(Offers(offers));
   }
 
   void _showSnack(String message) {

@@ -8,6 +8,7 @@ import 'package:businesslibrary/data/auto_trade_order.dart';
 import 'package:businesslibrary/data/bank.dart';
 import 'package:businesslibrary/data/dashboard_data.dart';
 import 'package:businesslibrary/data/govt_entity.dart';
+import 'package:businesslibrary/data/investor-unsettled-summary.dart';
 import 'package:businesslibrary/data/investor.dart';
 import 'package:businesslibrary/data/investor_profile.dart';
 import 'package:businesslibrary/data/oneconnect.dart';
@@ -150,6 +151,33 @@ class SharedPrefs {
     }
   }
 
+  static Future saveUnsettled(InvestorUnsettledBidSummary summary) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    Map jsonx = summary.toJson();
+    var jx = json.encode(jsonx);
+    prefs.setString('unsettled', jx);
+    print("SharedPrefs.saveUnsettled =========  data SAVED.........");
+  }
+
+  static Future<InvestorUnsettledBidSummary> getUnsettled() async {
+    print("SharedPrefs.getUnsettled =========  getting cached data.........");
+    var prefs = await SharedPreferences.getInstance();
+    var string = prefs.getString('unsettled');
+    if (string == null) {
+      print('SharedPrefs.getUnsettled is NULL');
+      return InvestorUnsettledBidSummary();
+    }
+    try {
+      var jx = json.decode(string);
+      var start = InvestorUnsettledBidSummary.fromJson(jx);
+      return start;
+    } catch (e) {
+      print('SharedPrefs.getUnsettled ERROR $e');
+      return null;
+    }
+  }
+
   static Future saveAutoTradeOrder(AutoTradeOrder order) async {
     print('SharedPrefs.saveAutoTradeOrder  saving data ........');
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -191,7 +219,6 @@ class SharedPrefs {
 
     Map jsonx = data.toJson();
     var jx = json.encode(jsonx);
-    print(jx);
     prefs.setString('dashboard', jx);
     //prefs.commit();
     print("SharedPrefs.saveDashboardData =========  data SAVED.........");
@@ -204,7 +231,7 @@ class SharedPrefs {
       return null;
     }
     var jx = json.decode(string);
-    prettyPrint(jx, 'DashboardData from cache: ');
+    //prettyPrint(jx, 'DashboardData from cache: ');
     DashboardData data = new DashboardData.fromJson(jx);
     return data;
   }
@@ -493,5 +520,23 @@ class SharedPrefs {
     prettyPrint(jx, 'OpenOfferSummary from cache: ');
     OpenOfferSummary data = new OpenOfferSummary.fromJson(jx);
     return data;
+  }
+
+  static Future saveRefreshDate(DateTime date) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setInt("refresh", date.millisecondsSinceEpoch);
+    print('SharedPrefs.saveRefreshDate ${date.toIso8601String()}');
+    return null;
+  }
+
+  static Future<DateTime> getRefreshDate() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    int ms = prefs.getInt("refresh");
+    if (ms == null) {
+      ms = DateTime.now().subtract(Duration(days: 365)).millisecondsSinceEpoch;
+    }
+    var date = DateTime.fromMillisecondsSinceEpoch(ms);
+    print('SharedPrefs.getRefreshDate ${date.toIso8601String()}');
+    return date;
   }
 }

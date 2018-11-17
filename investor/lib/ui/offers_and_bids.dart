@@ -73,7 +73,9 @@ class _OffersAndBidsState extends State<OffersAndBids> {
     openOffers.forEach((f) {
       totalOpenOffers += f.offerAmount;
     });
-    setState(() {});
+    try {
+      setState(() {});
+    } catch (e) {}
   }
 
   double totalUnsettled = 0.00;
@@ -579,24 +581,24 @@ class InvoiceBidCard extends StatelessWidget {
                 ],
               ),
             ),
-//            Padding(
-//              padding: const EdgeInsets.only(top: 8.0),
-//              child: Row(
-//                children: <Widget>[
-//                  Container(
-//                      width: 80.0,
-//                      child: Text('Discount', style: Styles.greyLabelSmall)),
-//                  Padding(
-//                    padding: const EdgeInsets.only(left: 8.0),
-//                    child: Text(
-//                        bid.discountPercent == null
-//                            ? '0.0%'
-//                            : '${bid.discountPercent.toStringAsFixed(1)} %',
-//                        style: Styles.blackBoldSmall),
-//                  ),
-//                ],
-//              ),
-//            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 8.0),
+              child: Row(
+                children: <Widget>[
+                  Container(
+                      width: 80.0,
+                      child: Text('Discount', style: Styles.greyLabelSmall)),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 8.0),
+                    child: Text(
+                        bid == null
+                            ? '0.0%'
+                            : '${bid.discountPercent.toStringAsFixed(1)} %',
+                        style: Styles.blackBoldSmall),
+                  ),
+                ],
+              ),
+            ),
             Padding(
               padding: const EdgeInsets.only(top: 20.0),
               child: Row(
@@ -605,7 +607,7 @@ class InvoiceBidCard extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.only(left: 8.0),
                     child: Text(
-                        bid.endTime == null
+                        bid == null
                             ? ''
                             : '${getFormattedDateLong(bid.endTime, context)}',
                         style: Styles.blackSmall),

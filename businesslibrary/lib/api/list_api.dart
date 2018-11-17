@@ -655,9 +655,7 @@ class ListAPI {
 
     DashboardData result =
         await _doDashboardHTTP(getFunctionsURL() + 'investorDashboard', data);
-    if (result != null) {
-      prettyPrint(result.toJson(), '### Dashboard Data:');
-    }
+
     return result;
   }
 
@@ -892,8 +890,8 @@ class ListAPI {
           'ListAPI.getInvestorUnsettledBidSummary .... ## Query via Cloud Functions: status: ${resp.statusCode}');
       if (resp.statusCode == 200) {
         summary = InvestorUnsettledBidSummary.fromJson(json.decode(resp.body));
-        prettyPrint(summary.toJson(),
-            'ListAPI.getInvestorUnsettledBidSummary summary:');
+//        prettyPrint(summary.toJson(),
+//            'ListAPI.getInvestorUnsettledBidSummary summary:');
       } else {
         print(resp.body);
       }
@@ -928,7 +926,7 @@ class ListAPI {
       print(
           'ListAPI.doHTTP .... ################ Query via Cloud Functions: status: ${resp.statusCode}');
       if (resp.statusCode == 200) {
-        print(resp.body);
+        //print(resp.body);
         data = DashboardData.fromJson(json.decode(resp.body));
         var end = DateTime.now();
         print(

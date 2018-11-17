@@ -510,6 +510,7 @@ class _InvoiceBidderState extends State<InvoiceBidder>
         investor: NameSpace + 'Investor#' + investor.participantId,
         investorName: investor.name,
         amount: amount,
+        discountPercent: offer.discountPercent,
         startTime: offer.startTime,
         endTime: offer.endTime,
         wallet: NameSpace + 'Wallet#${wallet.stellarPublicKey}',

@@ -1141,6 +1141,13 @@ class _MyHomePageState extends State<MyHomePage>
         '_MyHomePageState.onOfferMessage: ############ Offer received in Crudder: ${offer.supplierName} ${offer.offerAmount}');
     return null;
   }
+
+  @override
+  onResetCounter() {
+    setState(() {
+      recordCounter = 0;
+    });
+  }
 }
 
 class MessageCard extends StatelessWidget {

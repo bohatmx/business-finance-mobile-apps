@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:math';
 
 import 'package:businesslibrary/api/data_api3.dart';
@@ -21,6 +20,7 @@ abstract class GenListener {
   onEvent(String message, bool isRecordAdded);
   onPhaseComplete();
   onError(String message);
+  onResetCounter();
 }
 
 class Generator {
@@ -70,6 +70,7 @@ class Generator {
         }
       }
     }
+    listener.onResetCounter();
     print('Generator.generateOffers made ${offers.length} offers in session');
     listener.onEvent('Done! made ${offers.length} offers in session', false);
   }
@@ -98,6 +99,12 @@ class Generator {
         '\n\nGenerator.generate - number of units: ${units.length} to process\n\n');
     genListener.onEvent(
         'Generator number of units to process: ${units.length}', false);
+    purchaseOrders = List();
+    deliveryNotes = List();
+    deliveryAcceptances = List();
+    invoices = List();
+    offers = List();
+
     index = 0;
     await _startDancing();
   }
@@ -105,7 +112,6 @@ class Generator {
   static Future _startDancing() async {
     for (var unit in units) {
       await _generatePurchaseOrder(unit.supplier, unit.customer);
-      sleep(Duration(seconds: 1));
     }
     print(
         '\n\n\n\n\nGenerator.control - purchaseOrders generated: ${purchaseOrders.length}\n\n');
@@ -119,7 +125,6 @@ class Generator {
 
     for (var po in purchaseOrders) {
       await _generateDeliveryNote(po);
-      sleep(Duration(seconds: 1));
     }
     print(div);
     genListener.onEvent(
@@ -129,7 +134,6 @@ class Generator {
 
     for (var note in deliveryNotes) {
       await _acceptDeliveryNote(note);
-      sleep(Duration(seconds: 1));
     }
     print(div);
     genListener.onEvent(
@@ -144,7 +148,6 @@ class Generator {
         }
       });
       await _registerInvoice(acc, note);
-      sleep(Duration(seconds: 1));
     }
     print(div);
     genListener.onEvent(
@@ -160,7 +163,6 @@ class Generator {
       });
       await _makeOffer(inv, supplier);
     }
-    sleep(Duration(seconds: 1));
 
     print(div);
     genListener.onEvent(

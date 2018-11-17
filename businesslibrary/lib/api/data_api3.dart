@@ -214,7 +214,7 @@ class DataAPI3 {
 
     try {
       var mResponse = await _doHTTP(getFunctionsURL() + REGISTER_INVOICE, bag);
-      print(mResponse);
+      print(mResponse.body);
       switch (mResponse.statusCode) {
         case 200:
           print('DataAPI3.saveInvoice: invoice registered');

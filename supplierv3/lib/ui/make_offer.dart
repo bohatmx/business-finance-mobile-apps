@@ -362,7 +362,7 @@ class _MakeOfferPageState extends State<MakeOfferPage>
                       startTime == null
                           ? ''
                           : getFormattedDate(startTime.toIso8601String()),
-                      style: Styles.blackMedium,
+                      style: Styles.blackSmall,
                     ),
                   ),
                 ],
@@ -389,7 +389,7 @@ class _MakeOfferPageState extends State<MakeOfferPage>
                         endTime == null
                             ? ''
                             : getFormattedDate(endTime.toIso8601String()),
-                        style: Styles.blackMedium,
+                        style: Styles.blackSmall,
                       ),
                     ),
                   ],
@@ -422,7 +422,7 @@ class _MakeOfferPageState extends State<MakeOfferPage>
                       padding: const EdgeInsets.only(left: 8.0),
                       child: Text(
                         invoice.invoiceNumber,
-                        style: Styles.blackMedium,
+                        style: Styles.blackSmall,
                       ),
                     )
                   ],
@@ -438,7 +438,7 @@ class _MakeOfferPageState extends State<MakeOfferPage>
                       padding: const EdgeInsets.only(left: 8.0),
                       child: Text(
                         getFormattedAmount('${invoice.totalAmount}', context),
-                        style: Styles.blackMedium,
+                        style: Styles.blackBoldSmall,
                       ),
                     )
                   ],
@@ -452,8 +452,8 @@ class _MakeOfferPageState extends State<MakeOfferPage>
                     Padding(
                       padding: const EdgeInsets.only(left: 8.0),
                       child: Text(
-                        getFormattedDate(invoice.date),
-                        style: Styles.blackMedium,
+                        getFormattedDateShort(invoice.date, context),
+                        style: Styles.blackSmall,
                       ),
                     )
                   ],
