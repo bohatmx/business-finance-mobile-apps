@@ -34,14 +34,13 @@ class _InvoiceBidderState extends State<InvoiceBidder>
   Offer offer;
   User user;
   Wallet wallet;
+  bool _showBusyIndicator = false;
   @override
   void initState() {
     super.initState();
     print(
         '_InvoiceBidderState.initState ==================================>>>');
     _getCached();
-
-    _getExistingBids();
     configureMessaging(this);
   }
 
@@ -50,30 +49,36 @@ class _InvoiceBidderState extends State<InvoiceBidder>
     user = await SharedPrefs.getUser();
     wallet = await SharedPrefs.getWallet();
     setState(() {});
+    _getExistingBids();
   }
 
   List<InvoiceBid> bids;
   void _getExistingBids() async {
-    prettyPrint(offer.toJson(),
-        '_InvoiceBidderState._getExistingBids ...... for this OFFER.....');
-    bids = await ListAPI.getInvoiceBidsByOffer(offer.offerId);
+    if (offer == null) return;
+    setState(() {
+      loadText = 'Loading existing bids ... if any';
+      _showBusyIndicator = true;
+    });
+    bids = await ListAPI.getInvoiceBidsByOffer(offer.documentReference);
     _calculateTotal();
     _buildPercChoices();
-    setState(() {});
+    setState(() {
+      _showBusyIndicator = false;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     if (offer == null) {
       offer = widget.offer;
-      _getExistingBids();
+      //_getExistingBids();
     }
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
         title: Text(
           'Make Invoice Bid',
-          style: Styles.whiteSmall,
+          style: Styles.whiteBoldSmall,
         ),
         elevation: 4.0,
         bottom: _getBottom(),
@@ -105,50 +110,55 @@ class _InvoiceBidderState extends State<InvoiceBidder>
 
   Widget _getBottom() {
     return PreferredSize(
-      preferredSize: Size.fromHeight(140.0),
+      preferredSize: Size.fromHeight(180.0),
       child: Padding(
         padding: const EdgeInsets.only(bottom: 12.0, right: 20.0),
         child: Column(
           children: <Widget>[
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: <Widget>[
-                Text(
-                  'Bids for Offer: ',
-                  style: TextStyle(color: Colors.white, fontSize: 12.0),
-                ),
-                Row(
-                  children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.only(left: 14.0, right: 10.0),
-                      child: Text(
-                        bids == null ? '0' : '${bids.length}',
-                        style: Styles.blackBoldLarge,
+            Padding(
+              padding: const EdgeInsets.only(bottom: 20.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: <Widget>[
+                  Text(
+                    'Bids for Offer: ',
+                    style: TextStyle(color: Colors.white, fontSize: 12.0),
+                  ),
+                  Row(
+                    children: <Widget>[
+                      Padding(
+                        padding: const EdgeInsets.only(left: 14.0, right: 10.0),
+                        child: Text(
+                          bids == null ? '0' : '${bids.length}',
+                          style: Styles.blackBoldLarge,
+                        ),
                       ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 8.0),
-                      child: Row(
-                        children: <Widget>[
-                          Text(
-                            ' Reserved:',
-                            style:
-                                TextStyle(color: Colors.white, fontSize: 12.0),
-                          ),
-                          Padding(
-                            padding:
-                                const EdgeInsets.only(left: 8.0, right: 10.0),
-                            child: Text(
-                              totalPercBid == null ? '0 %' : '$totalPercBid %',
-                              style: Styles.blackBoldLarge,
+                      Padding(
+                        padding: const EdgeInsets.only(left: 8.0),
+                        child: Row(
+                          children: <Widget>[
+                            Text(
+                              ' Reserved:',
+                              style: TextStyle(
+                                  color: Colors.white, fontSize: 12.0),
                             ),
-                          ),
-                        ],
+                            Padding(
+                              padding:
+                                  const EdgeInsets.only(left: 8.0, right: 10.0),
+                              child: Text(
+                                totalPercBid == null
+                                    ? '0 %'
+                                    : '$totalPercBid %',
+                                style: Styles.blackBoldLarge,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-              ],
+                    ],
+                  ),
+                ],
+              ),
             ),
             Padding(
               padding: const EdgeInsets.only(top: 10.0, left: 20.0),
@@ -195,12 +205,35 @@ class _InvoiceBidderState extends State<InvoiceBidder>
                 ],
               ),
             ),
+            _showBusyIndicator == false
+                ? Container()
+                : Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: <Widget>[
+                        Padding(
+                          padding: const EdgeInsets.only(right: 12.0),
+                          child: Text(
+                            loadText,
+                            style: Styles.whiteSmall,
+                          ),
+                        ),
+                        Container(
+                          height: 16.0,
+                          width: 16.0,
+                          child: CircularProgressIndicator(),
+                        ),
+                      ],
+                    ),
+                  ),
           ],
         ),
       ),
     );
   }
 
+  String loadText;
   Widget _getBody() {
     return Container(
       color: Colors.brown.shade100,
@@ -253,7 +286,7 @@ class _InvoiceBidderState extends State<InvoiceBidder>
                     padding: const EdgeInsets.all(12.0),
                     child: Text(
                       'Select Percentage',
-                      style: Styles.greyLabelSmall,
+                      style: Styles.blackBoldMedium,
                     ),
                   ),
                   onChanged: _onChanged,
@@ -447,13 +480,19 @@ class _InvoiceBidderState extends State<InvoiceBidder>
           backgroundColor: Styles.black);
       return;
     }
-    AppSnackbar.showSnackbarWithProgressIndicator(
-        scaffoldKey: _scaffoldKey,
-        message: 'Making invoice bid ...',
-        textColor: Colors.white,
-        backgroundColor: Colors.black);
+
+    setState(() {
+      loadText = 'Submitting your bid ... please wait';
+      _showBusyIndicator = true;
+    });
+//    AppSnackbar.showSnackbarWithProgressIndicator(
+//        scaffoldKey: _scaffoldKey,
+//        message: 'Making invoice bid ...',
+//        textColor: Colors.white,
+//        backgroundColor: Colors.black);
     isBusy = true;
     var bids = await ListAPI.getInvoiceBidsByOffer(offer.offerId);
+
     var t = 0.00;
     bids.forEach((m) {
       t += m.reservePercent;
@@ -521,6 +560,7 @@ class _InvoiceBidderState extends State<InvoiceBidder>
 
     try {
       var resultBid = await DataAPI3.makeInvoiceBid(bid);
+
       if (resultBid == null) {
         AppSnackbar.showErrorSnackbar(
             scaffoldKey: _scaffoldKey,
@@ -530,7 +570,7 @@ class _InvoiceBidderState extends State<InvoiceBidder>
       } else {
         AppSnackbar.showSnackbarWithAction(
             scaffoldKey: _scaffoldKey,
-            message: 'Invoice Bid successful',
+            message: 'Invoice Bid successful\nRefreshing bid data ...',
             textColor: Colors.white,
             backgroundColor: Colors.black,
             actionLabel: 'OK',
@@ -549,6 +589,7 @@ class _InvoiceBidderState extends State<InvoiceBidder>
     }
   }
 
+  static const SUCCESS = 1;
   @override
   onActionPressed(int action) {
     //Navigator.pop(context);

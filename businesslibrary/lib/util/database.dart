@@ -62,15 +62,19 @@ class Database {
     jsonFile = new File(dir.path + "/invoiceBids.json");
     fileExists = await jsonFile.exists();
 
-    if (fileExists) {
-      print("Database ## file exists, reading ...");
-      String string = await jsonFile.readAsString();
-      Map map = json.decode(string);
-      InvoiceBids w = new InvoiceBids.fromJson(map);
-      print('Database ## returning InvoiceBids found: ${w.bids.length}');
-      return w.bids;
-    } else {
-      return null;
+    try {
+      if (fileExists) {
+        print("Database ## file exists, reading ...");
+        String string = await jsonFile.readAsString();
+        Map map = json.decode(string);
+        InvoiceBids w = new InvoiceBids.fromJson(map);
+        print('Database ## returning InvoiceBids found: ${w.bids.length}');
+        return w.bids;
+      } else {
+        return null;
+      }
+    } catch (e) {
+      return List();
     }
   }
 

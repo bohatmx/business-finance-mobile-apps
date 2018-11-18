@@ -52,7 +52,8 @@ class _OffersAndBidsState extends State<OffersAndBids> {
         backgroundColor: Styles.black);
 
     openOffers = await ListAPI.getOpenOffers();
-    var s = await ListAPI.getInvoiceBidsByInvestor(investor.documentReference);
+    var s = await ListAPI.getUnsettledInvoiceBidsByInvestor(
+        investor.documentReference);
     if (_scaffoldKey.currentState != null) {
       _scaffoldKey.currentState.removeCurrentSnackBar();
     }
@@ -259,7 +260,7 @@ class _OffersAndBidsState extends State<OffersAndBids> {
 
   Widget _getBottom() {
     return PreferredSize(
-      preferredSize: Size.fromHeight(80.0),
+      preferredSize: Size.fromHeight(100.0),
       child: Column(
         children: <Widget>[
           TabBar(tabs: [

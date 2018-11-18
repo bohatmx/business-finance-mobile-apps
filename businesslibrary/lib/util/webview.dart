@@ -1,6 +1,6 @@
 import 'package:businesslibrary/util/FCM.dart';
-import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/peach.dart';
+import 'package:businesslibrary/util/styles.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
@@ -9,9 +9,8 @@ const PeachSuccess = 0, PeachError = 1, PeachCancel = 2;
 
 class BFNWebView extends StatefulWidget {
   final String url, title;
-  PeachNotifyListener peachNotifyListener;
 
-  BFNWebView({this.url, this.title, this.peachNotifyListener});
+  BFNWebView({this.url, this.title});
 
   @override
   _BFNWebViewState createState() => _BFNWebViewState();
@@ -29,7 +28,6 @@ class _BFNWebViewState extends State<BFNWebView>
       peachSuccessListener: this,
       peachCancelListener: this,
       peachErrorListener: this,
-      peachNotifyListener: widget.peachNotifyListener,
     );
     fm.subscribeToTopic(FCM.TOPIC_PEACH_CANCEL);
     fm.subscribeToTopic(FCM.TOPIC_PEACH_SUCCESS);
@@ -44,13 +42,21 @@ class _BFNWebViewState extends State<BFNWebView>
 
   @override
   Widget build(BuildContext context) {
-    return WebviewScaffold(
-      url: widget.url == null ? 'https://www.youtube.com/' : widget.url,
-      appBar:
-          AppBar(title: Text(widget.title == null ? 'YouTube' : widget.title)),
-      withJavascript: true,
-      withLocalStorage: true,
-    );
+    try {
+      return WebviewScaffold(
+        url: widget.url == null ? 'https://www.youtube.com/' : widget.url,
+        appBar: AppBar(
+            title: Text(widget.title == null ? 'YouTube' : widget.title)),
+        withJavascript: true,
+        withLocalStorage: true,
+      );
+    } catch (e) {
+      print(e);
+      return Text(
+        'WTF?',
+        style: Styles.blackBoldReallyLarge,
+      );
+    }
   }
 
   @override
@@ -66,18 +72,9 @@ class _BFNWebViewState extends State<BFNWebView>
   }
 
   @override
-  onPeachNotify(PeachNotification m) {
-    print(
-        '_BFNWebViewState.onPeachNotify ###################################\n\n');
-    prettyPrint(
-        m.toJson(), '\n######### RESULT from Peach Notify: &&&&&&&&&&&&&&&');
-    Navigator.pop(context, m);
-  }
-
-  @override
   onPeachSuccess(Map map) {
     print(
-        '\n\n_BFNWebViewState.onPeachSuccess ############################# waiting for notify with result data\n\n');
+        '\n\n_BFNWebViewState.onPeachSuccess ############################# waiting for notify with result data....\n\n');
     Navigator.pop(context, PeachSuccess);
   }
 }

@@ -5,8 +5,9 @@ import 'package:flutter/material.dart';
 
 class InvoiceBidCard extends StatelessWidget {
   final InvoiceBid bid;
+  final bool showItemNumber;
 
-  InvoiceBidCard({this.bid});
+  InvoiceBidCard({this.bid, this.showItemNumber});
 
   @override
   Widget build(BuildContext context) {
@@ -20,13 +21,22 @@ class InvoiceBidCard extends StatelessWidget {
               padding: const EdgeInsets.only(bottom: 8.0),
               child: Row(
                 children: <Widget>[
-                  Text('Bid Date', style: Styles.greyLabelSmall),
+                  showItemNumber == true
+                      ? Container(
+                          width: 20.0,
+                          child: Text(
+                            '${bid.itemNumber}',
+                            style: Styles.blackBoldSmall,
+                          ),
+                        )
+                      : Text('Date', style: Styles.greyLabelSmall),
                   Padding(
                     padding: const EdgeInsets.only(left: 8.0),
                     child: Text(
                         bid.date == null
                             ? '0.00'
-                            : getFormattedDateLong('${bid.date}', context),
+                            : getFormattedDateLongWithTime(
+                                '${bid.date}', context),
                         style: Styles.blackSmall),
                   ),
                 ],

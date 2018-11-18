@@ -14,6 +14,7 @@ class PagerHelper extends StatelessWidget {
   static const String PURCHASE_ORDER = 'po',
       DELIVERY_NOTE = 'note',
       INVOICE = 'invoice',
+      INVOICE_BID = 'invoiceBid',
       OFFER = 'offer';
   PagerHelper(
       {this.dashboardData,
@@ -49,6 +50,10 @@ class PagerHelper extends StatelessWidget {
           return dashboardData.totalOpenOfferAmount == null
               ? 0.00
               : dashboardData.totalOpenOfferAmount;
+        case INVOICE_BID:
+          return dashboardData.totalBidAmount == null
+              ? 0.00
+              : dashboardData.totalBidAmount;
         default:
           return 999999.9999;
       }

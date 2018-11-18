@@ -74,15 +74,17 @@ I/flutter (  684): }
             '\n\n################ Message from FCM ================>>>> :');
 
         bool ios = Theme.of(context).platform == TargetPlatform.iOS;
-        String messageType;
+        String messageType = 'unknown';
         String mJSON;
         if (ios) {
           messageType = map["messageType"];
           mJSON = map['json'];
+          print('FCM.configureFCM platform is iOS');
         } else {
           var data = map['data'];
           messageType = data["messageType"];
           mJSON = data["json"];
+          print('FCM.configureFCM platform is Android');
         }
 
         print(

@@ -15,7 +15,8 @@ class Refresh {
   }
 
   static Future _getDetailData(Investor investor) async {
-    var m = await ListAPI.getInvoiceBidsByInvestor(investor.documentReference);
+    var m = await ListAPI.getUnsettledInvoiceBidsByInvestor(
+        investor.documentReference);
     await Database.saveInvoiceBids(InvoiceBids(m));
     var o = await ListAPI.getOpenOffers();
     await Database.saveOffers(Offers(o));

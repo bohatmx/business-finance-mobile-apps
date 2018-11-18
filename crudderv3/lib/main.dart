@@ -10,6 +10,7 @@ import 'package:businesslibrary/data/auto_trade_order.dart';
 import 'package:businesslibrary/data/govt_entity.dart';
 import 'package:businesslibrary/data/investor.dart';
 import 'package:businesslibrary/data/investor_profile.dart';
+import 'package:businesslibrary/data/invoice_bid.dart';
 import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
@@ -163,6 +164,10 @@ class _MyHomePageState extends State<MyHomePage>
   }
 
   void _generateWorkingData() async {
+    var d = await fixInvoiceBidDates();
+    if (d == null) {
+      return;
+    }
     if (isBusy) {
       AppSnackbar.showSnackbar(
           scaffoldKey: _scaffoldKey,
@@ -199,6 +204,73 @@ class _MyHomePageState extends State<MyHomePage>
 
   static const FIVE = '5', SIX = '5';
   List<String> msgList = List();
+
+  Future fixInvoiceBidDates() async {
+    var start = DateTime.now();
+    msgList.add('fixInvoiceBidDates.fix .............. started FIX');
+    setState(() {});
+    Firestore fs = Firestore.instance;
+    var qs = await fs.collection('investors').getDocuments();
+
+    setState(() {
+      msgList.add(
+          'fixInvoiceBidDates.fix investors found: ${qs.documents.length}');
+    });
+    for (var doc in qs.documents) {
+      setState(() {
+        msgList.add(('### investor started : ${doc.data['investor']}'));
+      });
+      var qs2 = await doc.reference.collection('invoiceBids').getDocuments();
+      setState(() {
+        msgList.add('investor bids found: ${qs2.documents.length}');
+      });
+      for (var doc2 in qs2.documents) {
+        var bid = InvoiceBid.fromJson(doc2.data);
+        if (bid.intDate == null) {
+          bid.intDate = DateTime.parse(bid.date).millisecondsSinceEpoch;
+          await doc2.reference.setData(bid.toJson());
+          print(
+              '_MyHomePageState.fix initDate updated ${bid.intDate} ${bid.investorName} ${bid.amount}');
+        }
+      }
+    }
+    var end1 = DateTime.now();
+    setState(() {
+      msgList.add(
+          'investors initDates fixed: ${end1.difference(start).inSeconds} seconds elapsed');
+    });
+//    var qsb = await fs.collection('invoiceOffers').getDocuments();
+//
+//    setState(() {
+//      msgList
+//          .add('fixInvoiceBidDates.fix offers found: ${qsb.documents.length}');
+//    });
+//    for (var doc in qsb.documents) {
+//      var qs2 = await doc.reference.collection('invoiceBids').getDocuments();
+//      setState(() {
+//        msgList.add(
+//            'Found ${qs2.documents.length} invoiceBids for Offer ${doc.data['offerAmount']}');
+//      });
+//      for (var doc2 in qs2.documents) {
+//        var bid = InvoiceBid.fromJson(doc2.data);
+//        if (bid.intDate == null) {
+//          bid.intDate = DateTime.parse(bid.date).millisecondsSinceEpoch;
+//          await doc2.reference.setData(bid.toJson());
+//          print(
+//              '_MyHomePageState.fix initDate updated ${bid.intDate} ${bid.investorName} ${bid.amount}');
+//        }
+//      }
+//    }
+    var end2 = DateTime.now();
+    setState(() {
+      msgList.add(
+          'offers initDates fixed: ${end2.difference(end1).inSeconds} seconds elapsed');
+    });
+    setState(() {
+      msgList.add('fixInvoiceBidDates.fix ######################## FIX ended.');
+    });
+    return null;
+  }
 
   Future fixInvestorProfiles() async {
     var investors = await ListAPI.getInvestors();

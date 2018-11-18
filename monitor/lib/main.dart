@@ -97,7 +97,7 @@ class _MyHomePageState extends State<MyHomePage>
         '_MyHomePageState.initState ############ subscribed to invoiceBids, heartbeats and offers topics');
   }
 
-  int minutes = 1;
+  int minutes = 120;
   _getMinutes() async {
     minutes = await SharedPrefs.getMinutes();
     if (minutes == null || minutes == 0) {

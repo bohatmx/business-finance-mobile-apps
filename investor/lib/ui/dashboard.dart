@@ -25,14 +25,15 @@ import 'package:businesslibrary/util/styles.dart';
 import 'package:businesslibrary/util/summary_card.dart';
 import 'package:businesslibrary/util/util.dart';
 import 'package:businesslibrary/util/wallet_page.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:investor/main.dart';
 import 'package:investor/ui/charts.dart';
 import 'package:investor/ui/offer_list.dart';
-import 'package:investor/ui/offers_and_bids.dart';
 import 'package:investor/ui/profile.dart';
+import 'package:investor/ui/unsettled_bids.dart';
 
 class Dashboard extends StatefulWidget {
   @override
@@ -178,16 +179,20 @@ class _DashboardState extends State<Dashboard>
       print('_DashboardState._getDetailData diff < 30 minutes');
       return;
     }
-    bids = await ListAPI.getInvoiceBidsByInvestor(investor.documentReference);
-    await Database.saveInvoiceBids(InvoiceBids(bids));
+    bids = await ListAPI.getUnsettledInvoiceBidsByInvestor(
+        investor.documentReference);
+    if (bids.isNotEmpty) {
+      await Database.saveInvoiceBids(InvoiceBids(bids));
+    }
 
     offers = await ListAPI.getOpenOffers();
-    await Database.saveOffers(Offers(offers));
+    if (offers.isNotEmpty) {
+      await Database.saveOffers(Offers(offers));
+    }
     SharedPrefs.saveRefreshDate(DateTime.now());
   }
 
   Future _getCachedPrefs() async {
-//    await SharedPrefs.removeInvestor();
     investor = await SharedPrefs.getInvestor();
     print(
         '\n\n\n_DashboardState._getCachedPrefs ################### $investor');
@@ -353,7 +358,7 @@ class _DashboardState extends State<Dashboard>
     print('_DashboardState._onInvoiceTapped ...............');
     Navigator.push(
       context,
-      new MaterialPageRoute(builder: (context) => new OffersAndBids()),
+      MaterialPageRoute(builder: (context) => UnsettledBids()),
     );
   }
 
@@ -384,15 +389,6 @@ class _DashboardState extends State<Dashboard>
   OpenOfferSummary offerSummary;
 
   List<DropdownMenuItem<int>> items = List();
-
-//  Future _getOffers() async {
-//    offerSummary = await ListAPI.getOpenOffersSummary();
-//    await SharedPrefs.saveOpenOfferSummary(offerSummary);
-//    offers = offerSummary.offers;
-//    setState(() {});
-//    print(
-//        '\n\n_DashboardState._getOffers ....######### ............ ${offerSummary.offers.length}\n\n');
-//  }
 
   void _onOffersTapped() {
     print('_DashboardState._onOffersTapped');
@@ -444,6 +440,23 @@ class _DashboardState extends State<Dashboard>
       context,
       new MaterialPageRoute(builder: (context) => new ProfilePage()),
     );
+  }
+
+  void fix() async {
+    print(
+        '\n\n\n_DashboardState.fix ########################## start FIX .....');
+    Firestore fs = Firestore.instance;
+    var start = DateTime.now();
+    var qs = await fs.collection('invoiceOffers').getDocuments();
+    print('_DashboardState.fix offers found: ${qs.documents.length}');
+    for (var doc in qs.documents) {
+      var offer = Offer.fromJson(doc.data);
+      offer.documentReference = doc.documentID;
+      await doc.reference.setData(offer.toJson());
+    }
+    var end = DateTime.now();
+    print(
+        '_DashboardState.fix ----- FIX complete: ${end.difference(start).inSeconds} seconds elapsed.');
   }
 
   _showBottomSheet(InvoiceBid bid) {

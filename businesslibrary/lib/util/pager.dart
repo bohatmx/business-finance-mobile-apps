@@ -2,6 +2,7 @@ import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/dashboard_data.dart';
 import 'package:businesslibrary/data/delivery_note.dart';
 import 'package:businesslibrary/data/invoice.dart';
+import 'package:businesslibrary/data/invoice_bid.dart';
 import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/util/Finders.dart';
@@ -58,6 +59,15 @@ class _Pager3State extends State<Pager3> {
     _setPageLimit();
     _buildNumberItems();
     _getDashData();
+    _setItemNumbers();
+  }
+
+  void _setItemNumbers() {
+    int count = 1;
+    widget.items.forEach((o) {
+      o.itemNumber = count;
+      count++;
+    });
   }
 
   void _getDashData() async {
@@ -125,7 +135,8 @@ class _Pager3State extends State<Pager3> {
     currentIndex = 0;
     pageNumber = 1;
     setState(() {});
-    widget.listener.onPage(currentPage);
+
+    widget.listener.onInitialPage(currentPage);
   }
 
   void _buildNumberItems() {
@@ -163,6 +174,10 @@ class _Pager3State extends State<Pager3> {
     doPrint();
 
     setState(() {});
+//    currentPage.forEach((p) {
+//      print(
+//          '_Pager3State._forwardPressed ####### item: ${p.itemNumber} date: ${p.intDate}');
+//    });
     widget.listener.onPage(currentPage);
   }
 
@@ -191,6 +206,10 @@ class _Pager3State extends State<Pager3> {
     print(
         '######## BACK pressed: -------- currentPage - to listener ##################### currentIndex: $currentIndex');
     doPrint();
+//    currentPage.forEach((p) {
+//      print(
+//          '_Pager3State._backPressed ####### item: ${p.itemNumber} date: ${p.intDate}');
+//    });
     widget.listener.onPage(currentPage);
   }
 
@@ -256,6 +275,9 @@ class _Pager3State extends State<Pager3> {
       }
       if (f is Offer) {
         t += f.offerAmount;
+      }
+      if (f is InvoiceBid) {
+        t += f.amount;
       }
     });
     return t;

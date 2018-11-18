@@ -195,55 +195,64 @@ class ListAPI {
     return acceptance;
   }
 
-  static Future<List<InvoiceBid>> getInvoiceBidsByOffer(String offerId) async {
+  static Future<List<InvoiceBid>> getInvoiceBidsByOffer(
+      String documentReference) async {
     List<InvoiceBid> list = List();
-
+    print(
+        '\n\n\nListAPI.getInvoiceBidsByOffer ....................... start query, documentReference: $documentReference');
+    var start = DateTime.now();
     var qs = await _firestore
         .collection('invoiceOffers')
-        .where('offerId', isEqualTo: offerId)
+        .document(documentReference)
+        .collection('invoiceBids')
         .getDocuments()
         .catchError((e) {
       print('ListAPI.getOfferInvoiceBids $e');
       return list;
     });
     if (qs.documents.isNotEmpty) {
-      var offer = Offer.fromJson(qs.documents.first.data);
-      var snap = await qs.documents.first.reference
-          .collection('invoiceBids')
-          .getDocuments();
-
-      snap.documents.forEach((doc) {
+      qs.documents.forEach((doc) {
         var bid = InvoiceBid.fromJson(doc.data);
         list.add(bid);
       });
+      var end = DateTime.now();
+      var diff = end.difference(start).inSeconds;
+      print(
+          'ListAPI.getInvoiceBidsByOffer ############# found ${list.length} invoice bids. elapsed: $diff seconds');
+      return list;
     }
-    print('ListAPI.getInvoiceBidsByOffer found ${list.length} invoice bids');
+
     return list;
   }
 
-  static Future<List<InvoiceBid>> getInvoiceBidsByInvestor(
+  static Future<List<InvoiceBid>> getUnsettledInvoiceBidsByInvestor(
       String documentReference) async {
     print(
-        'ListAPI.getInvoiceBidsByInvestor ========= documentReference: $documentReference');
+        '\n\n\nListAPI.getUnsettledInvoiceBidsByInvestor ========= documentReference: $documentReference');
     List<InvoiceBid> list = List();
     var qs = await _firestore
         .collection('investors')
         .document(documentReference)
         .collection('invoiceBids')
-        .where('isSettled', isEqualTo: false)
-        .orderBy('date', descending: true)
+//        .where('isSettled', isEqualTo: false)
+        .orderBy('date')
         .getDocuments()
         .catchError((e) {
-      print('ListAPI.getInvestorInvoiceBids $e');
+      print('ListAPI.getUnsettledInvoiceBidsByInvestor $e');
       return list;
     });
 
-    print('ListAPI.getInvestorInvoiceBids found: ${qs.documents.length} ');
+    print(
+        'ListAPI.getUnsettledInvoiceBidsByInvestor found: ${qs.documents.length} \n\n');
 
     qs.documents.forEach((doc) {
-      list.add(new InvoiceBid.fromJson(doc.data));
+      var bid = InvoiceBid.fromJson(doc.data);
+      if (bid.isSettled == false) {
+        list.add(bid);
+      }
     });
-
+    print(
+        'ListAPI.getUnsettledInvoiceBidsByInvestor found after checking isSettled: ${list.length} \n\n');
     return list;
   }
 

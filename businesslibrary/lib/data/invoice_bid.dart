@@ -53,7 +53,11 @@ class InvoiceBid extends Findable {
     this.offer = data['offer'];
     this.investor = data['investor'];
     this.user = data['user'];
-    this.intDate = data['intDate'];
+    if (data['intDate'] == null) {
+      this.intDate = DateTime.parse(data['date']).millisecondsSinceEpoch;
+    } else {
+      this.intDate = data['intDate'];
+    }
     this.invoiceBidAcceptance = data['invoiceBidAcceptance'];
     this.documentReference = data['documentReference'];
     this.user = data['user'];

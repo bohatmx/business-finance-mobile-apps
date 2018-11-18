@@ -427,7 +427,7 @@ class _OfferListState extends State<OfferList>
         ),
         bottom: PreferredSize(
           child: _getBottom(),
-          preferredSize: Size.fromHeight(200.0),
+          preferredSize: Size.fromHeight(220.0),
         ),
         actions: <Widget>[
           IconButton(

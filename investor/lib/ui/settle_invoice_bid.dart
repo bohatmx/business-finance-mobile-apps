@@ -16,6 +16,7 @@ import 'package:businesslibrary/util/util.dart';
 import 'package:businesslibrary/util/webview.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:investor/ui/refresh.dart';
 
 class SettleInvoiceBid extends StatefulWidget {
   final InvoiceBid invoiceBid;
@@ -27,7 +28,7 @@ class SettleInvoiceBid extends StatefulWidget {
 }
 
 class _SettleInvoiceBid extends State<SettleInvoiceBid>
-    implements SnackBarListener, InvoiceBidListener, PeachNotifyListener {
+    implements SnackBarListener, InvoiceBidListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   final FirebaseMessaging fm = FirebaseMessaging();
 
@@ -45,8 +46,7 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
     super.initState();
     _getCache();
     _getOffer();
-    FCM.configureFCM(
-        context: context, invoiceBidListener: this, peachNotifyListener: this);
+    FCM.configureFCM(context: context, invoiceBidListener: this);
     fm.subscribeToTopic(FCM.TOPIC_PEACH_NOTIFY);
   }
 
@@ -71,6 +71,7 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
         setState(() {
           bottomHeight = 160.0;
           _opacity = 1.0;
+          isChecking = false;
         });
         print(
             '_SettleInvoiceBid._getOffer - subscribed to invoiceBid topic for Offer: ${offer.offerId} ');
@@ -86,51 +87,56 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
       return;
     }
     isBusy = true;
-    int result = await Navigator.push(
-      context,
-      MaterialPageRoute(
-          builder: (context) => BFNWebView(
-                title: webViewTitle,
-                url: webViewUrl,
-                peachNotifyListener: this,
-              )),
-    );
-    switch (result) {
-      case PeachSuccess:
-        AppSnackbar.showSnackbarWithAction(
+    try {
+      int result = await Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => BFNWebView(
+                  title: webViewTitle,
+                  url: webViewUrl,
+                )),
+      );
+      switch (result) {
+        case PeachSuccess:
+          AppSnackbar.showSnackbarWithAction(
+              scaffoldKey: _scaffoldKey,
+              message: 'Payment successful',
+              textColor: Styles.white,
+              backgroundColor: Colors.indigo.shade300,
+              actionLabel: 'Done',
+              listener: this,
+              icon: Icons.done_all,
+              action: PeachSuccess);
+          setState(() {
+            _opacity = 0.0;
+          });
+          _writeSettlement();
+          break;
+        case PeachCancel:
+          isBusy = false;
+          AppSnackbar.showSnackbarWithAction(
+              scaffoldKey: _scaffoldKey,
+              message: 'Payment cancelled',
+              textColor: Styles.white,
+              backgroundColor: Colors.blueGrey.shade500,
+              actionLabel: 'OK',
+              listener: this,
+              icon: Icons.clear,
+              action: PeachCancel);
+          break;
+        case PeachError:
+          isBusy = false;
+          AppSnackbar.showErrorSnackbar(
             scaffoldKey: _scaffoldKey,
-            message: 'Payment successful',
-            textColor: Styles.white,
-            backgroundColor: Colors.indigo.shade300,
-            actionLabel: 'Done',
+            message: 'There was an error making the payment',
+            actionLabel: 'Close',
             listener: this,
-            icon: Icons.done_all,
-            action: PeachSuccess);
-        setState(() {
-          _opacity = 0.0;
-        });
-        break;
-      case PeachCancel:
-        isBusy = false;
-        AppSnackbar.showSnackbarWithAction(
-            scaffoldKey: _scaffoldKey,
-            message: 'Payment cancelled',
-            textColor: Styles.white,
-            backgroundColor: Colors.blueGrey.shade500,
-            actionLabel: 'OK',
-            listener: this,
-            icon: Icons.clear,
-            action: PeachCancel);
-        break;
-      case PeachError:
-        isBusy = false;
-        AppSnackbar.showErrorSnackbar(
-          scaffoldKey: _scaffoldKey,
-          message: 'There was an error making the payment',
-          actionLabel: 'Close',
-          listener: this,
-        );
-        break;
+          );
+          break;
+      }
+    } catch (e) {
+      print(e);
+      print('_SettleInvoiceBid._showWebView --- webview FUCKED!');
     }
   }
 
@@ -259,6 +265,7 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
     );
   }
 
+  bool isChecking;
   double _opacity = 0.0;
   Widget _getBody() {
     return ListView(
@@ -268,6 +275,15 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
           child: InvoiceBidCard(
             bid: widget.invoiceBid,
           ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(left: 20.0),
+          child: isChecking == null
+              ? Text(
+                  'Checking Bid. Please wait ...',
+                  style: Styles.blackBoldMedium,
+                )
+              : Container(),
         ),
         Padding(
           padding: const EdgeInsets.all(20.0),
@@ -344,37 +360,15 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
     return getFormattedAmount('$t', context);
   }
 
-  @override
-  onPeachNotify(PeachNotification notification) async {
-    print('_SettleInvoiceBid.onPeachNotify');
-    prettyPrint(notification.toJson(),
-        '######## notify message from Peach via Cloud Function via FCM:');
-
-    if (notification.payment_key != paymentKey.key) {
-      print('_SettleInvoiceBid.onPeachNotify - not our notification - quit');
-      return;
-    }
-    switch (notification.success) {
-      case '0': // error -
-        print('_SettleInvoiceBid.onPeachNotify ERROR from call - ignore?');
-        setState(() {
-          _opacity = 1.0;
-        });
-        return;
-      case '1': // success
-
-        break;
-    }
-    await _writeSettlement();
-  }
-
   Future _writeSettlement() async {
+    print('_SettleInvoiceBid._writeSettlement .............................');
     var m = InvestorInvoiceSettlement(
         amount: widget.invoiceBid.amount,
         investor: widget.invoiceBid.investor,
         user: NameSpace + 'User#${user.userId}',
         peachPaymentKey: paymentKey.key,
         offer: widget.invoiceBid.offer,
+        date: getUTCDate(),
         invoiceBid: NameSpace + 'InvoiceBid#${widget.invoiceBid.invoiceBidId}');
 
     try {
@@ -390,6 +384,8 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
           listener: this,
           icon: Icons.done,
           action: 1);
+
+      Refresh.refresh(investor);
     } catch (e) {
       AppSnackbar.showErrorSnackbar(
           scaffoldKey: _scaffoldKey,

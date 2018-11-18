@@ -2,7 +2,7 @@ class InvestorInvoiceSettlement {
   String invoiceSettlementId;
   String date;
   double amount;
-  String peachPaymentKey;
+  String peachPaymentKey, peachTransactionId;
   String invoiceBid;
   String investor, supplier, offer;
   String user, documentReference;
@@ -18,6 +18,7 @@ class InvestorInvoiceSettlement {
       this.supplierFCMToken,
       this.documentReference,
       this.user,
+      this.peachTransactionId,
       this.offer,
       this.supplier,
       this.wallet});
@@ -27,6 +28,8 @@ class InvestorInvoiceSettlement {
     this.date = data['date'];
     this.amount = data['amount'] * 1.0;
     this.peachPaymentKey = data['peachPaymentKey'];
+    this.peachTransactionId = data['peachTransactionId'];
+
     this.invoiceBid = data['invoiceBid'];
     this.investor = data['investor'];
     this.user = data['user'];
@@ -42,6 +45,7 @@ class InvestorInvoiceSettlement {
         'date': date,
         'amount': amount,
         'peachPaymentKey': peachPaymentKey,
+        'peachTransactionId': peachTransactionId,
         'invoiceBid': invoiceBid,
         'investor': investor,
         'user': user,
