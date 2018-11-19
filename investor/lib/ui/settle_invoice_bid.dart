@@ -346,8 +346,8 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
         _scaffoldKey.currentState.removeCurrentSnackBar();
         print('_SettleInvoiceBid.onActionPressed about to pop .....');
         Navigator.pop(context, true);
-//        print('_SettleInvoiceBid.onActionPressed about to pop AGAIN?.....');
-//        Navigator.pop(context, true);
+        print('_SettleInvoiceBid.onActionPressed about to pop AGAIN?.....');
+        Navigator.pop(context, true);
         break;
       case 2:
         break;

@@ -1,27 +1,26 @@
-class InvestorUnsettledBidSummary {
-  String investorName, investorId;
-  int totalUnsettledBids = 0;
-  double totalUnsettledBidAmount = 0.0, maxInvestableAmount = 0.0;
+import 'package:businesslibrary/util/lookups.dart';
 
-  InvestorUnsettledBidSummary(
-      {this.investorName,
-      this.investorId,
-      this.totalUnsettledBids,
+class InvestorBidSummary {
+  int totalUnsettledBids = 0, totalSettledBids = 0;
+  double totalUnsettledBidAmount = 0.0, totalSettledBidAmount = 0.0;
+
+  InvestorBidSummary(
+      {this.totalUnsettledBids,
       this.totalUnsettledBidAmount,
-      this.maxInvestableAmount});
+      this.totalSettledBidAmount,
+      this.totalSettledBids});
 
-  InvestorUnsettledBidSummary.fromJson(Map data) {
-    this.investorName = data['investorName'];
-    this.investorId = data['investorId'];
+  InvestorBidSummary.fromJson(Map data) {
+    prettyPrint(data, '################### Investor Summary');
     this.totalUnsettledBids = data['totalUnsettledBids'];
-    this.maxInvestableAmount = data['maxInvestableAmount'] * 1.0;
     this.totalUnsettledBidAmount = data['totalUnsettledBidAmount'] * 1.0;
+    this.totalSettledBidAmount = data['totalSettledBidAmount'] * 1.0;
+    this.totalSettledBids = data['totalSettledBids'];
   }
   Map<String, dynamic> toJson() => <String, dynamic>{
-        'investorName': investorName,
-        'investorId': investorId,
         'totalUnsettledBids': totalUnsettledBids,
-        'maxInvestableAmount': maxInvestableAmount,
         'totalUnsettledBidAmount': totalUnsettledBidAmount,
+        'totalSettledBidAmount': totalSettledBidAmount,
+        'totalSettledBids': totalSettledBids,
       };
 }

@@ -87,6 +87,7 @@ class _UnsettledBidsState extends State<UnsettledBids>
                     itemName: 'Invoice Bids',
                     addHeader: true,
                     listener: this,
+                    pagerShouldRefresh: pagerShouldRefresh,
                   ),
           ),
         ],
@@ -213,20 +214,22 @@ class _UnsettledBidsState extends State<UnsettledBids>
       new MaterialPageRoute(builder: (context) => SettleInvoiceBid(invoiceBid)),
     );
     print(
-        '\n\n_UnsettledBidsState._startSettlement ############### result == true, refresh ... calling _onRefreshPressed');
+        '\n\n_UnsettledBidsState._startSettlement ##  refresh ... calling _onRefreshPressed');
     isFromSettlement = true;
     _onRefreshPressed();
   }
 
-  bool isFromSettlement;
+  bool isFromSettlement = false, pagerShouldRefresh = false;
   void _onRefreshPressed() async {
     AppSnackbar.showSnackbarWithProgressIndicator(
         scaffoldKey: _scaffoldKey,
         message: 'Refreshing bids ...',
         textColor: Styles.white,
         backgroundColor: Styles.black);
+
     if (isFromSettlement) {
       unsettledBids = await Database.getInvoiceBids();
+      isFromSettlement = false;
     } else {
       unsettledBids = await ListAPI.getUnsettledInvoiceBidsByInvestor(
           investor.documentReference);
@@ -235,9 +238,14 @@ class _UnsettledBidsState extends State<UnsettledBids>
     try {
       _scaffoldKey.currentState.removeCurrentSnackBar();
     } catch (e) {}
+
     setState(() {
+      pagerShouldRefresh = true;
       isBusy = false;
     });
+    print(
+        '\n_UnsettledBidsState._onRefreshPressed should refresh, has it? ...... pagerShouldRefresh = $pagerShouldRefresh}');
+    //pagerShouldRefresh = false;
   }
 
   @override

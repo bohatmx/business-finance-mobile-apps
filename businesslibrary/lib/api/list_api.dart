@@ -871,9 +871,9 @@ class ListAPI {
     return summary;
   }
 
-  static Future<InvestorUnsettledBidSummary> getInvestorUnsettledBidSummary(
-      String investorId) async {
-    InvestorUnsettledBidSummary summary;
+  static Future<InvestorBidSummary> getInvestorBidSummary(
+      String documentId) async {
+    InvestorBidSummary summary;
     Map<String, String> headers = {
       'Content-type': 'application/json',
       'Accept': 'application/json',
@@ -881,7 +881,7 @@ class ListAPI {
 
     var mUrl = getFunctionsURL() + 'getInvestorsSummary';
     Map<String, dynamic> map;
-    map = {'investorId': investorId};
+    map = {'documentId': documentId};
 
     var start = DateTime.now();
     try {
@@ -896,18 +896,18 @@ class ListAPI {
         client.close();
       });
       print(
-          '\n\nListAPI.getInvestorUnsettledBidSummary .... ## Query via Cloud Functions: status: ${resp.statusCode} for $mUrl');
+          '\n\nListAPI.getInvestorBidSummary .... ## Query via Cloud Functions: status: ${resp.statusCode} for $mUrl');
       if (resp.statusCode == 200) {
-        summary = InvestorUnsettledBidSummary.fromJson(json.decode(resp.body));
+        summary = InvestorBidSummary.fromJson(json.decode(resp.body));
       } else {
         print(resp.body);
       }
     } catch (e) {
-      print('ListAPI.getInvestorUnsettledBidSummary $e');
+      print('ListAPI.getInvestorBidSummary $e');
     }
     var end = DateTime.now();
     print(
-        'ListAPI.getInvestorUnsettledBidSummary ### elapsed: ${end.difference(start).inSeconds} seconds');
+        'ListAPI.getInvestorBidSummary ### elapsed: ${end.difference(start).inSeconds} seconds');
     return summary;
   }
 

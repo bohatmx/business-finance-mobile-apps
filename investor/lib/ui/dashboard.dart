@@ -109,7 +109,7 @@ class _DashboardState extends State<Dashboard>
   }
 
   List<Sector> sectors;
-  InvestorUnsettledBidSummary unsettledBidSummary;
+  InvestorBidSummary investorBidSummary;
 
   @override
   void dispose() {
@@ -129,7 +129,7 @@ class _DashboardState extends State<Dashboard>
     }
 
     dashboardData = await SharedPrefs.getDashboardData();
-    unsettledBidSummary = await SharedPrefs.getUnsettled();
+    investorBidSummary = await SharedPrefs.getBidSummary();
     if (dashboardData != null) {
       setState(() {});
     }
@@ -150,9 +150,9 @@ class _DashboardState extends State<Dashboard>
     dashboardData = await ListAPI.getInvestorDashboardData(
         investor.participantId, investor.documentReference);
     await SharedPrefs.saveDashboardData(dashboardData);
-    unsettledBidSummary =
-        await ListAPI.getInvestorUnsettledBidSummary(investor.participantId);
-    await SharedPrefs.saveUnsettled(unsettledBidSummary);
+    investorBidSummary =
+        await ListAPI.getInvestorBidSummary(investor.documentReference);
+    await SharedPrefs.saveBidSummary(investorBidSummary);
 
     if (_scaffoldKey.currentState != null) {
       _scaffoldKey.currentState.hideCurrentSnackBar();
@@ -242,29 +242,18 @@ class _DashboardState extends State<Dashboard>
               onPressed: _onProfileRequested,
             ),
             IconButton(
-              icon: Icon(Icons.refresh),
-              onPressed: _refresh,
-            ),
-            IconButton(
               icon: Icon(Icons.attach_money),
               onPressed: _goToWalletPage,
+            ),
+            IconButton(
+              icon: Icon(Icons.refresh),
+              onPressed: _refresh,
             ),
           ],
         ),
         backgroundColor: Colors.brown.shade100,
         body: Stack(
           children: <Widget>[
-//            new Opacity(
-//              opacity: 0.0,
-//              child: Container(
-//                decoration: BoxDecoration(
-//                  image: DecorationImage(
-//                    image: AssetImage('assets/fincash.jpg'),
-//                    fit: BoxFit.cover,
-//                  ),
-//                ),
-//              ),
-//            ),
             new Padding(
               padding:
                   const EdgeInsets.only(top: 10.0, left: 20.0, right: 20.0),
@@ -289,21 +278,12 @@ class _DashboardState extends State<Dashboard>
                   ),
                   new InkWell(
                     onTap: _onInvoiceBidsTapped,
-                    child: InvestorSummaryCard(
-                      context: context,
-                      dashboardData: dashboardData,
-                      unsettledBidSummary: unsettledBidSummary,
-                    ),
-                  ),
-                  new InkWell(
-                    onTap: _onPaymentsTapped,
                     child: Padding(
-                      padding: const EdgeInsets.only(top: 8.0),
-                      child: SummaryCard(
-                        total: dashboardData == null ? 0 : 0,
-                        label: 'Bids Settled',
-                        totalStyle: Styles.blueBoldLarge,
-                        elevation: 2.0,
+                      padding: const EdgeInsets.only(bottom: 38.0),
+                      child: InvestorSummaryCard(
+                        context: context,
+                        dashboardData: dashboardData,
+                        investorBidSummary: investorBidSummary,
                       ),
                     ),
                   ),
@@ -503,8 +483,8 @@ class _DashboardState extends State<Dashboard>
     dashboardData.totalOfferAmount -= invoiceBid.amount;
     dashboardData.totalOpenOfferAmount -= invoiceBid.amount;
 
-    if (unsettledBidSummary == null) {
-      unsettledBidSummary = InvestorUnsettledBidSummary(
+    if (investorBidSummary == null) {
+      investorBidSummary = InvestorBidSummary(
         totalUnsettledBidAmount: 0.0,
         totalUnsettledBids: 0,
       );
@@ -514,8 +494,8 @@ class _DashboardState extends State<Dashboard>
         '\n\n_DashboardState.onInvoiceBidMessage \n${invoiceBid.investorName} ${invoiceBid.investor}  - #### LOCAL:  ${investor.name} $m');
 
     if (invoiceBid.investor == m) {
-      unsettledBidSummary.totalUnsettledBids++;
-      unsettledBidSummary.totalUnsettledBidAmount += invoiceBid.amount;
+      investorBidSummary.totalUnsettledBids++;
+      investorBidSummary.totalUnsettledBidAmount += invoiceBid.amount;
       _showBottomSheet(invoiceBid);
     }
 
@@ -566,10 +546,10 @@ class _DashboardState extends State<Dashboard>
 class InvestorSummaryCard extends StatelessWidget {
   final DashboardData dashboardData;
   final BuildContext context;
-  final InvestorUnsettledBidSummary unsettledBidSummary;
+  final InvestorBidSummary investorBidSummary;
 
   InvestorSummaryCard(
-      {this.dashboardData, this.context, this.unsettledBidSummary});
+      {this.dashboardData, this.context, this.investorBidSummary});
 
   Widget _getTotalBids() {
     return Row(
@@ -684,22 +664,10 @@ class InvestorSummaryCard extends StatelessWidget {
       color: Colors.brown.shade50,
       child: Column(
         children: <Widget>[
-//            Container(
-//              height: 100.0,
-//              child: Container(
-//                decoration: BoxDecoration(
-//                  image: DecorationImage(
-//                    image: AssetImage('assets/fincash.jpg'),
-//                    fit: BoxFit.cover,
-//                  ),
-//                ),
-//              ),
-//            ),
           Padding(
-            padding: const EdgeInsets.only(top: 20.0, left: 20.0),
+            padding: const EdgeInsets.only(top: 10.0, left: 20.0),
             child: _getTotalBids(),
           ),
-
           Padding(
             padding: const EdgeInsets.only(top: 10.0, left: 20.0, bottom: 20.0),
             child: _getTotalBidValue(),
@@ -719,13 +687,13 @@ class InvestorSummaryCard extends StatelessWidget {
             child: _getAverageDiscount(),
           ),
           Padding(
-            padding: const EdgeInsets.only(left: 30.0, right: 30.0, top: 10.0),
+            padding: const EdgeInsets.only(left: 30.0, right: 30.0, top: 5.0),
             child: Divider(
               color: Colors.grey,
             ),
           ),
           Padding(
-            padding: const EdgeInsets.only(top: 10.0, left: 20.0),
+            padding: const EdgeInsets.only(top: 5.0, left: 20.0),
             child: Row(
               children: <Widget>[
                 Container(
@@ -736,10 +704,54 @@ class InvestorSummaryCard extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  unsettledBidSummary == null
+                  investorBidSummary == null
                       ? '0.00'
-                      : '${unsettledBidSummary.totalUnsettledBids}',
+                      : '${investorBidSummary.totalUnsettledBids}',
                   style: Styles.blackSmall,
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 20.0, top: 10.0, bottom: 5.0),
+            child: Row(
+              children: <Widget>[
+                Container(
+                  width: 120.0,
+                  child: Text(
+                    'Unsettled Total',
+                    style: Styles.greyLabelSmall,
+                  ),
+                ),
+                Text(
+                  investorBidSummary == null
+                      ? '0.00'
+                      : '${getFormattedAmount('${investorBidSummary.totalUnsettledBidAmount}', context)}',
+                  style: Styles.blackSmall,
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 30.0, right: 30.0),
+            child: Divider(),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: 5.0, left: 20.0),
+            child: Row(
+              children: <Widget>[
+                Container(
+                  width: 120.0,
+                  child: Text(
+                    'Settled  Bids',
+                    style: Styles.greyLabelSmall,
+                  ),
+                ),
+                Text(
+                  investorBidSummary == null
+                      ? '0.00'
+                      : '${investorBidSummary.totalSettledBids}',
+                  style: Styles.blackBoldSmall,
                 ),
               ],
             ),
@@ -751,15 +763,15 @@ class InvestorSummaryCard extends StatelessWidget {
                 Container(
                   width: 120.0,
                   child: Text(
-                    'Unsettled Total',
+                    'Settled Total',
                     style: Styles.greyLabelSmall,
                   ),
                 ),
                 Text(
-                  unsettledBidSummary == null
+                  investorBidSummary == null
                       ? '0.00'
-                      : '${getFormattedAmount('${unsettledBidSummary.totalUnsettledBidAmount}', context)}',
-                  style: Styles.blackSmall,
+                      : '${getFormattedAmount('${investorBidSummary.totalSettledBidAmount}', context)}',
+                  style: Styles.blackBoldSmall,
                 ),
               ],
             ),

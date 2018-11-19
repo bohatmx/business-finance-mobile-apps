@@ -151,29 +151,29 @@ class SharedPrefs {
     }
   }
 
-  static Future saveUnsettled(InvestorUnsettledBidSummary summary) async {
+  static Future saveBidSummary(InvestorBidSummary summary) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     if (summary == null) return null;
     Map jsonx = summary.toJson();
     var jx = json.encode(jsonx);
-    prefs.setString('unsettled', jx);
-    print("SharedPrefs.saveUnsettled =========  data SAVED.........");
+    prefs.setString('bidSummary', jx);
+    print("SharedPrefs.saveBidSummary =========  data SAVED.........");
   }
 
-  static Future<InvestorUnsettledBidSummary> getUnsettled() async {
-    print("SharedPrefs.getUnsettled =========  getting cached data.........");
+  static Future<InvestorBidSummary> getBidSummary() async {
+    print("SharedPrefs.getBidSummary =========  getting cached data.........");
     var prefs = await SharedPreferences.getInstance();
-    var string = prefs.getString('unsettled');
+    var string = prefs.getString('bidSummary');
     if (string == null) {
-      print('SharedPrefs.getUnsettled is NULL');
-      return InvestorUnsettledBidSummary();
+      print('SharedPrefs.getBidSummary is NULL');
+      return InvestorBidSummary();
     }
     try {
       var jx = json.decode(string);
-      var start = InvestorUnsettledBidSummary.fromJson(jx);
+      var start = InvestorBidSummary.fromJson(jx);
       return start;
     } catch (e) {
-      print('SharedPrefs.getUnsettled ERROR $e');
+      print('SharedPrefs.getBidSummary ERROR $e');
       return null;
     }
   }
