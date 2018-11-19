@@ -100,7 +100,7 @@ class _UnsettledBidsState extends State<UnsettledBids>
         itemBuilder: (BuildContext context, int index) {
           return new GestureDetector(
             onTap: () {
-              _showBidDialog(currentPage.elementAt(index));
+              _checkBid(currentPage.elementAt(index));
             },
             child: Padding(
               padding: const EdgeInsets.only(
@@ -180,12 +180,64 @@ class _UnsettledBidsState extends State<UnsettledBids>
             ));
   }
 
-  _startSettlement() {
+  void _checkBid(InvoiceBid bid) async {
+    print('_UnsettledBidsState._checkBid ...............');
+    AppSnackbar.showSnackbarWithProgressIndicator(
+        scaffoldKey: _scaffoldKey,
+        message: 'Checking bid ...',
+        textColor: Styles.white,
+        backgroundColor: Styles.black);
+    bool isFound = false;
+    unsettledBids = await Database.getInvoiceBids();
+    unsettledBids.forEach((b) {
+      if (b.invoiceBidId == bid.invoiceBidId) {
+        isFound = true;
+      }
+    });
+    _scaffoldKey.currentState.removeCurrentSnackBar();
+    if (isFound) {
+      _showBidDialog(bid);
+    } else {
+      AppSnackbar.showSnackbar(
+          scaffoldKey: _scaffoldKey,
+          message: 'This bid is already settled',
+          textColor: Styles.white,
+          backgroundColor: Styles.black);
+    }
+  }
+
+  _startSettlement() async {
     Navigator.pop(context);
-    Navigator.push(
+    bool result = await Navigator.push(
       context,
       new MaterialPageRoute(builder: (context) => SettleInvoiceBid(invoiceBid)),
     );
+    print(
+        '\n\n_UnsettledBidsState._startSettlement ############### result == true, refresh ... calling _onRefreshPressed');
+    isFromSettlement = true;
+    _onRefreshPressed();
+  }
+
+  bool isFromSettlement;
+  void _onRefreshPressed() async {
+    AppSnackbar.showSnackbarWithProgressIndicator(
+        scaffoldKey: _scaffoldKey,
+        message: 'Refreshing bids ...',
+        textColor: Styles.white,
+        backgroundColor: Styles.black);
+    if (isFromSettlement) {
+      unsettledBids = await Database.getInvoiceBids();
+    } else {
+      unsettledBids = await ListAPI.getUnsettledInvoiceBidsByInvestor(
+          investor.documentReference);
+      await Database.saveInvoiceBids(InvoiceBids(unsettledBids));
+    }
+    try {
+      _scaffoldKey.currentState.removeCurrentSnackBar();
+    } catch (e) {}
+    setState(() {
+      isBusy = false;
+    });
   }
 
   @override
@@ -200,6 +252,12 @@ class _UnsettledBidsState extends State<UnsettledBids>
         elevation: 4.0,
         bottom: _getBottom(),
         backgroundColor: Colors.teal.shade400,
+        actions: <Widget>[
+          IconButton(
+            onPressed: _onRefreshPressed,
+            icon: Icon(Icons.refresh),
+          )
+        ],
       ),
       body: _getBody(),
       backgroundColor: Colors.brown.shade100,

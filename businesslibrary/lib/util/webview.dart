@@ -5,7 +5,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 
-const PeachSuccess = 0, PeachError = 1, PeachCancel = 2;
+const PeachSuccess = 20, PeachError = 19, PeachCancel = 29;
 
 class BFNWebView extends StatefulWidget {
   final String url, title;

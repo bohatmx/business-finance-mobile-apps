@@ -7,6 +7,7 @@ import 'package:businesslibrary/data/invoice_settlement.dart';
 import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/FCM.dart';
+import 'package:businesslibrary/util/database.dart';
 import 'package:businesslibrary/util/invoice_bid_card.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/peach.dart';
@@ -16,7 +17,6 @@ import 'package:businesslibrary/util/util.dart';
 import 'package:businesslibrary/util/webview.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:investor/ui/refresh.dart';
 
 class SettleInvoiceBid extends StatefulWidget {
   final InvoiceBid invoiceBid;
@@ -84,6 +84,7 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
 
   void _showWebView() async {
     if (isBusy) {
+      print('_SettleInvoiceBid._showWebView isBusy $isBusy');
       return;
     }
     isBusy = true;
@@ -100,13 +101,13 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
         case PeachSuccess:
           AppSnackbar.showSnackbarWithAction(
               scaffoldKey: _scaffoldKey,
-              message: 'Payment successful',
+              message: 'Payment successful\nWait for payment registration',
               textColor: Styles.white,
               backgroundColor: Colors.indigo.shade300,
-              actionLabel: 'Done',
+              actionLabel: 'Wait',
               listener: this,
               icon: Icons.done_all,
-              action: PeachSuccess);
+              action: 2);
           setState(() {
             _opacity = 0.0;
           });
@@ -267,6 +268,7 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
 
   bool isChecking;
   double _opacity = 0.0;
+  static const int Exit = 1;
   Widget _getBody() {
     return ListView(
       children: <Widget>[
@@ -331,6 +333,7 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
 
   @override
   onActionPressed(int action) {
+    print('_SettleInvoiceBid.onActionPressed action: $action');
     switch (action) {
       case PeachSuccess:
         Navigator.pop(context);
@@ -338,6 +341,15 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
       case PeachCancel:
         break;
       case PeachError:
+        break;
+      case Exit:
+        _scaffoldKey.currentState.removeCurrentSnackBar();
+        print('_SettleInvoiceBid.onActionPressed about to pop .....');
+        Navigator.pop(context, true);
+//        print('_SettleInvoiceBid.onActionPressed about to pop AGAIN?.....');
+//        Navigator.pop(context, true);
+        break;
+      case 2:
         break;
       default:
         break;
@@ -374,7 +386,8 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
     try {
       var result = await DataAPI3.makeInvestorInvoiceSettlement(m);
       print(
-          '_SettleInvoiceBid.onPeachNotify ####### SETTLEMENT registered on BFN and Firestore: ${result.toJson()}');
+          '\n\n_SettleInvoiceBid.onPeachNotify ####### SETTLEMENT registered on BFN and Firestore: ${result.toJson()}');
+      await _removeBidFromCache();
       AppSnackbar.showSnackbarWithAction(
           scaffoldKey: _scaffoldKey,
           message: 'Payment registered',
@@ -383,9 +396,7 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
           actionLabel: 'Done',
           listener: this,
           icon: Icons.done,
-          action: 1);
-
-      Refresh.refresh(investor);
+          action: Exit);
     } catch (e) {
       AppSnackbar.showErrorSnackbar(
           scaffoldKey: _scaffoldKey,
@@ -393,5 +404,19 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
           listener: this,
           actionLabel: 'Close');
     }
+  }
+
+  Future _removeBidFromCache() async {
+    var bids = await Database.getInvoiceBids();
+    List<InvoiceBid> list = List();
+    bids.forEach((b) {
+      if (b.invoiceBidId != widget.invoiceBid.invoiceBidId) {
+        list.add(b);
+      }
+    });
+    print(
+        '_SettleInvoiceBid._removeBidFromCache bids in cache: ${list.length}');
+    await Database.saveInvoiceBids(InvoiceBids(list));
+    return null;
   }
 }

@@ -208,7 +208,6 @@ class _MyHomePageState extends State<MyHomePage>
                 backgroundColor: Styles.teal);
             _getLists(true);
           }
-          await _getInvestorSummaries();
         } else {
           print('_MyHomePageState._start ***************'
               ' No open offers available. Will try again in $minutes minutes');
@@ -276,7 +275,6 @@ class _MyHomePageState extends State<MyHomePage>
         setState(() {
           _showProgress = null;
         });
-        await _getInvestorSummaries();
         setState(() {});
         opacity = 1.0;
         if (autoTradeStart == null) {
@@ -305,20 +303,15 @@ class _MyHomePageState extends State<MyHomePage>
     } catch (e) {
       setState(() {
         _showProgress = null;
+        messages.add(e);
       });
+
       _getLists(false);
       AppSnackbar.showErrorSnackbar(
           scaffoldKey: _scaffoldKey,
           message: 'Problem with Auto Trade Session',
           listener: this,
           actionLabel: 'close');
-    }
-  }
-
-  _getInvestorSummaries() async {
-    var investors = await ListAPI.getInvestors();
-    for (var inv in investors) {
-      await ListAPI.getInvestorUnsettledBidSummary(inv.participantId);
     }
   }
 
@@ -964,17 +957,9 @@ class _MyHomePageState extends State<MyHomePage>
   @override
   onHeartbeat(Map map) {
     print('\n\n_MyHomePageState.onHeartbeat ############ map: $map');
-    if (_showProgress == null || _showProgress == false) {
-      return;
-    }
     print('_MyHomePageState.onHeartbeat updating messages');
     setState(() {
       messages.add(map['message']);
     });
-//    AppSnackbar.showSnackbar(
-//        scaffoldKey: _scaffoldKey,
-//        message: map['message'],
-//        textColor: Styles.white,
-//        backgroundColor: Colors.deepOrange);
   }
 }

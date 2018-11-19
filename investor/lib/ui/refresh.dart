@@ -10,19 +10,30 @@ class Refresh {
     var dashboardData = await ListAPI.getInvestorDashboardData(
         investor.participantId, investor.documentReference);
     await SharedPrefs.saveDashboardData(dashboardData);
-    await _getDetailData(investor);
+    await refreshBids(investor);
+    await refreshOpenOffers();
     return null;
   }
 
-  static Future _getDetailData(Investor investor) async {
+  static Future refreshBids(Investor investor) async {
+    var start = DateTime.now();
     var m = await ListAPI.getUnsettledInvoiceBidsByInvestor(
         investor.documentReference);
     await Database.saveInvoiceBids(InvoiceBids(m));
+    var end = DateTime.now();
+    print(
+        '\n\nRefresh.refreshBids --------- ++++++++++++ investor bid data refreshed ${end.difference(start).inSeconds}');
+    return null;
+  }
+
+  static Future refreshOpenOffers() async {
+    var start = DateTime.now();
     var o = await ListAPI.getOpenOffers();
     await Database.saveOffers(Offers(o));
-
+    var end = DateTime.now();
     print(
-        '\n\nRefresh._getDetailData --------- ++++++++++++ investor data refreshed');
+        '\n\nRefresh.refreshOpenOffers --------- ++++++++++++ offer data refreshed ${end.difference(start).inSeconds}');
+
     return null;
   }
 }

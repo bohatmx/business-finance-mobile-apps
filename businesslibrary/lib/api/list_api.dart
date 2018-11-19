@@ -896,11 +896,9 @@ class ListAPI {
         client.close();
       });
       print(
-          'ListAPI.getInvestorUnsettledBidSummary .... ## Query via Cloud Functions: status: ${resp.statusCode}');
+          '\n\nListAPI.getInvestorUnsettledBidSummary .... ## Query via Cloud Functions: status: ${resp.statusCode} for $mUrl');
       if (resp.statusCode == 200) {
         summary = InvestorUnsettledBidSummary.fromJson(json.decode(resp.body));
-//        prettyPrint(summary.toJson(),
-//            'ListAPI.getInvestorUnsettledBidSummary summary:');
       } else {
         print(resp.body);
       }
@@ -933,13 +931,13 @@ class ListAPI {
         client.close();
       });
       print(
-          'ListAPI.doHTTP .... ################ Query via Cloud Functions: status: ${resp.statusCode}');
+          '\n\nListAPI.doHTTP .... ################ Query via Cloud Functions: status: ${resp.statusCode} for $mUrl');
       if (resp.statusCode == 200) {
         //print(resp.body);
         data = DashboardData.fromJson(json.decode(resp.body));
         var end = DateTime.now();
         print(
-            '\n\nListAPI._doHTTP ### elapsed: ${end.difference(start).inSeconds} seconds');
+            'ListAPI._doHTTP ### elapsed: ${end.difference(start).inSeconds} seconds');
         return data;
       } else {
         throw Exception('Dashboard data query failed');

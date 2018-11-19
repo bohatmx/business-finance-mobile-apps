@@ -164,10 +164,6 @@ class _MyHomePageState extends State<MyHomePage>
   }
 
   void _generateWorkingData() async {
-    var d = await fixInvoiceBidDates();
-    if (d == null) {
-      return;
-    }
     if (isBusy) {
       AppSnackbar.showSnackbar(
           scaffoldKey: _scaffoldKey,
@@ -185,7 +181,7 @@ class _MyHomePageState extends State<MyHomePage>
     });
 
     var start = DateTime.now();
-    await Generator.generateOffers(this, context);
+    //await Generator.generateOffers(this, context);
     await Generator.generate(this, context);
 
     isBusy = false;
