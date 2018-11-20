@@ -219,7 +219,7 @@ class _DashboardState extends State<Dashboard>
                         totalValue: model.dashboardData == null
                             ? 0.00
                             : model.dashboardData.totalOpenOfferAmount,
-                        totalValueStyle: Styles.tealBoldSmall,
+                        totalValueStyle: Styles.tealBoldMedium,
                       ),
                     ),
                   ),
@@ -671,7 +671,7 @@ class InvestorSummaryCard extends StatelessWidget {
                   dashboardData == null
                       ? '0.00'
                       : '${getFormattedAmount('${dashboardData.totalUnsettledAmount}', context)}',
-                  style: Styles.blackSmall,
+                  style: Styles.pinkBoldSmall,
                 ),
               ],
             ),
