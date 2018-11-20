@@ -7,7 +7,6 @@ import 'package:businesslibrary/data/auto_trade_order.dart';
 import 'package:businesslibrary/data/dashboard_data.dart';
 import 'package:businesslibrary/data/delivery_acceptance.dart';
 import 'package:businesslibrary/data/delivery_note.dart';
-import 'package:businesslibrary/data/investor-unsettled-summary.dart';
 import 'package:businesslibrary/data/investor.dart';
 import 'package:businesslibrary/data/investor_profile.dart';
 import 'package:businesslibrary/data/invoice_bid.dart';
@@ -34,6 +33,7 @@ import 'package:investor/ui/charts.dart';
 import 'package:investor/ui/offer_list.dart';
 import 'package:investor/ui/profile.dart';
 import 'package:investor/ui/unsettled_bids.dart';
+import 'package:scoped_model/scoped_model.dart';
 
 class Dashboard extends StatefulWidget {
   @override
@@ -51,14 +51,12 @@ class _DashboardState extends State<Dashboard>
     implements SnackBarListener, InvoiceBidListener, OfferListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   static const platform = const MethodChannel('com.oneconnect.biz.CHANNEL');
-  final FirebaseMessaging _firebaseMessaging = new FirebaseMessaging();
+  final FirebaseMessaging _fm = new FirebaseMessaging();
 
-  String _message;
   AnimationController animationController;
   Animation<double> animation;
   Investor investor;
-  List<InvoiceBid> invoiceBids = List();
-  List<Offer> offers = List();
+
   List<InvestorInvoiceSettlement> investorSettlements = List();
 
   User user;
@@ -76,7 +74,6 @@ class _DashboardState extends State<Dashboard>
     );
     animation = new Tween(begin: 0.0, end: 1.0).animate(animationController);
     _getCachedPrefs();
-
     items = buildDaysDropDownItems();
   }
 
@@ -86,7 +83,7 @@ class _DashboardState extends State<Dashboard>
     if (state == AppLifecycleState.resumed) {
       print(
           '_DashboardState.didChangeAppLifecycleState _getSummaryData calling ....');
-      _getSummaryData();
+      _refresh();
     }
     setState(() {
       lifecycleState = state;
@@ -96,8 +93,8 @@ class _DashboardState extends State<Dashboard>
   void _subscribeToFCM() {
     FCM.configureFCM(
         invoiceBidListener: this, offerListener: this, context: context);
-    _firebaseMessaging.subscribeToTopic(FCM.TOPIC_INVOICE_BIDS);
-    _firebaseMessaging.subscribeToTopic(FCM.TOPIC_OFFERS);
+    _fm.subscribeToTopic(FCM.TOPIC_INVOICE_BIDS);
+    _fm.subscribeToTopic(FCM.TOPIC_OFFERS);
     print('_DashboardState._subscribeToFCM ########## subscribed!');
   }
 
@@ -109,7 +106,7 @@ class _DashboardState extends State<Dashboard>
   }
 
   List<Sector> sectors;
-  InvestorBidSummary investorBidSummary;
+  //InvestorBidSummary investorBidSummary;
 
   @override
   void dispose() {
@@ -118,78 +115,22 @@ class _DashboardState extends State<Dashboard>
     super.dispose();
   }
 
-  bool summaryBusy = false;
-  DashboardData dashboardData = DashboardData();
-
-  ///get  summaries from Firestore
-  _getSummaryData() async {
-    print('Dashboard_getSummaryData: ......................');
-    if (summaryBusy) {
-      return;
-    }
-
-    dashboardData = await SharedPrefs.getDashboardData();
-    investorBidSummary = await SharedPrefs.getBidSummary();
-    if (dashboardData != null) {
-      setState(() {});
-    }
-    var refDate = await SharedPrefs.getRefreshDate();
-    var diff = DateTime.now().difference(refDate).inMinutes;
-    print('_DashboardState._getDetailData refresh data diff: $diff');
-    if (diff < 30) {
-      print('_DashboardState._getDetailData diff < 30 minutes');
-      return;
-    }
-    summaryBusy = true;
-    AppSnackbar.showSnackbarWithProgressIndicator(
-        scaffoldKey: _scaffoldKey,
-        message: 'Loading fresh data ...',
-        textColor: Colors.white,
-        backgroundColor: Colors.black);
-
-    dashboardData = await ListAPI.getInvestorDashboardData(
-        investor.participantId, investor.documentReference);
-    await SharedPrefs.saveDashboardData(dashboardData);
-    investorBidSummary =
-        await ListAPI.getInvestorBidSummary(investor.documentReference);
-    await SharedPrefs.saveBidSummary(investorBidSummary);
-
-    if (_scaffoldKey.currentState != null) {
-      _scaffoldKey.currentState.hideCurrentSnackBar();
-    }
-    summaryBusy = false;
-    setState(() {});
-
-    _getDetailData();
-  }
-
+  bool refreshModel = false;
   List<InvoiceBid> bids;
 
+  static const MAX_OFFERS = 300;
   void _refresh() async {
-    await SharedPrefs.saveRefreshDate(
-        DateTime.now().subtract(Duration(days: 365)));
-    _getSummaryData();
-  }
+    print('_DashboardState._refresh ............ requesting refresh ...');
+    AppSnackbar.showSnackbarWithProgressIndicator(
+        scaffoldKey: _scaffoldKey,
+        message: 'Refreshing data',
+        textColor: Styles.white,
+        backgroundColor: Styles.black);
 
-  Future _getDetailData() async {
-    var refDate = await SharedPrefs.getRefreshDate();
-    var diff = DateTime.now().difference(refDate).inMinutes;
-    print('_DashboardState._getDetailData refresh data diff: $diff');
-    if (diff < 30) {
-      print('_DashboardState._getDetailData diff < 30 minutes');
-      return;
-    }
-    bids = await ListAPI.getUnsettledInvoiceBidsByInvestor(
-        investor.documentReference);
-    if (bids.isNotEmpty) {
-      await Database.saveInvoiceBids(InvoiceBids(bids));
-    }
-
-    offers = await ListAPI.getOpenOffers();
-    if (offers.isNotEmpty) {
-      await Database.saveOffers(Offers(offers));
-    }
-    SharedPrefs.saveRefreshDate(DateTime.now());
+    setState(() {
+      count = 0;
+      refreshModel = true;
+    });
   }
 
   Future _getCachedPrefs() async {
@@ -206,11 +147,7 @@ class _DashboardState extends State<Dashboard>
     _subscribeToFCM();
     _checkSectors();
     user = await SharedPrefs.getUser();
-    fullName = user.firstName + ' ' + user.lastName;
-    name = investor.name;
     setState(() {});
-
-    _getSummaryData();
   }
 
   InvoiceBid lastInvoiceBid;
@@ -219,9 +156,7 @@ class _DashboardState extends State<Dashboard>
 
   @override
   Widget build(BuildContext context) {
-    _message = widget.message;
-
-    return new WillPopScope(
+    return WillPopScope(
       onWillPop: () async => false,
       child: Scaffold(
         key: _scaffoldKey,
@@ -252,7 +187,17 @@ class _DashboardState extends State<Dashboard>
           ],
         ),
         backgroundColor: Colors.brown.shade100,
-        body: Stack(
+        body: _getBody(),
+      ),
+    );
+  }
+
+  int count = 0;
+  Widget _getBody() {
+    return ScopedModelDescendant<InvestorAppModel>(
+      builder: (context, _, model) {
+        _checkConditions(model);
+        return Stack(
           children: <Widget>[
             new Padding(
               padding:
@@ -264,14 +209,14 @@ class _DashboardState extends State<Dashboard>
                     child: Padding(
                       padding: const EdgeInsets.only(bottom: 10.0),
                       child: SummaryCard(
-                        total: dashboardData == null
+                        total: model.dashboardData == null
                             ? 0
-                            : dashboardData.totalOpenOffers,
+                            : model.dashboardData.totalOpenOffers,
                         label: 'Invoice Offers',
                         totalStyle: Styles.pinkBoldMedium,
-                        totalValue: dashboardData == null
+                        totalValue: model.dashboardData == null
                             ? 0.00
-                            : dashboardData.totalOpenOfferAmount,
+                            : model.dashboardData.totalOpenOfferAmount,
                         totalValueStyle: Styles.tealBoldSmall,
                       ),
                     ),
@@ -282,8 +227,7 @@ class _DashboardState extends State<Dashboard>
                       padding: const EdgeInsets.only(bottom: 38.0),
                       child: InvestorSummaryCard(
                         context: context,
-                        dashboardData: dashboardData,
-                        investorBidSummary: investorBidSummary,
+                        dashboardData: model.dashboardData,
                       ),
                     ),
                   ),
@@ -291,9 +235,37 @@ class _DashboardState extends State<Dashboard>
               ),
             ),
           ],
-        ),
-      ),
+        );
+      },
     );
+  }
+
+  void _checkConditions(InvestorAppModel model) async {
+    print(
+        '\n\n_checkConditions #### invoiceBidArrived: $invoiceBidArrived offerArrived: $offerArrived refreshModel: $refreshModel count: $count');
+
+    count++;
+
+    if (invoiceBidArrived) {
+      invoiceBidArrived = false;
+      model.invoiceBidArrived(invoiceBid);
+    }
+    if (offerArrived) {
+      offerArrived = false;
+      model.offerArrived(offer);
+    }
+    if (refreshModel) {
+      print(
+          '\n\n_checkConditions --------- refreshModel: $refreshModel - will try a big time refresh');
+      refreshModel = false;
+      await model.refreshModel();
+      print(
+          '_DashboardState._checkConditions ========== have completed refresh, now what?');
+      try {
+        _scaffoldKey.currentState.removeCurrentSnackBar();
+      } catch (e) {}
+      setState(() {});
+    }
   }
 
   void _goToWalletPage() {
@@ -311,7 +283,9 @@ class _DashboardState extends State<Dashboard>
   refresh() {
     print(
         '_DashboardState.refresh: ################## REFRESH called. getSummary ...');
-    _getSummaryData();
+    setState(() {
+      refreshModel = true;
+    });
   }
 
   @override
@@ -330,34 +304,56 @@ class _DashboardState extends State<Dashboard>
     }
   }
 
-  void _onPaymentsTapped() {
-    print('_DashboardState._onPaymentsTapped ............');
-  }
-
   void _onInvoiceBidsTapped() {
     print('_DashboardState._onInvoiceTapped ...............');
+    setState(() {
+      mTitle = 'The Good Ship BFN';
+    });
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => UnsettledBids()),
     );
   }
 
+  String mTitle = 'BFN is Rock Solid!';
+
   Widget _getBottom() {
     return PreferredSize(
       preferredSize: const Size.fromHeight(60.0),
       child: new Column(
         children: <Widget>[
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              new Padding(
-                padding: const EdgeInsets.only(bottom: 28.0),
-                child: Text(
-                  name == null ? 'Organisation' : name,
-                  style: Styles.whiteBoldSmall,
+          ScopedModelDescendant<InvestorAppModel>(
+            builder: (context, child, model) {
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 20.0),
+                child: Column(
+                  children: <Widget>[
+                    Text(
+                      model.investor == null ? '' : model.investor.name,
+                      style: Styles.yellowBoldMedium,
+                    ),
+                    refreshModel == false
+                        ? Container()
+                        : Padding(
+                            padding: const EdgeInsets.only(bottom: 8.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: <Widget>[
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 8.0),
+                                  child: Container(
+                                    height: 16.0,
+                                    width: 16.0,
+                                    child: CircularProgressIndicator(),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                  ],
                 ),
-              )
-            ],
+              );
+            },
           ),
         ],
       ),
@@ -387,32 +383,6 @@ class _DashboardState extends State<Dashboard>
       WalletConstant = 7,
       InvoiceAcceptedConstant = 8;
   Offer offer;
-
-  @override
-  onOffer(Offer o) {
-    offer = o;
-    print(
-        '\n\n_DashboardState.onOffer ...... check date handling ....${o.offerAmount} ${o.date}');
-    DateTime now = DateTime.now().toUtc();
-    DateTime date = DateTime.parse(o.date);
-    Duration difference = now.difference(date);
-    if (difference.inHours > 1) {
-      print(
-          'onOffer -  IGNORED: older than 1 hours  --------bid done  ${difference.inHours} hours ago.');
-      return;
-    }
-    AppSnackbar.showSnackbarWithAction(
-        scaffoldKey: _scaffoldKey,
-        message: 'Invoice Offer arrived',
-        textColor: Colors.white,
-        backgroundColor: Colors.black,
-        actionLabel: 'OK',
-        listener: this,
-        icon: Icons.message,
-        action: OfferConstant);
-
-    _getSummaryData();
-  }
 
   void _onProfileRequested() {
     print('_DashboardState._onProfileRequested');
@@ -475,63 +445,31 @@ class _DashboardState extends State<Dashboard>
     });
   }
 
+  InvoiceBid invoiceBid;
+  bool invoiceBidArrived = false;
   @override
   onInvoiceBidMessage(InvoiceBid invoiceBid) async {
     print(
         '_DashboardState.onInvoiceBidMessage invoiceBid arrived ###############################');
-    dashboardData.totalOpenOffers--;
-    dashboardData.totalOfferAmount -= invoiceBid.amount;
-    dashboardData.totalOpenOfferAmount -= invoiceBid.amount;
-
-    if (investorBidSummary == null) {
-      investorBidSummary = InvestorBidSummary(
-        totalUnsettledBidAmount: 0.0,
-        totalUnsettledBids: 0,
-      );
-    }
-    String m = NameSpace + 'Investor#${investor.participantId}';
-    print(
-        '\n\n_DashboardState.onInvoiceBidMessage \n${invoiceBid.investorName} ${invoiceBid.investor}  - #### LOCAL:  ${investor.name} $m');
-
-    if (invoiceBid.investor == m) {
-      investorBidSummary.totalUnsettledBids++;
-      investorBidSummary.totalUnsettledBidAmount += invoiceBid.amount;
-      _showBottomSheet(invoiceBid);
-    }
+    this.invoiceBid = invoiceBid;
+    invoiceBidArrived = true;
 
     setState(() {});
-    _showSnack(
-        'Invoice Bid made: ${getFormattedAmount('${invoiceBid.amount}', context)} at ${getFormattedDateHour(invoiceBid.date)} GMT');
-
-    if (invoiceBid.investor.split('#').elementAt(1) == investor.participantId) {
-      dashboardData.totalBids++;
-      dashboardData.totalBidAmount += invoiceBid.amount;
-      await SharedPrefs.saveDashboardData(dashboardData);
-      bids = await Database.getInvoiceBids();
-      bids.insert(0, invoiceBid);
-      await Database.saveInvoiceBids(InvoiceBids(bids));
-    }
   }
 
   double opacity = 1.0;
   String name;
 
+  bool offerArrived = false;
   @override
   onOfferMessage(Offer offer) async {
     print(
         '_DashboardState.onOfferMessage #################### ${offer.supplierName} ${offer.offerAmount}');
-
-    dashboardData.totalOpenOffers++;
-    dashboardData.totalOpenOfferAmount += offer.offerAmount;
-
-    setState(() {});
+    setState(() {
+      offerArrived = true;
+    });
     _showSnack(
         'Offer arrived ${getFormattedAmount('${offer.offerAmount}', context)}');
-
-    await SharedPrefs.saveDashboardData(dashboardData);
-    offers = await Database.getOffers();
-    offers.insert(0, offer);
-    await Database.saveOffers(Offers(offers));
   }
 
   void _showSnack(String message) {
@@ -546,10 +484,8 @@ class _DashboardState extends State<Dashboard>
 class InvestorSummaryCard extends StatelessWidget {
   final DashboardData dashboardData;
   final BuildContext context;
-  final InvestorBidSummary investorBidSummary;
 
-  InvestorSummaryCard(
-      {this.dashboardData, this.context, this.investorBidSummary});
+  InvestorSummaryCard({this.dashboardData, this.context});
 
   Widget _getTotalBids() {
     return Row(
@@ -615,7 +551,7 @@ class InvestorSummaryCard extends StatelessWidget {
           padding: const EdgeInsets.only(left: 10.0, right: 10.0),
           child: Text(
             dashboardData == null ? '0.0%' : _getAvgDiscount(),
-            style: Styles.purpleSmall,
+            style: Styles.purpleBoldSmall,
           ),
         ),
       ],
@@ -704,9 +640,9 @@ class InvestorSummaryCard extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  investorBidSummary == null
+                  dashboardData == null
                       ? '0.00'
-                      : '${investorBidSummary.totalUnsettledBids}',
+                      : '${dashboardData.totalUnsettledBids}',
                   style: Styles.blackSmall,
                 ),
               ],
@@ -724,9 +660,9 @@ class InvestorSummaryCard extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  investorBidSummary == null
+                  dashboardData == null
                       ? '0.00'
-                      : '${getFormattedAmount('${investorBidSummary.totalUnsettledBidAmount}', context)}',
+                      : '${getFormattedAmount('${dashboardData.totalUnsettledAmount}', context)}',
                   style: Styles.blackSmall,
                 ),
               ],
@@ -748,9 +684,9 @@ class InvestorSummaryCard extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  investorBidSummary == null
+                  dashboardData == null
                       ? '0.00'
-                      : '${investorBidSummary.totalSettledBids}',
+                      : '${dashboardData.totalSettledBids}',
                   style: Styles.blackBoldSmall,
                 ),
               ],
@@ -768,9 +704,9 @@ class InvestorSummaryCard extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  investorBidSummary == null
+                  dashboardData == null
                       ? '0.00'
-                      : '${getFormattedAmount('${investorBidSummary.totalSettledBidAmount}', context)}',
+                      : '${getFormattedAmount('${dashboardData.totalSettledAmount}', context)}',
                   style: Styles.blackBoldSmall,
                 ),
               ],
@@ -803,3 +739,144 @@ class InvestorSummaryCard extends StatelessWidget {
     );
   }
 }
+
+class InvestorAppModel extends Model {
+  String _title = 'BFN State Test';
+  DashboardData _dashboardData = DashboardData();
+  List<InvoiceBid> _invoiceBids;
+  List<Offer> _offers;
+  Investor _investor;
+
+  List<InvoiceBid> get invoiceBids => _invoiceBids;
+  List<Offer> get offers => _offers;
+  Investor get investor => _investor;
+  DashboardData get dashboardData => _dashboardData;
+  String get title => _title;
+
+  InvestorAppModel() {
+    initialize();
+  }
+
+  void offerArrived(Offer offer) async {
+    print(
+        '\n\nInvestorAppModel.offerArrived - ${offer.supplierName} ${offer.offerAmount}');
+    _dashboardData.totalOpenOffers++;
+    _dashboardData.totalOpenOfferAmount += offer.offerAmount;
+
+    await SharedPrefs.saveDashboardData(dashboardData);
+    _offers = await Database.getOffers();
+    _offers.insert(0, offer);
+    await Database.saveOffers(Offers(_offers));
+    notifyListeners();
+  }
+
+  void invoiceBidArrived(InvoiceBid invoiceBid) async {
+    _dashboardData.totalOpenOffers--;
+    _dashboardData.totalOfferAmount -= invoiceBid.amount;
+    _dashboardData.totalOpenOfferAmount -= invoiceBid.amount;
+
+    String m = NameSpace + 'Investor#${investor.participantId}';
+    print(
+        '\n\nInvestorAppModel.invoiceBidArrived \n${invoiceBid.investorName} ${invoiceBid.investor}  - #### LOCAL:  ${investor.name} $m');
+
+    if (invoiceBid.investor == m) {
+      _dashboardData.totalUnsettledBids++;
+      _dashboardData.totalUnsettledAmount += invoiceBid.amount;
+    }
+
+    if (invoiceBid.investor.split('#').elementAt(1) == investor.participantId) {
+      _dashboardData.totalBids++;
+      _dashboardData.totalBidAmount += invoiceBid.amount;
+      await SharedPrefs.saveDashboardData(dashboardData);
+      _invoiceBids = await Database.getInvoiceBids();
+      _invoiceBids.insert(0, invoiceBid);
+      await Database.saveInvoiceBids(InvoiceBids(_invoiceBids));
+    }
+    notifyListeners();
+  }
+
+  void initialize() async {
+    print('\n\nInvestorAppModel.initialize ################################ ');
+    _investor = await SharedPrefs.getInvestor();
+    if (_investor == null) {
+      return;
+    }
+    _dashboardData = await SharedPrefs.getDashboardData();
+    if (_dashboardData == null) {
+      await refreshDashboard();
+    }
+    _invoiceBids = await Database.getInvoiceBids();
+    if (_invoiceBids.isEmpty) {
+      await refreshInvoiceBids();
+    }
+    _offers = await Database.getOffers();
+    if (_offers.isEmpty) {
+      await refreshOffers();
+    }
+    _title =
+        'BFN Model ${getFormattedDateHour('${DateTime.now().toIso8601String()}')}';
+    doPrint();
+    notifyListeners();
+  }
+
+  Future refreshDashboard() async {
+    print('InvestorAppModel.refreshDashboard ............................');
+    _investor = await SharedPrefs.getInvestor();
+    _dashboardData = await ListAPI.getInvestorDashboardData(
+        _investor.participantId, _investor.documentReference);
+    await SharedPrefs.saveDashboardData(_dashboardData);
+    notifyListeners();
+  }
+
+  Future refreshInvoiceBids() async {
+    print('InvestorAppModel.refreshInvoiceBids ...........................');
+    _investor = await SharedPrefs.getInvestor();
+    _invoiceBids = await ListAPI.getUnsettledInvoiceBidsByInvestor(
+        _investor.documentReference);
+    await Database.saveInvoiceBids(InvoiceBids(_invoiceBids));
+    notifyListeners();
+  }
+
+  Future refreshOffers() async {
+    print('InvestorAppModel.refreshOffers .................................');
+    _offers = await ListAPI.getOpenOffers(MAX_RECORDS);
+    await Database.saveOffers(Offers(_offers));
+    notifyListeners();
+  }
+
+  Future refreshModel() async {
+    print('InvestorAppModel.refreshModel .................................');
+    _investor = await SharedPrefs.getInvestor();
+    _invoiceBids = await ListAPI.getUnsettledInvoiceBidsByInvestor(
+        _investor.documentReference);
+    await Database.saveInvoiceBids(InvoiceBids(_invoiceBids));
+
+    _dashboardData = await ListAPI.getInvestorDashboardData(
+        _investor.participantId, _investor.documentReference);
+    await SharedPrefs.saveDashboardData(_dashboardData);
+
+    _offers = await ListAPI.getOpenOffers(MAX_RECORDS);
+    await Database.saveOffers(Offers(_offers));
+
+    notifyListeners();
+  }
+
+  void doPrint() {
+    print(
+        '\n\n\nInvestorAppModel.doPrint STARTED ######################################\n');
+    if (_investor != null) {
+      prettyPrint(_investor.toJson(), '######## Investor in Model');
+    }
+    if (_dashboardData != null) {
+      prettyPrint(
+          _dashboardData.toJson(), '####### DashboardData inside Model');
+    }
+    print(
+        'InvestorAppModel.doPrint invoiceBids in Model: ${_invoiceBids.length}');
+    print('InvestorAppModel.doPrint offers in Model: ${_offers.length}');
+    print(
+        '\nInvestorAppModel.doPrint ENDED. ############################################\n\n\n');
+  }
+}
+
+const MAX_RECORDS = 300;

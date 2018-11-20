@@ -51,7 +51,7 @@ class _OffersAndBidsState extends State<OffersAndBids> {
         textColor: Styles.white,
         backgroundColor: Styles.black);
 
-    openOffers = await ListAPI.getOpenOffers();
+    openOffers = await ListAPI.getOpenOffers(300);
     var s = await ListAPI.getUnsettledInvoiceBidsByInvestor(
         investor.documentReference);
     if (_scaffoldKey.currentState != null) {

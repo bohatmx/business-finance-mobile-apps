@@ -1,4 +1,5 @@
 import 'package:businesslibrary/api/shared_prefs.dart';
+import 'package:businesslibrary/data/dashboard_data.dart';
 import 'package:businesslibrary/data/investor.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:flutter/material.dart';
@@ -6,18 +7,28 @@ import 'package:investor/ui/dashboard.dart';
 import 'package:investor/ui/signin_page.dart';
 import 'package:investor/ui/signup_page.dart';
 import 'package:investor/ui/theme_util.dart';
+import 'package:scoped_model/scoped_model.dart';
 
-void main() => runApp(new InvestorApp());
+void main() => runApp(new InvestorApp(
+      model: DashModel(),
+    ));
 
 class InvestorApp extends StatelessWidget {
   // This widget is the root of your application.
+  final DashModel model;
+
+  InvestorApp({Key key, @required this.model}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
-    return new MaterialApp(
-      title: 'FinanceNetwork',
-      debugShowCheckedModeBanner: false,
-      theme: getTheme(),
-      home: new Dashboard(null),
+    return ScopedModel<InvestorAppModel>(
+      model: InvestorAppModel(),
+      child: MaterialApp(
+        title: 'FinanceNetwork',
+        debugShowCheckedModeBanner: false,
+        theme: getTheme(),
+        home: new Dashboard(null),
+      ),
     );
   }
 }
@@ -173,5 +184,15 @@ class BackImage extends StatelessWidget {
     return Container(
       child: image,
     );
+  }
+}
+
+class DashModel extends Model {
+  DashboardData _dashboardData;
+  DashboardData get dashboardData => _dashboardData;
+
+  void incrementOpenOffers() {
+    _dashboardData.totalOpenOffers++;
+    notifyListeners();
   }
 }

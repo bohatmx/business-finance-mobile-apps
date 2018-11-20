@@ -11,7 +11,9 @@ import 'package:businesslibrary/util/pager_helper.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:flutter/material.dart';
+import 'package:investor/ui/dashboard.dart';
 import 'package:investor/ui/settle_invoice_bid.dart';
+import 'package:scoped_model/scoped_model.dart';
 
 class UnsettledBids extends StatefulWidget {
   @override
@@ -75,20 +77,29 @@ class _UnsettledBidsState extends State<UnsettledBids>
       preferredSize: Size.fromHeight(200.0),
       child: Column(
         children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: unsettledBids == null || unsettledBids.isEmpty
-                ? null
-                : Pager3(
-                    elevation: 8.0,
-                    type: PagerHelper.INVOICE_BID,
-                    items: unsettledBids,
-                    pageLimit: pageLimit,
-                    itemName: 'Invoice Bids',
-                    addHeader: true,
-                    listener: this,
-                    pagerShouldRefresh: pagerShouldRefresh,
-                  ),
+          ScopedModelDescendant<InvestorAppModel>(
+            builder: (context, _, model) {
+              if (refreshBidsInModel) {
+                print(
+                    '_UnsettledBidsState._getBottom asking Model to refresh bids ........');
+                model.refreshInvoiceBids();
+              }
+              return Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: model.invoiceBids == null || model.invoiceBids.isEmpty
+                    ? null
+                    : Pager3(
+                        elevation: 8.0,
+                        type: PagerHelper.INVOICE_BID,
+                        items: model.invoiceBids,
+                        pageLimit: pageLimit,
+                        itemName: 'Invoice Bids',
+                        addHeader: true,
+                        listener: this,
+                        pagerShouldRefresh: pagerShouldRefresh,
+                      ),
+              );
+            },
           ),
         ],
       ),
@@ -219,33 +230,39 @@ class _UnsettledBidsState extends State<UnsettledBids>
     _onRefreshPressed();
   }
 
-  bool isFromSettlement = false, pagerShouldRefresh = false;
+  bool isFromSettlement = false,
+      pagerShouldRefresh = false,
+      refreshBidsInModel = false;
   void _onRefreshPressed() async {
-    AppSnackbar.showSnackbarWithProgressIndicator(
-        scaffoldKey: _scaffoldKey,
-        message: 'Refreshing bids ...',
-        textColor: Styles.white,
-        backgroundColor: Styles.black);
+//    AppSnackbar.showSnackbarWithProgressIndicator(
+//        scaffoldKey: _scaffoldKey,
+//        message: 'Refreshing bids ...',
+//        textColor: Styles.white,
+//        backgroundColor: Styles.black);
+//
+//    if (isFromSettlement) {
+//      unsettledBids = await Database.getInvoiceBids();
+//      isFromSettlement = false;
+//    } else {
+//      unsettledBids = await ListAPI.getUnsettledInvoiceBidsByInvestor(
+//          investor.documentReference);
+//      await Database.saveInvoiceBids(InvoiceBids(unsettledBids));
+//    }
+//    try {
+//      _scaffoldKey.currentState.removeCurrentSnackBar();
+//    } catch (e) {}
+//
+//    setState(() {
+//      pagerShouldRefresh = true;
+//      isBusy = false;
+//    });
 
-    if (isFromSettlement) {
-      unsettledBids = await Database.getInvoiceBids();
-      isFromSettlement = false;
-    } else {
-      unsettledBids = await ListAPI.getUnsettledInvoiceBidsByInvestor(
-          investor.documentReference);
-      await Database.saveInvoiceBids(InvoiceBids(unsettledBids));
-    }
-    try {
-      _scaffoldKey.currentState.removeCurrentSnackBar();
-    } catch (e) {}
-
-    setState(() {
-      pagerShouldRefresh = true;
-      isBusy = false;
-    });
     print(
         '\n_UnsettledBidsState._onRefreshPressed should refresh, has it? ...... pagerShouldRefresh = $pagerShouldRefresh}');
-    //pagerShouldRefresh = false;
+
+    setState(() {
+      refreshBidsInModel = true;
+    });
   }
 
   @override

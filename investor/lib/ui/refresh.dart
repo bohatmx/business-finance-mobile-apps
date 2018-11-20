@@ -28,7 +28,7 @@ class Refresh {
 
   static Future refreshOpenOffers() async {
     var start = DateTime.now();
-    var o = await ListAPI.getOpenOffers();
+    var o = await ListAPI.getOpenOffers(300);
     await Database.saveOffers(Offers(o));
     var end = DateTime.now();
     print(

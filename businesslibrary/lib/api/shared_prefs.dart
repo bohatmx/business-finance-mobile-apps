@@ -355,7 +355,7 @@ class SharedPrefs {
     }
 
     var jx = json.decode(string);
-    prettyPrint(jx, 'Investor from cache: ');
+    //prettyPrint(jx, 'Investor from cache: ');
     Investor investor = new Investor.fromJson(jx);
     return investor;
   }
