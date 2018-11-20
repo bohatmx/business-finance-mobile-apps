@@ -756,7 +756,19 @@ class InvestorAppModel extends Model {
   InvestorAppModel() {
     initialize();
   }
-
+  Future removeBidFromCache(InvoiceBid bid) async {
+    var bids = await Database.getInvoiceBids();
+    _invoiceBids.clear();
+    bids.forEach((b) {
+      if (b.invoiceBidId != bid.invoiceBidId) {
+        _invoiceBids.add(b);
+      }
+    });
+    print(
+        'InvestorAppModel._removeBidFromCache bids in cache: ${_invoiceBids.length}');
+    await Database.saveInvoiceBids(InvoiceBids(_invoiceBids));
+    notifyListeners();
+  }
   void offerArrived(Offer offer) async {
     print(
         '\n\nInvestorAppModel.offerArrived - ${offer.supplierName} ${offer.offerAmount}');
@@ -839,7 +851,7 @@ class InvestorAppModel extends Model {
 
   Future refreshOffers() async {
     print('InvestorAppModel.refreshOffers .................................');
-    _offers = await ListAPI.getOpenOffers(MAX_RECORDS);
+    _offers = await ListAPI.getOpenOffers();
     await Database.saveOffers(Offers(_offers));
     notifyListeners();
   }
@@ -855,7 +867,7 @@ class InvestorAppModel extends Model {
         _investor.participantId, _investor.documentReference);
     await SharedPrefs.saveDashboardData(_dashboardData);
 
-    _offers = await ListAPI.getOpenOffers(MAX_RECORDS);
+    _offers = await ListAPI.getOpenOffers();
     await Database.saveOffers(Offers(_offers));
 
     notifyListeners();

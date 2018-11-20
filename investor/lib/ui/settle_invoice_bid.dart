@@ -17,6 +17,9 @@ import 'package:businesslibrary/util/util.dart';
 import 'package:businesslibrary/util/webview.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:investor/ui/dashboard.dart';
+import 'package:investor/ui/unsettled_bids.dart';
+import 'package:scoped_model/scoped_model.dart';
 
 class SettleInvoiceBid extends StatefulWidget {
   final InvoiceBid invoiceBid;
@@ -266,7 +269,7 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
     );
   }
 
-  bool isChecking;
+  bool isChecking, removeInvoiceBidFromCache = false;
   double _opacity = 0.0;
   static const int Exit = 1;
   Widget _getBody() {
@@ -313,21 +316,30 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      key: _scaffoldKey,
-      appBar: AppBar(
-        title: Text('Invoice Bid Settlement'),
-        bottom: _getBottom(),
-        elevation: 8.0,
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.refresh),
-            onPressed: _getOffer,
+    return ScopedModelDescendant<InvestorAppModel>(
+      builder: (context, _, model) {
+        if (removeInvoiceBidFromCache) {
+          removeInvoiceBidFromCache = false;
+          print('_SettleInvoiceBid.build paymentHasSucceeded: $removeInvoiceBidFromCache - refreshing model ...');
+          model.refreshModel();
+        }
+        return Scaffold(
+          key: _scaffoldKey,
+          appBar: AppBar(
+            title: Text('Invoice Bid Settlement'),
+            bottom: _getBottom(),
+            elevation: 8.0,
+            actions: <Widget>[
+              IconButton(
+                icon: Icon(Icons.refresh),
+                onPressed: _getOffer,
+              ),
+            ],
           ),
-        ],
-      ),
-      backgroundColor: Colors.brown.shade100,
-      body: _getBody(),
+          backgroundColor: Colors.brown.shade100,
+          body: _getBody(),
+        );
+      },
     );
   }
 
@@ -346,8 +358,10 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
         _scaffoldKey.currentState.removeCurrentSnackBar();
         print('_SettleInvoiceBid.onActionPressed about to pop .....');
         Navigator.pop(context, true);
-        print('_SettleInvoiceBid.onActionPressed about to pop AGAIN?.....');
-        Navigator.pop(context, true);
+        Navigator.push(
+          context,
+          new MaterialPageRoute(builder: (context) => UnsettledBids()),
+        );
         break;
       case 2:
         break;
@@ -387,7 +401,10 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
       var result = await DataAPI3.makeInvestorInvoiceSettlement(m);
       print(
           '\n\n_SettleInvoiceBid.onPeachNotify ####### SETTLEMENT registered on BFN and Firestore: ${result.toJson()}');
-      await _removeBidFromCache();
+
+     setState(() {
+       removeInvoiceBidFromCache = true;
+     });
       AppSnackbar.showSnackbarWithAction(
           scaffoldKey: _scaffoldKey,
           message: 'Payment registered',
@@ -406,17 +423,5 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
     }
   }
 
-  Future _removeBidFromCache() async {
-    var bids = await Database.getInvoiceBids();
-    List<InvoiceBid> list = List();
-    bids.forEach((b) {
-      if (b.invoiceBidId != widget.invoiceBid.invoiceBidId) {
-        list.add(b);
-      }
-    });
-    print(
-        '_SettleInvoiceBid._removeBidFromCache bids in cache: ${list.length}');
-    await Database.saveInvoiceBids(InvoiceBids(list));
-    return null;
-  }
+
 }

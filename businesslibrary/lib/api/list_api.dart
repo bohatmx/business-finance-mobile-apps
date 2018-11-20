@@ -502,14 +502,15 @@ class ListAPI {
     return list;
   }
 
-  static Future<List<Offer>> getOpenOffers(int limit) async {
+  static const int MAXIMUM_RECORDS_FROM_FIRESTORE = 100;
+  static Future<List<Offer>> getOpenOffers() async {
     List<Offer> list = List();
     var now = getUTCDate();
     var qs = await _firestore
         .collection('invoiceOffers')
         .where('isOpen', isEqualTo: true)
         .where('endTime', isGreaterThan: now)
-        .limit(limit)
+        .limit(MAXIMUM_RECORDS_FROM_FIRESTORE)
         .getDocuments()
         .catchError((e) {
       print('ListAPI.getOpenOffers $e');

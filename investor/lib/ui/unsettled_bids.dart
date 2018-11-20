@@ -1,4 +1,3 @@
-import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/investor.dart';
 import 'package:businesslibrary/data/invoice_bid.dart';
@@ -24,7 +23,7 @@ class _UnsettledBidsState extends State<UnsettledBids>
     implements Pager3Listener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   Investor investor;
-  List<InvoiceBid> unsettledBids, currentPage = List();
+  List<InvoiceBid> currentPage = List();
 
   bool isBusy, forceRefresh = false;
   int pageLimit = 4;
@@ -40,37 +39,32 @@ class _UnsettledBidsState extends State<UnsettledBids>
       isBusy = true;
     });
     investor = await SharedPrefs.getInvestor();
-    unsettledBids = await Database.getInvoiceBids();
     pageLimit = await SharedPrefs.getPageLimit();
 
-    if (unsettledBids == null || unsettledBids.isEmpty) {
-      forceRefresh = true;
-      await getFreshData();
-    }
     setState(() {
       isBusy = false;
     });
   }
 
-  Future getFreshData() async {
-    if (forceRefresh) {
-      print('_UnsettledBidsState.getFreshData forceRefresh: $forceRefresh');
-    } else {
-      var date = await SharedPrefs.getRefreshDate();
-      var diff = date.difference(DateTime.now()).inMinutes;
-      if (diff < 30) {
-        print(
-            '_UnsettledBidsState.getFreshData - refreshed less than 30 minutes ago');
-        return null;
-      }
-    }
-
-    unsettledBids = await ListAPI.getUnsettledInvoiceBidsByInvestor(
-        investor.documentReference);
-    await Database.saveInvoiceBids(InvoiceBids(unsettledBids));
-    forceRefresh = false;
-    return null;
-  }
+//  Future getFreshData() async {
+//    if (forceRefresh) {
+//      print('_UnsettledBidsState.getFreshData forceRefresh: $forceRefresh');
+//    } else {
+//      var date = await SharedPrefs.getRefreshDate();
+//      var diff = date.difference(DateTime.now()).inMinutes;
+//      if (diff < 30) {
+//        print(
+//            '_UnsettledBidsState.getFreshData - refreshed less than 30 minutes ago');
+//        return null;
+//      }
+//    }
+//
+//    unsettledBids = await ListAPI.getUnsettledInvoiceBidsByInvestor(
+//        investor.documentReference);
+//    await Database.saveInvoiceBids(InvoiceBids(unsettledBids));
+//    forceRefresh = false;
+//    return null;
+//  }
 
   Widget _getBottom() {
     return PreferredSize(
@@ -80,6 +74,7 @@ class _UnsettledBidsState extends State<UnsettledBids>
           ScopedModelDescendant<InvestorAppModel>(
             builder: (context, _, model) {
               if (refreshBidsInModel) {
+                refreshBidsInModel = false;
                 print(
                     '_UnsettledBidsState._getBottom asking Model to refresh bids ........');
                 model.refreshInvoiceBids();
@@ -200,7 +195,7 @@ class _UnsettledBidsState extends State<UnsettledBids>
         textColor: Styles.white,
         backgroundColor: Styles.black);
     bool isFound = false;
-    unsettledBids = await Database.getInvoiceBids();
+    var unsettledBids = await Database.getInvoiceBids();
     unsettledBids.forEach((b) {
       if (b.invoiceBidId == bid.invoiceBidId) {
         isFound = true;
@@ -220,14 +215,12 @@ class _UnsettledBidsState extends State<UnsettledBids>
 
   _startSettlement() async {
     Navigator.pop(context);
-    bool result = await Navigator.push(
+    Navigator.pop(context);
+    Navigator.push(
       context,
       new MaterialPageRoute(builder: (context) => SettleInvoiceBid(invoiceBid)),
     );
-    print(
-        '\n\n_UnsettledBidsState._startSettlement ##  refresh ... calling _onRefreshPressed');
-    isFromSettlement = true;
-    _onRefreshPressed();
+
   }
 
   bool isFromSettlement = false,
