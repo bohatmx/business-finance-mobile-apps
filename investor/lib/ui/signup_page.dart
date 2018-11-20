@@ -4,16 +4,12 @@ import 'package:businesslibrary/api/data_api3.dart';
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/api/signup.dart';
-import 'package:businesslibrary/data/delivery_acceptance.dart';
-import 'package:businesslibrary/data/delivery_note.dart';
+
 import 'package:businesslibrary/data/investor.dart';
-import 'package:businesslibrary/data/invoice.dart';
-import 'package:businesslibrary/data/invoice_settlement.dart';
 import 'package:businesslibrary/data/offer.dart';
-import 'package:businesslibrary/data/purchase_order.dart';
+
 import 'package:businesslibrary/data/sector.dart';
 import 'package:businesslibrary/data/user.dart';
-import 'package:businesslibrary/data/wallet.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/selectors.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
@@ -388,60 +384,6 @@ class _SignUpPageState extends State<SignUpPage>
     exit();
   }
 
-  @override
-  onCompanySettlement(CompanyInvoiceSettlement settlement) {}
-
-  @override
-  onDeliveryAcceptance(DeliveryAcceptance deliveryAcceptance) {}
-
-  @override
-  onDeliveryNote(DeliveryNote deliveryNote) {}
-
-  @override
-  onGovtInvoiceSettlement(GovtInvoiceSettlement settlement) {}
-
-  @override
-  onInvestorSettlement(InvestorInvoiceSettlement settlement) {}
-
-  @override
-  onInvoiceMessage(Invoice invoice) {}
-
-  @override
-  onOfferMessage(Offer offer) {}
-
-  @override
-  onPurchaseOrderMessage(PurchaseOrder purchaseOrder) {}
-
-  @override
-  onWalletError() {
-    print('_SignUpPageState.onWalletError ......');
-    AppSnackbar.showErrorSnackbar(
-        scaffoldKey: _scaffoldKey,
-        message: 'Wallet creation failed',
-        listener: this,
-        actionLabel: 'CLOSE');
-  }
-
-  @override
-  onWalletMessage(Wallet wallet) async {
-    prettyPrint(
-        wallet.toJson(), 'SignUpPage +++++++++++ onWalletMessage ......');
-
-    if (_scaffoldKey.currentState != null) {
-      AppSnackbar.showSnackbar(
-          scaffoldKey: _scaffoldKey,
-          message: 'Wallet created',
-          textColor: Colors.white,
-          backgroundColor: Colors.teal);
-    } else {
-      Navigator.push(
-        context,
-        new MaterialPageRoute(
-            builder: (context) => new Dashboard('Wallet created')),
-      );
-    }
-  }
-
   List<String> firstNames = [
     'Mark',
     'Jonathan',
@@ -484,5 +426,11 @@ class _SignUpPageState extends State<SignUpPage>
   @override
   onHeartbeat(Map map) {
     // TODO: implement onHeartbeat
+  }
+
+  @override
+  onOfferMessage(Offer offer) {
+    // TODO: implement onOfferMessage
+    return null;
   }
 }

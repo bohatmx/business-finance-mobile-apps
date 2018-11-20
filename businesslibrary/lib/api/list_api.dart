@@ -780,7 +780,7 @@ class ListAPI {
       String documentId,
       String collection}) async {
     PurchaseOrderSummary summary;
-    ;
+
     Map<String, String> headers = {
       'Content-type': 'application/json',
       'Accept': 'application/json',
@@ -949,7 +949,6 @@ class ListAPI {
       throw e;
     }
 
-    return data;
   }
 
   static Future<List<Invoice>> getInvoices(

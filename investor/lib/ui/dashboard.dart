@@ -153,6 +153,7 @@ class _DashboardState extends State<Dashboard>
   InvoiceBid lastInvoiceBid;
   PurchaseOrder lastPO;
   DeliveryNote lastNote;
+  InvestorAppModel appModel;
 
   @override
   Widget build(BuildContext context) {
@@ -196,6 +197,7 @@ class _DashboardState extends State<Dashboard>
   Widget _getBody() {
     return ScopedModelDescendant<InvestorAppModel>(
       builder: (context, _, model) {
+        appModel = model;
         _checkConditions(model);
         return Stack(
           children: <Widget>[
@@ -306,9 +308,15 @@ class _DashboardState extends State<Dashboard>
 
   void _onInvoiceBidsTapped() {
     print('_DashboardState._onInvoiceTapped ...............');
-    setState(() {
-      mTitle = 'The Good Ship BFN';
-    });
+
+    if (appModel.invoiceBids.isEmpty) {
+      AppSnackbar.showSnackbar(
+          scaffoldKey: _scaffoldKey,
+          message: 'No outstanding invoice bids',
+          textColor: Styles.white,
+          backgroundColor: Styles.black);
+      return;
+    }
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => UnsettledBids()),
@@ -769,6 +777,7 @@ class InvestorAppModel extends Model {
     await Database.saveInvoiceBids(InvoiceBids(_invoiceBids));
     notifyListeners();
   }
+
   void offerArrived(Offer offer) async {
     print(
         '\n\nInvestorAppModel.offerArrived - ${offer.supplierName} ${offer.offerAmount}');

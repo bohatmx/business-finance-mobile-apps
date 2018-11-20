@@ -24,7 +24,6 @@ class Pager3 extends StatefulWidget {
   final double elevation;
   final bool addHeader;
   final List<Findable> items;
-  final bool pagerShouldRefresh;
   static const Back = 1, Next = 2;
 
   Pager3(
@@ -34,8 +33,7 @@ class Pager3 extends StatefulWidget {
       this.items,
       this.addHeader,
       this.type,
-      this.pageLimit,
-      this.pagerShouldRefresh});
+      this.pageLimit});
   static const DefaultPageLimit = 4;
 
   @override
@@ -62,13 +60,6 @@ class _Pager3State extends State<Pager3> {
     _buildNumberItems();
 
     _setItemNumbers();
-    print(
-        '_Pager3State.initState ################ widget.pagerShouldRefresh = ${widget.pagerShouldRefresh}');
-    if (widget.pagerShouldRefresh == true) {
-      pageNumber = 1;
-      startKey = null;
-      currentIndex = 0;
-    }
     _getDashData();
   }
 
@@ -299,13 +290,7 @@ class _Pager3State extends State<Pager3> {
       print('_PagerState.build setting localPageLimit: ${widget.pageLimit}');
       localPageLimit = widget.pageLimit;
     }
-    print(
-        '_Pager3State.build ################ widget.pagerShouldRefresh = ${widget.pagerShouldRefresh}');
-    if (widget.pagerShouldRefresh == true) {
-      pageNumber = 1;
-      startKey = null;
-      currentIndex = 0;
-    }
+
     return Column(
       children: <Widget>[
         widget.addHeader == true

@@ -11,6 +11,7 @@ import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:flutter/material.dart';
 import 'package:investor/ui/dashboard.dart';
+import 'package:investor/ui/settle_all.dart';
 import 'package:investor/ui/settle_invoice_bid.dart';
 import 'package:scoped_model/scoped_model.dart';
 
@@ -68,31 +69,47 @@ class _UnsettledBidsState extends State<UnsettledBids>
 
   Widget _getBottom() {
     return PreferredSize(
-      preferredSize: Size.fromHeight(200.0),
+      preferredSize: Size.fromHeight(260.0),
       child: Column(
         children: <Widget>[
           ScopedModelDescendant<InvestorAppModel>(
             builder: (context, _, model) {
+              if (model.invoiceBids != null && model.invoiceBids.isEmpty) {
+                Navigator.pop(context);
+              }
               if (refreshBidsInModel) {
                 refreshBidsInModel = false;
                 print(
                     '_UnsettledBidsState._getBottom asking Model to refresh bids ........');
                 model.refreshInvoiceBids();
               }
-              return Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: model.invoiceBids == null || model.invoiceBids.isEmpty
-                    ? null
-                    : Pager3(
-                        elevation: 8.0,
-                        type: PagerHelper.INVOICE_BID,
-                        items: model.invoiceBids,
-                        pageLimit: pageLimit,
-                        itemName: 'Invoice Bids',
-                        addHeader: true,
-                        listener: this,
-                        pagerShouldRefresh: pagerShouldRefresh,
-                      ),
+              return Column(
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: model.invoiceBids == null || model.invoiceBids.isEmpty
+                        ? null
+                        : Pager3(
+                            elevation: 8.0,
+                            type: PagerHelper.INVOICE_BID,
+                            items: model.invoiceBids,
+                            pageLimit: pageLimit,
+                            itemName: 'Invoice Bids',
+                            addHeader: true,
+                            listener: this,
+
+                          ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom:20.0),
+                    child: RaisedButton(
+                      elevation: 2.0,
+                      onPressed: _startSettleAll,
+                      color: Colors.pink,
+                      child: Text('Settle All Bids', style: Styles.whiteSmall,),
+                    ),
+                  ),
+                ],
               );
             },
           ),
@@ -222,7 +239,14 @@ class _UnsettledBidsState extends State<UnsettledBids>
     );
 
   }
+  void _startSettleAll() {
+    Navigator.pop(context);
+    Navigator.push(
+      context,
+      new MaterialPageRoute(builder: (context) => SettleAll()),
+    );
 
+  }
   bool isFromSettlement = false,
       pagerShouldRefresh = false,
       refreshBidsInModel = false;
@@ -314,4 +338,6 @@ class _UnsettledBidsState extends State<UnsettledBids>
     });
     setState(() {});
   }
+
+
 }
