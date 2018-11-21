@@ -48,7 +48,7 @@ class Dashboard extends StatefulWidget {
 
 class _DashboardState extends State<Dashboard>
     with TickerProviderStateMixin, WidgetsBindingObserver
-    implements SnackBarListener, InvoiceBidListener, OfferListener {
+    implements SnackBarListener, InvoiceBidListener, OfferListener, ModelListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   static const platform = const MethodChannel('com.oneconnect.biz.CHANNEL');
   final FirebaseMessaging _fm = new FirebaseMessaging();
@@ -118,7 +118,6 @@ class _DashboardState extends State<Dashboard>
   bool refreshModel = false;
   List<InvoiceBid> bids;
 
-  static const MAX_OFFERS = 300;
   void _refresh() async {
     print('_DashboardState._refresh ............ requesting refresh ...');
     AppSnackbar.showSnackbarWithProgressIndicator(
@@ -157,39 +156,46 @@ class _DashboardState extends State<Dashboard>
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async => false,
-      child: Scaffold(
-        key: _scaffoldKey,
-        appBar: AppBar(
-          elevation: 6.0,
-          title: Text(
-            'BFN',
-            style: Styles.whiteSmall,
+    return ScopedModelDescendant<InvestorAppModel>(
+      builder: (context, _ , model) {
+        appModel = model;
+        model.setModelListener(this);
+        return WillPopScope(
+          onWillPop: () async => false,
+          child: Scaffold(
+            key: _scaffoldKey,
+            appBar: AppBar(
+              elevation: 6.0,
+              title: Text(
+                'BFN',
+                style: Styles.whiteSmall,
+              ),
+              leading: Icon(
+                Icons.apps,
+                color: Colors.indigo.shade900,
+              ),
+              bottom: _getBottom(),
+              actions: <Widget>[
+                IconButton(
+                  icon: Icon(Icons.account_circle),
+                  onPressed: _onProfileRequested,
+                ),
+                IconButton(
+                  icon: Icon(Icons.attach_money),
+                  onPressed: _goToWalletPage,
+                ),
+                IconButton(
+                  icon: Icon(Icons.refresh),
+                  onPressed: _refresh,
+                ),
+              ],
+            ),
+            backgroundColor: Colors.brown.shade100,
+            body: _getBody(),
           ),
-          leading: Icon(
-            Icons.apps,
-            color: Colors.indigo.shade900,
-          ),
-          bottom: _getBottom(),
-          actions: <Widget>[
-            IconButton(
-              icon: Icon(Icons.account_circle),
-              onPressed: _onProfileRequested,
-            ),
-            IconButton(
-              icon: Icon(Icons.attach_money),
-              onPressed: _goToWalletPage,
-            ),
-            IconButton(
-              icon: Icon(Icons.refresh),
-              onPressed: _refresh,
-            ),
-          ],
-        ),
-        backgroundColor: Colors.brown.shade100,
-        body: _getBody(),
-      ),
+        );
+      },
+
     );
   }
 
@@ -244,7 +250,7 @@ class _DashboardState extends State<Dashboard>
 
   void _checkConditions(InvestorAppModel model) async {
     print(
-        '\n\n_checkConditions #### invoiceBidArrived: $invoiceBidArrived offerArrived: $offerArrived refreshModel: $refreshModel count: $count');
+        '\n\n_checkConditions #### invoiceBidArrived: $invoiceBidArrived, offerArrived: $offerArrived, refreshModel: $refreshModel, count: $count');
 
     count++;
 
@@ -262,11 +268,7 @@ class _DashboardState extends State<Dashboard>
       refreshModel = false;
       await model.refreshModel();
       print(
-          '_DashboardState._checkConditions ========== have completed refresh, now what?');
-      try {
-        _scaffoldKey.currentState.removeCurrentSnackBar();
-      } catch (e) {}
-      setState(() {});
+          '_DashboardState._checkConditions, inside widget build method ========== have completed refresh, now what? doin nuthin ...');
     }
   }
 
@@ -400,22 +402,6 @@ class _DashboardState extends State<Dashboard>
     );
   }
 
-  void fix() async {
-    print(
-        '\n\n\n_DashboardState.fix ########################## start FIX .....');
-    Firestore fs = Firestore.instance;
-    var start = DateTime.now();
-    var qs = await fs.collection('invoiceOffers').getDocuments();
-    print('_DashboardState.fix offers found: ${qs.documents.length}');
-    for (var doc in qs.documents) {
-      var offer = Offer.fromJson(doc.data);
-      offer.documentReference = doc.documentID;
-      await doc.reference.setData(offer.toJson());
-    }
-    var end = DateTime.now();
-    print(
-        '_DashboardState.fix ----- FIX complete: ${end.difference(start).inSeconds} seconds elapsed.');
-  }
 
   _showBottomSheet(InvoiceBid bid) {
     if (_scaffoldKey.currentState == null) return;
@@ -433,10 +419,11 @@ class _DashboardState extends State<Dashboard>
                 top: 20.0,
               ),
               child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
                   Text(
-                    'Trading Result',
-                    style: Styles.purpleBoldMedium,
+                    'Auto Trading Result: ${getFormattedDateHour('${DateTime.now()}')}',
+                    style: Styles.blackBoldMedium,
                   ),
                 ],
               ),
@@ -458,11 +445,26 @@ class _DashboardState extends State<Dashboard>
   @override
   onInvoiceBidMessage(InvoiceBid invoiceBid) async {
     print(
-        '_DashboardState.onInvoiceBidMessage invoiceBid arrived ###############################');
+        '_DashboardState.onInvoiceBidMessage - bid arrived in dashboard ###############################');
     this.invoiceBid = invoiceBid;
     invoiceBidArrived = true;
 
     setState(() {});
+    String msg =
+        'Bid made, amount: ${getFormattedAmount('${invoiceBid.amount}', context)} discount; ${invoiceBid.discountPercent.toStringAsFixed(2)} %';
+
+    var id = invoiceBid.investor.split('#').elementAt(1);
+    if (id == investor.participantId) {
+      _showBottomSheet(invoiceBid);
+    } else {
+      AppSnackbar.showSnackbar(
+          scaffoldKey: _scaffoldKey,
+          message: msg,
+          textColor: Styles.white,
+          backgroundColor: Theme
+              .of(context)
+              .primaryColor);
+    }
   }
 
   double opacity = 1.0;
@@ -486,6 +488,16 @@ class _DashboardState extends State<Dashboard>
         message: message,
         textColor: Styles.white,
         backgroundColor: Theme.of(context).primaryColor);
+  }
+
+  @override
+  onComplete() {
+    print('\n\n_DashboardState.onComplete - ####################### message from AppModel, ######### what now??, kill snackbar?');
+    try {
+      _scaffoldKey.currentState.removeCurrentSnackBar();
+    } catch (e) {
+      print('_DashboardState.onComplete -- error killing snackbar');
+    }
   }
 }
 
@@ -754,6 +766,7 @@ class InvestorAppModel extends Model {
   List<InvoiceBid> _invoiceBids;
   List<Offer> _offers;
   Investor _investor;
+  ModelListener _modelListener;
 
   List<InvoiceBid> get invoiceBids => _invoiceBids;
   List<Offer> get offers => _offers;
@@ -763,6 +776,10 @@ class InvestorAppModel extends Model {
 
   InvestorAppModel() {
     initialize();
+  }
+  void setModelListener(ModelListener listener) {
+    _modelListener = listener;
+    print('InvestorAppModel.setModelListener listener has been set.');
   }
   Future removeBidFromCache(InvoiceBid bid) async {
     var bids = await Database.getInvoiceBids();
@@ -860,7 +877,7 @@ class InvestorAppModel extends Model {
 
   Future refreshOffers() async {
     print('InvestorAppModel.refreshOffers .................................');
-    _offers = await ListAPI.getOpenOffers();
+    _offers = await ListAPI.getOpenOffersViaFunctions();
     await Database.saveOffers(Offers(_offers));
     notifyListeners();
   }
@@ -874,11 +891,15 @@ class InvestorAppModel extends Model {
 
     _dashboardData = await ListAPI.getInvestorDashboardData(
         _investor.participantId, _investor.documentReference);
+    prettyPrint(_dashboardData.toJson(), '######### Dashboard data retrieved');
     await SharedPrefs.saveDashboardData(_dashboardData);
 
-    _offers = await ListAPI.getOpenOffers();
-    await Database.saveOffers(Offers(_offers));
+    _offers = await ListAPI.getOpenOffersViaFunctions();
 
+    await Database.saveOffers(Offers(_offers));
+    if (_modelListener != null) {
+      _modelListener.onComplete();
+    }
     notifyListeners();
   }
 
@@ -899,5 +920,6 @@ class InvestorAppModel extends Model {
         '\nInvestorAppModel.doPrint ENDED. ############################################\n\n\n');
   }
 }
-
-const MAX_RECORDS = 300;
+abstract class ModelListener {
+  onComplete();
+}

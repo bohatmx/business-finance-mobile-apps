@@ -116,19 +116,29 @@ class _SettleAllState extends State<SettleAll> implements SnackBarListener{
       errorUrl: getFunctionsURL() + 'peachError',
       notifyUrl: getFunctionsURL() + 'peachNotify',
     );
-    paymentKey = await Peach.getPaymentKey(payment: payment);
-    if (paymentKey != null) {
-      print(
-          '\n\n_SettleAllState._getPaymentKey ########### paymentKey: ${paymentKey.key} ${paymentKey.url}');
-      webViewTitle = 'Bank Login';
-      webViewUrl = paymentKey.url;
-      isBusy = false;
-      _showWebView();
-    } else {
+    try {
+      paymentKey = await Peach.getPaymentKey(payment: payment);
+      if (paymentKey != null) {
+        print(
+            '\n\n_SettleAllState._getPaymentKey ########### paymentKey: ${paymentKey
+                .key} ${paymentKey.url}');
+        webViewTitle = 'Bank Login';
+        webViewUrl = paymentKey.url;
+        isBusy = false;
+        _showWebView();
+      } else {
+        isBusy = false;
+        AppSnackbar.showErrorSnackbar(
+            scaffoldKey: _scaffoldKey,
+            message: 'Error starting bank login',
+            listener: this,
+            actionLabel: 'Close');
+      }
+    } catch (e) {
       isBusy = false;
       AppSnackbar.showErrorSnackbar(
           scaffoldKey: _scaffoldKey,
-          message: 'Error starting bank login',
+          message: '$e',
           listener: this,
           actionLabel: 'Close');
     }

@@ -48,7 +48,7 @@ class _BFNWebViewState extends State<BFNWebView>
         appBar: AppBar(
             title: Text(widget.title == null ? 'YouTube' : widget.title)),
         withJavascript: true,
-        withLocalStorage: true,
+        withLocalStorage: true, withZoom: false, appCacheEnabled: true,
       );
     } catch (e) {
       print(e);

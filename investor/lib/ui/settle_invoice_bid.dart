@@ -156,17 +156,25 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
       errorUrl: getFunctionsURL() + 'peachError',
       notifyUrl: getFunctionsURL() + 'peachNotify',
     );
-    paymentKey = await Peach.getPaymentKey(payment: payment);
-    if (paymentKey != null) {
-      print(
-          '\n\n_MyHomePageState._getPaymentKey ########### paymentKey: ${paymentKey.key} ${paymentKey.url}');
-      webViewTitle = 'Bank Login';
-      webViewUrl = paymentKey.url;
-      _showWebView();
-    } else {
+    try {
+      paymentKey = await Peach.getPaymentKey(payment: payment);
+      if (paymentKey != null) {
+        print(
+            '\n\n_MyHomePageState._getPaymentKey ########### paymentKey: ${paymentKey.key} ${paymentKey.url}');
+        webViewTitle = 'Bank Login';
+        webViewUrl = paymentKey.url;
+        _showWebView();
+      } else {
+        AppSnackbar.showErrorSnackbar(
+            scaffoldKey: _scaffoldKey,
+            message: 'Error starting bank login',
+            listener: this,
+            actionLabel: 'Close');
+      }
+    } catch (e) {
       AppSnackbar.showErrorSnackbar(
           scaffoldKey: _scaffoldKey,
-          message: 'Error starting bank login',
+          message: 'Error starting bank process',
           listener: this,
           actionLabel: 'Close');
     }
@@ -319,7 +327,8 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
       builder: (context, _, model) {
         if (removeInvoiceBidFromCache) {
           removeInvoiceBidFromCache = false;
-          print('_SettleInvoiceBid.build paymentHasSucceeded: $removeInvoiceBidFromCache - refreshing model ...');
+          print(
+              '_SettleInvoiceBid.build paymentHasSucceeded: $removeInvoiceBidFromCache - refreshing model ...');
           model.refreshModel();
         }
         return Scaffold(
@@ -401,9 +410,9 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
       print(
           '\n\n_SettleInvoiceBid.onPeachNotify ####### SETTLEMENT registered on BFN and Firestore: ${result.toJson()}');
 
-     setState(() {
-       removeInvoiceBidFromCache = true;
-     });
+      setState(() {
+        removeInvoiceBidFromCache = true;
+      });
       AppSnackbar.showSnackbarWithAction(
           scaffoldKey: _scaffoldKey,
           message: 'Payment registered',
@@ -421,6 +430,4 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
           actionLabel: 'Close');
     }
   }
-
-
 }

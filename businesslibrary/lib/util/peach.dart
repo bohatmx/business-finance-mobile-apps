@@ -30,17 +30,17 @@ class Peach {
 
     Map<String, dynamic> body = {
       'merchant_reference': payment.merchantReference,
-//      'beneficiary_bank': payment.beneficiaryBank,
-//      'beneficiary_account_type': payment.beneficiaryAccountType,
-//      'beneficiary_name': payment.beneficiaryName,
       'amount': payment.amount.toStringAsFixed(2),
       'success_url': payment.successURL,
       'error_url': payment.errorUrl,
       'cancel_url': payment.cancelUrl,
       'notify_url': payment.notifyUrl,
-//      'hash': payment.hash,
     };
 
+    print('basicAuth: $basicAuth}');
+    print('userName: $userName userName: $password');
+    print('usrl: $PEACH_PAYMENT_KEY_URL');
+    prettyPrint(headers, '## headers: ');
     prettyPrint(body, '@@@@@@@@@@@@@@ sending to Peach ....');
     var client = new http.Client();
     var resp = await client
@@ -57,13 +57,12 @@ class Peach {
     if (resp.body.contains('DOCTYPE')) {
       print('Peach.getPaymentKey --- HTML returned - no sweat. maybe.');
     } else {
+      print('########### RESPONSE from Peach');
       print(resp.body);
     }
     var end = DateTime.now();
     print(
         'Peach.getPaymentKey ### elapsed: ${end.difference(start).inSeconds} seconds');
-    //{"key":"c1b14efe7d5328ee27c92259a001038c","url":"https://eft.ppay.io/eft?payment_key=c1b14efe7d5328ee27c92259a001038c"}
-    // {"name":"Unauthorized","message":"Your request was made with invalid credentials.","code":0,"status":401}
     if (resp.statusCode == 200) {
       var key = PaymentKey.fromJson(json.decode(resp.body));
       return key;

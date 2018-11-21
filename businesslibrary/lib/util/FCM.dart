@@ -16,6 +16,9 @@ import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/peach.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:device_info/device_info.dart';
+
+
 
 class FCM {
   static final FirebaseMessaging _firebaseMessaging = new FirebaseMessaging();
@@ -61,30 +64,50 @@ class FCM {
       PeachNotifyListener peachNotifyListener}) async {
     print(
         '\n\n\ ################ CONFIGURE FCM MESSAGE ###########  starting _firebaseMessaging');
-/*
-################ Message from FCM ================>>>> : 	{
-I/flutter (  684): 	notification : {body: Invoice Bid from CashFlow Kings amount: 297321, title: Invoice Bid} ,
-I/flutter (  684): 	data : {messageType: INVOICE_BID, json: {"invoiceBidId":"2c7520c0-ea35-11e8-b1bd-a5190111f651","amount":297321,"reservePercent":100,"autoTradeOrder":"resource:com.oneconnect.biz.AutoTradeOrder#38c0b3a0-bd30-11e8-a376-7950af1e4f7d","investor":"resource:com.oneconnect.biz.Investor#319dc450-bd30-11e8-e859-abf5c10894c0","offer":"resource:com.oneconnect.biz.Offer#684cc990-e440-11e8-f5ef-e125c834330a","investorName":"CashFlow Kings","wallet":"resource:com.oneconnect.biz.Wallet#GDDX6YCRMYWX6VYTND5KBGZM4VZRKAYBNEB2AGII6IQUKFQYQA44TS6S","date":"2018-11-17T06:51:13.484Z","isSettled":false,"supplier":"resource:com.oneconnect.biz.Supplier#e0860820-bd30-11e8-d59e-91e011144075","discountPercent":7,"startTime":"2018-11-17T06:51:13.484Z","endTime":"2018-11-17T06:51:13.484Z"}} ,
-I/flutter (  684):
-I/flutter (  684): }
- */
+
+    AndroidDeviceInfo androidInfo;
+    IosDeviceInfo iosInfo;
+    DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+    bool isRunningIOs = false;
+    try {
+      androidInfo = await deviceInfo.androidInfo;
+      print('\n\n\n################  Running on ${androidInfo
+          .model} ################\n\n');
+    } catch (e) {
+      print('FCM.configureFCM - error doing Android');
+    }
+
+    try {
+      iosInfo = await deviceInfo.iosInfo;
+      print('\n\n\n################ Running on ${iosInfo.utsname
+          .machine} ################\n\n');
+      isRunningIOs = true;
+    } catch (e) {
+      print('FCM.configureFCM error doing Android');
+    }
+
     _firebaseMessaging.configure(
       onMessage: (Map<String, dynamic> map) async {
         prettyPrint(map,
-            '\n\n################ Message from FCM ================>>>> :');
+            '\n\n################ Message from FCM ################# ${DateTime.now().toIso8601String()}');
 
-        bool ios = Theme.of(context).platform == TargetPlatform.iOS;
         String messageType = 'unknown';
         String mJSON;
-        if (ios) {
-          messageType = map["messageType"];
-          mJSON = map['json'];
-          print('FCM.configureFCM platform is iOS');
-        } else {
-          var data = map['data'];
-          messageType = data["messageType"];
-          mJSON = data["json"];
-          print('FCM.configureFCM platform is Android');
+        try {
+          if (isRunningIOs == true) {
+            messageType = map["messageType"];
+            mJSON = map['json'];
+            print('FCM.configureFCM platform is iOS');
+          } else {
+            var data = map['data'];
+            messageType = data["messageType"];
+            mJSON = data["json"];
+            print('FCM.configureFCM platform is Android');
+          }
+        } catch (e) {
+          print(e);
+          print(
+              'FCM.configureFCM -------- EXCEPTION handling platform detection');
         }
 
         print(
@@ -165,6 +188,7 @@ I/flutter (  684): }
               break;
           }
         } catch (e) {
+          print('FCM.configureFCM - Houston, we have a problem with null listener somewhere');
           print(e);
         }
       },

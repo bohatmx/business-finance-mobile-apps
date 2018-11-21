@@ -229,12 +229,13 @@ class ListAPI {
       String documentReference) async {
     print(
         '\n\n\nListAPI.getUnsettledInvoiceBidsByInvestor ========= documentReference: $documentReference');
+    var start = DateTime.now();
     List<InvoiceBid> list = List();
     var qs = await _firestore
         .collection('investors')
         .document(documentReference)
         .collection('invoiceBids')
-//        .where('isSettled', isEqualTo: false)
+        .where('isSettled', isEqualTo: false)
         .orderBy('date')
         .getDocuments()
         .catchError((e) {
@@ -242,8 +243,9 @@ class ListAPI {
       return list;
     });
 
+    var end = DateTime.now();
     print(
-        'ListAPI.getUnsettledInvoiceBidsByInvestor found: ${qs.documents.length} \n\n');
+        'ListAPI.getUnsettledInvoiceBidsByInvestor found: ${qs.documents.length} elapsed: ${end.difference(start).inSeconds} seconds\n\n');
 
     qs.documents.forEach((doc) {
       var bid = InvoiceBid.fromJson(doc.data);
@@ -502,8 +504,11 @@ class ListAPI {
     return list;
   }
 
-  static const int MAXIMUM_RECORDS_FROM_FIRESTORE = 100;
+  static const int MAXIMUM_RECORDS_FROM_FIRESTORE = 200;
   static Future<List<Offer>> getOpenOffers() async {
+    print(
+        '\n\nListAPI.getOpenOffers ----------------- getting Firestore offers, limit: $MAXIMUM_RECORDS_FROM_FIRESTORE');
+    var start = DateTime.now();
     List<Offer> list = List();
     var now = getUTCDate();
     var qs = await _firestore
@@ -525,8 +530,75 @@ class ListAPI {
       offer.documentReference = doc.documentID;
       list.add(offer);
     });
+    var end = DateTime.now();
+    print(
+        'ListAPI.getOpenOffers +++++++++++++++ complete - ${end.difference(start).inSeconds} elapsed seconds\n\n');
 
     return list;
+  }
+
+  static Future<List<Offer>> getOpenOffersViaFunctions() async {
+    print('\nListAPI.getOpenOffersViaFunctions ..............................');
+    String mUrl = getFunctionsURL() + 'queryOffers';
+    Map map = {'limit': MAXIMUM_RECORDS_FROM_FIRESTORE, 'open': true};
+
+    return _queryOffers(mUrl: mUrl, parameters: map);
+  }
+
+  static Future<List<Offer>> _queryOffers({String mUrl, Map parameters}) async {
+    Map<String, String> headers = {
+      'Content-type': 'application/json',
+      'Accept': 'application/json',
+    };
+
+    List<Offer> offers = List();
+    var start = DateTime.now();
+    try {
+      var client = new http.Client();
+      var resp = await client
+          .post(
+        mUrl,
+        body: json.encode(parameters),
+        headers: headers,
+      )
+          .whenComplete(() {
+        client.close();
+      });
+      print(
+          '\n\nListAPI._doOffersHTTP .... ################ Query via Cloud Functions: status: ${resp.statusCode} for $mUrl');
+      var end = DateTime.now();
+      print(
+          'ListAPI._doOffersHTTP ### elapsed: ${end.difference(start).inSeconds} seconds');
+      if (resp.statusCode == 200) {
+        Map<String, dynamic> m = json.decode(resp.body);
+//        prettyPrint(m, '####################### Response from offersQuery\n');
+        return _parseOffers(m);
+      } else {
+        throw Exception('_doOffersHTTP data query failed');
+      }
+    } catch (e) {
+      print('ListAPI._queryOffers ........ fell down, why?');
+      print('ListAPI._doOffersHTTP $e');
+      throw e;
+    }
+    return offers;
+  }
+
+  static List<Offer> _parseOffers(Map map) {
+    print('ListAPI._parseOffers ....... ...........');
+    List<Offer> offers = List();
+    try {
+      List list = map['data'];
+      list.forEach((doc) {
+        var offer = Offer.fromJson(doc);
+        offers.add(offer);
+      });
+    } catch (e) {
+      print('ListAPI._parseOffers ERROR ... ERROR');
+      print(e);
+    }
+    print('ListAPI._parseOffers ........ found: ${offers.length}');
+    return offers;
   }
 
   static Future<List<Offer>> getExpiredOffers() async {
@@ -647,7 +719,7 @@ class ListAPI {
   static Future<DashboardData> getSupplierDashboardData(
       String supplierId, String documentId) async {
     print('ListAPI.getSupplierDashboardData ..........');
-    var data = DashboardParms(id: supplierId, documentId: documentId);
+    var data = DashboardParms(id: supplierId, documentId: documentId, limit: MAXIMUM_RECORDS_FROM_FIRESTORE);
 
     try {
       DashboardData result =
@@ -662,7 +734,7 @@ class ListAPI {
   static Future<DashboardData> getInvestorDashboardData(
       String investorId, String documentId) async {
     print('ListAPI.getDashboardData ..........');
-    var data = DashboardParms(id: investorId, documentId: documentId);
+    var data = DashboardParms(id: investorId, documentId: documentId, limit: MAXIMUM_RECORDS_FROM_FIRESTORE);
 
     DashboardData result =
         await _doDashboardHTTP(getFunctionsURL() + 'investorDashboard', data);
@@ -673,7 +745,7 @@ class ListAPI {
   static Future<DashboardData> getCustomerDashboardData(
       String documentId) async {
     print('ListAPI.getCustomerDashboardData ..........');
-    var data = DashboardParms(documentId: documentId);
+    var data = DashboardParms(documentId: documentId, limit: MAXIMUM_RECORDS_FROM_FIRESTORE);
 
     DashboardData result =
         await _doDashboardHTTP(getFunctionsURL() + 'customerDashboard', data);
@@ -948,7 +1020,6 @@ class ListAPI {
       print('ListAPI._doHTTP $e');
       throw e;
     }
-
   }
 
   static Future<List<Invoice>> getInvoices(
@@ -1694,11 +1765,13 @@ class OfferBag {
 class DashboardParms {
   String id;
   String documentId;
+  int limit;
 
-  DashboardParms({this.id, this.documentId});
+  DashboardParms({this.id, this.documentId, this.limit});
   Map<String, dynamic> toJson() => <String, dynamic>{
         'id': id,
         'documentId': documentId,
+        'limit': limit,
       };
 }
 
