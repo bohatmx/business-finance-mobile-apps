@@ -246,8 +246,7 @@ class _MyHomePageState extends State<MyHomePage>
   }
 
   void _restart() async {
-    print(
-        '\n\n_MyHomePageState._restart ....starting auto trades ........... offers: $summary.totalOpenOffers\n\n');
+
     setState(() {
       messages.clear();
     });
@@ -303,7 +302,7 @@ class _MyHomePageState extends State<MyHomePage>
     } catch (e) {
       setState(() {
         _showProgress = null;
-        messages.add(e);
+        messages.add('$e');
       });
 
       _getLists(false);
@@ -763,12 +762,7 @@ class _MyHomePageState extends State<MyHomePage>
           padding: const EdgeInsets.only(left: 2.0),
           child: Row(
             children: <Widget>[
-              Text(
-                autoTradeStart == null
-                    ? '00:00'
-                    : getFormattedDateShort(autoTradeStart.dateEnded, context),
-                style: Styles.blackSmall,
-              ),
+              _getDate(),
               Padding(
                 padding: const EdgeInsets.only(left: 8.0),
                 child: Text(
@@ -783,6 +777,27 @@ class _MyHomePageState extends State<MyHomePage>
         ),
       ],
     );
+  }
+  Widget _getDate() {
+    if (autoTradeStart == null) {
+      return _getNow();
+    }
+    if (autoTradeStart.dateEnded == null) {
+      return _getNow();
+    } else {
+      try {
+        String date = DateTime.parse(autoTradeStart.dateEnded)
+            .toLocal()
+            .toIso8601String();
+        return Text(
+          getFormattedDateShort('$date', context), style: Styles.blackSmall,);
+      } catch (e) {
+        return _getNow();
+      }
+    }
+  }
+  Text _getNow() {
+    return Text(getFormattedDateShort('${DateTime.now().toIso8601String()}', context), style: Styles.blackSmall,);
   }
 
   Widget _getAmount() {

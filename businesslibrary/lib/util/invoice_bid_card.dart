@@ -29,7 +29,7 @@ class InvoiceBidCard extends StatelessWidget {
                             style: Styles.blackBoldSmall,
                           ),
                         )
-                      : Text('Date', style: Styles.greyLabelSmall),
+                      : Container(),
                   Padding(
                     padding: const EdgeInsets.only(left: 8.0),
                     child: Text(

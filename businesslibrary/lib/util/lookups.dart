@@ -267,8 +267,6 @@ class Country {
 }
 
 String getFormattedDateLongWithTime(String date, BuildContext context) {
-//  print(
-//      '\n\getFormattedDateLongWithTime $date'); //Sun, 28 Oct 2018 23:59:49 GMT
   Locale myLocale = Localizations.localeOf(context);
 
   initializeDateFormatting();
@@ -276,8 +274,24 @@ String getFormattedDateLongWithTime(String date, BuildContext context) {
   try {
     if (date.contains('GMT')) {
       var mDate = getLocalDateFromGMT(date, context);
-//      print(
-//          '++++++++++++++ Formatted date with locale == ${format.format(mDate.toLocal())}');
+      return format.format(mDate.toLocal());
+    } else {
+      var mDate = DateTime.parse(date);
+      return format.format(mDate.toLocal());
+    }
+  } catch (e) {
+    print(e);
+    return 'NoDate';
+  }
+}
+String getFormattedDateShortWithTime(String date, BuildContext context) {
+  Locale myLocale = Localizations.localeOf(context);
+
+  initializeDateFormatting();
+  var format = new DateFormat('dd MMMM yyyy HH:mm', myLocale.toString());
+  try {
+    if (date.contains('GMT')) {
+      var mDate = getLocalDateFromGMT(date, context);
       return format.format(mDate.toLocal());
     } else {
       var mDate = DateTime.parse(date);

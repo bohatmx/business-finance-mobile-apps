@@ -19,6 +19,7 @@ import 'package:businesslibrary/util/FCM.dart';
 import 'package:businesslibrary/util/database.dart';
 import 'package:businesslibrary/util/invoice_bid_card.dart';
 import 'package:businesslibrary/util/lookups.dart';
+import 'package:businesslibrary/util/selectors.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:businesslibrary/util/summary_card.dart';
@@ -48,7 +49,11 @@ class Dashboard extends StatefulWidget {
 
 class _DashboardState extends State<Dashboard>
     with TickerProviderStateMixin, WidgetsBindingObserver
-    implements SnackBarListener, InvoiceBidListener, OfferListener, ModelListener {
+    implements
+        SnackBarListener,
+        InvoiceBidListener,
+        OfferListener,
+        ModelListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   static const platform = const MethodChannel('com.oneconnect.biz.CHANNEL');
   final FirebaseMessaging _fm = new FirebaseMessaging();
@@ -64,6 +69,7 @@ class _DashboardState extends State<Dashboard>
   DeliveryAcceptance acceptance;
   BasicMessageChannel<String> basicMessageChannel;
   AppLifecycleState lifecycleState;
+
   @override
   initState() {
     super.initState();
@@ -106,6 +112,7 @@ class _DashboardState extends State<Dashboard>
   }
 
   List<Sector> sectors;
+
   //InvestorBidSummary investorBidSummary;
 
   @override
@@ -157,7 +164,7 @@ class _DashboardState extends State<Dashboard>
   @override
   Widget build(BuildContext context) {
     return ScopedModelDescendant<InvestorAppModel>(
-      builder: (context, _ , model) {
+      builder: (context, _, model) {
         appModel = model;
         model.setModelListener(this);
         return WillPopScope(
@@ -195,11 +202,11 @@ class _DashboardState extends State<Dashboard>
           ),
         );
       },
-
     );
   }
 
   int count = 0;
+
   Widget _getBody() {
     return ScopedModelDescendant<InvestorAppModel>(
       builder: (context, _, model) {
@@ -207,45 +214,79 @@ class _DashboardState extends State<Dashboard>
         _checkConditions(model);
         return Stack(
           children: <Widget>[
+            Opacity(
+              opacity: 0.3,
+              child: Container(
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: AssetImage('assets/fincash.jpg'),
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ),
+            ),
             new Padding(
               padding:
                   const EdgeInsets.only(top: 10.0, left: 20.0, right: 20.0),
-              child: ListView(
-                children: <Widget>[
-                  new InkWell(
-                    onTap: _onOffersTapped,
-                    child: Padding(
-                      padding: const EdgeInsets.only(bottom: 10.0),
-                      child: SummaryCard(
-                        total: model.dashboardData == null
-                            ? 0
-                            : model.dashboardData.totalOpenOffers,
-                        label: 'Invoice Offers',
-                        totalStyle: Styles.pinkBoldMedium,
-                        totalValue: model.dashboardData == null
-                            ? 0.00
-                            : model.dashboardData.totalOpenOfferAmount,
-                        totalValueStyle: Styles.tealBoldMedium,
-                      ),
-                    ),
-                  ),
-                  new InkWell(
-                    onTap: _onInvoiceBidsTapped,
-                    child: Padding(
-                      padding: const EdgeInsets.only(bottom: 38.0),
-                      child: InvestorSummaryCard(
-                        context: context,
-                        dashboardData: model.dashboardData,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+              child: _getListView(),
             ),
           ],
         );
       },
     );
+  }
+
+  Widget _getListView() {
+    var tiles = List<ListTile>();
+    tiles.clear();
+    messages.forEach((m) {
+      var tile = ListTile(
+        leading: Icon(Icons.apps, color: getRandomColor(),),
+        title: Text('${m.title}', style: Styles.blackBoldSmall,),
+        subtitle: Text('${m.subTitle}', style: Styles.blackSmall,),
+      );
+      tiles.add(tile);
+    });
+
+    return ScopedModelDescendant<InvestorAppModel>(
+        builder: (context, _, model) {
+      return ListView(
+        children: <Widget>[
+          new InkWell(
+            onTap: _onOffersTapped,
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 10.0),
+              child: SummaryCard(
+                total: model.dashboardData == null
+                    ? 0
+                    : model.dashboardData.totalOpenOffers,
+                label: 'Invoice Offers',
+                totalStyle: Styles.pinkBoldMedium,
+                totalValue: model.dashboardData == null
+                    ? 0.00
+                    : model.dashboardData.totalOpenOfferAmount,
+                totalValueStyle: Styles.tealBoldMedium,
+              ),
+            ),
+          ),
+          new InkWell(
+            onTap: _onInvoiceBidsTapped,
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 38.0),
+              child: InvestorSummaryCard(
+                context: context,
+                dashboardData: model.dashboardData,
+              ),
+            ),
+          ),
+          messages == null
+              ? Container()
+              : Column(
+                  children: tiles,
+                ),
+        ],
+      );
+    });
   }
 
   void _checkConditions(InvestorAppModel model) async {
@@ -402,7 +443,9 @@ class _DashboardState extends State<Dashboard>
     );
   }
 
+  List<BidMessage> messages = List();
 
+  InvoiceBid invoiceBid;
   _showBottomSheet(InvoiceBid bid) {
     if (_scaffoldKey.currentState == null) return;
     _scaffoldKey.currentState.showBottomSheet<Null>((BuildContext context) {
@@ -440,30 +483,35 @@ class _DashboardState extends State<Dashboard>
     });
   }
 
-  InvoiceBid invoiceBid;
   bool invoiceBidArrived = false;
   @override
-  onInvoiceBidMessage(InvoiceBid invoiceBid) async {
+  onInvoiceBidMessage(InvoiceBid bid) async {
     print(
         '_DashboardState.onInvoiceBidMessage - bid arrived in dashboard ###############################');
-    this.invoiceBid = invoiceBid;
+    this.invoiceBid = bid;
     invoiceBidArrived = true;
 
     setState(() {});
     String msg =
-        'Bid made, amount: ${getFormattedAmount('${invoiceBid.amount}', context)} discount; ${invoiceBid.discountPercent.toStringAsFixed(2)} %';
+        'Bid made, amount: ${getFormattedAmount('${bid.amount}', context)} discount; ${bid.discountPercent.toStringAsFixed(2)} %';
 
-    var id = invoiceBid.investor.split('#').elementAt(1);
+    var id = bid.investor.split('#').elementAt(1);
     if (id == investor.participantId) {
-      _showBottomSheet(invoiceBid);
+      var amt = getFormattedAmount('${bid.amount}', context);
+      var dt = getFormattedDateShortWithTime(
+          '${DateTime.parse(bid.date).toLocal().toIso8601String()}', context);
+      var msg = BidMessage(
+          title: 'Invoice Bid made for: $amt', subTitle: '$dt');
+      setState(() {
+        messages.add(msg);
+      });
+      _showBottomSheet(bid);
     } else {
       AppSnackbar.showSnackbar(
           scaffoldKey: _scaffoldKey,
           message: msg,
           textColor: Styles.white,
-          backgroundColor: Theme
-              .of(context)
-              .primaryColor);
+          backgroundColor: Theme.of(context).primaryColor);
     }
   }
 
@@ -492,7 +540,8 @@ class _DashboardState extends State<Dashboard>
 
   @override
   onComplete() {
-    print('\n\n_DashboardState.onComplete - ####################### message from AppModel, ######### what now??, kill snackbar?');
+    print(
+        '\n\n_DashboardState.onComplete - ####################### message from AppModel, ######### what now??, kill snackbar?');
     try {
       _scaffoldKey.currentState.removeCurrentSnackBar();
     } catch (e) {
@@ -781,6 +830,7 @@ class InvestorAppModel extends Model {
     _modelListener = listener;
     print('InvestorAppModel.setModelListener listener has been set.');
   }
+
   Future removeBidFromCache(InvoiceBid bid) async {
     var bids = await Database.getInvoiceBids();
     _invoiceBids.clear();
@@ -883,8 +933,11 @@ class InvestorAppModel extends Model {
   }
 
   Future refreshModel() async {
-    print('InvestorAppModel.refreshModel .................................');
-    _investor = await SharedPrefs.getInvestor();
+    print(
+        'InvestorAppModel.refreshModel ............. refresh everything! ....................');
+    if (_investor == null) {
+      _investor = await SharedPrefs.getInvestor();
+    }
     _invoiceBids = await ListAPI.getUnsettledInvoiceBidsByInvestor(
         _investor.documentReference);
     await Database.saveInvoiceBids(InvoiceBids(_invoiceBids));
@@ -895,8 +948,8 @@ class InvestorAppModel extends Model {
     await SharedPrefs.saveDashboardData(_dashboardData);
 
     _offers = await ListAPI.getOpenOffersViaFunctions();
-
     await Database.saveOffers(Offers(_offers));
+
     if (_modelListener != null) {
       _modelListener.onComplete();
     }
@@ -920,6 +973,13 @@ class InvestorAppModel extends Model {
         '\nInvestorAppModel.doPrint ENDED. ############################################\n\n\n');
   }
 }
+
 abstract class ModelListener {
   onComplete();
+}
+
+class BidMessage {
+  String title, subTitle;
+
+  BidMessage({this.title, this.subTitle});
 }
