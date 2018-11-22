@@ -1,4 +1,6 @@
-class DeliveryAcceptance {
+import 'package:businesslibrary/util/Finders.dart';
+
+class DeliveryAcceptance extends Findable{
   String acceptanceId;
   String date;
   String deliveryNote;

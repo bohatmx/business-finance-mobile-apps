@@ -14,6 +14,8 @@ import 'package:businesslibrary/util/styles.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:scoped_model/scoped_model.dart';
+import 'package:supplierv3/app_model.dart';
 import 'package:supplierv3/ui/offer_details.dart';
 
 class OfferList extends StatefulWidget {
@@ -28,10 +30,9 @@ class _OfferListState extends State<OfferList>
     implements InvoiceBidListener, SnackBarListener, Pager3Listener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   FirebaseMessaging _fcm = FirebaseMessaging();
-  List<Offer> offers = List();
   Supplier supplier;
   Offer offer;
-  DashboardData dashboardData;
+  SupplierAppModel appModel;
 
   @override
   void initState() {
@@ -43,38 +44,13 @@ class _OfferListState extends State<OfferList>
   void _getCached() async {
     supplier = await SharedPrefs.getSupplier();
     assert(supplier != null);
-    dashboardData = await SharedPrefs.getDashboardData();
-    _getOffers();
-  }
-
-  double totalValue = 0.00;
-  void _getOffers() async {
-    print('_OfferListState._getOffers .......................');
-
-    AppSnackbar.showSnackbarWithProgressIndicator(
-        scaffoldKey: _scaffoldKey,
-        message: 'Loading  Offers ...',
-        textColor: Colors.yellow,
-        backgroundColor: Colors.black);
-
-    offers = await Database.getOffers();
-    totalValue = 0.0;
-
-    offers.forEach((o) {
-      totalValue += o.offerAmount;
-    });
-    dashboardData.totalOfferAmount = totalValue;
-    setState(() {});
-    _scaffoldKey.currentState.hideCurrentSnackBar();
-    var cnt = 0;
+    pageLimit = await SharedPrefs.getPageLimit();
+    if (pageLimit == null) {
+      pageLimit = 4;
+    }
     FCM.configureFCM(context: context, invoiceBidListener: this);
-    offers.forEach((offer) {
-      if (offer.isOpen) {
-        _fcm.subscribeToTopic(FCM.TOPIC_INVOICE_BIDS + offer.offerId);
-        cnt++;
-      }
-    });
-    print('_OfferListState._getOffers - subscribed to invoiceBids: $cnt');
+    _fcm.subscribeToTopic(FCM.TOPIC_INVOICE_BIDS + supplier.participantId);
+    setState(() {});
   }
 
   _checkBids(Offer offer) async {
@@ -88,6 +64,8 @@ class _OfferListState extends State<OfferList>
 
   @override
   Widget build(BuildContext context) {
+    print(
+        '\n\n_OfferListState.build ################### rebuilding widget ..........\n\n');
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
@@ -101,7 +79,7 @@ class _OfferListState extends State<OfferList>
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.refresh),
-            onPressed: _refresh,
+            onPressed: _refreshPressed,
           ),
         ],
       ),
@@ -111,9 +89,10 @@ class _OfferListState extends State<OfferList>
   }
 
   List<DropdownMenuItem<int>> items = List();
-  int pageLimit;
+  int pageLimit = 5;
   double pageValue;
   ScrollController scrollController = ScrollController();
+
   Widget _getList() {
     SchedulerBinding.instance.addPostFrameCallback((_) {
       scrollController.animateTo(
@@ -122,26 +101,32 @@ class _OfferListState extends State<OfferList>
         curve: Curves.easeOut,
       );
     });
-    return ListView.builder(
-        itemCount: currentPage == null ? 0 : currentPage.length,
-        controller: scrollController,
-        itemBuilder: (BuildContext context, int index) {
-          return new InkWell(
-            onTap: () {
-              _checkBids(currentPage.elementAt(index));
-            },
-            child: Padding(
-              padding: const EdgeInsets.only(left: 12.0, right: 12.0, top: 4.0),
-              child: OfferCard(
-                offer: currentPage.elementAt(index),
-                number: index + 1,
-                elevation: 1.0,
-                showSupplier: false,
-                showCustomer: true,
+    return ScopedModelDescendant<SupplierAppModel>(
+        builder: (context, _, model) {
+      print(
+          '\n_OfferListState._getList ################ building body - listview ');
+      return ListView.builder(
+          itemCount: currentPage == null ? 0 : currentPage.length,
+          controller: scrollController,
+          itemBuilder: (BuildContext context, int index) {
+            return new InkWell(
+              onTap: () {
+                _checkBids(currentPage.elementAt(index));
+              },
+              child: Padding(
+                padding:
+                    const EdgeInsets.only(left: 12.0, right: 12.0, top: 4.0),
+                child: OfferCard(
+                  offer: currentPage.elementAt(index),
+                  number: index + 1,
+                  elevation: 1.0,
+                  showSupplier: false,
+                  showCustomer: true,
+                ),
               ),
-            ),
-          );
-        });
+            );
+          });
+    });
   }
 
   Widget _getBottom() {
@@ -149,27 +134,40 @@ class _OfferListState extends State<OfferList>
       padding: const EdgeInsets.only(bottom: 18.0, left: 0.0),
       child: Column(
         children: <Widget>[
-          offers.isEmpty
-              ? Container()
-              : Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Pager3(
-                    elevation: 16.0,
-                    itemName: 'Offers',
-                    items: offers,
-                    pageLimit: pageLimit,
-                    listener: this,
-                    type: PagerHelper.OFFER,
-                    addHeader: true,
-                  ),
-                ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: ScopedModelDescendant<SupplierAppModel>(
+              builder: (context, _, model) {
+                print(
+                    '_OfferListState._getBottom check offers ${model.getTotalOpenOffers()}');
+                appModel = model;
+                if (isRefreshOffers) {
+                  isRefreshOffers = false;
+                  model.refreshOffers();
+                }
+                if (model.offers == null) {
+                  return Container();
+                }
+                return Pager3(
+                  elevation: 16.0,
+                  itemName: 'Offers',
+                  items: model.offers,
+                  pageLimit: pageLimit,
+                  listener: this,
+                  type: PagerHelper.OFFER,
+                  addHeader: true,
+                );
+              },
+            ),
+          ),
         ],
       ),
     );
   }
 
-  void _refresh() {
-    _getOffers();
+  bool isRefreshOffers = false;
+  void _refreshPressed() {
+    appModel.refreshOffers();
   }
 
   @override
@@ -177,16 +175,17 @@ class _OfferListState extends State<OfferList>
     // TODO: implement onActionPressed
   }
 
-  List<InvoiceBid> bids = List();
-
   @override
   onInvoiceBidMessage(InvoiceBid invoiceBid) {
-    bids.add(invoiceBid);
+    print(
+        '\n\n_OfferListState.onInvoiceBidMessage, ${invoiceBid.investorName} amount: ${invoiceBid.amount}');
     AppSnackbar.showSnackbar(
         scaffoldKey: _scaffoldKey,
         message: 'Invoice Bid arrived',
         textColor: Styles.white,
         backgroundColor: Styles.black);
+
+    appModel.addInvoiceBid(invoiceBid);
   }
 
   @override
@@ -222,10 +221,11 @@ class _OfferListState extends State<OfferList>
   @override
   onInitialPage(List<Findable> items) {
     print(
-        '\n\n\n_OfferListState.onInitialPage *******************************\n\n');
+        '\n\n_OfferListState.onInitialPage ******** items: ${items.length} ***********************\n\n');
     currentPage.clear();
     items.forEach((i) {
       currentPage.add(i as Offer);
     });
+    setState(() {});
   }
 }

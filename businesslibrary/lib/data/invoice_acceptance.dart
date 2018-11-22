@@ -1,4 +1,6 @@
-class InvoiceAcceptance {
+import 'package:businesslibrary/util/Finders.dart';
+
+class InvoiceAcceptance extends Findable{
   String acceptanceId;
   String supplierName;
   String customerName;

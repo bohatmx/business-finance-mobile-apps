@@ -1,4 +1,6 @@
-class InvestorInvoiceSettlement {
+import 'package:businesslibrary/util/Finders.dart';
+
+class InvestorInvoiceSettlement extends Findable {
   String invoiceSettlementId;
   String date;
   double amount;

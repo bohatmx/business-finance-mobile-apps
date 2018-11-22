@@ -58,12 +58,12 @@ class _Pager3State extends State<Pager3> {
     print('_Pager3State.initState ..........................');
     _setPageLimit();
     _buildNumberItems();
-
     _setItemNumbers();
     _getDashData();
   }
 
   void _setItemNumbers() {
+    print('_Pager3State._setItemNumbers - getting itemNumbers into items');
     int count = 1;
     widget.items.forEach((o) {
       o.itemNumber = count;
@@ -72,9 +72,9 @@ class _Pager3State extends State<Pager3> {
   }
 
   void _getDashData() async {
-    print('\n_Pager3State._getDashData ...........................');
+    print('\n_Pager3State._getDashborad Data ...........................');
     if (widget.addHeader == true) {
-      dashboardData = await SharedPrefs.getDashboardData();
+      dashboardData = DashboardData();
       print('_Pager3State._getDashData ...... calling _getInitialPage');
     }
     setState(() {});
@@ -105,6 +105,9 @@ class _Pager3State extends State<Pager3> {
 
   void _buildPages() {
     /////
+    if (widget.items == null) {
+      return;
+    }
     var rem = widget.items.length % localPageLimit;
     var numPages = widget.items.length ~/ localPageLimit;
     if (rem > 0) {
@@ -137,6 +140,7 @@ class _Pager3State extends State<Pager3> {
     pageNumber = 1;
     setState(() {});
 
+    print('_Pager3State._getInitialPage ############# calling widget.listener.onInitialPage with ${currentPage.length} rows');
     widget.listener.onInitialPage(currentPage);
   }
 
@@ -241,7 +245,7 @@ class _Pager3State extends State<Pager3> {
       return;
     }
     localPageLimit = value;
-    SharedPrefs.savePageLimit(value);
+    await SharedPrefs.savePageLimit(value);
     pages = Pages();
     _buildPages();
     _getInitialPage();
@@ -478,7 +482,11 @@ class Pages {
 
   Page getPage(int index) {
     print('Pages.getPage ........... index: $index');
-    return _pages.elementAt(index);
+    var page = _pages.elementAt(index);
+    page.items.forEach((i) {
+      print('Pages.getPage ### itemNumber: ${i.itemNumber} intDate: ${i.intDate}');
+    });
+    return page;
   }
 
   doPrint() {
