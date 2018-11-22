@@ -48,9 +48,12 @@ class _OfferListState extends State<OfferList>
     if (pageLimit == null) {
       pageLimit = 4;
     }
+    print('_OfferListState._getCached ---------- pageLimit from cache: $pageLimit');
     FCM.configureFCM(context: context, invoiceBidListener: this);
     _fcm.subscribeToTopic(FCM.TOPIC_INVOICE_BIDS + supplier.participantId);
-    setState(() {});
+    try {
+      setState(() {});
+    } catch (e) {}
   }
 
   _checkBids(Offer offer) async {
@@ -89,7 +92,7 @@ class _OfferListState extends State<OfferList>
   }
 
   List<DropdownMenuItem<int>> items = List();
-  int pageLimit = 5;
+  int pageLimit;
   double pageValue;
   ScrollController scrollController = ScrollController();
 
@@ -145,7 +148,7 @@ class _OfferListState extends State<OfferList>
                   isRefreshOffers = false;
                   model.refreshOffers();
                 }
-                if (model.offers == null) {
+                if (model.offers == null || pageLimit == null) {
                   return Container();
                 }
                 return Pager3(
@@ -226,6 +229,10 @@ class _OfferListState extends State<OfferList>
     items.forEach((i) {
       currentPage.add(i as Offer);
     });
-    setState(() {});
+    try {
+      setState(() {});
+    } catch (e) {
+      print('_OfferListState.onInitialPage ----- ERROR? could not setState');
+    }
   }
 }

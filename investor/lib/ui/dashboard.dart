@@ -16,6 +16,7 @@ import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/sector.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/FCM.dart';
+import 'package:businesslibrary/util/Finders.dart';
 import 'package:businesslibrary/util/database.dart';
 import 'package:businesslibrary/util/invoice_bid_card.dart';
 import 'package:businesslibrary/util/lookups.dart';
@@ -896,10 +897,14 @@ class InvestorAppModel extends Model {
     _invoiceBids = await Database.getInvoiceBids();
     if (_invoiceBids.isEmpty) {
       await refreshInvoiceBids();
+    } else {
+      _setItemNumbers(_invoiceBids);
     }
     _offers = await Database.getOffers();
     if (_offers.isEmpty) {
       await refreshOffers();
+    } else {
+      _setItemNumbers(_offers);
     }
     _title =
         'BFN Model ${getFormattedDateHour('${DateTime.now().toIso8601String()}')}';
@@ -922,6 +927,7 @@ class InvestorAppModel extends Model {
     _invoiceBids = await ListAPI.getUnsettledInvoiceBidsByInvestor(
         _investor.documentReference);
     await Database.saveInvoiceBids(InvoiceBids(_invoiceBids));
+    _setItemNumbers(_invoiceBids);
     notifyListeners();
   }
 
@@ -929,6 +935,7 @@ class InvestorAppModel extends Model {
     print('InvestorAppModel.refreshOffers .................................');
     _offers = await ListAPI.getOpenOffersViaFunctions();
     await Database.saveOffers(Offers(_offers));
+    _setItemNumbers(_offers);
     notifyListeners();
   }
 
@@ -941,6 +948,7 @@ class InvestorAppModel extends Model {
     _invoiceBids = await ListAPI.getUnsettledInvoiceBidsByInvestor(
         _investor.documentReference);
     await Database.saveInvoiceBids(InvoiceBids(_invoiceBids));
+    _setItemNumbers(_invoiceBids);
 
     _dashboardData = await ListAPI.getInvestorDashboardData(
         _investor.participantId, _investor.documentReference);
@@ -949,6 +957,7 @@ class InvestorAppModel extends Model {
 
     _offers = await ListAPI.getOpenOffersViaFunctions();
     await Database.saveOffers(Offers(_offers));
+    _setItemNumbers(_offers);
 
     if (_modelListener != null) {
       _modelListener.onComplete();
@@ -956,6 +965,14 @@ class InvestorAppModel extends Model {
     notifyListeners();
   }
 
+  void _setItemNumbers(List<Findable> list) {
+    if (list == null) return;
+    int num = 1;
+    list.forEach((o) {
+      o.itemNumber = num;
+      num++;
+    });
+  }
   void doPrint() {
     print(
         '\n\n\nInvestorAppModel.doPrint STARTED ######################################\n');

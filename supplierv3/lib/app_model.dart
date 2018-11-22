@@ -81,11 +81,7 @@ class SupplierAppModel extends Model {
     var end = DateTime.now();
     print('\n\nSupplierAppModel.initialize ######### model refreshed: elapsed time: ${end.difference(start).inMilliseconds} milliseconds. calling notifyListeners');
 
-
-
     notifyListeners();
-
-
   }
 
   void _setItemNumbers(List<Findable> list) {
