@@ -15,6 +15,7 @@ import 'package:businesslibrary/data/investor_profile.dart';
 import 'package:businesslibrary/data/invoice.dart';
 import 'package:businesslibrary/data/invoice_acceptance.dart';
 import 'package:businesslibrary/data/invoice_bid.dart';
+import 'package:businesslibrary/data/invoice_settlement.dart';
 import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/sector.dart';
@@ -454,6 +455,33 @@ class ListAPI {
     return list;
   }
 
+  static Future<List<InvestorInvoiceSettlement>> getSupplierInvestorSettlements(
+      String supplierId) async {
+    print(
+        'ListAPI.getSupplierInvestorSettlements ---------------supplierId: $supplierId');
+    List<InvestorInvoiceSettlement> list = List();
+    var qs = await _firestore
+        .collection('settlements')
+        .where('supplier',
+            isEqualTo: 'resource:com.oneconnect.biz.Supplier#$supplierId')
+        .orderBy('date', descending: true)
+        .getDocuments()
+        .catchError((e) {
+      print('ListAPI.getSupplierInvestorSettlements $e');
+      return list;
+    });
+
+    for (var doc in qs.documents) {
+      var s = InvestorInvoiceSettlement.fromJson(doc.data);
+      list.add(s);
+    }
+
+    print(
+        'ListAPI.getSupplierInvestorSettlements found: ${qs.documents.length} ');
+
+    return list;
+  }
+
   static Future<Offer> checkOfferByInvoice(String invoiceId) async {
     print('ListAPI.checkOfferByInvoice ---------------supplierId: $invoiceId');
     Offer offer;
@@ -693,14 +721,13 @@ class ListAPI {
   }
 
   static Future<List<PurchaseOrder>> getSupplierPurchaseOrders(
-      String supplierDocRef) async {
+      String documentId) async {
     List<PurchaseOrder> list = List();
     var querySnapshot = await _firestore
         .collection('suppliers')
-        .document(supplierDocRef)
+        .document(documentId)
         .collection('purchaseOrders')
         .orderBy('date', descending: true)
-        .limit(100)
         .getDocuments()
         .catchError((e) {
       print('ListAPI.getSupplierPurchaseOrders  ERROR $e');
@@ -719,7 +746,10 @@ class ListAPI {
   static Future<DashboardData> getSupplierDashboardData(
       String supplierId, String documentId) async {
     print('ListAPI.getSupplierDashboardData ..........');
-    var data = DashboardParms(id: supplierId, documentId: documentId, limit: MAXIMUM_RECORDS_FROM_FIRESTORE);
+    var data = DashboardParms(
+        id: supplierId,
+        documentId: documentId,
+        limit: MAXIMUM_RECORDS_FROM_FIRESTORE);
 
     try {
       DashboardData result =
@@ -734,7 +764,10 @@ class ListAPI {
   static Future<DashboardData> getInvestorDashboardData(
       String investorId, String documentId) async {
     print('ListAPI.getDashboardData ..........');
-    var data = DashboardParms(id: investorId, documentId: documentId, limit: MAXIMUM_RECORDS_FROM_FIRESTORE);
+    var data = DashboardParms(
+        id: investorId,
+        documentId: documentId,
+        limit: MAXIMUM_RECORDS_FROM_FIRESTORE);
 
     DashboardData result =
         await _doDashboardHTTP(getFunctionsURL() + 'investorDashboard', data);
@@ -745,7 +778,8 @@ class ListAPI {
   static Future<DashboardData> getCustomerDashboardData(
       String documentId) async {
     print('ListAPI.getCustomerDashboardData ..........');
-    var data = DashboardParms(documentId: documentId, limit: MAXIMUM_RECORDS_FROM_FIRESTORE);
+    var data = DashboardParms(
+        documentId: documentId, limit: MAXIMUM_RECORDS_FROM_FIRESTORE);
 
     DashboardData result =
         await _doDashboardHTTP(getFunctionsURL() + 'customerDashboard', data);
@@ -1047,6 +1081,36 @@ class ListAPI {
     if (list.isNotEmpty) {
       print(
           'ListAPI.getInvoices ################## found: ${list.length} from ${list.elementAt(0).supplierName}');
+    }
+    return list;
+  }
+
+  static Future<List<InvoiceAcceptance>> getInvoiceAcceptances(
+      String documentId, String collection) async {
+    print(
+        'ListAPI.getInvoiceAcceptances ............. documentId: $documentId');
+    List<InvoiceAcceptance> list = List();
+    var qs = await _firestore
+        .collection(collection)
+        .document(documentId)
+        .collection('invoiceAcceptances')
+        .orderBy('date', descending: true)
+        .getDocuments()
+        .catchError((e) {
+      print('ListAPI.getInvoiceAcceptances $e');
+      return list;
+    });
+    if (qs.documents.isEmpty) {
+      print('ListAPI.getInvoiceAcceptances - no docs found');
+      return list;
+    }
+    qs.documents.forEach((doc) {
+      list.add(new InvoiceAcceptance.fromJson(doc.data));
+    });
+
+    if (list.isNotEmpty) {
+      print(
+          'ListAPI.getInvoiceAcceptances ################## found: ${list.length} for ${list.elementAt(0).supplierName}');
     }
     return list;
   }

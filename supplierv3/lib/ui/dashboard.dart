@@ -14,7 +14,6 @@ import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/FCM.dart';
-import 'package:businesslibrary/util/database.dart';
 import 'package:businesslibrary/util/invoice_bid_card.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
@@ -23,6 +22,7 @@ import 'package:businesslibrary/util/wallet_page.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:supplierv3/app_model.dart';
 import 'package:supplierv3/main.dart';
 import 'package:supplierv3/ui/contract_list.dart';
 import 'package:supplierv3/ui/delivery_acceptance_list.dart';
@@ -32,6 +32,7 @@ import 'package:supplierv3/ui/make_offer.dart';
 import 'package:supplierv3/ui/offer_list.dart';
 import 'package:supplierv3/ui/purchase_order_list.dart';
 import 'package:supplierv3/ui/summary_card.dart';
+import 'package:scoped_model/scoped_model.dart';
 
 class Dashboard extends StatefulWidget {
   final String message;
@@ -40,8 +41,6 @@ class Dashboard extends StatefulWidget {
 
   @override
   _DashboardState createState() => _DashboardState();
-//  static _DashboardState of(BuildContext context) =>
-//      context.ancestorStateOfType(const TypeMatcher<_DashboardState>());
 }
 
 class _DashboardState extends State<Dashboard>
@@ -60,21 +59,12 @@ class _DashboardState extends State<Dashboard>
   AnimationController animationController;
   Animation<double> animation;
   Supplier supplier;
-  List<Invoice> invoices;
-  List<Offer> allOffers = List();
-  List<DeliveryNote> deliveryNotes;
-  List<PurchaseOrder> purchaseOrders;
-  List<InvestorInvoiceSettlement> investorSettlements;
-  List<GovtInvoiceSettlement> govtSettlements;
-  List<CompanyInvoiceSettlement> companySettlements;
   User user;
   String fullName;
   DeliveryAcceptance acceptance;
-  DashboardData dashboardData;
   @override
   initState() {
     super.initState();
-    print('_DashboardState.initState .............. to get summary');
     animationController = AnimationController(
       duration: Duration(milliseconds: 1000),
       vsync: this,
@@ -90,53 +80,6 @@ class _DashboardState extends State<Dashboard>
     super.dispose();
   }
 
-  ///get  summaries from Firestore
-  _getSummaryData(bool showSnack) async {
-    prettyPrint(supplier.toJson(), 'Dashboard_getSummaryData: ');
-    if (showSnack) {
-      AppSnackbar.showSnackbarWithProgressIndicator(
-          scaffoldKey: _scaffoldKey,
-          message: 'Loading dashboard data',
-          textColor: Colors.white,
-          backgroundColor: Colors.black);
-    }
-    try {
-      dashboardData = await ListAPI.getSupplierDashboardData(
-          supplier.participantId, supplier.documentReference);
-      await SharedPrefs.saveDashboardData(dashboardData);
-      prettyPrint(
-          dashboardData.toJson(), '\n\n@@@@@@@@@@@ RETURNED dash data:');
-      setState(() {});
-      _getDetailData();
-    } catch (e) {
-      AppSnackbar.showErrorSnackbar(
-          scaffoldKey: _scaffoldKey,
-          message: '$e',
-          listener: this,
-          actionLabel: 'close');
-      return;
-    }
-
-    try {
-      _scaffoldKey.currentState.hideCurrentSnackBar();
-    } catch (e) {}
-    //
-  }
-
-  void _getDetailData() async {
-    print('\n\n_DashboardState._getDetailData ############ get Supplier data');
-    var m = await ListAPI.getSupplierPurchaseOrders(supplier.documentReference);
-    await Database.savePurchaseOrders(PurchaseOrders(m));
-    var n =
-        await ListAPI.getDeliveryNotes(supplier.documentReference, 'suppliers');
-    await Database.saveDeliveryNotes(DeliveryNotes(n));
-    var p = await ListAPI.getInvoices(supplier.documentReference, 'suppliers');
-    await Database.saveInvoices(Invoices(p));
-    var o = await ListAPI.getOffersBySupplier(supplier.participantId);
-    await Database.saveOffers(Offers(o));
-    print(
-        '\n\n_DashboardState._getDetailData ######### done getting supplier data');
-  }
 
   Future _getCachedPrefs() async {
     supplier = await SharedPrefs.getSupplier();
@@ -150,12 +93,9 @@ class _DashboardState extends State<Dashboard>
     }
     user = await SharedPrefs.getUser();
     fullName = user.firstName + ' ' + user.lastName;
-
-    dashboardData = await SharedPrefs.getDashboardData();
     assert(supplier != null);
     name = supplier.name;
     setState(() {});
-    _getSummaryData(false);
     //
     FCM.configureFCM(
       context: context,
@@ -219,6 +159,7 @@ class _DashboardState extends State<Dashboard>
 
   double opacity = 1.0;
   String name;
+  SupplierAppModel appModel;
   Widget _getBottom() {
     return PreferredSize(
       preferredSize: const Size.fromHeight(40.0),
@@ -230,8 +171,8 @@ class _DashboardState extends State<Dashboard>
               new Padding(
                 padding: const EdgeInsets.only(bottom: 20.0),
                 child: Text(
-                  name == null ? 'Organisation' : name,
-                  style: Styles.whiteBoldSmall,
+                  name == null ? 'Org' : name,
+                  style: Styles.whiteBoldMedium,
                 ),
               )
             ],
@@ -241,122 +182,176 @@ class _DashboardState extends State<Dashboard>
     );
   }
 
+  bool isRefreshPressed = false;
   void _onRefreshPressed() {
-    _getSummaryData(true);
+    setState(() {
+      isRefreshPressed = true;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return new WillPopScope(
-      onWillPop: () async => false,
-      child: Scaffold(
-        key: _scaffoldKey,
-        appBar: AppBar(
-          elevation: 3.0,
-          title: Text(
-            'BFN',
-            style: TextStyle(fontWeight: FontWeight.w900),
-          ),
-          leading: Icon(
-            Icons.apps,
-            color: Colors.white,
-          ),
-          bottom: _getBottom(),
-          actions: <Widget>[
-            IconButton(
-              icon: Icon(Icons.library_books),
-              onPressed: _goToContracts,
-            ),
-            IconButton(
-              icon: Icon(Icons.refresh),
-              onPressed: _onRefreshPressed,
-            ),
-            IconButton(
-              icon: Icon(Icons.attach_money),
-              onPressed: _goToWalletPage,
-            ),
-          ],
-        ),
-        backgroundColor: Colors.brown.shade100,
-        body: Stack(
-          children: <Widget>[
-            Opacity(
-              opacity: opacity,
-              child: Padding(
-                padding: const EdgeInsets.only(top: 10.0),
-                child: ListView(
-                  children: <Widget>[
-                    GestureDetector(
-                      onTap: _onInvoiceTapped,
-                      child: dashboardData == null
-                          ? Container()
-                          : SummaryCard(
-                              totalCount: dashboardData.invoices,
-                              totalCountLabel: 'Invoices',
-                              totalCountStyle: Styles.pinkBoldLarge,
-                              totalValue: dashboardData == null
-                                  ? 0.0
-                                  : dashboardData.totalInvoiceAmount,
-                              elevation: 2.0,
-                            ),
-                    ),
-                    GestureDetector(
-                      onTap: _onOffersTapped,
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 20.0, right: 20.0),
-                        child: dashboardData == null
-                            ? Container()
-                            : OfferSummaryCard(
-                                data: dashboardData,
-                                elevation: 16.0,
-                              ),
-                      ),
-                    ),
-                    GestureDetector(
-                      onTap: _onPurchaseOrdersTapped,
-                      child: dashboardData == null
-                          ? Container()
-                          : SummaryCard(
-                              totalCount: dashboardData.purchaseOrders,
-                              totalCountLabel: 'Purchase Orders',
-                              totalCountStyle: Styles.blueBoldLarge,
-                              totalValue: dashboardData == null
-                                  ? 0.0
-                                  : dashboardData.totalPurchaseOrderAmount,
-                            ),
-                    ),
-                    GestureDetector(
-                      onTap: _onDeliveryNotesTapped,
-                      child: dashboardData == null
-                          ? Container()
-                          : SummaryCard(
-                              totalCount: dashboardData.deliveryNotes,
-                              totalCountLabel: 'Delivery Notes',
-                              totalCountStyle: Styles.blackBoldLarge,
-                              totalValue: dashboardData == null
-                                  ? 0.0
-                                  : dashboardData.totalDeliveryNoteAmount,
-                            ),
-                    ),
-                    GestureDetector(
-                      onTap: _onPaymentsTapped,
-                      child: SummaryCard(
-                        totalCount: dashboardData == null ? 0 : 0,
-                        totalCountLabel: 'Payments',
-                        totalCountStyle: Styles.greyLabelMedium,
-                        totalValue: 0.0,
-                      ),
-                    ),
-                  ],
-                ),
+
+    return ScopedModelDescendant<SupplierAppModel>(
+      builder: (context, _, model) {
+        appModel = model;
+        if (isRefreshPressed) {
+          isRefreshPressed = false;
+          model.refreshModel();
+        }
+        if (isAddPurchaseOrder) {
+          isAddPurchaseOrder =  false;
+          model.addPurchaseOrder(purchaseOrder);
+        }
+        if (isAddInvoiceAcceptance) {
+          isAddInvoiceAcceptance = false;
+          model.addInvoiceAcceptance(invoiceAcceptance);
+        }
+        if (isAddDeliveryAcceptance) {
+          isAddDeliveryAcceptance = false;
+          model.addDeliveryAcceptance(deliveryAcceptance);
+        }
+
+        return WillPopScope(
+          onWillPop: () async => false,
+          child: Scaffold(
+            key: _scaffoldKey,
+            appBar: AppBar(
+              elevation: 3.0,
+              title: Text(
+                'BFN',
+                style: TextStyle(fontWeight: FontWeight.w900),
               ),
+              leading: Icon(
+                Icons.apps,
+                color: Colors.white,
+              ),
+              bottom: _getBottom(),
+              actions: <Widget>[
+                IconButton(
+                  icon: Icon(Icons.library_books),
+                  onPressed: _goToContracts,
+                ),
+                IconButton(
+                  icon: Icon(Icons.refresh),
+                  onPressed: _onRefreshPressed,
+                ),
+                IconButton(
+                  icon: Icon(Icons.attach_money),
+                  onPressed: _goToWalletPage,
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
+            backgroundColor: Colors.brown.shade100,
+            body: Stack(
+              children: <Widget>[
+                Opacity(
+                  opacity: 0.3,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      image: DecorationImage(
+                        image: AssetImage('assets/fincash.jpg'),
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                ),
+                Opacity(
+                  opacity: opacity,
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 10.0),
+                    child: _getListView(),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
+  Widget _getListView() {
+
+    return ScopedModelDescendant<SupplierAppModel>(
+      builder: (context, _, model) {
+        var tiles = List<ListTile>();
+        return ListView(
+          children: <Widget>[
+            GestureDetector(
+              onTap: _onInvoiceTapped,
+              child: model.invoices == null
+                  ? Container()
+                  : SummaryCard(
+                totalCount: model.invoices.length,
+                totalCountLabel: 'Invoices',
+                totalCountStyle: Styles.pinkBoldLarge,
+                totalValue: model.invoices == null
+                    ? 0.0
+                    : model.getTotalInvoiceAmount(),
+                elevation: 2.0,
+              ),
+            ),
+            GestureDetector(
+              onTap: _onOffersTapped,
+              child: Padding(
+                padding:
+                const EdgeInsets.only(left: 20.0, right: 20.0),
+                child: model == null
+                    ? Container()
+                    : OfferSummaryCard(
+                  data: model,
+                  elevation: 16.0,
+                ),
+              ),
+            ),
+            GestureDetector(
+              onTap: _onPurchaseOrdersTapped,
+              child: model == null
+                  ? Container()
+                  : SummaryCard(
+                totalCount: model.getTotalPurchaseOrders(),
+                totalCountLabel: 'Purchase Orders',
+                totalCountStyle: Styles.blueBoldLarge,
+                totalValue: model == null
+                    ? 0.0
+                    : model.getTotalPurchaseOrderAmount(),
+                elevation: 2.0,
+              ),
+            ),
+            GestureDetector(
+              onTap: _onDeliveryNotesTapped,
+              child: model == null
+                  ? Container()
+                  : SummaryCard(
+                totalCount: model.deliveryNotes.length,
+                totalCountLabel: 'Delivery Notes',
+                totalCountStyle: Styles.blackBoldLarge,
+                totalValue: model == null
+                    ? 0.0
+                    : model.getTotalDeliveryNoteAmount(),
+                elevation: 2.0,
+              ),
+            ),
+            GestureDetector(
+              onTap: _onPaymentsTapped,
+              child: SummaryCard(
+                totalCount: model == null ? 0 : model.settlements.length,
+                totalCountLabel: 'Settlements',
+                totalCountStyle: Styles.greyLabelMedium,
+                totalValue: model.getTotalSettlementAmount(),
+                elevation: 2.0,
+              ),
+            ),
+            tiles == null? Container() :
+            Column(
+              children: tiles,
+            ),
+          ],
+        );
+      },
+    );
+  }
   _onOffersTapped() {
     print('_DashboardState._onOffersTapped ...............');
     Navigator.push(
@@ -409,7 +404,9 @@ class _DashboardState extends State<Dashboard>
   refresh() {
     print(
         '_DashboardState.refresh: ################## REFRESH called. getSummary ...');
-    _getSummaryData(false);
+    setState(() {
+      isRefreshPressed = true;
+    });
   }
 
   @override
@@ -485,29 +482,46 @@ class _DashboardState extends State<Dashboard>
   InvoiceAcceptance invoiceAcceptance;
 
   InvoiceBid invoiceBid;
-
+  bool isAddInvoiceAcceptance = false, isAddDeliveryAcceptance = false;
   @override
   onDeliveryAcceptanceMessage(DeliveryAcceptance acceptance) {
+    deliveryAcceptance = acceptance;
     _showSnack('Delivery Acceptance arrived', Colors.green);
+
+    setState(() {
+      isAddDeliveryAcceptance = true;
+    });
   }
 
   @override
   onInvoiceAcceptanceMessage(InvoiceAcceptance acceptance) {
+    invoiceAcceptance = acceptance;
     _showSnack('Invoice Acceptance arrived', Colors.yellow);
+    setState(() {
+      isAddInvoiceAcceptance = true;
+    });
   }
 
+  bool isAddInvoiceBid = false;
   @override
   onInvoiceBidMessage(InvoiceBid invoiceBid) async {
+    this.invoiceBid = invoiceBid;
     print(
         '\n\n\n_DashboardState.onInvoiceBidMessage ################ INVOICE BID incoming! ${invoiceBid.investorName}');
     _showBottomSheet(invoiceBid);
-    setState(() {});
+    setState(() {
+      isAddInvoiceBid = true;
+    });
   }
 
+  bool isAddPurchaseOrder = false;
   @override
   onPurchaseOrderMessage(PurchaseOrder purchaseOrder) {
     _showSnack('Purchase Order arrived', Colors.lime);
-    _getSummaryData(true);
+    this.purchaseOrder = purchaseOrder;
+    setState(() {
+      isAddPurchaseOrder = true;
+    });
   }
 
   @override
@@ -525,7 +539,7 @@ class _DashboardState extends State<Dashboard>
 }
 
 class OfferSummaryCard extends StatelessWidget {
-  final DashboardData data;
+  final SupplierAppModel data;
   final double elevation;
   OfferSummaryCard({this.data, this.elevation});
 
@@ -544,7 +558,7 @@ class OfferSummaryCard extends StatelessWidget {
                 children: <Widget>[
                   Text(
                     'Invoice Offers',
-                    style: Styles.blackBoldSmall,
+                    style: Styles.blackBoldMedium,
                   )
                 ],
               ),
@@ -562,7 +576,7 @@ class OfferSummaryCard extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.only(left: 12.0),
                   child: Text(
-                    '${data.totalOpenOffers}',
+                    '${data.getTotalOpenOffers()}',
                     style: Styles.blackBoldMedium,
                   ),
                 ),
@@ -583,7 +597,7 @@ class OfferSummaryCard extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.only(left: 12.0),
                     child: Text(
-                      '${getFormattedAmount('${data.totalOpenOfferAmount}', context)}',
+                      '${getFormattedAmount('${data.getTotalOpenOfferAmount()}', context)}',
                       style: Styles.tealBoldMedium,
                     ),
                   ),
@@ -603,7 +617,7 @@ class OfferSummaryCard extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.only(left: 12.0),
                   child: Text(
-                    '${data.closedOffers}',
+                    '${data.getTotalClosedOffers()}',
                     style: Styles.greyLabelSmall,
                   ),
                 ),
@@ -624,7 +638,7 @@ class OfferSummaryCard extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.only(left: 12.0),
                     child: Text(
-                      '${data.cancelledOffers}',
+                      '${data.getTotalCancelledOffers()}',
                       style: Styles.greyLabelSmall,
                     ),
                   ),

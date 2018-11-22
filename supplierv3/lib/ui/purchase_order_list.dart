@@ -82,7 +82,7 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
         totalPages = int.parse('${dashboardData.purchaseOrders ~/ pageLimit}');
       }
     } catch (e) {
-      print('########### cannot make total .........))))))))))');
+      print('########### cannot make total ......... ###');
     }
     return totalPages;
   }

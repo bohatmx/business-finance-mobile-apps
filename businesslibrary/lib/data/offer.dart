@@ -1,3 +1,4 @@
+
 import 'package:businesslibrary/util/Finders.dart';
 
 class Offer extends Findable {

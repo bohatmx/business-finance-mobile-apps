@@ -74,7 +74,7 @@ class FCM {
       print('\n\n\n################  Running on ${androidInfo
           .model} ################\n\n');
     } catch (e) {
-      print('FCM.configureFCM - error doing Android');
+      print('FCM.configureFCM - error doing Android - this is NOT an Android phone!!');
     }
 
     try {
@@ -83,7 +83,7 @@ class FCM {
           .machine} ################\n\n');
       isRunningIOs = true;
     } catch (e) {
-      print('FCM.configureFCM error doing Android');
+      print('FCM.configureFCM error doing iOS - this is NOT an iPhone!!');
     }
 
     _firebaseMessaging.configure(

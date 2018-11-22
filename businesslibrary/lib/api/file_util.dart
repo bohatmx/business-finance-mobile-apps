@@ -39,7 +39,7 @@ class FileUtil {
       print('FileUtil_saveSectors  ## file exists ...writing sectors file');
       jsonFile.writeAsString(json.encode(map));
       print(
-          'FileUtil_saveSectors ##  has cached list of sectors))))))))))))))))))) : ${sectors.sectors.length}');
+          'FileUtil_saveSectors ##  has cached list of sectors ###))))))))) : ${sectors.sectors.length}');
       return 0;
     } else {
       print(
@@ -79,7 +79,7 @@ class FileUtil {
       print('FileUtil_saveInvoiceBids  ## file exists ...writing bids file');
       jsonFile.writeAsString(json.encode(map));
       print(
-          'FileUtil_saveInvoiceBids ##  has cached list of bids))))))))))))))))))) : ${bids.bids.length}');
+          'FileUtil_saveInvoiceBids ##  has cached list of bids ###))))))))) : ${bids.bids.length}');
       return 0;
     } else {
       print(
