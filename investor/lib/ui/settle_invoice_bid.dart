@@ -396,14 +396,19 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
 
   Future _writeSettlement() async {
     print('_SettleInvoiceBid._writeSettlement .............................');
+    var w = await SharedPrefs.getWallet();
     var m = InvestorInvoiceSettlement(
         amount: widget.invoiceBid.amount,
         investor: widget.invoiceBid.investor,
         user: NameSpace + 'User#${user.userId}',
         peachPaymentKey: paymentKey.key,
         offer: widget.invoiceBid.offer,
+        supplier: widget.invoiceBid.supplier,
         date: getUTCDate(),
         invoiceBid: NameSpace + 'InvoiceBid#${widget.invoiceBid.invoiceBidId}');
+    if (w != null) {
+      m.wallet = NameSpace + 'Wallet#${w.stellarPublicKey}';
+    }
 
     try {
       var result = await DataAPI3.makeInvestorInvoiceSettlement(m);

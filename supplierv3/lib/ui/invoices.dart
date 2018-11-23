@@ -316,8 +316,14 @@ class _InvoicesOnOfferState extends State<InvoicesOnOffer>
 
   ScrollController scrollController = ScrollController();
   Widget _getListView() {
-    print(
-        '\n\n\n_InvoicesOnOfferState._getListView ... within widget build method .............\n\n\n');
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      scrollController.animateTo(
+        scrollController.position.minScrollExtent,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeOut,
+      );
+    });
+
     return ScopedModelDescendant<SupplierAppModel>(
       builder: (context, _, model) {
         appModel = model;

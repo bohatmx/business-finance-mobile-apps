@@ -1,23 +1,17 @@
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
-import 'package:businesslibrary/data/dashboard_data.dart';
 import 'package:businesslibrary/data/delivery_acceptance.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/FCM.dart';
-import 'package:businesslibrary/util/Finders.dart';
-import 'package:businesslibrary/util/database.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/mypager.dart';
-import 'package:businesslibrary/util/pager.dart';
-import 'package:businesslibrary/util/pager_helper.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:scoped_model/scoped_model.dart';
 import 'package:supplierv3/app_model.dart';
 import 'package:supplierv3/ui/delivery_note_page.dart';
 import 'package:supplierv3/ui/invoice_page.dart';
@@ -57,10 +51,11 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
   void initState() {
     super.initState();
     _getCached();
+    setBasePager();
   }
 
   void _getCached() async {
-
+    supplier = await SharedPrefs.getSupplier();
     FCM.configureFCM(
       context: context,
       purchaseOrderListener: this,
@@ -85,6 +80,9 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
     var page = basePager.getFirstPage();
     page.forEach((f) {
       currentPage.add(f);
+    });
+    setState(() {
+
     });
   }
 
@@ -142,7 +140,7 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
   ScrollController scrollController = ScrollController();
   @override
   Widget build(BuildContext context) {
-    setBasePager();
+
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
@@ -168,6 +166,13 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
   }
 
   Widget _getListView() {
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      scrollController.animateTo(
+        scrollController.position.minScrollExtent,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeOut,
+      );
+    });
     return ListView.builder(
         itemCount: currentPage == null ? 0 : currentPage.length,
         controller: scrollController,

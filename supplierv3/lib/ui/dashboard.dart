@@ -19,6 +19,7 @@ import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:businesslibrary/util/wallet_page.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -73,12 +74,37 @@ class _DashboardState extends State<Dashboard>
     animation = new Tween(begin: 0.0, end: 1.0).animate(animationController);
 
     _getCachedPrefs();
+    fix();
   }
 
   @override
   void dispose() {
     animationController.dispose();
     super.dispose();
+  }
+
+  Future fix() async {
+    print('_DashboardState.fix #######################################');
+    Firestore fs = Firestore.instance;
+    int count = 0;
+    var qs = await fs.collection('settlements').getDocuments();
+    print('_DashboardState.fix ####### settlements: ${qs.documents.length} to be updated \n\n');
+    for (var doc in qs.documents) {
+      var stm = InvestorInvoiceSettlement.fromJson(doc.data);
+      var settlementRef = doc.reference;
+      var qs2 = await fs
+          .collection('invoiceOffers')
+          .where('offerId', isEqualTo: stm.offer.split('#').elementAt(1))
+      .getDocuments();
+      if (qs2.documents.isNotEmpty) {
+        var offer = Offer.fromJson(qs2.documents.first.data);
+        stm.supplier = offer.supplier;
+        await settlementRef.setData(stm.toJson());
+        count++;
+        print('_DashboardState.fix settlement updated with supplier: ${offer.supplierName} investor: ${stm.investor}');
+      }
+    }
+    print('\n\n_DashboardState.fix ######### COMPLETE - $count settlements updated\n\n');
   }
 
   Future _getCachedPrefs() async {
@@ -297,22 +323,25 @@ class _DashboardState extends State<Dashboard>
           children: <Widget>[
             GestureDetector(
               onTap: _onInvoiceTapped,
-              child: model.invoices == null
-                  ? Container()
-                  : SummaryCard(
-                      totalCount: model.invoices.length,
-                      totalCountLabel: 'Invoices',
-                      totalCountStyle: Styles.pinkBoldLarge,
-                      totalValue: model.invoices == null
-                          ? 0.0
-                          : model.getTotalInvoiceAmount(),
-                      elevation: 2.0,
-                    ),
+              child: Padding(
+                padding: const EdgeInsets.only(left: 10.0, right: 10.0),
+                child: model.invoices == null
+                    ? Container()
+                    : SummaryCard(
+                        totalCount: model.invoices.length,
+                        totalCountLabel: 'Invoices',
+                        totalCountStyle: Styles.pinkBoldLarge,
+                        totalValue: model.invoices == null
+                            ? 0.0
+                            : model.getTotalInvoiceAmount(),
+                        elevation: 2.0,
+                      ),
+              ),
             ),
             GestureDetector(
               onTap: _onOffersTapped,
               child: Padding(
-                padding: const EdgeInsets.only(left: 20.0, right: 20.0),
+                padding: const EdgeInsets.only(left: 10.0, right: 10.0),
                 child: model == null
                     ? Container()
                     : OfferSummaryCard(
@@ -323,40 +352,49 @@ class _DashboardState extends State<Dashboard>
             ),
             GestureDetector(
               onTap: _onPurchaseOrdersTapped,
-              child: model == null
-                  ? Container()
-                  : SummaryCard(
-                      totalCount: model.getTotalPurchaseOrders(),
-                      totalCountLabel: 'Purchase Orders',
-                      totalCountStyle: Styles.blueBoldLarge,
-                      totalValue: model == null
-                          ? 0.0
-                          : model.getTotalPurchaseOrderAmount(),
-                      elevation: 2.0,
-                    ),
+              child: Padding(
+                padding: const EdgeInsets.only(left: 10.0, right: 10.0),
+                child: model == null
+                    ? Container()
+                    : SummaryCard(
+                        totalCount: model.getTotalPurchaseOrders(),
+                        totalCountLabel: 'Purchase Orders',
+                        totalCountStyle: Styles.blueBoldLarge,
+                        totalValue: model == null
+                            ? 0.0
+                            : model.getTotalPurchaseOrderAmount(),
+                        elevation: 2.0,
+                      ),
+              ),
             ),
             GestureDetector(
               onTap: _onDeliveryNotesTapped,
-              child: model == null
-                  ? Container()
-                  : SummaryCard(
-                      totalCount: model.deliveryNotes.length,
-                      totalCountLabel: 'Delivery Notes',
-                      totalCountStyle: Styles.blackBoldLarge,
-                      totalValue: model == null
-                          ? 0.0
-                          : model.getTotalDeliveryNoteAmount(),
-                      elevation: 2.0,
-                    ),
+              child: Padding(
+                padding: const EdgeInsets.only(left: 10.0, right: 10.0),
+                child: model == null
+                    ? Container()
+                    : SummaryCard(
+                        totalCount: model.deliveryNotes.length,
+                        totalCountLabel: 'Delivery Notes',
+                        totalCountStyle: Styles.blackBoldLarge,
+                        totalValue: model == null
+                            ? 0.0
+                            : model.getTotalDeliveryNoteAmount(),
+                        elevation: 2.0,
+                      ),
+              ),
             ),
             GestureDetector(
               onTap: _onPaymentsTapped,
-              child: SummaryCard(
-                totalCount: model == null ? 0 : model.settlements.length,
-                totalCountLabel: 'Settlements',
-                totalCountStyle: Styles.greyLabelMedium,
-                totalValue: model.getTotalSettlementAmount(),
-                elevation: 2.0,
+              child: Padding(
+                padding: const EdgeInsets.only(left: 10.0, right: 10.0),
+                child: SummaryCard(
+                  totalCount: model == null ? 0 : model.settlements.length,
+                  totalCountLabel: 'Settlements',
+                  totalCountStyle: Styles.greyLabelMedium,
+                  totalValue: model.getTotalSettlementAmount(),
+                  elevation: 2.0,
+                ),
               ),
             ),
             tiles == null
@@ -375,7 +413,9 @@ class _DashboardState extends State<Dashboard>
     Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => OfferList(model: appModel,),
+          builder: (context) => OfferList(
+                model: appModel,
+              ),
         ));
   }
 
@@ -403,7 +443,10 @@ class _DashboardState extends State<Dashboard>
     print('_MainPageState._onPurchaseOrdersTapped  go to list of pos');
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => PurchaseOrderListPage(model: appModel,)),
+      MaterialPageRoute(
+          builder: (context) => PurchaseOrderListPage(
+                model: appModel,
+              )),
     );
   }
 
@@ -411,7 +454,8 @@ class _DashboardState extends State<Dashboard>
     print('_MainPageState._onDeliveryNotesTapped go to  delivery notes');
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => DeliveryNoteList()),
+      MaterialPageRoute(
+          builder: (context) => DeliveryNoteList(model: appModel)),
     );
   }
 
@@ -558,7 +602,7 @@ class _DashboardState extends State<Dashboard>
   void _onNavTap(int value) {
     print('_DashboardState._onNavTap ########################## $value');
     _index = value;
-    switch(value) {
+    switch (value) {
       case 0:
         _onOffersTapped();
         break;
@@ -569,9 +613,7 @@ class _DashboardState extends State<Dashboard>
         _onDeliveryNotesTapped();
         break;
     }
-    setState(() {
-
-    });
+    setState(() {});
   }
 }
 

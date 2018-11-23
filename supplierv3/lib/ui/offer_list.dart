@@ -56,46 +56,7 @@ class _OfferListState extends State<OfferList>
     setBasePager();
 
   }
-  BasePager basePager;
-  void setBasePager() {
-    if (widget.model == null) return;
-    print(
-        '_PurchaseOrderList.setBasePager appModel.pageLimit: ${widget.model.pageLimit}, get first page');
-    if (basePager == null) {
-      basePager = BasePager(
-        items: widget.model.offers,
-        pageLimit: widget.model.pageLimit,
-      );
-    }
 
-    if (currentPage == null) currentPage = List();
-    var page = basePager.getFirstPage();
-    page.forEach((f) {
-      currentPage.add(f);
-    });
-    setState(() {
-
-    });
-  }
-
-  double _getPageValue() {
-    if (currentPage == null) return 0.00;
-    var t = 0.0;
-    currentPage.forEach((po) {
-      t += po.offerAmount;
-    });
-    return t;
-  }
-  double _getTotalValue() {
-    if (widget.model == null) return 0.00;
-    var t = 0.0;
-    widget.model.purchaseOrders.forEach((po) {
-      t += po.amount;
-    });
-    return t;
-  }
-
-  int _pageNumber = 1;
   _checkBids(Offer offer) async {
     this.offer = offer;
 
@@ -104,6 +65,8 @@ class _OfferListState extends State<OfferList>
       new MaterialPageRoute(builder: (context) => new OfferDetails(offer)),
     );
   }
+
+  ScrollController scrollController = ScrollController();
 
   @override
   Widget build(BuildContext context) {
@@ -133,10 +96,18 @@ class _OfferListState extends State<OfferList>
   }
 
   Widget _getList() {
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      scrollController.animateTo(
+        scrollController.position.minScrollExtent,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeOut,
+      );
+    });
     return ScopedModelDescendant<SupplierAppModel>(
         builder: (context, _, model) {
       return ListView.builder(
           itemCount: currentPage == null ? 0 : currentPage.length,
+          controller: scrollController,
           itemBuilder: (BuildContext context, int index) {
             return new InkWell(
               onTap: () {
@@ -216,6 +187,47 @@ class _OfferListState extends State<OfferList>
     appModel.addInvoiceBid(invoiceBid);
   }
 
+  //paging constructs
+  BasePager basePager;
+  void setBasePager() {
+    if (widget.model == null) return;
+    print(
+        '_PurchaseOrderList.setBasePager appModel.pageLimit: ${widget.model.pageLimit}, get first page');
+    if (basePager == null) {
+      basePager = BasePager(
+        items: widget.model.offers,
+        pageLimit: widget.model.pageLimit,
+      );
+    }
+
+    if (currentPage == null) currentPage = List();
+    var page = basePager.getFirstPage();
+    page.forEach((f) {
+      currentPage.add(f);
+    });
+    setState(() {
+
+    });
+  }
+
+  double _getPageValue() {
+    if (currentPage == null) return 0.00;
+    var t = 0.0;
+    currentPage.forEach((po) {
+      t += po.offerAmount;
+    });
+    return t;
+  }
+  double _getTotalValue() {
+    if (widget.model == null) return 0.00;
+    var t = 0.0;
+    widget.model.purchaseOrders.forEach((po) {
+      t += po.amount;
+    });
+    return t;
+  }
+
+  int _pageNumber = 1;
   @override
   onNextPageRequired() {
     print('_InvoicesOnOfferState.onNextPageRequired');
@@ -271,4 +283,6 @@ class _OfferListState extends State<OfferList>
       _pageNumber = basePager.pageNumber;
     });
   }
+
+  //end of paging constructs
 }

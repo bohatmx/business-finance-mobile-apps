@@ -166,6 +166,7 @@ class _SettleAllState extends State<SettleAll> implements SnackBarListener{
       textColor: Styles.white,
       backgroundColor: Colors.black,);
     int count = 0;
+    var w = await SharedPrefs.getWallet();
     for (var bid in bids) {
       var m = InvestorInvoiceSettlement(
           amount: bid.amount,
@@ -173,8 +174,12 @@ class _SettleAllState extends State<SettleAll> implements SnackBarListener{
           user: NameSpace + 'User#${user.userId}',
           peachPaymentKey: paymentKey.key,
           offer: bid.offer,
+          supplier: bid.supplier,
           date: getUTCDate(),
           invoiceBid: NameSpace + 'InvoiceBid#${bid.invoiceBidId}');
+      if (w != null) {
+        m.wallet = NameSpace + 'Wallet#${w.stellarPublicKey}';
+      }
       try {
         var result = await DataAPI3.makeInvestorInvoiceSettlement(m);
         print(

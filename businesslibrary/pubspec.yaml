@@ -32,6 +32,7 @@ dependencies:
     flutter_webview_plugin: ^0.3.0+2
     scoped_model: ^0.3.0
     device_info: ^0.3.0
+    intro_views_flutter: '^2.4.0'
 
 #    oktoast: ^1.0.1+2
 #    card_settings: ^0.1.10
