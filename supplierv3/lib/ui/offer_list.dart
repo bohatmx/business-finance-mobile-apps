@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/dashboard_data.dart';
 import 'package:businesslibrary/data/invoice_bid.dart';
@@ -48,9 +50,11 @@ class _OfferListState extends State<OfferList>
     if (pageLimit == null) {
       pageLimit = 4;
     }
-    print('_OfferListState._getCached ---------- pageLimit from cache: $pageLimit');
+    print(
+        '_OfferListState._getCached ---------- pageLimit from cache: $pageLimit');
     FCM.configureFCM(context: context, invoiceBidListener: this);
     _fcm.subscribeToTopic(FCM.TOPIC_INVOICE_BIDS + supplier.participantId);
+    //_bind();
     try {
       setState(() {});
     } catch (e) {}
@@ -94,23 +98,12 @@ class _OfferListState extends State<OfferList>
   List<DropdownMenuItem<int>> items = List();
   int pageLimit;
   double pageValue;
-  ScrollController scrollController = ScrollController();
 
   Widget _getList() {
-    SchedulerBinding.instance.addPostFrameCallback((_) {
-      scrollController.animateTo(
-        scrollController.position.minScrollExtent,
-        duration: const Duration(milliseconds: 10),
-        curve: Curves.easeOut,
-      );
-    });
     return ScopedModelDescendant<SupplierAppModel>(
         builder: (context, _, model) {
-      print(
-          '\n_OfferListState._getList ################ building body - listview ');
       return ListView.builder(
           itemCount: currentPage == null ? 0 : currentPage.length,
-          controller: scrollController,
           itemBuilder: (BuildContext context, int index) {
             return new InkWell(
               onTap: () {
@@ -200,7 +193,7 @@ class _OfferListState extends State<OfferList>
         backgroundColor: Colors.teal.shade300);
   }
 
-  List<Offer> currentPage = List();
+  List<Offer> currentPage;
   @override
   onPage(List<Findable> items) {
     print('\n\n_OfferListState.onPage ############# items: ${items.length}');
@@ -229,10 +222,6 @@ class _OfferListState extends State<OfferList>
     items.forEach((i) {
       currentPage.add(i as Offer);
     });
-    try {
-      setState(() {});
-    } catch (e) {
-      print('_OfferListState.onInitialPage ----- ERROR? could not setState');
-    }
+    setState(() {});
   }
 }

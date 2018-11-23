@@ -10,43 +10,38 @@ import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/Finders.dart';
 import 'package:businesslibrary/util/database.dart';
 import 'package:businesslibrary/util/lookups.dart';
+import 'package:businesslibrary/util/mypager.dart';
 import 'package:businesslibrary/util/pager.dart';
+import 'package:businesslibrary/util/pager_helper.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:scoped_model/scoped_model.dart';
+import 'package:supplierv3/app_model.dart';
 import 'package:supplierv3/ui/make_offer.dart';
 import 'package:supplierv3/ui/summary_helper.dart';
 
 class InvoicesOnOffer extends StatefulWidget {
+  final SupplierAppModel model;
+
+  InvoicesOnOffer({this.model});
+
   @override
   _InvoicesOnOfferState createState() => _InvoicesOnOfferState();
 }
 
 class _InvoicesOnOfferState extends State<InvoicesOnOffer>
-    implements Pager3Listener, SnackBarListener {
-  List<Invoice> invoices = List(), baseList;
+    implements PagerControlListener, SnackBarListener {
+  List<Invoice> currentPage;
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
-  int pageLimit = 2, currentStartKey;
-  DashboardData dashboardData;
-  User user;
-  Supplier supplier;
+  int currentStartKey;
+  SupplierAppModel appModel;
+  Pager3 pager;
 
   @override
   void initState() {
     super.initState();
-
-    _getCached();
-  }
-
-  _getCached() async {
-    user = await SharedPrefs.getUser();
-    supplier = await SharedPrefs.getSupplier();
-    dashboardData = await SharedPrefs.getDashboardData();
-    baseList = await Database.getInvoices();
-    pageLimit = await SharedPrefs.getPageLimit();
-
-    setState(() {});
   }
 
   Future _goMakeOffer(Invoice invoice) async {
@@ -58,7 +53,7 @@ class _InvoicesOnOfferState extends State<InvoicesOnOffer>
         backgroundColor: Styles.black);
 
     var acceptance = await ListAPI.getInvoiceAcceptanceByInvoice(
-        supplier.documentReference,
+        appModel.supplier.documentReference,
         'resource:com.oneconnect.biz.Invoice#${invoice.invoiceId}');
     if (acceptance == null) {
       AppSnackbar.showSnackbar(
@@ -72,13 +67,10 @@ class _InvoicesOnOfferState extends State<InvoicesOnOffer>
     var offX = await ListAPI.getOfferByInvoice(invoice.invoiceId);
     _scaffoldKey.currentState.hideCurrentSnackBar();
     if (offX == null) {
-      bool refresh = await Navigator.push(
+      Navigator.push(
         context,
         new MaterialPageRoute(builder: (context) => new MakeOfferPage(invoice)),
       );
-      if (refresh != null && refresh) {
-        _getCached();
-      }
     } else {
       AppSnackbar.showErrorSnackbar(
           scaffoldKey: _scaffoldKey,
@@ -214,7 +206,7 @@ class _InvoicesOnOfferState extends State<InvoicesOnOffer>
 
     var cancellation = OfferCancellation(
         offer: 'resource:com.oneconnect.biz.Offer#${offer.offerId}',
-        user: 'resource:com.oneconnect.biz.User#${user.userId}');
+        user: 'resource:com.oneconnect.biz.User#${appModel.user.userId}');
 
     var result = await DataAPI.cancelOffer(cancellation);
     _scaffoldKey.currentState.hideCurrentSnackBar();
@@ -225,7 +217,6 @@ class _InvoicesOnOfferState extends State<InvoicesOnOffer>
           listener: this,
           actionLabel: 'CLOSE');
     } else {
-      Refresh.refresh(supplier);
       AppSnackbar.showSnackbar(
           scaffoldKey: _scaffoldKey,
           message: 'Offer cancelled',
@@ -234,31 +225,84 @@ class _InvoicesOnOfferState extends State<InvoicesOnOffer>
     }
   }
 
+  bool isRefreshModel = false;
+  int _pageNumber = 1;
+  BasePager basePager;
+  void setBasePager() {
+    if (appModel == null) return;
+    print(
+        '_InvoicesOnOfferState.setBasePager appModel.pageLimit: ${appModel.pageLimit}, get first page');
+    if (basePager == null) {
+      basePager = BasePager(
+        items: appModel.invoices,
+        pageLimit: appModel.pageLimit,
+      );
+    }
+
+    if (currentPage == null) currentPage = List();
+    var page = basePager.getFirstPage();
+    page.forEach((f) {
+      currentPage.add(f);
+    });
+  }
+
   Future _refresh() async {
-    await Refresh.refresh(supplier);
+    setState(() {
+      isRefreshModel = true;
+    });
+  }
+
+  double _getPageValue() {
+    if (currentPage == null) return 0.00;
+    var t = 0.00;
+    currentPage.forEach((inv) {
+      t += inv.amount;
+    });
+    return t;
+  }
+
+  double _getTotalValue() {
+    if (appModel == null) return 0.00;
+    var t = 0.00;
+    appModel.invoices.forEach((inv) {
+      t += inv.amount;
+    });
+    return t;
   }
 
   Widget _getBottom() {
     return PreferredSize(
       preferredSize: Size.fromHeight(200.0),
-      child: Column(
-        children: <Widget>[
-          baseList == null
-              ? Container()
-              : Padding(
-                  padding: const EdgeInsets.only(
-                      left: 8.0, right: 8.0, bottom: 20.0),
-                  child: Pager3(
-                    addHeader: true,
-                    itemName: 'Invoices',
-                    items: baseList,
-                    pageLimit: pageLimit,
-                    elevation: 8.0,
-                    listener: this,
+      child: appModel == null
+          ? Container()
+          : Column(
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 20.0),
+                  child: PagingTotalsView(
+                    pageValue: _getPageValue(),
+                    totalValue: _getTotalValue(),
+                    labelStyle: Styles.blackSmall,
+                    pageValueStyle: Styles.blackBoldLarge,
+                    totalValueStyle: Styles.brownBoldMedium,
                   ),
                 ),
-        ],
-      ),
+                Padding(
+                  padding: const EdgeInsets.only(
+                      left: 8.0, right: 8.0, bottom: 20.0),
+                  child: PagerControl(
+                    itemName: 'Invoices',
+                    pageLimit: appModel.pageLimit,
+                    elevation: 16.0,
+                    items: appModel.invoices.length,
+                    listener: this,
+                    color: Colors.amber.shade50,
+                    pageNumber: _pageNumber,
+
+                  ),
+                ),
+              ],
+            ),
     );
   }
 
@@ -272,37 +316,43 @@ class _InvoicesOnOfferState extends State<InvoicesOnOffer>
 
   ScrollController scrollController = ScrollController();
   Widget _getListView() {
-    SchedulerBinding.instance.addPostFrameCallback((_) {
-      scrollController.animateTo(
-        scrollController.position.minScrollExtent,
-        duration: const Duration(milliseconds: 10),
-        curve: Curves.easeOut,
-      );
-    });
-    return ListView.builder(
-        itemCount: invoices == null ? 0 : invoices.length,
-        controller: scrollController,
-        itemBuilder: (BuildContext context, int index) {
-          return Padding(
-            padding: const EdgeInsets.only(top: 4.0),
-            child: InkWell(
-              onTap: () {
-                _onInvoiceTapped(invoices.elementAt(index));
-              },
-              child: Padding(
-                padding: const EdgeInsets.only(left: 0.0, right: 0.0),
-                child: InvoiceOnOfferCard(
-                  invoice: invoices.elementAt(index),
-                  context: context,
+    print(
+        '\n\n\n_InvoicesOnOfferState._getListView ... within widget build method .............\n\n\n');
+    return ScopedModelDescendant<SupplierAppModel>(
+      builder: (context, _, model) {
+        appModel = model;
+        return ListView.builder(
+            itemCount: currentPage == null ? 0 : currentPage.length,
+            controller: scrollController,
+            itemBuilder: (BuildContext context, int index) {
+              return Padding(
+                padding: const EdgeInsets.only(top: 4.0),
+                child: InkWell(
+                  onTap: () {
+                    _onInvoiceTapped(currentPage.elementAt(index));
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 0.0, right: 0.0),
+                    child: InvoiceOnOfferCard(
+                      invoice: currentPage.elementAt(index),
+                      context: context,
+                    ),
+                  ),
                 ),
-              ),
-            ),
-          );
-        });
+              );
+            });
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    if (appModel == null) {
+      print(
+          '\n\n_InvoicesOnOfferState.build --------------------- set appModel');
+      appModel = widget.model;
+      setBasePager();
+    }
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
@@ -322,37 +372,64 @@ class _InvoicesOnOfferState extends State<InvoicesOnOffer>
   }
 
   @override
-  onInitialPage(List<Findable> items) {
-    invoices.clear();
-    items.forEach((f) {
-      invoices.add(f);
-    });
-
-    setState(() {});
-  }
-
-  @override
-  onNoMoreData() {
-    AppSnackbar.showSnackbar(
-        scaffoldKey: _scaffoldKey,
-        message: 'No mas. No more',
-        textColor: Styles.white,
-        backgroundColor: Styles.teal);
-  }
-
-  @override
-  onPage(List<Findable> items) {
-    invoices.clear();
-    items.forEach((f) {
-      invoices.add(f);
-    });
-
-    setState(() {});
-  }
-
-  @override
   onActionPressed(int action) {
     // TODO: implement onActionPressed
+  }
+
+  @override
+  onNextPageRequired() {
+    print('_InvoicesOnOfferState.onNextPageRequired');
+    if (currentPage == null) {
+      currentPage = List();
+    } else {
+      currentPage.clear();
+    }
+    var page = basePager.getNextPage();
+    if (page == null) {
+      return;
+    }
+    page.forEach((f) {
+      currentPage.add(f);
+    });
+
+    setState(() {
+      _pageNumber = basePager.pageNumber;
+    });
+  }
+
+  @override
+  onPageLimit(int pageLimit) async {
+    print('_InvoicesOnOfferState.onPageLimit');
+    await appModel.updatePageLimit(pageLimit);
+    _pageNumber = 1;
+    basePager.getNextPage();
+    return null;
+  }
+
+  @override
+  onPreviousPageRequired() {
+    print('_InvoicesOnOfferState.onPreviousPageRequired');
+    if (currentPage == null) {
+      currentPage = List();
+    }
+
+    var page = basePager.getPreviousPage();
+    if (page == null) {
+      AppSnackbar.showSnackbar(
+          scaffoldKey: _scaffoldKey,
+          message: 'No more. No mas.',
+          textColor: Styles.white,
+          backgroundColor: Styles.brown);
+      return;
+    }
+    currentPage.clear();
+    page.forEach((f) {
+      currentPage.add(f);
+    });
+
+    setState(() {
+      _pageNumber = basePager.pageNumber;
+    });
   }
 }
 

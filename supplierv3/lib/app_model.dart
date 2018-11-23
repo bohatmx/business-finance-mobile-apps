@@ -38,6 +38,9 @@ class SupplierAppModel extends Model {
   Supplier get supplier => _supplier;
   User get user => _user;
   SupplierAppModelListener get listener => _listener;
+  int _pageLimit = 10;
+  int get pageLimit  => _pageLimit;
+
 
   SupplierAppModel() {
     initialize();
@@ -47,6 +50,10 @@ class SupplierAppModel extends Model {
     var start = DateTime.now();
     _supplier = await SharedPrefs.getSupplier();
     _user = await SharedPrefs.getUser();
+    _pageLimit = await SharedPrefs.getPageLimit();
+    if (_pageLimit == null) {
+      _pageLimit = 10;
+    }
 
     _purchaseOrders = await Database.getPurchaseOrders();
     _setItemNumbers(_purchaseOrders);
@@ -241,6 +248,12 @@ class SupplierAppModel extends Model {
       tot += o.amount;
     });
     return tot;
+  }
+
+  Future updatePageLimit(int pageLimit) async {
+    _pageLimit = pageLimit;
+    await SharedPrefs.savePageLimit(pageLimit);
+    return null;
   }
 
   void setListener(SupplierAppModelListener listener) {

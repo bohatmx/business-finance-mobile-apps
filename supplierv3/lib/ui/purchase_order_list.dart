@@ -16,6 +16,8 @@ import 'package:businesslibrary/util/styles.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:scoped_model/scoped_model.dart';
+import 'package:supplierv3/app_model.dart';
 import 'package:supplierv3/ui/delivery_note_page.dart';
 import 'package:supplierv3/ui/invoice_page.dart';
 
@@ -129,7 +131,7 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
         bottom: _getBottom(),
         backgroundColor: Colors.pink.shade200,
       ),
-      backgroundColor: Colors.pink.shade50,
+      backgroundColor: Colors.brown.shade100,
       body: Container(
 //        color: Colors.teal.shade50,
         child: Padding(
@@ -147,24 +149,21 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
   }
 
   Widget _getListView() {
-    SchedulerBinding.instance.addPostFrameCallback((_) {
-      scrollController.animateTo(
-        scrollController.position.minScrollExtent,
-        duration: const Duration(milliseconds: 10),
-        curve: Curves.easeOut,
-      );
-    });
 
-    return ListView.builder(
-        itemCount: purchaseOrders == null ? 0 : purchaseOrders.length,
-        controller: scrollController,
-        itemBuilder: (BuildContext context, int index) {
-          return PurchaseOrderCard(
-            purchaseOrder: purchaseOrders.elementAt(index),
-            listener: this,
-            elevation: elevation,
-          );
-        });
+    return ScopedModelDescendant<SupplierAppModel>(
+      builder: (context, _, model) {
+        return ListView.builder(
+            itemCount: purchaseOrders == null ? 0 : purchaseOrders.length,
+            controller: scrollController,
+            itemBuilder: (BuildContext context, int index) {
+              return PurchaseOrderCard(
+                purchaseOrder: purchaseOrders.elementAt(index),
+                listener: this,
+                elevation: elevation,
+              );
+            });
+      },
+    );
   }
 
   double elevation = 2.0;

@@ -33,6 +33,7 @@ import 'package:supplierv3/ui/offer_list.dart';
 import 'package:supplierv3/ui/purchase_order_list.dart';
 import 'package:supplierv3/ui/summary_card.dart';
 import 'package:scoped_model/scoped_model.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class Dashboard extends StatefulWidget {
   final String message;
@@ -79,7 +80,6 @@ class _DashboardState extends State<Dashboard>
     animationController.dispose();
     super.dispose();
   }
-
 
   Future _getCachedPrefs() async {
     supplier = await SharedPrefs.getSupplier();
@@ -191,7 +191,6 @@ class _DashboardState extends State<Dashboard>
 
   @override
   Widget build(BuildContext context) {
-
     return ScopedModelDescendant<SupplierAppModel>(
       builder: (context, _, model) {
         appModel = model;
@@ -200,7 +199,7 @@ class _DashboardState extends State<Dashboard>
           model.refreshModel();
         }
         if (isAddPurchaseOrder) {
-          isAddPurchaseOrder =  false;
+          isAddPurchaseOrder = false;
           model.addPurchaseOrder(purchaseOrder);
         }
         if (isAddInvoiceAcceptance) {
@@ -265,14 +264,32 @@ class _DashboardState extends State<Dashboard>
                 ),
               ],
             ),
+            bottomNavigationBar: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: BottomNavigationBar(
+                onTap: _onNavTap,
+                currentIndex: _index,
+                items: [
+                  BottomNavigationBarItem(
+                      icon: Icon(FontAwesomeIcons.boxOpen),
+                      title: Text('Offers')),
+                  BottomNavigationBarItem(
+                      icon: Icon(FontAwesomeIcons.shoppingCart),
+                      title: Text('Purchase Orders')),
+                  BottomNavigationBarItem(
+                      icon: Icon(FontAwesomeIcons.truck),
+                      title: Text('Deliveries')),
+                ],
+              ),
+            ),
           ),
         );
       },
     );
   }
 
+  int _index = 0;
   Widget _getListView() {
-
     return ScopedModelDescendant<SupplierAppModel>(
       builder: (context, _, model) {
         var tiles = List<ListTile>();
@@ -283,26 +300,25 @@ class _DashboardState extends State<Dashboard>
               child: model.invoices == null
                   ? Container()
                   : SummaryCard(
-                totalCount: model.invoices.length,
-                totalCountLabel: 'Invoices',
-                totalCountStyle: Styles.pinkBoldLarge,
-                totalValue: model.invoices == null
-                    ? 0.0
-                    : model.getTotalInvoiceAmount(),
-                elevation: 2.0,
-              ),
+                      totalCount: model.invoices.length,
+                      totalCountLabel: 'Invoices',
+                      totalCountStyle: Styles.pinkBoldLarge,
+                      totalValue: model.invoices == null
+                          ? 0.0
+                          : model.getTotalInvoiceAmount(),
+                      elevation: 2.0,
+                    ),
             ),
             GestureDetector(
               onTap: _onOffersTapped,
               child: Padding(
-                padding:
-                const EdgeInsets.only(left: 20.0, right: 20.0),
+                padding: const EdgeInsets.only(left: 20.0, right: 20.0),
                 child: model == null
                     ? Container()
                     : OfferSummaryCard(
-                  data: model,
-                  elevation: 16.0,
-                ),
+                        data: model,
+                        elevation: 16.0,
+                      ),
               ),
             ),
             GestureDetector(
@@ -310,28 +326,28 @@ class _DashboardState extends State<Dashboard>
               child: model == null
                   ? Container()
                   : SummaryCard(
-                totalCount: model.getTotalPurchaseOrders(),
-                totalCountLabel: 'Purchase Orders',
-                totalCountStyle: Styles.blueBoldLarge,
-                totalValue: model == null
-                    ? 0.0
-                    : model.getTotalPurchaseOrderAmount(),
-                elevation: 2.0,
-              ),
+                      totalCount: model.getTotalPurchaseOrders(),
+                      totalCountLabel: 'Purchase Orders',
+                      totalCountStyle: Styles.blueBoldLarge,
+                      totalValue: model == null
+                          ? 0.0
+                          : model.getTotalPurchaseOrderAmount(),
+                      elevation: 2.0,
+                    ),
             ),
             GestureDetector(
               onTap: _onDeliveryNotesTapped,
               child: model == null
                   ? Container()
                   : SummaryCard(
-                totalCount: model.deliveryNotes.length,
-                totalCountLabel: 'Delivery Notes',
-                totalCountStyle: Styles.blackBoldLarge,
-                totalValue: model == null
-                    ? 0.0
-                    : model.getTotalDeliveryNoteAmount(),
-                elevation: 2.0,
-              ),
+                      totalCount: model.deliveryNotes.length,
+                      totalCountLabel: 'Delivery Notes',
+                      totalCountStyle: Styles.blackBoldLarge,
+                      totalValue: model == null
+                          ? 0.0
+                          : model.getTotalDeliveryNoteAmount(),
+                      elevation: 2.0,
+                    ),
             ),
             GestureDetector(
               onTap: _onPaymentsTapped,
@@ -343,15 +359,17 @@ class _DashboardState extends State<Dashboard>
                 elevation: 2.0,
               ),
             ),
-            tiles == null? Container() :
-            Column(
-              children: tiles,
-            ),
+            tiles == null
+                ? Container()
+                : Column(
+                    children: tiles,
+                  ),
           ],
         );
       },
     );
   }
+
   _onOffersTapped() {
     print('_DashboardState._onOffersTapped ...............');
     Navigator.push(
@@ -377,7 +395,7 @@ class _DashboardState extends State<Dashboard>
     print('_MainPageState._onInvoiceTapped ... go  to list of invoices');
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => InvoicesOnOffer()),
+      MaterialPageRoute(builder: (context) => InvoicesOnOffer(model: appModel)),
     );
   }
 
@@ -535,6 +553,25 @@ class _DashboardState extends State<Dashboard>
         message: message,
         textColor: color,
         backgroundColor: Colors.black);
+  }
+
+  void _onNavTap(int value) {
+    print('_DashboardState._onNavTap ########################## $value');
+    _index = value;
+    switch(value) {
+      case 0:
+        _onOffersTapped();
+        break;
+      case 1:
+        _onPurchaseOrdersTapped();
+        break;
+      case 2:
+        _onDeliveryNotesTapped();
+        break;
+    }
+    setState(() {
+
+    });
   }
 }
 

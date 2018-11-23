@@ -19,6 +19,8 @@ import 'package:businesslibrary/util/styles.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:scoped_model/scoped_model.dart';
+import 'package:supplierv3/app_model.dart';
 import 'package:supplierv3/ui/delivery_note_page.dart';
 import 'package:supplierv3/ui/invoice_page.dart';
 import 'package:supplierv3/ui/summary_helper.dart';
@@ -140,33 +142,32 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
   ScrollController scrollController = ScrollController();
 
   Widget _getListView() {
-    SchedulerBinding.instance.addPostFrameCallback((_) {
-      scrollController.animateTo(
-        scrollController.position.minScrollExtent,
-        duration: const Duration(milliseconds: 10),
-        curve: Curves.easeOut,
-      );
-    });
-    return ListView.builder(
-        itemCount: mDeliveryNotes == null ? 0 : mDeliveryNotes.length,
-        controller: scrollController,
-        itemBuilder: (BuildContext context, int index) {
-          return Padding(
-            padding: const EdgeInsets.only(top: 4.0),
-            child: InkWell(
-              onTap: () {
-                onNoteTapped(mDeliveryNotes.elementAt(index));
-              },
-              child: Padding(
-                padding: const EdgeInsets.only(left: 20.0, right: 20.0),
-                child: DeliveryNoteCard(
-                  deliveryNote: mDeliveryNotes.elementAt(index),
-                  listener: this,
+
+    return ScopedModelDescendant<SupplierAppModel>(
+      builder: (context,_,model) {
+
+        return ListView.builder(
+            itemCount: mDeliveryNotes == null ? 0 : mDeliveryNotes.length,
+            controller: scrollController,
+            itemBuilder: (BuildContext context, int index) {
+              return Padding(
+                padding: const EdgeInsets.only(top: 4.0),
+                child: InkWell(
+                  onTap: () {
+                    onNoteTapped(mDeliveryNotes.elementAt(index));
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 20.0, right: 20.0),
+                    child: DeliveryNoteCard(
+                      deliveryNote: mDeliveryNotes.elementAt(index),
+                      listener: this,
+                    ),
+                  ),
                 ),
-              ),
-            ),
-          );
-        });
+              );
+            });
+      },
+    );
   }
 
   @override
