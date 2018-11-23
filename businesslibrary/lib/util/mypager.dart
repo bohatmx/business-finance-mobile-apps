@@ -24,6 +24,7 @@ class BasePager {
     _pageNumber = 1;
     currentIndex = 0;
     currentPage = pages.getPage(currentIndex).items;
+    print('BasePager.getFirstPage ############# currentIndex: $currentIndex');
     return currentPage;
   }
 
@@ -45,15 +46,14 @@ class BasePager {
 
   List<Findable> getPreviousPage() {
     print(
-        '_BasePager._backPressed currentIndex: $currentIndex at the top, pageNumber: $_pageNumber');
+        '\n\n_BasePager._backPressed currentIndex: $currentIndex at the top, pageNumber: $_pageNumber - BEFORE');
     currentIndex--;
     _pageNumber--;
-    print('BasePager.getPreviousPage: _pageNumber: $_pageNumber currentIndex: $currentIndex');
 
     if (_pageNumber == 0) {
       _pageNumber = 1;
       currentIndex = 0;
-      print('BasePager._rewindPressed ...... cant go back in time, Jojo Kiss!');
+      print('BasePager.backPressed ...... cant go back in time, Jojo Kiss!');
       return null;
     }
 

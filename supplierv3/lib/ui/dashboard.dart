@@ -375,7 +375,7 @@ class _DashboardState extends State<Dashboard>
     Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => OfferList(),
+          builder: (context) => OfferList(model: appModel,),
         ));
   }
 
@@ -403,7 +403,7 @@ class _DashboardState extends State<Dashboard>
     print('_MainPageState._onPurchaseOrdersTapped  go to list of pos');
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => PurchaseOrderListPage()),
+      MaterialPageRoute(builder: (context) => PurchaseOrderListPage(model: appModel,)),
     );
   }
 

@@ -9,6 +9,7 @@ import 'package:businesslibrary/util/FCM.dart';
 import 'package:businesslibrary/util/Finders.dart';
 import 'package:businesslibrary/util/database.dart';
 import 'package:businesslibrary/util/lookups.dart';
+import 'package:businesslibrary/util/mypager.dart';
 import 'package:businesslibrary/util/pager.dart';
 import 'package:businesslibrary/util/pager_helper.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
@@ -22,6 +23,10 @@ import 'package:supplierv3/ui/delivery_note_page.dart';
 import 'package:supplierv3/ui/invoice_page.dart';
 
 class PurchaseOrderListPage extends StatefulWidget {
+  final SupplierAppModel model;
+
+  PurchaseOrderListPage({this.model});
+
   @override
   _PurchaseOrderListPageState createState() => _PurchaseOrderListPageState();
 }
@@ -30,10 +35,10 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
     implements
         SnackBarListener,
         POListener,
-        Pager3Listener,
+        PagerControlListener,
         PurchaseOrderListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
-  List<PurchaseOrder> purchaseOrders = List(), baseList;
+  List<PurchaseOrder> currentPage = List(), baseList;
   FirebaseMessaging _fcm = FirebaseMessaging();
 
   PurchaseOrder purchaseOrder;
@@ -47,7 +52,6 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
   int lastDate;
   bool isBackPressed = false;
   int previousStartKey;
-  DashboardData dashboardData;
 
   @override
   void initState() {
@@ -56,12 +60,6 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
   }
 
   void _getCached() async {
-    user = await SharedPrefs.getUser();
-    supplier = await SharedPrefs.getSupplier();
-    pageLimit = await SharedPrefs.getPageLimit();
-    dashboardData = await SharedPrefs.getDashboardData();
-    baseList = await Database.getPurchaseOrders();
-    pageLimit = await SharedPrefs.getPageLimit();
 
     FCM.configureFCM(
       context: context,
@@ -69,52 +67,72 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
     );
     _fcm.subscribeToTopic(FCM.TOPIC_PURCHASE_ORDERS + supplier.participantId);
     print('\n\n_PurchaseOrderListPageState._getCached SUBSCRIBED to PO topic');
-    setState(() {});
+//    setState(() {});
   }
-
-  var totalPages = 0;
-  int _getTotalPages() {
-    var rem = dashboardData.purchaseOrders % pageLimit;
-    print('_PurchaseOrderListPageState._getTotalPages remainder: $rem');
-    try {
-      if (rem > 0) {
-        totalPages = int.parse('${dashboardData.purchaseOrders ~/ pageLimit}');
-        totalPages++;
-      } else {
-        totalPages = int.parse('${dashboardData.purchaseOrders ~/ pageLimit}');
-      }
-    } catch (e) {
-      print('########### cannot make total ......... ###');
+  BasePager basePager;
+  void setBasePager() {
+    if (widget.model == null) return;
+    print(
+        '_PurchaseOrderList.setBasePager appModel.pageLimit: ${widget.model.pageLimit}, get first page');
+    if (basePager == null) {
+      basePager = BasePager(
+        items: widget.model.purchaseOrders,
+        pageLimit: widget.model.pageLimit,
+      );
     }
-    return totalPages;
+
+    if (currentPage == null) currentPage = List();
+    var page = basePager.getFirstPage();
+    page.forEach((f) {
+      currentPage.add(f);
+    });
   }
 
   double _getPageValue() {
     var t = 0.0;
-    purchaseOrders.forEach((po) {
+    currentPage.forEach((po) {
+      t += po.amount;
+    });
+    return t;
+  }
+  double _getTotalValue() {
+    var t = 0.0;
+    widget.model.purchaseOrders.forEach((po) {
       t += po.amount;
     });
     return t;
   }
 
+  int _pageNumber = 1;
   Widget _getBottom() {
     return PreferredSize(
       preferredSize: const Size.fromHeight(200.0),
-      child: Column(
+      child: widget.model == null
+          ? Container()
+          : Column(
         children: <Widget>[
           Padding(
+            padding: const EdgeInsets.only(bottom:20.0),
+            child: PagingTotalsView(
+              pageValue: _getPageValue(),
+              totalValue: _getTotalValue(),
+              labelStyle: Styles.blackSmall,
+              pageValueStyle: Styles.blackBoldLarge,
+              totalValueStyle: Styles.brownBoldMedium,
+            ),
+          ),
+          Padding(
             padding: const EdgeInsets.only(left: 8.0, right: 8.0, bottom: 12.0),
-            child: baseList == null
-                ? Container()
-                : Pager3(
-                    addHeader: true,
-                    type: PagerHelper.PURCHASE_ORDER,
-                    itemName: 'Purchase Orders',
-                    elevation: 8.0,
-                    pageLimit: pageLimit,
-                    items: baseList,
-                    listener: this,
-                  ),
+            child:  PagerControl(
+              itemName: 'Purchase Orders',
+              pageLimit: widget.model.pageLimit,
+              elevation: 16.0,
+              items: widget.model.purchaseOrders.length,
+              listener: this,
+              color: Colors.pink.shade50,
+              pageNumber: _pageNumber,
+
+            ),
           ),
         ],
       ),
@@ -124,6 +142,7 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
   ScrollController scrollController = ScrollController();
   @override
   Widget build(BuildContext context) {
+    setBasePager();
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
@@ -149,21 +168,16 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
   }
 
   Widget _getListView() {
-
-    return ScopedModelDescendant<SupplierAppModel>(
-      builder: (context, _, model) {
-        return ListView.builder(
-            itemCount: purchaseOrders == null ? 0 : purchaseOrders.length,
-            controller: scrollController,
-            itemBuilder: (BuildContext context, int index) {
-              return PurchaseOrderCard(
-                purchaseOrder: purchaseOrders.elementAt(index),
-                listener: this,
-                elevation: elevation,
-              );
-            });
-      },
-    );
+    return ListView.builder(
+        itemCount: currentPage == null ? 0 : currentPage.length,
+        controller: scrollController,
+        itemBuilder: (BuildContext context, int index) {
+          return PurchaseOrderCard(
+            purchaseOrder: currentPage.elementAt(index),
+            listener: this,
+            elevation: elevation,
+          );
+        });
   }
 
   double elevation = 2.0;
@@ -179,7 +193,7 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
       );
     }
     if (isPurchaseOrder) {
-      purchaseOrders.insert(0, purchaseOrder);
+      currentPage.insert(0, purchaseOrder);
       Navigator.push(
         context,
         new MaterialPageRoute(
@@ -215,35 +229,61 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
         backgroundColor: Styles.black);
   }
 
+
   @override
-  onNoMoreData() {
-    AppSnackbar.showSnackbar(
-        scaffoldKey: _scaffoldKey,
-        message: 'No more. No mas.',
-        textColor: Styles.white,
-        backgroundColor: Styles.teal);
+  onNextPageRequired() {
+    print('_InvoicesOnOfferState.onNextPageRequired');
+    if (currentPage == null) {
+      currentPage = List();
+    } else {
+      currentPage.clear();
+    }
+    var page = basePager.getNextPage();
+    if (page == null) {
+      return;
+    }
+    page.forEach((f) {
+      currentPage.add(f);
+    });
+
+    setState(() {
+      _pageNumber = basePager.pageNumber;
+    });
   }
 
   @override
-  onInitialPage(List<Findable> items) {
-    purchaseOrders.clear();
-    items.forEach((f) {
-      if (f is PurchaseOrder) {
-        purchaseOrders.add(f);
-      }
-    });
-    setState(() {});
+  onPageLimit(int pageLimit) async {
+    print('_InvoicesOnOfferState.onPageLimit');
+    await widget.model.updatePageLimit(pageLimit);
+    _pageNumber = 1;
+    basePager.getNextPage();
+    return null;
   }
 
   @override
-  onPage(List<Findable> items) {
-    purchaseOrders.clear();
-    items.forEach((f) {
-      if (f is PurchaseOrder) {
-        purchaseOrders.add(f);
-      }
+  onPreviousPageRequired() {
+    print('_InvoicesOnOfferState.onPreviousPageRequired');
+    if (currentPage == null) {
+      currentPage = List();
+    }
+
+    var page = basePager.getPreviousPage();
+    if (page == null) {
+      AppSnackbar.showSnackbar(
+          scaffoldKey: _scaffoldKey,
+          message: 'No more. No mas.',
+          textColor: Styles.white,
+          backgroundColor: Styles.brown);
+      return;
+    }
+    currentPage.clear();
+    page.forEach((f) {
+      currentPage.add(f);
     });
-    setState(() {});
+
+    setState(() {
+      _pageNumber = basePager.pageNumber;
+    });
   }
 }
 

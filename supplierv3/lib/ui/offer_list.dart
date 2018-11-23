@@ -8,6 +8,7 @@ import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/util/FCM.dart';
 import 'package:businesslibrary/util/Finders.dart';
 import 'package:businesslibrary/util/database.dart';
+import 'package:businesslibrary/util/mypager.dart';
 import 'package:businesslibrary/util/offer_card.dart';
 import 'package:businesslibrary/util/pager.dart';
 import 'package:businesslibrary/util/pager_helper.dart';
@@ -21,6 +22,10 @@ import 'package:supplierv3/app_model.dart';
 import 'package:supplierv3/ui/offer_details.dart';
 
 class OfferList extends StatefulWidget {
+  final SupplierAppModel model;
+
+  OfferList({this.model});
+
   static _OfferListState of(BuildContext context) =>
       context.ancestorStateOfType(const TypeMatcher<_OfferListState>());
   @override
@@ -29,12 +34,13 @@ class OfferList extends StatefulWidget {
 
 class _OfferListState extends State<OfferList>
     with WidgetsBindingObserver
-    implements InvoiceBidListener, SnackBarListener, Pager3Listener {
+    implements InvoiceBidListener, SnackBarListener, PagerControlListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   FirebaseMessaging _fcm = FirebaseMessaging();
   Supplier supplier;
   Offer offer;
   SupplierAppModel appModel;
+  List<Offer> currentPage;
 
   @override
   void initState() {
@@ -45,21 +51,51 @@ class _OfferListState extends State<OfferList>
 
   void _getCached() async {
     supplier = await SharedPrefs.getSupplier();
-    assert(supplier != null);
-    pageLimit = await SharedPrefs.getPageLimit();
-    if (pageLimit == null) {
-      pageLimit = 4;
-    }
-    print(
-        '_OfferListState._getCached ---------- pageLimit from cache: $pageLimit');
     FCM.configureFCM(context: context, invoiceBidListener: this);
     _fcm.subscribeToTopic(FCM.TOPIC_INVOICE_BIDS + supplier.participantId);
-    //_bind();
-    try {
-      setState(() {});
-    } catch (e) {}
+    setBasePager();
+
+  }
+  BasePager basePager;
+  void setBasePager() {
+    if (widget.model == null) return;
+    print(
+        '_PurchaseOrderList.setBasePager appModel.pageLimit: ${widget.model.pageLimit}, get first page');
+    if (basePager == null) {
+      basePager = BasePager(
+        items: widget.model.offers,
+        pageLimit: widget.model.pageLimit,
+      );
+    }
+
+    if (currentPage == null) currentPage = List();
+    var page = basePager.getFirstPage();
+    page.forEach((f) {
+      currentPage.add(f);
+    });
+    setState(() {
+
+    });
   }
 
+  double _getPageValue() {
+    if (currentPage == null) return 0.00;
+    var t = 0.0;
+    currentPage.forEach((po) {
+      t += po.offerAmount;
+    });
+    return t;
+  }
+  double _getTotalValue() {
+    if (widget.model == null) return 0.00;
+    var t = 0.0;
+    widget.model.purchaseOrders.forEach((po) {
+      t += po.amount;
+    });
+    return t;
+  }
+
+  int _pageNumber = 1;
   _checkBids(Offer offer) async {
     this.offer = offer;
 
@@ -71,6 +107,7 @@ class _OfferListState extends State<OfferList>
 
   @override
   Widget build(BuildContext context) {
+
     print(
         '\n\n_OfferListState.build ################### rebuilding widget ..........\n\n');
     return Scaffold(
@@ -94,10 +131,6 @@ class _OfferListState extends State<OfferList>
       backgroundColor: Colors.brown.shade100,
     );
   }
-
-  List<DropdownMenuItem<int>> items = List();
-  int pageLimit;
-  double pageValue;
 
   Widget _getList() {
     return ScopedModelDescendant<SupplierAppModel>(
@@ -126,34 +159,33 @@ class _OfferListState extends State<OfferList>
   }
 
   Widget _getBottom() {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 18.0, left: 0.0),
-      child: Column(
+    return PreferredSize(
+      preferredSize: const Size.fromHeight(200.0),
+      child: widget.model == null
+          ? Container()
+          : Column(
         children: <Widget>[
           Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: ScopedModelDescendant<SupplierAppModel>(
-              builder: (context, _, model) {
-                print(
-                    '_OfferListState._getBottom check offers ${model.getTotalOpenOffers()}');
-                appModel = model;
-                if (isRefreshOffers) {
-                  isRefreshOffers = false;
-                  model.refreshOffers();
-                }
-                if (model.offers == null || pageLimit == null) {
-                  return Container();
-                }
-                return Pager3(
-                  elevation: 16.0,
-                  itemName: 'Offers',
-                  items: model.offers,
-                  pageLimit: pageLimit,
-                  listener: this,
-                  type: PagerHelper.OFFER,
-                  addHeader: true,
-                );
-              },
+            padding: const EdgeInsets.only(bottom:20.0),
+            child: PagingTotalsView(
+              pageValue: _getPageValue(),
+              totalValue: _getTotalValue(),
+              labelStyle: Styles.blackSmall,
+              pageValueStyle: Styles.blackBoldLarge,
+              totalValueStyle: Styles.brownBoldMedium,
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 8.0, right: 8.0, bottom: 12.0),
+            child:  PagerControl(
+              itemName: 'Invoice Offers',
+              pageLimit: widget.model.pageLimit,
+              elevation: 16.0,
+              items: widget.model.offers.length,
+              listener: this,
+              color: Colors.pink.shade50,
+              pageNumber: _pageNumber,
+
             ),
           ),
         ],
@@ -185,43 +217,58 @@ class _OfferListState extends State<OfferList>
   }
 
   @override
-  onNoMoreData() {
-    AppSnackbar.showSnackbar(
-        scaffoldKey: _scaffoldKey,
-        message: 'No mas. No more. Done.',
-        textColor: Styles.white,
-        backgroundColor: Colors.teal.shade300);
-  }
-
-  List<Offer> currentPage;
-  @override
-  onPage(List<Findable> items) {
-    print('\n\n_OfferListState.onPage ############# items: ${items.length}');
-    currentPage.clear();
-    items.forEach((f) {
-      currentPage.add(f as Offer);
-    });
-    pageValue = 0.00;
-    currentPage.forEach((o) {
-      pageValue += o.offerAmount;
-    });
-    print('_OfferListState.onPage ---- pageValue: $pageValue');
-    try {
-      setState(() {});
-      print('_OfferListState.onPage state has been set');
-    } catch (e) {
-      print('\n\n************* setState() took a hit ******************');
+  onNextPageRequired() {
+    print('_InvoicesOnOfferState.onNextPageRequired');
+    if (currentPage == null) {
+      currentPage = List();
+    } else {
+      currentPage.clear();
     }
+    var page = basePager.getNextPage();
+    if (page == null) {
+      return;
+    }
+    page.forEach((f) {
+      currentPage.add(f);
+    });
+
+    setState(() {
+      _pageNumber = basePager.pageNumber;
+    });
   }
 
   @override
-  onInitialPage(List<Findable> items) {
-    print(
-        '\n\n_OfferListState.onInitialPage ******** items: ${items.length} ***********************\n\n');
+  onPageLimit(int pageLimit) async {
+    print('_InvoicesOnOfferState.onPageLimit');
+    await widget.model.updatePageLimit(pageLimit);
+    _pageNumber = 1;
+    basePager.getNextPage();
+    return null;
+  }
+
+  @override
+  onPreviousPageRequired() {
+    print('_InvoicesOnOfferState.onPreviousPageRequired');
+    if (currentPage == null) {
+      currentPage = List();
+    }
+
+    var page = basePager.getPreviousPage();
+    if (page == null) {
+      AppSnackbar.showSnackbar(
+          scaffoldKey: _scaffoldKey,
+          message: 'No more. No mas.',
+          textColor: Styles.white,
+          backgroundColor: Styles.brown);
+      return;
+    }
     currentPage.clear();
-    items.forEach((i) {
-      currentPage.add(i as Offer);
+    page.forEach((f) {
+      currentPage.add(f);
     });
-    setState(() {});
+
+    setState(() {
+      _pageNumber = basePager.pageNumber;
+    });
   }
 }
