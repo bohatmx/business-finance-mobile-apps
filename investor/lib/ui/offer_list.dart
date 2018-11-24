@@ -6,20 +6,23 @@ import 'package:businesslibrary/data/dashboard_data.dart';
 import 'package:businesslibrary/data/investor.dart';
 import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/util/Finders.dart';
-import 'package:businesslibrary/util/database.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/offer_card.dart';
-import 'package:businesslibrary/util/pager.dart';
-import 'package:businesslibrary/util/pager_helper.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:businesslibrary/util/util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:investor/ui/dashboard.dart';
 import 'package:investor/ui/invoice_bidder.dart';
 import 'package:investor/ui/refresh.dart';
+import 'package:businesslibrary/util/mypager.dart';
 
 class OfferList extends StatefulWidget {
+  final InvestorAppModel model;
+
+  OfferList({this.model});
+
   static _OfferListState of(BuildContext context) =>
       context.ancestorStateOfType(const TypeMatcher<_OfferListState>());
   @override
@@ -28,12 +31,12 @@ class OfferList extends StatefulWidget {
 
 class _OfferListState extends State<OfferList>
     with WidgetsBindingObserver
-    implements Pager3Listener {
+    implements PagerControlListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   DateTime startTime, endTime;
   List<Offer> baseList;
 
-  List<Offer> openOffers = List();
+  List<Offer> currentPage = List();
   List<Offer> closedOffers = List();
 
   Investor investor;
@@ -50,70 +53,11 @@ class _OfferListState extends State<OfferList>
 
     _buildDaysDropDownItems();
     _getCached();
+    setBasePager();
   }
 
   void _getCached() async {
     investor = await SharedPrefs.getInvestor();
-    pageLimit = await SharedPrefs.getPageLimit();
-    dashboardData = await SharedPrefs.getDashboardData();
-    var list = await Database.getOffers();
-    print(
-        '_OfferListState._getCached ############# offers from cache: ${list.length} pageLimit: $pageLimit');
-    if (baseList == null) {
-      baseList = List();
-    }
-    baseList.clear();
-    int count = 1;
-    list.forEach((o) {
-      if (o.isOpen) {
-        o.itemNumber = count;
-        baseList.add(o);
-        dashboardData.totalOfferAmount += o.offerAmount;
-        count++;
-      }
-    });
-    print('_OfferListState._getCached, baseList : ${baseList.length}');
-    setState(() {});
-    _getOffers();
-  }
-
-  void _getOffers() async {
-    print('\n\n\n_OfferListState._getOffers .......................');
-
-    AppSnackbar.showSnackbarWithProgressIndicator(
-        scaffoldKey: _scaffoldKey,
-        message: 'Loading  Offers ...',
-        textColor: Colors.yellow,
-        backgroundColor: Colors.black);
-    setState(() {
-      _opacity = 0.0;
-    });
-
-    print('_OfferListState._getOffers ## ...currentStartKey: $currentStartKey');
-
-    var res = Finder.find(
-      intDate: currentStartKey,
-      baseList: baseList,
-      pageLimit: pageLimit,
-    );
-    print(res);
-    openOffers.clear();
-    if (res.items.isNotEmpty) {
-      res.items.forEach((item) {
-        openOffers.add(item as Offer);
-      });
-    }
-    if (openOffers.isNotEmpty) {
-      currentStartKey = openOffers.last.intDate;
-    }
-    print(
-        '_OfferListState._getOffers after find, openOffers: ${openOffers.length}');
-    setState(() {
-      _opacity = 0.0;
-    });
-    if (_scaffoldKey.currentState != null) {
-      _scaffoldKey.currentState.hideCurrentSnackBar();
-    }
   }
 
   _checkBid(Offer offer) async {
@@ -408,14 +352,6 @@ class _OfferListState extends State<OfferList>
     return items;
   }
 
-  double _getTotalValue() {
-    var t = 0.00;
-    openOffers.forEach((o) {
-      t += o.offerAmount;
-    });
-    return t;
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -442,10 +378,10 @@ class _OfferListState extends State<OfferList>
   }
 
   Offer _getOffer(int index) {
-    if (openOffers == null) {
+    if (currentPage == null) {
       return null;
     }
-    return openOffers.elementAt(index);
+    return currentPage.elementAt(index);
   }
 
   List<DropdownMenuItem<int>> items = List();
@@ -461,12 +397,12 @@ class _OfferListState extends State<OfferList>
       );
     });
     return ListView.builder(
-        itemCount: openOffers == null ? 0 : openOffers.length,
+        itemCount: currentPage == null ? 0 : currentPage.length,
         controller: scrollController,
         itemBuilder: (BuildContext context, int index) {
           return new InkWell(
             onTap: () {
-              _checkBid(openOffers.elementAt(index));
+              _checkBid(currentPage.elementAt(index));
             },
             child: Padding(
               padding: const EdgeInsets.all(8.0),
@@ -481,48 +417,35 @@ class _OfferListState extends State<OfferList>
   }
 
   Widget _getBottom() {
-    return Column(
-      children: <Widget>[
-        Padding(
-          padding: const EdgeInsets.only(left: 8.0, top: 0.0, right: 8.0),
-          child: baseList == null
-              ? Container()
-              : Pager3(
-                  listener: this,
-                  itemName: 'Offers',
-                  elevation: 8.0,
-                  items: baseList,
-                  addHeader: true,
-                  type: PagerHelper.OFFER,
-                  pageLimit: pageLimit == null ? 10 : pageLimit,
-                ),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(left: 8.0, top: 8.0, right: 20.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
+    return widget.model == null
+        ? Container()
+        : Column(
             children: <Widget>[
               Padding(
-                padding: const EdgeInsets.only(right: 28.0),
-                child: Opacity(
-                    opacity: _opacity,
-                    child: Container(
-                      width: 20.0,
-                      height: 20.0,
-                      child: Padding(
-                        padding: const EdgeInsets.all(4.0),
-                        child: CircularProgressIndicator(
-                          backgroundColor: Colors.yellow,
-                          strokeWidth: 3.0,
-                        ),
-                      ),
-                    )),
+                padding: const EdgeInsets.only(bottom: 20.0),
+                child: PagingTotalsView(
+                  pageValue: _getPageValue(),
+                  totalValue: _getTotalValue(),
+                  labelStyle: Styles.blackSmall,
+                  pageValueStyle: Styles.blackBoldLarge,
+                  totalValueStyle: Styles.whiteBoldMedium,
+                ),
+              ),
+              Padding(
+                padding:
+                    const EdgeInsets.only(left: 8.0, right: 8.0, bottom: 12.0),
+                child: PagerControl(
+                  itemName: 'Invoice Offers',
+                  pageLimit: widget.model.pageLimit,
+                  elevation: 16.0,
+                  items: widget.model.offers.length,
+                  listener: this,
+                  color: Colors.pink.shade50,
+                  pageNumber: _pageNumber,
+                ),
               ),
             ],
-          ),
-        ),
-      ],
-    );
+          );
   }
 
   String text = 'OPEN';
@@ -561,31 +484,110 @@ class _OfferListState extends State<OfferList>
     _getCached();
   }
 
-  int pageLimit;
+  //paging constructs
+  BasePager basePager;
+  void setBasePager() {
+    if (widget.model == null) return;
+    print(
+        '_PurchaseOrderList.setBasePager appModel.pageLimit: ${widget.model.pageLimit}, get first page');
+    if (basePager == null) {
+      basePager = BasePager(
+        items: widget.model.offers,
+        pageLimit: widget.model.pageLimit,
+      );
+    }
 
+    if (currentPage == null) currentPage = List();
+    var page = basePager.getFirstPage();
+    page.forEach((f) {
+      currentPage.add(f);
+    });
+    setState(() {});
+  }
+
+  double _getPageValue() {
+    if (currentPage == null) return 0.00;
+    var t = 0.0;
+    currentPage.forEach((po) {
+      t += po.offerAmount;
+    });
+    return t;
+  }
+
+  double _getTotalValue() {
+    if (widget.model == null) return 0.00;
+    if (widget.model.offers == null) return 0.00;
+    var t = 0.0;
+
+    widget.model.offers.forEach((po) {
+      t += po.offerAmount;
+    });
+    return t;
+  }
+
+  int _pageNumber = 1;
   @override
-  onNoMoreData() {
-    AppSnackbar.showSnackbar(
-        scaffoldKey: _scaffoldKey,
-        message: 'No more. No mas.',
-        textColor: Styles.white,
-        backgroundColor: Colors.indigo);
+  onNextPageRequired() {
+    print('_InvoicesOnOfferState.onNextPageRequired');
+    if (currentPage == null) {
+      currentPage = List();
+    } else {
+      currentPage.clear();
+    }
+    var page = basePager.getNextPage();
+    if (page == null) {
+      return;
+    }
+    page.forEach((f) {
+      currentPage.add(f);
+    });
+
+    setState(() {
+      _pageNumber = basePager.pageNumber;
+    });
   }
 
   @override
-  onInitialPage(List<Findable> items) {
-    setOffers(items);
+  onPageLimit(int pageLimit) async {
+    print('_InvoicesOnOfferState.onPageLimit');
+    await widget.model.updatePageLimit(pageLimit);
+    _pageNumber = 1;
+    basePager.getNextPage();
+    return null;
   }
 
   @override
-  onPage(List<Findable> items) {
-    setOffers(items);
+  onPreviousPageRequired() {
+    print('_InvoicesOnOfferState.onPreviousPageRequired');
+    if (currentPage == null) {
+      currentPage = List();
+    }
+
+    var page = basePager.getPreviousPage();
+    if (page == null) {
+      AppSnackbar.showSnackbar(
+          scaffoldKey: _scaffoldKey,
+          message: 'No more. No mas.',
+          textColor: Styles.white,
+          backgroundColor: Theme.of(context).primaryColor);
+      return;
+    }
+    currentPage.clear();
+    page.forEach((f) {
+      currentPage.add(f);
+    });
+
+    setState(() {
+      _pageNumber = basePager.pageNumber;
+    });
   }
+
+  //end of paging constructs
 
   void setOffers(List<Findable> items) {
-    openOffers.clear();
+    currentPage.clear();
     items.forEach((f) {
-      openOffers.add(f);
+      currentPage.add(f);
     });
     setState(() {});
   }

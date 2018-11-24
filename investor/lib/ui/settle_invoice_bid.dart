@@ -22,8 +22,9 @@ import 'package:scoped_model/scoped_model.dart';
 
 class SettleInvoiceBid extends StatefulWidget {
   final InvoiceBid invoiceBid;
+  final InvestorAppModel model;
 
-  SettleInvoiceBid(this.invoiceBid);
+  SettleInvoiceBid({this.invoiceBid, this.model});
 
   @override
   _SettleInvoiceBid createState() => _SettleInvoiceBid();
@@ -48,35 +49,50 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
     super.initState();
     _getCache();
     _getOffer();
-    FCM.configureFCM(context: context, invoiceBidListener: this);
-    fm.subscribeToTopic(FCM.TOPIC_PEACH_NOTIFY);
+
+
   }
 
   void _getCache() async {
     user = await SharedPrefs.getUser();
     investor = await SharedPrefs.getInvestor();
+
+    FCM.configureFCM(context: context, invoiceBidListener: this);
+    fm.subscribeToTopic(FCM.TOPIC_PEACH_NOTIFY);
+    fm.subscribeToTopic(FCM.TOPIC_INVOICE_BIDS + investor.participantId);
+
   }
 
+  int count = 0;
   Future _getOffer() async {
-    AppSnackbar.showSnackbarWithProgressIndicator(
-        scaffoldKey: _scaffoldKey,
-        message: 'Loading Offer ...',
-        textColor: Styles.white,
-        backgroundColor: Styles.black);
+//    AppSnackbar.showSnackbarWithProgressIndicator(
+//        scaffoldKey: _scaffoldKey,
+//        message: 'Loading Offer ...',
+//        textColor: Styles.white,
+//        backgroundColor: Styles.black);
+
+    count++;
+    setState(() {
+      isBusy = true;
+      if (count > 1) {
+        bottomHeight = 200.0;
+      }
+    });
     if (widget.invoiceBid != null) {
       offerBag = await ListAPI.getOfferById(
           widget.invoiceBid.offer.split('#').elementAt(1));
+      setState(() {
+        isBusy = false;
+      });
       if (offerBag != null) {
         offerBag.doPrint();
         offer = offerBag.offer;
-        fm.subscribeToTopic(FCM.TOPIC_INVOICE_BIDS + offer.offerId);
+
         setState(() {
           bottomHeight = 160.0;
           _opacity = 1.0;
           isChecking = false;
         });
-        print(
-            '_SettleInvoiceBid._getOffer - subscribed to invoiceBid topic for Offer: ${offer.offerId} ');
       }
     }
     if (_scaffoldKey.currentState != null) {
@@ -270,13 +286,20 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
                       ],
                     ),
                   ),
+                  isBusy == false? Container() : Container(
+                    height: 28.0, width: 28.0,
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: CircularProgressIndicator(strokeWidth: 6.0,),
+                    ),
+                  ),
                 ],
               ),
       ),
     );
   }
 
-  bool isChecking, removeInvoiceBidFromCache = false;
+  bool isChecking;
   double _opacity = 0.0;
   static const int Exit = 1;
   Widget _getBody() {
@@ -291,10 +314,21 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
         Padding(
           padding: const EdgeInsets.only(left: 20.0),
           child: isChecking == null
-              ? Text(
-                  'Checking Bid. Please wait ...',
-                  style: Styles.blackBoldMedium,
-                )
+              ? Row(
+            children: <Widget>[
+              Text(
+                'Checking Bid. Please wait ...',
+                style: Styles.blackBoldMedium,
+              ),
+              Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Container(
+                  height: 16.0, width: 16.0,
+                  child: CircularProgressIndicator(strokeWidth: 6.0,),
+                ),
+              ),
+            ],
+          )
               : Container(),
         ),
         Padding(
@@ -325,12 +359,7 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
   Widget build(BuildContext context) {
     return ScopedModelDescendant<InvestorAppModel>(
       builder: (context, _, model) {
-        if (removeInvoiceBidFromCache) {
-          removeInvoiceBidFromCache = false;
-          print(
-              '_SettleInvoiceBid.build paymentHasSucceeded: $removeInvoiceBidFromCache - refreshing model ...');
-          model.refreshModel();
-        }
+
         return Scaffold(
           key: _scaffoldKey,
           appBar: AppBar(
@@ -365,10 +394,10 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
       case Exit:
         _scaffoldKey.currentState.removeCurrentSnackBar();
         print('_SettleInvoiceBid.onActionPressed about to pop .....');
-        Navigator.pop(context, true);
+//        Navigator.pop(context, true);
         Navigator.push(
           context,
-          new MaterialPageRoute(builder: (context) => UnsettledBids()),
+          new MaterialPageRoute(builder: (context) => UnsettledBids(model: widget.model,)),
         );
         break;
       case 2:
@@ -406,6 +435,7 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
         supplier: widget.invoiceBid.supplier,
         date: getUTCDate(),
         invoiceBid: NameSpace + 'InvoiceBid#${widget.invoiceBid.invoiceBidId}');
+
     if (w != null) {
       m.wallet = NameSpace + 'Wallet#${w.stellarPublicKey}';
     }
@@ -415,9 +445,6 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
       print(
           '\n\n_SettleInvoiceBid.onPeachNotify ####### SETTLEMENT registered on BFN and Firestore: ${result.toJson()}');
 
-      setState(() {
-        removeInvoiceBidFromCache = true;
-      });
       AppSnackbar.showSnackbarWithAction(
           scaffoldKey: _scaffoldKey,
           message: 'Payment registered',
@@ -427,6 +454,11 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
           listener: this,
           icon: Icons.done,
           action: Exit);
+
+      await widget.model.removeBidFromCache(widget.invoiceBid);
+      setState(() {
+        isBusy = false;
+      });
     } catch (e) {
       AppSnackbar.showErrorSnackbar(
           scaffoldKey: _scaffoldKey,
@@ -434,5 +466,10 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
           listener: this,
           actionLabel: 'Close');
     }
+  }
+  void _updateModel() {
+    print('_SettleInvoiceBid._updateModel #################');
+
+
   }
 }

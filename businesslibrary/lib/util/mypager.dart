@@ -238,16 +238,16 @@ class PagerControl extends StatelessWidget {
       child: Column(
         children: <Widget>[
           Padding(
-            padding: const EdgeInsets.only(left: 8.0, right: 8.0, top: 4.0),
+            padding: const EdgeInsets.only(left: 20.0, right: 2.0, top: 4.0),
             child: Row(
               children: <Widget>[
                 DropdownButton<int>(
                   items: dropDownItems,
-                  hint: Text('Per Page'),
+                  hint: Text('Per Page', style: Styles.blackSmall,),
                   onChanged: _onNumber,
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(left: 8.0, right: 10.0),
+                  padding: const EdgeInsets.only(left: 8.0, right: 20.0),
                   child: Text(
                     '$pageLimit',
                     style: Styles.pinkBoldSmall,

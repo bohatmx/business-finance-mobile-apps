@@ -1,126 +1,90 @@
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/investor.dart';
 import 'package:businesslibrary/data/invoice_bid.dart';
-import 'package:businesslibrary/util/Finders.dart';
 import 'package:businesslibrary/util/database.dart';
 import 'package:businesslibrary/util/invoice_bid_card.dart';
 import 'package:businesslibrary/util/lookups.dart';
-import 'package:businesslibrary/util/pager.dart';
-import 'package:businesslibrary/util/pager_helper.dart';
+import 'package:businesslibrary/util/mypager.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:flutter/material.dart';
 import 'package:investor/ui/dashboard.dart';
 import 'package:investor/ui/settle_all.dart';
 import 'package:investor/ui/settle_invoice_bid.dart';
-import 'package:scoped_model/scoped_model.dart';
+import 'package:flutter/scheduler.dart';
 
 class UnsettledBids extends StatefulWidget {
+  final InvestorAppModel model;
+
+  UnsettledBids({this.model});
+
   @override
   _UnsettledBidsState createState() => _UnsettledBidsState();
 }
 
 class _UnsettledBidsState extends State<UnsettledBids>
-    implements Pager3Listener {
+    implements PagerControlListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   Investor investor;
   List<InvoiceBid> currentPage = List();
 
   bool isBusy, forceRefresh = false;
-  int pageLimit = 4;
   @override
   void initState() {
     super.initState();
 
     _getCache();
+    setBasePager();
   }
 
   _getCache() async {
-    setState(() {
-      isBusy = true;
-    });
     investor = await SharedPrefs.getInvestor();
-    pageLimit = await SharedPrefs.getPageLimit();
-
-    setState(() {
-      isBusy = false;
-    });
   }
-
-//  Future getFreshData() async {
-//    if (forceRefresh) {
-//      print('_UnsettledBidsState.getFreshData forceRefresh: $forceRefresh');
-//    } else {
-//      var date = await SharedPrefs.getRefreshDate();
-//      var diff = date.difference(DateTime.now()).inMinutes;
-//      if (diff < 30) {
-//        print(
-//            '_UnsettledBidsState.getFreshData - refreshed less than 30 minutes ago');
-//        return null;
-//      }
-//    }
-//
-//    unsettledBids = await ListAPI.getUnsettledInvoiceBidsByInvestor(
-//        investor.documentReference);
-//    await Database.saveInvoiceBids(InvoiceBids(unsettledBids));
-//    forceRefresh = false;
-//    return null;
-//  }
 
   Widget _getBottom() {
     return PreferredSize(
-      preferredSize: Size.fromHeight(260.0),
+      preferredSize: Size.fromHeight(220.0),
       child: Column(
         children: <Widget>[
-          ScopedModelDescendant<InvestorAppModel>(
-            builder: (context, _, model) {
-              if (model.invoiceBids != null && model.invoiceBids.isEmpty) {
-                Navigator.pop(context);
-              }
-              if (refreshBidsInModel) {
-                refreshBidsInModel = false;
-                print(
-                    '_UnsettledBidsState._getBottom asking Model to refresh bids ........');
-                model.refreshInvoiceBids();
-              }
-              return Column(
-                children: <Widget>[
-                  Padding(
-                    padding: const EdgeInsets.all(12.0),
-                    child: model.invoiceBids == null || model.invoiceBids.isEmpty
-                        ? null
-                        : Pager3(
-                            elevation: 8.0,
-                            type: PagerHelper.INVOICE_BID,
-                            items: model.invoiceBids,
-                            pageLimit: pageLimit,
-                            itemName: 'Invoice Bids',
-                            addHeader: true,
-                            listener: this,
+          Padding(
+            padding: const EdgeInsets.only(bottom:20.0),
+            child: PagingTotalsView(
+              pageValue: _getPageValue(),
+              totalValue: _getTotalValue(),
+              labelStyle: Styles.blackSmall,
+              pageValueStyle: Styles.blackBoldLarge,
+              totalValueStyle: Styles.brownBoldMedium,
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 8.0, right: 8.0, bottom: 12.0),
+            child:  PagerControl(
+              itemName: 'Invoice Offers',
+              pageLimit: widget.model.pageLimit,
+              elevation: 16.0,
+              items: widget.model.invoiceBids.length,
+              listener: this,
+              color: Colors.purple.shade50,
+              pageNumber: _pageNumber,
 
-                          ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(bottom:20.0),
-                    child: RaisedButton(
-                      elevation: 2.0,
-                      onPressed: _startSettleAll,
-                      color: Colors.pink,
-                      child: Text('Settle All Bids', style: Styles.whiteSmall,),
-                    ),
-                  ),
-                ],
-              );
-            },
+            ),
           ),
         ],
       ),
     );
   }
-
+  ScrollController scrollController = ScrollController();
   Widget _getBody() {
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      scrollController.animateTo(
+        scrollController.position.minScrollExtent,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeOut,
+      );
+    });
     return ListView.builder(
         itemCount: currentPage == null ? 0 : currentPage.length,
+        controller: scrollController,
         itemBuilder: (BuildContext context, int index) {
           return new GestureDetector(
             onTap: () {
@@ -235,7 +199,7 @@ class _UnsettledBidsState extends State<UnsettledBids>
     Navigator.pop(context);
     Navigator.push(
       context,
-      new MaterialPageRoute(builder: (context) => SettleInvoiceBid(invoiceBid)),
+      new MaterialPageRoute(builder: (context) => SettleInvoiceBid(invoiceBid: invoiceBid, model: widget.model,)),
     );
 
   }
@@ -306,38 +270,104 @@ class _UnsettledBidsState extends State<UnsettledBids>
     );
   }
 
-  @override
-  onInitialPage(List<Findable> items) {
+  //paging constructs
+  BasePager basePager;
+  void setBasePager() {
+    if (widget.model == null) return;
     print(
-        '\n_UnsettledBidsState.onInitialPage ############## items: ${items.length} first itemNumber: ${items.first.itemNumber} last itemNumber: ${items.last.itemNumber}');
+        '_PurchaseOrderList.setBasePager appModel.pageLimit: ${widget.model.pageLimit}, get first page');
+    if (basePager == null) {
+      basePager = BasePager(
+        items: widget.model.invoiceBids,
+        pageLimit: widget.model.pageLimit,
+      );
+    }
 
-    currentPage.clear();
-    items.forEach((i) {
-      currentPage.add(i);
+    if (currentPage == null) currentPage = List();
+    var page = basePager.getFirstPage();
+    page.forEach((f) {
+      currentPage.add(f);
     });
-    setState(() {});
+    setState(() {
+
+    });
+  }
+
+  double _getPageValue() {
+    if (currentPage == null) return 0.00;
+    var t = 0.0;
+    currentPage.forEach((po) {
+      t += po.amount;
+    });
+    return t;
+  }
+  double _getTotalValue() {
+    if (widget.model == null) return 0.00;
+    var t = 0.0;
+    widget.model.invoiceBids.forEach((po) {
+      t += po.amount;
+    });
+    return t;
+  }
+
+  int _pageNumber = 1;
+  @override
+  onNextPageRequired() {
+    print('_InvoicesOnOfferState.onNextPageRequired');
+    if (currentPage == null) {
+      currentPage = List();
+    } else {
+      currentPage.clear();
+    }
+    var page = basePager.getNextPage();
+    if (page == null) {
+      return;
+    }
+    page.forEach((f) {
+      currentPage.add(f);
+    });
+
+    setState(() {
+      _pageNumber = basePager.pageNumber;
+    });
   }
 
   @override
-  onNoMoreData() {
-    print('_UnsettledBidsState.onNoMoreData .......................');
-    AppSnackbar.showSnackbar(
-        scaffoldKey: _scaffoldKey,
-        message: 'No more. No mas.',
-        textColor: Styles.white,
-        backgroundColor: Colors.indigo.shade300);
+  onPageLimit(int pageLimit) async {
+    print('_InvoicesOnOfferState.onPageLimit');
+    await widget.model.updatePageLimit(pageLimit);
+    _pageNumber = 1;
+    basePager.getNextPage();
+    return null;
   }
 
   @override
-  onPage(List<Findable> items) {
-    print(
-        '\n_UnsettledBidsState.onPage ############## items: ${items.length} first itemNumber: ${items.first.itemNumber} last itemNumber: ${items.last.itemNumber}');
+  onPreviousPageRequired() {
+    print('_InvoicesOnOfferState.onPreviousPageRequired');
+    if (currentPage == null) {
+      currentPage = List();
+    }
+
+    var page = basePager.getPreviousPage();
+    if (page == null) {
+      AppSnackbar.showSnackbar(
+          scaffoldKey: _scaffoldKey,
+          message: 'No more. No mas.',
+          textColor: Styles.white,
+          backgroundColor: Theme.of(context).primaryColor);
+      return;
+    }
     currentPage.clear();
-    items.forEach((i) {
-      currentPage.add(i);
+    page.forEach((f) {
+      currentPage.add(f);
     });
-    setState(() {});
+
+    setState(() {
+      _pageNumber = basePager.pageNumber;
+    });
   }
+
+//end of paging constructs
 
 
 }

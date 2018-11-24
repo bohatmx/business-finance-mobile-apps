@@ -70,6 +70,7 @@ class _DashboardState extends State<Dashboard>
   DeliveryAcceptance acceptance;
   BasicMessageChannel<String> basicMessageChannel;
   AppLifecycleState lifecycleState;
+  InvestorAppModel appModel;
 
   @override
   initState() {
@@ -160,7 +161,6 @@ class _DashboardState extends State<Dashboard>
   InvoiceBid lastInvoiceBid;
   PurchaseOrder lastPO;
   DeliveryNote lastNote;
-  InvestorAppModel appModel;
 
   @override
   Widget build(BuildContext context) {
@@ -363,7 +363,7 @@ class _DashboardState extends State<Dashboard>
     }
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => UnsettledBids()),
+      MaterialPageRoute(builder: (context) => UnsettledBids(model: appModel)),
     );
   }
 
@@ -422,7 +422,7 @@ class _DashboardState extends State<Dashboard>
     print('_DashboardState._onOffersTapped');
     Navigator.push(
       context,
-      new MaterialPageRoute(builder: (context) => new OfferList()),
+      new MaterialPageRoute(builder: (context) => new OfferList(model: appModel)),
     );
   }
 
@@ -812,12 +812,14 @@ class InvestorSummaryCard extends StatelessWidget {
 
 class InvestorAppModel extends Model {
   String _title = 'BFN State Test';
+  int _pageLimit = 10;
   DashboardData _dashboardData = DashboardData();
   List<InvoiceBid> _invoiceBids;
   List<Offer> _offers;
   Investor _investor;
   ModelListener _modelListener;
 
+  int get pageLimit => _pageLimit;
   List<InvoiceBid> get invoiceBids => _invoiceBids;
   List<Offer> get offers => _offers;
   Investor get investor => _investor;
@@ -844,6 +846,7 @@ class InvestorAppModel extends Model {
         'InvestorAppModel._removeBidFromCache bids in cache: ${_invoiceBids.length}');
     await Database.saveInvoiceBids(InvoiceBids(_invoiceBids));
     notifyListeners();
+    return null;
   }
 
   void offerArrived(Offer offer) async {
@@ -884,9 +887,27 @@ class InvestorAppModel extends Model {
     notifyListeners();
   }
 
+  Future updatePageLimit(int pageLimit) async{
+    return await SharedPrefs.savePageLimit(pageLimit);
+
+  }
+  Future settleInvoiceBid(InvoiceBid bid) async{
+    print('InvestorAppModel.settleInvoiceBid');
+    _invoiceBids.forEach((b) {
+      if (bid.invoiceBidId == b.invoiceBidId) {
+        b.isSettled = true;
+      }
+    });
+
+    notifyListeners();
+  }
   void initialize() async {
     print('\n\nInvestorAppModel.initialize ################################ ');
     _investor = await SharedPrefs.getInvestor();
+    _pageLimit = await SharedPrefs.getPageLimit();
+    if (_pageLimit == null) {
+      _pageLimit = 10;
+    }
     if (_investor == null) {
       return;
     }
