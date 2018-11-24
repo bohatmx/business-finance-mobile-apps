@@ -54,7 +54,10 @@ class InvestorAppModel extends Model {
     print('InvestorAppModel.setModelListener listener has been set.');
   }
 
-  Future removeBidFromCache(InvoiceBid bid) async {
+  Future processSettledBid(InvoiceBid bid) async {
+    bid.isSettled = true;
+    _settledInvoiceBids.insert(0, bid);
+
     var bids = await Database.getUnsettledInvoiceBids();
     _unsettledInvoiceBids.clear();
     bids.forEach((b) {
@@ -64,7 +67,7 @@ class InvestorAppModel extends Model {
     });
     _setItemNumbers(_unsettledInvoiceBids);
     print(
-        'InvestorAppModel._removeBidFromCache bids in cache: ${_unsettledInvoiceBids.length}');
+        'InvestorAppModel._removeBidFromCache bids in cache: ${_unsettledInvoiceBids.length} added to settled: ${_settledInvoiceBids.length}');
     await Database.saveUnsettledInvoiceBids(InvoiceBids(_unsettledInvoiceBids));
     notifyListeners();
     return null;

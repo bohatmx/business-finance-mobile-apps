@@ -448,7 +448,8 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
           icon: Icons.done,
           action: Exit);
 
-      await appModel.removeBidFromCache(widget.invoiceBid);
+      await appModel.processSettledBid(widget.invoiceBid);
+      
       setState(() {
         isBusy = false;
       });

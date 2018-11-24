@@ -274,6 +274,18 @@ class _DashboardState extends State<Dashboard>
         builder: (context, _, model) {
       return ListView(
         children: <Widget>[
+
+          new InkWell(
+            onTap: _onInvoiceBidsTapped,
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 0.0),
+              child: InvestorSummaryCard(
+                context: context,
+                listener: this,
+                appModel: model,
+              ),
+            ),
+          ),
           new InkWell(
             onTap: _onOffersTapped,
             child: Padding(
@@ -282,23 +294,12 @@ class _DashboardState extends State<Dashboard>
                 total: model.dashboardData == null
                     ? 0
                     : model.dashboardData.totalOpenOffers,
-                label: 'Invoice Offers',
+                label: 'Offers Open for Bids',
                 totalStyle: Styles.pinkBoldMedium,
                 totalValue: model.dashboardData == null
                     ? 0.00
                     : model.dashboardData.totalOpenOfferAmount,
                 totalValueStyle: Styles.tealBoldMedium,
-              ),
-            ),
-          ),
-          new InkWell(
-            onTap: _onInvoiceBidsTapped,
-            child: Padding(
-              padding: const EdgeInsets.only(bottom: 38.0),
-              child: InvestorSummaryCard(
-                context: context,
-                listener: this,
-                appModel: model,
               ),
             ),
           ),

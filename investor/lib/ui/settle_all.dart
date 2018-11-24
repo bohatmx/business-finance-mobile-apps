@@ -189,12 +189,11 @@ class _SettleAllState extends State<SettleAll> implements SnackBarListener {
       }
       try {
         var result = await DataAPI3.makeInvestorInvoiceSettlement(m);
-        print(
-            '\n\n_SettleInvoiceBid.onPeachNotify ####### SETTLEMENT registered on BFN and Firestore: ${result.toJson()}');
-        await widget.model.removeBidFromCache(bid);
         count++;
+        prettyPrint(result.toJson(), '\n\n###### SETTLEMENT registered on BFN and Firestore: RESULT: #$count');
+        await widget.model.processSettledBid(bid);
         print(
-            '\n_SettleAllState._writeSettlement - registered $count payments');
+            '\n_SettleAllState._writeSettlement - registered $count payments. removeBidFromCache');
         AppSnackbar.showSnackbar(
           scaffoldKey: _scaffoldKey,
           message:
@@ -203,6 +202,7 @@ class _SettleAllState extends State<SettleAll> implements SnackBarListener {
           backgroundColor: Colors.teal,
         );
       } catch (e) {
+        print('\n\n_SettleAllState._writeSettlement : ERROR: \n $e');
         AppSnackbar.showErrorSnackbar(
             scaffoldKey: _scaffoldKey,
             message: 'Error registering payment',
