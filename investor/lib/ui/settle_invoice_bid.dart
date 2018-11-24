@@ -30,7 +30,7 @@ class SettleInvoiceBid extends StatefulWidget {
 }
 
 class _SettleInvoiceBid extends State<SettleInvoiceBid>
-    implements SnackBarListener, InvoiceBidListener {
+    implements SnackBarListener, InvoiceBidListener, PeachNotifyListener{
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   final FirebaseMessaging fm = FirebaseMessaging();
   InvestorAppModel appModel;
@@ -110,6 +110,7 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
       );
       switch (result) {
         case PeachSuccess:
+          FCM.configureFCM(context: context, peachNotifyListener: this);
           AppSnackbar.showSnackbarWithAction(
               scaffoldKey: _scaffoldKey,
               message: 'Payment successful\nWait for payment registration',
@@ -122,7 +123,7 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
           setState(() {
             _opacity = 0.0;
           });
-          _writeSettlement();
+
           break;
         case PeachCancel:
           isBusy = false;
@@ -416,7 +417,7 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
     return getFormattedAmount('$t', context);
   }
 
-  Future _writeSettlement() async {
+  Future _writeSettlement(PeachNotification notif) async {
     print('_SettleInvoiceBid._writeSettlement .............................');
     var w = await SharedPrefs.getWallet();
     var m = InvestorInvoiceSettlement(
@@ -426,6 +427,7 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
         peachPaymentKey: paymentKey.key,
         offer: widget.invoiceBid.offer,
         supplier: widget.invoiceBid.supplier,
+        peachTransactionId: notif.callpay_transaction_id,
         date: getUTCDate(),
         invoiceBid: NameSpace + 'InvoiceBid#${widget.invoiceBid.invoiceBidId}');
 
@@ -436,7 +438,7 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
     try {
       var result = await DataAPI3.makeInvestorInvoiceSettlement(m);
       print(
-          '\n\n_SettleInvoiceBid.onPeachNotify ####### SETTLEMENT registered on BFN and Firestore: ${result.toJson()}');
+          '\n\n_SettleInvoiceBid.onPeachNotify ####### SETTLEMENT registered on BFN and Firestore: ${result.toJson()} waiting for notification from Peach');
 
       AppSnackbar.showSnackbarWithAction(
           scaffoldKey: _scaffoldKey,
@@ -449,7 +451,7 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
           action: Exit);
 
       await appModel.processSettledBid(widget.invoiceBid);
-      
+
       setState(() {
         isBusy = false;
       });
@@ -460,6 +462,14 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
           listener: this,
           actionLabel: 'Close');
     }
+  }
+
+  @override
+  onPeachNotify(PeachNotification notification) {
+    prettyPrint(notification.toJson(), '\n\n############ PEACH notification - what now?');
+
+    _writeSettlement(notification);
+    return null;
   }
 
 }

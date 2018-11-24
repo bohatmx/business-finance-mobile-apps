@@ -14,16 +14,12 @@ import 'package:businesslibrary/util/util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:investor/app_model.dart';
-import 'package:investor/ui/dashboard.dart';
 import 'package:investor/ui/invoice_bidder.dart';
-import 'package:investor/ui/refresh.dart';
 import 'package:businesslibrary/util/mypager.dart';
+import 'package:scoped_model/scoped_model.dart';
 
 class OfferList extends StatefulWidget {
-  final InvestorAppModel model;
-
-  OfferList({this.model});
-
+  
   static _OfferListState of(BuildContext context) =>
       context.ancestorStateOfType(const TypeMatcher<_OfferListState>());
   @override
@@ -352,29 +348,40 @@ class _OfferListState extends State<OfferList>
 
     return items;
   }
-
+  InvestorAppModel appModel;
+  int mCount = 0;
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      key: _scaffoldKey,
-      appBar: AppBar(
-        title: Text(
-          'Open Invoice Offers',
-          style: Styles.whiteBoldMedium,
-        ),
-        bottom: PreferredSize(
-          child: _getBottom(),
-          preferredSize: Size.fromHeight(220.0),
-        ),
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.refresh),
-            onPressed: _refresh,
+    return ScopedModelDescendant<InvestorAppModel>(
+      builder: (context,_,model) {
+        appModel = model;
+        mCount++;
+        if (mCount == 1) {
+          setBasePager();
+        }
+        return Scaffold(
+          key: _scaffoldKey,
+          appBar: AppBar(
+            title: Text(
+              'Open Invoice Offers',
+              style: Styles.whiteBoldMedium,
+            ),
+            bottom: PreferredSize(
+              child: _getBottom(),
+              preferredSize: Size.fromHeight(260.0),
+            ),
+            actions: <Widget>[
+              IconButton(
+                icon: Icon(Icons.refresh),
+                onPressed: _refresh,
+              ),
+            ],
           ),
-        ],
-      ),
-      body: _getListView(),
-      backgroundColor: Colors.brown.shade100,
+          body: _getListView(),
+          backgroundColor: Colors.brown.shade100,
+        ); 
+      },
+      
     );
   }
 
@@ -418,7 +425,7 @@ class _OfferListState extends State<OfferList>
   }
 
   Widget _getBottom() {
-    return widget.model == null
+    return appModel == null
         ? Container()
         : Column(
             children: <Widget>[
@@ -434,16 +441,25 @@ class _OfferListState extends State<OfferList>
               ),
               Padding(
                 padding:
-                    const EdgeInsets.only(left: 8.0, right: 8.0, bottom: 12.0),
+                    const EdgeInsets.only(left: 8.0, right: 8.0, bottom: 10.0),
                 child: PagerControl(
                   itemName: 'Invoice Offers',
-                  pageLimit: widget.model.pageLimit,
+                  pageLimit: appModel.pageLimit,
                   elevation: 16.0,
-                  items: widget.model.offers.length,
+                  items: appModel.offers == null? 0: appModel.offers.length,
                   listener: this,
                   color: Colors.pink.shade50,
                   pageNumber: _pageNumber,
                 ),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: <Widget>[
+                  IconButton(
+                    icon: Icon(Icons.sort),
+                    onPressed: _sort,
+                  ),
+                ],
               ),
             ],
           );
@@ -478,7 +494,7 @@ class _OfferListState extends State<OfferList>
         message: 'Loading fresh data',
         textColor: Styles.white,
         backgroundColor: Styles.brown);
-    await Refresh.refresh(investor);
+    await appModel.refreshOffers();
     try {
       _scaffoldKey.currentState.removeCurrentSnackBar();
     } catch (e) {}
@@ -488,13 +504,13 @@ class _OfferListState extends State<OfferList>
   //paging constructs
   BasePager basePager;
   void setBasePager() {
-    if (widget.model == null) return;
+    if (appModel == null) return;
     print(
-        '_PurchaseOrderList.setBasePager appModel.pageLimit: ${widget.model.pageLimit}, get first page');
+        '_PurchaseOrderList.setBasePager appModel.pageLimit: ${appModel.pageLimit}, get first page');
     if (basePager == null) {
       basePager = BasePager(
-        items: widget.model.offers,
-        pageLimit: widget.model.pageLimit,
+        items: appModel.offers,
+        pageLimit: appModel.pageLimit,
       );
     }
 
@@ -503,7 +519,7 @@ class _OfferListState extends State<OfferList>
     page.forEach((f) {
       currentPage.add(f);
     });
-    setState(() {});
+
   }
 
   double _getPageValue() {
@@ -516,11 +532,11 @@ class _OfferListState extends State<OfferList>
   }
 
   double _getTotalValue() {
-    if (widget.model == null) return 0.00;
-    if (widget.model.offers == null) return 0.00;
+    if (appModel == null) return 0.00;
+    if (appModel.offers == null) return 0.00;
     var t = 0.0;
 
-    widget.model.offers.forEach((po) {
+    appModel.offers.forEach((po) {
       t += po.offerAmount;
     });
     return t;
@@ -551,7 +567,7 @@ class _OfferListState extends State<OfferList>
   @override
   onPageLimit(int pageLimit) async {
     print('_InvoicesOnOfferState.onPageLimit');
-    await widget.model.updatePageLimit(pageLimit);
+    await appModel.updatePageLimit(pageLimit);
     _pageNumber = 1;
     basePager.getNextPage();
     return null;
@@ -591,6 +607,19 @@ class _OfferListState extends State<OfferList>
       currentPage.add(f);
     });
     setState(() {});
+  }
+
+  bool toggle = false;
+  void _sort() {
+    if (toggle) {
+      currentPage.sort((a,b) => a.offerAmount.compareTo(b.offerAmount));
+    } else {
+      currentPage.sort((a,b) => b.offerAmount.compareTo(a.offerAmount));
+    }
+    toggle = !toggle;
+    setState(() {
+
+    });
   }
 }
 

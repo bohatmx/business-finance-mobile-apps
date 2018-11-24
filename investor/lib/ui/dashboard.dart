@@ -394,7 +394,7 @@ class _DashboardState extends State<Dashboard>
 
   Widget _getBottom() {
     return PreferredSize(
-      preferredSize: const Size.fromHeight(60.0),
+      preferredSize: const Size.fromHeight(40.0),
       child: new Column(
         children: <Widget>[
           ScopedModelDescendant<InvestorAppModel>(
@@ -446,7 +446,7 @@ class _DashboardState extends State<Dashboard>
     Navigator.push(
       context,
       new MaterialPageRoute(maintainState: false,
-          builder: (context) => new OfferList(model: appModel)),
+          builder: (context) => new OfferList()),
     );
   }
 

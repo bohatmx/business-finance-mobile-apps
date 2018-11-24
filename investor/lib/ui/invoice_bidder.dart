@@ -276,14 +276,14 @@ class _InvoiceBidderState extends State<InvoiceBidder>
           ),
           Padding(
             padding: const EdgeInsets.only(
-                left: 20.0, top: 0.0, right: 20.0, bottom: 0.0),
+                left: 10.0, top: 0.0, right: 10.0, bottom: 0.0),
             child: Row(
               children: <Widget>[
                 DropdownButton<double>(
                   items: items,
                   elevation: 8,
                   hint: Padding(
-                    padding: const EdgeInsets.all(12.0),
+                    padding: const EdgeInsets.all(8.0),
                     child: Text(
                       'Select Percentage',
                       style: Styles.blackBoldMedium,
@@ -295,7 +295,7 @@ class _InvoiceBidderState extends State<InvoiceBidder>
                   padding: const EdgeInsets.only(left: 10.0),
                   child: Text(
                     percentage == null ? '0.0 %' : '$percentage %',
-                    style: Styles.blackBoldReallyLarge,
+                    style: Styles.blackBoldLarge,
                   ),
                 ),
               ],
