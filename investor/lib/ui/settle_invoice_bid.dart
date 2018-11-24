@@ -16,15 +16,14 @@ import 'package:businesslibrary/util/util.dart';
 import 'package:businesslibrary/util/webview.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:investor/app_model.dart';
 import 'package:investor/ui/dashboard.dart';
 import 'package:investor/ui/unsettled_bids.dart';
 import 'package:scoped_model/scoped_model.dart';
 
 class SettleInvoiceBid extends StatefulWidget {
   final InvoiceBid invoiceBid;
-  final InvestorAppModel model;
-
-  SettleInvoiceBid({this.invoiceBid, this.model});
+  SettleInvoiceBid({this.invoiceBid});
 
   @override
   _SettleInvoiceBid createState() => _SettleInvoiceBid();
@@ -34,7 +33,7 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
     implements SnackBarListener, InvoiceBidListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   final FirebaseMessaging fm = FirebaseMessaging();
-
+  InvestorAppModel appModel;
   String webViewTitle, webViewUrl;
   Offer offer;
   OfferBag offerBag;
@@ -65,12 +64,6 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
 
   int count = 0;
   Future _getOffer() async {
-//    AppSnackbar.showSnackbarWithProgressIndicator(
-//        scaffoldKey: _scaffoldKey,
-//        message: 'Loading Offer ...',
-//        textColor: Styles.white,
-//        backgroundColor: Styles.black);
-
     count++;
     setState(() {
       isBusy = true;
@@ -359,7 +352,7 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
   Widget build(BuildContext context) {
     return ScopedModelDescendant<InvestorAppModel>(
       builder: (context, _, model) {
-
+        appModel = model;
         return Scaffold(
           key: _scaffoldKey,
           appBar: AppBar(
@@ -394,10 +387,10 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
       case Exit:
         _scaffoldKey.currentState.removeCurrentSnackBar();
         print('_SettleInvoiceBid.onActionPressed about to pop .....');
-//        Navigator.pop(context, true);
+        Navigator.pop(context, true);
         Navigator.push(
           context,
-          new MaterialPageRoute(builder: (context) => UnsettledBids(model: widget.model,)),
+          new MaterialPageRoute(builder: (context) => UnsettledBids()),
         );
         break;
       case 2:
@@ -455,7 +448,7 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
           icon: Icons.done,
           action: Exit);
 
-      await widget.model.removeBidFromCache(widget.invoiceBid);
+      await appModel.removeBidFromCache(widget.invoiceBid);
       setState(() {
         isBusy = false;
       });
@@ -467,9 +460,5 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
           actionLabel: 'Close');
     }
   }
-  void _updateModel() {
-    print('_SettleInvoiceBid._updateModel #################');
 
-
-  }
 }

@@ -59,10 +59,10 @@ class Database {
     }
   }
 
-  static Future<List<InvoiceBid>> getInvoiceBids() async {
+  static Future<List<InvoiceBid>> getUnsettledInvoiceBids() async {
     dir = await getApplicationDocumentsDirectory();
 
-    jsonFile = new File(dir.path + "/invoiceBids.json");
+    jsonFile = new File(dir.path + "/unsettledinvoiceBids.json");
     fileExists = await jsonFile.exists();
 
     try {
@@ -73,17 +73,17 @@ class Database {
         print('Database ## returning InvoiceBids found: ${w.bids.length}');
         return w.bids;
       } else {
-        return null;
+        return List();
       }
     } catch (e) {
       return List();
     }
   }
 
-  static Future<int> saveInvoiceBids(InvoiceBids bids) async {
+  static Future<int> saveUnsettledInvoiceBids(InvoiceBids bids) async {
     Map map = bids.toJson();
     dir = await getApplicationDocumentsDirectory();
-    jsonFile = new File(dir.path + "/invoiceBids.json");
+    jsonFile = new File(dir.path + "/unsettledinvoiceBids.json");
     fileExists = await jsonFile.exists();
 
     if (fileExists) {
@@ -95,6 +95,49 @@ class Database {
     } else {
       print(
           'FileUti_saveInvoiceBids ## file does not exist ...creating and writing InvoiceBids file');
+      var file = await jsonFile.create();
+      await file.writeAsString(json.encode(map));
+      return 0;
+    }
+  }
+
+
+  static Future<List<InvoiceBid>> getSettledInvoiceBids() async {
+    dir = await getApplicationDocumentsDirectory();
+
+    jsonFile = new File(dir.path + "/settledinvoiceBids.json");
+    fileExists = await jsonFile.exists();
+
+    try {
+      if (fileExists) {
+        String string = await jsonFile.readAsString();
+        Map map = json.decode(string);
+        InvoiceBids w = new InvoiceBids.fromJson(map);
+        print('Database ## returning SettledInvoiceBids found: ${w.bids.length}');
+        return w.bids;
+      } else {
+        return List();
+      }
+    } catch (e) {
+      return List();
+    }
+  }
+
+  static Future<int> saveSettledInvoiceBids(InvoiceBids bids) async {
+    Map map = bids.toJson();
+    dir = await getApplicationDocumentsDirectory();
+    jsonFile = new File(dir.path + "/settledinvoiceBids.json");
+    fileExists = await jsonFile.exists();
+
+    if (fileExists) {
+      print('Database_saveSettledInvoiceBids  ## file exists ...writing SettledInvoiceBids file');
+      jsonFile.writeAsString(json.encode(map));
+      print(
+          'Database_saveSettledInvoiceBids ##  has cached list of SettledInvoiceBids  ###))))))))) : ${bids.bids.length}');
+      return 0;
+    } else {
+      print(
+          'FileUti_saveSettledInvoiceBids ## file does not exist ...creating and writing SettledInvoiceBids file');
       var file = await jsonFile.create();
       await file.writeAsString(json.encode(map));
       return 0;

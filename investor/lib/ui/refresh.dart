@@ -19,7 +19,7 @@ class Refresh {
     var start = DateTime.now();
     var m = await ListAPI.getUnsettledInvoiceBidsByInvestor(
         investor.documentReference);
-    await Database.saveInvoiceBids(InvoiceBids(m));
+    await Database.saveUnsettledInvoiceBids(InvoiceBids(m));
     var end = DateTime.now();
     print(
         '\n\nRefresh.refreshBids --------- ++++++++++++ investor bid data refreshed ${end.difference(start).inSeconds}');

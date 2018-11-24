@@ -30,6 +30,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:investor/app_model.dart';
+import 'package:investor/investor_summary_card.dart';
 import 'package:investor/main.dart';
 import 'package:investor/ui/charts.dart';
 import 'package:investor/ui/offer_list.dart';
@@ -53,7 +55,7 @@ class _DashboardState extends State<Dashboard>
     implements
         SnackBarListener,
         InvoiceBidListener,
-        OfferListener,
+        OfferListener, InvestorCardListener,
         ModelListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   static const platform = const MethodChannel('com.oneconnect.biz.CHANNEL');
@@ -162,12 +164,22 @@ class _DashboardState extends State<Dashboard>
   PurchaseOrder lastPO;
   DeliveryNote lastNote;
 
+  bool isRefreshBids = false;
+  void _onRefreshBids() {
+    setState(() {
+      isRefreshBids = true;
+    });
+  }
   @override
   Widget build(BuildContext context) {
     return ScopedModelDescendant<InvestorAppModel>(
       builder: (context, _, model) {
         appModel = model;
         model.setModelListener(this);
+//        if (isRefreshBids) {
+//          isRefreshBids = false;
+//          model.refreshInvoiceBids();
+//        }
         return WillPopScope(
           onWillPop: () async => false,
           child: Scaffold(
@@ -242,9 +254,18 @@ class _DashboardState extends State<Dashboard>
     tiles.clear();
     messages.forEach((m) {
       var tile = ListTile(
-        leading: Icon(Icons.apps, color: getRandomColor(),),
-        title: Text('${m.title}', style: Styles.blackBoldSmall,),
-        subtitle: Text('${m.subTitle}', style: Styles.blackSmall,),
+        leading: Icon(
+          Icons.apps,
+          color: getRandomColor(),
+        ),
+        title: Text(
+          '${m.title}',
+          style: Styles.blackBoldSmall,
+        ),
+        subtitle: Text(
+          '${m.subTitle}',
+          style: Styles.blackSmall,
+        ),
       );
       tiles.add(tile);
     });
@@ -276,7 +297,8 @@ class _DashboardState extends State<Dashboard>
               padding: const EdgeInsets.only(bottom: 38.0),
               child: InvestorSummaryCard(
                 context: context,
-                dashboardData: model.dashboardData,
+                listener: this,
+                appModel: model,
               ),
             ),
           ),
@@ -353,7 +375,7 @@ class _DashboardState extends State<Dashboard>
   void _onInvoiceBidsTapped() {
     print('_DashboardState._onInvoiceTapped ...............');
 
-    if (appModel.invoiceBids.isEmpty) {
+    if (appModel.unsettledInvoiceBids.isEmpty) {
       AppSnackbar.showSnackbar(
           scaffoldKey: _scaffoldKey,
           message: 'No outstanding invoice bids',
@@ -363,7 +385,7 @@ class _DashboardState extends State<Dashboard>
     }
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => UnsettledBids(model: appModel)),
+      MaterialPageRoute(builder: (context) => UnsettledBids()),
     );
   }
 
@@ -422,7 +444,8 @@ class _DashboardState extends State<Dashboard>
     print('_DashboardState._onOffersTapped');
     Navigator.push(
       context,
-      new MaterialPageRoute(builder: (context) => new OfferList(model: appModel)),
+      new MaterialPageRoute(maintainState: false,
+          builder: (context) => new OfferList(model: appModel)),
     );
   }
 
@@ -501,8 +524,8 @@ class _DashboardState extends State<Dashboard>
       var amt = getFormattedAmount('${bid.amount}', context);
       var dt = getFormattedDateShortWithTime(
           '${DateTime.parse(bid.date).toLocal().toIso8601String()}', context);
-      var msg = BidMessage(
-          title: 'Invoice Bid made for: $amt', subTitle: '$dt');
+      var msg =
+          BidMessage(title: 'Invoice Bid made for: $amt', subTitle: '$dt');
       setState(() {
         messages.add(msg);
       });
@@ -549,472 +572,29 @@ class _DashboardState extends State<Dashboard>
       print('_DashboardState.onComplete -- error killing snackbar');
     }
   }
-}
-
-class InvestorSummaryCard extends StatelessWidget {
-  final DashboardData dashboardData;
-  final BuildContext context;
-
-  InvestorSummaryCard({this.dashboardData, this.context});
-
-  Widget _getTotalBids() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: <Widget>[
-        Container(
-          width: 70.0,
-          child: Text(
-            '# Bids',
-            style: Styles.greyLabelSmall,
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(left: 10.0),
-          child: Text(
-            dashboardData == null ? '0' : '${dashboardData.totalBids}',
-            style: Styles.blackBoldMedium,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _getTotalBidValue() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: <Widget>[
-        Container(
-          width: 70.0,
-          child: Text(
-            'Total Bids',
-            style: Styles.greyLabelSmall,
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(left: 10.0, right: 10.0),
-          child: Text(
-            dashboardData == null
-                ? '0.00'
-                : '${getFormattedAmount('${dashboardData.totalBidAmount}', context)}',
-            style: Styles.blackBoldLarge,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _getAverageDiscount() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: <Widget>[
-        Container(
-          width: 100.0,
-          child: Text(
-            'Avg Discount',
-            style: Styles.greyLabelSmall,
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(left: 10.0, right: 10.0),
-          child: Text(
-            dashboardData == null ? '0.0%' : _getAvgDiscount(),
-            style: Styles.purpleBoldSmall,
-          ),
-        ),
-      ],
-    );
-  }
-
-  String _getAvgDiscount() {
-    if (dashboardData == null) {
-      return '0.0%';
-    }
-    if (dashboardData.averageDiscountPerc == null) {
-      return '0.0%';
-    }
-    return dashboardData.averageDiscountPerc.toStringAsFixed(2) + '%';
-  }
-
-  Widget _getAverageBidAmount() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: <Widget>[
-        Container(
-          width: 100.0,
-          child: Text(
-            'Average Bid',
-            style: Styles.greyLabelSmall,
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(left: 10.0, right: 10.0),
-          child: Text(
-            dashboardData == null
-                ? '0'
-                : '${getFormattedAmount('${dashboardData.averageBidAmount}', context)}',
-            style: Styles.blackSmall,
-          ),
-        ),
-      ],
-    );
-  }
 
   @override
-  Widget build(BuildContext context) {
-    return Card(
-      elevation: 2.0,
-      color: Colors.brown.shade50,
-      child: Column(
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.only(top: 10.0, left: 20.0),
-            child: _getTotalBids(),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(top: 10.0, left: 20.0, bottom: 20.0),
-            child: _getTotalBidValue(),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 30.0, right: 30.0),
-            child: Divider(
-              color: Colors.grey,
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(top: 10.0, left: 20.0),
-            child: _getAverageBidAmount(),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(top: 10.0, left: 20.0),
-            child: _getAverageDiscount(),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 30.0, right: 30.0, top: 5.0),
-            child: Divider(
-              color: Colors.grey,
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(top: 5.0, left: 20.0),
-            child: Row(
-              children: <Widget>[
-                Container(
-                  width: 120.0,
-                  child: Text(
-                    'Unsettled  Bids',
-                    style: Styles.greyLabelSmall,
-                  ),
-                ),
-                Text(
-                  dashboardData == null
-                      ? '0.00'
-                      : '${dashboardData.totalUnsettledBids}',
-                  style: Styles.blackSmall,
-                ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 20.0, top: 10.0, bottom: 5.0),
-            child: Row(
-              children: <Widget>[
-                Container(
-                  width: 120.0,
-                  child: Text(
-                    'Unsettled Total',
-                    style: Styles.greyLabelSmall,
-                  ),
-                ),
-                Text(
-                  dashboardData == null
-                      ? '0.00'
-                      : '${getFormattedAmount('${dashboardData.totalUnsettledAmount}', context)}',
-                  style: Styles.pinkBoldSmall,
-                ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 30.0, right: 30.0),
-            child: Divider(),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(top: 5.0, left: 20.0),
-            child: Row(
-              children: <Widget>[
-                Container(
-                  width: 120.0,
-                  child: Text(
-                    'Settled  Bids',
-                    style: Styles.greyLabelSmall,
-                  ),
-                ),
-                Text(
-                  dashboardData == null
-                      ? '0.00'
-                      : '${dashboardData.totalSettledBids}',
-                  style: Styles.blackBoldSmall,
-                ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 20.0, top: 10.0, bottom: 10.0),
-            child: Row(
-              children: <Widget>[
-                Container(
-                  width: 120.0,
-                  child: Text(
-                    'Settled Total',
-                    style: Styles.greyLabelSmall,
-                  ),
-                ),
-                Text(
-                  dashboardData == null
-                      ? '0.00'
-                      : '${getFormattedAmount('${dashboardData.totalSettledAmount}', context)}',
-                  style: Styles.blackBoldSmall,
-                ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(top: 10.0, bottom: 20.0),
-            child: RaisedButton(
-              elevation: 6.0,
-              color: Colors.indigo.shade200,
-              onPressed: _onBtnPressed,
-              child: Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: Text(
-                  'Show Charts',
-                  style: Styles.whiteSmall,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  onCharts() {
+    print('_DashboardState.onCharts ..................');
+    appModel.refreshInvoiceBids();
 
-  void _onBtnPressed() {
     Navigator.push(
       context,
       new MaterialPageRoute(builder: (context) => new Charts()),
     );
-  }
-}
-
-class InvestorAppModel extends Model {
-  String _title = 'BFN State Test';
-  int _pageLimit = 10;
-  DashboardData _dashboardData = DashboardData();
-  List<InvoiceBid> _invoiceBids;
-  List<Offer> _offers;
-  Investor _investor;
-  ModelListener _modelListener;
-
-  int get pageLimit => _pageLimit;
-  List<InvoiceBid> get invoiceBids => _invoiceBids;
-  List<Offer> get offers => _offers;
-  Investor get investor => _investor;
-  DashboardData get dashboardData => _dashboardData;
-  String get title => _title;
-
-  InvestorAppModel() {
-    initialize();
-  }
-  void setModelListener(ModelListener listener) {
-    _modelListener = listener;
-    print('InvestorAppModel.setModelListener listener has been set.');
-  }
-
-  Future removeBidFromCache(InvoiceBid bid) async {
-    var bids = await Database.getInvoiceBids();
-    _invoiceBids.clear();
-    bids.forEach((b) {
-      if (b.invoiceBidId != bid.invoiceBidId) {
-        _invoiceBids.add(b);
-      }
-    });
-    print(
-        'InvestorAppModel._removeBidFromCache bids in cache: ${_invoiceBids.length}');
-    await Database.saveInvoiceBids(InvoiceBids(_invoiceBids));
-    notifyListeners();
     return null;
   }
 
-  void offerArrived(Offer offer) async {
-    print(
-        '\n\nInvestorAppModel.offerArrived - ${offer.supplierName} ${offer.offerAmount}');
-    _dashboardData.totalOpenOffers++;
-    _dashboardData.totalOpenOfferAmount += offer.offerAmount;
-
-    await SharedPrefs.saveDashboardData(dashboardData);
-    _offers = await Database.getOffers();
-    _offers.insert(0, offer);
-    await Database.saveOffers(Offers(_offers));
-    notifyListeners();
-  }
-
-  void invoiceBidArrived(InvoiceBid invoiceBid) async {
-    _dashboardData.totalOpenOffers--;
-    _dashboardData.totalOfferAmount -= invoiceBid.amount;
-    _dashboardData.totalOpenOfferAmount -= invoiceBid.amount;
-
-    String m = NameSpace + 'Investor#${investor.participantId}';
-    print(
-        '\n\nInvestorAppModel.invoiceBidArrived \n${invoiceBid.investorName} ${invoiceBid.investor}  - #### LOCAL:  ${investor.name} $m');
-
-    if (invoiceBid.investor == m) {
-      _dashboardData.totalUnsettledBids++;
-      _dashboardData.totalUnsettledAmount += invoiceBid.amount;
-    }
-
-    if (invoiceBid.investor.split('#').elementAt(1) == investor.participantId) {
-      _dashboardData.totalBids++;
-      _dashboardData.totalBidAmount += invoiceBid.amount;
-      await SharedPrefs.saveDashboardData(dashboardData);
-      _invoiceBids = await Database.getInvoiceBids();
-      _invoiceBids.insert(0, invoiceBid);
-      await Database.saveInvoiceBids(InvoiceBids(_invoiceBids));
-    }
-    notifyListeners();
-  }
-
-  Future updatePageLimit(int pageLimit) async{
-    return await SharedPrefs.savePageLimit(pageLimit);
-
-  }
-  Future settleInvoiceBid(InvoiceBid bid) async{
-    print('InvestorAppModel.settleInvoiceBid');
-    _invoiceBids.forEach((b) {
-      if (bid.invoiceBidId == b.invoiceBidId) {
-        b.isSettled = true;
-      }
-    });
-
-    notifyListeners();
-  }
-  void initialize() async {
-    print('\n\nInvestorAppModel.initialize ################################ ');
-    _investor = await SharedPrefs.getInvestor();
-    _pageLimit = await SharedPrefs.getPageLimit();
-    if (_pageLimit == null) {
-      _pageLimit = 10;
-    }
-    if (_investor == null) {
-      return;
-    }
-    _dashboardData = await SharedPrefs.getDashboardData();
-    if (_dashboardData == null) {
-      await refreshDashboard();
-    }
-    _invoiceBids = await Database.getInvoiceBids();
-    if (_invoiceBids.isEmpty) {
-      await refreshInvoiceBids();
-    } else {
-      _setItemNumbers(_invoiceBids);
-    }
-    _offers = await Database.getOffers();
-    if (_offers.isEmpty) {
-      await refreshOffers();
-    } else {
-      _setItemNumbers(_offers);
-    }
-    _title =
-        'BFN Model ${getFormattedDateHour('${DateTime.now().toIso8601String()}')}';
-    doPrint();
-    notifyListeners();
-  }
-
-  Future refreshDashboard() async {
-    print('InvestorAppModel.refreshDashboard ............................');
-    _investor = await SharedPrefs.getInvestor();
-    _dashboardData = await ListAPI.getInvestorDashboardData(
-        _investor.participantId, _investor.documentReference);
-    await SharedPrefs.saveDashboardData(_dashboardData);
-    notifyListeners();
-  }
-
-  Future refreshInvoiceBids() async {
-    print('InvestorAppModel.refreshInvoiceBids ...........................');
-    _investor = await SharedPrefs.getInvestor();
-    _invoiceBids = await ListAPI.getUnsettledInvoiceBidsByInvestor(
-        _investor.documentReference);
-    await Database.saveInvoiceBids(InvoiceBids(_invoiceBids));
-    _setItemNumbers(_invoiceBids);
-    notifyListeners();
-  }
-
-  Future refreshOffers() async {
-    print('InvestorAppModel.refreshOffers .................................');
-    _offers = await ListAPI.getOpenOffersViaFunctions();
-    await Database.saveOffers(Offers(_offers));
-    _setItemNumbers(_offers);
-    notifyListeners();
-  }
-
-  Future refreshModel() async {
-    print(
-        'InvestorAppModel.refreshModel ............. refresh everything! ....................');
-    if (_investor == null) {
-      _investor = await SharedPrefs.getInvestor();
-    }
-    _invoiceBids = await ListAPI.getUnsettledInvoiceBidsByInvestor(
-        _investor.documentReference);
-    await Database.saveInvoiceBids(InvoiceBids(_invoiceBids));
-    _setItemNumbers(_invoiceBids);
-
-    _dashboardData = await ListAPI.getInvestorDashboardData(
-        _investor.participantId, _investor.documentReference);
-    prettyPrint(_dashboardData.toJson(), '######### Dashboard data retrieved');
-    await SharedPrefs.saveDashboardData(_dashboardData);
-
-    _offers = await ListAPI.getOpenOffersViaFunctions();
-    await Database.saveOffers(Offers(_offers));
-    _setItemNumbers(_offers);
-
-    if (_modelListener != null) {
-      _modelListener.onComplete();
-    }
-    notifyListeners();
-  }
-
-  void _setItemNumbers(List<Findable> list) {
-    if (list == null) return;
-    int num = 1;
-    list.forEach((o) {
-      o.itemNumber = num;
-      num++;
-    });
-  }
-  void doPrint() {
-    print(
-        '\n\n\nInvestorAppModel.doPrint STARTED ######################################\n');
-    if (_investor != null) {
-      prettyPrint(_investor.toJson(), '######## Investor in Model');
-    }
-    if (_dashboardData != null) {
-      prettyPrint(
-          _dashboardData.toJson(), '####### DashboardData inside Model');
-    }
-    print(
-        'InvestorAppModel.doPrint invoiceBids in Model: ${_invoiceBids.length}');
-    print('InvestorAppModel.doPrint offers in Model: ${_offers.length}');
-    print(
-        '\nInvestorAppModel.doPrint ENDED. ############################################\n\n\n');
+  @override
+  onRefresh() {
+    print('_DashboardState.onRefresh call: appModel.refreshInvoiceBids(); ');
+    appModel.refreshInvoiceBids();
+    return null;
   }
 }
 
-abstract class ModelListener {
-  onComplete();
-}
+
+
 
 class BidMessage {
   String title, subTitle;

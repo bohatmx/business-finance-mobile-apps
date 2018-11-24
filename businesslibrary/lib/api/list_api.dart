@@ -259,6 +259,39 @@ class ListAPI {
     return list;
   }
 
+  static Future<List<InvoiceBid>> getSettledInvoiceBidsByInvestor(
+      String documentReference) async {
+    print(
+        '\n\n\nListAPI.getSettledInvoiceBidsByInvestor ========= documentReference: $documentReference');
+    var start = DateTime.now();
+    List<InvoiceBid> list = List();
+    var qs = await _firestore
+        .collection('investors')
+        .document(documentReference)
+        .collection('invoiceBids')
+        .where('isSettled', isEqualTo: true)
+        .orderBy('date')
+        .getDocuments()
+        .catchError((e) {
+      print('ListAPI.getSettledInvoiceBidsByInvestor $e');
+      return list;
+    });
+
+    var end = DateTime.now();
+    print(
+        'ListAPI.getSettledInvoiceBidsByInvestor found: ${qs.documents.length} elapsed: ${end.difference(start).inSeconds} seconds\n\n');
+
+    qs.documents.forEach((doc) {
+      var bid = InvoiceBid.fromJson(doc.data);
+      if (bid.isSettled == true) {
+        list.add(bid);
+      }
+    });
+    print(
+        'ListAPI.getUnsettledInvoiceBidsByInvestor found after checking isSettled: ${list.length} \n\n');
+    return list;
+  }
+
   static Future<List<InvoiceBid>> getInvoiceBidByInvestorOffer(
       Offer offer, Investor investor) async {
     assert(offer.documentReference != null);

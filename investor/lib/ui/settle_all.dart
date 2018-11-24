@@ -11,15 +11,20 @@ import 'package:businesslibrary/util/styles.dart';
 import 'package:businesslibrary/util/util.dart';
 import 'package:businesslibrary/util/webview.dart';
 import 'package:flutter/material.dart';
+import 'package:investor/app_model.dart';
 import 'package:investor/ui/dashboard.dart';
 import 'package:scoped_model/scoped_model.dart';
 
 class SettleAll extends StatefulWidget {
+  final InvestorAppModel model;
+
+  SettleAll({this.model});
+
   @override
   _SettleAllState createState() => _SettleAllState();
 }
 
-class _SettleAllState extends State<SettleAll> implements SnackBarListener{
+class _SettleAllState extends State<SettleAll> implements SnackBarListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
   List<InvoiceBid> bids = List();
@@ -35,12 +40,13 @@ class _SettleAllState extends State<SettleAll> implements SnackBarListener{
     super.initState();
     _getCache();
   }
+
   void _getCache() async {
     investor = await SharedPrefs.getInvestor();
     user = await SharedPrefs.getUser();
   }
-  void _showWebView() async {
 
+  void _showWebView() async {
     setState(() {
       _opacity = 0.0;
     });
@@ -48,10 +54,10 @@ class _SettleAllState extends State<SettleAll> implements SnackBarListener{
       int result = await Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) => BFNWebView(
-              title: webViewTitle,
-              url: webViewUrl,
-            ),
+          builder: (context) => BFNWebView(
+                title: webViewTitle,
+                url: webViewUrl,
+              ),
         ),
       );
       switch (result) {
@@ -105,7 +111,6 @@ class _SettleAllState extends State<SettleAll> implements SnackBarListener{
   }
 
   _getPaymentKey() async {
-
     //Navigator.pop(context);
     var payment = PeachPayment(
 //      merchantReference: widget.invoiceBid.investor.split('#').elementAt(1),
@@ -120,8 +125,7 @@ class _SettleAllState extends State<SettleAll> implements SnackBarListener{
       paymentKey = await Peach.getPaymentKey(payment: payment);
       if (paymentKey != null) {
         print(
-            '\n\n_SettleAllState._getPaymentKey ########### paymentKey: ${paymentKey
-                .key} ${paymentKey.url}');
+            '\n\n_SettleAllState._getPaymentKey ########### paymentKey: ${paymentKey.key} ${paymentKey.url}');
         webViewTitle = 'Bank Login';
         webViewUrl = paymentKey.url;
         isBusy = false;
@@ -153,8 +157,10 @@ class _SettleAllState extends State<SettleAll> implements SnackBarListener{
       totPerc += b.discountPercent;
     });
     avgDiscount = totPerc / bids.length;
-    print('_SettleAllState._calculate totalBidAmount: $totalBidAmount avgDiscount: $avgDiscount');
+    print(
+        '_SettleAllState._calculate totalBidAmount: $totalBidAmount avgDiscount: $avgDiscount');
   }
+
   double _opacity = 1.0;
 
   bool refreshModel = false;
@@ -164,7 +170,8 @@ class _SettleAllState extends State<SettleAll> implements SnackBarListener{
       scaffoldKey: _scaffoldKey,
       message: 'Registering payments on BFN',
       textColor: Styles.white,
-      backgroundColor: Colors.black,);
+      backgroundColor: Colors.black,
+    );
     int count = 0;
     var w = await SharedPrefs.getWallet();
     for (var bid in bids) {
@@ -183,15 +190,18 @@ class _SettleAllState extends State<SettleAll> implements SnackBarListener{
       try {
         var result = await DataAPI3.makeInvestorInvoiceSettlement(m);
         print(
-            '\n\n_SettleInvoiceBid.onPeachNotify ####### SETTLEMENT registered on BFN and Firestore: ${result
-                .toJson()}');
+            '\n\n_SettleInvoiceBid.onPeachNotify ####### SETTLEMENT registered on BFN and Firestore: ${result.toJson()}');
+        await widget.model.removeBidFromCache(bid);
         count++;
-        print('_SettleAllState._writeSettlement - registered $count payments');
+        print(
+            '\n_SettleAllState._writeSettlement - registered $count payments');
         AppSnackbar.showSnackbar(
-            scaffoldKey: _scaffoldKey,
-            message: 'Payment registered, amount: ${getFormattedAmount('${bid.amount}', context)} #: $count',
-            textColor: Styles.white,
-            backgroundColor: Colors.teal,);
+          scaffoldKey: _scaffoldKey,
+          message:
+              'Payment registered, amount: ${getFormattedAmount('${bid.amount}', context)} #: $count',
+          textColor: Styles.white,
+          backgroundColor: Colors.teal,
+        );
       } catch (e) {
         AppSnackbar.showErrorSnackbar(
             scaffoldKey: _scaffoldKey,
@@ -200,72 +210,66 @@ class _SettleAllState extends State<SettleAll> implements SnackBarListener{
             actionLabel: 'Close');
       }
     }
-
-    setState(() {
-      refreshModel = true;
-    });
-
   }
 
   void _confirmDialog() {
-
     showDialog(
         context: context,
         builder: (_) => new AlertDialog(
-          title: new Text(
-            "Invoice Bid Settlement",
-            style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Theme.of(context).primaryColor),
-          ),
-          content: Container(
-            height: 80.0,
-            child: Column(
-              children: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.only(top: 4.0, bottom: 10.0),
-                  child: Text(
-                    'Do you want to settle all these ${bids.length} Invoice Bids?',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-                Row(
+              title: new Text(
+                "Invoice Bid Settlement",
+                style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).primaryColor),
+              ),
+              content: Container(
+                height: 80.0,
+                child: Column(
                   children: <Widget>[
-                    Text(
-                      'Amount:',
-                      style: TextStyle(
-                          fontWeight: FontWeight.normal, fontSize: 12.0),
-                    ),
                     Padding(
-                      padding: const EdgeInsets.only(
-                        left: 8.0,
-                      ),
+                      padding: const EdgeInsets.only(top: 4.0, bottom: 10.0),
                       child: Text(
-                        getFormattedAmount('$totalBidAmount', context),
-                        style:Styles.tealBoldMedium,
+                        'Do you want to settle all these ${bids.length} Invoice Bids?',
+                        style: TextStyle(fontWeight: FontWeight.bold),
                       ),
+                    ),
+                    Row(
+                      children: <Widget>[
+                        Text(
+                          'Amount:',
+                          style: TextStyle(
+                              fontWeight: FontWeight.normal, fontSize: 12.0),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(
+                            left: 8.0,
+                          ),
+                          child: Text(
+                            getFormattedAmount('$totalBidAmount', context),
+                            style: Styles.tealBoldMedium,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
+              ),
+              actions: <Widget>[
+                FlatButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: Text('NO'),
+                ),
+                FlatButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    _getPaymentKey();
+                  },
+                  child: Text('YES'),
+                ),
               ],
-            ),
-          ),
-          actions: <Widget>[
-            FlatButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: Text('NO'),
-            ),
-            FlatButton(
-              onPressed: () {
-                Navigator.pop(context);
-                _getPaymentKey();
-              },
-              child: Text('YES'),
-            ),
-          ],
-        ));
+            ));
   }
 
   @override
@@ -274,13 +278,13 @@ class _SettleAllState extends State<SettleAll> implements SnackBarListener{
       onWillPop: () async => false,
       child: ScopedModelDescendant<InvestorAppModel>(
         builder: (context, _, model) {
-          if (model.invoiceBids != null) {
-            print('\n_SettleAllState.build bids: ${model.invoiceBids.length}');
+          if (model.unsettledInvoiceBids != null) {
+            print('\n_SettleAllState.build bids: ${model.unsettledInvoiceBids.length}');
           }
           if (refreshModel) {
             model.refreshModel();
           }
-          bids = model.invoiceBids;
+          bids = model.unsettledInvoiceBids;
           _calculate();
           return Scaffold(
             key: _scaffoldKey,
@@ -296,9 +300,10 @@ class _SettleAllState extends State<SettleAll> implements SnackBarListener{
       ),
     );
   }
-  String text = 'The totals below represent the total amount of invoice bids made by you or by the BFN Network. A single payment will be made for all outstanding bids.';
-  Widget _getBottom() {
 
+  String text =
+      'The totals below represent the total amount of invoice bids made by you or by the BFN Network. A single payment will be made for all outstanding bids.';
+  Widget _getBottom() {
     return PreferredSize(
       preferredSize: Size.fromHeight(60.0),
       child: Padding(
@@ -308,12 +313,17 @@ class _SettleAllState extends State<SettleAll> implements SnackBarListener{
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                Text('Consolidated Invoice Bids', style: Styles.whiteBoldMedium,),
-                Opacity(opacity: 0.0,
+                Text(
+                  'Consolidated Invoice Bids',
+                  style: Styles.whiteBoldMedium,
+                ),
+                Opacity(
+                  opacity: 0.0,
                   child: Padding(
-                    padding: const EdgeInsets.only(left:28.0),
+                    padding: const EdgeInsets.only(left: 28.0),
                     child: Container(
-                      height: 16.0, width: 16.0,
+                      height: 16.0,
+                      width: 16.0,
                       child: Padding(
                         padding: const EdgeInsets.all(4.0),
                         child: CircularProgressIndicator(),
@@ -328,8 +338,8 @@ class _SettleAllState extends State<SettleAll> implements SnackBarListener{
       ),
     );
   }
-  Widget _getBody() {
 
+  Widget _getBody() {
     return Padding(
       padding: const EdgeInsets.all(20.0),
       child: ListView(
@@ -341,21 +351,28 @@ class _SettleAllState extends State<SettleAll> implements SnackBarListener{
               child: Column(
                 children: <Widget>[
                   Padding(
-                    padding: const EdgeInsets.only(bottom:20.0),
+                    padding: const EdgeInsets.only(bottom: 20.0),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
-                        Text('Payment', style: Styles.blackBoldLarge,),
+                        Text(
+                          'Payment',
+                          style: Styles.blackBoldLarge,
+                        ),
                       ],
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.only(bottom:20.0),
+                    padding: const EdgeInsets.only(bottom: 20.0),
                     child: Row(
                       children: <Widget>[
-                        Flexible(child: Container(child:
-                        Text(text, style: Styles.blackBoldSmall,
-                        overflow: TextOverflow.clip,)))
+                        Flexible(
+                            child: Container(
+                                child: Text(
+                          text,
+                          style: Styles.blackBoldSmall,
+                          overflow: TextOverflow.clip,
+                        )))
                       ],
                     ),
                   ),
@@ -363,40 +380,59 @@ class _SettleAllState extends State<SettleAll> implements SnackBarListener{
                     children: <Widget>[
                       Container(
                         width: 120.0,
-                        child: Text('Total Bids:', style: Styles.greyLabelSmall,),
+                        child: Text(
+                          'Total Bids:',
+                          style: Styles.greyLabelSmall,
+                        ),
                       ),
-                      Text(bids == null? '' : '${getFormattedNumber(bids.length, context)}',
-                      style: Styles.blackBoldMedium,),
+                      Text(
+                        bids == null
+                            ? ''
+                            : '${getFormattedNumber(bids.length, context)}',
+                        style: Styles.blackBoldMedium,
+                      ),
                     ],
                   ),
                   Padding(
-                    padding: const EdgeInsets.only(top:8.0),
+                    padding: const EdgeInsets.only(top: 8.0),
                     child: Row(
                       children: <Widget>[
                         Container(
                           width: 120.0,
-                          child: Text('Avg Discount:', style: Styles.greyLabelSmall,),
+                          child: Text(
+                            'Avg Discount:',
+                            style: Styles.greyLabelSmall,
+                          ),
                         ),
-                        Text(avgDiscount == null? '0.0%' : '${avgDiscount.toStringAsFixed(2)} %',
-                          style: Styles.purpleBoldMedium,),
+                        Text(
+                          avgDiscount == null
+                              ? '0.0%'
+                              : '${avgDiscount.toStringAsFixed(2)} %',
+                          style: Styles.purpleBoldMedium,
+                        ),
                       ],
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.only(top:20.0),
+                    padding: const EdgeInsets.only(top: 20.0),
                     child: Row(
                       children: <Widget>[
                         Container(
                           width: 80.0,
-                          child: Text('Amount:', style: Styles.greyLabelSmall,),
+                          child: Text(
+                            'Amount:',
+                            style: Styles.greyLabelSmall,
+                          ),
                         ),
-                        Text('${getFormattedAmount('$totalBidAmount', context)}',
-                        style: Styles.tealBoldLarge,),
+                        Text(
+                          '${getFormattedAmount('$totalBidAmount', context)}',
+                          style: Styles.tealBoldLarge,
+                        ),
                       ],
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.only(top:40.0, bottom: 30.0),
+                    padding: const EdgeInsets.only(top: 40.0, bottom: 30.0),
                     child: Opacity(
                       opacity: _opacity,
                       child: RaisedButton(
@@ -405,7 +441,10 @@ class _SettleAllState extends State<SettleAll> implements SnackBarListener{
                         onPressed: _confirmDialog,
                         child: Padding(
                           padding: const EdgeInsets.all(12.0),
-                          child: Text('Settle All Bids', style: Styles.whiteMedium,),
+                          child: Text(
+                            'Settle All Bids',
+                            style: Styles.whiteMedium,
+                          ),
                         ),
                       ),
                     ),
@@ -414,7 +453,10 @@ class _SettleAllState extends State<SettleAll> implements SnackBarListener{
                     onPressed: () {
                       Navigator.pop(context);
                     },
-                    child: Text('Cancel', style: Styles.blueMedium,),
+                    child: Text(
+                      'Cancel',
+                      style: Styles.blueMedium,
+                    ),
                   ),
                 ],
               ),

@@ -5,17 +5,20 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="80b8d4ed-f360-4af7-bada-dfcc0519f100" name="Default" comment="refactored page animations when hitting next or back">
+      <change afterPath="$PROJECT_DIR$/../investor/lib/app_model.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../investor/lib/investor_summary_card.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/api/list_api.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/api/list_api.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/util/mypager.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/util/mypager.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/util/database.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/util/database.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../investor/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../investor/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../investor/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../investor/lib/main.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../investor/lib/ui/dashboard.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../investor/lib/ui/dashboard.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../investor/lib/ui/offer_list.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../investor/lib/ui/offer_list.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../investor/lib/ui/offers_and_bids.dart" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../investor/lib/ui/refresh.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../investor/lib/ui/refresh.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../investor/lib/ui/settle_all.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../investor/lib/ui/settle_all.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../investor/lib/ui/settle_invoice_bid.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../investor/lib/ui/settle_invoice_bid.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../investor/lib/ui/unsettled_bids.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../investor/lib/ui/unsettled_bids.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../monitor/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../monitor/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/ui/offer_list.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/ui/offer_list.dart" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <ignored path="../.gradle/4.4/fileChanges/last-build.bin" />
@@ -626,7 +629,7 @@
   </component>
   <component name="PropertiesComponent">
     <property name="android.sdk.path" value="$USER_HOME$/Library/Android/sdk" />
-    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1543039513960" />
+    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1543054518233" />
     <property name="dart.analysis.tool.window.force.activate" value="false" />
     <property name="io.flutter.reload.alreadyRun" value="true" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />

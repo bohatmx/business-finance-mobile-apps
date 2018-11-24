@@ -13,6 +13,7 @@ import 'package:businesslibrary/util/styles.dart';
 import 'package:businesslibrary/util/util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:investor/app_model.dart';
 import 'package:investor/ui/dashboard.dart';
 import 'package:investor/ui/invoice_bidder.dart';
 import 'package:investor/ui/refresh.dart';
