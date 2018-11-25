@@ -5,7 +5,7 @@ class InvestorProfile {
   String email, date;
   double maxInvestableAmount, maxInvoiceAmount;
   double minimumDiscount;
-  String investor;
+  String investor, investorDocRef;
   List<String> sectors, suppliers;
 
   InvestorProfile(
@@ -16,6 +16,7 @@ class InvestorProfile {
       this.date,
       this.sectors,
       this.suppliers,
+      this.investorDocRef,
       this.minimumDiscount,
       this.maxInvestableAmount,
       this.maxInvoiceAmount,
@@ -30,6 +31,7 @@ class InvestorProfile {
     this.investor = data['investor'];
     this.email = data['email'];
     this.investor = data['investor'];
+    this.investorDocRef = data['investorDocRef'];
     this.minimumDiscount = data['minimumDiscount'] * 1.0;
 
     this.date = data['date'];
@@ -53,6 +55,7 @@ class InvestorProfile {
         'profileId': profileId,
         'name': name,
         'date': date,
+        'investorDocRef': investorDocRef,
         'maxInvestableAmount': maxInvestableAmount,
         'cellphone': cellphone,
         'maxInvoiceAmount': maxInvoiceAmount,

@@ -4,12 +4,14 @@ import 'package:businesslibrary/data/investor.dart';
 import 'package:businesslibrary/data/invoice_bid.dart';
 import 'package:businesslibrary/data/invoice_settlement.dart';
 import 'package:businesslibrary/data/user.dart';
+import 'package:businesslibrary/util/FCM.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/peach.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:businesslibrary/util/util.dart';
 import 'package:businesslibrary/util/webview.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:investor/app_model.dart';
 import 'package:investor/ui/dashboard.dart';
@@ -24,7 +26,7 @@ class SettleAll extends StatefulWidget {
   _SettleAllState createState() => _SettleAllState();
 }
 
-class _SettleAllState extends State<SettleAll> implements SnackBarListener {
+class _SettleAllState extends State<SettleAll> implements SnackBarListener, PeachNotifyListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
   List<InvoiceBid> bids = List();
@@ -44,6 +46,10 @@ class _SettleAllState extends State<SettleAll> implements SnackBarListener {
   void _getCache() async {
     investor = await SharedPrefs.getInvestor();
     user = await SharedPrefs.getUser();
+
+    FCM.configureFCM(peachNotifyListener: this);
+    FirebaseMessaging fm = FirebaseMessaging();
+    fm.subscribeToTopic(FCM.TOPIC_PEACH_NOTIFY);
   }
 
   void _showWebView() async {
@@ -74,7 +80,7 @@ class _SettleAllState extends State<SettleAll> implements SnackBarListener {
           setState(() {
             _opacity = 0.0;
           });
-          _writeSettlement();
+
           break;
         case PeachCancel:
           isBusy = false;
@@ -113,7 +119,7 @@ class _SettleAllState extends State<SettleAll> implements SnackBarListener {
   _getPaymentKey() async {
     //Navigator.pop(context);
     var payment = PeachPayment(
-//      merchantReference: widget.invoiceBid.investor.split('#').elementAt(1),
+//      merchantReference: bid.investor.split('#').elementAt(1),
       merchantReference: 'OneConnect',
       amount: totalBidAmount,
       successURL: getFunctionsURL() + 'peachSuccess',
@@ -164,7 +170,7 @@ class _SettleAllState extends State<SettleAll> implements SnackBarListener {
   double _opacity = 1.0;
 
   bool refreshModel = false;
-  Future _writeSettlement() async {
+  Future _writeSettlement(PeachNotification notif) async {
     print('_SettleInvoiceBid._writeSettlement .............................');
     AppSnackbar.showSnackbarWithProgressIndicator(
       scaffoldKey: _scaffoldKey,
@@ -182,15 +188,20 @@ class _SettleAllState extends State<SettleAll> implements SnackBarListener {
           peachPaymentKey: paymentKey.key,
           offer: bid.offer,
           supplier: bid.supplier,
+          customer: bid.customer,
+          customerName: bid.customerName,
+          supplierName: bid.supplierName,
+          investorName: investor.name,
+          peachTransactionId: notif.callpay_transaction_id,
           date: getUTCDate(),
           invoiceBid: NameSpace + 'InvoiceBid#${bid.invoiceBidId}');
       if (w != null) {
         m.wallet = NameSpace + 'Wallet#${w.stellarPublicKey}';
       }
       try {
-        var result = await DataAPI3.makeInvestorInvoiceSettlement(m);
+        await DataAPI3.makeInvestorInvoiceSettlement(m);
         count++;
-        prettyPrint(result.toJson(), '\n\n###### SETTLEMENT registered on BFN and Firestore: RESULT: #$count');
+        print('\n\n###### SETTLEMENT registered on BFN and Firestore: RESULT: #$count');
         await widget.model.processSettledBid(bid);
         print(
             '\n_SettleAllState._writeSettlement - registered $count payments. removeBidFromCache');
@@ -470,6 +481,13 @@ class _SettleAllState extends State<SettleAll> implements SnackBarListener {
   @override
   onActionPressed(int action) {
     // TODO: implement onActionPressed
+    return null;
+  }
+
+  @override
+  onPeachNotify(PeachNotification notification) {
+
+    _writeSettlement(notification);
     return null;
   }
 }

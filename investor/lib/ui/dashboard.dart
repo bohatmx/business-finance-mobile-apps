@@ -4,9 +4,9 @@ import 'package:businesslibrary/api/data_api3.dart';
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/auto_trade_order.dart';
-import 'package:businesslibrary/data/dashboard_data.dart';
 import 'package:businesslibrary/data/delivery_acceptance.dart';
 import 'package:businesslibrary/data/delivery_note.dart';
+import 'package:businesslibrary/data/govt_entity.dart';
 import 'package:businesslibrary/data/investor.dart';
 import 'package:businesslibrary/data/investor_profile.dart';
 import 'package:businesslibrary/data/invoice_bid.dart';
@@ -14,10 +14,9 @@ import 'package:businesslibrary/data/invoice_settlement.dart';
 import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/sector.dart';
+import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/FCM.dart';
-import 'package:businesslibrary/util/Finders.dart';
-import 'package:businesslibrary/util/database.dart';
 import 'package:businesslibrary/util/invoice_bid_card.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/selectors.dart';
@@ -55,7 +54,8 @@ class _DashboardState extends State<Dashboard>
     implements
         SnackBarListener,
         InvoiceBidListener,
-        OfferListener, InvestorCardListener,
+        OfferListener,
+        InvestorCardListener,
         ModelListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   static const platform = const MethodChannel('com.oneconnect.biz.CHANNEL');
@@ -85,7 +85,43 @@ class _DashboardState extends State<Dashboard>
     animation = new Tween(begin: 0.0, end: 1.0).animate(animationController);
     _getCachedPrefs();
     items = buildDaysDropDownItems();
+    //_moveInvoiceBids();
   }
+
+  void _moveInvoiceBids() async{
+    Firestore fm = Firestore.instance;
+    print('\n\n\n_DashboardState._moveInvoiceBids ############### start BIG MOVE ....');
+    var start = DateTime.now();
+    int count = 0, offersWithNoBids = 0;;
+    var qs = await fm.collection('invoiceOffers').getDocuments();
+    for (var doc in qs.documents) {
+      var offer = Offer.fromJson(doc.data);
+      var qs2 = await doc.reference.collection('invoiceBids').getDocuments();
+      if (qs2.documents.isNotEmpty) {
+        int mcount = 0;
+        for (var mdoc in qs2.documents) {
+          var bid = InvoiceBid.fromJson(mdoc.data);
+          bid.documentReference = mdoc.documentID;
+          await fm.collection('invoiceBids').document(mdoc.documentID).setData(
+              bid.toJson());
+          await mdoc.reference.delete();
+          count++;
+          mcount++;
+          print('_DashboardState._moveInvoiceBids - moved: #$count - ${bid
+              .investorName} ${bid.date} ${bid.amount} - old row deleted');
+        }
+
+        print('\n\n $mcount invoice bids for offer ${offer.supplierName} ${offer.offerAmount} ${offer.date}');
+      } else {
+        offersWithNoBids++;
+        print('_DashboardState._moveInvoiceBids -- this offer ${offer.supplierName} ${offer.offerAmount} has no invoice bids to move.');
+      }
+    }
+    var end = DateTime.now();
+    print('\n\n\n_DashboardState._moveInvoiceBids - COMPLETE: #$offersWithNoBids - ${end.difference(start).inMinutes} minutes elapsed. $count rows moved.');
+  }
+  List<Offer> mOfferList = List();
+  List<InvestorProfile> profiles = List();
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
@@ -170,6 +206,7 @@ class _DashboardState extends State<Dashboard>
       isRefreshBids = true;
     });
   }
+
   @override
   Widget build(BuildContext context) {
     return ScopedModelDescendant<InvestorAppModel>(
@@ -274,7 +311,6 @@ class _DashboardState extends State<Dashboard>
         builder: (context, _, model) {
       return ListView(
         children: <Widget>[
-
           new InkWell(
             onTap: _onInvoiceBidsTapped,
             child: Padding(
@@ -315,8 +351,11 @@ class _DashboardState extends State<Dashboard>
 
   void _checkConditions(InvestorAppModel model) async {
     print(
-        '\n\n_checkConditions #### invoiceBidArrived: $invoiceBidArrived, offerArrived: $offerArrived, refreshModel: $refreshModel, count: $count');
+        '\n\n_checkConditions #### BOOLEANS: invoiceBidArrived: $invoiceBidArrived, offerArrived: $offerArrived, refreshModel: $refreshModel, count: $count');
 
+//    if (model.unsettledInvoiceBids == null) {
+//      model.refreshModel();
+//    }
     count++;
 
     if (invoiceBidArrived) {
@@ -445,8 +484,8 @@ class _DashboardState extends State<Dashboard>
     print('_DashboardState._onOffersTapped');
     Navigator.push(
       context,
-      new MaterialPageRoute(maintainState: false,
-          builder: (context) => new OfferList()),
+      new MaterialPageRoute(
+          maintainState: false, builder: (context) => new OfferList()),
     );
   }
 
@@ -549,6 +588,7 @@ class _DashboardState extends State<Dashboard>
     print(
         '_DashboardState.onOfferMessage #################### ${offer.supplierName} ${offer.offerAmount}');
     setState(() {
+      this.offer = offer;
       offerArrived = true;
     });
     _showSnack(
@@ -593,9 +633,6 @@ class _DashboardState extends State<Dashboard>
     return null;
   }
 }
-
-
-
 
 class BidMessage {
   String title, subTitle;

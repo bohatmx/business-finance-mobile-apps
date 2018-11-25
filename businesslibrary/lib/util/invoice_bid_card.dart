@@ -140,7 +140,7 @@ class InvoiceBidCard extends StatelessWidget {
                   child: Text(
                       bid.amount == null
                           ? '0.00'
-                          : getFormattedAmount('${bid.amount}', context),
+                          : getFormattedAmount('${bid.amount * 0.15}', context),
                       style: Styles.tealBoldLarge),
                 ),
               ],

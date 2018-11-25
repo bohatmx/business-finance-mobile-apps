@@ -176,6 +176,7 @@ class _ProfilePageState extends State<ProfilePage> implements SnackBarListener {
     } catch (e) {
       print('_ProfilePageState._onSubmit $e');
     }
+    profile.investorDocRef = investor.documentReference;
     List<String> sectorStrings = List();
 
     if (selectedSectors != null) {

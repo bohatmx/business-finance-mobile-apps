@@ -243,6 +243,7 @@ class _MakeOfferPageState extends State<MakeOfferPage>
         supplierFCMToken: token,
         participantId: supplier.participantId,
         customerName: invoice.customerName,
+        customer: invoice.govtEntity,
         wallet: NameSpace + 'Wallet#${wallet.stellarPublicKey}',
         supplierDocumentRef: supplier.documentReference,
         supplierName: supplier.name,

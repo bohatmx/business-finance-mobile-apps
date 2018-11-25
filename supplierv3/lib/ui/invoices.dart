@@ -1,18 +1,12 @@
 import 'package:businesslibrary/api/data_api.dart';
 import 'package:businesslibrary/api/list_api.dart';
-import 'package:businesslibrary/api/shared_prefs.dart';
-import 'package:businesslibrary/data/dashboard_data.dart';
+
 import 'package:businesslibrary/data/invoice.dart';
 import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/data/offerCancellation.dart';
-import 'package:businesslibrary/data/supplier.dart';
-import 'package:businesslibrary/data/user.dart';
-import 'package:businesslibrary/util/Finders.dart';
-import 'package:businesslibrary/util/database.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/mypager.dart';
 import 'package:businesslibrary/util/pager.dart';
-import 'package:businesslibrary/util/pager_helper.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:flutter/material.dart';
@@ -20,7 +14,6 @@ import 'package:flutter/scheduler.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:supplierv3/app_model.dart';
 import 'package:supplierv3/ui/make_offer.dart';
-import 'package:supplierv3/ui/summary_helper.dart';
 
 class InvoicesOnOffer extends StatefulWidget {
   final SupplierAppModel model;

@@ -74,37 +74,12 @@ class _DashboardState extends State<Dashboard>
     animation = new Tween(begin: 0.0, end: 1.0).animate(animationController);
 
     _getCachedPrefs();
-    fix();
   }
 
   @override
   void dispose() {
     animationController.dispose();
     super.dispose();
-  }
-
-  Future fix() async {
-    print('_DashboardState.fix #######################################');
-    Firestore fs = Firestore.instance;
-    int count = 0;
-    var qs = await fs.collection('settlements').getDocuments();
-    print('_DashboardState.fix ####### settlements: ${qs.documents.length} to be updated \n\n');
-    for (var doc in qs.documents) {
-      var stm = InvestorInvoiceSettlement.fromJson(doc.data);
-      var settlementRef = doc.reference;
-      var qs2 = await fs
-          .collection('invoiceOffers')
-          .where('offerId', isEqualTo: stm.offer.split('#').elementAt(1))
-      .getDocuments();
-      if (qs2.documents.isNotEmpty) {
-        var offer = Offer.fromJson(qs2.documents.first.data);
-        stm.supplier = offer.supplier;
-        await settlementRef.setData(stm.toJson());
-        count++;
-        print('_DashboardState.fix settlement updated with supplier: ${offer.supplierName} investor: ${stm.investor}');
-      }
-    }
-    print('\n\n_DashboardState.fix ######### COMPLETE - $count settlements updated\n\n');
   }
 
   Future _getCachedPrefs() async {
@@ -330,7 +305,8 @@ class _DashboardState extends State<Dashboard>
                     : SummaryCard(
                         totalCount: model.invoices.length,
                         totalCountLabel: 'Invoices',
-                        totalCountStyle: Styles.pinkBoldLarge,
+                        totalCountStyle: Styles.pinkBoldMedium,
+                        totalValueStyle: Styles.greyLabelLarge,
                         totalValue: model.invoices == null
                             ? 0.0
                             : model.getTotalInvoiceAmount(),
@@ -346,41 +322,8 @@ class _DashboardState extends State<Dashboard>
                     ? Container()
                     : OfferSummaryCard(
                         data: model,
-                        elevation: 16.0,
-                      ),
-              ),
-            ),
-            GestureDetector(
-              onTap: _onPurchaseOrdersTapped,
-              child: Padding(
-                padding: const EdgeInsets.only(left: 10.0, right: 10.0),
-                child: model == null
-                    ? Container()
-                    : SummaryCard(
-                        totalCount: model.getTotalPurchaseOrders(),
-                        totalCountLabel: 'Purchase Orders',
-                        totalCountStyle: Styles.blueBoldLarge,
-                        totalValue: model == null
-                            ? 0.0
-                            : model.getTotalPurchaseOrderAmount(),
-                        elevation: 2.0,
-                      ),
-              ),
-            ),
-            GestureDetector(
-              onTap: _onDeliveryNotesTapped,
-              child: Padding(
-                padding: const EdgeInsets.only(left: 10.0, right: 10.0),
-                child: model == null
-                    ? Container()
-                    : SummaryCard(
-                        totalCount: model.deliveryNotes.length,
-                        totalCountLabel: 'Delivery Notes',
-                        totalCountStyle: Styles.blackBoldLarge,
-                        totalValue: model == null
-                            ? 0.0
-                            : model.getTotalDeliveryNoteAmount(),
-                        elevation: 2.0,
+                        elevation: 28.0,
+                  offerTotalStyle: Styles.blackBoldLarge,
                       ),
               ),
             ),
@@ -391,9 +334,10 @@ class _DashboardState extends State<Dashboard>
                 child: SummaryCard(
                   totalCount: model == null ? 0 : model.settlements.length,
                   totalCountLabel: 'Settlements',
-                  totalCountStyle: Styles.greyLabelMedium,
+                  totalCountStyle: Styles.tealBoldLarge,
                   totalValue: model.getTotalSettlementAmount(),
                   elevation: 2.0,
+                  totalValueStyle: Styles.tealBoldReallyLarge,
                 ),
               ),
             ),
@@ -455,7 +399,7 @@ class _DashboardState extends State<Dashboard>
     Navigator.push(
       context,
       MaterialPageRoute(
-          builder: (context) => DeliveryNoteList(model: appModel)),
+          builder: (context) => DeliveryNoteList()),
     );
   }
 
@@ -620,19 +564,20 @@ class _DashboardState extends State<Dashboard>
 class OfferSummaryCard extends StatelessWidget {
   final SupplierAppModel data;
   final double elevation;
-  OfferSummaryCard({this.data, this.elevation});
+  final TextStyle offerTotalStyle;
+  OfferSummaryCard({this.data, this.elevation, this.offerTotalStyle});
 
   @override
   Widget build(BuildContext context) {
     return Card(
       elevation: elevation == null ? 16.0 : elevation,
-      color: Colors.pink.shade50,
+      color: Colors.brown.shade100,
       child: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Column(
           children: <Widget>[
             Padding(
-              padding: const EdgeInsets.only(top: 10.0, bottom: 10.0),
+              padding: const EdgeInsets.only(top: 0.0, bottom: 20.0),
               child: Row(
                 children: <Widget>[
                   Text(
@@ -646,7 +591,7 @@ class OfferSummaryCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.start,
               children: <Widget>[
                 Container(
-                  width: 120.0,
+                  width: 80.0,
                   child: Text(
                     'Open Offers',
                     style: Styles.greyLabelSmall,
@@ -667,9 +612,9 @@ class OfferSummaryCard extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: <Widget>[
                   Container(
-                    width: 120.0,
+                    width: 80.0,
                     child: Text(
-                      'Open Offer Total',
+                      'Offer Total',
                       style: Styles.greyLabelSmall,
                     ),
                   ),
@@ -677,7 +622,7 @@ class OfferSummaryCard extends StatelessWidget {
                     padding: const EdgeInsets.only(left: 12.0),
                     child: Text(
                       '${getFormattedAmount('${data.getTotalOpenOfferAmount()}', context)}',
-                      style: Styles.tealBoldMedium,
+                      style: offerTotalStyle == null? Styles.tealBoldMedium : offerTotalStyle,
                     ),
                   ),
                 ],
@@ -687,9 +632,9 @@ class OfferSummaryCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.start,
               children: <Widget>[
                 Container(
-                  width: 120.0,
+                  width: 80.0,
                   child: Text(
-                    'Closed Offers',
+                    'Closed',
                     style: Styles.greyLabelSmall,
                   ),
                 ),
@@ -708,9 +653,9 @@ class OfferSummaryCard extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: <Widget>[
                   Container(
-                    width: 120.0,
+                    width: 80.0,
                     child: Text(
-                      'Cancelled Offers',
+                      'Cancelled',
                       style: Styles.greyLabelSmall,
                     ),
                   ),

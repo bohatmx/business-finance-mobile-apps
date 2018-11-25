@@ -1,4 +1,3 @@
-
 import 'package:businesslibrary/util/Finders.dart';
 
 class Offer extends Findable {
@@ -8,7 +7,7 @@ class Offer extends Findable {
   String invoice, documentReference;
   String purchaseOrder, participantId, wallet;
   String user, date, supplier, contractURL;
-  String invoiceDocumentRef, supplierName, customerName;
+  String invoiceDocumentRef, supplierName, customerName, customer;
   String dateClosed;
   String supplierDocumentRef, supplierFCMToken, customerFCMToken;
   double invoiceAmount, offerAmount, discountPercent;
@@ -35,6 +34,7 @@ class Offer extends Findable {
       this.contractURL,
       this.wallet,
       this.isOpen,
+      this.customer,
       this.isCancelled,
       this.offerCancellation,
       this.supplierFCMToken,
@@ -67,6 +67,7 @@ class Offer extends Findable {
     this.dateClosed = data['dateClosed'];
     this.supplierName = data['supplierName'];
     this.customerName = data['customerName'];
+    this.customer = data['customer'];
 
     this.invoiceAmount = data['invoiceAmount'] * 1.00;
     this.offerAmount = data['offerAmount'] * 1.00;
@@ -102,6 +103,7 @@ class Offer extends Findable {
         'dateClosed': dateClosed,
         'supplierName': supplierName,
         'customerName': customerName,
+        'customer': customer,
         'invoiceAmount': invoiceAmount,
         'offerAmount': offerAmount,
         'contractURL': contractURL,

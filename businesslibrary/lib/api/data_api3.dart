@@ -322,7 +322,7 @@ class DataAPI3 {
     }
   }
 
-  static Future<InvoiceBid> makeInvoiceBid(InvoiceBid bid) async {
+  static Future makeInvoiceBid(InvoiceBid bid) async {
     bid..invoiceBidId = getKey();
     bid.date = getUTCDate();
     bid.isSettled = false;
@@ -334,10 +334,7 @@ class DataAPI3 {
     try {
       var mResponse = await _doHTTP(getFunctionsURL() + MAKE_INVOICE_BID, bag);
       if (mResponse.statusCode == 200) {
-        if (bid.autoTradeOrder != null) {
-          await closeOffer(bid.offer.split('#').elementAt(1));
-        }
-        return InvoiceBid.fromJson(json.decode(mResponse.body));
+       return 0;
       } else {
         mResponse.transform(utf8.decoder).listen((contents) {
           print('DataAPI3.makeInvoiceBid  $contents');
@@ -351,7 +348,7 @@ class DataAPI3 {
     }
   }
 
-  static Future<InvestorInvoiceSettlement> makeInvestorInvoiceSettlement(
+  static Future makeInvestorInvoiceSettlement(
       InvestorInvoiceSettlement settlement) async {
     settlement.invoiceSettlementId = getKey();
     settlement.date = getUTCDate();
@@ -365,7 +362,7 @@ class DataAPI3 {
       var mResponse = await _doHTTP(
           getFunctionsURL() + MAKE_INVESTOR_INVOICE_SETTLEMENT, bag);
       if (mResponse.statusCode == 200) {
-        return InvestorInvoiceSettlement.fromJson(json.decode(mResponse.body));
+        return 0;
       } else {
         print(mResponse.body);
         print(

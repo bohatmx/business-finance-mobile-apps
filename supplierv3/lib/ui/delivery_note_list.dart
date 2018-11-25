@@ -24,9 +24,6 @@ import 'package:supplierv3/ui/invoice_page.dart';
 import 'package:supplierv3/ui/summary_helper.dart';
 
 class DeliveryNoteList extends StatefulWidget {
-  final SupplierAppModel model;
-
-  DeliveryNoteList({this.model});
 
   @override
   _DeliveryNoteListState createState() => _DeliveryNoteListState();
@@ -44,6 +41,7 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
   List<DeliveryNote> currentPage = List(), baseList;
   FirebaseMessaging _fcm = FirebaseMessaging();
   DeliveryNote deliveryNote;
+  SupplierAppModel appModel;
   User user;
   Supplier supplier;
   bool isPurchaseOrder, isDeliveryNote, messageShown = false;
@@ -54,7 +52,6 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
   void initState() {
     super.initState();
     _getCached();
-    setBasePager();
   }
 
   void _getCached() async {
@@ -76,23 +73,14 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
 
     setState(() {});
   }
-
-  @override
-  onNoMoreData() {
-    AppSnackbar.showSnackbar(
-        scaffoldKey: _scaffoldKey,
-        message: 'No more. No mas.',
-        textColor: Styles.white,
-        backgroundColor: Styles.teal);
-  }
-
+  
   int count;
   String message;
 
   Widget _getBottom() {
     return PreferredSize(
       preferredSize: const Size.fromHeight(220.0),
-      child: widget.model == null
+      child: appModel == null
           ? Container()
           : Column(
         children: <Widget>[
@@ -110,9 +98,9 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
             padding: const EdgeInsets.only(left: 8.0, right: 8.0, bottom: 12.0),
             child:  PagerControl(
               itemName: 'Delivery Notes',
-              pageLimit: widget.model.pageLimit,
+              pageLimit: appModel.pageLimit,
               elevation: 16.0,
-              items: widget.model.offers.length,
+              items: appModel.offers.length,
               listener: this,
               color: Colors.brown.shade100,
               pageNumber: _pageNumber,
@@ -124,32 +112,39 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
     );
   }
 
+  int mCount = 0;
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      key: _scaffoldKey,
-      appBar: AppBar(
-        title: Text('Delivery Notes'),
-        bottom: _getBottom(),
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.add),
-            onPressed: _addDeliveryNote,
+    return ScopedModelDescendant<SupplierAppModel>(
+      builder: (context,_,model) {
+        appModel = model;
+        mCount++;
+        if (mCount == 1) {
+          setBasePager();
+        }
+        return Scaffold(
+          key: _scaffoldKey,
+          appBar: AppBar(
+            title: Text('Delivery Notes'),
+            bottom: _getBottom(),
+            actions: <Widget>[
+              IconButton(
+                icon: Icon(Icons.add),
+                onPressed: _addDeliveryNote,
+              ),
+            ],
           ),
-//          IconButton(
-//            icon: Icon(Icons.refresh),
-//            onPressed: _getDeliveryNotes,
-//          ),
-        ],
-      ),
-      backgroundColor: Colors.brown.shade100,
-      body: new Column(
-        children: <Widget>[
-          Flexible(
-            child: _getListView(),
+          backgroundColor: Colors.brown.shade100,
+          body: new Column(
+            children: <Widget>[
+              Flexible(
+                child: _getListView(),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
+      
     );
   }
 
@@ -374,13 +369,13 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
   //paging constructs
   BasePager basePager;
   void setBasePager() {
-    if (widget.model == null) return;
+    if (appModel == null) return;
     print(
-        '_DeliveryNoteListState.setBasePager appModel.pageLimit: ${widget.model.pageLimit}, get first page');
+        '_DeliveryNoteListState.setBasePager appModel.pageLimit: ${appModel.pageLimit}, get first page');
     if (basePager == null) {
       basePager = BasePager(
-        items: widget.model.deliveryNotes,
-        pageLimit: widget.model.pageLimit,
+        items: appModel.deliveryNotes,
+        pageLimit: appModel.pageLimit,
       );
     }
 
@@ -389,9 +384,7 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
     page.forEach((f) {
       currentPage.add(f);
     });
-    setState(() {
-
-    });
+  
   }
 
   double _getPageValue() {
@@ -403,9 +396,9 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
     return t;
   }
   double _getTotalValue() {
-    if (widget.model == null) return 0.00;
+    if (appModel == null) return 0.00;
     var t = 0.0;
-    widget.model.deliveryNotes.forEach((po) {
+    appModel.deliveryNotes.forEach((po) {
       t += po.amount;
     });
     return t;
@@ -436,7 +429,7 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
   @override
   onPageLimit(int pageLimit) async {
     print('_InvoicesOnOfferState.onPageLimit');
-    await widget.model.updatePageLimit(pageLimit);
+    await appModel.updatePageLimit(pageLimit);
     _pageNumber = 1;
     basePager.getNextPage();
     return null;

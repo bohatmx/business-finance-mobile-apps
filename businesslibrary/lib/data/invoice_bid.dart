@@ -10,7 +10,10 @@ class InvoiceBid extends Findable {
   String offer, supplierFCMToken, investorFCMToken, customerFCMToken, wallet;
   String investor, date, autoTradeOrder;
   String user, documentReference, supplier;
-  String invoiceBidAcceptance, investorName;
+  String invoiceBidAcceptance, customer, offerDocRef, investorDocRef;
+  String supplierName;
+  String investorName;
+  String customerName;
   bool isSettled;
 
   InvoiceBid(
@@ -29,11 +32,16 @@ class InvoiceBid extends Findable {
       this.wallet,
       this.isSettled,
       this.supplier,
+      this.offerDocRef,
+      this.investorDocRef,
       this.supplierFCMToken,
       this.investorFCMToken,
       this.customerFCMToken,
       this.documentReference,
-      this.invoiceBidAcceptance});
+      this.invoiceBidAcceptance,
+      this.supplierName,
+      this.customerName,
+      this.customer});
 
   InvoiceBid.fromJson(Map data) {
     this.invoiceBidId = data['invoiceBidId'];
@@ -70,6 +78,12 @@ class InvoiceBid extends Findable {
     this.date = data['date'];
     this.isSettled = data['isSettled'];
     this.autoTradeOrder = data['autoTradeOrder'];
+
+    this.supplierName = data['supplierName'];
+    this.customerName = data['customerName'];
+    this.customer = data['customer'];
+    this.offerDocRef = data['offerDocRef'];
+    this.investorDocRef = data['investorDocRef'];
   }
   Map<String, dynamic> toJson() => <String, dynamic>{
         'invoiceBidId': invoiceBidId,
@@ -79,9 +93,14 @@ class InvoiceBid extends Findable {
         'amount': amount,
         'discountPercent': discountPercent,
         'offer': offer,
+        'offerDocRef': offerDocRef,
         'investor': investor,
         'user': user,
+        'supplierName': supplierName,
+        'customerName': customerName,
+        'customer': customer,
         'date': date,
+        'investorDocRef': investorDocRef,
         'intDate': intDate,
         'invoiceBidAcceptance': invoiceBidAcceptance,
         'documentReference': documentReference,

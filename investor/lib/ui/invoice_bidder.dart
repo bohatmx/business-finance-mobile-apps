@@ -13,7 +13,9 @@ import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:investor/app_model.dart';
 import 'package:investor/ui/invoice_due_diligence.dart';
+import 'package:scoped_model/scoped_model.dart';
 
 class InvoiceBidder extends StatefulWidget {
   final Offer offer;
@@ -35,6 +37,7 @@ class _InvoiceBidderState extends State<InvoiceBidder>
   User user;
   Wallet wallet;
   bool _showBusyIndicator = false;
+  InvestorAppModel appModel;
   @override
   void initState() {
     super.initState();
@@ -73,20 +76,26 @@ class _InvoiceBidderState extends State<InvoiceBidder>
       offer = widget.offer;
       //_getExistingBids();
     }
-    return Scaffold(
-      key: _scaffoldKey,
-      appBar: AppBar(
-        title: Text(
-          'Make Invoice Bid',
-          style: Styles.whiteBoldSmall,
-        ),
-        elevation: 4.0,
-        bottom: _getBottom(),
-        actions: <Widget>[
-          IconButton(icon: Icon(Icons.refresh), onPressed: _getExistingBids),
-        ],
-      ),
-      body: _getBody(),
+    return ScopedModelDescendant<InvestorAppModel>(
+      builder: (context,_,model) {
+        appModel = model;
+        return Scaffold(
+          key: _scaffoldKey,
+          appBar: AppBar(
+            title: Text(
+              'Make Invoice Bid',
+              style: Styles.whiteBoldSmall,
+            ),
+            elevation: 4.0,
+            bottom: _getBottom(),
+            actions: <Widget>[
+              IconButton(icon: Icon(Icons.refresh), onPressed: _getExistingBids),
+            ],
+          ),
+          body: _getBody(),
+        );
+      },
+
     );
   }
 
@@ -540,6 +549,10 @@ class _InvoiceBidderState extends State<InvoiceBidder>
 
     prettyPrint(offer.toJson(),
         '_InvoiceBidderState._onMakeBid ...........everything checks out. Making a bid:');
+    /*
+    bid.investorDocRef = unit.profile.investorDocRef;
+        bid.offerDocRef = unit.offer.documentReference;
+     */
     var token = await _firebaseMessaging.getToken();
     InvoiceBid bid = InvoiceBid(
         user: NameSpace + 'User#' + user.userId,
@@ -556,18 +569,17 @@ class _InvoiceBidderState extends State<InvoiceBidder>
         isSettled: false,
         supplierFCMToken: offer.supplierFCMToken,
         investorFCMToken: token,
+        supplierName: offer.supplierName,
+        customerName: offer.customerName,
+        customer: offer.customer,
+        investorDocRef: investor.documentReference,
+        offerDocRef: offer.documentReference,
         supplier: offer.supplier);
 
     try {
-      var resultBid = await DataAPI3.makeInvoiceBid(bid);
+      await DataAPI3.makeInvoiceBid(bid);
 
-      if (resultBid == null) {
-        AppSnackbar.showErrorSnackbar(
-            scaffoldKey: _scaffoldKey,
-            message: 'Invoice Bid failed',
-            listener: this,
-            actionLabel: 'CLOSE');
-      } else {
+
         AppSnackbar.showSnackbarWithAction(
             scaffoldKey: _scaffoldKey,
             message: 'Invoice Bid successful\nRefreshing bid data ...',
@@ -579,7 +591,9 @@ class _InvoiceBidderState extends State<InvoiceBidder>
             action: 0);
 
         _getExistingBids();
-      }
+        await appModel.refreshOffers();
+        await appModel.refreshInvoiceBids();
+
     } catch (e) {
       AppSnackbar.showErrorSnackbar(
           scaffoldKey: _scaffoldKey,

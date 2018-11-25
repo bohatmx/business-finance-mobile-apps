@@ -205,7 +205,15 @@ class InvestorAppModel extends Model {
       _modelListener.onComplete();
     }
   }
-
+/*
+firestore.collection('users').document(userId).snapshots().asyncMap((snap) async {
+      List<String> groceryListsArr = snap.data['groceryLists'];
+      var groceryList = <DocumentSnapshot>[];
+      for (var groceryPath in groceryListsArr) {
+        groceryList.add(await firestore.document(groceryPath).get());
+      }
+      retur
+ */
   Future refreshModel() async {
     print(
         '\n\nInvestorAppModel.refreshModel ............. refresh everything! ....................');
@@ -213,12 +221,12 @@ class InvestorAppModel extends Model {
       _investor = await SharedPrefs.getInvestor();
     }
     _unsettledInvoiceBids = await ListAPI.getUnsettledInvoiceBidsByInvestor(
-        _investor.documentReference);
+        _investor.participantId);
     await Database.saveUnsettledInvoiceBids(InvoiceBids(_unsettledInvoiceBids));
     _setItemNumbers(_unsettledInvoiceBids);
     print('InvestorAppModel.refreshModel unsettled bids: ${unsettledInvoiceBids.length}');
 
-    _settledInvoiceBids = await ListAPI.getSettledInvoiceBidsByInvestor(_investor.documentReference);
+    _settledInvoiceBids = await ListAPI.getSettledInvoiceBidsByInvestor(_investor.participantId);
     await Database.saveSettledInvoiceBids(InvoiceBids(_settledInvoiceBids));
     _setItemNumbers(_settledInvoiceBids);
     print('InvestorAppModel.refreshModel settled bids: ${settledInvoiceBids.length}');

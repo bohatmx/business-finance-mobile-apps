@@ -181,7 +181,7 @@ class _OfferListState extends State<OfferList>
         textColor: Styles.white,
         backgroundColor: Styles.black);
 
-    appModel.addInvoiceBid(invoiceBid);
+    appModel.addUnsettledInvoiceBid(invoiceBid);
   }
 
   //paging constructs

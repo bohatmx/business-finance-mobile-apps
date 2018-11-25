@@ -70,7 +70,7 @@ class Database {
         String string = await jsonFile.readAsString();
         Map map = json.decode(string);
         InvoiceBids w = new InvoiceBids.fromJson(map);
-        print('Database ## returning InvoiceBids found: ${w.bids.length}');
+        print('Database ## getUnsettledInvoiceBids - returning InvoiceBids found: ${w.bids.length}');
         return w.bids;
       } else {
         return List();
@@ -87,14 +87,14 @@ class Database {
     fileExists = await jsonFile.exists();
 
     if (fileExists) {
-      print('Database_saveInvoiceBids  ## file exists ...writing InvoiceBids file');
+      print('Database_saveUnsettledInvoiceBids  ## file exists ...writing InvoiceBids file');
       jsonFile.writeAsString(json.encode(map));
       print(
-          'Database_saveInvoiceBids ##  has cached list of InvoiceBids  ###))))))))) : ${bids.bids.length}');
+          'Database_saveUnsettledInvoiceBids ##  has cached list of InvoiceBids  ###))))))))) : ${bids.bids.length}\n\n');
       return 0;
     } else {
       print(
-          'FileUti_saveInvoiceBids ## file does not exist ...creating and writing InvoiceBids file');
+          'FileUti_saveUnsettledInvoiceBids## file does not exist ...creating and writing InvoiceBids file');
       var file = await jsonFile.create();
       await file.writeAsString(json.encode(map));
       return 0;
@@ -113,7 +113,7 @@ class Database {
         String string = await jsonFile.readAsString();
         Map map = json.decode(string);
         InvoiceBids w = new InvoiceBids.fromJson(map);
-        print('Database ## returning SettledInvoiceBids found: ${w.bids.length}');
+        print('\nDatabase ## getSettledInvoiceBids - returning SettledInvoiceBids found: ${w.bids.length} \n\n');
         return w.bids;
       } else {
         return List();
@@ -130,10 +130,10 @@ class Database {
     fileExists = await jsonFile.exists();
 
     if (fileExists) {
-      print('Database_saveSettledInvoiceBids  ## file exists ...writing SettledInvoiceBids file');
+      print('\n\nDatabase_saveSettledInvoiceBids  ## file exists ...writing SettledInvoiceBids file');
       jsonFile.writeAsString(json.encode(map));
       print(
-          'Database_saveSettledInvoiceBids ##  has cached list of SettledInvoiceBids  ###))))))))) : ${bids.bids.length}');
+          'Database_saveSettledInvoiceBids ##  has cached list of SettledInvoiceBids  ###))))))))) : ${bids.bids.length}\n\n');
       return 0;
     } else {
       print(

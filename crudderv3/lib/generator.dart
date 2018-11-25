@@ -161,7 +161,7 @@ class Generator {
           supplier = s;
         }
       });
-      await _makeOffer(inv, supplier);
+      //await _makeOffer(inv, supplier);
     }
 
     print(div);
@@ -323,6 +323,7 @@ class Generator {
         supplierDocumentRef: supplier.documentReference,
         supplierName: supplier.name,
         sectorName: sector.sectorName,
+        customer: invoice.govtEntity,
         sector: nameSpace + 'Sector#${sector.sectorId}',
         invoiceDocumentRef: invoice.documentReference);
     try {

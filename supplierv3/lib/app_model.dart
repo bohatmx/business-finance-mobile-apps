@@ -20,7 +20,8 @@ class SupplierAppModel extends Model {
   List<Invoice> _invoices = List();
   List<DeliveryAcceptance> _deliveryAcceptances = List();
   List<Offer> _offers = List();
-  List<InvoiceBid> _invoiceBids = List();
+  List<InvoiceBid> _unsettledInvoiceBids = List();
+  List<InvoiceBid> _settledInvoiceBids = List();
   List<InvestorInvoiceSettlement> _settlements = List();
   List<InvoiceAcceptance> _invoiceAcceptances = List();
   Supplier _supplier;
@@ -32,7 +33,8 @@ class SupplierAppModel extends Model {
   List<Invoice> get invoices => _invoices;
   List<DeliveryAcceptance> get deliveryAcceptances => _deliveryAcceptances;
   List<Offer> get offers => _offers;
-  List<InvoiceBid> get invoiceBids => _invoiceBids;
+  List<InvoiceBid> get unsettledInvoiceBids => _unsettledInvoiceBids;
+  List<InvoiceBid> get settledInvoiceBids => _settledInvoiceBids;
   List<InvestorInvoiceSettlement> get settlements => _settlements;
   List<InvoiceAcceptance> get invoiceAcceptances => _invoiceAcceptances;
   Supplier get supplier => _supplier;
@@ -79,8 +81,8 @@ class SupplierAppModel extends Model {
     _offers = await Database.getOffers();
     _setItemNumbers(_offers);
 
-    _invoiceBids = await Database.getInvoiceBids();
-    _setItemNumbers(_invoiceBids);
+    _unsettledInvoiceBids = await Database.getUnsettledInvoiceBids();
+    _setItemNumbers(_unsettledInvoiceBids);
 
     _settlements = await Database.getInvestorInvoiceSettlements();
     _setItemNumbers(_settlements);
@@ -141,10 +143,11 @@ class SupplierAppModel extends Model {
     _setItemNumbers(_settlements);
     notifyListeners();
   }
-  Future addInvoiceBid(InvoiceBid bid) async {
-    _invoiceBids.insert(0, bid);
-    await Database.saveInvoiceBids(InvoiceBids(_invoiceBids));
-    _setItemNumbers(_invoiceBids);
+
+  Future addUnsettledInvoiceBid(InvoiceBid bid) async {
+    _unsettledInvoiceBids.insert(0, bid);
+    await Database.saveUnsettledInvoiceBids(InvoiceBids(_unsettledInvoiceBids));
+    _setItemNumbers(_unsettledInvoiceBids);
     notifyListeners();
   }
   int getTotalOpenOffers() {
@@ -326,6 +329,12 @@ class SupplierAppModel extends Model {
     _offers = await ListAPI.getOffersBySupplier(_supplier.participantId);
     _setItemNumbers(_offers);
     await Database.saveOffers(Offers(_offers));
+    notifyListeners();
+  }
+  Future refreshDeliveryNotes() async{
+    _deliveryNotes = await ListAPI.getDeliveryNotes(supplier.documentReference, 'suppliers');
+    _setItemNumbers(_deliveryNotes);
+    await Database.saveDeliveryNotes(DeliveryNotes(_deliveryNotes));
     notifyListeners();
   }
 }

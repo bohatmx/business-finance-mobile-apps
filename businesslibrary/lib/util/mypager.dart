@@ -314,7 +314,7 @@ class PagerControl extends StatelessWidget {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(left: 8.0, right: 60.0),
+                  padding: const EdgeInsets.only(left: 8.0, right: 20.0),
                   child: Text(
                     '${_getTotalPages()}',
                     style: Styles.blackSmall,

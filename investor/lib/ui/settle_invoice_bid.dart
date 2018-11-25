@@ -72,7 +72,7 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
       }
     });
     if (widget.invoiceBid != null) {
-      offerBag = await ListAPI.getOfferById(
+      offerBag = await ListAPI.getOfferByOfferId(
           widget.invoiceBid.offer.split('#').elementAt(1));
       setState(() {
         isBusy = false;
@@ -428,6 +428,10 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
         offer: widget.invoiceBid.offer,
         supplier: widget.invoiceBid.supplier,
         peachTransactionId: notif.callpay_transaction_id,
+        customer: widget.invoiceBid.customer,
+        customerName: widget.invoiceBid.customerName,
+        supplierName: widget.invoiceBid.supplierName,
+        investorName: investor.name,
         date: getUTCDate(),
         invoiceBid: NameSpace + 'InvoiceBid#${widget.invoiceBid.invoiceBidId}');
 
@@ -436,9 +440,9 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
     }
 
     try {
-      var result = await DataAPI3.makeInvestorInvoiceSettlement(m);
+      await DataAPI3.makeInvestorInvoiceSettlement(m);
       print(
-          '\n\n_SettleInvoiceBid.onPeachNotify ####### SETTLEMENT registered on BFN and Firestore: ${result.toJson()} waiting for notification from Peach');
+          '\n\n_SettleInvoiceBid.onPeachNotify ####### SETTLEMENT registered on BFN and Firestore:  waiting for notification from Peach');
 
       AppSnackbar.showSnackbarWithAction(
           scaffoldKey: _scaffoldKey,

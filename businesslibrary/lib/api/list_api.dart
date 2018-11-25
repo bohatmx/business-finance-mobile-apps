@@ -203,9 +203,8 @@ class ListAPI {
         '\n\n\nListAPI.getInvoiceBidsByOffer ....................... start query, documentReference: $documentReference');
     var start = DateTime.now();
     var qs = await _firestore
-        .collection('invoiceOffers')
-        .document(documentReference)
         .collection('invoiceBids')
+        .where('offerDocRef', isEqualTo: documentReference)
         .getDocuments()
         .catchError((e) {
       print('ListAPI.getOfferInvoiceBids $e');
@@ -229,14 +228,13 @@ class ListAPI {
   static Future<List<InvoiceBid>> getUnsettledInvoiceBidsByInvestor(
       String documentReference) async {
     print(
-        '\n\n\nListAPI.getUnsettledInvoiceBidsByInvestor ========= documentReference: $documentReference');
+        '\n\n\nListAPI.getUnsettledInvoiceBidsByInvestor ========= investor documentReference: $documentReference');
     var start = DateTime.now();
     List<InvoiceBid> list = List();
     var qs = await _firestore
-        .collection('investors')
-        .document(documentReference)
         .collection('invoiceBids')
         .where('isSettled', isEqualTo: false)
+        .where('investor', isEqualTo: NameSpace + 'Investor#$documentReference')
         .orderBy('date')
         .getDocuments()
         .catchError((e) {
@@ -262,14 +260,13 @@ class ListAPI {
   static Future<List<InvoiceBid>> getSettledInvoiceBidsByInvestor(
       String documentReference) async {
     print(
-        '\n\n\nListAPI.getSettledInvoiceBidsByInvestor ========= documentReference: $documentReference');
+        '\n\n\nListAPI.getSettledInvoiceBidsByInvestor ========= investor documentReference: $documentReference');
     var start = DateTime.now();
     List<InvoiceBid> list = List();
     var qs = await _firestore
-        .collection('investors')
-        .document(documentReference)
         .collection('invoiceBids')
         .where('isSettled', isEqualTo: true)
+        .where('investor', isEqualTo: NameSpace + 'Investor#$documentReference')
         .orderBy('date')
         .getDocuments()
         .catchError((e) {
@@ -288,7 +285,7 @@ class ListAPI {
       }
     });
     print(
-        'ListAPI.getUnsettledInvoiceBidsByInvestor found after checking isSettled: ${list.length} \n\n');
+        'ListAPI.getSettledInvoiceBidsByInvestor found after checking isSettled == true: ${list.length} \n\n');
     return list;
   }
 
@@ -300,8 +297,6 @@ class ListAPI {
         'offer.offerId: ${offer.offerId} participantId: ${investor.participantId}');
     List<InvoiceBid> list = List();
     var qs = await _firestore
-        .collection('invoiceOffers')
-        .document(offer.documentReference)
         .collection('invoiceBids')
         .where('offer',
             isEqualTo: 'resource:com.oneconnect.biz.Offer#${offer.offerId}')
@@ -334,42 +329,46 @@ class ListAPI {
     return list;
   }
 
-  static Future<OfferBag> getOfferById(String id) async {
-    print('\n\n\nListAPI.getOfferById ...............................');
+  static Future<OfferBag> getOfferByOfferId(String offerId) async {
+    print(
+        '\n\n\nListAPI.getOfferById ............................... id: $offerId');
     var start = DateTime.now();
     Offer offer;
-    var qs = await _firestore
+    QuerySnapshot qs = await _firestore
         .collection('invoiceOffers')
-        .where('offerId', isEqualTo: id)
+        .where('offerId', isEqualTo: offerId)
+        .limit(1)
         .getDocuments()
         .catchError((e) {
       print('ListAPI.getOfferById $e');
       return null;
     });
     var end1 = DateTime.now();
-    print('ListAPI.getOfferById ############## found offer: ${qs.documents.length} elapsed : ${end1.difference(start).inMilliseconds} milliseconds ');
+    print(
+        'ListAPI.getOfferById ############## found offer: ${qs.documents.length} elapsed : ${end1.difference(start).inMilliseconds} milliseconds ');
 
     if (qs.documents.isEmpty) {
-      return null;
+      return OfferBag();
     }
     offer = Offer.fromJson(qs.documents.first.data);
-    prettyPrint(offer.toJson(), '############# OFFER:');
+    prettyPrint(offer.toJson(), '############# OFFER: ... getting bids ...');
     var qs1 = await _firestore
-        .collection('invoiceOffers')
-        .document(qs.documents.first.documentID)
         .collection('invoiceBids')
+        .where('offer', isEqualTo: NameSpace + 'Offer#$offerId')
         .getDocuments()
         .catchError((e) {
       print('ListAPI.getOfferById $e');
       return null;
     });
     var end2 = DateTime.now();
-    print('ListAPI.getOfferById invoiceBids found: ${qs1.documents.length}  elapsed : ${end2.difference(end1).inMilliseconds} milliseconds');
+    print(
+        'ListAPI.getOfferById invoiceBids found: ${qs1.documents.length}  elapsed : ${end2.difference(end1).inMilliseconds} milliseconds');
     List<InvoiceBid> bids = List();
     qs1.documents.forEach((doc) {
       bids.add(InvoiceBid.fromJson(doc.data));
     });
-    print('ListAPI.getOfferById built local invoice bids for offer: ${bids.length}. setting up bag ');
+    print(
+        'ListAPI.getOfferById built local invoice bids for offer: ${bids.length}. setting up bag ');
     var bag = OfferBag(offer: offer, invoiceBids: bids);
     return bag;
   }
