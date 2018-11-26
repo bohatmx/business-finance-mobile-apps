@@ -333,12 +333,12 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
               child: RaisedButton(
                 elevation: 16.0,
                 onPressed: _getPaymentKey,
-                color: Colors.pink.shade400,
+//                color: Colors.pink.shade400,
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Text(
                     'Settle Invoice Bid',
-                    style: Styles.whiteMedium,
+                    style: Styles.whiteSmall,
                   ),
                 ),
               ),
@@ -359,7 +359,7 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
           appBar: AppBar(
             title: Text('Invoice Bid Settlement'),
             bottom: _getBottom(),
-            elevation: 8.0,
+            elevation: 2.0,
             actions: <Widget>[
               IconButton(
                 icon: Icon(Icons.refresh),
@@ -388,6 +388,7 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
       case Exit:
         _scaffoldKey.currentState.removeCurrentSnackBar();
         print('_SettleInvoiceBid.onActionPressed about to pop .....');
+        Navigator.pop(context, true);
         Navigator.pop(context, true);
         Navigator.push(
           context,

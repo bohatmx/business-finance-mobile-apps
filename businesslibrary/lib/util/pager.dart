@@ -140,7 +140,8 @@ class _Pager3State extends State<Pager3> {
     pageNumber = 1;
     setState(() {});
 
-    print('_Pager3State._getInitialPage ############# calling widget.listener.onInitialPage with ${currentPage.length} rows');
+    print(
+        '_Pager3State._getInitialPage ############# calling widget.listener.onInitialPage with ${currentPage.length} rows');
     widget.listener.onInitialPage(currentPage);
   }
 
@@ -484,39 +485,58 @@ class Pages {
     print('Pages.getPage ........... index: $index');
     var page = _pages.elementAt(index);
     page.items.forEach((i) {
-      print('Pages.getPage ### itemNumber: ${i.itemNumber} intDate: ${i.intDate}');
+      if (i is Offer) {
+        print(
+            'itemNumber: ${i.itemNumber} ${i.intDate} ${i.date} ${i.supplierName} customer: ${i.customerName} ${i.offerAmount}');
+      }
+      if (i is PurchaseOrder) {
+        print(
+            'itemNumber: ${i.itemNumber} ${i.intDate} ${i.date} ${i.supplierName} customer: ${i.purchaserName} ${i.amount}');
+      }
+      if (i is DeliveryNote) {
+        print(
+            'itemNumber: ${i.itemNumber} ${i.intDate} ${i.date} ${i.supplierName} customer: ${i.customerName} ${i.amount}');
+      }
+      if (i is Invoice) {
+        print(
+            'itemNumber: ${i.itemNumber} ${i.intDate} ${i.date} ${i.supplierName} customer: ${i.customerName} ${i.amount}');
+      }
+      if (i is InvoiceBid) {
+        print(
+            'itemNumber: ${i.itemNumber} ${i.intDate} ${i.date} ${i.investorName} reservePercent: ${i.reservePercent} ${i.amount}');
+      }
     });
     return page;
   }
 
   doPrint() {
     print('\n\n##############################################');
-    print('Pages.doPrint .... pages: ${_pages.length}');
-//    _pages.forEach((p) {
-//      print('\n\npageNumber: ${p.pageNumber} items: ${p.items.length}');
-//      p.items.forEach((i) {
-//        if (i is Offer) {
-//          print(
-//              'itemNumber: ${i.itemNumber} ${i.intDate} ${i.date} ${i.supplierName} customer: ${i.customerName} ${i.offerAmount}');
-//        }
-//        if (i is PurchaseOrder) {
-//          print(
-//              'itemNumber: ${i.itemNumber} ${i.intDate} ${i.date} ${i.supplierName} customer: ${i.purchaserName} ${i.amount}');
-//        }
-//        if (i is DeliveryNote) {
-//          print(
-//              'itemNumber: ${i.itemNumber} ${i.intDate} ${i.date} ${i.supplierName} customer: ${i.customerName} ${i.amount}');
-//        }
-//        if (i is Invoice) {
-//          print(
-//              'itemNumber: ${i.itemNumber} ${i.intDate} ${i.date} ${i.supplierName} customer: ${i.customerName} ${i.amount}');
-//        }
-//        if (i is InvoiceBid) {
-//          print(
-//              'itemNumber: ${i.itemNumber} ${i.intDate} ${i.date} ${i.investorName} reservePercent: ${i.reservePercent} ${i.amount}');
-//        }
-//      });
-//    });
-//    print('\n##############################################\n\n');
+    print('Pages.doPrint .... number of pages: ${_pages.length}');
+    _pages.forEach((p) {
+      print('\n\npageNumber: ${p.pageNumber} items: ${p.items.length}');
+      p.items.forEach((i) {
+        if (i is Offer) {
+          print(
+              'itemNumber: ${i.itemNumber} ${i.intDate} ${i.date} ${i.supplierName} customer: ${i.customerName} ${i.offerAmount}');
+        }
+        if (i is PurchaseOrder) {
+          print(
+              'itemNumber: ${i.itemNumber} ${i.intDate} ${i.date} ${i.supplierName} customer: ${i.purchaserName} ${i.amount}');
+        }
+        if (i is DeliveryNote) {
+          print(
+              'itemNumber: ${i.itemNumber} ${i.intDate} ${i.date} ${i.supplierName} customer: ${i.customerName} ${i.amount}');
+        }
+        if (i is Invoice) {
+          print(
+              'itemNumber: ${i.itemNumber} ${i.intDate} ${i.date} ${i.supplierName} customer: ${i.customerName} ${i.amount}');
+        }
+        if (i is InvoiceBid) {
+          print(
+              'itemNumber: ${i.itemNumber} ${i.intDate} ${i.date} ${i.investorName} reservePercent: ${i.reservePercent} ${i.amount}');
+        }
+      });
+    });
+    print('\n##############################################\n\n');
   }
 }

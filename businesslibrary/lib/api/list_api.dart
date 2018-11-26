@@ -244,7 +244,7 @@ class ListAPI {
 
     var end = DateTime.now();
     print(
-        'ListAPI.getUnsettledInvoiceBidsByInvestor found: ${qs.documents.length} elapsed: ${end.difference(start).inSeconds} seconds\n\n');
+        'ListAPI.getUnsettledInvoiceBidsByInvestor -------------> found: ${qs.documents.length} elapsed: ${end.difference(start).inSeconds} seconds\n\n');
 
     qs.documents.forEach((doc) {
       var bid = InvoiceBid.fromJson(doc.data);
@@ -252,15 +252,12 @@ class ListAPI {
         list.add(bid);
       }
     });
-    print(
-        'ListAPI.getUnsettledInvoiceBidsByInvestor found after checking isSettled: ${list.length} \n\n');
-    return list;
+        return list;
   }
 
   static Future<List<InvoiceBid>> getSettledInvoiceBidsByInvestor(
       String documentReference) async {
-    print(
-        '\n\n\nListAPI.getSettledInvoiceBidsByInvestor ========= investor documentReference: $documentReference');
+
     var start = DateTime.now();
     List<InvoiceBid> list = List();
     var qs = await _firestore
@@ -276,7 +273,8 @@ class ListAPI {
 
     var end = DateTime.now();
     print(
-        'ListAPI.getSettledInvoiceBidsByInvestor found: ${qs.documents.length} elapsed: ${end.difference(start).inSeconds} seconds\n\n');
+        'ListAPI.getSettledInvoiceBidsByInvestor -----------> found: ${qs.documents.length} '
+            'elapsed: ${end.difference(start).inSeconds} seconds\n\n');
 
     qs.documents.forEach((doc) {
       var bid = InvoiceBid.fromJson(doc.data);
@@ -284,8 +282,7 @@ class ListAPI {
         list.add(bid);
       }
     });
-    print(
-        'ListAPI.getSettledInvoiceBidsByInvestor found after checking isSettled == true: ${list.length} \n\n');
+
     return list;
   }
 
@@ -603,7 +600,6 @@ class ListAPI {
   }
 
   static Future<List<Offer>> getOpenOffersViaFunctions() async {
-    print('\nListAPI.getOpenOffersViaFunctions ..............................');
     String mUrl = getFunctionsURL() + 'queryOffers';
     Map map = {'limit': MAXIMUM_RECORDS_FROM_FIRESTORE, 'open': true};
 
@@ -629,14 +625,12 @@ class ListAPI {
           .whenComplete(() {
         client.close();
       });
-      print(
-          '\n\nListAPI._doOffersHTTP .... ################ Query via Cloud Functions: status: ${resp.statusCode} for $mUrl');
       var end = DateTime.now();
       print(
-          'ListAPI._doOffersHTTP ### elapsed: ${end.difference(start).inSeconds} seconds');
+          '\n\nListAPI._doOffersHTTP .... ################ Query via Cloud Functions: status: ${resp.statusCode} '
+              'for $mUrl - elapsed: ${end.difference(start).inSeconds} seconds');
       if (resp.statusCode == 200) {
         Map<String, dynamic> m = json.decode(resp.body);
-//        prettyPrint(m, '####################### Response from offersQuery\n');
         return _parseOffers(m);
       } else {
         throw Exception('_doOffersHTTP data query failed');
@@ -650,7 +644,6 @@ class ListAPI {
   }
 
   static List<Offer> _parseOffers(Map map) {
-    print('ListAPI._parseOffers ....... ...........');
     List<Offer> offers = List();
     try {
       List list = map['data'];
@@ -662,7 +655,6 @@ class ListAPI {
       print('ListAPI._parseOffers ERROR ... ERROR');
       print(e);
     }
-    print('ListAPI._parseOffers ........ found: ${offers.length}');
     return offers;
   }
 
@@ -800,7 +792,6 @@ class ListAPI {
 
   static Future<DashboardData> getInvestorDashboardData(
       String investorId, String documentId) async {
-    print('ListAPI.getDashboardData ..........');
     var data = DashboardParms(
         id: investorId,
         documentId: documentId,
@@ -1075,14 +1066,12 @@ class ListAPI {
           .whenComplete(() {
         client.close();
       });
-      print(
-          '\n\nListAPI.doHTTP .... ################ Query via Cloud Functions: status: ${resp.statusCode} for $mUrl');
+
       if (resp.statusCode == 200) {
-        //print(resp.body);
         data = DashboardData.fromJson(json.decode(resp.body));
         var end = DateTime.now();
         print(
-            'ListAPI._doHTTP ### elapsed: ${end.difference(start).inSeconds} seconds');
+            '\n\nListAPI.doHTTP .... ################ Query via Cloud Functions: status: ${resp.statusCode} for $mUrl - elapsed: ${end.difference(start).inSeconds} seconds');
         return data;
       } else {
         throw Exception('Dashboard data query failed');

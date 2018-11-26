@@ -1,7 +1,6 @@
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/investor.dart';
 import 'package:businesslibrary/data/invoice_bid.dart';
-import 'package:businesslibrary/util/database.dart';
 import 'package:businesslibrary/util/invoice_bid_card.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/mypager.dart';
@@ -9,14 +8,12 @@ import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:flutter/material.dart';
 import 'package:investor/app_model.dart';
-import 'package:investor/ui/dashboard.dart';
 import 'package:investor/ui/settle_all.dart';
 import 'package:investor/ui/settle_invoice_bid.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:scoped_model/scoped_model.dart';
 
 class UnsettledBids extends StatefulWidget {
-  
   @override
   _UnsettledBidsState createState() => _UnsettledBidsState();
 }
@@ -31,65 +28,71 @@ class _UnsettledBidsState extends State<UnsettledBids>
   @override
   void initState() {
     super.initState();
-
     _getCache();
-    setBasePager();
   }
 
   _getCache() async {
     investor = await SharedPrefs.getInvestor();
+    _setBasePager();
+    setState(() {
+
+    });
   }
 
   double _getHeight() {
+    if (appModel.unsettledInvoiceBids == null) return 200.0;
     if (appModel.unsettledInvoiceBids.length < 2) {
       return 200.0;
     } else {
-      return 280.0;
+      return 240.0;
     }
   }
 
   Widget _getBottom() {
     return PreferredSize(
       preferredSize: Size.fromHeight(_getHeight()),
-      child: Column(
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.only(bottom: 20.0),
-            child: PagingTotalsView(
-              pageValue: _getPageValue(),
-              totalValue: _getTotalValue(),
-              labelStyle: Styles.blackSmall,
-              pageValueStyle: Styles.blackBoldLarge,
-              totalValueStyle: Styles.brownBoldMedium,
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 8.0, right: 8.0, bottom: 12.0),
-            child: PagerControl(
-              itemName: 'Invoice Bids to Settle',
-              pageLimit: appModel.pageLimit,
-              elevation: 16.0,
-              items: appModel.unsettledInvoiceBids.length,
-              listener: this,
-              color: Colors.purple.shade50,
-              pageNumber: _pageNumber,
-            ),
-          ),
-          appModel.unsettledInvoiceBids.length < 2
-              ? Container()
-              : Padding(
+      child: appModel.unsettledInvoiceBids == null
+          ? Container()
+          : Column(
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 10.0),
+                  child: PagingTotalsView(
+                    pageValue: _getPageValue(),
+                    totalValue: _getTotalValue(),
+                    labelStyle: Styles.blackSmall,
+                    pageValueStyle: Styles.blackBoldLarge,
+                    totalValueStyle: Styles.brownBoldMedium,
+                  ),
+                ),
+                Padding(
                   padding: const EdgeInsets.only(
                       left: 8.0, right: 8.0, bottom: 12.0),
-                  child: _getButton(),
+                  child: PagerControl(
+                    itemName: 'Invoice Bids to Settle',
+                    pageLimit: appModel.pageLimit,
+                    elevation: 16.0,
+                    items: appModel.unsettledInvoiceBids.length,
+                    listener: this,
+                    color: Colors.purple.shade50,
+                    pageNumber: _pageNumber,
+                  ),
                 ),
-        ],
-      ),
+                appModel.unsettledInvoiceBids.length < 2
+                    ? Container()
+                    : Padding(
+                        padding: const EdgeInsets.only(
+                            left: 12.0, right: 8.0, bottom: 12.0),
+                        child: _getButton(),
+                      ),
+              ],
+            ),
     );
   }
 
   Widget _getButton() {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.start,
       children: <Widget>[
         RaisedButton(
           onPressed: _startSettleAll,
@@ -104,14 +107,18 @@ class _UnsettledBidsState extends State<UnsettledBids>
           ),
         ),
         Padding(
-          padding: const EdgeInsets.only(left:48.0),
-          child: Row(
-            children: <Widget>[
-              IconButton(
-                icon: Icon(Icons.sort),
-                onPressed: _sort,
-              ),
-            ],
+          padding: const EdgeInsets.only(left: 48.0),
+          child: InkWell(
+            onTap: _sort,
+            child: Row(
+              children: <Widget>[
+                Text('Sort Page'),
+                IconButton(
+                  icon: Icon(Icons.sort),
+                  onPressed: _sort,
+                ),
+              ],
+            ),
           ),
         ),
       ],
@@ -127,6 +134,11 @@ class _UnsettledBidsState extends State<UnsettledBids>
         curve: Curves.easeOut,
       );
     });
+    if (currentPage == null || currentPage.isEmpty) {
+      return ListView(
+        controller: scrollController,
+      );
+    }
     return ListView.builder(
         itemCount: currentPage == null ? 0 : currentPage.length,
         controller: scrollController,
@@ -142,6 +154,7 @@ class _UnsettledBidsState extends State<UnsettledBids>
                 padding: const EdgeInsets.only(left: 8.0, right: 8.0),
                 child: InvoiceBidCard(
                   bid: currentPage.elementAt(index),
+                  elevation: 1.0,
                   showItemNumber: true,
                 ),
               ),
@@ -150,28 +163,23 @@ class _UnsettledBidsState extends State<UnsettledBids>
         });
   }
 
-  InvoiceBid invoiceBid;
-  void _showBidDialog(InvoiceBid bid) {
-    print('_OffersAndBidsState._showBidDetail ......${bid.toJson()}');
-    this.invoiceBid = bid;
+  void _showBidDialog(InvoiceBid invoiceBid) {
+
     showDialog(
         context: context,
         builder: (_) => new AlertDialog(
               title: new Text(
                 "Invoice Bid Settlement",
-                style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).primaryColor),
-              ),
+                style: Styles.blackBoldMedium),
               content: Container(
-                height: 80.0,
+                height: 100.0,
                 child: Column(
                   children: <Widget>[
                     Padding(
                       padding: const EdgeInsets.only(top: 4.0, bottom: 10.0),
                       child: Text(
                         'Do you want to settle this Invoice Bid?',
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                        style: Styles.blackMedium,
                       ),
                     ),
                     Row(
@@ -186,15 +194,13 @@ class _UnsettledBidsState extends State<UnsettledBids>
                             left: 8.0,
                           ),
                           child: Text(
-                            getFormattedAmount('${bid.amount}', context),
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 24.0,
-                                color: Colors.teal),
+                            getFormattedAmount('${invoiceBid.amount}', context),
+                            style: Styles.tealBoldLarge,
                           ),
                         ),
                       ],
                     ),
+
                   ],
                 ),
               ),
@@ -205,9 +211,12 @@ class _UnsettledBidsState extends State<UnsettledBids>
                   },
                   child: Text('NO'),
                 ),
-                FlatButton(
-                  onPressed: _startSettlement,
-                  child: Text('YES'),
+                RaisedButton(
+                  elevation: 4.0,
+                  onPressed: () {
+                    _startSettlement(invoiceBid);
+                  },
+                  child: Text('YES', style: Styles.whiteSmall,),
                 ),
               ],
             ));
@@ -217,11 +226,11 @@ class _UnsettledBidsState extends State<UnsettledBids>
     print('_UnsettledBidsState._checkBid ...............');
     AppSnackbar.showSnackbarWithProgressIndicator(
         scaffoldKey: _scaffoldKey,
-        message: 'Checking bid ...',
+        message: 'Checking offer for this bid ...',
         textColor: Styles.white,
         backgroundColor: Styles.black);
     bool isFound = false;
-    var unsettledBids = await Database.getUnsettledInvoiceBids();
+    var unsettledBids = appModel.unsettledInvoiceBids;
     unsettledBids.forEach((b) {
       if (b.invoiceBidId == bid.invoiceBidId) {
         isFound = true;
@@ -233,25 +242,27 @@ class _UnsettledBidsState extends State<UnsettledBids>
     } else {
       AppSnackbar.showSnackbar(
           scaffoldKey: _scaffoldKey,
-          message: 'This bid is already settled',
+          message: 'This bid may already be settled',
           textColor: Styles.white,
           backgroundColor: Styles.black);
     }
   }
 
-  _startSettlement() async {
+  _startSettlement(InvoiceBid invoiceBid) async {
     Navigator.pop(context);
-    Navigator.pop(context);
+    //Navigator.pop(context);
     Navigator.push(
       context,
       new MaterialPageRoute(
-          builder: (context) => SettleInvoiceBid(
-                invoiceBid: invoiceBid,
-              )),
+        builder: (context) => SettleInvoiceBid(
+              invoiceBid: invoiceBid,
+            ),
+      ),
     );
   }
 
   void _startSettleAll() {
+
     Navigator.pop(context);
     Navigator.push(
       context,
@@ -275,13 +286,14 @@ class _UnsettledBidsState extends State<UnsettledBids>
   @override
   Widget build(BuildContext context) {
     return ScopedModelDescendant<InvestorAppModel>(
-      builder: (context,_,model) {
-        print('_UnsettledBidsState.build ... setting model .....');
-        model.doPrint();
+      builder: (context, _, model) {
+        print(
+            '_UnsettledBidsState.build .ScopedModelDescendant.. setting model to the local object.....');
+        //model.doPrint();
         appModel = model;
         buildCount++;
         if (buildCount == 1) {
-          setBasePager();
+          //setBasePager();
         }
         return Scaffold(
           key: _scaffoldKey,
@@ -304,16 +316,15 @@ class _UnsettledBidsState extends State<UnsettledBids>
           backgroundColor: Colors.brown.shade100,
         );
       },
-      
     );
   }
 
   //paging constructs
   BasePager basePager;
-  void setBasePager() {
+  void _setBasePager() {
     if (appModel == null) return;
     print(
-        '_PurchaseOrderList.setBasePager appModel.pageLimit: ${appModel.pageLimit}, get first page');
+        '\n\n_PurchaseOrderList.setBasePager appModel.pageLimit: ${appModel.pageLimit}, get first page');
     if (basePager == null) {
       basePager = BasePager(
         items: appModel.unsettledInvoiceBids,
@@ -321,12 +332,14 @@ class _UnsettledBidsState extends State<UnsettledBids>
       );
     }
 
-    if (currentPage == null) currentPage = List();
+    if (currentPage == null)
+      currentPage = List();
+    else
+      currentPage.clear();
     var page = basePager.getFirstPage();
     page.forEach((f) {
       currentPage.add(f);
     });
-    //setState(() {});
   }
 
   double _getPageValue() {
@@ -339,7 +352,7 @@ class _UnsettledBidsState extends State<UnsettledBids>
   }
 
   double _getTotalValue() {
-    if (appModel == null) return 0.00;
+    if (appModel == null || appModel.unsettledInvoiceBids == null) return 0.00;
     var t = 0.0;
     appModel.unsettledInvoiceBids.forEach((po) {
       t += po.amount;
@@ -371,10 +384,23 @@ class _UnsettledBidsState extends State<UnsettledBids>
 
   @override
   onPageLimit(int pageLimit) async {
-    print('_InvoicesOnOfferState.onPageLimit');
+    print('_UnsettledBidsState.onPageLimit : $pageLimit');
+    if (pageLimit == appModel.pageLimit) {
+      return null;
+    }
     await appModel.updatePageLimit(pageLimit);
     _pageNumber = 1;
-    basePager.getNextPage();
+    basePager = BasePager(
+      items: appModel.unsettledInvoiceBids,
+      pageLimit: pageLimit,
+    );
+    currentPage.clear();
+    var page = basePager.getFirstPage();
+    page.forEach((f) {
+      currentPage.add(f);
+    });
+    setState(() {});
+    basePager.doPrint();
     return null;
   }
 
@@ -406,16 +432,27 @@ class _UnsettledBidsState extends State<UnsettledBids>
 
 //end of paging constructs
 
-  bool sortToggle = false;
+  int sortToggle = 0;
   void _sort() {
-    if (sortToggle) {
+    print('_UnsettledBidsState._sort ------- sorting, toggle: $sortToggle');
+    if (sortToggle == 0) {
       currentPage.sort((a, b) => b.amount.compareTo(a.amount));
-    } else {
-      currentPage.sort((a, b) => a.amount.compareTo(b.amount));
+      sortToggle = 1;
+      setState(() {});
+      return;
     }
-    sortToggle = !sortToggle;
-    setState(() {
+    if (sortToggle == 1) {
+      currentPage.sort((a, b) => a.amount.compareTo(b.amount));
+      sortToggle = 2;
+      setState(() {});
+      return;
+    }
+    if (sortToggle == 2) {
+      currentPage.sort((a, b) => a.itemNumber.compareTo(b.itemNumber));
+      sortToggle = 0;
+      setState(() {});
+    }
 
-    });
+
   }
 }

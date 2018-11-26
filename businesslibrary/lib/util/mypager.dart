@@ -1,4 +1,9 @@
 import 'package:businesslibrary/api/shared_prefs.dart';
+import 'package:businesslibrary/data/delivery_note.dart';
+import 'package:businesslibrary/data/invoice.dart';
+import 'package:businesslibrary/data/invoice_bid.dart';
+import 'package:businesslibrary/data/offer.dart';
+import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/util/Finders.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/selectors.dart';
@@ -68,6 +73,10 @@ class BasePager {
     return currentPage;
   }
 
+  List<Findable> getAllPages() {
+    return pages.getAllPages();
+  }
+
   void _buildPages() {
     /////
     if (items == null) {
@@ -95,6 +104,21 @@ class BasePager {
     }
     pages.doPrint();
   }
+  void doPrint() {
+    print('\n\nBasePager.doPrint ################### print current page');
+    if (currentPage.isEmpty) {
+      print('BasePager.doPrint - current page is empty');
+      return;
+    }
+    int count = 1;
+    currentPage.forEach((f) {
+      if (f is InvoiceBid) {
+        prettyPrint(f.toJson(), '## CURRENT PAGE row: $count');
+        count++;
+      }
+    });
+    print('\nBasePager.doPrint ################### end of current page\n\n');
+  }
 }
 
 abstract class PagerControlListener {
@@ -113,7 +137,7 @@ class Page {
 
 class Pages {
   List<Page> _pages = List();
-
+  List<Page> get allPages => _pages;
   void addPage(Page page) {
     _pages.add(page);
   }
@@ -122,12 +146,39 @@ class Pages {
     print('Pages.getPage ........... index: $index');
     var page = _pages.elementAt(index);
     page.items.forEach((i) {
-      print(
-          'Pages.getPage ### itemNumber: ${i.itemNumber} intDate: ${i.intDate}');
+      if (i is Offer) {
+        print(
+            'itemNumber: ${i.itemNumber} ${i.intDate} ${i.date} ${i.supplierName} customer: ${i.customerName} ${i.offerAmount}');
+      }
+      if (i is PurchaseOrder) {
+        print(
+            'itemNumber: ${i.itemNumber} ${i.intDate} ${i.date} ${i.supplierName} customer: ${i.purchaserName} ${i.amount}');
+      }
+      if (i is DeliveryNote) {
+        print(
+            'itemNumber: ${i.itemNumber} ${i.intDate} ${i.date} ${i.supplierName} customer: ${i.customerName} ${i.amount}');
+      }
+      if (i is Invoice) {
+        print(
+            'itemNumber: ${i.itemNumber} ${i.intDate} ${i.date} ${i.supplierName} customer: ${i.customerName} ${i.amount}');
+      }
+      if (i is InvoiceBid) {
+        print(
+            'itemNumber: ${i.itemNumber} ${i.intDate} ${i.date} ${i.investorName} reservePercent: ${i.reservePercent} ${i.amount}');
+      }
     });
     return page;
   }
 
+  List<Findable> getAllPages() {
+    List<Findable> list = List();
+        _pages.forEach((page) {
+      page.items.forEach((i) {
+        list.add(i);
+      });
+    });
+        return list;
+  }
   doPrint() {
     print('\n\n##############################################');
     print('Pages.doPrint .... pages: ${_pages.length}');
@@ -356,7 +407,7 @@ class PagingTotalsView extends StatelessWidget {
     return Column(
       children: <Widget>[
         Padding(
-          padding: const EdgeInsets.only(left: 20.0, bottom: 12.0),
+          padding: const EdgeInsets.only(left: 20.0, bottom: 4.0),
           child: Row(
             children: <Widget>[
               Text(

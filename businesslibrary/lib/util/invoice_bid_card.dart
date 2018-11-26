@@ -6,13 +6,14 @@ import 'package:flutter/material.dart';
 class InvoiceBidCard extends StatelessWidget {
   final InvoiceBid bid;
   final bool showItemNumber;
+  final double elevation;
 
-  InvoiceBidCard({this.bid, this.showItemNumber});
+  InvoiceBidCard({this.bid, this.elevation, this.showItemNumber});
 
   @override
   Widget build(BuildContext context) {
     return Card(
-      elevation: 4.0,
+      elevation: elevation == null? 4.0: elevation,
       child: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Column(
@@ -42,6 +43,25 @@ class InvoiceBidCard extends StatelessWidget {
                 ],
               ),
             ),
+            Padding(
+              padding: const EdgeInsets.only(top: 8.0),
+              child: Row(
+                children: <Widget>[
+                  Container(
+                      width: 80.0,
+                      child: Text('Supplier', style: Styles.greyLabelSmall)),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 8.0),
+                    child: Text(
+                        bid.supplierName == null
+                            ? 'Supplier name Unavailable'
+                            : '${bid.supplierName}',
+                        style: Styles.blackBoldSmall),
+                  ),
+                ],
+              ),
+            ),
+
             Padding(
               padding: const EdgeInsets.only(top: 8.0),
               child: Row(
@@ -140,7 +160,7 @@ class InvoiceBidCard extends StatelessWidget {
                   child: Text(
                       bid.amount == null
                           ? '0.00'
-                          : getFormattedAmount('${bid.amount * 0.15}', context),
+                          : getFormattedAmount('${bid.amount}', context),
                       style: Styles.tealBoldLarge),
                 ),
               ],

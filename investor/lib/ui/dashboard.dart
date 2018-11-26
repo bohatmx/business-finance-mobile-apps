@@ -36,6 +36,7 @@ import 'package:investor/ui/charts.dart';
 import 'package:investor/ui/offer_list.dart';
 import 'package:investor/ui/profile.dart';
 import 'package:investor/ui/unsettled_bids.dart';
+import 'package:investor/ui/unsettled_bids2.dart';
 import 'package:scoped_model/scoped_model.dart';
 
 class Dashboard extends StatefulWidget {
@@ -213,10 +214,7 @@ class _DashboardState extends State<Dashboard>
       builder: (context, _, model) {
         appModel = model;
         model.setModelListener(this);
-//        if (isRefreshBids) {
-//          isRefreshBids = false;
-//          model.refreshInvoiceBids();
-//        }
+
         return WillPopScope(
           onWillPop: () async => false,
           child: Scaffold(
@@ -229,7 +227,7 @@ class _DashboardState extends State<Dashboard>
               ),
               leading: Icon(
                 Icons.apps,
-                color: Colors.indigo.shade900,
+                color: Colors.white,
               ),
               bottom: _getBottom(),
               actions: <Widget>[
@@ -351,11 +349,12 @@ class _DashboardState extends State<Dashboard>
 
   void _checkConditions(InvestorAppModel model) async {
     print(
-        '\n\n_checkConditions #### BOOLEANS: invoiceBidArrived: $invoiceBidArrived, offerArrived: $offerArrived, refreshModel: $refreshModel, count: $count');
+        '\n\nDashboard_checkConditions #### BOOLEANS: invoiceBidArrived: $invoiceBidArrived, offerArrived: $offerArrived, refreshModel: $refreshModel, count: $count');
 
-//    if (model.unsettledInvoiceBids == null) {
-//      model.refreshModel();
-//    }
+    if (model.investor == null) {
+      print('_DashboardState._checkConditions: investor is null, refreshModel ...');
+      //model.refreshModel();
+    }
     count++;
 
     if (invoiceBidArrived) {
@@ -412,15 +411,16 @@ class _DashboardState extends State<Dashboard>
     }
   }
 
-  void _onInvoiceBidsTapped() {
+  void _onInvoiceBidsTapped() async{
     print('_DashboardState._onInvoiceTapped ...............');
 
     if (appModel.unsettledInvoiceBids.isEmpty) {
       AppSnackbar.showSnackbar(
           scaffoldKey: _scaffoldKey,
-          message: 'No outstanding invoice bids',
+          message: 'No outstanding invoice bids\nRefresh data ...',
           textColor: Styles.white,
           backgroundColor: Styles.black);
+      await appModel.refreshModel();
       return;
     }
     Navigator.push(

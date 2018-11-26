@@ -301,8 +301,11 @@ class _SettleAllState extends State<SettleAll> implements SnackBarListener, Peac
             key: _scaffoldKey,
             appBar: AppBar(
               title: Text('Settle All Bids'),
-              leading: Container(),
+              leading: IconButton(icon: Icon(Icons.apps, color: Colors.white,), onPressed: null),
               bottom: _getBottom(),
+              actions: <Widget>[
+                IconButton(icon: Icon(Icons.help, color: Colors.white,), onPressed: null),
+              ],
             ),
             body: _getBody(),
             backgroundColor: Colors.brown.shade100,
@@ -443,7 +446,7 @@ class _SettleAllState extends State<SettleAll> implements SnackBarListener, Peac
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.only(top: 40.0, bottom: 30.0),
+                    padding: const EdgeInsets.only(top: 30.0, bottom: 30.0),
                     child: Opacity(
                       opacity: _opacity,
                       child: RaisedButton(
@@ -454,7 +457,7 @@ class _SettleAllState extends State<SettleAll> implements SnackBarListener, Peac
                           padding: const EdgeInsets.all(12.0),
                           child: Text(
                             'Settle All Bids',
-                            style: Styles.whiteMedium,
+                            style: Styles.whiteSmall,
                           ),
                         ),
                       ),
@@ -466,7 +469,7 @@ class _SettleAllState extends State<SettleAll> implements SnackBarListener, Peac
                     },
                     child: Text(
                       'Cancel',
-                      style: Styles.blueMedium,
+                      style: Styles.greyLabelMedium,
                     ),
                   ),
                 ],

@@ -102,6 +102,7 @@ class InvoiceBid extends Findable {
         'date': date,
         'investorDocRef': investorDocRef,
         'intDate': intDate,
+        'itemNumber': itemNumber,
         'invoiceBidAcceptance': invoiceBidAcceptance,
         'documentReference': documentReference,
         'supplierFCMToken': supplierFCMToken,

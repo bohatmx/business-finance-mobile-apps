@@ -87,7 +87,6 @@ class Database {
     fileExists = await jsonFile.exists();
 
     if (fileExists) {
-      print('Database_saveUnsettledInvoiceBids  ## file exists ...writing InvoiceBids file');
       jsonFile.writeAsString(json.encode(map));
       print(
           'Database_saveUnsettledInvoiceBids ##  has cached list of InvoiceBids  ###))))))))) : ${bids.bids.length}\n\n');
@@ -130,7 +129,6 @@ class Database {
     fileExists = await jsonFile.exists();
 
     if (fileExists) {
-      print('\n\nDatabase_saveSettledInvoiceBids  ## file exists ...writing SettledInvoiceBids file');
       jsonFile.writeAsString(json.encode(map));
       print(
           'Database_saveSettledInvoiceBids ##  has cached list of SettledInvoiceBids  ###))))))))) : ${bids.bids.length}\n\n');
@@ -330,10 +328,9 @@ class Database {
     fileExists = await jsonFile.exists();
 
     if (fileExists) {
-      print('Database_saveOffers  ## file exists ...writing offers file');
       jsonFile.writeAsString(json.encode(map));
       print(
-          'Database_saveOffers ##  has cached list of offers --  ###))))))))) : ${offers.offers.length}');
+          'Database_saveOffers ##  has cached list of offers --  ### ))))))))) : ${offers.offers.length}');
       return 0;
     } else {
       print(
@@ -503,10 +500,12 @@ class Offers {
   Offers.fromJson(Map data) {
     List map = data['offers'];
     this.offers = List();
-    map.forEach((m) {
-      var offer = Offer.fromJson(m);
-      offers.add(offer);
-    });
+    if (map != null) {
+      map.forEach((m) {
+        var offer = Offer.fromJson(m);
+        offers.add(offer);
+      });
+    }
   }
   Map<String, dynamic> toJson() => <String, dynamic>{
         'offers': offers,

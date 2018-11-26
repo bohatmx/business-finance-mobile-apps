@@ -112,7 +112,9 @@ class InvestorAppModel extends Model {
   }
 
   Future updatePageLimit(int pageLimit) async {
-    return await SharedPrefs.savePageLimit(pageLimit);
+    await SharedPrefs.savePageLimit(pageLimit);
+    _pageLimit = pageLimit;
+    notifyListeners();
   }
 
   Future settleInvoiceBid(InvoiceBid bid) async {
@@ -134,24 +136,28 @@ class InvestorAppModel extends Model {
       _pageLimit = 10;
     }
     if (_investor == null) {
+      print('InvestorAppModel.initialize investor is null, quit. appModel');
       return;
     }
     _dashboardData = await SharedPrefs.getDashboardData();
     if (_dashboardData == null) {
       await refreshDashboard();
     }
+    notifyListeners();
     _unsettledInvoiceBids = await Database.getUnsettledInvoiceBids();
     if (_unsettledInvoiceBids.isEmpty) {
       await refreshInvoiceBids();
     } else {
       _setItemNumbers(_unsettledInvoiceBids);
     }
+    notifyListeners();
     _settledInvoiceBids = await Database.getSettledInvoiceBids();
     if (_settledInvoiceBids.isEmpty) {
       await refreshInvoiceBids();
     } else {
       _setItemNumbers(_settledInvoiceBids);
     }
+    notifyListeners();
     _offers = await Database.getOffers();
     if (_offers.isEmpty) {
       await refreshOffers();
@@ -216,7 +222,7 @@ firestore.collection('users').document(userId).snapshots().asyncMap((snap) async
  */
   Future refreshModel() async {
     print(
-        '\n\nInvestorAppModel.refreshModel ............. refresh everything! ....................');
+        '\n\n\n\n################# InvestorAppModel.refreshModel ............. refresh everything! ....................\n\n');
     if (_investor == null) {
       _investor = await SharedPrefs.getInvestor();
     }
@@ -233,7 +239,7 @@ firestore.collection('users').document(userId).snapshots().asyncMap((snap) async
 
     _dashboardData = await ListAPI.getInvestorDashboardData(
         _investor.participantId, _investor.documentReference);
-    prettyPrint(_dashboardData.toJson(), '######### Dashboard data retrieved');
+    //prettyPrint(_dashboardData.toJson(), '######### Dashboard data retrieved');
     await SharedPrefs.saveDashboardData(_dashboardData);
 
     _offers = await ListAPI.getOpenOffersViaFunctions();
@@ -256,21 +262,19 @@ firestore.collection('users').document(userId).snapshots().asyncMap((snap) async
   }
 
   void doPrint() {
-    print(
-        '\n\n\nInvestorAppModel.doPrint STARTED ######################################\n');
+
     if (_investor != null) {
-      prettyPrint(_investor.toJson(), '######## Investor in Model');
+      prettyPrint(_investor.toJson(), 'doPrint: ######## Investor in Model');
     }
     if (_dashboardData != null) {
       prettyPrint(
-          _dashboardData.toJson(), '####### DashboardData inside Model');
+          _dashboardData.toJson(), 'doPrint: ####### DashboardData inside Model');
     }
     if (_unsettledInvoiceBids != null)
       print(
           'InvestorAppModel.doPrint invoiceBids in Model: ${_unsettledInvoiceBids.length}');
     if (_offers != null)
       print('InvestorAppModel.doPrint offers in Model: ${_offers.length}');
-    print(
-        '\nInvestorAppModel.doPrint ENDED. ############################################\n\n\n');
+
   }
 }
