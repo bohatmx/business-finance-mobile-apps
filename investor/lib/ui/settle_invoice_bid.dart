@@ -30,7 +30,7 @@ class SettleInvoiceBid extends StatefulWidget {
 }
 
 class _SettleInvoiceBid extends State<SettleInvoiceBid>
-    implements SnackBarListener, InvoiceBidListener, PeachNotifyListener{
+    implements SnackBarListener, InvoiceBidListener{
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   final FirebaseMessaging fm = FirebaseMessaging();
   InvestorAppModel appModel;
@@ -110,19 +110,22 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
       );
       switch (result) {
         case PeachSuccess:
-          FCM.configureFCM(context: context, peachNotifyListener: this);
+          FCM.configureFCM(context: context,);
           AppSnackbar.showSnackbarWithAction(
               scaffoldKey: _scaffoldKey,
-              message: 'Payment successful\nWait for payment registration',
+              message: 'Payment successful\nTo be registered on BFN',
               textColor: Styles.white,
               backgroundColor: Colors.indigo.shade300,
-              actionLabel: 'Wait',
+              actionLabel: 'Exit',
               listener: this,
               icon: Icons.done_all,
-              action: 2);
+              action: Exit);
+
           setState(() {
             _opacity = 0.0;
+            isBusy = false;
           });
+          await appModel.processSettledBid(widget.invoiceBid);
 
           break;
         case PeachCancel:
@@ -416,66 +419,6 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
     });
 
     return getFormattedAmount('$t', context);
-  }
-
-  Future _writeSettlement(PeachNotification notif) async {
-    print('_SettleInvoiceBid._writeSettlement .............................');
-    var w = await SharedPrefs.getWallet();
-    var m = InvestorInvoiceSettlement(
-        amount: widget.invoiceBid.amount,
-        investor: widget.invoiceBid.investor,
-        user: NameSpace + 'User#${user.userId}',
-        peachPaymentKey: paymentKey.key,
-        offer: widget.invoiceBid.offer,
-        supplier: widget.invoiceBid.supplier,
-        peachTransactionId: notif.callpay_transaction_id,
-        customer: widget.invoiceBid.customer,
-        customerName: widget.invoiceBid.customerName,
-        supplierName: widget.invoiceBid.supplierName,
-        investorName: investor.name,
-        date: getUTCDate(),
-        invoiceBid: NameSpace + 'InvoiceBid#${widget.invoiceBid.invoiceBidId}');
-
-    if (w != null) {
-      m.wallet = NameSpace + 'Wallet#${w.stellarPublicKey}';
-    }
-
-    try {
-      await DataAPI3.makeInvestorInvoiceSettlement(m);
-      print(
-          '\n\n_SettleInvoiceBid.onPeachNotify ####### SETTLEMENT registered on BFN and Firestore:  waiting for notification from Peach');
-
-      AppSnackbar.showSnackbarWithAction(
-          scaffoldKey: _scaffoldKey,
-          message: 'Payment registered',
-          textColor: Styles.white,
-          backgroundColor: Colors.teal,
-          actionLabel: 'Done',
-          listener: this,
-          icon: Icons.done,
-          durationMinutes: 15,
-          action: Exit);
-
-      await appModel.processSettledBid(widget.invoiceBid);
-
-      setState(() {
-        isBusy = false;
-      });
-    } catch (e) {
-      AppSnackbar.showErrorSnackbar(
-          scaffoldKey: _scaffoldKey,
-          message: 'Error registering payment',
-          listener: this,
-          actionLabel: 'Close');
-    }
-  }
-
-  @override
-  onPeachNotify(PeachNotification notification) {
-    prettyPrint(notification.toJson(), '\n\n############ PEACH notification - what now? call _writeSettlement()');
-
-    _writeSettlement(notification);
-    return null;
   }
 
 }

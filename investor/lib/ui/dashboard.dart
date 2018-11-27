@@ -57,7 +57,7 @@ class _DashboardState extends State<Dashboard>
         SnackBarListener,
         InvoiceBidListener,
         OfferListener,
-        InvestorCardListener, PeachNotifyMultipleListener,
+        InvestorCardListener,
         ModelListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   static const platform = const MethodChannel('com.oneconnect.biz.CHANNEL');
@@ -140,7 +140,7 @@ class _DashboardState extends State<Dashboard>
 
   void _subscribeToFCM() {
     FCM.configureFCM(
-        invoiceBidListener: this, offerListener: this, peachNotifyMultipleListener: this,context: context);
+        invoiceBidListener: this, offerListener: this,context: context);
     _fm.subscribeToTopic(FCM.TOPIC_INVOICE_BIDS);
     _fm.subscribeToTopic(FCM.TOPIC_OFFERS);
     _fm.subscribeToTopic(FCM.TOPIC_PEACH_NOTIFY);

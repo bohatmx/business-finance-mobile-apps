@@ -30,7 +30,7 @@ class SettleAll extends StatefulWidget {
   _SettleAllState createState() => _SettleAllState();
 }
 
-class _SettleAllState extends State<SettleAll> implements SnackBarListener, PeachNotifyMultipleListener, PeachNotifyListener {
+class _SettleAllState extends State<SettleAll> implements SnackBarListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
   List<InvoiceBid> bids;
@@ -51,18 +51,10 @@ class _SettleAllState extends State<SettleAll> implements SnackBarListener, Peac
   void _getCache() async {
     investor = await SharedPrefs.getInvestor();
     user = await SharedPrefs.getUser();
-    _subscribe();
 
   }
 
-  void _subscribe() {
-    FirebaseMessaging fm = FirebaseMessaging();
-//    fm.subscribeToTopic(FCM.TOPIC_PEACH_NOTIFY);
-//    FCM.configureFCM(peachNotifyMultipleListener: this, peachNotifyListener: this);
-    FCM.configureFCM(context: context, peachNotifyMultipleListener: this, peachNotifyListener: this);
-    fm.subscribeToTopic(FCM.TOPIC_PEACH_NOTIFY);
-    fm.subscribeToTopic(FCM.TOPIC_INVOICE_BIDS + investor.participantId);
-  }
+
   void _showWebView() async {
     setState(() {
       _opacity = 0.0;

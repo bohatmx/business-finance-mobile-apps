@@ -58,9 +58,7 @@ class FCM {
       InvestorInvoiceSettlementListener investorInvoiceSettlementListener,
       PeachCancelListener peachCancelListener,
       PeachErrorListener peachErrorListener,
-      PeachSuccessListener peachSuccessListener,
-      PeachNotifyMultipleListener peachNotifyMultipleListener,
-      PeachNotifyListener peachNotifyListener}) async {
+      PeachSuccessListener peachSuccessListener}) async {
     print(
         '\n\n\ ################ CONFIGURE FCM MESSAGE ###########  starting _firebaseMessaging');
 
@@ -158,19 +156,7 @@ class FCM {
               prettyPrint(map, '\n\n########## FCM HEARTBEAT MESSAGE :');
               heartbeatListener.onHeartbeat(map);
               break;
-            case 'PEACH_NOTIFY':
-              Map map = json.decode(mJSON);
-              prettyPrint(map, '\n\n########## FCM PEACH_NOTIFY :');
-              if (peachNotifyListener != null)
-                peachNotifyListener
-                    .onPeachNotify(PeachNotification.fromJson(map));
-              else if (peachNotifyMultipleListener != null)
-                peachNotifyMultipleListener
-                    .onPeachNotify(PeachNotification.fromJson(map));
-              else
-                print(
-                    'FCM.configureFCM @@@@@@ ERROR @@@@@ all peachNotifyListeners are NULL');
-              break;
+
             case 'PEACH_SUCCESS':
               Map map = json.decode(mJSON);
               prettyPrint(map, '\n\n########## FCM PEACH_SUCCESS :');
@@ -267,14 +253,6 @@ abstract class PeachErrorListener {
 
 abstract class PeachCancelListener {
   onPeachCancel(Map map);
-}
-
-abstract class PeachNotifyListener {
-  onPeachNotify(PeachNotification notification);
-}
-
-abstract class PeachNotifyMultipleListener {
-  onPeachNotify(PeachNotification notification);
 }
 
 abstract class CustomerListener {
