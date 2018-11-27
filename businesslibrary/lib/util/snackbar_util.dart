@@ -64,6 +64,7 @@ class AppSnackbar {
       @required String actionLabel,
       @required SnackBarListener listener,
       @required IconData icon,
+        int durationMinutes,
       @required int action}) {
     if (scaffoldKey.currentState == null) {
       print(
@@ -88,7 +89,7 @@ class AppSnackbar {
           ),
         ],
       ),
-      duration: new Duration(minutes: 5),
+      duration: new Duration(minutes: durationMinutes == null? 10: durationMinutes),
       backgroundColor: backgroundColor,
       action: SnackBarAction(
         label: actionLabel,

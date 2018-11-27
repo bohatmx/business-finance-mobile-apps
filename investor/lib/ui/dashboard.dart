@@ -19,6 +19,7 @@ import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/FCM.dart';
 import 'package:businesslibrary/util/invoice_bid_card.dart';
 import 'package:businesslibrary/util/lookups.dart';
+import 'package:businesslibrary/util/peach.dart';
 import 'package:businesslibrary/util/selectors.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
@@ -56,7 +57,7 @@ class _DashboardState extends State<Dashboard>
         SnackBarListener,
         InvoiceBidListener,
         OfferListener,
-        InvestorCardListener,
+        InvestorCardListener, PeachNotifyMultipleListener,
         ModelListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   static const platform = const MethodChannel('com.oneconnect.biz.CHANNEL');
@@ -86,41 +87,41 @@ class _DashboardState extends State<Dashboard>
     animation = new Tween(begin: 0.0, end: 1.0).animate(animationController);
     _getCachedPrefs();
     items = buildDaysDropDownItems();
-    //_moveInvoiceBids();
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
   }
 
-  void _moveInvoiceBids() async{
-    Firestore fm = Firestore.instance;
-    print('\n\n\n_DashboardState._moveInvoiceBids ############### start BIG MOVE ....');
-    var start = DateTime.now();
-    int count = 0, offersWithNoBids = 0;;
-    var qs = await fm.collection('invoiceOffers').getDocuments();
-    for (var doc in qs.documents) {
-      var offer = Offer.fromJson(doc.data);
-      var qs2 = await doc.reference.collection('invoiceBids').getDocuments();
-      if (qs2.documents.isNotEmpty) {
-        int mcount = 0;
-        for (var mdoc in qs2.documents) {
-          var bid = InvoiceBid.fromJson(mdoc.data);
-          bid.documentReference = mdoc.documentID;
-          await fm.collection('invoiceBids').document(mdoc.documentID).setData(
-              bid.toJson());
-          await mdoc.reference.delete();
-          count++;
-          mcount++;
-          print('_DashboardState._moveInvoiceBids - moved: #$count - ${bid
-              .investorName} ${bid.date} ${bid.amount} - old row deleted');
-        }
-
-        print('\n\n $mcount invoice bids for offer ${offer.supplierName} ${offer.offerAmount} ${offer.date}');
-      } else {
-        offersWithNoBids++;
-        print('_DashboardState._moveInvoiceBids -- this offer ${offer.supplierName} ${offer.offerAmount} has no invoice bids to move.');
-      }
-    }
-    var end = DateTime.now();
-    print('\n\n\n_DashboardState._moveInvoiceBids - COMPLETE: #$offersWithNoBids - ${end.difference(start).inMinutes} minutes elapsed. $count rows moved.');
-  }
+//  void _fixNames() async{
+//    Firestore fm = Firestore.instance;
+//    print('\n\n\n_DashboardState._fixNames ############### start NAME FIX ....');
+//    var start = DateTime.now();
+//    int count = 0, bidsWithNoOffer = 0;;
+//    var qs = await fm.collection('invoiceBids').getDocuments();
+//    print('\n_DashboardState._fixNames ----------- invoice bids found: ${qs.documents.length}');
+//    for (var doc in qs.documents) {
+//      var bid = InvoiceBid.fromJson(doc.data);
+//      if (bid.offerDocRef != null) {
+//        var docSnapshot = await fm.collection('invoiceOffers')
+//            .document(bid.offerDocRef).get();
+//        var offer = Offer.fromJson(docSnapshot.data);
+//        bid.supplierName = offer.supplierName;
+//        bid.customerName = offer.customerName;
+//
+//        await doc.reference.setData(bid.toJson());
+//        count++;
+//        print(
+//            '_DashboardState._fixNames updated bid with supplier: #$count - ${bid
+//                .supplierName} and customer: ${bid.customerName}');
+//      } else {
+//        print('\n\n_DashboardState._fixNames; ########### ${doc.reference.path} - bid has no offerDocRef. ${bid.amount}\n\n');
+//      }
+//    }
+//
+//    var end = DateTime.now();
+//    print('\n\n\n_DashboardState._fixNames - COMPLETE:  ${end.difference(start).inMinutes} minutes elapsed. $count rows updated.');
+//  }
   List<Offer> mOfferList = List();
   List<InvestorProfile> profiles = List();
 
@@ -139,9 +140,10 @@ class _DashboardState extends State<Dashboard>
 
   void _subscribeToFCM() {
     FCM.configureFCM(
-        invoiceBidListener: this, offerListener: this, context: context);
+        invoiceBidListener: this, offerListener: this, peachNotifyMultipleListener: this,context: context);
     _fm.subscribeToTopic(FCM.TOPIC_INVOICE_BIDS);
     _fm.subscribeToTopic(FCM.TOPIC_OFFERS);
+    _fm.subscribeToTopic(FCM.TOPIC_PEACH_NOTIFY);
     print('_DashboardState._subscribeToFCM ########## subscribed!');
   }
 
@@ -428,7 +430,6 @@ class _DashboardState extends State<Dashboard>
       MaterialPageRoute(builder: (context) => UnsettledBids()),
     );
   }
-
   String mTitle = 'BFN is Rock Solid!';
 
   Widget _getBottom() {
@@ -630,6 +631,12 @@ class _DashboardState extends State<Dashboard>
   onRefresh() {
     print('_DashboardState.onRefresh call: appModel.refreshInvoiceBids(); ');
     appModel.refreshInvoiceBids();
+    return null;
+  }
+
+  @override
+  onPeachNotify(PeachNotification notification) {
+   prettyPrint(notification.toJson(), '\n\n########### PeachNotification arrived at Dashboard:\n');
     return null;
   }
 }

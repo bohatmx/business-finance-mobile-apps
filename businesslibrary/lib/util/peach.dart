@@ -151,6 +151,7 @@ class PeachPayment {
   String beneficiaryAccountNumber,
       beneficiaryName,
       beneficiaryAccountType, //[cheque, savings, transmission]
+      customParameters,
       beneficiaryBank;
   double amount;
   String successURL,
@@ -172,6 +173,7 @@ class PeachPayment {
       this.errorUrl,
       this.cancelUrl,
       this.notifyUrl,
+      this.customParameters,
       this.merchantReference,
       this.hash,
       this.defaultBeneficiaryReference,
@@ -192,6 +194,7 @@ class PeachPayment {
     this.notifyUrl = data['notifyUrl'];
     this.defaultBeneficiaryReference = data['defaultBeneficiaryReference'];
     this.hash = data['hash'];
+    this.customParameters = data['customParameters'];
   }
 
   Map<String, dynamic> toJson() => <String, dynamic>{
@@ -208,6 +211,7 @@ class PeachPayment {
         'notifyUrl': notifyUrl,
         'defaultBeneficiaryReference': defaultBeneficiaryReference,
         'hash': hash,
+        'customParameters': customParameters,
       };
 
   void setHash() {

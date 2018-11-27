@@ -18,8 +18,6 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:device_info/device_info.dart';
 
-
-
 class FCM {
   static final FirebaseMessaging _firebaseMessaging = new FirebaseMessaging();
 
@@ -61,6 +59,7 @@ class FCM {
       PeachCancelListener peachCancelListener,
       PeachErrorListener peachErrorListener,
       PeachSuccessListener peachSuccessListener,
+      PeachNotifyMultipleListener peachNotifyMultipleListener,
       PeachNotifyListener peachNotifyListener}) async {
     print(
         '\n\n\ ################ CONFIGURE FCM MESSAGE ###########  starting _firebaseMessaging');
@@ -71,16 +70,17 @@ class FCM {
     bool isRunningIOs = false;
     try {
       androidInfo = await deviceInfo.androidInfo;
-      print('\n\n\n################  Running on ${androidInfo
-          .model} ################\n\n');
+      print(
+          '\n\n\n################  Running on ${androidInfo.model} ################\n\n');
     } catch (e) {
-      print('FCM.configureFCM - error doing Android - this is NOT an Android phone!!');
+      print(
+          'FCM.configureFCM - error doing Android - this is NOT an Android phone!!');
     }
 
     try {
       iosInfo = await deviceInfo.iosInfo;
-      print('\n\n\n################ Running on ${iosInfo.utsname
-          .machine} ################\n\n');
+      print(
+          '\n\n\n################ Running on ${iosInfo.utsname.machine} ################\n\n');
       isRunningIOs = true;
     } catch (e) {
       print('FCM.configureFCM error doing iOS - this is NOT an iPhone!!');
@@ -161,8 +161,15 @@ class FCM {
             case 'PEACH_NOTIFY':
               Map map = json.decode(mJSON);
               prettyPrint(map, '\n\n########## FCM PEACH_NOTIFY :');
-              peachNotifyListener
-                  .onPeachNotify(PeachNotification.fromJson(map));
+              if (peachNotifyListener != null)
+                peachNotifyListener
+                    .onPeachNotify(PeachNotification.fromJson(map));
+              else if (peachNotifyMultipleListener != null)
+                peachNotifyMultipleListener
+                    .onPeachNotify(PeachNotification.fromJson(map));
+              else
+                print(
+                    'FCM.configureFCM @@@@@@ ERROR @@@@@ all peachNotifyListeners are NULL');
               break;
             case 'PEACH_SUCCESS':
               Map map = json.decode(mJSON);
@@ -188,7 +195,8 @@ class FCM {
               break;
           }
         } catch (e) {
-          print('FCM.configureFCM - Houston, we have a problem with null listener somewhere');
+          print(
+              'FCM.configureFCM - Houston, we have a problem with null listener somewhere');
           print(e);
         }
       },
@@ -262,6 +270,10 @@ abstract class PeachCancelListener {
 }
 
 abstract class PeachNotifyListener {
+  onPeachNotify(PeachNotification notification);
+}
+
+abstract class PeachNotifyMultipleListener {
   onPeachNotify(PeachNotification notification);
 }
 

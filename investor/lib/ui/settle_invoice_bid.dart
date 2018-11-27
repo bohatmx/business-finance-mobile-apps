@@ -72,8 +72,8 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
       }
     });
     if (widget.invoiceBid != null) {
-      offerBag = await ListAPI.getOfferByOfferId(
-          widget.invoiceBid.offer.split('#').elementAt(1));
+      offerBag = await ListAPI.getOfferByDocRef(
+          widget.invoiceBid.offerDocRef);
       setState(() {
         isBusy = false;
       });
@@ -158,13 +158,13 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
       return;
     }
     var payment = PeachPayment(
-//      merchantReference: widget.invoiceBid.investor.split('#').elementAt(1),
-      merchantReference: 'OneConnect',
+      merchantReference: widget.invoiceBid.documentReference,
       amount: widget.invoiceBid.amount,
       successURL: getFunctionsURL() + 'peachSuccess',
       cancelUrl: getFunctionsURL() + 'peachCancel',
       errorUrl: getFunctionsURL() + 'peachError',
       notifyUrl: getFunctionsURL() + 'peachNotify',
+
     );
     try {
       paymentKey = await Peach.getPaymentKey(payment: payment);
@@ -300,7 +300,7 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
     return ListView(
       children: <Widget>[
         Padding(
-          padding: const EdgeInsets.all(20.0),
+          padding: const EdgeInsets.only(top:10.0, left: 20.0, right: 20.0, bottom: 20.0),
           child: InvoiceBidCard(
             bid: widget.invoiceBid,
           ),
@@ -326,14 +326,14 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
               : Container(),
         ),
         Padding(
-          padding: const EdgeInsets.all(20.0),
+          padding: const EdgeInsets.only(top:0.0),
           child: Center(
             child: Opacity(
               opacity: _opacity,
               child: RaisedButton(
                 elevation: 16.0,
                 onPressed: _getPaymentKey,
-//                color: Colors.pink.shade400,
+                color: Colors.pink.shade400,
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Text(
@@ -453,6 +453,7 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
           actionLabel: 'Done',
           listener: this,
           icon: Icons.done,
+          durationMinutes: 15,
           action: Exit);
 
       await appModel.processSettledBid(widget.invoiceBid);
@@ -471,7 +472,7 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
 
   @override
   onPeachNotify(PeachNotification notification) {
-    prettyPrint(notification.toJson(), '\n\n############ PEACH notification - what now?');
+    prettyPrint(notification.toJson(), '\n\n############ PEACH notification - what now? call _writeSettlement()');
 
     _writeSettlement(notification);
     return null;

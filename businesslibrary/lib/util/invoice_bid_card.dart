@@ -61,7 +61,28 @@ class InvoiceBidCard extends StatelessWidget {
                 ],
               ),
             ),
-
+            Padding(
+              padding: const EdgeInsets.only(top: 8.0),
+              child: Row(
+                children: <Widget>[
+                  Container(
+                      width: 80.0,
+                      child: Text('Customer', style: Styles.greyLabelSmall)),
+                  Flexible(
+                    child: Container(
+                      child: Padding(
+                        padding: const EdgeInsets.only(left:8.0),
+                        child: Text(
+                            bid.customerName == null
+                                ? 'Customer name Unavailable'
+                                : '${bid.customerName}',
+                            style: Styles.blackBoldSmall, overflow: TextOverflow.ellipsis,),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
             Padding(
               padding: const EdgeInsets.only(top: 8.0),
               child: Row(

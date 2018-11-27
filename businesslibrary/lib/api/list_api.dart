@@ -326,6 +326,44 @@ class ListAPI {
     return list;
   }
 
+  static Future<OfferBag> getOfferByDocRef(String documentRef) async {
+    print(
+        '\n\n\nListAPI.getOfferById ............................... id: $documentRef');
+    var start = DateTime.now();
+    Offer offer;
+    DocumentSnapshot qs = await _firestore
+        .collection('invoiceOffers')
+        .document(documentRef)
+        .get()
+        .catchError((e) {
+      print('ListAPI.getOfferByDocRef $e');
+      return null;
+    });
+    offer = Offer.fromJson(qs.data);
+    var end1 = DateTime.now();
+    print(
+        'ListAPI.getOfferByDocRef offer found:  elapsed : ${end1.difference(start).inMilliseconds} milliseconds');
+    prettyPrint(offer.toJson(), '############# OFFER: ... getting bids ...');
+    var qs1 = await _firestore
+        .collection('invoiceBids')
+        .where('offer', isEqualTo: NameSpace + 'Offer#${offer.offerId}')
+        .getDocuments()
+        .catchError((e) {
+      print('ListAPI.getOfferByDocRef $e');
+      return null;
+    });
+    var end2 = DateTime.now();
+    print(
+        'ListAPI.getOfferByDocRef invoiceBids found: ${qs1.documents.length}  elapsed : ${end2.difference(end1).inMilliseconds} milliseconds');
+    List<InvoiceBid> bids = List();
+    qs1.documents.forEach((doc) {
+      bids.add(InvoiceBid.fromJson(doc.data));
+    });
+    print(
+        'ListAPI.getOfferByDocRef built local invoice bids for offer: ${bids.length}. setting up bag ');
+    var bag = OfferBag(offer: offer, invoiceBids: bids);
+    return bag;
+  }
   static Future<OfferBag> getOfferByOfferId(String offerId) async {
     print(
         '\n\n\nListAPI.getOfferById ............................... id: $offerId');

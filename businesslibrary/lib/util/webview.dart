@@ -19,7 +19,6 @@ class BFNWebView extends StatefulWidget {
 class _BFNWebViewState extends State<BFNWebView>
     implements PeachSuccessListener, PeachErrorListener, PeachCancelListener {
   final FirebaseMessaging fm = FirebaseMessaging();
-
   @override
   void initState() {
     super.initState();

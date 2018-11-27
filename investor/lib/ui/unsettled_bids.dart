@@ -1,11 +1,13 @@
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/investor.dart';
 import 'package:businesslibrary/data/invoice_bid.dart';
+import 'package:businesslibrary/util/FCM.dart';
 import 'package:businesslibrary/util/invoice_bid_card.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/mypager.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:investor/app_model.dart';
 import 'package:investor/ui/settle_all.dart';
@@ -19,12 +21,13 @@ class UnsettledBids extends StatefulWidget {
 }
 
 class _UnsettledBidsState extends State<UnsettledBids>
-    implements PagerControlListener {
+    implements PagerControlListener, InvoiceBidListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   Investor investor;
   List<InvoiceBid> currentPage = List();
   InvestorAppModel appModel;
   bool isBusy, forceRefresh = false;
+  FirebaseMessaging _fm = FirebaseMessaging();
   @override
   void initState() {
     super.initState();
@@ -35,10 +38,16 @@ class _UnsettledBidsState extends State<UnsettledBids>
     investor = await SharedPrefs.getInvestor();
     _setBasePager();
     setState(() {
-
+    _subscribeToFCM();
     });
   }
-
+  void _subscribeToFCM() {
+    FCM.configureFCM(
+        invoiceBidListener: this, context: context);
+    _fm.subscribeToTopic(FCM.TOPIC_INVOICE_BIDS);
+    _fm.subscribeToTopic(FCM.TOPIC_OFFERS);
+    print('_DashboardState._subscribeToFCM ########## subscribed!');
+  }
   double _getHeight() {
     if (appModel.unsettledInvoiceBids == null) return 200.0;
     if (appModel.unsettledInvoiceBids.length < 2) {
@@ -101,7 +110,7 @@ class _UnsettledBidsState extends State<UnsettledBids>
           child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: Text(
-              'Settle Everything!',
+              'Settle All On Page',
               style: Styles.whiteSmall,
             ),
           ),
@@ -263,10 +272,10 @@ class _UnsettledBidsState extends State<UnsettledBids>
 
   void _startSettleAll() {
 
-    Navigator.pop(context);
+    //Navigator.pop(context);
     Navigator.push(
       context,
-      new MaterialPageRoute(builder: (context) => SettleAll()),
+      new MaterialPageRoute(builder: (context) => SettleAll(bids: currentPage,)),
     );
   }
 
@@ -454,5 +463,11 @@ class _UnsettledBidsState extends State<UnsettledBids>
     }
 
 
+  }
+
+  @override
+  onInvoiceBidMessage(InvoiceBid invoiceBid) {
+    prettyPrint(invoiceBid.toJson(), '####### invoiceBid arrived');
+    return null;
   }
 }
