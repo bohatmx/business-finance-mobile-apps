@@ -250,7 +250,7 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
     items.forEach((f) {
       purchaseOrders.add(f);
     });
-    setState(() {});
+     setState(() {});
   }
 }
 

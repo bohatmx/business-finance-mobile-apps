@@ -18,6 +18,7 @@ import 'package:businesslibrary/data/investor_profile.dart';
 import 'package:businesslibrary/data/invoice.dart';
 import 'package:businesslibrary/data/invoice_acceptance.dart';
 import 'package:businesslibrary/data/invoice_bid.dart';
+import 'package:businesslibrary/data/invoice_bid_keys.dart';
 import 'package:businesslibrary/data/invoice_settlement.dart';
 import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/data/oneconnect.dart';
@@ -27,6 +28,7 @@ import 'package:businesslibrary/data/sector.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/data/wallet.dart';
+import 'package:businesslibrary/util/database.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/util.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -56,6 +58,27 @@ class DataAPI3 {
       FirestoreError = 3,
       UnknownError = 4;
   static Firestore fs = Firestore.instance;
+
+  static Future<String> writeMultiKeys(List<InvoiceBid> bids) async {
+    InvoiceBidKeys bidKeys = InvoiceBidKeys(
+        date: DateTime.now().toIso8601String(),
+        investorDocRef: bids.first.investorDocRef,
+        keys: List(),
+        investorName: bids.first.investorName);
+
+    bids.forEach((b) {
+     bidKeys.addKey(b.documentReference);
+    });
+    prettyPrint(bidKeys.toJson(), '\n########## InvoiceBidKeys to write');
+
+    try {
+      var ref = await fs.collection('invoiceBidSettlementBatches').add(bidKeys.toJson());
+      return ref.path.split('/').elementAt(1);
+    } catch (e) {
+      print(e);
+      throw e;
+    }
+  }
 
   static Future<PurchaseOrder> registerPurchaseOrder(
       PurchaseOrder purchaseOrder) async {
@@ -334,7 +357,7 @@ class DataAPI3 {
     try {
       var mResponse = await _doHTTP(getFunctionsURL() + MAKE_INVOICE_BID, bag);
       if (mResponse.statusCode == 200) {
-       return 0;
+        return 0;
       } else {
         mResponse.transform(utf8.decoder).listen((contents) {
           print('DataAPI3.makeInvoiceBid  $contents');

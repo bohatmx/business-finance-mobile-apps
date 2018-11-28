@@ -10,6 +10,7 @@ import 'package:businesslibrary/util/FCM.dart';
 import 'package:businesslibrary/util/invoice_bid_card.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/peach.dart';
+import 'package:businesslibrary/util/selectors.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:businesslibrary/util/util.dart';
@@ -23,7 +24,8 @@ import 'package:scoped_model/scoped_model.dart';
 
 class SettleInvoiceBid extends StatefulWidget {
   final InvoiceBid invoiceBid;
-  SettleInvoiceBid({this.invoiceBid});
+  final List<InvoiceBid> invoiceBids;
+  SettleInvoiceBid({this.invoiceBid, this.invoiceBids});
 
   @override
   _SettleInvoiceBid createState() => _SettleInvoiceBid();
@@ -42,12 +44,14 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
   bool isBusy = false;
   User user;
   Investor investor;
+  double totalBidAmount = 0.00;
+  double avgDiscount = 0.0;
 
   @override
   void initState() {
     super.initState();
     _getCache();
-    _getOffer();
+    _getOffers();
 
 
   }
@@ -63,7 +67,7 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
   }
 
   int count = 0;
-  Future _getOffer() async {
+  Future _getOffers() async {
     count++;
     setState(() {
       isBusy = true;
@@ -84,10 +88,16 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
         setState(() {
           bottomHeight = 160.0;
           _opacity = 1.0;
-          isChecking = false;
+          willBeChecking = false;
         });
       }
+    } else {
+      setState(() {
+        willBeChecking = false;
+        _opacity = 1.0;
+      });
     }
+    isBusy = false;
     if (_scaffoldKey.currentState != null) {
       _scaffoldKey.currentState.removeCurrentSnackBar();
     }
@@ -125,8 +135,16 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
             _opacity = 0.0;
             isBusy = false;
           });
-          await appModel.processSettledBid(widget.invoiceBid);
-
+          //
+          if (widget.invoiceBid != null) {
+            await appModel.processSettledBid(widget.invoiceBid);
+          } else {
+            if (widget.invoiceBids != null) {
+              for (var b in widget.invoiceBids) {
+                await appModel.processSettledBid(b);
+              }
+            }
+          }
           break;
         case PeachCancel:
           isBusy = false;
@@ -156,25 +174,45 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
     }
   }
 
+  double totAmt = 0.0;
   _getPaymentKey() async {
     if (isBusy) {
       return;
     }
+    print('\n_SettleInvoiceBid._getPaymentKey ............................');
+    var ref;
+    totAmt = 0.00;
+    if (widget.invoiceBid != null) {
+      totAmt = widget.invoiceBid.amount;
+      ref = widget.invoiceBid.documentReference;
+    } else {
+      widget.invoiceBids.forEach((b) {
+        totAmt += b.amount;
+      });
+      ref = await DataAPI3.writeMultiKeys(widget.invoiceBids);
+    }
+    // 1. write list of invoiceBid documentRefs to Firestore multiKeys
+    // 2. save multiKeys documentRef as payment reference
+    // 3. use this documentId as ref
+    // 4. at cloud function - check if merchant ref is a multiKeys node or normal invoiceBid
+    // 5. if is multiKeys - get all keys and settle each invoiceBid
+
     var payment = PeachPayment(
-      merchantReference: widget.invoiceBid.documentReference,
-      amount: widget.invoiceBid.amount,
+      merchantReference: ref,
+      amount: totAmt,
       successURL: getFunctionsURL() + 'peachSuccess',
       cancelUrl: getFunctionsURL() + 'peachCancel',
       errorUrl: getFunctionsURL() + 'peachError',
       notifyUrl: getFunctionsURL() + 'peachNotify',
 
     );
+    prettyPrint(payment.toJson(), '##### getPaymentKey - payment, check merchant reference');
     try {
       paymentKey = await Peach.getPaymentKey(payment: payment);
       if (paymentKey != null) {
         print(
             '\n\n_MyHomePageState._getPaymentKey ########### paymentKey: ${paymentKey.key} ${paymentKey.url}');
-        webViewTitle = 'Bank Login';
+        webViewTitle = 'Your Bank Login';
         webViewUrl = paymentKey.url;
         _showWebView();
       } else {
@@ -296,25 +334,43 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
     );
   }
 
-  bool isChecking;
+  bool willBeChecking = true;
   double _opacity = 0.0;
   static const int Exit = 1;
+  String text =
+      'The totals below represent the total amount of invoice bids made by you or by the BFN Network. A single payment will be made for all outstanding bids.';
+
   Widget _getBody() {
     return ListView(
       children: <Widget>[
         Padding(
-          padding: const EdgeInsets.only(top:10.0, left: 20.0, right: 20.0, bottom: 20.0),
-          child: InvoiceBidCard(
+          padding: const EdgeInsets.all(8.0),
+          child: widget.invoiceBids == null? InvoiceBidCard(
             bid: widget.invoiceBid,
+          ):
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Text(text, style: Styles.blackBoldSmall,),
+                ),
+                InvoiceBidsCard(
+                  bids: widget.invoiceBids,
+                ),
+              ],
+            ),
           ),
+
         ),
         Padding(
           padding: const EdgeInsets.only(left: 20.0),
-          child: isChecking == null
+          child: willBeChecking == true
               ? Row(
             children: <Widget>[
               Text(
-                'Checking Bid. Please wait ...',
+                'Checking Bids. Please wait ...',
                 style: Styles.blackBoldMedium,
               ),
               Padding(
@@ -331,18 +387,15 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
         Padding(
           padding: const EdgeInsets.only(top:0.0),
           child: Center(
-            child: Opacity(
-              opacity: _opacity,
-              child: RaisedButton(
-                elevation: 16.0,
-                onPressed: _getPaymentKey,
-                color: Colors.pink.shade400,
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Text(
-                    'Settle Invoice Bid',
-                    style: Styles.whiteSmall,
-                  ),
+            child: RaisedButton(
+              elevation: 16.0,
+              onPressed: _getPaymentKey,
+              color: Colors.pink.shade400,
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Text(
+                  'Settle ${widget.invoiceBids.length} Invoice Bids',
+                  style: Styles.whiteSmall,
                 ),
               ),
             ),
@@ -356,23 +409,24 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
   Widget build(BuildContext context) {
     return ScopedModelDescendant<InvestorAppModel>(
       builder: (context, _, model) {
-        appModel = model;
-        return Scaffold(
-          key: _scaffoldKey,
-          appBar: AppBar(
-            title: Text('Invoice Bid Settlement'),
-            bottom: _getBottom(),
-            elevation: 2.0,
-            actions: <Widget>[
-              IconButton(
-                icon: Icon(Icons.refresh),
-                onPressed: _getOffer,
-              ),
-            ],
-          ),
-          backgroundColor: Colors.brown.shade100,
-          body: _getBody(),
-        );
+      appModel = model;
+      return Scaffold(
+        key: _scaffoldKey,
+        appBar: AppBar(
+          title: Text('Invoice Bid Settlement'),
+          bottom: _getBottom(),
+          elevation: 2.0,
+          actions: <Widget>[
+            IconButton(
+              icon: Icon(Icons.refresh),
+              onPressed: _getOffers,
+            ),
+          ],
+        ),
+        backgroundColor: Colors.brown.shade100,
+        body: _getBody(),
+      );
+
       },
     );
   }

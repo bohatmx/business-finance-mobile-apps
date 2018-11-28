@@ -37,7 +37,6 @@ import 'package:investor/ui/charts.dart';
 import 'package:investor/ui/offer_list.dart';
 import 'package:investor/ui/profile.dart';
 import 'package:investor/ui/unsettled_bids.dart';
-import 'package:investor/ui/unsettled_bids2.dart';
 import 'package:scoped_model/scoped_model.dart';
 
 class Dashboard extends StatefulWidget {

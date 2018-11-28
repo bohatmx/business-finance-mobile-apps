@@ -17,6 +17,9 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:govt/ui/invoice_settlement.dart';
+import 'package:scoped_model/scoped_model.dart';
+import 'package:businesslibrary/util/mypager.dart';
+
 
 class InvoiceList extends StatefulWidget {
   @override
@@ -24,12 +27,12 @@ class InvoiceList extends StatefulWidget {
 }
 
 class _InvoiceListState extends State<InvoiceList>
-    implements SnackBarListener, InvoiceListener, Pager3Listener {
+    implements SnackBarListener, InvoiceListener, PagerControlListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   FirebaseMessaging _fcm = FirebaseMessaging();
 
   GovtEntity entity;
-  List<Invoice> invoices = List();
+  List<Invoice> currentPage = List();
   List<Invoice> baseList;
   Invoice invoice;
   User user;
@@ -41,6 +44,7 @@ class _InvoiceListState extends State<InvoiceList>
   initState() {
     super.initState();
     _getCached();
+
   }
 
   _getInvoices() async {
@@ -51,21 +55,29 @@ class _InvoiceListState extends State<InvoiceList>
         textColor: Colors.yellow,
         backgroundColor: Colors.black);
     baseList = await Database.getInvoices();
-    _getInvoicePageItems();
+    int num = 1;
+    baseList.forEach((i) {
+      i.itemNumber = num;
+      num++;
+    });
+    _setBasePager();
+    //_getInvoicePageItems();
 
-    _scaffoldKey.currentState.hideCurrentSnackBar();
+    try {
+      _scaffoldKey.currentState.hideCurrentSnackBar();
+    } catch (e) {}
     print(
-        '\n\n_InvoiceListState._getInvoices, ############ found: ${invoices.length} ');
+        '\n\n_InvoiceListState._getInvoices, ############ found: ${currentPage.length} ');
     setState(() {});
   }
 
   _getInvoicePageItems() {
     var result = Finder.find(
         intDate: currentStartKey, pageLimit: pageLimit, baseList: baseList);
-    invoices.clear();
+    currentPage.clear();
     result.items.forEach((item) {
       if (item is Invoice) {
-        invoices.add(item);
+        currentPage.add(item);
         print(
             '${item.date} - ${item.intDate} ${item.customerName} --> ${item.supplierName}');
       }
@@ -148,27 +160,37 @@ class _InvoiceListState extends State<InvoiceList>
 
   Widget _getBottom() {
     return PreferredSize(
-        child: Column(
-          children: <Widget>[
-            baseList == null
-                ? Container()
-                : Padding(
-                    padding: const EdgeInsets.only(
-                        top: 0.0, bottom: 10.0, left: 8.0, right: 8.0),
-                    child: Pager3(
-                      addHeader: true,
-                      listener: this,
-                      elevation: 8.0,
-                      items: baseList,
-                      pageLimit: pageLimit == null ? 4 : pageLimit,
-                      itemName: 'Invoices',
-                      type: PagerHelper.INVOICE,
-                    ),
-                  ),
-          ],
-        ),
-        preferredSize: Size.fromHeight(200.0));
+      preferredSize: Size.fromHeight(200.0),
+      child:  baseList == null? Container() : Column(
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.only(bottom: 10.0),
+            child: PagingTotalsView(
+              pageValue: _getPageValue(),
+              totalValue: _getTotalValue(),
+              labelStyle: Styles.blackSmall,
+              pageValueStyle: Styles.blackBoldLarge,
+              totalValueStyle: Styles.brownBoldMedium,
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(
+                left: 8.0, right: 8.0, bottom: 12.0),
+            child: PagerControl(
+              itemName: 'Invoice Bids to Settle',
+              pageLimit: pageLimit,
+              elevation: 16.0,
+              items: baseList.length,
+              listener: this,
+              color: Colors.purple.shade50,
+              pageNumber: _pageNumber,
+            ),
+          ),
+        ],
+      ),
+    );
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -213,15 +235,15 @@ class _InvoiceListState extends State<InvoiceList>
       );
     });
     return ListView.builder(
-        itemCount: invoices == null ? 0 : invoices.length,
+        itemCount: currentPage == null ? 0 : currentPage.length,
         controller: controller1,
         itemBuilder: (BuildContext context, int index) {
           return new InkWell(
             onTap: () {
-              _showDialog(invoices.elementAt(index));
+              _showDialog(currentPage.elementAt(index));
             },
             child: InvoiceCard(
-              invoice: invoices.elementAt(index),
+              invoice: currentPage.elementAt(index),
               context: context,
             ),
           );
@@ -423,12 +445,124 @@ class _InvoiceListState extends State<InvoiceList>
   }
 
   void _setInvoices(List<Findable> items) {
-    invoices.clear();
+    currentPage.clear();
     items.forEach((f) {
-      invoices.add(f);
+      currentPage.add(f);
     });
     setState(() {});
   }
+
+  //paging constructs
+  BasePager basePager;
+  void _setBasePager() {
+
+    if (basePager == null) {
+      basePager = BasePager(
+        items: baseList,
+        pageLimit: pageLimit,
+      );
+    }
+
+    if (currentPage == null)
+      currentPage = List();
+    else
+      currentPage.clear();
+    var page = basePager.getFirstPage();
+    page.forEach((f) {
+      currentPage.add(f);
+    });
+  }
+
+  double _getPageValue() {
+    if (currentPage == null) return 0.00;
+    var t = 0.0;
+    currentPage.forEach((po) {
+      t += po.amount;
+    });
+    return t;
+  }
+
+  double _getTotalValue() {
+    if (baseList  == null) return 0.00;
+    var t = 0.0;
+    baseList.forEach((po) {
+      t += po.amount;
+    });
+    return t;
+  }
+
+  int _pageNumber = 1;
+  @override
+  onNextPageRequired() {
+    print('_InvoicesOnOfferState.onNextPageRequired');
+    if (currentPage == null) {
+      currentPage = List();
+    } else {
+      currentPage.clear();
+    }
+    var page = basePager.getNextPage();
+    if (page == null) {
+      return;
+    }
+    page.forEach((f) {
+      currentPage.add(f);
+    });
+
+    setState(() {
+      _pageNumber = basePager.pageNumber;
+    });
+  }
+
+  @override
+  onPageLimit(int pageLimit) async {
+    print('_UnsettledBidsState.onPageLimit : $pageLimit');
+    if (this.pageLimit == pageLimit) {
+      return null;
+    }
+    this.pageLimit = pageLimit;
+    _pageNumber = 1;
+    basePager = BasePager(
+      items: baseList,
+      pageLimit: pageLimit,
+    );
+    currentPage.clear();
+    var page = basePager.getFirstPage();
+    page.forEach((f) {
+      currentPage.add(f);
+    });
+    setState(() {});
+    basePager.doPrint();
+    return null;
+  }
+
+  @override
+  onPreviousPageRequired() {
+    print('_InvoicesOnOfferState.onPreviousPageRequired');
+    if (currentPage == null) {
+      currentPage = List();
+    }
+
+    var page = basePager.getPreviousPage();
+    if (page == null) {
+      AppSnackbar.showSnackbar(
+          scaffoldKey: _scaffoldKey,
+          message: 'No more. No mas.',
+          textColor: Styles.white,
+          backgroundColor: Theme.of(context).primaryColor);
+      return;
+    }
+    currentPage.clear();
+    page.forEach((f) {
+      currentPage.add(f);
+    });
+
+    setState(() {
+      _pageNumber = basePager.pageNumber;
+    });
+  }
+
+//end of paging constructs
+
 }
 
 class InvoiceCard extends StatelessWidget {

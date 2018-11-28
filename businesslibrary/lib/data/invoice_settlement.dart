@@ -11,7 +11,7 @@ class InvestorInvoiceSettlement extends Findable {
   String invoiceBid;
   String investor, supplier, offer, customer;
   String user, documentReference;
-  String wallet, supplierFCMToken;
+  String wallet, supplierFCMToken, invoiceBidDocRef;
 
   InvestorInvoiceSettlement(
       {this.invoiceSettlementId,
@@ -23,6 +23,7 @@ class InvestorInvoiceSettlement extends Findable {
       this.supplierFCMToken,
       this.documentReference,
       this.user,
+      this.invoiceBidDocRef,
       this.peachTransactionId,
       this.offer,
       this.supplier,
@@ -53,10 +54,12 @@ class InvestorInvoiceSettlement extends Findable {
     this.customerName = data['customerName'];
     this.supplierName = data['supplierName'];
     this.investorName = data['investorName'];
+    this.invoiceBidDocRef = data['invoiceBidDocRef'];
   }
   Map<String, dynamic> toJson() => <String, dynamic>{
         'invoiceSettlementId': invoiceSettlementId,
         'date': date,
+        'invoiceBidDocRef': invoiceBidDocRef,
         'amount': amount,
         'peachPaymentKey': peachPaymentKey,
         'peachTransactionId': peachTransactionId,
