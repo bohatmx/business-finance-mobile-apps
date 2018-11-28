@@ -446,7 +446,6 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
         _scaffoldKey.currentState.removeCurrentSnackBar();
         print('_SettleInvoiceBid.onActionPressed about to pop .....');
         Navigator.pop(context, true);
-        Navigator.pop(context, true);
         Navigator.push(
           context,
           new MaterialPageRoute(builder: (context) => UnsettledBids()),

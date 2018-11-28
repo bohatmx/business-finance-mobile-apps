@@ -6,21 +6,9 @@
     </shared>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b840dc6a-331e-46d9-b624-92fa4c1707ed" name="Default" comment="removed need to listen to peach notification on app. Dealt with in cloud function">
-      <change afterPath="$PROJECT_DIR$/../businesslibrary/lib/data/invoice_bid_keys.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/api/data_api3.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/api/data_api3.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/data/invoice_settlement.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/data/invoice_settlement.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/util/invoice_bid_card.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/util/invoice_bid_card.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/.idea/libraries/Dart_Packages.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../govt/.idea/libraries/Dart_Packages.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/.idea/libraries/Flutter_Plugins.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../govt/.idea/libraries/Flutter_Plugins.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/lib/ui/invoice_list.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../govt/lib/ui/invoice_list.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/lib/ui/purchase_order_list.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../govt/lib/ui/purchase_order_list.dart" afterDir="false" />
+    <list default="true" id="b840dc6a-331e-46d9-b624-92fa4c1707ed" name="Default" comment="refactored batch settlements - investor can settle all bids on active page.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/ui/dashboard.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/ui/dashboard.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/ui/settle_all.dart" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/ui/settle_invoice_bid.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/ui/settle_invoice_bid.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/ui/unsettled_bids.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/ui/unsettled_bids.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/ui/unsettled_bids2.dart" beforeDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -108,7 +96,7 @@
         <counts>
           <entry key="dart" value="64924" />
           <entry key="gradle" value="30" />
-          <entry key="txt" value="1930" />
+          <entry key="txt" value="2025" />
           <entry key="yaml" value="18" />
         </counts>
       </usages-collector>
@@ -126,7 +114,7 @@
         <counts>
           <entry key="Dart" value="64924" />
           <entry key="Groovy" value="30" />
-          <entry key="PLAIN_TEXT" value="1930" />
+          <entry key="PLAIN_TEXT" value="2025" />
           <entry key="YAML" value="18" />
         </counts>
       </usages-collector>
@@ -190,7 +178,7 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/lib/ui/dashboard.dart">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="154">
@@ -204,15 +192,16 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/lib/ui/settle_invoice_bid.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="183">
-              <caret line="191" column="60" selection-start-line="191" selection-start-column="60" selection-end-line="191" selection-end-column="60" />
+            <state relative-caret-position="408">
+              <caret line="441" column="14" lean-forward="true" selection-start-line="441" selection-start-column="14" selection-end-line="441" selection-end-column="14" />
               <folding>
                 <element signature="e#1524#1539#0" />
                 <element signature="e#1839#1903#0" expanded="true" />
                 <element signature="e#2405#3078#0" expanded="true" />
+                <element signature="e#5242#6993#0" expanded="true" />
                 <element signature="e#6056#6062#0" />
                 <element signature="e#6257#6270#0" />
                 <element signature="e#6704#6715#0" />
@@ -354,12 +343,12 @@
         <option value="$PROJECT_DIR$/../businesslibrary/lib/util/FCM.dart" />
         <option value="$PROJECT_DIR$/lib/ui/settle_all.dart" />
         <option value="$PROJECT_DIR$/../businesslibrary/lib/util/invoice_bid_card.dart" />
-        <option value="$PROJECT_DIR$/lib/ui/settle_invoice_bid.dart" />
         <option value="$PROJECT_DIR$/../businesslibrary/lib/data/invoice_bid_keys.dart" />
         <option value="$PROJECT_DIR$/../businesslibrary/lib/api/data_api3.dart" />
         <option value="$PROJECT_DIR$/../businesslibrary/lib/data/invoice_settlement.dart" />
         <option value="$PROJECT_DIR$/lib/ui/unsettled_bids.dart" />
         <option value="$PROJECT_DIR$/lib/ui/dashboard.dart" />
+        <option value="$PROJECT_DIR$/lib/ui/settle_invoice_bid.dart" />
       </list>
     </option>
   </component>
@@ -436,7 +425,7 @@
   </component>
   <component name="PropertiesComponent">
     <property name="android.sdk.path" value="$USER_HOME$/Library/Android/sdk" />
-    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1543395338971" />
+    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1543395583047" />
     <property name="dart.analysis.tool.window.force.activate" value="false" />
     <property name="io.flutter.reload.alreadyRun" value="true" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
@@ -497,13 +486,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1530197618099</updated>
-    </task>
-    <task id="LOCAL-00010" summary="added supplier selection ui">
-      <created>1536219093825</created>
-      <option name="number" value="00010" />
-      <option name="presentableId" value="LOCAL-00010" />
-      <option name="project" value="LOCAL" />
-      <updated>1536219093825</updated>
     </task>
     <task id="LOCAL-00011" summary="added auto trade order + ui">
       <created>1536313661006</created>
@@ -841,7 +823,14 @@
       <option name="project" value="LOCAL" />
       <updated>1543291738386</updated>
     </task>
-    <option name="localTasksCounter" value="59" />
+    <task id="LOCAL-00059" summary="refactored batch settlements - investor can settle all bids on active page.">
+      <created>1543395568434</created>
+      <option name="number" value="00059" />
+      <option name="presentableId" value="LOCAL-00059" />
+      <option name="project" value="LOCAL" />
+      <updated>1543395568437</updated>
+    </task>
+    <option name="localTasksCounter" value="60" />
     <servers />
   </component>
   <component name="TodoView">
@@ -857,8 +846,8 @@
     <frame x="1440" y="0" width="1920" height="1080" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.7268994" visible="true" weight="0.3035144" />
-      <window_info id="Structure" order="1" sideWeight="0.2731006" side_tool="true" visible="true" weight="0.3035144" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.7275321" visible="true" weight="0.3035144" />
+      <window_info active="true" id="Structure" order="1" sideWeight="0.2724679" side_tool="true" visible="true" weight="0.3035144" />
       <window_info id="Designer" order="2" />
       <window_info id="Build Variants" order="3" side_tool="true" />
       <window_info id="Image Layers" order="4" />
@@ -868,7 +857,7 @@
       <window_info id="UI Designer" order="8" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.85630745" visible="true" weight="0.5178218" />
+      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.85630745" visible="true" weight="0.3059406" />
       <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.5954546" weight="0.33267328" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -897,7 +886,6 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="refactored investor profile ui" />
     <MESSAGE value="started integration of Peach Payments EFT service" />
     <MESSAGE value="added invoice bid settlement via Peach EFT - slick!" />
     <MESSAGE value="refactored invoice bid settlement via Peach EFT" />
@@ -922,7 +910,8 @@
     <MESSAGE value="fixed paging bug in bid settlements" />
     <MESSAGE value="refactored batch settlement - kicking my ass good :(" />
     <MESSAGE value="removed need to listen to peach notification on app. Dealt with in cloud function" />
-    <option name="LAST_COMMIT_MESSAGE" value="removed need to listen to peach notification on app. Dealt with in cloud function" />
+    <MESSAGE value="refactored batch settlements - investor can settle all bids on active page." />
+    <option name="LAST_COMMIT_MESSAGE" value="refactored batch settlements - investor can settle all bids on active page." />
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/lib/ui/signin_page.dart">
@@ -1306,33 +1295,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/lib/ui/settle_invoice_bid.dart">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="183">
-          <caret line="191" column="60" selection-start-line="191" selection-start-column="60" selection-end-line="191" selection-end-column="60" />
-          <folding>
-            <element signature="e#1524#1539#0" />
-            <element signature="e#1839#1903#0" expanded="true" />
-            <element signature="e#2405#3078#0" expanded="true" />
-            <element signature="e#6056#6062#0" />
-            <element signature="e#6257#6270#0" />
-            <element signature="e#6704#6715#0" />
-            <element signature="e#7405#7416#0" />
-            <element signature="e#7778#7788#0" />
-            <element signature="e#8219#8230#0" />
-            <element signature="e#8582#8607#0" />
-            <element signature="e#9041#9052#0" />
-            <element signature="e#9546#9551#0" />
-            <element signature="e#9822#11325#0" expanded="true" />
-            <element signature="e#10129#10141#0" />
-            <element signature="e#10433#10439#0" />
-            <element signature="e#10751#10760#0" />
-            <element signature="e#11844#12416#0" expanded="true" />
-            <element signature="e#12555#12594#0" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/lib/ui/unsettled_bids.dart">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="247">
@@ -1394,6 +1356,34 @@
             <element signature="e#0#20#0" expanded="true" />
             <element signature="n#!!block;n#Dashboard#0" />
             <element signature="e#5500#5813#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lib/ui/settle_invoice_bid.dart">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="408">
+          <caret line="441" column="14" lean-forward="true" selection-start-line="441" selection-start-column="14" selection-end-line="441" selection-end-column="14" />
+          <folding>
+            <element signature="e#1524#1539#0" />
+            <element signature="e#1839#1903#0" expanded="true" />
+            <element signature="e#2405#3078#0" expanded="true" />
+            <element signature="e#5242#6993#0" expanded="true" />
+            <element signature="e#6056#6062#0" />
+            <element signature="e#6257#6270#0" />
+            <element signature="e#6704#6715#0" />
+            <element signature="e#7405#7416#0" />
+            <element signature="e#7778#7788#0" />
+            <element signature="e#8219#8230#0" />
+            <element signature="e#8582#8607#0" />
+            <element signature="e#9041#9052#0" />
+            <element signature="e#9546#9551#0" />
+            <element signature="e#9822#11325#0" expanded="true" />
+            <element signature="e#10129#10141#0" />
+            <element signature="e#10433#10439#0" />
+            <element signature="e#10751#10760#0" />
+            <element signature="e#11844#12416#0" expanded="true" />
+            <element signature="e#12555#12594#0" />
           </folding>
         </state>
       </provider>
