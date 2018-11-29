@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:businesslibrary/api/data_api3.dart';
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
@@ -10,15 +12,14 @@ import 'package:businesslibrary/util/FCM.dart';
 import 'package:businesslibrary/util/invoice_bid_card.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/peach.dart';
-import 'package:businesslibrary/util/selectors.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:businesslibrary/util/util.dart';
 import 'package:businesslibrary/util/webview.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:investor/app_model.dart';
-import 'package:investor/ui/dashboard.dart';
 import 'package:investor/ui/unsettled_bids.dart';
 import 'package:scoped_model/scoped_model.dart';
 
@@ -32,9 +33,10 @@ class SettleInvoiceBid extends StatefulWidget {
 }
 
 class _SettleInvoiceBid extends State<SettleInvoiceBid>
-    implements SnackBarListener, InvoiceBidListener{
+    implements SnackBarListener, InvoiceBidListener, InvestorInvoiceSettlementListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   final FirebaseMessaging fm = FirebaseMessaging();
+  final Firestore fs = Firestore.instance;
   InvestorAppModel appModel;
   String webViewTitle, webViewUrl;
   Offer offer;
@@ -46,26 +48,72 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
   Investor investor;
   double totalBidAmount = 0.00;
   double avgDiscount = 0.0;
-
+  FCM _fcm = FCM();
   @override
   void initState() {
     super.initState();
     _getCache();
     _getOffers();
-
-
   }
 
   void _getCache() async {
     user = await SharedPrefs.getUser();
     investor = await SharedPrefs.getInvestor();
 
-    FCM.configureFCM(context: context, invoiceBidListener: this);
-    fm.subscribeToTopic(FCM.TOPIC_PEACH_NOTIFY);
+    _fcm.configureFCM(invoiceBidListener: this, investorInvoiceSettlementListener: this);
     fm.subscribeToTopic(FCM.TOPIC_INVOICE_BIDS + investor.participantId);
-
   }
 
+  StreamSubscription<QuerySnapshot> streamSub;
+  void _listenForSettlement() async {
+    print('_SettleInvoiceBid._listenForSettlements .................paymentKey.key: ${paymentKey.key} ........');
+    Query reference = fs
+        .collection('settlements')
+        .where('peachPaymentKey', isEqualTo: paymentKey.key);
+
+    streamSub = reference.snapshots().listen((querySnapshot) {
+      querySnapshot.documentChanges.forEach((change) {
+        // Do something with change
+        if (change.type == DocumentChangeType.added) {
+          var settlement = InvestorInvoiceSettlement.fromJson(
+              change.document.data);
+          settlement.documentReference = change.document.documentID;
+          if (settlement.peachPaymentKey == paymentKey.key) {
+            prettyPrint(settlement.toJson(),
+                '\n\n_SettleInvoiceBid._listen - DocumentChangeType = added, settlement added:');
+            print('_SettleInvoiceBid._listen about to call streamSub.cancel();');
+            streamSub.cancel();
+            _showSnackRegistered(settlement);
+          }
+
+        } else {
+          print('_SettleInvoiceBid._listenForSettlements - this is NOT our settlement - IGNORE!');
+        }
+
+      });
+    });
+  }
+
+  void _showSnackRegistered(InvestorInvoiceSettlement settlement) async{
+    if (widget.invoiceBid != null) {
+      await appModel.processSettledBid(widget.invoiceBid);
+    }
+    if (widget.invoiceBids != null) {
+      for (var bid in widget.invoiceBids) {
+        await appModel.processSettledBid(bid);
+      }
+    }
+
+    AppSnackbar.showSnackbarWithAction(
+        scaffoldKey: _scaffoldKey,
+        message: 'Payment registered',
+        textColor: Colors.white,
+        action: Exit,
+        listener: this,
+        icon: Icons.done_all,
+        actionLabel: 'Done',
+        backgroundColor: Colors.teal);
+  }
   int count = 0;
   Future _getOffers() async {
     count++;
@@ -76,8 +124,7 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
       }
     });
     if (widget.invoiceBid != null) {
-      offerBag = await ListAPI.getOfferByDocRef(
-          widget.invoiceBid.offerDocRef);
+      offerBag = await ListAPI.getOfferByDocRef(widget.invoiceBid.offerDocRef);
       setState(() {
         isBusy = false;
       });
@@ -87,14 +134,12 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
 
         setState(() {
           bottomHeight = 160.0;
-          _opacity = 1.0;
           willBeChecking = false;
         });
       }
     } else {
       setState(() {
         willBeChecking = false;
-        _opacity = 1.0;
       });
     }
     isBusy = false;
@@ -120,19 +165,17 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
       );
       switch (result) {
         case PeachSuccess:
-          FCM.configureFCM(context: context,);
           AppSnackbar.showSnackbarWithAction(
               scaffoldKey: _scaffoldKey,
-              message: 'Payment successful\nTo be registered on BFN',
+              message: 'Payment successful\nWait for registration ...',
               textColor: Styles.white,
-              backgroundColor: Colors.indigo.shade300,
-              actionLabel: 'Exit',
+              backgroundColor: Colors.indigo.shade400,
+              actionLabel: 'Wait',
               listener: this,
-              icon: Icons.done_all,
-              action: Exit);
+              icon: Icons.done,
+              action: 0);
 
           setState(() {
-            _opacity = 0.0;
             isBusy = false;
           });
           //
@@ -175,7 +218,7 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
   }
 
   double totAmt = 0.0;
-  _getPaymentKey() async {
+  Future _getPaymentKey() async {
     if (isBusy) {
       return;
     }
@@ -191,11 +234,6 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
       });
       ref = await DataAPI3.writeMultiKeys(widget.invoiceBids);
     }
-    // 1. write list of invoiceBid documentRefs to Firestore multiKeys
-    // 2. save multiKeys documentRef as payment reference
-    // 3. use this documentId as ref
-    // 4. at cloud function - check if merchant ref is a multiKeys node or normal invoiceBid
-    // 5. if is multiKeys - get all keys and settle each invoiceBid
 
     var payment = PeachPayment(
       merchantReference: ref,
@@ -204,9 +242,9 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
       cancelUrl: getFunctionsURL() + 'peachCancel',
       errorUrl: getFunctionsURL() + 'peachError',
       notifyUrl: getFunctionsURL() + 'peachNotify',
-
     );
-    prettyPrint(payment.toJson(), '##### getPaymentKey - payment, check merchant reference');
+    prettyPrint(payment.toJson(),
+        '##### getPaymentKey - payment, check merchant reference');
     try {
       paymentKey = await Peach.getPaymentKey(payment: payment);
       if (paymentKey != null) {
@@ -214,6 +252,7 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
             '\n\n_MyHomePageState._getPaymentKey ########### paymentKey: ${paymentKey.key} ${paymentKey.url}');
         webViewTitle = 'Your Bank Login';
         webViewUrl = paymentKey.url;
+        _listenForSettlement();
         _showWebView();
       } else {
         AppSnackbar.showErrorSnackbar(
@@ -223,6 +262,7 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
             actionLabel: 'Close');
       }
     } catch (e) {
+      print(e);
       AppSnackbar.showErrorSnackbar(
           scaffoldKey: _scaffoldKey,
           message: 'Error starting bank process',
@@ -321,13 +361,18 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
                       ],
                     ),
                   ),
-                  isBusy == false? Container() : Container(
-                    height: 28.0, width: 28.0,
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: CircularProgressIndicator(strokeWidth: 6.0,),
-                    ),
-                  ),
+                  isBusy == false
+                      ? Container()
+                      : Container(
+                          height: 28.0,
+                          width: 28.0,
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: CircularProgressIndicator(
+                              strokeWidth: 6.0,
+                            ),
+                          ),
+                        ),
                 ],
               ),
       ),
@@ -335,7 +380,6 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
   }
 
   bool willBeChecking = true;
-  double _opacity = 0.0;
   static const int Exit = 1;
   String text =
       'The totals below represent the total amount of invoice bids made by you or by the BFN Network. A single payment will be made for all outstanding bids.';
@@ -345,47 +389,53 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
       children: <Widget>[
         Padding(
           padding: const EdgeInsets.all(8.0),
-          child: widget.invoiceBids == null? InvoiceBidCard(
-            bid: widget.invoiceBid,
-          ):
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              children: <Widget>[
-                Padding(
+          child: widget.invoiceBids == null
+              ? InvoiceBidCard(
+                  bid: widget.invoiceBid,
+                )
+              : Padding(
                   padding: const EdgeInsets.all(16.0),
-                  child: Text(text, style: Styles.blackBoldSmall,),
+                  child: Column(
+                    children: <Widget>[
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Text(
+                          text,
+                          style: Styles.blackBoldSmall,
+                        ),
+                      ),
+                      InvoiceBidsCard(
+                        bids: widget.invoiceBids,
+                      ),
+                    ],
+                  ),
                 ),
-                InvoiceBidsCard(
-                  bids: widget.invoiceBids,
-                ),
-              ],
-            ),
-          ),
-
         ),
         Padding(
           padding: const EdgeInsets.only(left: 20.0),
           child: willBeChecking == true
               ? Row(
-            children: <Widget>[
-              Text(
-                'Checking Bids. Please wait ...',
-                style: Styles.blackBoldMedium,
-              ),
-              Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Container(
-                  height: 16.0, width: 16.0,
-                  child: CircularProgressIndicator(strokeWidth: 6.0,),
-                ),
-              ),
-            ],
-          )
+                  children: <Widget>[
+                    Text(
+                      'Checking Bids. Please wait ...',
+                      style: Styles.blackBoldMedium,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Container(
+                        height: 16.0,
+                        width: 16.0,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 6.0,
+                        ),
+                      ),
+                    ),
+                  ],
+                )
               : Container(),
         ),
         Padding(
-          padding: const EdgeInsets.only(top:0.0),
+          padding: const EdgeInsets.only(top: 0.0),
           child: Center(
             child: RaisedButton(
               elevation: 16.0,
@@ -394,7 +444,9 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Text(
-                  'Settle ${widget.invoiceBids.length} Invoice Bids',
+                  widget.invoiceBids == null
+                      ? 'Settle Invoice Bid'
+                      : 'Settle ${widget.invoiceBids.length} Invoice Bids',
                   style: Styles.whiteSmall,
                 ),
               ),
@@ -409,24 +461,23 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
   Widget build(BuildContext context) {
     return ScopedModelDescendant<InvestorAppModel>(
       builder: (context, _, model) {
-      appModel = model;
-      return Scaffold(
-        key: _scaffoldKey,
-        appBar: AppBar(
-          title: Text('Invoice Bid Settlement'),
-          bottom: _getBottom(),
-          elevation: 2.0,
-          actions: <Widget>[
-            IconButton(
-              icon: Icon(Icons.refresh),
-              onPressed: _getOffers,
-            ),
-          ],
-        ),
-        backgroundColor: Colors.brown.shade100,
-        body: _getBody(),
-      );
-
+        appModel = model;
+        return Scaffold(
+          key: _scaffoldKey,
+          appBar: AppBar(
+            title: Text('Invoice Bid Settlement'),
+            bottom: _getBottom(),
+            elevation: 2.0,
+            actions: <Widget>[
+              IconButton(
+                icon: Icon(Icons.refresh),
+                onPressed: _getOffers,
+              ),
+            ],
+          ),
+          backgroundColor: Colors.brown.shade100,
+          body: _getBody(),
+        );
       },
     );
   }
@@ -472,6 +523,13 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
     });
 
     return getFormattedAmount('$t', context);
+  }
+
+  @override
+  onInvestorInvoiceSettlement(InvestorInvoiceSettlement settlement) async{
+    prettyPrint(settlement.toJson(), '\n\n ################ settlement arrived:');
+    Navigator.pop(context);
+    return null;
   }
 
 }

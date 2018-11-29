@@ -123,7 +123,7 @@ class _DashboardState extends State<Dashboard>
 //  }
   List<Offer> mOfferList = List();
   List<InvestorProfile> profiles = List();
-
+  FCM _fcm = FCM();
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     print('_DashboardState.didChangeAppLifecycleState state: $state');
@@ -138,12 +138,11 @@ class _DashboardState extends State<Dashboard>
   }
 
   void _subscribeToFCM() {
-    FCM.configureFCM(
-        invoiceBidListener: this, offerListener: this,context: context);
+    _fcm.configureFCM(
+        invoiceBidListener: this, offerListener: this);
     _fm.subscribeToTopic(FCM.TOPIC_INVOICE_BIDS);
     _fm.subscribeToTopic(FCM.TOPIC_OFFERS);
-    _fm.subscribeToTopic(FCM.TOPIC_PEACH_NOTIFY);
-    print('_DashboardState._subscribeToFCM ########## subscribed!');
+    print('_DashboardState._subscribeToFCM ########## subscribed! ${FCM.TOPIC_INVOICE_BIDS} and ${FCM.TOPIC_OFFERS}');
   }
 
   void _checkSectors() async {

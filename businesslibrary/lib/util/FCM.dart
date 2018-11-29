@@ -41,9 +41,8 @@ class FCM {
   static const TOPIC_INVESTOR_INVOICE_SETTLEMENTS =
       "investorInvoiceSettlements";
 
-  static configureFCM(
-      {BuildContext context,
-      PurchaseOrderListener purchaseOrderListener,
+  void configureFCM(
+      {PurchaseOrderListener purchaseOrderListener,
       DeliveryNoteListener deliveryNoteListener,
       DeliveryAcceptanceListener deliveryAcceptanceListener,
       InvoiceListener invoiceListener,
@@ -58,6 +57,7 @@ class FCM {
       InvestorInvoiceSettlementListener investorInvoiceSettlementListener,
       PeachCancelListener peachCancelListener,
       PeachErrorListener peachErrorListener,
+      PeachNotifyListener peachNotifyListener,
       PeachSuccessListener peachSuccessListener}) async {
     print(
         '\n\n\ ################ CONFIGURE FCM MESSAGE ###########  starting _firebaseMessaging');
@@ -172,6 +172,11 @@ class FCM {
               prettyPrint(map, '\n\n########## FCM PEACH_ERROR :');
               peachErrorListener.onPeachError(PeachNotification.fromJson(map));
               break;
+            case 'PEACH_NOTIFY':
+              Map map = json.decode(mJSON);
+              prettyPrint(map, '\n\n########## FCM PEACH_NOTIFY:');
+              peachNotifyListener.onPeachNotify(PeachNotification.fromJson(map));
+              break;
             case 'INVESTOR_INVOICE_SETTLEMENT':
               Map map = json.decode(mJSON);
               prettyPrint(
@@ -217,7 +222,7 @@ class FCM {
     });
   }
 
-  static _updateToken(String token) async {
+  void _updateToken(String token) async {
     print('_updateToken #################  update user FCM token');
     var user = await SharedPrefs.getUser();
     if (user == null) {
@@ -253,6 +258,10 @@ abstract class PeachErrorListener {
 
 abstract class PeachCancelListener {
   onPeachCancel(Map map);
+}
+
+abstract class PeachNotifyListener {
+  onPeachNotify(PeachNotification notification);
 }
 
 abstract class CustomerListener {

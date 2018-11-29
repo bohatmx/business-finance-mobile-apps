@@ -5,6 +5,7 @@ import 'package:businesslibrary/util/FCM.dart';
 import 'package:businesslibrary/util/invoice_bid_card.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/mypager.dart';
+import 'package:businesslibrary/util/peach.dart';
 import 'package:businesslibrary/util/selectors.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
@@ -21,7 +22,7 @@ class UnsettledBids extends StatefulWidget {
 }
 
 class _UnsettledBidsState extends State<UnsettledBids>
-    implements PagerControlListener, InvoiceBidListener {
+    implements PagerControlListener, InvoiceBidListener, PeachNotifyListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   Investor investor;
   List<InvoiceBid> currentPage = List();
@@ -30,6 +31,7 @@ class _UnsettledBidsState extends State<UnsettledBids>
   FirebaseMessaging _fm = FirebaseMessaging();
   double totalBidAmount = 0.00;
   double avgDiscount = 0.0, possibleROI = 0.0;
+  FCM _fcm = FCM();
   @override
   void initState() {
     super.initState();
@@ -44,8 +46,8 @@ class _UnsettledBidsState extends State<UnsettledBids>
     });
   }
   void _subscribeToFCM() {
-    FCM.configureFCM(
-        invoiceBidListener: this, context: context);
+    _fcm.configureFCM(
+        invoiceBidListener: this, peachNotifyListener: this);
     _fm.subscribeToTopic(FCM.TOPIC_INVOICE_BIDS);
     _fm.subscribeToTopic(FCM.TOPIC_OFFERS);
     print('_DashboardState._subscribeToFCM ########## subscribed!');
@@ -777,5 +779,11 @@ class _UnsettledBidsState extends State<UnsettledBids>
         ),
       ),
     );
+  }
+
+  @override
+  onPeachNotify(PeachNotification notification) {
+    prettyPrint(notification.toJson(), '\n\n\n########### notification arrived safely!:');
+    return null;
   }
 }

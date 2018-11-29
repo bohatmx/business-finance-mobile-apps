@@ -51,13 +51,19 @@ class InvoiceBidCard extends StatelessWidget {
                   Container(
                       width: 110.0,
                       child: Text('Supplier', style: Styles.greyLabelSmall)),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 8.0),
-                    child: Text(
-                        bid == null
-                            ? 'Supplier name Unavailable'
-                            : '${bid.supplierName}',
-                        style: Styles.blackBoldSmall),
+                  Flexible(
+                    child: Container(
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 8.0),
+                        child: Text(
+                          bid == null
+                              ? 'Supplier name Unavailable'
+                              : '${bid.supplierName}',
+                          style: Styles.blackBoldSmall,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -353,7 +359,8 @@ class InvoiceBidsCard extends StatelessWidget {
               padding: const EdgeInsets.only(top: 20.0),
               child: Row(
                 children: <Widget>[
-                  Container(width: 110.0,
+                  Container(
+                      width: 110.0,
                       child: Text('Auto Trades', style: Styles.greyLabelSmall)),
                   Padding(
                     padding: const EdgeInsets.only(left: 8.0),
@@ -368,7 +375,8 @@ class InvoiceBidsCard extends StatelessWidget {
                 children: <Widget>[
                   Container(
                       width: 110.0,
-                      child: Text('Manual Trades', style: Styles.greyLabelSmall)),
+                      child:
+                          Text('Manual Trades', style: Styles.greyLabelSmall)),
                   Padding(
                     padding: const EdgeInsets.only(left: 8.0),
                     child: Text('$manualTrades', style: Styles.blackBoldMedium),
@@ -376,7 +384,6 @@ class InvoiceBidsCard extends StatelessWidget {
                 ],
               ),
             ),
-
           ],
         ),
       ),
