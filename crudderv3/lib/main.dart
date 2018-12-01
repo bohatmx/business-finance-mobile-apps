@@ -59,11 +59,12 @@ class _MyHomePageState extends State<MyHomePage>
   String btnText = "Generate Working Data", phases = FIVE;
   bool isBrandNew = false;
   int recordCounter = 0;
+  FCM _fcm = FCM();
 
   @override
   initState() {
     super.initState();
-    FCM.configureFCM(
+    _fcm.configureFCM(
       offerListener: this,
     );
   }

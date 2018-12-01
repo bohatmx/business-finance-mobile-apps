@@ -6,6 +6,7 @@ import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/auto_start_stop.dart';
 import 'package:businesslibrary/data/auto_trade_order.dart';
 import 'package:businesslibrary/data/invalid_trade.dart';
+import 'package:businesslibrary/data/investor.dart';
 import 'package:businesslibrary/data/investor_profile.dart';
 import 'package:businesslibrary/data/invoice_bid.dart';
 import 'package:businesslibrary/data/offer.dart';
@@ -15,6 +16,7 @@ import 'package:businesslibrary/util/selectors.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:businesslibrary/util/webview.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
@@ -67,25 +69,43 @@ class _MyHomePageState extends State<MyHomePage>
   OpenOfferSummary summary;
   String webViewTitle, webViewUrl;
   AutoTradeStart autoTradeStart = AutoTradeStart();
+  FCM _fcm = FCM();
 
-  void _showWebView() {
-    //Navigator.of(context).pushNamed('/webview');
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-          builder: (context) => BFNWebView(
-                title: webViewTitle,
-                url: webViewUrl,
-              )),
-    );
+  void _fixProfiles() async {
+    Firestore fs = Firestore.instance;
+    var qs = await fs.collection('investorProfiles').getDocuments();
+    int count = 0;
+    print('_MyHomePageState.fixProfiles ************ found: ${qs.documents.length}');
+    for (var doc in qs.documents) {
+      var profile = InvestorProfile.fromJson(doc.data);
+      var qs2 = await fs.collection('investors').where('participantId', isEqualTo: profile.investor.split('#').elementAt(1)).getDocuments();
+      if (qs2.documents.isNotEmpty) {
+        profile.investorDocRef = qs2.documents.first.documentID;
+        await doc.reference.setData(profile.toJson());
+        count++;
+        print('\n_MyHomePageState.fixProfiles - updated profile #$count ${profile.name} - investorDocRef : ${profile.investorDocRef}');
+      } else {
+        print('_MyHomePageState.fixProfiles - investor not found: profile: ${profile.name} ${profile.investor}');
+        Investor m = Investor(
+          participantId: profile.investor.split('#').elementAt(1),
+          name: profile.name,
+          country: 'South Africa',
+          description: 'Test Investor',
+          dateRegistered: getUTCDate(),
+        );
+        var ref = await fs.collection('investors').add(m.toJson());
+        m.documentReference = ref.documentID;
+        await ref.setData(m.toJson());
+        print('_MyHomePageState.fixProfiles ########## investor added ${m.name} ${m.documentReference}');
+      }
+    }
   }
 
   @override
   void initState() {
     super.initState();
     _getLists(true);
-    FCM.configureFCM(
-      context: context,
+    _fcm.configureFCM(
       invoiceBidListener: this,
       heartbeatListener: this,
       offerListener: this,
@@ -190,6 +210,10 @@ class _MyHomePageState extends State<MyHomePage>
           prettyPrint(
               autoTradeStart.toJson(), '\n\n####### RESULT from AutoTrades:');
           if (autoTradeStart == null) {
+
+            setState(() {
+              messages.add('Problem with Auto Trade Session');
+            });
             AppSnackbar.showErrorSnackbar(
                 scaffoldKey: _scaffoldKey,
                 message: 'Problem with Auto Trade Session',
@@ -220,6 +244,9 @@ class _MyHomePageState extends State<MyHomePage>
         }
       });
     } catch (e) {
+      setState(() {
+        messages.add('Problem with Auto Trade Session\n$e');
+      });
       AppSnackbar.showErrorSnackbar(
           scaffoldKey: _scaffoldKey,
           message: 'Problem with Auto Trade Session',
@@ -374,7 +401,7 @@ class _MyHomePageState extends State<MyHomePage>
               Icons.apps,
               color: Colors.white,
             ),
-            onPressed: _showWebView),
+            onPressed: null),
         bottom: _getBottom(),
         actions: <Widget>[
           IconButton(
@@ -768,7 +795,7 @@ class _MyHomePageState extends State<MyHomePage>
                 child: Text(
                   autoTradeStart == null
                       ? '00:00'
-                      : getFormattedDateHour(autoTradeStart.dateEnded),
+                      : getFormattedDateHour(_formatDate(autoTradeStart.dateEnded)),
                   style: Styles.blackSmall,
                 ),
               ),
@@ -777,6 +804,15 @@ class _MyHomePageState extends State<MyHomePage>
         ),
       ],
     );
+  }
+  String _formatDate(String date) {
+    if (date == null) return '';
+    try {
+      var dt = DateTime.parse(date).toLocal().toIso8601String();
+      return dt;
+    } catch (e) {
+      return '';
+    }
   }
   Widget _getDate() {
     if (autoTradeStart == null) {
@@ -853,7 +889,7 @@ class _MyHomePageState extends State<MyHomePage>
 
   Widget _getPossible() {
     return Padding(
-      padding: const EdgeInsets.only(top: 0.0, bottom: 0.0),
+      padding: const EdgeInsets.only(top: 10.0, bottom: 0.0),
       child: Row(
         children: <Widget>[
           Container(
@@ -900,7 +936,7 @@ class _MyHomePageState extends State<MyHomePage>
 
   Widget _getElapsed() {
     return Padding(
-      padding: const EdgeInsets.only(top: 0.0, bottom: 10.0),
+      padding: const EdgeInsets.only(top: 10.0, bottom: 10.0),
       child: Row(
         children: <Widget>[
           Container(

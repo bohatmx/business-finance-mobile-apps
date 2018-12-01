@@ -1,13 +1,17 @@
+import 'dart:async';
+import 'dart:math';
+
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/dashboard_data.dart';
 import 'package:businesslibrary/data/investor.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
+import 'package:businesslibrary/util/theme_bloc.dart';
+
 import 'package:flutter/material.dart';
 import 'package:investor/app_model.dart';
 import 'package:investor/ui/dashboard.dart';
 import 'package:investor/ui/signin_page.dart';
 import 'package:investor/ui/signup_page.dart';
-import 'package:investor/ui/theme_util.dart';
 import 'package:scoped_model/scoped_model.dart';
 
 void main() => runApp(new InvestorApp(
@@ -24,11 +28,17 @@ class InvestorApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return ScopedModel<InvestorAppModel>(
       model: InvestorAppModel(),
-      child: MaterialApp(
-        title: 'FinanceNetwork',
-        debugShowCheckedModeBanner: false,
-        theme: getTheme(),
-        home: new Dashboard(null),
+      child: StreamBuilder<int>(
+        initialData: null,
+        stream: bloc.newThemeStream,
+        builder: (context, snapShot) => MaterialApp(
+              title: 'FinanceNetwork',
+              debugShowCheckedModeBanner: false,
+              theme: snapShot.data == null
+                  ? ThemeUtil.getTheme(themeIndex: 0)
+                  : ThemeUtil.getTheme(themeIndex: snapShot.data),
+              home: new Dashboard(null),
+            ),
       ),
     );
   }
@@ -197,3 +207,6 @@ class DashModel extends Model {
     notifyListeners();
   }
 }
+
+//
+

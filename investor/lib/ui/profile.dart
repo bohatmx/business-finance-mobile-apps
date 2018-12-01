@@ -194,7 +194,7 @@ class _ProfilePageState extends State<ProfilePage> implements SnackBarListener {
       });
       profile.suppliers = suppStrings;
     }
-
+    profile.investorDocRef = investor.documentReference;
     AppSnackbar.showSnackbarWithProgressIndicator(
         scaffoldKey: _scaffoldKey,
         message: 'Saving profile ...',

@@ -38,18 +38,21 @@ class Generator {
   static BuildContext context;
   static final FirebaseMessaging _fcm = FirebaseMessaging();
 
-  static Future fixEndDates() async {
-    offers = await ListAPI.getOpenOffers();
+  static Future fixNullCustomers() async {
     Firestore firestore = Firestore.instance;
-    for (var offer in offers) {
-      offer.endTime = _getRandomEndDate();
-      await firestore
-          .collection('invoiceOffers')
-          .document(offer.documentReference)
-          .setData(offer.toJson());
-      print(
-          'Generator.fixEndDates ... updated end time: ${offer.endTime} : ${offer.offerAmount}');
+    var qs = await firestore.collection('invoiceOffers').where('customer', isEqualTo: null).getDocuments();
+    print('\n\nGenerator.fixNullCustomers - ######### found offers: ${qs.documents.length}');
+    int count = 0;
+    for (var doc in qs.documents) {
+      var offer = Offer.fromJson(doc.data);
+      if (offer.customer == null) {
+        count++;
+//        print('Generator.fixNullCustomers null customer in offer, offer document id: #$count ${offer.date} ## ${offer.documentReference} customer: ${offer.customerName}');
+        await doc.reference.delete();
+        print('Generator.fixNullCustomers DELETED : #$count - ${offer.date} - ${offer.supplierName}  - ${offer.offerAmount}');
+      }
     }
+
   }
 
   static Future generateOffers(GenListener listener, BuildContext ctx) async {
@@ -161,7 +164,7 @@ class Generator {
           supplier = s;
         }
       });
-      //await _makeOffer(inv, supplier);
+      await _makeOffer(inv, supplier);
     }
 
     print(div);

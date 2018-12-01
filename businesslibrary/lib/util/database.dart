@@ -408,7 +408,7 @@ class Database {
       print('saveInvestorInvoiceSettlements  ## file exists ...writing InvestorInvoiceSettlements file');
       jsonFile.writeAsString(json.encode(map));
       print(
-          'Database_saveInvestorInvoiceSettlements##  has cached list of InvestorInvoiceSettlements --  ###))))))))) : ${settlements.settlements}');
+          'Database_saveInvestorInvoiceSettlements##  has cached list of InvestorInvoiceSettlements --  ###))))))))) : ${settlements.settlements.length}');
       return 0;
     } else {
       print(

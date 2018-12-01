@@ -64,7 +64,7 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
     fm.subscribeToTopic(FCM.TOPIC_INVOICE_BIDS + investor.participantId);
   }
 
-  StreamSubscription<QuerySnapshot> streamSub;
+  StreamSubscription<QuerySnapshot> streamSub, streamTrans;
   void _listenForSettlement() async {
     print('_SettleInvoiceBid._listenForSettlements .................paymentKey.key: ${paymentKey.key} ........');
     Query reference = fs
@@ -80,10 +80,12 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
           settlement.documentReference = change.document.documentID;
           if (settlement.peachPaymentKey == paymentKey.key) {
             prettyPrint(settlement.toJson(),
-                '\n\n_SettleInvoiceBid._listen - DocumentChangeType = added, settlement added:');
+                '\n\n_SettleInvoiceBid._listen - ############### DocumentChangeType = added, settlement added:\n');
             print('_SettleInvoiceBid._listen about to call streamSub.cancel();');
             streamSub.cancel();
             _showSnackRegistered(settlement);
+            _updateModel();
+
           }
 
         } else {
@@ -93,16 +95,45 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
       });
     });
   }
+  void _listenForTransaction() async {
+    print('_SettleInvoiceBid._listenForTransaction.................paymentKey.key: ${paymentKey.key} ........');
+    Query reference = fs
+        .collection('peachTransactions')
+        .where('payment_key', isEqualTo: paymentKey.key);
 
-  void _showSnackRegistered(InvestorInvoiceSettlement settlement) async{
+    streamTrans = reference.snapshots().listen((querySnapshot) {
+      querySnapshot.documentChanges.forEach((change) {
+        print('\n_SettleInvoiceBid._listenForTransaction TEST TEST TEST TEST TEST');
+        if (change.type == DocumentChangeType.added) {
+
+          if (change.document.data['payment_key'] == paymentKey.key) {
+            prettyPrint(change.document.data,
+                '\n\n_SettleInvoiceBid._listenForTransaction - ############### DocumentChangeType = added, transaction added:\n');
+            print('_SettleInvoiceBid.__listenForTransaction about to call streamSub.cancel();');
+            streamTrans.cancel();
+          }
+
+        } else {
+          print('_SettleInvoiceBid.__listenForTransaction- this is NOT our transaction - IGNORE!');
+        }
+
+      });
+    });
+  }
+
+  void _updateModel() async {
     if (widget.invoiceBid != null) {
       await appModel.processSettledBid(widget.invoiceBid);
+      await appModel.refreshSettlements();
     }
     if (widget.invoiceBids != null) {
       for (var bid in widget.invoiceBids) {
         await appModel.processSettledBid(bid);
       }
+      await appModel.refreshSettlements();
     }
+  }
+  void _showSnackRegistered(InvestorInvoiceSettlement settlement) async{
 
     AppSnackbar.showSnackbarWithAction(
         scaffoldKey: _scaffoldKey,
@@ -253,6 +284,7 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
         webViewTitle = 'Your Bank Login';
         webViewUrl = paymentKey.url;
         _listenForSettlement();
+        _listenForTransaction();
         _showWebView();
       } else {
         AppSnackbar.showErrorSnackbar(
@@ -528,7 +560,8 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
   @override
   onInvestorInvoiceSettlement(InvestorInvoiceSettlement settlement) async{
     prettyPrint(settlement.toJson(), '\n\n ################ settlement arrived:');
-    Navigator.pop(context);
+    _showSnackRegistered(settlement);
+    await appModel.refreshSettlements();
     return null;
   }
 

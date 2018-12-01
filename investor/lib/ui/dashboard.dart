@@ -24,6 +24,7 @@ import 'package:businesslibrary/util/selectors.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:businesslibrary/util/summary_card.dart';
+import 'package:businesslibrary/util/theme_bloc.dart';
 import 'package:businesslibrary/util/util.dart';
 import 'package:businesslibrary/util/wallet_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -138,11 +139,11 @@ class _DashboardState extends State<Dashboard>
   }
 
   void _subscribeToFCM() {
-    _fcm.configureFCM(
-        invoiceBidListener: this, offerListener: this);
+    _fcm.configureFCM(invoiceBidListener: this, offerListener: this);
     _fm.subscribeToTopic(FCM.TOPIC_INVOICE_BIDS);
     _fm.subscribeToTopic(FCM.TOPIC_OFFERS);
-    print('_DashboardState._subscribeToFCM ########## subscribed! ${FCM.TOPIC_INVOICE_BIDS} and ${FCM.TOPIC_OFFERS}');
+    print(
+        '_DashboardState._subscribeToFCM ########## subscribed! ${FCM.TOPIC_INVOICE_BIDS} and ${FCM.TOPIC_OFFERS}');
   }
 
   void _checkSectors() async {
@@ -225,10 +226,12 @@ class _DashboardState extends State<Dashboard>
                 'BFN',
                 style: Styles.whiteSmall,
               ),
-              leading: Icon(
-                Icons.apps,
-                color: Colors.white,
-              ),
+              leading: IconButton(
+                  icon: Icon(
+                    Icons.apps,
+                    color: Colors.white,
+                  ),
+                  onPressed: _changeTheme),
               bottom: _getBottom(),
               actions: <Widget>[
                 IconButton(
@@ -352,7 +355,8 @@ class _DashboardState extends State<Dashboard>
         '\n\nDashboard_checkConditions #### BOOLEANS: invoiceBidArrived: $invoiceBidArrived, offerArrived: $offerArrived, refreshModel: $refreshModel, count: $count');
 
     if (model.investor == null) {
-      print('_DashboardState._checkConditions: investor is null, refreshModel ...');
+      print(
+          '_DashboardState._checkConditions: investor is null, refreshModel ...');
       //model.refreshModel();
     }
     count++;
@@ -411,7 +415,7 @@ class _DashboardState extends State<Dashboard>
     }
   }
 
-  void _onInvoiceBidsTapped() async{
+  void _onInvoiceBidsTapped() async {
     print('_DashboardState._onInvoiceTapped ...............');
 
     if (appModel.unsettledInvoiceBids.isEmpty) {
@@ -428,6 +432,7 @@ class _DashboardState extends State<Dashboard>
       MaterialPageRoute(builder: (context) => UnsettledBids()),
     );
   }
+
   String mTitle = 'BFN is Rock Solid!';
 
   Widget _getBottom() {
@@ -515,7 +520,7 @@ class _DashboardState extends State<Dashboard>
       return AnimatedContainer(
         curve: Curves.fastOutSlowIn,
         duration: Duration(seconds: 2),
-        height: 360.0,
+        height: 420.0,
         color: Colors.brown.shade200,
         child: Column(
           children: <Widget>[
@@ -634,8 +639,13 @@ class _DashboardState extends State<Dashboard>
 
   @override
   onPeachNotify(PeachNotification notification) {
-   prettyPrint(notification.toJson(), '\n\n########### PeachNotification arrived at Dashboard:\n');
+    prettyPrint(notification.toJson(),
+        '\n\n########### PeachNotification arrived at Dashboard:\n');
     return null;
+  }
+
+  void _changeTheme() {
+    bloc.changeToRandomTheme();
   }
 }
 

@@ -252,19 +252,18 @@ class ListAPI {
         list.add(bid);
       }
     });
-        return list;
+    return list;
   }
 
   static Future<List<InvoiceBid>> getSettledInvoiceBidsByInvestor(
       String documentReference) async {
-
     var start = DateTime.now();
     List<InvoiceBid> list = List();
     var qs = await _firestore
         .collection('invoiceBids')
         .where('isSettled', isEqualTo: true)
         .where('investor', isEqualTo: NameSpace + 'Investor#$documentReference')
-        .orderBy('date')
+        .orderBy('date', descending: true)
         .getDocuments()
         .catchError((e) {
       print('ListAPI.getSettledInvoiceBidsByInvestor $e');
@@ -274,13 +273,40 @@ class ListAPI {
     var end = DateTime.now();
     print(
         'ListAPI.getSettledInvoiceBidsByInvestor -----------> found: ${qs.documents.length} '
-            'elapsed: ${end.difference(start).inSeconds} seconds\n\n');
+        'elapsed: ${end.difference(start).inSeconds} seconds\n\n');
 
     qs.documents.forEach((doc) {
       var bid = InvoiceBid.fromJson(doc.data);
       if (bid.isSettled == true) {
         list.add(bid);
       }
+    });
+
+    return list;
+  }
+
+  static Future<List<InvestorInvoiceSettlement>> getSettlementsByInvestor(
+      String participantId) async {
+    var start = DateTime.now();
+    List<InvestorInvoiceSettlement> list = List();
+    var qs = await _firestore
+        .collection('settlements')
+        .where('investor', isEqualTo: NameSpace + 'Investor#$participantId')
+        .orderBy('date', descending: true)
+        .getDocuments()
+        .catchError((e) {
+      print('ListAPI.getSettlementsByInvestor $e');
+      return list;
+    });
+
+    var end = DateTime.now();
+    print(
+        'ListAPI.getSettlementsByInvestor -----------> found: ${qs.documents.length} '
+        'elapsed: ${end.difference(start).inSeconds} seconds\n\n');
+
+    qs.documents.forEach((doc) {
+      var bid = InvestorInvoiceSettlement.fromJson(doc.data);
+      list.add(bid);
     });
 
     return list;
@@ -364,6 +390,7 @@ class ListAPI {
     var bag = OfferBag(offer: offer, invoiceBids: bids);
     return bag;
   }
+
   static Future<OfferBag> getOfferByOfferId(String offerId) async {
     print(
         '\n\n\nListAPI.getOfferById ............................... id: $offerId');
@@ -666,7 +693,7 @@ class ListAPI {
       var end = DateTime.now();
       print(
           '\n\nListAPI._doOffersHTTP .... ################ Query via Cloud Functions: status: ${resp.statusCode} '
-              'for $mUrl - elapsed: ${end.difference(start).inSeconds} seconds');
+          'for $mUrl - elapsed: ${end.difference(start).inSeconds} seconds');
       if (resp.statusCode == 200) {
         Map<String, dynamic> m = json.decode(resp.body);
         return _parseOffers(m);

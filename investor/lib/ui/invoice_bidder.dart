@@ -574,6 +574,7 @@ class _InvoiceBidderState extends State<InvoiceBidder>
         customer: offer.customer,
         investorDocRef: investor.documentReference,
         offerDocRef: offer.documentReference,
+        supplierDocRef: offer.supplierDocumentRef,
         supplier: offer.supplier);
 
     try {

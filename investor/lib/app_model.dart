@@ -4,12 +4,14 @@ import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/dashboard_data.dart';
 import 'package:businesslibrary/data/investor.dart';
 import 'package:businesslibrary/data/invoice_bid.dart';
+import 'package:businesslibrary/data/invoice_settlement.dart';
 import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/util/Finders.dart';
 import 'package:businesslibrary/util/database.dart';
 import 'package:businesslibrary/util/lookups.dart';
 
 import 'package:scoped_model/scoped_model.dart';
+
 abstract class ModelListener {
   onComplete();
 }
@@ -19,6 +21,7 @@ class InvestorAppModel extends Model {
   int _pageLimit = 10;
   DashboardData _dashboardData = DashboardData();
   List<InvoiceBid> _unsettledInvoiceBids, _settledInvoiceBids;
+  List<InvestorInvoiceSettlement> _settlements;
   List<Offer> _offers;
   Investor _investor;
   ModelListener _modelListener;
@@ -27,6 +30,7 @@ class InvestorAppModel extends Model {
   List<InvoiceBid> get unsettledInvoiceBids => _unsettledInvoiceBids;
   List<InvoiceBid> get settledInvoiceBids => _settledInvoiceBids;
   List<Offer> get offers => _offers;
+  List<InvestorInvoiceSettlement> get settlements => _settlements;
   Investor get investor => _investor;
   DashboardData get dashboardData => _dashboardData;
   String get title => _title;
@@ -42,6 +46,7 @@ class InvestorAppModel extends Model {
     });
     return t;
   }
+
   double getTotalUnsettledBidAmount() {
     var t = 0.0;
     _unsettledInvoiceBids.forEach((b) {
@@ -49,6 +54,7 @@ class InvestorAppModel extends Model {
     });
     return t;
   }
+
   void setModelListener(ModelListener listener) {
     _modelListener = listener;
     print('InvestorAppModel.setModelListener listener has been set.');
@@ -106,7 +112,8 @@ class InvestorAppModel extends Model {
       await SharedPrefs.saveDashboardData(dashboardData);
       _unsettledInvoiceBids = await Database.getUnsettledInvoiceBids();
       _unsettledInvoiceBids.insert(0, invoiceBid);
-      await Database.saveUnsettledInvoiceBids(InvoiceBids(_unsettledInvoiceBids));
+      await Database.saveUnsettledInvoiceBids(
+          InvoiceBids(_unsettledInvoiceBids));
     }
     notifyListeners();
   }
@@ -165,7 +172,7 @@ class InvestorAppModel extends Model {
       _setItemNumbers(_offers);
     }
     _title =
-    'BFN Model ${getFormattedDateHour('${DateTime.now().toIso8601String()}')}';
+        'BFN Model ${getFormattedDateHour('${DateTime.now().toIso8601String()}')}';
     doPrint();
     notifyListeners();
   }
@@ -190,8 +197,9 @@ class InvestorAppModel extends Model {
         _investor.documentReference);
     await Database.saveUnsettledInvoiceBids(InvoiceBids(_unsettledInvoiceBids));
     _setItemNumbers(_unsettledInvoiceBids);
-    
-    _settledInvoiceBids = await ListAPI.getSettledInvoiceBidsByInvestor(_investor.documentReference);
+
+    _settledInvoiceBids = await ListAPI.getSettledInvoiceBidsByInvestor(
+        _investor.documentReference);
     await Database.saveSettledInvoiceBids(InvoiceBids(_settledInvoiceBids));
     _setItemNumbers(_settledInvoiceBids);
 
@@ -211,6 +219,20 @@ class InvestorAppModel extends Model {
       _modelListener.onComplete();
     }
   }
+
+  Future refreshSettlements() async {
+    print('InvestorAppModel.refreshSettlements ===========================');
+    _settlements =
+        await ListAPI.getSettlementsByInvestor(_investor.participantId);
+    await Database.saveInvestorInvoiceSettlements(
+        InvestorInvoiceSettlements(_settlements));
+    _setItemNumbers(_settlements);
+    notifyListeners();
+    if (_modelListener != null) {
+      _modelListener.onComplete();
+    }
+  }
+
 /*
 firestore.collection('users').document(userId).snapshots().asyncMap((snap) async {
       List<String> groceryListsArr = snap.data['groceryLists'];
@@ -226,16 +248,24 @@ firestore.collection('users').document(userId).snapshots().asyncMap((snap) async
     if (_investor == null) {
       _investor = await SharedPrefs.getInvestor();
     }
+    _settlements =
+        await ListAPI.getSettlementsByInvestor(_investor.participantId);
+    await Database.saveInvestorInvoiceSettlements(
+        InvestorInvoiceSettlements(_settlements));
+
     _unsettledInvoiceBids = await ListAPI.getUnsettledInvoiceBidsByInvestor(
         _investor.participantId);
     await Database.saveUnsettledInvoiceBids(InvoiceBids(_unsettledInvoiceBids));
     _setItemNumbers(_unsettledInvoiceBids);
-    print('InvestorAppModel.refreshModel unsettled bids: ${unsettledInvoiceBids.length}');
+    print(
+        'InvestorAppModel.refreshModel unsettled bids: ${unsettledInvoiceBids.length}');
 
-    _settledInvoiceBids = await ListAPI.getSettledInvoiceBidsByInvestor(_investor.participantId);
+    _settledInvoiceBids =
+        await ListAPI.getSettledInvoiceBidsByInvestor(_investor.participantId);
     await Database.saveSettledInvoiceBids(InvoiceBids(_settledInvoiceBids));
     _setItemNumbers(_settledInvoiceBids);
-    print('InvestorAppModel.refreshModel settled bids: ${settledInvoiceBids.length}');
+    print(
+        'InvestorAppModel.refreshModel settled bids: ${settledInvoiceBids.length}');
 
     _dashboardData = await ListAPI.getInvestorDashboardData(
         _investor.participantId, _investor.documentReference);
@@ -262,19 +292,17 @@ firestore.collection('users').document(userId).snapshots().asyncMap((snap) async
   }
 
   void doPrint() {
-
     if (_investor != null) {
       prettyPrint(_investor.toJson(), 'doPrint: ######## Investor in Model');
     }
     if (_dashboardData != null) {
-      prettyPrint(
-          _dashboardData.toJson(), 'doPrint: ####### DashboardData inside Model');
+      prettyPrint(_dashboardData.toJson(),
+          'doPrint: ####### DashboardData inside Model');
     }
     if (_unsettledInvoiceBids != null)
       print(
           'InvestorAppModel.doPrint invoiceBids in Model: ${_unsettledInvoiceBids.length}');
     if (_offers != null)
       print('InvestorAppModel.doPrint offers in Model: ${_offers.length}');
-
   }
 }
