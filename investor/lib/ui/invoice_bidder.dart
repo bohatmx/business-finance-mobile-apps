@@ -58,16 +58,15 @@ class _InvoiceBidderState extends State<InvoiceBidder>
     _getExistingBids();
   }
 
-  List<InvoiceBid> bids;
   void _getExistingBids() async {
     if (offer == null) return;
     setState(() {
       loadText = 'Loading existing bids ... if any';
       _showBusyIndicator = true;
     });
-    bids = widget.existingBids;
+    offerBids = widget.existingBids;
     int cnt =0;
-    bids.forEach((b) {
+    offerBids.forEach((b) {
       cnt++;
       prettyPrint(b.toJson(), 'InvoiceBid on the offer: #$cnt');
     });
@@ -110,7 +109,7 @@ class _InvoiceBidderState extends State<InvoiceBidder>
   _calculateTotal() {
     totalAmtBid = 0.00;
     totalPercBid = 0.00;
-    bids.forEach((m) {
+    offerBids.forEach((m) {
       totalAmtBid += m.amount;
       totalPercBid += m.reservePercent;
     });
@@ -145,7 +144,7 @@ class _InvoiceBidderState extends State<InvoiceBidder>
                       Padding(
                         padding: const EdgeInsets.only(left: 14.0, right: 10.0),
                         child: Text(
-                          bids == null ? '0' : '${bids.length}',
+                          offerBids == null ? '0' : '${offerBids.length}',
                           style: Styles.blackBoldLarge,
                         ),
                       ),
@@ -513,6 +512,7 @@ class _InvoiceBidderState extends State<InvoiceBidder>
 
   static const NameSpace = 'resource:com.oneconnect.biz.';
 
+  List<InvoiceBid> offerBids;
   void _onSubmitBid() async {
     Navigator.pop(context);
     if (isBusy) {
@@ -540,10 +540,10 @@ class _InvoiceBidderState extends State<InvoiceBidder>
     });
 
     isBusy = true;
-    var bids = await ListAPI.getInvoiceBidsByOffer(offer.offerId);
+    offerBids = await ListAPI.getInvoiceBidsByOffer(offer.offerId);
 
     var t = 0.00;
-    bids.forEach((m) {
+    offerBids.forEach((m) {
       t += m.reservePercent;
     });
     print(
@@ -619,6 +619,9 @@ class _InvoiceBidderState extends State<InvoiceBidder>
 
     try {
       await DataAPI3.makeInvoiceBid(bid);
+      if (offerBids == null) {
+        offerBids = List();
+      }
 
       AppSnackbar.showSnackbarWithAction(
           scaffoldKey: _scaffoldKey,
@@ -630,7 +633,12 @@ class _InvoiceBidderState extends State<InvoiceBidder>
           icon: Icons.done_all,
           action: 0);
 
-      _getExistingBids();
+      offerBids.add(bid);
+      _calculateTotal();
+      _buildPercChoices();
+      setState(() {
+        _showBusyIndicator = false;
+      });
       await investorModelBloc.refreshDashboard();
     } catch (e) {
       AppSnackbar.showErrorSnackbar(
