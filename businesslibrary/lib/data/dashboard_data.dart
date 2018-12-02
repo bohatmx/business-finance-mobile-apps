@@ -41,16 +41,6 @@ class DashboardData {
       this.totalInvoiceAmount, this.averageDiscountPerc, this.date,
       this.unsettledBids, this.settledBids, this.openOffers, this.settlements});
 
-  /*
-unsettledBids: [],
-      settledBids: [],
-      settlements: [],
-      openOffers: [],
-
-      totalSettlements: 0,
-      totalSettlementAmount: 0.0
- */
-
 
   DashboardData.fromJson(Map data) {
     List<dynamic> settledBidMaps = data['settledBids'];

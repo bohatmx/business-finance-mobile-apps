@@ -197,14 +197,14 @@ class ListAPI {
   }
 
   static Future<List<InvoiceBid>> getInvoiceBidsByOffer(
-      String documentReference) async {
+      String offerDocRef) async {
     List<InvoiceBid> list = List();
     print(
-        '\n\n\nListAPI.getInvoiceBidsByOffer ....................... start query, documentReference: $documentReference');
+        '\n\n\nListAPI.getInvoiceBidsByOffer ....................... start query, documentReference: $offerDocRef');
     var start = DateTime.now();
     var qs = await _firestore
         .collection('invoiceBids')
-        .where('offerDocRef', isEqualTo: documentReference)
+        .where('offerDocRef', isEqualTo: offerDocRef)
         .getDocuments()
         .catchError((e) {
       print('ListAPI.getOfferInvoiceBids $e');
@@ -313,7 +313,7 @@ class ListAPI {
   }
 
   static Future<List<InvoiceBid>> getInvoiceBidByInvestorOffer(
-      Offer offer, Investor investor) async {
+      {Offer offer, Investor investor}) async {
     assert(offer.documentReference != null);
     print(
         'ListAPI.getInvoiceBidByInvestorOffer =======> offer.documentReference: ${offer.documentReference} '
@@ -322,10 +322,10 @@ class ListAPI {
     var qs = await _firestore
         .collection('invoiceBids')
         .where('offer',
-            isEqualTo: 'resource:com.oneconnect.biz.Offer#${offer.offerId}')
+            isEqualTo: NameSpace + 'Offer#${offer.offerId}')
         .where('investor',
-            isEqualTo:
-                'resource:com.oneconnect.biz.Investor#${investor.participantId}')
+            isEqualTo: NameSpace +
+                'Investor#${investor.participantId}')
         .orderBy('date', descending: true)
         .getDocuments()
         .catchError((e) {

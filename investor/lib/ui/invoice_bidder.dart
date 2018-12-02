@@ -20,8 +20,9 @@ import 'package:scoped_model/scoped_model.dart';
 
 class InvoiceBidder extends StatefulWidget {
   final Offer offer;
+  final List<InvoiceBid> existingBids;
 
-  InvoiceBidder(this.offer);
+  InvoiceBidder({this.offer, this.existingBids});
 
   @override
   _InvoiceBidderState createState() => _InvoiceBidderState();
@@ -42,6 +43,7 @@ class _InvoiceBidderState extends State<InvoiceBidder>
   @override
   void initState() {
     super.initState();
+    appModel = investorModelBloc.appModel;
     print(
         '_InvoiceBidderState.initState ==================================>>>');
     _getCached();
@@ -63,12 +65,18 @@ class _InvoiceBidderState extends State<InvoiceBidder>
       loadText = 'Loading existing bids ... if any';
       _showBusyIndicator = true;
     });
-    bids = await ListAPI.getInvoiceBidsByOffer(offer.documentReference);
+    bids = widget.existingBids;
+    int cnt =0;
+    bids.forEach((b) {
+      cnt++;
+      prettyPrint(b.toJson(), 'InvoiceBid on the offer: #$cnt');
+    });
     _calculateTotal();
     _buildPercChoices();
     setState(() {
       _showBusyIndicator = false;
     });
+    prettyPrint(widget.offer.toJson(), '@@@@@@@@ offer:');
   }
 
   @override
@@ -77,28 +85,21 @@ class _InvoiceBidderState extends State<InvoiceBidder>
       offer = widget.offer;
       //_getExistingBids();
     }
-    return StreamBuilder<InvestorAppModel2>(
-      initialData: null,
-      stream: investorModelBloc.appModelStream,
-      builder: (context,snapshot) {
-        appModel = snapshot.data;
-        return Scaffold(
-          key: _scaffoldKey,
-          appBar: AppBar(
-            title: Text(
-              'Make Invoice Bid',
-              style: Styles.whiteBoldSmall,
-            ),
-            elevation: 4.0,
-            bottom: _getBottom(),
-            actions: <Widget>[
-              IconButton(icon: Icon(Icons.refresh), onPressed: _getExistingBids),
-            ],
-          ),
-          body: _getBody(),
-        );
-      },
 
+    return Scaffold(
+      key: _scaffoldKey,
+      appBar: AppBar(
+        title: Text(
+          'Make Invoice Bid',
+          style: Styles.whiteBoldSmall,
+        ),
+        elevation: 4.0,
+        bottom: _getBottom(),
+        actions: <Widget>[
+          IconButton(icon: Icon(Icons.refresh), onPressed: _getExistingBids),
+        ],
+      ),
+      body: _getBody(),
     );
   }
 
@@ -117,18 +118,21 @@ class _InvoiceBidderState extends State<InvoiceBidder>
     totalToGo = offer.offerAmount - totalAmtBid;
     print(
         '_InvoiceBidderState._calculate --- offer.offerAmount:  ${offer.offerAmount} totalAmtBid: $totalAmtBid totalToGo: $totalToGo ');
+    if (offer.offerAmount == totalAmtBid) {
+      showFullyBid = true;
+    }
     setState(() {});
   }
-
+  bool showFullyBid = false;
   Widget _getBottom() {
     return PreferredSize(
-      preferredSize: Size.fromHeight(180.0),
+      preferredSize: Size.fromHeight(160.0),
       child: Padding(
         padding: const EdgeInsets.only(bottom: 12.0, right: 20.0),
         child: Column(
           children: <Widget>[
             Padding(
-              padding: const EdgeInsets.only(bottom: 20.0),
+              padding: const EdgeInsets.only(bottom: 10.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: <Widget>[
@@ -258,102 +262,130 @@ class _InvoiceBidderState extends State<InvoiceBidder>
               elevation: 2.0,
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 0.0, left: 20.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.only(left: 8.0),
-                  child: Text(
-                    'Invoice Due Diligence',
-                    style: TextStyle(
-                        fontSize: 16.0,
-                        color: Colors.grey,
-                        fontWeight: FontWeight.bold),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(left: 12.0, right: 12.0),
-                  child: IconButton(
-                    icon: Icon(
-                      Icons.search,
-                      color: Colors.pink,
-                    ),
-                    onPressed: _onSearch,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(
-                left: 10.0, top: 0.0, right: 10.0, bottom: 0.0),
-            child: Row(
-              children: <Widget>[
-                DropdownButton<double>(
-                  items: items,
-                  elevation: 8,
-                  hint: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(
-                      'Select Percentage',
-                      style: Styles.blackBoldMedium,
-                    ),
-                  ),
-                  onChanged: _onChanged,
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(left: 10.0),
-                  child: Text(
-                    percentage == null ? '0.0 %' : '$percentage %',
-                    style: Styles.blackBoldLarge,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 30.0, top: 0.0),
-            child: Row(
-              children: <Widget>[
-                Text(
-                  'Bid Amount:',
-                  style: Styles.blackSmall,
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(left: 8.0),
-                  child: Text(
-                    amount == null
-                        ? '0.00'
-                        : getFormattedAmount('$amount', context),
-                    style: Styles.tealBoldReallyLarge,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(
-                left: 80.0, right: 80.0, top: 20.0, bottom: 30.0),
-            child: RaisedButton(
-              onPressed: _showConfirmDialog,
-              elevation: 8.0,
-              color: Colors.indigo.shade300,
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text(
-                  'Make  Bid',
-                  style: Styles.whiteSmall,
-                ),
-              ),
-            ),
-          ),
+          showFullyBid == true? _buildFullyBid() : _buildActions(),
+
         ],
       ),
     );
   }
 
+  Widget _buildFullyBid() {
+    return Padding(
+      padding: const EdgeInsets.all(20.0),
+      child: GestureDetector(
+        onTap: _closeOffer,
+        child: Card(
+          elevation: 8.0,
+          color: Colors.pink.shade300,
+          child: Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Column(
+              children: <Widget>[
+                Text('This offer is now fully bid. You cannot make a bid on this offer at this time.\n\nThanks! Tap to exit', style: Styles.whiteSmall,)
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+  Widget _buildActions() {
+    return Column(
+      children: <Widget>[
+        Padding(
+          padding: const EdgeInsets.only(bottom: 0.0, left: 20.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.only(left: 8.0),
+                child: Text(
+                  'Invoice Due Diligence',
+                  style: TextStyle(
+                      fontSize: 16.0,
+                      color: Colors.grey,
+                      fontWeight: FontWeight.bold),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: 12.0, right: 12.0),
+                child: IconButton(
+                  icon: Icon(
+                    Icons.search,
+                    color: Colors.pink,
+                  ),
+                  onPressed: _onSearch,
+                ),
+              ),
+            ],
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(
+              left: 10.0, top: 0.0, right: 10.0, bottom: 0.0),
+          child: Row(
+            children: <Widget>[
+              DropdownButton<double>(
+                items: items,
+                elevation: 8,
+                hint: Padding(
+                  padding: const EdgeInsets.all(4.0),
+                  child: Text(
+                    'Select Percentage',
+                    style: Styles.blackBoldMedium,
+                  ),
+                ),
+                onChanged: _onChanged,
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: 10.0),
+                child: Text(
+                  percentage == null ? '0.0 %' : '$percentage %',
+                  style: Styles.blackBoldLarge,
+                ),
+              ),
+            ],
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(left: 30.0, top: 0.0),
+          child: Row(
+            children: <Widget>[
+              Text(
+                'Bid Amount:',
+                style: Styles.blackSmall,
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: 8.0),
+                child: Text(
+                  amount == null
+                      ? '0.00'
+                      : getFormattedAmount('$amount', context),
+                  style: Styles.tealBoldReallyLarge,
+                ),
+              ),
+            ],
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(
+              left: 80.0, right: 80.0, top: 20.0, bottom: 30.0),
+          child: RaisedButton(
+            onPressed: _showConfirmDialog,
+            elevation: 8.0,
+            color: Colors.indigo.shade300,
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text(
+                'Make Invoice Bid',
+                style: Styles.whiteSmall,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
   void _showConfirmDialog() {
     showDialog(
         context: context,
@@ -492,16 +524,21 @@ class _InvoiceBidderState extends State<InvoiceBidder>
           backgroundColor: Styles.black);
       return;
     }
+    if (percentage == null) {
+      print('_InvoiceBidderState._onSubmitBid submit is busy');
+      AppSnackbar.showSnackbar(
+          scaffoldKey: _scaffoldKey,
+          message: 'Please select percentage of offer',
+          textColor: Styles.yellow,
+          backgroundColor: Styles.black);
+      return;
+    }
 
     setState(() {
       loadText = 'Submitting your bid ... please wait';
       _showBusyIndicator = true;
     });
-//    AppSnackbar.showSnackbarWithProgressIndicator(
-//        scaffoldKey: _scaffoldKey,
-//        message: 'Making invoice bid ...',
-//        textColor: Colors.white,
-//        backgroundColor: Colors.black);
+
     isBusy = true;
     var bids = await ListAPI.getInvoiceBidsByOffer(offer.offerId);
 
@@ -583,20 +620,18 @@ class _InvoiceBidderState extends State<InvoiceBidder>
     try {
       await DataAPI3.makeInvoiceBid(bid);
 
+      AppSnackbar.showSnackbarWithAction(
+          scaffoldKey: _scaffoldKey,
+          message: 'Invoice Bid successful\nRefreshing bid data ...',
+          textColor: Colors.white,
+          backgroundColor: Colors.black,
+          actionLabel: 'OK',
+          listener: this,
+          icon: Icons.done_all,
+          action: 0);
 
-        AppSnackbar.showSnackbarWithAction(
-            scaffoldKey: _scaffoldKey,
-            message: 'Invoice Bid successful\nRefreshing bid data ...',
-            textColor: Colors.white,
-            backgroundColor: Colors.black,
-            actionLabel: 'OK',
-            listener: this,
-            icon: Icons.done_all,
-            action: 0);
-
-        _getExistingBids();
-        await investorModelBloc.refreshDashboard();
-
+      _getExistingBids();
+      await investorModelBloc.refreshDashboard();
     } catch (e) {
       AppSnackbar.showErrorSnackbar(
           scaffoldKey: _scaffoldKey,
@@ -648,5 +683,9 @@ class _InvoiceBidderState extends State<InvoiceBidder>
   @override
   onHeartbeat(Map map) {
     // TODO: implement onHeartbeat
+  }
+
+  void _closeOffer() {
+    print('_InvoiceBidderState._closeOffer ############ CLOSE OFFER ......');
   }
 }

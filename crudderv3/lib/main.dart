@@ -183,8 +183,8 @@ class _MyHomePageState extends State<MyHomePage>
 
     var start = DateTime.now();
     //await Generator.generateOffers(this, context);
-    //await Generator.generate(this, context);
-    await Generator.fixBids();
+    await Generator.generate(this, context);
+//    await Generator.fixBids();
 
     isBusy = false;
     var end = DateTime.now();

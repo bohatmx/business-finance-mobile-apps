@@ -171,13 +171,6 @@ class _DashboardState extends State<Dashboard>
   PurchaseOrder lastPO;
   DeliveryNote lastNote;
 
-  bool isRefreshBids = false;
-  void _onRefreshBids() {
-    setState(() {
-      isRefreshBids = true;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<InvestorAppModel2>(
@@ -308,26 +301,6 @@ class _DashboardState extends State<Dashboard>
                     ),
             ],
           );
-  }
-
-  void _checkConditions() async {
-    print(
-        '\n\nDashboard_checkConditions #### BOOLEANS: invoiceBidArrived: $invoiceBidArrived, offerArrived: $offerArrived,  count: $count');
-
-    if (appModel.investor == null) {
-      print(
-          '_DashboardState._checkConditions: investor is null, refreshModel ...');
-      //model.refreshModel();
-    }
-    count++;
-
-    if (invoiceBidArrived) {
-      invoiceBidArrived = false;
-      appModel.invoiceBidArrived(invoiceBid);
-    }
-    if (offerArrived) {
-      offerArrived = false;
-    }
   }
 
   void _goToWalletPage() {

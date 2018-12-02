@@ -36,7 +36,7 @@ class InvestorModelBloc implements Model2Listener{
 
   @override
   onComplete() {
-    print('\n\nInvestorModelBloc.onComplete ########## adding model to stream ......... ');
+    print('\n\nInvestorModelBloc.onComplete ########## adding model to stream sink ......... ');
     _appModelController.sink.add(_appModel);
   }
 }
@@ -141,7 +141,6 @@ class InvestorAppModel2  {
     if (_pageLimit == null) {
       _pageLimit = 10;
     }
-
     await refreshDashboard();
     print('\n\nInvestorAppModel.initialize - REFRESH MODEL COMPLETE - refreshDashboard *************');
   }
@@ -151,6 +150,7 @@ class InvestorAppModel2  {
     _investor = await SharedPrefs.getInvestor();
     _dashboardData = await Database.getDashboard();
     if (_dashboardData != null) {
+      print('\n\nInvestorAppModel2.refreshDashboard - _dashboardData != null calling  _modelListener.onComplete();\n');
       _modelListener.onComplete();
     }
     print('InvestorAppModel2.refreshDashboard ----- REFRESH from functions ...............');
@@ -166,7 +166,9 @@ class InvestorAppModel2  {
     _settlements = _dashboardData.settlements;
     _setItemNumbers(_settlements);
     doPrint();
+
     if (_modelListener != null) {
+      print('\n\nInvestorAppModel2.refreshDashboard:  after refresh from functions: calling  _modelListener.onComplete();\n');
       _modelListener.onComplete();
     }
   }

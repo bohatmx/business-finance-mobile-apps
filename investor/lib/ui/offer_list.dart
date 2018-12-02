@@ -4,6 +4,7 @@ import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/dashboard_data.dart';
 import 'package:businesslibrary/data/investor.dart';
+import 'package:businesslibrary/data/invoice_bid.dart';
 import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/util/Finders.dart';
 import 'package:businesslibrary/util/lookups.dart';
@@ -20,7 +21,6 @@ import 'package:businesslibrary/util/mypager.dart';
 import 'package:scoped_model/scoped_model.dart';
 
 class OfferList extends StatefulWidget {
-  
   static _OfferListState of(BuildContext context) =>
       context.ancestorStateOfType(const TypeMatcher<_OfferListState>());
   @override
@@ -49,6 +49,7 @@ class _OfferListState extends State<OfferList>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
 
+    appModel = investorModelBloc.appModel;
     _buildDaysDropDownItems();
     _getCached();
     setBasePager();
@@ -58,6 +59,7 @@ class _OfferListState extends State<OfferList>
     investor = await SharedPrefs.getInvestor();
   }
 
+  List<InvoiceBid> offerBids;
   _checkBid(Offer offer) async {
     this.offer = offer;
     if (offer.isOpen == false) {
@@ -74,14 +76,30 @@ class _OfferListState extends State<OfferList>
         textColor: Colors.yellow,
         backgroundColor: Colors.black);
 
-    var xx = await ListAPI.getInvoiceBidByInvestorOffer(offer, investor);
+    offerBids = await ListAPI.getInvoiceBidsByOffer(offer.documentReference);
+    offerBids.forEach((bid) {
+      prettyPrint(bid.toJson(), '####### bid for this offer already exist:');
+    });
     _scaffoldKey.currentState.hideCurrentSnackBar();
-    if (xx.isEmpty) {
+    if (offerBids.isEmpty) {
       _showInvoiceBidDialog(offer);
     } else {
-      prettyPrint(xx.first.toJson(),
-          '########### INVOICE BID for investtor/offer found....');
-      _showMoreBidsDialog();
+      print(
+          '########### INVOICE BID(s) for investor/offer found.... ${offerBids.length}');
+      var tot = 0.0;
+      offerBids.forEach((bid) {
+        tot += bid.amount;
+      });
+      if (tot == offer.offerAmount) {
+        print('_OfferListState._checkBid. offer is already fully bid ....');
+        AppSnackbar.showSnackbar(
+            scaffoldKey: _scaffoldKey,
+            message: 'Offer is already fully bid',
+            textColor: Styles.white,
+            backgroundColor: Styles.black);
+      } else {
+        _showMoreBidsDialog();
+      }
     }
   }
 
@@ -131,6 +149,8 @@ class _OfferListState extends State<OfferList>
           backgroundColor: Styles.black);
       return;
     }
+    prettyPrint(offer.toJson(),
+        '\n\n######## offer selected for bidding, check isOpen');
     showDialog(
         context: context,
         builder: (_) => new AlertDialog(
@@ -349,42 +369,35 @@ class _OfferListState extends State<OfferList>
 
     return items;
   }
+
   InvestorAppModel2 appModel;
   int mCount = 0;
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<InvestorAppModel2>(
-      initialData: null,
-      stream: investorModelBloc.appModelStream,
-      builder: (context,snapshot) {
-        appModel = snapshot.data;
-        mCount++;
-        if (mCount == 1) {
-          setBasePager();
-        }
-        return Scaffold(
-          key: _scaffoldKey,
-          appBar: AppBar(
-            title: Text(
-              'Open Invoice Offers',
-              style: Styles.whiteBoldMedium,
-            ),
-            bottom: PreferredSize(
-              child: _getBottom(),
-              preferredSize: Size.fromHeight(260.0),
-            ),
-            actions: <Widget>[
-              IconButton(
-                icon: Icon(Icons.refresh),
-                onPressed: _refresh,
-              ),
-            ],
+    mCount++;
+    if (mCount == 1) {
+      setBasePager();
+    }
+    return Scaffold(
+      key: _scaffoldKey,
+      appBar: AppBar(
+        title: Text(
+          'Open Invoice Offers',
+          style: Styles.whiteBoldMedium,
+        ),
+        bottom: PreferredSize(
+          child: _getBottom(),
+          preferredSize: Size.fromHeight(260.0),
+        ),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.refresh),
+            onPressed: _refresh,
           ),
-          body: _getListView(),
-          backgroundColor: Colors.brown.shade100,
-        ); 
-      },
-      
+        ],
+      ),
+      body: _getListView(),
+      backgroundColor: Colors.brown.shade100,
     );
   }
 
@@ -449,7 +462,7 @@ class _OfferListState extends State<OfferList>
                   itemName: 'Invoice Offers',
                   pageLimit: appModel.pageLimit,
                   elevation: 16.0,
-                  items: appModel.offers == null? 0: appModel.offers.length,
+                  items: appModel.offers == null ? 0 : appModel.offers.length,
                   listener: this,
                   color: Colors.pink.shade50,
                   pageNumber: _pageNumber,
@@ -471,16 +484,15 @@ class _OfferListState extends State<OfferList>
   String text = 'OPEN';
 
   void _onNoPressed() {
-    //print'_OfferListState._onNoPressed');
     Navigator.pop(context);
   }
 
   Future _onInvoiceBidRequired() async {
-    prettyPrint(offer.toJson(), '_OfferListState._onYesPressed....');
+    prettyPrint(offer.toJson(), '\n\n_OfferListState._onYesPressed.... OFFER to bidder:');
     Navigator.pop(context);
     bool refresh = await Navigator.push(
       context,
-      new MaterialPageRoute(builder: (context) => new InvoiceBidder(offer)),
+      new MaterialPageRoute(builder: (context) => new InvoiceBidder(offer:offer, existingBids: offerBids,)),
     );
     if (refresh == null) {
       return;
@@ -522,7 +534,6 @@ class _OfferListState extends State<OfferList>
     page.forEach((f) {
       currentPage.add(f);
     });
-
   }
 
   double _getPageValue() {
@@ -615,14 +626,12 @@ class _OfferListState extends State<OfferList>
   bool toggle = false;
   void _sort() {
     if (toggle) {
-      currentPage.sort((a,b) => a.offerAmount.compareTo(b.offerAmount));
+      currentPage.sort((a, b) => a.offerAmount.compareTo(b.offerAmount));
     } else {
-      currentPage.sort((a,b) => b.offerAmount.compareTo(a.offerAmount));
+      currentPage.sort((a, b) => b.offerAmount.compareTo(a.offerAmount));
     }
     toggle = !toggle;
-    setState(() {
-
-    });
+    setState(() {});
   }
 }
 

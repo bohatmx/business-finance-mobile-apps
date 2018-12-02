@@ -46,44 +46,17 @@ class Generator {
     print(
         '\n\n\n_DashboardState.fixBids ##########################################');
     int count = 0, count2 = 0;
-    var qs = await fs.collection('invoiceBids').where('offerDocRef', isGreaterThan: null).orderBy('date').getDocuments();
+    var qs = await fs.collection('invoiceOffers').where('isOpen', isEqualTo: true).orderBy('date').getDocuments();
+    var qs2 = await fs.collection('invoiceOffers').where('isOpen', isEqualTo: false).orderBy('date').getDocuments();
+    var qs3 = await fs.collection('invoiceOffers').orderBy('date').getDocuments();
     print(
-        '_DashboardState.fixBids ============ ${qs.documents.length} invoiceBids found ...\n\n');
-    for (var doc in qs.documents) {
-      var bid = InvoiceBid.fromJson(doc.data);
-      if (bid.offerDocRef != null) {
-        count2++;
-        print('_DashboardState.fixBids --- #$count2 offerDocRef is cool ${bid.offerDocRef} ${bid.date}');
-      } else {
-        print('_DashboardState.fixBids ++++++++++++++++++++++++++++++++++++++++++++++++');
-        var qs2 = await fs
-            .collection('invoiceOffers')
-            .where('offerId', isEqualTo: bid.offer.split('#').elementAt(1))
-            .getDocuments();
-        print(
-            '\n\n_DashboardState.fixBids ************ offers found: ${qs2
-                .documents.length}');
-        if (qs2.documents.isNotEmpty) {
-          var offer = Offer.fromJson(qs2.documents.first.data);
-          bid.offerDocRef = qs2.documents.first.documentID;
-          bid.supplier = offer.supplier;
-          bid.supplierDocRef = offer.supplierDocumentRef;
-          bid.supplierName = offer.supplierName;
-          bid.customerName = offer.customerName;
-          bid.customer = offer.customer;
-          bid.documentReference = doc.documentID;
-          await doc.reference.setData(bid.toJson());
-          count++;
-          print(
-              '_DashboardState.fixBids ######### bid updated investor: #$count - ${bid
-                  .investorName} ${bid.supplierName} ${bid.amount}');
-        } else {
-          print(
-              '\n\n_DashboardState.fixBids - bid has no offer. WTF. ${bid
-                  .offerDocRef}\n\n');
-        }
-      }
-    }
+        '_DashboardState.fixBids ============ ${qs.documents.length} open offers found ...\n\n');
+    print(
+        '_DashboardState.fixBids ============ ${qs2.documents.length} closed offers found ...\n\n');
+    print(
+        '_DashboardState.fixBids ============ ${qs3.documents.length} ALL offers found. Summed: ${qs.documents.length + qs2.documents.length}..\n\n');
+
+
 
     print('_DashboardState.fixBids ######################### COMPLETED!!!!');
   }
