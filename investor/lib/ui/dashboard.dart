@@ -6,7 +6,6 @@ import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/auto_trade_order.dart';
 import 'package:businesslibrary/data/delivery_acceptance.dart';
 import 'package:businesslibrary/data/delivery_note.dart';
-import 'package:businesslibrary/data/govt_entity.dart';
 import 'package:businesslibrary/data/investor.dart';
 import 'package:businesslibrary/data/investor_profile.dart';
 import 'package:businesslibrary/data/invoice_bid.dart';
@@ -14,12 +13,10 @@ import 'package:businesslibrary/data/invoice_settlement.dart';
 import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/sector.dart';
-import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/FCM.dart';
 import 'package:businesslibrary/util/invoice_bid_card.dart';
 import 'package:businesslibrary/util/lookups.dart';
-import 'package:businesslibrary/util/peach.dart';
 import 'package:businesslibrary/util/selectors.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
@@ -32,6 +29,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:investor/app_model.dart';
+import 'package:investor/investor_model_bloc.dart';
 import 'package:investor/investor_summary_card.dart';
 import 'package:investor/main.dart';
 import 'package:investor/ui/charts.dart';
@@ -74,7 +72,7 @@ class _DashboardState extends State<Dashboard>
   DeliveryAcceptance acceptance;
   BasicMessageChannel<String> basicMessageChannel;
   AppLifecycleState lifecycleState;
-  InvestorAppModel appModel;
+  InvestorAppModel2 appModel;
 
   @override
   initState() {
@@ -93,35 +91,7 @@ class _DashboardState extends State<Dashboard>
     ]);
   }
 
-//  void _fixNames() async{
-//    Firestore fm = Firestore.instance;
-//    print('\n\n\n_DashboardState._fixNames ############### start NAME FIX ....');
-//    var start = DateTime.now();
-//    int count = 0, bidsWithNoOffer = 0;;
-//    var qs = await fm.collection('invoiceBids').getDocuments();
-//    print('\n_DashboardState._fixNames ----------- invoice bids found: ${qs.documents.length}');
-//    for (var doc in qs.documents) {
-//      var bid = InvoiceBid.fromJson(doc.data);
-//      if (bid.offerDocRef != null) {
-//        var docSnapshot = await fm.collection('invoiceOffers')
-//            .document(bid.offerDocRef).get();
-//        var offer = Offer.fromJson(docSnapshot.data);
-//        bid.supplierName = offer.supplierName;
-//        bid.customerName = offer.customerName;
-//
-//        await doc.reference.setData(bid.toJson());
-//        count++;
-//        print(
-//            '_DashboardState._fixNames updated bid with supplier: #$count - ${bid
-//                .supplierName} and customer: ${bid.customerName}');
-//      } else {
-//        print('\n\n_DashboardState._fixNames; ########### ${doc.reference.path} - bid has no offerDocRef. ${bid.amount}\n\n');
-//      }
-//    }
-//
-//    var end = DateTime.now();
-//    print('\n\n\n_DashboardState._fixNames - COMPLETE:  ${end.difference(start).inMinutes} minutes elapsed. $count rows updated.');
-//  }
+
   List<Offer> mOfferList = List();
   List<InvestorProfile> profiles = List();
   FCM _fcm = FCM();
@@ -155,8 +125,6 @@ class _DashboardState extends State<Dashboard>
 
   List<Sector> sectors;
 
-  //InvestorBidSummary investorBidSummary;
-
   @override
   void dispose() {
     animationController.dispose();
@@ -164,7 +132,6 @@ class _DashboardState extends State<Dashboard>
     super.dispose();
   }
 
-  bool refreshModel = false;
   List<InvoiceBid> bids;
 
   void _refresh() async {
@@ -174,10 +141,10 @@ class _DashboardState extends State<Dashboard>
         message: 'Refreshing data',
         textColor: Styles.white,
         backgroundColor: Styles.black);
-
+    await investorModelBloc.refreshDashboard();
+    _scaffoldKey.currentState.removeCurrentSnackBar();
     setState(() {
       count = 0;
-      refreshModel = true;
     });
   }
 
@@ -195,7 +162,9 @@ class _DashboardState extends State<Dashboard>
     _subscribeToFCM();
     _checkSectors();
     user = await SharedPrefs.getUser();
-    setState(() {});
+    setState(() {
+      count = 0;
+    });
   }
 
   InvoiceBid lastInvoiceBid;
@@ -211,79 +180,71 @@ class _DashboardState extends State<Dashboard>
 
   @override
   Widget build(BuildContext context) {
-    return ScopedModelDescendant<InvestorAppModel>(
-      builder: (context, _, model) {
-        appModel = model;
-        model.setModelListener(this);
-
-        return WillPopScope(
-          onWillPop: () async => false,
-          child: Scaffold(
-            key: _scaffoldKey,
-            appBar: AppBar(
-              elevation: 6.0,
-              title: Text(
-                'BFN',
-                style: Styles.whiteSmall,
-              ),
-              leading: IconButton(
-                  icon: Icon(
-                    Icons.apps,
-                    color: Colors.white,
+    return StreamBuilder<InvestorAppModel2>(
+        initialData: investorModelBloc.appModel,
+        stream: investorModelBloc.appModelStream,
+        builder: (context, snapshot) {
+          appModel = snapshot.data;
+          return WillPopScope(
+            onWillPop: () async => false,
+            child: Scaffold(
+              key: _scaffoldKey,
+              appBar: AppBar(
+                elevation: 6.0,
+                title: Text(
+                  'BFN',
+                  style: Styles.whiteSmall,
+                ),
+                leading: IconButton(
+                    icon: Icon(
+                      Icons.apps,
+                      color: Colors.white,
+                    ),
+                    onPressed: _changeTheme),
+                bottom: _getBottom(),
+                actions: <Widget>[
+                  IconButton(
+                    icon: Icon(Icons.account_circle),
+                    onPressed: _onProfileRequested,
                   ),
-                  onPressed: _changeTheme),
-              bottom: _getBottom(),
-              actions: <Widget>[
-                IconButton(
-                  icon: Icon(Icons.account_circle),
-                  onPressed: _onProfileRequested,
-                ),
-                IconButton(
-                  icon: Icon(Icons.attach_money),
-                  onPressed: _goToWalletPage,
-                ),
-                IconButton(
-                  icon: Icon(Icons.refresh),
-                  onPressed: _refresh,
-                ),
-              ],
+                  IconButton(
+                    icon: Icon(Icons.attach_money),
+                    onPressed: _goToWalletPage,
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.refresh),
+                    onPressed: _refresh,
+                  ),
+                ],
+              ),
+              backgroundColor: Colors.brown.shade100,
+              body: _getBody(),
             ),
-            backgroundColor: Colors.brown.shade100,
-            body: _getBody(),
-          ),
-        );
-      },
-    );
+          );
+        });
   }
 
   int count = 0;
 
   Widget _getBody() {
-    return ScopedModelDescendant<InvestorAppModel>(
-      builder: (context, _, model) {
-        appModel = model;
-        _checkConditions(model);
-        return Stack(
-          children: <Widget>[
-            Opacity(
-              opacity: 0.3,
-              child: Container(
-                decoration: BoxDecoration(
-                  image: DecorationImage(
-                    image: AssetImage('assets/fincash.jpg'),
-                    fit: BoxFit.cover,
-                  ),
-                ),
+    return Stack(
+      children: <Widget>[
+        Opacity(
+          opacity: 0.3,
+          child: Container(
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/fincash.jpg'),
+                fit: BoxFit.cover,
               ),
             ),
-            new Padding(
-              padding:
-                  const EdgeInsets.only(top: 10.0, left: 20.0, right: 20.0),
-              child: _getListView(),
-            ),
-          ],
-        );
-      },
+          ),
+        ),
+        new Padding(
+          padding: const EdgeInsets.only(top: 10.0, left: 20.0, right: 20.0),
+          child: _getListView(),
+        ),
+      ],
     );
   }
 
@@ -308,53 +269,52 @@ class _DashboardState extends State<Dashboard>
       tiles.add(tile);
     });
 
-    return ScopedModelDescendant<InvestorAppModel>(
-        builder: (context, _, model) {
-      return ListView(
-        children: <Widget>[
-          new InkWell(
-            onTap: _onInvoiceBidsTapped,
-            child: Padding(
-              padding: const EdgeInsets.only(bottom: 0.0),
-              child: InvestorSummaryCard(
-                context: context,
-                listener: this,
-                appModel: model,
-              ),
-            ),
-          ),
-          new InkWell(
-            onTap: _onOffersTapped,
-            child: Padding(
-              padding: const EdgeInsets.only(bottom: 10.0),
-              child: SummaryCard(
-                total: model.dashboardData == null
-                    ? 0
-                    : model.dashboardData.totalOpenOffers,
-                label: 'Offers Open for Bids',
-                totalStyle: Styles.pinkBoldMedium,
-                totalValue: model.dashboardData == null
-                    ? 0.00
-                    : model.dashboardData.totalOpenOfferAmount,
-                totalValueStyle: Styles.tealBoldMedium,
-              ),
-            ),
-          ),
-          messages == null
-              ? Container()
-              : Column(
-                  children: tiles,
+    return appModel == null
+        ? Container()
+        : ListView(
+            children: <Widget>[
+              new InkWell(
+                onTap: _onInvoiceBidsTapped,
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 0.0),
+                  child: InvestorSummaryCard(
+                    context: context,
+                    listener: this,
+                    appModel: appModel,
+                  ),
                 ),
-        ],
-      );
-    });
+              ),
+              new InkWell(
+                onTap: _onOffersTapped,
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 10.0),
+                  child: SummaryCard(
+                    total: appModel.dashboardData == null
+                        ? 0
+                        : appModel.dashboardData.totalOpenOffers,
+                    label: 'Offers Open for Bids',
+                    totalStyle: Styles.pinkBoldMedium,
+                    totalValue: appModel.dashboardData == null
+                        ? 0.00
+                        : appModel.dashboardData.totalOpenOfferAmount,
+                    totalValueStyle: Styles.tealBoldMedium,
+                  ),
+                ),
+              ),
+              messages == null
+                  ? Container()
+                  : Column(
+                      children: tiles,
+                    ),
+            ],
+          );
   }
 
-  void _checkConditions(InvestorAppModel model) async {
+  void _checkConditions() async {
     print(
-        '\n\nDashboard_checkConditions #### BOOLEANS: invoiceBidArrived: $invoiceBidArrived, offerArrived: $offerArrived, refreshModel: $refreshModel, count: $count');
+        '\n\nDashboard_checkConditions #### BOOLEANS: invoiceBidArrived: $invoiceBidArrived, offerArrived: $offerArrived,  count: $count');
 
-    if (model.investor == null) {
+    if (appModel.investor == null) {
       print(
           '_DashboardState._checkConditions: investor is null, refreshModel ...');
       //model.refreshModel();
@@ -363,19 +323,10 @@ class _DashboardState extends State<Dashboard>
 
     if (invoiceBidArrived) {
       invoiceBidArrived = false;
-      model.invoiceBidArrived(invoiceBid);
+      appModel.invoiceBidArrived(invoiceBid);
     }
     if (offerArrived) {
       offerArrived = false;
-      model.offerArrived(offer);
-    }
-    if (refreshModel) {
-      print(
-          '\n\n_checkConditions --------- refreshModel: $refreshModel - will try a big time refresh');
-      refreshModel = false;
-      await model.refreshModel();
-      print(
-          '_DashboardState._checkConditions, inside widget build method ========== have completed refresh, now what? doin nuthin ...');
     }
   }
 
@@ -394,9 +345,7 @@ class _DashboardState extends State<Dashboard>
   refresh() {
     print(
         '_DashboardState.refresh: ################## REFRESH called. getSummary ...');
-    setState(() {
-      refreshModel = true;
-    });
+    setState(() {});
   }
 
   @override
@@ -424,7 +373,7 @@ class _DashboardState extends State<Dashboard>
           message: 'No outstanding invoice bids\nRefresh data ...',
           textColor: Styles.white,
           backgroundColor: Styles.black);
-      await appModel.refreshModel();
+      await investorModelBloc.refreshDashboard();
       return;
     }
     Navigator.push(
@@ -437,47 +386,49 @@ class _DashboardState extends State<Dashboard>
 
   Widget _getBottom() {
     return PreferredSize(
-      preferredSize: const Size.fromHeight(40.0),
-      child: new Column(
-        children: <Widget>[
-          ScopedModelDescendant<InvestorAppModel>(
-            builder: (context, child, model) {
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 20.0),
-                child: Column(
-                  children: <Widget>[
-                    Text(
-                      model.investor == null ? '' : model.investor.name,
-                      style: Styles.yellowBoldMedium,
-                    ),
-                    refreshModel == false
-                        ? Container()
-                        : Padding(
-                            padding: const EdgeInsets.only(bottom: 8.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: <Widget>[
-                                Padding(
-                                  padding: const EdgeInsets.only(right: 8.0),
-                                  child: Container(
-                                    height: 16.0,
-                                    width: 16.0,
-                                    child: CircularProgressIndicator(),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                  ],
-                ),
-              );
-            },
-          ),
-        ],
+      preferredSize: const Size.fromHeight(60.0),
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 20.0),
+        child: appModel == null
+            ? Container()
+            : Column(
+                children: <Widget>[
+                  Text(
+                    appModel.investor == null ? '' : appModel.investor.name,
+                    style: Styles.yellowBoldMedium,
+                  ),
+                ],
+              ),
       ),
     );
   }
 
+/*
+Column(
+                   children: <Widget>[
+
+                     refreshModel == false
+                         ? Container()
+                         : Padding(
+                             padding: const EdgeInsets.only(bottom: 8.0),
+                             child: Row(
+                               mainAxisAlignment: MainAxisAlignment.end,
+                               children: <Widget>[
+                                 Padding(
+                                   padding:
+                                       const EdgeInsets.only(right: 8.0),
+                                   child: Container(
+                                     height: 16.0,
+                                     width: 16.0,
+                                     child: CircularProgressIndicator(),
+                                   ),
+                                 ),
+                               ],
+                             ),
+                           ),
+                   ],
+                 ),
+ */
   AutoTradeOrder order;
   InvestorProfile profile;
   OpenOfferSummary offerSummary;
@@ -612,16 +563,19 @@ class _DashboardState extends State<Dashboard>
     print(
         '\n\n_DashboardState.onComplete - ####################### message from AppModel, ######### what now??, kill snackbar?');
     try {
+      setState(() {
+        //refreshModel = true;
+      });
       _scaffoldKey.currentState.removeCurrentSnackBar();
     } catch (e) {
-      print('_DashboardState.onComplete -- error killing snackbar');
+      print('_DashboardState.onComplete -- error killing snackbar or state $e');
     }
   }
 
   @override
   onCharts() {
     print('_DashboardState.onCharts ..................');
-    appModel.refreshInvoiceBids();
+    investorModelBloc.refreshDashboard();
 
     Navigator.push(
       context,
@@ -633,14 +587,7 @@ class _DashboardState extends State<Dashboard>
   @override
   onRefresh() {
     print('_DashboardState.onRefresh call: appModel.refreshInvoiceBids(); ');
-    appModel.refreshInvoiceBids();
-    return null;
-  }
-
-  @override
-  onPeachNotify(PeachNotification notification) {
-    prettyPrint(notification.toJson(),
-        '\n\n########### PeachNotification arrived at Dashboard:\n');
+    investorModelBloc.refreshDashboard();
     return null;
   }
 

@@ -14,6 +14,7 @@ import 'package:businesslibrary/util/styles.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:investor/app_model.dart';
+import 'package:investor/investor_model_bloc.dart';
 import 'package:investor/ui/invoice_due_diligence.dart';
 import 'package:scoped_model/scoped_model.dart';
 
@@ -37,7 +38,7 @@ class _InvoiceBidderState extends State<InvoiceBidder>
   User user;
   Wallet wallet;
   bool _showBusyIndicator = false;
-  InvestorAppModel appModel;
+  InvestorAppModel2 appModel;
   @override
   void initState() {
     super.initState();
@@ -76,9 +77,11 @@ class _InvoiceBidderState extends State<InvoiceBidder>
       offer = widget.offer;
       //_getExistingBids();
     }
-    return ScopedModelDescendant<InvestorAppModel>(
-      builder: (context,_,model) {
-        appModel = model;
+    return StreamBuilder<InvestorAppModel2>(
+      initialData: null,
+      stream: investorModelBloc.appModelStream,
+      builder: (context,snapshot) {
+        appModel = snapshot.data;
         return Scaffold(
           key: _scaffoldKey,
           appBar: AppBar(
@@ -592,8 +595,7 @@ class _InvoiceBidderState extends State<InvoiceBidder>
             action: 0);
 
         _getExistingBids();
-        await appModel.refreshOffers();
-        await appModel.refreshInvoiceBids();
+        await investorModelBloc.refreshDashboard();
 
     } catch (e) {
       AppSnackbar.showErrorSnackbar(

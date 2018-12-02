@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:businesslibrary/data/dashboard_data.dart';
 import 'package:businesslibrary/data/delivery_acceptance.dart';
 import 'package:businesslibrary/data/delivery_note.dart';
 import 'package:businesslibrary/data/invoice.dart';
@@ -99,7 +100,46 @@ class Database {
       return 0;
     }
   }
+  static Future<DashboardData> getDashboard() async {
+    dir = await getApplicationDocumentsDirectory();
 
+    jsonFile = new File(dir.path + "/dashboardData.json");
+    fileExists = await jsonFile.exists();
+
+    try {
+      if (fileExists) {
+        String string = await jsonFile.readAsString();
+        Map map = json.decode(string);
+        DashboardData w = new DashboardData.fromJson(map);
+        print('Database ## getDashboard - returning DashboardData');
+        return w;
+      } else {
+        return null;
+      }
+    } catch (e) {
+      return null;
+    }
+  }
+
+  static Future<int> saveDashboard(DashboardData dashboardData) async {
+    Map map = dashboardData.toJson();
+    dir = await getApplicationDocumentsDirectory();
+    jsonFile = new File(dir.path + "/dashboardData.json");
+    fileExists = await jsonFile.exists();
+
+    if (fileExists) {
+      jsonFile.writeAsString(json.encode(map));
+      print(
+          'Database_saveDashboard ##  has cached dashboard ###))))))))) \n\n');
+      return 0;
+    } else {
+      print(
+          'Database_saveDashboard ## file does not exist ...creating and writing dashboardData file');
+      var file = await jsonFile.create();
+      await file.writeAsString(json.encode(map));
+      return 0;
+    }
+  }
 
   static Future<List<InvoiceBid>> getSettledInvoiceBids() async {
     dir = await getApplicationDocumentsDirectory();

@@ -1,7 +1,5 @@
 import 'dart:async';
-
 import 'dart:math';
-
 import 'package:flutter/material.dart';
 
 class ThemeBloc {
@@ -17,6 +15,9 @@ class ThemeBloc {
   changeToRandomTheme() {
     var index = _rand.nextInt(ThemeUtil.getThemeCount() - 1);
     _themeController.sink.add(index);
+  }
+  closeStream() {
+    _themeController.close();
   }
 
   get newThemeStream => _themeController.stream;
@@ -71,7 +72,7 @@ class ThemeUtil {
       accentColor: Colors.pink,
       cardColor: Colors.white,
       backgroundColor: Colors.brown.shade100,
-      buttonColor: Colors.pink,
+      buttonColor: Colors.blue,
     ));
     _themes.add(ThemeData(
       fontFamily: 'Raleway',
@@ -87,7 +88,7 @@ class ThemeUtil {
       accentColor: Colors.purple,
       cardColor: Colors.white,
       backgroundColor: Colors.brown.shade100,
-      buttonColor: Colors.indigo,
+      buttonColor: Colors.pink,
     ));
     _themes.add(ThemeData(
       fontFamily: 'Raleway',
@@ -103,7 +104,7 @@ class ThemeUtil {
       accentColor: Colors.teal,
       cardColor: Colors.white,
       backgroundColor: Colors.brown.shade100,
-      buttonColor: Colors.pink,
+      buttonColor: Colors.brown,
     ));
     _themes.add(ThemeData(
       fontFamily: 'Raleway',

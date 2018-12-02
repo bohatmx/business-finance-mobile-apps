@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:businesslibrary/data/invoice_bid.dart';
 import 'package:businesslibrary/data/sector.dart';
+import 'package:businesslibrary/util/database.dart';
 import 'package:path_provider/path_provider.dart';
 
 class FileUtil {
@@ -109,20 +110,20 @@ class Sectors {
       };
 }
 
-class InvoiceBids {
-  List<InvoiceBid> bids;
-
-  InvoiceBids(this.bids);
-
-  InvoiceBids.fromJson(Map data) {
-    List map = data['bids'];
-    this.bids = List();
-    map.forEach((m) {
-      var bid = InvoiceBid.fromJson(m);
-      bids.add(bid);
-    });
-  }
-  Map<String, dynamic> toJson() => <String, dynamic>{
-        'bids': bids,
-      };
-}
+//class InvoiceBids {
+//  List<InvoiceBid> bids;
+//
+//  InvoiceBids(this.bids);
+//
+//  InvoiceBids.fromJson(Map data) {
+//    List map = data['bids'];
+//    this.bids = List();
+//    map.forEach((m) {
+//      var bid = InvoiceBid.fromJson(m);
+//      bids.add(bid);
+//    });
+//  }
+//  Map<String, dynamic> toJson() => <String, dynamic>{
+//        'bids': bids,
+//      };
+//}

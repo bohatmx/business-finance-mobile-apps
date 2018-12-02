@@ -14,6 +14,7 @@ import 'package:businesslibrary/util/util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:investor/app_model.dart';
+import 'package:investor/investor_model_bloc.dart';
 import 'package:investor/ui/invoice_bidder.dart';
 import 'package:businesslibrary/util/mypager.dart';
 import 'package:scoped_model/scoped_model.dart';
@@ -348,13 +349,15 @@ class _OfferListState extends State<OfferList>
 
     return items;
   }
-  InvestorAppModel appModel;
+  InvestorAppModel2 appModel;
   int mCount = 0;
   @override
   Widget build(BuildContext context) {
-    return ScopedModelDescendant<InvestorAppModel>(
-      builder: (context,_,model) {
-        appModel = model;
+    return StreamBuilder<InvestorAppModel2>(
+      initialData: null,
+      stream: investorModelBloc.appModelStream,
+      builder: (context,snapshot) {
+        appModel = snapshot.data;
         mCount++;
         if (mCount == 1) {
           setBasePager();
@@ -494,7 +497,7 @@ class _OfferListState extends State<OfferList>
         message: 'Loading fresh data',
         textColor: Styles.white,
         backgroundColor: Styles.brown);
-    await appModel.refreshOffers();
+    await investorModelBloc.refreshDashboard();
     try {
       _scaffoldKey.currentState.removeCurrentSnackBar();
     } catch (e) {}

@@ -147,34 +147,31 @@ class InvestorAppModel extends Model {
       return;
     }
     _dashboardData = await SharedPrefs.getDashboardData();
-    if (_dashboardData == null) {
-      await refreshDashboard();
-    }
     notifyListeners();
     _unsettledInvoiceBids = await Database.getUnsettledInvoiceBids();
-    if (_unsettledInvoiceBids.isEmpty) {
-      await refreshInvoiceBids();
-    } else {
-      _setItemNumbers(_unsettledInvoiceBids);
-    }
+    _setItemNumbers(_unsettledInvoiceBids);
     notifyListeners();
+
     _settledInvoiceBids = await Database.getSettledInvoiceBids();
-    if (_settledInvoiceBids.isEmpty) {
-      await refreshInvoiceBids();
-    } else {
-      _setItemNumbers(_settledInvoiceBids);
-    }
+    _setItemNumbers(_settledInvoiceBids);
     notifyListeners();
+
     _offers = await Database.getOffers();
-    if (_offers.isEmpty) {
-      await refreshOffers();
-    } else {
-      _setItemNumbers(_offers);
-    }
-    _title =
-        'BFN Model ${getFormattedDateHour('${DateTime.now().toIso8601String()}')}';
-    doPrint();
+    _setItemNumbers(_offers);
     notifyListeners();
+
+    doPrint();
+    //todo - limit the refreshes by some time constraint
+    print('\n\nInvestorAppModel.initialize - REFRESH MODEL after init ....');
+
+    await refreshDashboard();
+    await refreshInvoiceBids();
+    await refreshSettlements();
+    await refreshOffers();
+    if (_modelListener != null) {
+      _modelListener.onComplete();
+    }
+    print('\n\nInvestorAppModel.initialize - REFRESH MODEL COMPLETE *************');
   }
 
   Future refreshDashboard() async {
@@ -292,6 +289,16 @@ firestore.collection('users').document(userId).snapshots().asyncMap((snap) async
   }
 
   void doPrint() {
+
+    if (_unsettledInvoiceBids != null)
+      print(
+          'InvestorAppModel.doPrint _unsettledInvoiceBids in Model: ${_unsettledInvoiceBids.length}');
+    if (_offers != null)
+      print('InvestorAppModel.doPrint offers in Model: ${_offers.length}');
+    if (_settlements != null)
+      print('InvestorAppModel.doPrint _settlements in Model: ${_settlements.length}');
+    if (_settledInvoiceBids != null)
+      print('InvestorAppModel.doPrint _settledInvoiceBids in Model: ${_settledInvoiceBids.length}');
     if (_investor != null) {
       prettyPrint(_investor.toJson(), 'doPrint: ######## Investor in Model');
     }
@@ -299,10 +306,5 @@ firestore.collection('users').document(userId).snapshots().asyncMap((snap) async
       prettyPrint(_dashboardData.toJson(),
           'doPrint: ####### DashboardData inside Model');
     }
-    if (_unsettledInvoiceBids != null)
-      print(
-          'InvestorAppModel.doPrint invoiceBids in Model: ${_unsettledInvoiceBids.length}');
-    if (_offers != null)
-      print('InvestorAppModel.doPrint offers in Model: ${_offers.length}');
   }
 }

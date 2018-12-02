@@ -354,7 +354,7 @@ class ListAPI {
 
   static Future<OfferBag> getOfferByDocRef(String documentRef) async {
     print(
-        '\n\n\nListAPI.getOfferById ............................... id: $documentRef');
+        '\n\n\nListAPI.getOfferByDocRef ............................... documentRef: $documentRef');
     var start = DateTime.now();
     Offer offer;
     DocumentSnapshot qs = await _firestore
@@ -1133,6 +1133,7 @@ class ListAPI {
       });
 
       if (resp.statusCode == 200) {
+        var body = resp.body;
         data = DashboardData.fromJson(json.decode(resp.body));
         var end = DateTime.now();
         print(

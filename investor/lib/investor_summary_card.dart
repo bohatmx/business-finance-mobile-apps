@@ -2,9 +2,10 @@ import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:flutter/material.dart';
 import 'package:investor/app_model.dart';
+import 'package:investor/investor_model_bloc.dart';
 
 class InvestorSummaryCard extends StatelessWidget {
-  final InvestorAppModel appModel;
+  final InvestorAppModel2 appModel;
   final BuildContext context;
   final InvestorCardListener listener;
 
@@ -25,7 +26,7 @@ class InvestorSummaryCard extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.only(left: 10.0),
           child: Text(
-            appModel == null || appModel.unsettledInvoiceBids == null? '0' : '${appModel.unsettledInvoiceBids.length}',
+            appModel == null || appModel.dashboardData == null? '0' : '${appModel.dashboardData.totalBids}',
             style: Styles.blackBoldMedium,
           ),
         ),
@@ -34,12 +35,12 @@ class InvestorSummaryCard extends StatelessWidget {
   }
 
   double _getValue() {
-    if (appModel.unsettledInvoiceBids == null) return 0.0;
-    var t = 0.0;
-    appModel.unsettledInvoiceBids.forEach((bid) {
-      t += bid.amount;
-    });
-    return t;
+    if (appModel.dashboardData.totalBidAmount == null) return 0.0;
+//    var t = 0.0;
+//    appModel.unsettledInvoiceBids.forEach((bid) {
+//      t += bid.amount;
+//    });
+    return appModel.dashboardData.totalBidAmount;
   }
   Widget _getTotalBidValue() {
     return Row(
@@ -101,7 +102,7 @@ class InvestorSummaryCard extends StatelessWidget {
       totDisc += b.discountPercent;
     });
     var d = totDisc / appModel.unsettledInvoiceBids.length;
-    return d.toStringAsFixed(2) + '%';
+    return appModel.dashboardData.averageDiscountPerc.toStringAsFixed(2) + '%';
   }
 
   double _getAvg() {
@@ -135,7 +136,7 @@ class InvestorSummaryCard extends StatelessWidget {
           child: Text(
             appModel == null
                 ? '0'
-                : '${getFormattedAmount('${_getAvg()}', context)}',
+                : '${getFormattedAmount('${appModel.dashboardData.averageBidAmount}', context)}',
             style: Styles.blackSmall,
           ),
         ),
@@ -154,10 +155,17 @@ class InvestorSummaryCard extends StatelessWidget {
     appModel.unsettledInvoiceBids.forEach((b) {
       t += b.amount;
     });
-    return t;
+    return appModel.dashboardData.totalUnsettledAmount;
   }
   @override
   Widget build(BuildContext context) {
+//    print('\n\nInvestorSummaryCard.build build ...........##############..........');
+//    if (appModel.dashboardData != null) {
+//      appModel.doPrint();
+//      print('InvestorSummaryCard.build ============= appModel.dashboardData is not null');
+//    } else {
+//      print('InvestorSummaryCard.build ============= appModel.dashboardData is null ========= wtf?');
+//    }
     return Card(
       elevation: 2.0,
       color: Colors.brown.shade50,
@@ -203,9 +211,9 @@ class InvestorSummaryCard extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  appModel == null || appModel.unsettledInvoiceBids == null
+                  appModel == null || appModel.dashboardData == null
                       ? '0'
-                      : '${appModel.unsettledInvoiceBids.length}',
+                      : '${appModel.dashboardData.totalUnsettledBids}',
                   style: Styles.blackSmall,
                 ),
               ],
@@ -247,9 +255,9 @@ class InvestorSummaryCard extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  appModel == null || appModel.settledInvoiceBids == null
+                  appModel == null || appModel.dashboardData == null
                       ? '0'
-                      : '${appModel.settledInvoiceBids.length}',
+                      : '${appModel.dashboardData.totalSettledBids}',
                   style: Styles.blackBoldSmall,
                 ),
               ],
@@ -269,7 +277,7 @@ class InvestorSummaryCard extends StatelessWidget {
                 Text(
                   appModel == null
                       ? '0.00'
-                      : '${getFormattedAmount('${appModel.getTotalSettledBidAmount()}', context)}',
+                      : '${getFormattedAmount('${appModel.dashboardData.totalSettledAmount}', context)}',
                   style: Styles.blackBoldSmall,
                 ),
               ],
@@ -279,6 +287,7 @@ class InvestorSummaryCard extends StatelessWidget {
             padding: const EdgeInsets.only(top: 10.0, bottom: 20.0),
             child: RaisedButton(
               elevation: 6.0,
+              color: Colors.indigo.shade200,
               onPressed: _onStartCharts,
               child: Padding(
                 padding: const EdgeInsets.all(12.0),
@@ -298,11 +307,6 @@ class InvestorSummaryCard extends StatelessWidget {
     if (listener != null) {
       listener.onCharts();
     }
-  }
-
-  _onRefreshBids() {
-    print('\n\nInvestorSummaryCard._onRefreshBids ................... What the FUCK?');
-//    listener.onRefresh();
   }
 
 }

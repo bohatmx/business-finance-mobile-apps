@@ -20,6 +20,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:investor/app_model.dart';
+import 'package:investor/investor_model_bloc.dart';
 import 'package:investor/ui/unsettled_bids.dart';
 import 'package:scoped_model/scoped_model.dart';
 
@@ -33,11 +34,14 @@ class SettleInvoiceBid extends StatefulWidget {
 }
 
 class _SettleInvoiceBid extends State<SettleInvoiceBid>
-    implements SnackBarListener, InvoiceBidListener, InvestorInvoiceSettlementListener {
+    implements
+        SnackBarListener,
+        InvoiceBidListener,
+        InvestorInvoiceSettlementListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   final FirebaseMessaging fm = FirebaseMessaging();
   final Firestore fs = Firestore.instance;
-  InvestorAppModel appModel;
+  InvestorAppModel2 appModel;
   String webViewTitle, webViewUrl;
   Offer offer;
   OfferBag offerBag;
@@ -53,6 +57,7 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
   void initState() {
     super.initState();
     _getCache();
+    appModel = investorModelBloc.appModel;
     _getOffers();
   }
 
@@ -60,13 +65,15 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
     user = await SharedPrefs.getUser();
     investor = await SharedPrefs.getInvestor();
 
-    _fcm.configureFCM(invoiceBidListener: this, investorInvoiceSettlementListener: this);
+    _fcm.configureFCM(
+        invoiceBidListener: this, investorInvoiceSettlementListener: this);
     fm.subscribeToTopic(FCM.TOPIC_INVOICE_BIDS + investor.participantId);
   }
 
   StreamSubscription<QuerySnapshot> streamSub, streamTrans;
   void _listenForSettlement() async {
-    print('_SettleInvoiceBid._listenForSettlements .................paymentKey.key: ${paymentKey.key} ........');
+    print(
+        '_SettleInvoiceBid._listenForSettlements .................paymentKey.key: ${paymentKey.key} ........');
     Query reference = fs
         .collection('settlements')
         .where('peachPaymentKey', isEqualTo: paymentKey.key);
@@ -75,48 +82,56 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
       querySnapshot.documentChanges.forEach((change) {
         // Do something with change
         if (change.type == DocumentChangeType.added) {
-          var settlement = InvestorInvoiceSettlement.fromJson(
-              change.document.data);
+          var settlement =
+              InvestorInvoiceSettlement.fromJson(change.document.data);
           settlement.documentReference = change.document.documentID;
           if (settlement.peachPaymentKey == paymentKey.key) {
             prettyPrint(settlement.toJson(),
-                '\n\n_SettleInvoiceBid._listen - ############### DocumentChangeType = added, settlement added:\n');
-            print('_SettleInvoiceBid._listen about to call streamSub.cancel();');
-            streamSub.cancel();
-            _showSnackRegistered(settlement);
-            _updateModel();
-
+                '\n\n_SettleInvoiceBid._listenForSettlement- ############### DocumentChangeType = added, settlement received:\n');
+            print(
+                '_SettleInvoiceBid._listen about to call streamSub.cancel();');
+            settlements.add(settlement);
+            if (widget.invoiceBid != null) {
+              streamSub.cancel();
+              _updateModel();
+            } else {
+              if (settlements.length == widget.invoiceBids.length) {
+                streamSub.cancel();
+                _updateModel();
+              }
+            }
+          } else {
+            print(
+                '_SettleInvoiceBid._listenForSettlements - this is NOT our settlement - IGNORE!');
           }
-
-        } else {
-          print('_SettleInvoiceBid._listenForSettlements - this is NOT our settlement - IGNORE!');
         }
-
       });
     });
   }
+
+  List<InvestorInvoiceSettlement> settlements = List();
   void _listenForTransaction() async {
-    print('_SettleInvoiceBid._listenForTransaction.................paymentKey.key: ${paymentKey.key} ........');
+    print(
+        '_SettleInvoiceBid._listenForTransaction.................paymentKey.key: ${paymentKey.key} ........');
     Query reference = fs
         .collection('peachTransactions')
         .where('payment_key', isEqualTo: paymentKey.key);
 
     streamTrans = reference.snapshots().listen((querySnapshot) {
       querySnapshot.documentChanges.forEach((change) {
-        print('\n_SettleInvoiceBid._listenForTransaction TEST TEST TEST TEST TEST');
         if (change.type == DocumentChangeType.added) {
-
           if (change.document.data['payment_key'] == paymentKey.key) {
             prettyPrint(change.document.data,
-                '\n\n_SettleInvoiceBid._listenForTransaction - ############### DocumentChangeType = added, transaction added:\n');
-            print('_SettleInvoiceBid.__listenForTransaction about to call streamSub.cancel();');
+                '\n\n_SettleInvoiceBid._listenForTransaction - ############### PEACH PAYMENTS transaction received:');
+            print(
+                '_SettleInvoiceBid.__listenForTransaction about to call streamTrans.cancel();');
             streamTrans.cancel();
+            _showSnackRegistered();
+          } else {
+            print(
+                '_SettleInvoiceBid.__listenForTransaction- this is NOT our PEACH PAYMENTS transaction - IGNORE!');
           }
-
-        } else {
-          print('_SettleInvoiceBid.__listenForTransaction- this is NOT our transaction - IGNORE!');
         }
-
       });
     });
   }
@@ -124,17 +139,17 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
   void _updateModel() async {
     if (widget.invoiceBid != null) {
       await appModel.processSettledBid(widget.invoiceBid);
-      await appModel.refreshSettlements();
+      await appModel.refreshDashboard();
     }
     if (widget.invoiceBids != null) {
       for (var bid in widget.invoiceBids) {
         await appModel.processSettledBid(bid);
       }
-      await appModel.refreshSettlements();
+      await appModel.refreshDashboard();
     }
   }
-  void _showSnackRegistered(InvestorInvoiceSettlement settlement) async{
 
+  void _showSnackRegistered() async {
     AppSnackbar.showSnackbarWithAction(
         scaffoldKey: _scaffoldKey,
         message: 'Payment registered',
@@ -145,6 +160,7 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
         actionLabel: 'Done',
         backgroundColor: Colors.teal);
   }
+
   int count = 0;
   Future _getOffers() async {
     count++;
@@ -155,6 +171,10 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
       }
     });
     if (widget.invoiceBid != null) {
+      if (widget.invoiceBid.offerDocRef == null) {
+        prettyPrint(widget.invoiceBid.toJson(), '\n\n########## checking offerDocRef');
+        throw Exception('Missing offerDocRef in invoiceBid');
+      }
       offerBag = await ListAPI.getOfferByDocRef(widget.invoiceBid.offerDocRef);
       setState(() {
         isBusy = false;
@@ -209,16 +229,7 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
           setState(() {
             isBusy = false;
           });
-          //
-          if (widget.invoiceBid != null) {
-            await appModel.processSettledBid(widget.invoiceBid);
-          } else {
-            if (widget.invoiceBids != null) {
-              for (var b in widget.invoiceBids) {
-                await appModel.processSettledBid(b);
-              }
-            }
-          }
+
           break;
         case PeachCancel:
           isBusy = false;
@@ -491,26 +502,21 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
 
   @override
   Widget build(BuildContext context) {
-    return ScopedModelDescendant<InvestorAppModel>(
-      builder: (context, _, model) {
-        appModel = model;
-        return Scaffold(
-          key: _scaffoldKey,
-          appBar: AppBar(
-            title: Text('Invoice Bid Settlement'),
-            bottom: _getBottom(),
-            elevation: 2.0,
-            actions: <Widget>[
-              IconButton(
-                icon: Icon(Icons.refresh),
-                onPressed: _getOffers,
-              ),
-            ],
+    return Scaffold(
+      key: _scaffoldKey,
+      appBar: AppBar(
+        title: Text('Invoice Bid Settlement'),
+        bottom: _getBottom(),
+        elevation: 2.0,
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.refresh),
+            onPressed: _getOffers,
           ),
-          backgroundColor: Colors.brown.shade100,
-          body: _getBody(),
-        );
-      },
+        ],
+      ),
+      backgroundColor: Colors.brown.shade100,
+      body: _getBody(),
     );
   }
 
@@ -558,11 +564,11 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
   }
 
   @override
-  onInvestorInvoiceSettlement(InvestorInvoiceSettlement settlement) async{
-    prettyPrint(settlement.toJson(), '\n\n ################ settlement arrived:');
-    _showSnackRegistered(settlement);
-    await appModel.refreshSettlements();
+  onInvestorInvoiceSettlement(InvestorInvoiceSettlement settlement) async {
+    prettyPrint(
+        settlement.toJson(), '\n\n ################ settlement arrived:');
+    _showSnackRegistered();
+    await investorModelBloc.refreshDashboard();
     return null;
   }
-
 }

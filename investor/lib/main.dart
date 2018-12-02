@@ -14,32 +14,26 @@ import 'package:investor/ui/signin_page.dart';
 import 'package:investor/ui/signup_page.dart';
 import 'package:scoped_model/scoped_model.dart';
 
-void main() => runApp(new InvestorApp(
-      model: DashModel(),
-    ));
+void main() => runApp(new InvestorApp());
 
 class InvestorApp extends StatelessWidget {
   // This widget is the root of your application.
-  final DashModel model;
 
-  InvestorApp({Key key, @required this.model}) : super(key: key);
+  InvestorApp({Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return ScopedModel<InvestorAppModel>(
-      model: InvestorAppModel(),
-      child: StreamBuilder<int>(
-        initialData: null,
-        stream: bloc.newThemeStream,
-        builder: (context, snapShot) => MaterialApp(
-              title: 'FinanceNetwork',
-              debugShowCheckedModeBanner: false,
-              theme: snapShot.data == null
-                  ? ThemeUtil.getTheme(themeIndex: 0)
-                  : ThemeUtil.getTheme(themeIndex: snapShot.data),
-              home: new Dashboard(null),
-            ),
-      ),
+    return StreamBuilder<int>(
+      initialData: null,
+      stream: bloc.newThemeStream,
+      builder: (context, snapShot) => MaterialApp(
+            title: 'FinanceNetwork',
+            debugShowCheckedModeBanner: false,
+            theme: snapShot.data == null
+                ? ThemeUtil.getTheme(themeIndex: 0)
+                : ThemeUtil.getTheme(themeIndex: snapShot.data),
+            home: new Dashboard(null),
+          ),
     );
   }
 }

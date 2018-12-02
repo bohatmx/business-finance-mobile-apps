@@ -1,4 +1,5 @@
 import 'package:businesslibrary/util/Finders.dart';
+import 'package:businesslibrary/util/lookups.dart';
 
 class Offer extends Findable {
   String offerId;
@@ -46,6 +47,10 @@ class Offer extends Findable {
       this.user});
 
   Offer.fromJson(Map data) {
+    if (data == null) {
+      print('Offer.fromJson, ERROR ERROR Map data is NULL - WTF????????????');
+      return;
+    }
     this.offerId = data['offerId'];
     this.intDate = data['intDate'];
     this.startTime = data['startTime'];

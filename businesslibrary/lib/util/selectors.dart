@@ -304,6 +304,7 @@ Color getRandomColor() {
   _colors.add(Colors.indigo);
   _colors.add(Colors.lightBlue);
   _colors.add(Colors.lime);
+  _colors.add(Colors.black);
   _colors.add(Colors.deepPurple);
   _colors.add(Colors.deepOrange);
   _colors.add(Colors.brown);
@@ -312,6 +313,7 @@ Color getRandomColor() {
   _colors.add(Colors.red);
   _colors.add(Colors.green);
   _colors.add(Colors.blue);
+  _colors.add(Colors.black);
   _colors.add(Colors.grey);
   _colors.add(Colors.black);
   _colors.add(Colors.pink);
@@ -322,11 +324,13 @@ Color getRandomColor() {
   _colors.add(Colors.indigo);
   _colors.add(Colors.lightBlue);
   _colors.add(Colors.lime);
+  _colors.add(Colors.black);
   _colors.add(Colors.deepPurple);
   _colors.add(Colors.deepOrange);
   _colors.add(Colors.brown);
   _colors.add(Colors.cyan);
   _colors.add(Colors.teal);
+  _colors.add(Colors.black);
   _colors.add(Colors.red);
   _colors.add(Colors.green);
 
