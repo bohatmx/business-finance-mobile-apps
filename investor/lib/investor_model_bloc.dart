@@ -23,7 +23,7 @@ class InvestorModelBloc implements Model2Listener{
   get appModel => _appModel;
 
   refreshDashboard() async {
-    await _appModel.refreshDashboard();
+    await _appModel.refreshRemoteDashboard();
     _appModelController.sink.add(_appModel);
   }
 
@@ -135,24 +135,35 @@ class InvestorAppModel2  {
   }
 
   void initialize() async {
-    print('\n\nInvestorAppModel.initialize ################################ ');
+    print('\n\nInvestorAppModel2.initialize ################################ ');
     _investor = await SharedPrefs.getInvestor();
     _pageLimit = await SharedPrefs.getPageLimit();
     if (_pageLimit == null) {
       _pageLimit = 10;
     }
     await refreshDashboard();
-    print('\n\nInvestorAppModel.initialize - REFRESH MODEL COMPLETE - refreshDashboard *************');
+    print('\n\nInvestorAppModel2.initialize - REFRESH MODEL COMPLETE - refreshDashboard *************');
   }
 
   Future refreshDashboard() async {
-    print('InvestorAppModel.refreshDashboard ............................');
-    _investor = await SharedPrefs.getInvestor();
+    print('InvestorAppModel2.refreshDashboard ............................');
     _dashboardData = await Database.getDashboard();
     if (_dashboardData != null) {
       print('\n\nInvestorAppModel2.refreshDashboard - _dashboardData != null calling  _modelListener.onComplete();\n');
       _modelListener.onComplete();
+      return null;
+    } else {
+      await refreshRemoteDashboard();
     }
+    doPrint();
+
+    if (_modelListener != null) {
+      print('\n\nInvestorAppModel2.refreshDashboard:  after refresh from functions: calling  _modelListener.onComplete();\n');
+      _modelListener.onComplete();
+    }
+  }
+
+  Future refreshRemoteDashboard() async {
     print('InvestorAppModel2.refreshDashboard ----- REFRESH from functions ...............');
     _dashboardData = await ListAPI.getInvestorDashboardData(
         _investor.participantId, _investor.documentReference);
@@ -165,12 +176,6 @@ class InvestorAppModel2  {
     _setItemNumbers(_offers);
     _settlements = _dashboardData.settlements;
     _setItemNumbers(_settlements);
-    doPrint();
-
-    if (_modelListener != null) {
-      print('\n\nInvestorAppModel2.refreshDashboard:  after refresh from functions: calling  _modelListener.onComplete();\n');
-      _modelListener.onComplete();
-    }
   }
 
   void _setItemNumbers(List<Findable> list) {
@@ -183,7 +188,7 @@ class InvestorAppModel2  {
   }
 
   void doPrint() {
-
+    print('InvestorAppModel2.doPrint ################################### START PRINT\n\n');
     if (_unsettledInvoiceBids != null)
       print(
           'InvestorAppModel.doPrint _unsettledInvoiceBids in Model: ${_unsettledInvoiceBids.length}');
@@ -200,5 +205,6 @@ class InvestorAppModel2  {
       prettyPrint(_dashboardData.toJson(),
           'doPrint: ####### DashboardData inside Model');
     }
+    print('InvestorAppModel2.doPrint ################################### END PRINT');
   }
 }

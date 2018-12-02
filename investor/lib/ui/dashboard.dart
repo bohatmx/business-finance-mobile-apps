@@ -376,32 +376,6 @@ class _DashboardState extends State<Dashboard>
     );
   }
 
-/*
-Column(
-                   children: <Widget>[
-
-                     refreshModel == false
-                         ? Container()
-                         : Padding(
-                             padding: const EdgeInsets.only(bottom: 8.0),
-                             child: Row(
-                               mainAxisAlignment: MainAxisAlignment.end,
-                               children: <Widget>[
-                                 Padding(
-                                   padding:
-                                       const EdgeInsets.only(right: 8.0),
-                                   child: Container(
-                                     height: 16.0,
-                                     width: 16.0,
-                                     child: CircularProgressIndicator(),
-                                   ),
-                                 ),
-                               ],
-                             ),
-                           ),
-                   ],
-                 ),
- */
   AutoTradeOrder order;
   InvestorProfile profile;
   OpenOfferSummary offerSummary;

@@ -114,9 +114,11 @@ class Database {
         print('Database ## getDashboard - returning DashboardData');
         return w;
       } else {
+        print('Database.getDashboard - ERROR - file does not exist');
         return null;
       }
     } catch (e) {
+      print(e);
       return null;
     }
   }
@@ -130,7 +132,7 @@ class Database {
     if (fileExists) {
       jsonFile.writeAsString(json.encode(map));
       print(
-          'Database_saveDashboard ##  has cached dashboard ###))))))))) \n\n');
+          'Database_saveDashboard ##  has cached dashboard ###))))))))) dashboardData.json: ${jsonFile.length()}\n\n');
       return 0;
     } else {
       print(

@@ -12,6 +12,9 @@ class InvestorSummaryCard extends StatelessWidget {
   InvestorSummaryCard({this.appModel, this.context, this.listener});
 
   Widget _getTotalBids() {
+    if ( appModel == null || appModel.dashboardData.totalBids == null) {
+      return Container();
+    }
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -26,7 +29,7 @@ class InvestorSummaryCard extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.only(left: 10.0),
           child: Text(
-            appModel == null || appModel.dashboardData == null? '0' : '${appModel.dashboardData.totalBids}',
+            appModel == null || appModel.dashboardData.totalBids == null? '0' : '${appModel.dashboardData.totalBids}',
             style: Styles.blackBoldMedium,
           ),
         ),
@@ -34,15 +37,11 @@ class InvestorSummaryCard extends StatelessWidget {
     );
   }
 
-  double _getValue() {
-    if (appModel.dashboardData.totalBidAmount == null) return 0.0;
-//    var t = 0.0;
-//    appModel.unsettledInvoiceBids.forEach((bid) {
-//      t += bid.amount;
-//    });
-    return appModel.dashboardData.totalBidAmount;
-  }
+
   Widget _getTotalBidValue() {
+    if ( appModel == null || appModel.dashboardData.totalBidAmount== null) {
+      return Container();
+    }
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -59,7 +58,7 @@ class InvestorSummaryCard extends StatelessWidget {
           child: Text(
             appModel == null
                 ? '0.00'
-                : '${getFormattedAmount('${_getValue()}', context)}',
+                : '${getFormattedAmount('${appModel.dashboardData.totalBidAmount}', context)}',
             style: Styles.blackBoldLarge,
           ),
         ),
@@ -68,6 +67,9 @@ class InvestorSummaryCard extends StatelessWidget {
   }
 
   Widget _getAverageDiscount() {
+    if ( appModel == null || appModel.dashboardData.averageDiscountPerc == null) {
+      return Container();
+    }
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -82,7 +84,7 @@ class InvestorSummaryCard extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.only(left: 10.0, right: 10.0),
           child: Text(
-            appModel == null ? '0.0%' : _getAvgDiscount(),
+            appModel == null ? '0.0%' : '${appModel.dashboardData.averageDiscountPerc.toStringAsFixed(2)} %',
             style: Styles.purpleBoldSmall,
           ),
         ),
@@ -90,20 +92,6 @@ class InvestorSummaryCard extends StatelessWidget {
     );
   }
 
-  String _getAvgDiscount() {
-    if (appModel == null) {
-      return '0.0%';
-    }
-    if (appModel.unsettledInvoiceBids == null) {
-      return '0.0%';
-    }
-    var totDisc = 0.0;
-    appModel.unsettledInvoiceBids.forEach((b) {
-      totDisc += b.discountPercent;
-    });
-    var d = totDisc / appModel.unsettledInvoiceBids.length;
-    return appModel.dashboardData.averageDiscountPerc.toStringAsFixed(2) + '%';
-  }
 
   double _getAvg() {
     if (appModel == null) {
@@ -120,6 +108,9 @@ class InvestorSummaryCard extends StatelessWidget {
     return avg;
   }
   Widget _getAverageBidAmount() {
+    if ( appModel == null || appModel.dashboardData.averageBidAmount == null) {
+      return Container();
+    }
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -173,11 +164,11 @@ class InvestorSummaryCard extends StatelessWidget {
         children: <Widget>[
           Padding(
             padding: const EdgeInsets.only(top: 10.0, left: 20.0),
-            child: _getTotalBids(),
+            child: appModel == null? Container() : _getTotalBids(),
           ),
           Padding(
             padding: const EdgeInsets.only(top: 10.0, left: 20.0, bottom: 20.0),
-            child: _getTotalBidValue(),
+            child: appModel == null? Container() : _getTotalBidValue(),
           ),
           Padding(
             padding: const EdgeInsets.only(left: 30.0, right: 30.0),
@@ -187,11 +178,11 @@ class InvestorSummaryCard extends StatelessWidget {
           ),
           Padding(
             padding: const EdgeInsets.only(top: 10.0, left: 20.0),
-            child: _getAverageBidAmount(),
+            child: appModel == null? Container() : _getAverageBidAmount(),
           ),
           Padding(
             padding: const EdgeInsets.only(top: 10.0, left: 20.0),
-            child: _getAverageDiscount(),
+            child: appModel == null? Container() : _getAverageDiscount(),
           ),
           Padding(
             padding: const EdgeInsets.only(left: 30.0, right: 30.0, top: 5.0),
@@ -211,9 +202,9 @@ class InvestorSummaryCard extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  appModel == null || appModel.dashboardData == null
+                  appModel == null || appModel.dashboardData.totalUnsettledBids == null
                       ? '0'
-                      : '${appModel.dashboardData.totalUnsettledBids}',
+                      : '${getFormattedNumber(appModel.dashboardData.totalUnsettledBids, context)}',
                   style: Styles.blackSmall,
                 ),
               ],
@@ -231,9 +222,9 @@ class InvestorSummaryCard extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  appModel == null
+                  appModel == null || appModel.dashboardData.totalUnsettledAmount == null
                       ? '0.00'
-                      : '${getFormattedAmount('${totalUnsettledBids()}', context)}',
+                      : '${getFormattedAmount('${appModel.dashboardData.totalUnsettledAmount}', context)}',
                   style: Styles.pinkBoldSmall,
                 ),
               ],
@@ -255,9 +246,9 @@ class InvestorSummaryCard extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  appModel == null || appModel.dashboardData == null
+                  appModel == null || appModel.dashboardData.totalSettledBids == null
                       ? '0'
-                      : '${appModel.dashboardData.totalSettledBids}',
+                      : '${getFormattedNumber(appModel.dashboardData.totalSettledBids, context)}',
                   style: Styles.blackBoldSmall,
                 ),
               ],
