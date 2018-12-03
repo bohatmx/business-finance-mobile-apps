@@ -6,13 +6,9 @@
     </shared>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b840dc6a-331e-46d9-b624-92fa4c1707ed" name="Default" comment="go watch the NFL - week 12 - invoice bidder refactored">
-      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/api/list_api.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/api/list_api.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/util/offer_card.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/util/offer_card.dart" afterDir="false" />
+    <list default="true" id="b840dc6a-331e-46d9-b624-92fa4c1707ed" name="Default" comment="refactored invoice bidder - checks before submit bid + ui tweaks">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/investor_model_bloc.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/investor_model_bloc.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/ui/invoice_bidder.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/ui/invoice_bidder.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/ui/offer_list.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/ui/offer_list.dart" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -99,9 +95,9 @@
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="dart" value="75536" />
+          <entry key="dart" value="75584" />
           <entry key="gradle" value="30" />
-          <entry key="txt" value="2300" />
+          <entry key="txt" value="2364" />
           <entry key="yaml" value="18" />
         </counts>
       </usages-collector>
@@ -117,9 +113,9 @@
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="Dart" value="75536" />
+          <entry key="Dart" value="75584" />
           <entry key="Groovy" value="30" />
-          <entry key="PLAIN_TEXT" value="2300" />
+          <entry key="PLAIN_TEXT" value="2364" />
           <entry key="YAML" value="18" />
         </counts>
       </usages-collector>
@@ -221,11 +217,12 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/lib/ui/invoice_bidder.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="317">
-              <caret line="278" column="35" selection-start-line="278" selection-start-column="35" selection-end-line="278" selection-end-column="35" />
+            <state relative-caret-position="104">
+              <caret line="619" column="41" lean-forward="true" selection-start-line="619" selection-start-column="41" selection-end-line="619" selection-end-column="41" />
               <folding>
                 <element signature="n#!!block;n#InvoiceBidder#0" />
                 <element signature="e#1329#1344#0" />
+                <element signature="e#2087#2459#0" expanded="true" />
                 <element signature="e#2430#2903#0" expanded="true" />
                 <element signature="e#3411#8024#0" expanded="true" />
                 <element signature="e#3544#3571#0" />
@@ -262,7 +259,6 @@
                 <element signature="e#13316#14917#0" expanded="true" />
                 <element signature="e#13897#13902#0" />
                 <element signature="e#14600#14605#0" />
-                <element signature="e#16219#20370#0" expanded="true" />
                 <element signature="e#16986#17034#0" />
                 <element signature="e#17260#17380#0" />
                 <element signature="e#19808#19873#0" />
@@ -299,7 +295,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>Navigator.pop</find>
       <find>FCM3</find>
       <find>FCMUtil.configureFCM</find>
       <find>BFNWebViewState.onPeachSuccess</find>
@@ -329,6 +324,7 @@
       <find>StreamBuilder</find>
       <find>bids</find>
       <find>_PurchaseOrderList.setBasePager appModel.pageLimit</find>
+      <find>offerBids</find>
     </findStrings>
     <replaceStrings>
       <replace>89.0</replace>
@@ -506,7 +502,7 @@
   </component>
   <component name="PropertiesComponent">
     <property name="android.sdk.path" value="$USER_HOME$/Library/Android/sdk" />
-    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1543825043242" />
+    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1543825200960" />
     <property name="dart.analysis.tool.window.force.activate" value="false" />
     <property name="io.flutter.reload.alreadyRun" value="true" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
@@ -567,13 +563,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1530197618099</updated>
-    </task>
-    <task id="LOCAL-00018" summary="ui tweaks II">
-      <created>1539672695828</created>
-      <option name="number" value="00018" />
-      <option name="presentableId" value="LOCAL-00018" />
-      <option name="project" value="LOCAL" />
-      <updated>1539672695829</updated>
     </task>
     <task id="LOCAL-00019" summary="refactored signup thru cloud functions">
       <created>1539879295725</created>
@@ -911,7 +900,14 @@
       <option name="project" value="LOCAL" />
       <updated>1543782302696</updated>
     </task>
-    <option name="localTasksCounter" value="67" />
+    <task id="LOCAL-00067" summary="refactored invoice bidder - checks before submit bid + ui tweaks">
+      <created>1543825147613</created>
+      <option name="number" value="00067" />
+      <option name="presentableId" value="LOCAL-00067" />
+      <option name="project" value="LOCAL" />
+      <updated>1543825147614</updated>
+    </task>
+    <option name="localTasksCounter" value="68" />
     <servers />
   </component>
   <component name="TodoView">
@@ -967,7 +963,6 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="fixed settlement ui + peach api" />
     <MESSAGE value="refactored auto trade ui + settlement flow (peach payments webview)" />
     <MESSAGE value="small tweaks ..." />
     <MESSAGE value="added scoped model to investor - should apply to all apps!" />
@@ -992,7 +987,8 @@
     <MESSAGE value="refactored investor invoice bidder" />
     <MESSAGE value="refactored investor dashboard data handling iro bloc and Streambuilder" />
     <MESSAGE value="go watch the NFL - week 12 - invoice bidder refactored" />
-    <option name="LAST_COMMIT_MESSAGE" value="go watch the NFL - week 12 - invoice bidder refactored" />
+    <MESSAGE value="refactored invoice bidder - checks before submit bid + ui tweaks" />
+    <option name="LAST_COMMIT_MESSAGE" value="refactored invoice bidder - checks before submit bid + ui tweaks" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -1542,11 +1538,12 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/lib/ui/invoice_bidder.dart">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="317">
-          <caret line="278" column="35" selection-start-line="278" selection-start-column="35" selection-end-line="278" selection-end-column="35" />
+        <state relative-caret-position="104">
+          <caret line="619" column="41" lean-forward="true" selection-start-line="619" selection-start-column="41" selection-end-line="619" selection-end-column="41" />
           <folding>
             <element signature="n#!!block;n#InvoiceBidder#0" />
             <element signature="e#1329#1344#0" />
+            <element signature="e#2087#2459#0" expanded="true" />
             <element signature="e#2430#2903#0" expanded="true" />
             <element signature="e#3411#8024#0" expanded="true" />
             <element signature="e#3544#3571#0" />
@@ -1583,7 +1580,6 @@
             <element signature="e#13316#14917#0" expanded="true" />
             <element signature="e#13897#13902#0" />
             <element signature="e#14600#14605#0" />
-            <element signature="e#16219#20370#0" expanded="true" />
             <element signature="e#16986#17034#0" />
             <element signature="e#17260#17380#0" />
             <element signature="e#19808#19873#0" />

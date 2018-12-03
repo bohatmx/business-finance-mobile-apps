@@ -92,7 +92,7 @@ class _InvoiceBidderState extends State<InvoiceBidder>
           'Make Invoice Bid',
           style: Styles.whiteBoldSmall,
         ),
-        elevation: 4.0,
+        elevation: 8.0,
         backgroundColor: Colors.pink.shade300,
         bottom: _getBottom(),
         actions: <Widget>[
@@ -540,8 +540,6 @@ class _InvoiceBidderState extends State<InvoiceBidder>
       _showBusyIndicator = true;
     });
 
-    isBusy = true;
-    offerBids = await ListAPI.getInvoiceBidsByOffer(offer.offerId);
 
     var t = 0.00;
     offerBids.forEach((m) {
@@ -587,7 +585,7 @@ class _InvoiceBidderState extends State<InvoiceBidder>
     //todo - check invoice limits if profile exists
 
     //todo - check investor account balance
-
+    isBusy = true;
     prettyPrint(offer.toJson(),
         '_InvoiceBidderState._onMakeBid ...........everything checks out. Making a bid:');
     /*
@@ -620,9 +618,6 @@ class _InvoiceBidderState extends State<InvoiceBidder>
 
     try {
       await DataAPI3.makeInvoiceBid(bid);
-      if (offerBids == null) {
-        offerBids = List();
-      }
 
       AppSnackbar.showSnackbarWithAction(
           scaffoldKey: _scaffoldKey,
@@ -633,10 +628,11 @@ class _InvoiceBidderState extends State<InvoiceBidder>
           listener: this,
           icon: Icons.done_all,
           action: 0);
-
+      print('_InvoiceBidderState._onSubmitBid offerBids before: : ${offerBids.length}');
       offerBids.add(bid);
       _calculateTotal();
       _buildPercChoices();
+      print('_InvoiceBidderState._onSubmitBid offerBids after: : ${offerBids.length}');
       setState(() {
         _showBusyIndicator = false;
       });
