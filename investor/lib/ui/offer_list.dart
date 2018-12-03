@@ -42,7 +42,6 @@ class _OfferListState extends State<OfferList>
   int currentStartKey, previousStartKey;
   OpenOfferSummary summary = OpenOfferSummary();
   List<int> keys = List();
-  double _opacity = 0.0;
 
   @override
   void initState() {
@@ -52,7 +51,7 @@ class _OfferListState extends State<OfferList>
     appModel = investorModelBloc.appModel;
     _buildDaysDropDownItems();
     _getCached();
-    setBasePager();
+
   }
 
   void _getCached() async {
@@ -382,14 +381,18 @@ class _OfferListState extends State<OfferList>
       key: _scaffoldKey,
       appBar: AppBar(
         title: Text(
-          'Open Invoice Offers',
+          'Open Offers',
           style: Styles.whiteBoldMedium,
         ),
         bottom: PreferredSize(
           child: _getBottom(),
-          preferredSize: Size.fromHeight(260.0),
+          preferredSize: Size.fromHeight(180.0),
         ),
         actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.sort),
+            onPressed: _sort,
+          ),
           IconButton(
             icon: Icon(Icons.refresh),
             onPressed: _refresh,
@@ -429,10 +432,11 @@ class _OfferListState extends State<OfferList>
               _checkBid(currentPage.elementAt(index));
             },
             child: Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.only(left:12.0, right: 12.0, top: 4.0),
               child: OfferCard(
                 offer: _getOffer(index),
                 number: index + 1,
+                color: Colors.amber.shade50,
                 elevation: 1.0,
               ),
             ),
@@ -446,7 +450,7 @@ class _OfferListState extends State<OfferList>
         : Column(
             children: <Widget>[
               Padding(
-                padding: const EdgeInsets.only(bottom: 20.0),
+                padding: const EdgeInsets.only(bottom: 4.0),
                 child: PagingTotalsView(
                   pageValue: _getPageValue(),
                   totalValue: _getTotalValue(),
@@ -459,23 +463,14 @@ class _OfferListState extends State<OfferList>
                 padding:
                     const EdgeInsets.only(left: 8.0, right: 8.0, bottom: 10.0),
                 child: PagerControl(
-                  itemName: 'Invoice Offers',
+                  itemName: 'Open Offers',
                   pageLimit: appModel.pageLimit,
                   elevation: 16.0,
                   items: appModel.offers == null ? 0 : appModel.offers.length,
                   listener: this,
-                  color: Colors.pink.shade50,
+                  color: Colors.brown.shade50,
                   pageNumber: _pageNumber,
                 ),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: <Widget>[
-                  IconButton(
-                    icon: Icon(Icons.sort),
-                    onPressed: _sort,
-                  ),
-                ],
               ),
             ],
           );
@@ -519,9 +514,9 @@ class _OfferListState extends State<OfferList>
   //paging constructs
   BasePager basePager;
   void setBasePager() {
-    if (appModel == null) return;
+    if (appModel.offers == null) return;
     print(
-        '_PurchaseOrderList.setBasePager appModel.pageLimit: ${appModel.pageLimit}, get first page');
+        '_OfferList.setBasePager appModel.pageLimit: ${appModel.pageLimit} offers: ${appModel.offers.length}, get first page');
     if (basePager == null) {
       basePager = BasePager(
         items: appModel.offers,

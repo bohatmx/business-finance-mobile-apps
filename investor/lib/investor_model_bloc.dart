@@ -10,12 +10,15 @@ import 'package:businesslibrary/util/database.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/Finders.dart';
 
-class InvestorModelBloc implements Model2Listener{
-  final StreamController<InvestorAppModel2> _appModelController = StreamController<InvestorAppModel2>();
+class InvestorModelBloc implements Model2Listener {
+  final StreamController<InvestorAppModel2> _appModelController =
+      StreamController<InvestorAppModel2>();
+  final StreamController<String> _errorController = StreamController<String>();
   final InvestorAppModel2 _appModel = InvestorAppModel2();
 
   InvestorModelBloc() {
-    print('\n\nInvestorModelBloc.InvestorModelBloc - CONSTRUCTOR - set listener and initialize app model');
+    print(
+        '\n\nInvestorModelBloc.InvestorModelBloc - CONSTRUCTOR - set listener and initialize app model');
     _appModel.setModelListener(this);
     _appModel.initialize();
   }
@@ -27,7 +30,6 @@ class InvestorModelBloc implements Model2Listener{
     _appModelController.sink.add(_appModel);
   }
 
-
   closeStream() {
     _appModelController.close();
   }
@@ -36,8 +38,15 @@ class InvestorModelBloc implements Model2Listener{
 
   @override
   onComplete() {
-    print('\n\nInvestorModelBloc.onComplete ########## adding model to stream sink ......... ');
+    print(
+        '\n\nInvestorModelBloc.onComplete ########## adding model to stream sink ......... ');
     _appModelController.sink.add(_appModel);
+  }
+
+  @override
+  onError(String message) {
+    _errorController.sink.add(message);
+    return null;
   }
 }
 
@@ -45,9 +54,10 @@ final investorModelBloc = InvestorModelBloc();
 
 abstract class Model2Listener {
   onComplete();
+  onError(String message);
 }
 
-class InvestorAppModel2  {
+class InvestorAppModel2 {
   String _title = 'BFN State Test';
   int _pageLimit = 10;
   DashboardData _dashboardData = DashboardData();
@@ -89,44 +99,53 @@ class InvestorAppModel2  {
   }
 
   Future processSettledBid(InvoiceBid bid) async {
-    bid.isSettled = true;
-    _settledInvoiceBids.insert(0, bid);
+    try {
+      bid.isSettled = true;
+      _settledInvoiceBids.insert(0, bid);
 
-    _unsettledInvoiceBids.remove(bid);
-    _setItemNumbers(_unsettledInvoiceBids);
-    print(
-        'InvestorAppModel._removeBidFromCache bids in cache: ${_unsettledInvoiceBids.length} added to settled: ${_settledInvoiceBids.length}');
-    _dashboardData.unsettledBids = _unsettledInvoiceBids;
-    _dashboardData.settledBids = _settledInvoiceBids;
-    await Database.saveDashboard(_dashboardData);
-    if (_modelListener != null) {
-      _modelListener.onComplete();
+      _unsettledInvoiceBids.remove(bid);
+      _setItemNumbers(_unsettledInvoiceBids);
+      print(
+          'InvestorAppModel._removeBidFromCache bids in cache: ${_unsettledInvoiceBids.length} added to settled: ${_settledInvoiceBids.length}');
+      _dashboardData.unsettledBids = _unsettledInvoiceBids;
+      _dashboardData.settledBids = _settledInvoiceBids;
+      await Database.saveDashboard(_dashboardData);
+      if (_modelListener != null) {
+        _modelListener.onComplete();
+      }
+    } catch (e) {
+      print(e);
+      _modelListener.onError(e.toString());
     }
     return null;
   }
 
   void invoiceBidArrived(InvoiceBid invoiceBid) async {
-    _dashboardData.totalOpenOffers--;
-    _dashboardData.totalOfferAmount -= invoiceBid.amount;
-    _dashboardData.totalOpenOfferAmount -= invoiceBid.amount;
+    try {
+      _dashboardData.totalOpenOffers--;
+      _dashboardData.totalOfferAmount -= invoiceBid.amount;
+      _dashboardData.totalOpenOfferAmount -= invoiceBid.amount;
 
-    String m = NameSpace + 'Investor#${investor.participantId}';
-    print(
-        '\n\nInvestorAppModel.invoiceBidArrived \n${invoiceBid.investorName} ${invoiceBid.investor}  - #### LOCAL:  ${investor.name} $m');
+      String m = NameSpace + 'Investor#${investor.participantId}';
+      print(
+          '\n\nInvestorAppModel.invoiceBidArrived \n${invoiceBid.investorName} ${invoiceBid.investor}  - #### LOCAL:  ${investor.name} $m');
 
-    if (invoiceBid.investor == m) {
-      _dashboardData.totalUnsettledBids++;
-      _dashboardData.totalUnsettledAmount += invoiceBid.amount;
-      _dashboardData.unsettledBids.insert(0, invoiceBid);
-      _unsettledInvoiceBids.insert(0, invoiceBid);
-      _dashboardData.totalBids++;
-      _dashboardData.totalBidAmount += invoiceBid.amount;
-      await Database.saveDashboard(_dashboardData);
+      if (invoiceBid.investor == m) {
+        _dashboardData.totalUnsettledBids++;
+        _dashboardData.totalUnsettledAmount += invoiceBid.amount;
+        _dashboardData.unsettledBids.insert(0, invoiceBid);
+        _unsettledInvoiceBids.insert(0, invoiceBid);
+        _dashboardData.totalBids++;
+        _dashboardData.totalBidAmount += invoiceBid.amount;
+        await Database.saveDashboard(_dashboardData);
+      }
+      if (_modelListener != null) {
+        _modelListener.onComplete();
+      }
+    } catch (e) {
+      print(e);
+      _modelListener.onError(e.toString());
     }
-    if (_modelListener != null) {
-      _modelListener.onComplete();
-    }
-
   }
 
   Future updatePageLimit(int pageLimit) async {
@@ -142,32 +161,50 @@ class InvestorAppModel2  {
       _pageLimit = 10;
     }
     await refreshDashboard();
-    print('\n\nInvestorAppModel2.initialize - REFRESH MODEL COMPLETE - refreshDashboard *************');
+    print(
+        '\n\nInvestorAppModel2.initialize - REFRESH MODEL COMPLETE - refreshDashboard *************');
   }
 
   Future refreshDashboard() async {
     print('InvestorAppModel2.refreshDashboard ............................');
-    _dashboardData = await Database.getDashboard();
-    if (_dashboardData != null) {
-      print('\n\nInvestorAppModel2.refreshDashboard - _dashboardData != null calling  _modelListener.onComplete();\n');
-      _modelListener.onComplete();
-      return null;
-    } else {
+    try {
+      _dashboardData = await Database.getDashboard();
+      if (_dashboardData != null) {
+        print(
+            '\n\nInvestorAppModel2.refreshDashboard - _dashboardData != null calling  _modelListener.onComplete();\n');
+        setLists();
+        _modelListener.onComplete();
+      } else {
+        print('InvestorAppModel2.refreshDashboard ...... dashboard is null.');
+      }
       await refreshRemoteDashboard();
-    }
-    doPrint();
+      doPrint();
 
-    if (_modelListener != null) {
-      print('\n\nInvestorAppModel2.refreshDashboard:  after refresh from functions: calling  _modelListener.onComplete();\n');
-      _modelListener.onComplete();
+      if (_modelListener != null) {
+        print(
+            '\n\nInvestorAppModel2.refreshDashboard:  after refresh from functions: calling  _modelListener.onComplete();\n');
+        _modelListener.onComplete();
+      }
+    } catch (e) {
+      print(e);
+      _modelListener.onError(e.toString());
     }
   }
 
   Future refreshRemoteDashboard() async {
-    print('InvestorAppModel2.refreshDashboard ----- REFRESH from functions ...............');
-    _dashboardData = await ListAPI.getInvestorDashboardData(
-        _investor.participantId, _investor.documentReference);
-    await Database.saveDashboard(_dashboardData);
+    print(
+        'InvestorAppModel2.refreshDashboard ----- REFRESH from functions ...............');
+    try {
+      _dashboardData = await ListAPI.getInvestorDashboardData(
+          _investor.participantId, _investor.documentReference);
+      await Database.saveDashboard(_dashboardData);
+      setLists();
+    } catch (e) {
+      _modelListener.onError(e.toString());
+    }
+  }
+
+  void setLists() {
     _settledInvoiceBids = _dashboardData.settledBids;
     _setItemNumbers(_settledInvoiceBids);
     _unsettledInvoiceBids = _dashboardData.unsettledBids;
@@ -188,23 +225,27 @@ class InvestorAppModel2  {
   }
 
   void doPrint() {
-    print('InvestorAppModel2.doPrint ################################### START PRINT\n\n');
+    print(
+        'InvestorAppModel2.doPrint ################################### START PRINT **');
     if (_unsettledInvoiceBids != null)
       print(
           'InvestorAppModel.doPrint _unsettledInvoiceBids in Model: ${_unsettledInvoiceBids.length}');
     if (_offers != null)
       print('InvestorAppModel.doPrint offers in Model: ${_offers.length}');
     if (_settlements != null)
-      print('InvestorAppModel.doPrint _settlements in Model: ${_settlements.length}');
+      print(
+          'InvestorAppModel.doPrint _settlements in Model: ${_settlements.length}');
     if (_settledInvoiceBids != null)
-      print('InvestorAppModel.doPrint _settledInvoiceBids in Model: ${_settledInvoiceBids.length}');
+      print(
+          'InvestorAppModel.doPrint _settledInvoiceBids in Model: ${_settledInvoiceBids.length}');
     if (_investor != null) {
-      prettyPrint(_investor.toJson(), 'doPrint: ######## Investor in Model');
+      print('doPrint: ######## Investor in Model: ${_investor.name}');
     }
     if (_dashboardData != null) {
-      prettyPrint(_dashboardData.toJson(),
-          'doPrint: ####### DashboardData inside Model');
+      print(
+          'doPrint: ####### DashboardData inside Model: settled: ${_settledInvoiceBids.length} unsettled: ${_unsettledInvoiceBids.length} offers: ${_offers.length} settlements: ${_settlements.length}');
     }
-    print('InvestorAppModel2.doPrint ################################### END PRINT');
+    print(
+        'InvestorAppModel2.doPrint ################################### END PRINT **');
   }
 }

@@ -862,10 +862,15 @@ class ListAPI {
         documentId: documentId,
         limit: MAXIMUM_RECORDS_FROM_FIRESTORE);
 
-    DashboardData result =
-        await _doDashboardHTTP(getFunctionsURL() + 'investorDashboard', data);
+    try {
+      DashboardData result =
+      await _doDashboardHTTP(getFunctionsURL() + 'investorDashboard', data);
 
-    return result;
+      return result;
+    } catch (e) {
+      print(e);
+      throw e;
+    }
   }
 
   static Future<DashboardData> getCustomerDashboardData(

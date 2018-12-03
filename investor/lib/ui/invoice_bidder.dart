@@ -93,6 +93,7 @@ class _InvoiceBidderState extends State<InvoiceBidder>
           style: Styles.whiteBoldSmall,
         ),
         elevation: 4.0,
+        backgroundColor: Colors.pink.shade300,
         bottom: _getBottom(),
         actions: <Widget>[
           IconButton(icon: Icon(Icons.refresh), onPressed: _getExistingBids),
@@ -125,7 +126,7 @@ class _InvoiceBidderState extends State<InvoiceBidder>
   bool showFullyBid = false;
   Widget _getBottom() {
     return PreferredSize(
-      preferredSize: Size.fromHeight(160.0),
+      preferredSize: Size.fromHeight(140.0),
       child: Padding(
         padding: const EdgeInsets.only(bottom: 12.0, right: 20.0),
         child: Column(
@@ -270,17 +271,17 @@ class _InvoiceBidderState extends State<InvoiceBidder>
 
   Widget _buildFullyBid() {
     return Padding(
-      padding: const EdgeInsets.all(20.0),
+      padding: const EdgeInsets.only(bottom:24.0, left:12.0, right: 12.0, top: 4.0),
       child: GestureDetector(
         onTap: _closeOffer,
         child: Card(
           elevation: 8.0,
-          color: Colors.pink.shade300,
+          color: Colors.teal.shade400,
           child: Padding(
             padding: const EdgeInsets.all(12.0),
             child: Column(
               children: <Widget>[
-                Text('This offer is now fully bid. You cannot make a bid on this offer at this time.\n\nThanks! Tap to exit', style: Styles.whiteSmall,)
+                Text('This offer is now fully bid. It is no longer possible to make a bid on this offer for anyone else.\n\nThanks!', style: Styles.whiteSmall,)
               ],
             ),
           ),

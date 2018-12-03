@@ -8,12 +8,13 @@ class OfferCard extends StatelessWidget {
   final int number;
   final double elevation;
   final bool showSupplier, showCustomer;
+  final Color color;
 
   OfferCard(
       {this.offer,
       this.number,
       this.elevation,
-      this.showCustomer,
+      this.showCustomer, this.color,
       this.showSupplier});
 
   TextStyle getTextStyle() {
@@ -44,6 +45,7 @@ class OfferCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       elevation: elevation == null ? 2.0 : elevation,
+      color: color == null? Colors.white : color,
       child: Padding(
         padding: const EdgeInsets.all(10.0),
         child: Column(
