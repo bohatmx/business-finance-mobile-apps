@@ -386,7 +386,7 @@ class _OfferListState extends State<OfferList>
         ),
         bottom: PreferredSize(
           child: _getBottom(),
-          preferredSize: Size.fromHeight(180.0),
+          preferredSize: Size.fromHeight(200.0),
         ),
         actions: <Widget>[
           IconButton(
@@ -461,7 +461,7 @@ class _OfferListState extends State<OfferList>
               ),
               Padding(
                 padding:
-                    const EdgeInsets.only(left: 8.0, right: 8.0, bottom: 10.0),
+                    const EdgeInsets.only(left: 8.0, right: 8.0, bottom: 20.0),
                 child: PagerControl(
                   itemName: 'Open Offers',
                   pageLimit: appModel.pageLimit,

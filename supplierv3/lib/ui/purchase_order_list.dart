@@ -12,12 +12,12 @@ import 'package:businesslibrary/util/styles.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:supplierv3/app_model.dart';
+import 'package:supplierv3/supplier_bloc.dart';
 import 'package:supplierv3/ui/delivery_note_page.dart';
 import 'package:supplierv3/ui/invoice_page.dart';
 
 class PurchaseOrderListPage extends StatefulWidget {
-  final SupplierAppModel model;
+  final SupplierApplicationModel model;
 
   PurchaseOrderListPage({this.model});
 
@@ -46,7 +46,7 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
   int lastDate;
   bool isBackPressed = false;
   int previousStartKey;
-
+  FCM _fm = FCM();
   @override
   void initState() {
     super.initState();
@@ -56,8 +56,7 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
 
   void _getCached() async {
     supplier = await SharedPrefs.getSupplier();
-    FCM.configureFCM(
-      context: context,
+    _fm.configureFCM(
       purchaseOrderListener: this,
     );
     _fcm.subscribeToTopic(FCM.TOPIC_PURCHASE_ORDERS + supplier.participantId);

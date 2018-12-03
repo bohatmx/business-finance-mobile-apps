@@ -31,7 +31,7 @@ class _DeliveryAcceptanceListState extends State<DeliveryAcceptanceList>
   User user;
   Supplier supplier;
   bool isPurchaseOrder, isDeliveryAcceptance;
-
+  FCM _fm = FCM();
   DeliveryAcceptance acceptance;
 
   @override
@@ -43,8 +43,7 @@ class _DeliveryAcceptanceListState extends State<DeliveryAcceptanceList>
   _getAcceptances() async {
     user = await SharedPrefs.getUser();
     supplier = await SharedPrefs.getSupplier();
-    FCM.configureFCM(
-      context: context,
+    _fm.configureFCM(
       deliveryAcceptanceListener: this,
       invoiceAcceptanceListener: this,
     );

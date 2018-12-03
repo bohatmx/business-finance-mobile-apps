@@ -15,8 +15,7 @@ import 'package:businesslibrary/util/styles.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:scoped_model/scoped_model.dart';
-import 'package:supplierv3/app_model.dart';
+import 'package:supplierv3/supplier_bloc.dart';
 import 'package:supplierv3/ui/invoice_page.dart';
 
 class DeliveryNotePage extends StatefulWidget {
@@ -40,6 +39,7 @@ class _DeliveryNotePageState extends State<DeliveryNotePage>
   User _user;
   String userName;
   Supplier supplier;
+  FCM _fm = FCM();
 
   @override
   void initState() {
@@ -52,10 +52,9 @@ class _DeliveryNotePageState extends State<DeliveryNotePage>
     supplier = await SharedPrefs.getSupplier();
     userName = _user.firstName + ' ' + _user.lastName;
 
-    FCM.configureFCM(
+    _fm.configureFCM(
       deliveryAcceptanceListener: this,
       purchaseOrderListener: this,
-      context: context,
     );
     _fcm.subscribeToTopic(
         FCM.TOPIC_DELIVERY_ACCEPTANCES + supplier.participantId);
@@ -100,7 +99,7 @@ class _DeliveryNotePageState extends State<DeliveryNotePage>
     color: Colors.teal.shade700,
   );
 
-  SupplierAppModel appModel;
+  SupplierApplicationModel appModel;
   List<DropdownMenuItem<PurchaseOrder>> items = List();
   Widget _getPOList() {
     if (_purchaseOrders == null) {
@@ -175,9 +174,7 @@ class _DeliveryNotePageState extends State<DeliveryNotePage>
     if (widget.purchaseOrder != null) {
       _purchaseOrder = widget.purchaseOrder;
     }
-    return ScopedModelDescendant<SupplierAppModel>(
-      builder: (context,_,model) {
-        appModel = model;
+
         return Scaffold(
           key: _scaffoldKey,
           appBar: AppBar(
@@ -349,18 +346,7 @@ class _DeliveryNotePageState extends State<DeliveryNotePage>
             ),
           ),
         );
-      },
 
-    );
-  }
-
-  String _getFormattedDate() {
-//    DateTime d = DateTime.parse(_purchaseOrder.date);
-//    var format = new DateFormat.yMMMd();
-//    return format.format(d);
-    print(
-        '_DeliveryNotePageState._getFormattedDate ${_purchaseOrder.date}'); //Sun, 28 Oct 2018 23:56:35 GMT
-    return _purchaseOrder.date;
   }
 
   String _getFormattedAmount() {

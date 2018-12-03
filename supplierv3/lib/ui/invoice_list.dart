@@ -341,7 +341,7 @@ class _InvoiceListState extends State<InvoiceList>
         message: 'Checking offer ...',
         textColor: Colors.yellow,
         backgroundColor: Colors.black);
-    var m = await ListAPI.getOfferById(offer.offerId);
+    var m = await ListAPI.getOfferByDocRef(offer.documentReference);
 
     if (m.invoiceBids != null && m.invoiceBids.isNotEmpty) {
       AppSnackbar.showErrorSnackbar(
@@ -448,7 +448,7 @@ class _InvoiceListState extends State<InvoiceList>
         textColor: Colors.white,
         backgroundColor: Colors.black);
 
-    var bag = await ListAPI.getOfferById(invoice.offer.split('#').elementAt(1));
+    var bag = await ListAPI.getOfferByOfferId(invoice.offer.split('#').elementAt(1));
     _scaffoldKey.currentState.hideCurrentSnackBar();
     prettyPrint(bag.offer.toJson(), '_InvoiceListState._viewOffer .......');
     var now = DateTime.now();

@@ -53,6 +53,7 @@ class _MakeOfferPageState extends State<MakeOfferPage>
   List<Sector> sectors = List();
   String offerId;
   Offer resultOffer;
+  FCM _fm = FCM();
   @override
   initState() {
     super.initState();
@@ -109,8 +110,7 @@ class _MakeOfferPageState extends State<MakeOfferPage>
   _getSupplier() async {
     supplier = await SharedPrefs.getSupplier();
     user = await SharedPrefs.getUser();
-    FCM.configureFCM(
-      context: context,
+    _fm.configureFCM(
       invoiceBidListener: this,
       purchaseOrderListener: this,
     );

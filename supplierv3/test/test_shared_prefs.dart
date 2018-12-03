@@ -1,10 +1,9 @@
 import 'package:businesslibrary/api/list_api.dart';
-import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/invoice.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:supplierv3/app_model.dart';
+import 'package:supplierv3/supplier_bloc.dart';
 import 'package:test_api/test_api.dart';
 
 void main() {
@@ -25,7 +24,7 @@ void main() {
   });
 
   test('app model getTotalOpenOffers', () async {
-    SupplierAppModel model = SupplierAppModel();
+    SupplierApplicationModel model = SupplierApplicationModel();
     PurchaseOrder order = PurchaseOrder(
       purchaseOrderId: '9969gghlyhky956',
       purchaseOrderNumber: 'PO537382',

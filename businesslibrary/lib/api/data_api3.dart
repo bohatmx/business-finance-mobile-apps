@@ -46,6 +46,7 @@ class DataAPI3 {
       REGISTER_DELIVERY_NOTE = 'registerDeliveryNote',
       ACCEPT_DELIVERY_NOTE = 'acceptDeliveryNote',
       MAKE_OFFER = 'makeOffer',
+      UPDATE_OFFER = 'updateOffer',
       CLOSE_OFFER = 'closeOffer',
       MAKE_INVOICE_BID = 'makeInvoiceBid',
       MAKE_INVESTOR_INVOICE_SETTLEMENT = 'makeInvestorInvoiceSettlement',
@@ -305,6 +306,26 @@ class DataAPI3 {
       }
     } catch (e) {
       print('DataAPI3.MakeOffer ERROR $e');
+      throw e;
+    }
+  }
+  static Future<Offer> updateOffer(Offer offer) async {
+
+    var bag = APIBag(
+      debug: isInDebugMode,
+      data: offer.toJson(),
+    );
+    print('DataAPI3.updateOffer  ${getFunctionsURL() + UPDATE_OFFER}');
+    try {
+      var mResponse = await _doHTTP(getFunctionsURL() + UPDATE_OFFER, bag);
+      if (mResponse.statusCode == 200) {
+        return Offer.fromJson(json.decode(mResponse.body));
+      } else {
+        print('DataAPI3.updateOffer ERROR  ${mResponse.reasonPhrase}');
+        throw Exception('updateOffer failed: ${mResponse.body}');
+      }
+    } catch (e) {
+      print('DataAPI3.updateOffer ERROR $e');
       throw e;
     }
   }

@@ -14,12 +14,11 @@ import 'package:businesslibrary/util/styles.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:scoped_model/scoped_model.dart';
-import 'package:supplierv3/app_model.dart';
+import 'package:supplierv3/supplier_bloc.dart';
 import 'package:supplierv3/ui/offer_details.dart';
 
 class OfferList extends StatefulWidget {
-  final SupplierAppModel model;
+  final SupplierApplicationModel model;
 
   OfferList({this.model});
 
@@ -36,7 +35,7 @@ class _OfferListState extends State<OfferList>
   FirebaseMessaging _fcm = FirebaseMessaging();
   Supplier supplier;
   Offer offer;
-  SupplierAppModel appModel;
+  SupplierApplicationModel appModel;
   List<Offer> currentPage;
 
   @override
@@ -46,12 +45,12 @@ class _OfferListState extends State<OfferList>
     _getCached();
   }
 
+  FCM _fm = FCM();
   void _getCached() async {
     supplier = await SharedPrefs.getSupplier();
-    FCM.configureFCM(context: context, invoiceBidListener: this);
+    _fm.configureFCM(invoiceBidListener: this);
     _fcm.subscribeToTopic(FCM.TOPIC_INVOICE_BIDS + supplier.participantId);
     setBasePager();
-
   }
 
   _checkBids(Offer offer) async {
@@ -67,7 +66,6 @@ class _OfferListState extends State<OfferList>
 
   @override
   Widget build(BuildContext context) {
-
     print(
         '\n\n_OfferListState.build ################### rebuilding widget ..........\n\n');
     return Scaffold(
@@ -100,30 +98,27 @@ class _OfferListState extends State<OfferList>
         curve: Curves.easeOut,
       );
     });
-    return ScopedModelDescendant<SupplierAppModel>(
-        builder: (context, _, model) {
-      return ListView.builder(
-          itemCount: currentPage == null ? 0 : currentPage.length,
-          controller: scrollController,
-          itemBuilder: (BuildContext context, int index) {
-            return new InkWell(
-              onTap: () {
-                _checkBids(currentPage.elementAt(index));
-              },
-              child: Padding(
-                padding:
-                    const EdgeInsets.only(left: 12.0, right: 12.0, top: 4.0),
-                child: OfferCard(
-                  offer: currentPage.elementAt(index),
-                  number: index + 1,
-                  elevation: 1.0,
-                  showSupplier: false,
-                  showCustomer: true,
-                ),
+
+    return ListView.builder(
+        itemCount: currentPage == null ? 0 : currentPage.length,
+        controller: scrollController,
+        itemBuilder: (BuildContext context, int index) {
+          return new InkWell(
+            onTap: () {
+              _checkBids(currentPage.elementAt(index));
+            },
+            child: Padding(
+              padding: const EdgeInsets.only(left: 12.0, right: 12.0, top: 4.0),
+              child: OfferCard(
+                offer: currentPage.elementAt(index),
+                number: index + 1,
+                elevation: 1.0,
+                showSupplier: false,
+                showCustomer: true,
               ),
-            );
-          });
-    });
+            ),
+          );
+        });
   }
 
   Widget _getBottom() {
@@ -132,32 +127,32 @@ class _OfferListState extends State<OfferList>
       child: widget.model == null
           ? Container()
           : Column(
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.only(bottom:20.0),
-            child: PagingTotalsView(
-              pageValue: _getPageValue(),
-              totalValue: _getTotalValue(),
-              labelStyle: Styles.blackSmall,
-              pageValueStyle: Styles.blackBoldLarge,
-              totalValueStyle: Styles.brownBoldMedium,
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 20.0),
+                  child: PagingTotalsView(
+                    pageValue: _getPageValue(),
+                    totalValue: _getTotalValue(),
+                    labelStyle: Styles.blackSmall,
+                    pageValueStyle: Styles.blackBoldLarge,
+                    totalValueStyle: Styles.brownBoldMedium,
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(
+                      left: 8.0, right: 8.0, bottom: 12.0),
+                  child: PagerControl(
+                    itemName: 'Invoice Offers',
+                    pageLimit: widget.model.pageLimit,
+                    elevation: 16.0,
+                    items: widget.model.offers.length,
+                    listener: this,
+                    color: Colors.pink.shade50,
+                    pageNumber: _pageNumber,
+                  ),
+                ),
+              ],
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 8.0, right: 8.0, bottom: 12.0),
-            child:  PagerControl(
-              itemName: 'Invoice Offers',
-              pageLimit: widget.model.pageLimit,
-              elevation: 16.0,
-              items: widget.model.offers.length,
-              listener: this,
-              color: Colors.pink.shade50,
-              pageNumber: _pageNumber,
-
-            ),
-          ),
-        ],
-      ),
     );
   }
 
@@ -202,9 +197,7 @@ class _OfferListState extends State<OfferList>
     page.forEach((f) {
       currentPage.add(f);
     });
-    setState(() {
-
-    });
+    setState(() {});
   }
 
   double _getPageValue() {
@@ -215,6 +208,7 @@ class _OfferListState extends State<OfferList>
     });
     return t;
   }
+
   double _getTotalValue() {
     if (widget.model == null) return 0.00;
     var t = 0.0;

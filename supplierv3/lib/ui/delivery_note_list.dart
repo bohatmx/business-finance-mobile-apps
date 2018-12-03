@@ -16,15 +16,13 @@ import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:scoped_model/scoped_model.dart';
-import 'package:supplierv3/app_model.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:supplierv3/supplier_bloc.dart';
 import 'package:supplierv3/ui/delivery_note_page.dart';
 import 'package:supplierv3/ui/invoice_page.dart';
 import 'package:supplierv3/ui/summary_helper.dart';
 
 class DeliveryNoteList extends StatefulWidget {
-
   @override
   _DeliveryNoteListState createState() => _DeliveryNoteListState();
 }
@@ -41,12 +39,13 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
   List<DeliveryNote> currentPage = List(), baseList;
   FirebaseMessaging _fcm = FirebaseMessaging();
   DeliveryNote deliveryNote;
-  SupplierAppModel appModel;
+  SupplierApplicationModel appModel;
   User user;
   Supplier supplier;
   bool isPurchaseOrder, isDeliveryNote, messageShown = false;
   int currentStartKey, pageLimit;
   DashboardData dashboardData;
+  FCM _fm = FCM();
 
   @override
   void initState() {
@@ -61,9 +60,8 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
     baseList = await Database.getDeliveryNotes();
     dashboardData = await SharedPrefs.getDashboardData();
 
-    FCM.configureFCM(
+    _fm.configureFCM(
       deliveryAcceptanceListener: this,
-      context: context,
     );
     _fcm.subscribeToTopic(
         FCM.TOPIC_DELIVERY_ACCEPTANCES + supplier.participantId);
@@ -73,7 +71,7 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
 
     setState(() {});
   }
-  
+
   int count;
   String message;
 
@@ -83,106 +81,96 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
       child: appModel == null
           ? Container()
           : Column(
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.only(bottom:20.0),
-            child: PagingTotalsView(
-              pageValue: _getPageValue(),
-              totalValue: _getTotalValue(),
-              labelStyle: Styles.blackSmall,
-              pageValueStyle: Styles.blackBoldLarge,
-              totalValueStyle: Styles.brownBoldMedium,
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 20.0),
+                  child: PagingTotalsView(
+                    pageValue: _getPageValue(),
+                    totalValue: _getTotalValue(),
+                    labelStyle: Styles.blackSmall,
+                    pageValueStyle: Styles.blackBoldLarge,
+                    totalValueStyle: Styles.brownBoldMedium,
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(
+                      left: 8.0, right: 8.0, bottom: 12.0),
+                  child: PagerControl(
+                    itemName: 'Delivery Notes',
+                    pageLimit: appModel.pageLimit,
+                    elevation: 16.0,
+                    items: appModel.offers.length,
+                    listener: this,
+                    color: Colors.brown.shade100,
+                    pageNumber: _pageNumber,
+                  ),
+                ),
+              ],
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 8.0, right: 8.0, bottom: 12.0),
-            child:  PagerControl(
-              itemName: 'Delivery Notes',
-              pageLimit: appModel.pageLimit,
-              elevation: 16.0,
-              items: appModel.offers.length,
-              listener: this,
-              color: Colors.brown.shade100,
-              pageNumber: _pageNumber,
-
-            ),
-          ),
-        ],
-      ),
     );
   }
 
   int mCount = 0;
   @override
   Widget build(BuildContext context) {
-    return ScopedModelDescendant<SupplierAppModel>(
-      builder: (context,_,model) {
-        appModel = model;
-        mCount++;
-        if (mCount == 1) {
-          setBasePager();
-        }
-        return Scaffold(
-          key: _scaffoldKey,
-          appBar: AppBar(
-            title: Text('Delivery Notes'),
-            bottom: _getBottom(),
-            actions: <Widget>[
-              IconButton(
-                icon: Icon(Icons.add),
-                onPressed: _addDeliveryNote,
-              ),
-            ],
+    appModel = supplierModelBloc.appModel;
+    mCount++;
+    if (mCount == 1) {
+      setBasePager();
+    }
+    return Scaffold(
+      key: _scaffoldKey,
+      appBar: AppBar(
+        title: Text('Delivery Notes'),
+        bottom: _getBottom(),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.add),
+            onPressed: _addDeliveryNote,
           ),
-          backgroundColor: Colors.brown.shade100,
-          body: new Column(
-            children: <Widget>[
-              Flexible(
-                child: _getListView(),
-              ),
-            ],
+        ],
+      ),
+      backgroundColor: Colors.brown.shade100,
+      body: new Column(
+        children: <Widget>[
+          Flexible(
+            child: _getListView(),
           ),
-        );
-      },
-      
+        ],
+      ),
     );
   }
 
   ScrollController scrollController = ScrollController();
 
   Widget _getListView() {
-
-    return ScopedModelDescendant<SupplierAppModel>(
-      builder: (context,_,model) {
-        SchedulerBinding.instance.addPostFrameCallback((_) {
-          scrollController.animateTo(
-            scrollController.position.minScrollExtent,
-            duration: const Duration(milliseconds: 500),
-            curve: Curves.easeOut,
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      scrollController.animateTo(
+        scrollController.position.minScrollExtent,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeOut,
+      );
+    });
+    return ListView.builder(
+        itemCount: currentPage == null ? 0 : currentPage.length,
+        controller: scrollController,
+        itemBuilder: (BuildContext context, int index) {
+          return Padding(
+            padding: const EdgeInsets.only(top: 4.0),
+            child: InkWell(
+              onTap: () {
+                onNoteTapped(currentPage.elementAt(index));
+              },
+              child: Padding(
+                padding: const EdgeInsets.only(left: 10.0, right: 10.0),
+                child: DeliveryNoteCard(
+                  deliveryNote: currentPage.elementAt(index),
+                  listener: this,
+                ),
+              ),
+            ),
           );
         });
-        return ListView.builder(
-            itemCount: currentPage == null ? 0 : currentPage.length,
-            controller: scrollController,
-            itemBuilder: (BuildContext context, int index) {
-              return Padding(
-                padding: const EdgeInsets.only(top: 4.0),
-                child: InkWell(
-                  onTap: () {
-                    onNoteTapped(currentPage.elementAt(index));
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 10.0, right: 10.0),
-                    child: DeliveryNoteCard(
-                      deliveryNote: currentPage.elementAt(index),
-                      listener: this,
-                    ),
-                  ),
-                ),
-              );
-            });
-      },
-    );
   }
 
   @override
@@ -384,7 +372,6 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
     page.forEach((f) {
       currentPage.add(f);
     });
-  
   }
 
   double _getPageValue() {
@@ -395,6 +382,7 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
     });
     return t;
   }
+
   double _getTotalValue() {
     if (appModel == null) return 0.00;
     var t = 0.0;

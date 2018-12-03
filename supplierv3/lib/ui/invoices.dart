@@ -11,12 +11,11 @@ import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:scoped_model/scoped_model.dart';
-import 'package:supplierv3/app_model.dart';
+import 'package:supplierv3/supplier_bloc.dart';
 import 'package:supplierv3/ui/make_offer.dart';
 
 class InvoicesOnOffer extends StatefulWidget {
-  final SupplierAppModel model;
+  final SupplierApplicationModel model;
 
   InvoicesOnOffer({this.model});
 
@@ -29,7 +28,7 @@ class _InvoicesOnOfferState extends State<InvoicesOnOffer>
   List<Invoice> currentPage;
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   int currentStartKey;
-  SupplierAppModel appModel;
+  SupplierApplicationModel appModel;
   Pager3 pager;
 
   @override
@@ -185,7 +184,7 @@ class _InvoicesOnOfferState extends State<InvoicesOnOffer>
         message: 'Checking offer ...',
         textColor: Colors.yellow,
         backgroundColor: Colors.black);
-    var m = await ListAPI.getOfferById(offer.offerId);
+    var m = await ListAPI.getOfferByOfferId(offer.offerId);
 
     if (m.invoiceBids != null && m.invoiceBids.isNotEmpty) {
       AppSnackbar.showErrorSnackbar(
@@ -291,7 +290,6 @@ class _InvoicesOnOfferState extends State<InvoicesOnOffer>
                     listener: this,
                     color: Colors.amber.shade50,
                     pageNumber: _pageNumber,
-
                   ),
                 ),
               ],
@@ -317,31 +315,26 @@ class _InvoicesOnOfferState extends State<InvoicesOnOffer>
       );
     });
 
-    return ScopedModelDescendant<SupplierAppModel>(
-      builder: (context, _, model) {
-        appModel = model;
-        return ListView.builder(
-            itemCount: currentPage == null ? 0 : currentPage.length,
-            controller: scrollController,
-            itemBuilder: (BuildContext context, int index) {
-              return Padding(
-                padding: const EdgeInsets.only(top: 4.0),
-                child: InkWell(
-                  onTap: () {
-                    _onInvoiceTapped(currentPage.elementAt(index));
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 0.0, right: 0.0),
-                    child: InvoiceOnOfferCard(
-                      invoice: currentPage.elementAt(index),
-                      context: context,
-                    ),
-                  ),
+    return ListView.builder(
+        itemCount: currentPage == null ? 0 : currentPage.length,
+        controller: scrollController,
+        itemBuilder: (BuildContext context, int index) {
+          return Padding(
+            padding: const EdgeInsets.only(top: 4.0),
+            child: InkWell(
+              onTap: () {
+                _onInvoiceTapped(currentPage.elementAt(index));
+              },
+              child: Padding(
+                padding: const EdgeInsets.only(left: 0.0, right: 0.0),
+                child: InvoiceOnOfferCard(
+                  invoice: currentPage.elementAt(index),
+                  context: context,
                 ),
-              );
-            });
-      },
-    );
+              ),
+            ),
+          );
+        });
   }
 
   @override

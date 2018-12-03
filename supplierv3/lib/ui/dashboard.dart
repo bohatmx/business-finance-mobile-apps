@@ -2,14 +2,11 @@ import 'dart:async';
 
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
-import 'package:businesslibrary/data/dashboard_data.dart';
 import 'package:businesslibrary/data/delivery_acceptance.dart';
 import 'package:businesslibrary/data/delivery_note.dart';
 import 'package:businesslibrary/data/invoice.dart';
 import 'package:businesslibrary/data/invoice_acceptance.dart';
 import 'package:businesslibrary/data/invoice_bid.dart';
-import 'package:businesslibrary/data/invoice_settlement.dart';
-import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
@@ -18,13 +15,13 @@ import 'package:businesslibrary/util/invoice_bid_card.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
+import 'package:businesslibrary/util/theme_bloc.dart';
 import 'package:businesslibrary/util/wallet_page.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:supplierv3/app_model.dart';
 import 'package:supplierv3/main.dart';
+import 'package:supplierv3/supplier_bloc.dart';
 import 'package:supplierv3/ui/contract_list.dart';
 import 'package:supplierv3/ui/delivery_acceptance_list.dart';
 import 'package:supplierv3/ui/delivery_note_list.dart';
@@ -33,7 +30,6 @@ import 'package:supplierv3/ui/make_offer.dart';
 import 'package:supplierv3/ui/offer_list.dart';
 import 'package:supplierv3/ui/purchase_order_list.dart';
 import 'package:supplierv3/ui/summary_card.dart';
-import 'package:scoped_model/scoped_model.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class Dashboard extends StatefulWidget {
@@ -64,6 +60,7 @@ class _DashboardState extends State<Dashboard>
   User user;
   String fullName;
   DeliveryAcceptance acceptance;
+  FCM _fm = FCM();
   @override
   initState() {
     super.initState();
@@ -74,6 +71,7 @@ class _DashboardState extends State<Dashboard>
     animation = new Tween(begin: 0.0, end: 1.0).animate(animationController);
 
     _getCachedPrefs();
+    appModel = supplierModelBloc.appModel;
   }
 
   @override
@@ -98,8 +96,7 @@ class _DashboardState extends State<Dashboard>
     name = supplier.name;
     setState(() {});
     //
-    FCM.configureFCM(
-      context: context,
+    _fm.configureFCM(
       purchaseOrderListener: this,
       deliveryAcceptanceListener: this,
       invoiceAcceptanceListener: this,
@@ -160,7 +157,7 @@ class _DashboardState extends State<Dashboard>
 
   double opacity = 1.0;
   String name;
-  SupplierAppModel appModel;
+  SupplierApplicationModel appModel;
   Widget _getBottom() {
     return PreferredSize(
       preferredSize: const Size.fromHeight(40.0),
@@ -173,7 +170,7 @@ class _DashboardState extends State<Dashboard>
                 padding: const EdgeInsets.only(bottom: 20.0),
                 child: Text(
                   name == null ? 'Org' : name,
-                  style: Styles.whiteBoldMedium,
+                  style: Styles.whiteBoldSmall,
                 ),
               )
             ],
@@ -183,35 +180,25 @@ class _DashboardState extends State<Dashboard>
     );
   }
 
-  bool isRefreshPressed = false;
-  void _onRefreshPressed() {
-    setState(() {
-      isRefreshPressed = true;
-    });
+  void _onRefreshPressed() async {
+    AppSnackbar.showSnackbarWithProgressIndicator(
+        scaffoldKey: _scaffoldKey,
+        message: 'Loading fresh data',
+        textColor: Styles.white,
+        backgroundColor: Styles.black);
+
+    await supplierModelBloc.refreshModel();
+    _scaffoldKey.currentState.removeCurrentSnackBar();
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
-    return ScopedModelDescendant<SupplierAppModel>(
-      builder: (context, _, model) {
-        appModel = model;
-        if (isRefreshPressed) {
-          isRefreshPressed = false;
-          model.refreshModel();
-        }
-        if (isAddPurchaseOrder) {
-          isAddPurchaseOrder = false;
-          model.addPurchaseOrder(purchaseOrder);
-        }
-        if (isAddInvoiceAcceptance) {
-          isAddInvoiceAcceptance = false;
-          model.addInvoiceAcceptance(invoiceAcceptance);
-        }
-        if (isAddDeliveryAcceptance) {
-          isAddDeliveryAcceptance = false;
-          model.addDeliveryAcceptance(deliveryAcceptance);
-        }
-
+    return StreamBuilder<SupplierApplicationModel>(
+      initialData: supplierModelBloc.appModel,
+      stream: supplierModelBloc.appModelStream,
+      builder: (context, snapshot) {
+        appModel = snapshot.data;
         return WillPopScope(
           onWillPop: () async => false,
           child: Scaffold(
@@ -222,10 +209,12 @@ class _DashboardState extends State<Dashboard>
                 'BFN',
                 style: TextStyle(fontWeight: FontWeight.w900),
               ),
-              leading: Icon(
-                Icons.apps,
-                color: Colors.white,
-              ),
+              leading: IconButton(
+                  icon: Icon(
+                    Icons.apps,
+                    color: Colors.white,
+                  ),
+                  onPressed: _toggleTheme),
               bottom: _getBottom(),
               actions: <Widget>[
                 IconButton(
@@ -270,6 +259,7 @@ class _DashboardState extends State<Dashboard>
               child: BottomNavigationBar(
                 onTap: _onNavTap,
                 currentIndex: _index,
+                iconSize: 20.0,
                 items: [
                   BottomNavigationBarItem(
                       icon: Icon(FontAwesomeIcons.boxOpen),
@@ -291,65 +281,52 @@ class _DashboardState extends State<Dashboard>
 
   int _index = 0;
   Widget _getListView() {
-    return ScopedModelDescendant<SupplierAppModel>(
-      builder: (context, _, model) {
-        var tiles = List<ListTile>();
-        return ListView(
-          children: <Widget>[
-            GestureDetector(
-              onTap: _onInvoiceTapped,
-              child: Padding(
-                padding: const EdgeInsets.only(left: 10.0, right: 10.0),
-                child: model.invoices == null
-                    ? Container()
-                    : SummaryCard(
-                        totalCount: model.invoices.length,
-                        totalCountLabel: 'Invoices',
-                        totalCountStyle: Styles.pinkBoldMedium,
-                        totalValueStyle: Styles.greyLabelLarge,
-                        totalValue: model.invoices == null
-                            ? 0.0
-                            : model.getTotalInvoiceAmount(),
-                        elevation: 2.0,
-                      ),
-              ),
-            ),
-            GestureDetector(
-              onTap: _onOffersTapped,
-              child: Padding(
-                padding: const EdgeInsets.only(left: 10.0, right: 10.0),
-                child: model == null
-                    ? Container()
-                    : OfferSummaryCard(
-                        data: model,
-                        elevation: 28.0,
-                  offerTotalStyle: Styles.blackBoldLarge,
-                      ),
-              ),
-            ),
-            GestureDetector(
-              onTap: _onPaymentsTapped,
-              child: Padding(
-                padding: const EdgeInsets.only(left: 10.0, right: 10.0),
-                child: SummaryCard(
-                  totalCount: model == null ? 0 : model.settlements.length,
-                  totalCountLabel: 'Settlements',
-                  totalCountStyle: Styles.tealBoldLarge,
-                  totalValue: model.getTotalSettlementAmount(),
-                  elevation: 2.0,
-                  totalValueStyle: Styles.tealBoldReallyLarge,
+    var tiles = List<ListTile>();
+    return appModel == null
+        ? Container()
+        : ListView(
+            children: <Widget>[
+              GestureDetector(
+                onTap: _onInvoiceTapped,
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 10.0, right: 10.0),
+                  child: appModel.invoices == null
+                      ? Container()
+                      : SummaryCard(
+                          totalCount: appModel.invoices.length,
+                          totalCountLabel: 'Invoices',
+                          totalCountStyle: Styles.pinkBoldMedium,
+                          totalValueStyle: Styles.greyLabelMedium,
+                          totalValueLabel: 'Invoiced Total',
+                          totalValue: appModel.invoices == null
+                              ? 0.0
+                              : appModel.getTotalInvoiceAmount(),
+                          elevation: 2.0,
+                        ),
                 ),
               ),
-            ),
-            tiles == null
-                ? Container()
-                : Column(
-                    children: tiles,
-                  ),
-          ],
-        );
-      },
-    );
+              GestureDetector(
+                onTap: _onOffersTapped,
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 10.0, right: 10.0),
+                  child: appModel == null
+                      ? Container()
+                      : OfferSummaryCard(
+                          appModel: appModel,
+                          elevation: 28.0,
+
+                          offerTotalStyle: Styles.blackBoldLarge,
+                        ),
+                ),
+              ),
+
+              tiles == null
+                  ? Container()
+                  : Column(
+                      children: tiles,
+                    ),
+            ],
+          );
   }
 
   _onOffersTapped() {
@@ -398,21 +375,12 @@ class _DashboardState extends State<Dashboard>
     print('_MainPageState._onDeliveryNotesTapped go to  delivery notes');
     Navigator.push(
       context,
-      MaterialPageRoute(
-          builder: (context) => DeliveryNoteList()),
+      MaterialPageRoute(builder: (context) => DeliveryNoteList()),
     );
   }
 
   void _onPaymentsTapped() {
     print('_MainPageState._onPaymentsTapped - go to payments');
-  }
-
-  refresh() {
-    print(
-        '_DashboardState.refresh: ################## REFRESH called. getSummary ...');
-    setState(() {
-      isRefreshPressed = true;
-    });
   }
 
   @override
@@ -559,21 +527,26 @@ class _DashboardState extends State<Dashboard>
     }
     setState(() {});
   }
+
+  void _toggleTheme() {
+    bloc.changeToRandomTheme();
+  }
 }
 
 class OfferSummaryCard extends StatelessWidget {
-  final SupplierAppModel data;
+  final SupplierApplicationModel appModel;
   final double elevation;
   final TextStyle offerTotalStyle;
-  OfferSummaryCard({this.data, this.elevation, this.offerTotalStyle});
+  final Color color;
+  OfferSummaryCard({this.appModel, this.elevation, this.offerTotalStyle, this.color});
 
   @override
   Widget build(BuildContext context) {
     return Card(
       elevation: elevation == null ? 16.0 : elevation,
-      color: Colors.brown.shade100,
+      color: color == null? Theme.of(context).cardColor : color,
       child: Padding(
-        padding: const EdgeInsets.all(20.0),
+        padding: const EdgeInsets.all(28.0),
         child: Column(
           children: <Widget>[
             Padding(
@@ -582,7 +555,7 @@ class OfferSummaryCard extends StatelessWidget {
                 children: <Widget>[
                   Text(
                     'Invoice Offers',
-                    style: Styles.blackBoldMedium,
+                    style: Styles.greyLabelMedium,
                   )
                 ],
               ),
@@ -600,7 +573,7 @@ class OfferSummaryCard extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.only(left: 12.0),
                   child: Text(
-                    '${data.getTotalOpenOffers()}',
+                    '${appModel.getTotalOpenOffers()}',
                     style: Styles.blackBoldMedium,
                   ),
                 ),
@@ -621,31 +594,23 @@ class OfferSummaryCard extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.only(left: 12.0),
                     child: Text(
-                      '${getFormattedAmount('${data.getTotalOpenOfferAmount()}', context)}',
-                      style: offerTotalStyle == null? Styles.tealBoldMedium : offerTotalStyle,
+                      '${getFormattedAmount('${appModel.getTotalOpenOfferAmount()}', context)}',
+                      style: offerTotalStyle == null
+                          ? Styles.tealBoldMedium
+                          : offerTotalStyle,
                     ),
                   ),
                 ],
               ),
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: <Widget>[
-                Container(
-                  width: 80.0,
-                  child: Text(
-                    'Closed',
-                    style: Styles.greyLabelSmall,
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(left: 12.0),
-                  child: Text(
-                    '${data.getTotalClosedOffers()}',
-                    style: Styles.greyLabelSmall,
-                  ),
-                ),
-              ],
+
+            Padding(
+              padding: const EdgeInsets.only(top:20.0, bottom: 12.0),
+              child: Row(
+                children: <Widget>[
+                  Text('Offer Settlements', style: Styles.greyLabelMedium,),
+                ],
+              ),
             ),
             Padding(
               padding: const EdgeInsets.only(top: 8.0),
@@ -653,17 +618,39 @@ class OfferSummaryCard extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: <Widget>[
                   Container(
-                    width: 80.0,
+                    width: 100.0,
                     child: Text(
-                      'Cancelled',
+                      'Settlements',
                       style: Styles.greyLabelSmall,
                     ),
                   ),
                   Padding(
                     padding: const EdgeInsets.only(left: 12.0),
                     child: Text(
-                      '${data.getTotalCancelledOffers()}',
+                      '${appModel.settlements.length}',
+                      style: Styles.tealBoldMedium,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 8.0, bottom: 20.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: <Widget>[
+                  Container(
+                    width: 100.0,
+                    child: Text(
+                      'Settled Total',
                       style: Styles.greyLabelSmall,
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 12.0),
+                    child: Text(
+                      '${getFormattedAmount('${appModel.getTotalSettlementAmount()}', context)}',
+                      style: Styles.tealBoldLarge,
                     ),
                   ),
                 ],

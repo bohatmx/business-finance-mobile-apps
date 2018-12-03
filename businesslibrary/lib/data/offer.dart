@@ -1,5 +1,4 @@
 import 'package:businesslibrary/util/Finders.dart';
-import 'package:businesslibrary/util/lookups.dart';
 
 class Offer extends Findable {
   String offerId;

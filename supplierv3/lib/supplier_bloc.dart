@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/delivery_acceptance.dart';
@@ -10,11 +12,57 @@ import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
-import 'package:businesslibrary/util/Finders.dart';
 import 'package:businesslibrary/util/database.dart';
-import 'package:scoped_model/scoped_model.dart';
+import 'package:businesslibrary/util/Finders.dart';
 
-class SupplierAppModel extends Model {
+class SupplierModelBloc implements SupplierBlocListener {
+  final StreamController<SupplierApplicationModel> _appModelController =
+  StreamController<SupplierApplicationModel>();
+  final StreamController<String> _errorController = StreamController<String>();
+  final SupplierApplicationModel _appModel = SupplierApplicationModel();
+
+  SupplierModelBloc() {
+    print(
+        '\n\nSupplierModelBloc - CONSTRUCTOR - set listener and initialize app model');
+    _appModel.setListener(this);
+    _appModel.initialize();
+  }
+
+  get appModel => _appModel;
+
+  refreshModel() async {
+    await _appModel.refreshModel();
+    _appModelController.sink.add(_appModel);
+  }
+
+  closeStream() {
+    _appModelController.close();
+    _errorController.close();
+  }
+
+  get appModelStream => _appModelController.stream;
+
+  @override
+  onComplete() {
+    print(
+        '\n\nSupplierModelBloc.onComplete ########## adding model to stream sink ......... ');
+    _appModelController.sink.add(_appModel);
+  }
+
+  @override
+  onError(String message) {
+    _errorController.sink.add(message);
+  }
+}
+
+final supplierModelBloc = SupplierModelBloc();
+
+abstract class SupplierBlocListener {
+  onComplete();
+  onError(String message);
+}
+
+class SupplierApplicationModel  {
   List<DeliveryNote> _deliveryNotes = List();
   List<PurchaseOrder> _purchaseOrders = List();
   List<Invoice> _invoices = List();
@@ -26,7 +74,7 @@ class SupplierAppModel extends Model {
   List<InvoiceAcceptance> _invoiceAcceptances = List();
   Supplier _supplier;
   User _user;
-  SupplierAppModelListener _listener;
+  SupplierBlocListener _listener;
 
   List<DeliveryNote> get deliveryNotes => _deliveryNotes;
   List<PurchaseOrder> get purchaseOrders => _purchaseOrders;
@@ -39,16 +87,16 @@ class SupplierAppModel extends Model {
   List<InvoiceAcceptance> get invoiceAcceptances => _invoiceAcceptances;
   Supplier get supplier => _supplier;
   User get user => _user;
-  SupplierAppModelListener get listener => _listener;
+  SupplierBlocListener get listener => _listener;
   int _pageLimit = 10;
   int get pageLimit  => _pageLimit;
 
 
-  SupplierAppModel() {
-    initialize();
+  void setListener(SupplierBlocListener sbListener) {
+    _listener = sbListener;
   }
   void initialize() async {
-    print('\n\n\nSupplierAppModel.initialize - ############### load model data');
+    print('\n\n\nSupplierAppModel.initialize - ############### load model data from cache');
     var start = DateTime.now();
     _supplier = await SharedPrefs.getSupplier();
     _user = await SharedPrefs.getUser();
@@ -90,7 +138,6 @@ class SupplierAppModel extends Model {
     var end = DateTime.now();
     print('\n\nSupplierAppModel.initialize ######### model refreshed: elapsed time: ${end.difference(start).inMilliseconds} milliseconds. calling notifyListeners');
 
-    notifyListeners();
   }
 
   void _setItemNumbers(List<Findable> list) {
@@ -100,55 +147,48 @@ class SupplierAppModel extends Model {
       o.itemNumber = num;
       num++;
     });
+    _listener.onComplete();
   }
   Future addPurchaseOrder(PurchaseOrder order) async {
     _purchaseOrders.insert(0, order);
     await Database.savePurchaseOrders(PurchaseOrders(_purchaseOrders));
     _setItemNumbers(_purchaseOrders);
-    notifyListeners();
   }
   Future addDeliveryNote(DeliveryNote note) async {
     _deliveryNotes.insert(0, note);
     await Database.saveDeliveryNotes(DeliveryNotes(_deliveryNotes));
     _setItemNumbers(_deliveryNotes);
-    notifyListeners();
   }
   Future addInvoice(Invoice invoice) async {
     _invoices.insert(0, invoice);
     await Database.saveInvoices(Invoices(_invoices));
     _setItemNumbers(_invoices);
-    notifyListeners();
   }
   Future addDeliveryAcceptance(DeliveryAcceptance acceptance) async {
     _deliveryAcceptances.insert(0, acceptance);
     await Database.saveDeliveryAcceptances(DeliveryAcceptances(_deliveryAcceptances));
     _setItemNumbers(_deliveryAcceptances);
-    notifyListeners();
   }
   Future addInvoiceAcceptance(InvoiceAcceptance acceptance) async {
     _invoiceAcceptances.insert(0, acceptance);
     await Database.saveInvoiceAcceptances(InvoiceAcceptances(_invoiceAcceptances));
     _setItemNumbers(_invoiceAcceptances);
-    notifyListeners();
   }
   Future addOffer(Offer offer) async {
     _offers.insert(0, offer);
     await Database.saveOffers(Offers(_offers));
     _setItemNumbers(_offers);
-    notifyListeners();
   }
   Future addInvestorInvoiceSettlement(InvestorInvoiceSettlement settlement) async {
     _settlements.insert(0, settlement);
     await Database.saveInvestorInvoiceSettlements(InvestorInvoiceSettlements(_settlements));
     _setItemNumbers(_settlements);
-    notifyListeners();
   }
 
   Future addUnsettledInvoiceBid(InvoiceBid bid) async {
     _unsettledInvoiceBids.insert(0, bid);
     await Database.saveUnsettledInvoiceBids(InvoiceBids(_unsettledInvoiceBids));
     _setItemNumbers(_unsettledInvoiceBids);
-    notifyListeners();
   }
   int getTotalOpenOffers() {
     var tot = 0;
@@ -172,7 +212,7 @@ class SupplierAppModel extends Model {
   double getTotalDeliveryNoteAmount() {
     var tot = 0.0;
     _deliveryNotes.forEach((o) {
-        tot += o.amount;
+      tot += o.amount;
 
     });
     return tot;
@@ -203,6 +243,13 @@ class SupplierAppModel extends Model {
       if (o.isCancelled) {
         tot++;
       }
+    });
+    return tot;
+  }
+  double getTotalSettlementValue() {
+    var tot = 0.00;
+    _settlements.forEach((o) {
+      tot += o.amount;
     });
     return tot;
   }
@@ -259,38 +306,30 @@ class SupplierAppModel extends Model {
     return null;
   }
 
-  void setListener(SupplierAppModelListener listener) {
-    _listener = listener;
-  }
 
   Future refreshModel() async {
     print('SupplierAppModel.refreshModel - get fresh data from Firestore');
     var start = DateTime.now();
     _purchaseOrders =
-        await ListAPI.getSupplierPurchaseOrders(_supplier.documentReference);
+    await ListAPI.getSupplierPurchaseOrders(_supplier.documentReference);
     await Database.savePurchaseOrders(PurchaseOrders(_purchaseOrders));
     _setItemNumbers(_purchaseOrders);
-    notifyListeners();
-    print('\n\n');
 
     _deliveryNotes = await ListAPI.getDeliveryNotes(
         _supplier.documentReference, 'suppliers');
     await Database.saveDeliveryNotes(DeliveryNotes(_deliveryNotes));
     _setItemNumbers(_deliveryNotes);
-    notifyListeners();
     print('\n\n');
 
     _invoices =
-        await ListAPI.getInvoices(_supplier.documentReference, 'suppliers');
+    await ListAPI.getInvoices(_supplier.documentReference, 'suppliers');
     await Database.saveInvoices(Invoices(_invoices));
     _setItemNumbers(_invoices);
-    notifyListeners();
     print('\n\n');
 
     _offers = await ListAPI.getOffersBySupplier(_supplier.participantId);
     await Database.saveOffers(Offers(_offers));
     _setItemNumbers(_offers);
-    notifyListeners();
     print('\n\n');
 
     _deliveryAcceptances = await ListAPI.getDeliveryAcceptances(
@@ -298,7 +337,6 @@ class SupplierAppModel extends Model {
     await Database.saveDeliveryAcceptances(
         DeliveryAcceptances(_deliveryAcceptances));
     _setItemNumbers(_deliveryAcceptances);
-    notifyListeners();
     print('\n\n');
 
 
@@ -307,7 +345,6 @@ class SupplierAppModel extends Model {
     await Database.saveInvoiceAcceptances(
         InvoiceAcceptances(_invoiceAcceptances));
     _setItemNumbers(_invoiceAcceptances);
-    notifyListeners();
     print('\n\n');
 
     _settlements =
@@ -320,25 +357,19 @@ class SupplierAppModel extends Model {
     print(
         '\n\nSupplierAppModel.refreshModel ############ Refresh Complete, elapsed: ${end.difference(start).inSeconds} seconds');
     if (_listener != null) {
-      _listener.onRefreshComplete();
+      _listener.onComplete();
     }
-    notifyListeners();
     return 0;
   }
   Future refreshOffers() async{
     _offers = await ListAPI.getOffersBySupplier(_supplier.participantId);
     _setItemNumbers(_offers);
     await Database.saveOffers(Offers(_offers));
-    notifyListeners();
   }
   Future refreshDeliveryNotes() async{
     _deliveryNotes = await ListAPI.getDeliveryNotes(supplier.documentReference, 'suppliers');
     _setItemNumbers(_deliveryNotes);
     await Database.saveDeliveryNotes(DeliveryNotes(_deliveryNotes));
-    notifyListeners();
   }
 }
 
-abstract class SupplierAppModelListener {
-  onRefreshComplete();
-}

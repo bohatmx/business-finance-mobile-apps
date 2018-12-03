@@ -120,21 +120,22 @@ class ListAPI {
     return list;
   }
 
-  static Future<OfferBag> getOfferWithBids(String offerId) async {
+  static Future<OfferBag> getOfferWithBids(String offerDocRef) async {
     List<InvoiceBid> list = List();
     OfferBag bag;
-    var qs = await _firestore
+    var docSnapshot = await _firestore
         .collection('invoiceOffers')
-        .where('offerId', isEqualTo: offerId)
-        .getDocuments()
+        .document(offerDocRef)
+        .get()
         .catchError((e) {
       print('ListAPI.getOfferInvoiceBids $e');
       return list;
     });
-    if (qs.documents.isNotEmpty) {
-      var offer = Offer.fromJson(qs.documents.first.data);
-      var snap = await qs.documents.first.reference
+    if (docSnapshot.exists) {
+      var offer = Offer.fromJson(docSnapshot.data);
+      var snap = await _firestore
           .collection('invoiceBids')
+          .where('offerDocRef',isEqualTo: docSnapshot.documentID)
           .getDocuments();
 
       snap.documents.forEach((doc) {
@@ -144,6 +145,7 @@ class ListAPI {
       print('ListAPI.getInvoiceBidsByOffer found ${list.length} invoice bids');
       bag = OfferBag(offer: offer, invoiceBids: list);
     }
+
 
     return bag;
   }
@@ -372,7 +374,7 @@ class ListAPI {
     prettyPrint(offer.toJson(), '############# OFFER: ... getting bids ...');
     var qs1 = await _firestore
         .collection('invoiceBids')
-        .where('offer', isEqualTo: NameSpace + 'Offer#${offer.offerId}')
+        .where('offerDocRef', isEqualTo: documentRef)
         .getDocuments()
         .catchError((e) {
       print('ListAPI.getOfferByDocRef $e');
@@ -452,11 +454,11 @@ class ListAPI {
       return null;
     }
     offer = Offer.fromJson(qs.documents.first.data);
+    offer.documentReference = qs.documents.first.documentID;
 
     var qs1 = await _firestore
-        .collection('invoiceOffers')
-        .document(qs.documents.first.documentID)
         .collection('invoiceBids')
+    .where('offerDocRef', isEqualTo: offer.documentReference)
         .getDocuments()
         .catchError((e) {
       print('ListAPI.getOfferByInvoice $e');
@@ -677,7 +679,6 @@ class ListAPI {
       'Accept': 'application/json',
     };
 
-    List<Offer> offers = List();
     var start = DateTime.now();
     try {
       var client = new http.Client();
@@ -705,7 +706,6 @@ class ListAPI {
       print('ListAPI._doOffersHTTP $e');
       throw e;
     }
-    return offers;
   }
 
   static List<Offer> _parseOffers(Map map) {
@@ -1138,7 +1138,6 @@ class ListAPI {
       });
 
       if (resp.statusCode == 200) {
-        var body = resp.body;
         data = DashboardData.fromJson(json.decode(resp.body));
         var end = DateTime.now();
         print(

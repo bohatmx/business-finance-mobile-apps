@@ -4,12 +4,12 @@ import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:supplierv3/app_model.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:supplierv3/supplier_bloc.dart';
 
 
 class SettlementList extends StatefulWidget {
-  final SupplierAppModel model;
+  final SupplierApplicationModel model;
 
   SettlementList(this.model);
 

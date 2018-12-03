@@ -310,7 +310,7 @@ class Styles {
     color: Colors.teal,
   );
   static TextStyle tealBoldLarge = TextStyle(
-    fontWeight: FontWeight.bold,
+    fontWeight: FontWeight.w900,
     fontSize: large,
     color: Colors.teal,
   );

@@ -3,12 +3,11 @@ import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:flutter/material.dart';
-import 'package:supplierv3/app_model.dart';
 import 'package:supplierv3/ui/dashboard.dart';
 import 'package:supplierv3/ui/signin_page.dart';
 import 'package:supplierv3/ui/signup_page.dart';
-import 'package:supplierv3/ui/theme_util.dart';
-import 'package:scoped_model/scoped_model.dart';
+import 'package:businesslibrary/util/theme_bloc.dart';
+
 
 void main() => runApp(new SupplierApp());
 
@@ -16,12 +15,15 @@ class SupplierApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return ScopedModel<SupplierAppModel>(
-      model: SupplierAppModel(),
-      child: MaterialApp(
+    return StreamBuilder<int>(
+      initialData: null,
+      stream: bloc.newThemeStream,
+      builder: (context, snapShot) => MaterialApp(
         title: 'FinanceNetwork',
         debugShowCheckedModeBanner: false,
-        theme: getTheme(),
+        theme: snapShot.data == null
+            ? ThemeUtil.getTheme(themeIndex: 0)
+            : ThemeUtil.getTheme(themeIndex: snapShot.data),
         home: new Dashboard(null),
       ),
     );

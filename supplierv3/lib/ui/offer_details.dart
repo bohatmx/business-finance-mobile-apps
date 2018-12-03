@@ -6,6 +6,7 @@ import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:flutter/material.dart';
+import 'package:supplierv3/supplier_bloc.dart';
 
 class OfferDetails extends StatefulWidget {
   final Offer mOffer;
@@ -22,9 +23,11 @@ class _OfferDetailsState extends State<OfferDetails>
   List<InvoiceBid> bids = List();
   OfferBag bag;
   Offer offer;
+  SupplierApplicationModel appModel;
   @override
   void initState() {
     super.initState();
+    appModel = supplierModelBloc.appModel;
     _getBids();
   }
 
