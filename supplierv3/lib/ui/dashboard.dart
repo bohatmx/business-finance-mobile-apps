@@ -111,7 +111,7 @@ class _DashboardState extends State<Dashboard>
     _fcm.subscribeToTopic(
         FCM.TOPIC_DELIVERY_ACCEPTANCES + supplier.participantId);
     _fcm.subscribeToTopic(
-        FCM.TOPIC_INVOICE_ACCEPTANCES + supplier.participantId);
+        FCM.TOPIC_INVOICE_ACCEPTANCES + supplier.documentReference);
     _fcm.subscribeToTopic(FCM.TOPIC_GENERAL_MESSAGE);
     _fcm.subscribeToTopic(FCM.TOPIC_INVOICE_BIDS + supplier.participantId);
     print(
@@ -282,6 +282,14 @@ class _DashboardState extends State<Dashboard>
   int _index = 0;
   Widget _getListView() {
     var tiles = List<ListTile>();
+    messages.forEach((m) {
+      var tile = ListTile(
+        title: Text(m.message),
+        subtitle: Text(m.subTitle, style: Styles.blackBoldSmall,),
+        leading:m.icon,
+      );
+      tiles.add(tile);
+    });
     return appModel == null
         ? Container()
         : ListView(
@@ -314,12 +322,10 @@ class _DashboardState extends State<Dashboard>
                       : OfferSummaryCard(
                           appModel: appModel,
                           elevation: 28.0,
-
                           offerTotalStyle: Styles.blackBoldLarge,
                         ),
                 ),
               ),
-
               tiles == null
                   ? Container()
                   : Column(
@@ -379,9 +385,6 @@ class _DashboardState extends State<Dashboard>
     );
   }
 
-  void _onPaymentsTapped() {
-    print('_MainPageState._onPaymentsTapped - go to payments');
-  }
 
   @override
   onActionPressed(int action) {
@@ -463,7 +466,12 @@ class _DashboardState extends State<Dashboard>
     _showSnack('Delivery Acceptance arrived', Colors.green);
 
     setState(() {
-      isAddDeliveryAcceptance = true;
+      messages.add(Message(
+        type: Message.GENERAL_MESSAGE,
+        message:
+        'Delivery Acceptance arrived: ${getFormattedDateShortWithTime('${acceptance.date}', context)} ',
+        subTitle: acceptance.customerName
+      ));
     });
   }
 
@@ -472,7 +480,12 @@ class _DashboardState extends State<Dashboard>
     invoiceAcceptance = acceptance;
     _showSnack('Invoice Acceptance arrived', Colors.yellow);
     setState(() {
-      isAddInvoiceAcceptance = true;
+      messages.add(Message(
+        type: Message.GENERAL_MESSAGE,
+        message:
+        'Invoice Acceptance arrived: ${getFormattedDateShortWithTime('${acceptance.date}', context)} ',
+        subTitle: acceptance.customerName,
+      ));
     });
   }
 
@@ -484,7 +497,13 @@ class _DashboardState extends State<Dashboard>
         '\n\n\n_DashboardState.onInvoiceBidMessage ################ INVOICE BID incoming! ${invoiceBid.investorName}');
     _showBottomSheet(invoiceBid);
     setState(() {
-      isAddInvoiceBid = true;
+      messages.add(Message(
+        type: Message.GENERAL_MESSAGE,
+        message:
+            'Invoice Bid arrived: ${getFormattedAmount('${invoiceBid.amount}', context)} '
+                'on ${getFormattedDateShortWithTime(invoiceBid.date, context)}',
+        subTitle: invoiceBid.investorName
+      ));
     });
   }
 
@@ -494,13 +513,24 @@ class _DashboardState extends State<Dashboard>
     _showSnack('Purchase Order arrived', Colors.lime);
     this.purchaseOrder = purchaseOrder;
     setState(() {
-      isAddPurchaseOrder = true;
+      messages.add(Message(
+        type: Message.PURCHASE_ORDER,
+        message:
+            'Purchase order arrived: ${getFormattedDateShortWithTime(DateTime.now().toIso8601String(), context)} ${getFormattedAmount('${purchaseOrder.amount}', context)}',
+        subTitle: purchaseOrder.purchaserName
+      ));
     });
   }
 
   @override
   onGeneralMessage(Map map) {
     _showSnack(map['message'], Colors.white);
+    setState(() {
+      messages.add(Message(
+        type: Message.GENERAL_MESSAGE,
+        message: map['message'],
+      ));
+    });
   }
 
   void _showSnack(String message, Color color) {
@@ -510,6 +540,8 @@ class _DashboardState extends State<Dashboard>
         textColor: color,
         backgroundColor: Colors.black);
   }
+
+  List<Message> messages = List();
 
   void _onNavTap(int value) {
     print('_DashboardState._onNavTap ########################## $value');
@@ -538,13 +570,14 @@ class OfferSummaryCard extends StatelessWidget {
   final double elevation;
   final TextStyle offerTotalStyle;
   final Color color;
-  OfferSummaryCard({this.appModel, this.elevation, this.offerTotalStyle, this.color});
+  OfferSummaryCard(
+      {this.appModel, this.elevation, this.offerTotalStyle, this.color});
 
   @override
   Widget build(BuildContext context) {
     return Card(
       elevation: elevation == null ? 16.0 : elevation,
-      color: color == null? Theme.of(context).cardColor : color,
+      color: color == null ? Theme.of(context).cardColor : color,
       child: Padding(
         padding: const EdgeInsets.all(28.0),
         child: Column(
@@ -603,12 +636,14 @@ class OfferSummaryCard extends StatelessWidget {
                 ],
               ),
             ),
-
             Padding(
-              padding: const EdgeInsets.only(top:20.0, bottom: 12.0),
+              padding: const EdgeInsets.only(top: 20.0, bottom: 12.0),
               child: Row(
                 children: <Widget>[
-                  Text('Offer Settlements', style: Styles.greyLabelMedium,),
+                  Text(
+                    'Offer Settlements',
+                    style: Styles.greyLabelMedium,
+                  ),
                 ],
               ),
             ),
@@ -661,4 +696,37 @@ class OfferSummaryCard extends StatelessWidget {
       ),
     );
   }
+}
+
+class Message {
+  int type;
+  String message, subTitle;
+  Icon icon;
+
+  Message({this.type, this.message, this.subTitle}) {
+    switch(type) {
+      case PURCHASE_ORDER:
+        icon = Icon(Icons.shopping_cart, color: Colors.black);
+        break;
+      case DELIVERY_ACCEPTANCE:
+        icon = Icon(FontAwesomeIcons.truck, color: Colors.pink);
+        break;
+      case INVOICE_ACCEPTANCE:
+        icon = Icon(FontAwesomeIcons.inbox, color: Colors.blue);
+        break;
+      case GENERAL_MESSAGE:
+        icon = Icon(Icons.add_alert, color: Colors.black);
+        break;
+      case INVOICE_BID:
+        icon = Icon(Icons.account_balance, color: Colors.teal,);
+        break;
+    }
+  }
+
+  static const int PURCHASE_ORDER = 1,
+      DELIVERY_ACCEPTANCE = 2,
+      INVOICE_ACCEPTANCE = 3,
+      INVOICE_BID = 4,
+      SETTLEMENT = 5,
+      GENERAL_MESSAGE = 6;
 }

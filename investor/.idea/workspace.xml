@@ -7,33 +7,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b840dc6a-331e-46d9-b624-92fa4c1707ed" name="Default" comment="refactored invoice bidder - crowd funded offer - multiple bids">
-      <change afterPath="$PROJECT_DIR$/../supplierv3/lib/supplier_bloc.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/api/data_api3.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/api/data_api3.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/api/list_api.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/api/list_api.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/data/dashboard_data.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/data/dashboard_data.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/data/offer.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/data/offer.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/util/styles.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/util/styles.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../businesslibrary/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/pubspec.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../supplierv3/lib/common.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../crudderv3/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../crudderv3/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/ui/offer_list.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/ui/offer_list.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../supplierv3/.idea/libraries/Dart_Packages.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/.idea/libraries/Dart_Packages.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../supplierv3/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../supplierv3/lib/app_model.dart" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../supplierv3/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/lib/main.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../supplierv3/lib/ui/dashboard.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/lib/ui/dashboard.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../supplierv3/lib/ui/delivery_acceptance_list.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/lib/ui/delivery_acceptance_list.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../supplierv3/lib/ui/delivery_note_list.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/lib/ui/delivery_note_list.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../supplierv3/lib/ui/delivery_note_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/lib/ui/delivery_note_page.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../supplierv3/lib/ui/invoice_list.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/lib/ui/invoice_list.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../supplierv3/lib/ui/invoices.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/lib/ui/invoices.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../supplierv3/lib/ui/make_offer.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/lib/ui/make_offer.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../supplierv3/lib/ui/offer_details.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/lib/ui/offer_details.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../supplierv3/lib/ui/offer_list.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/lib/ui/offer_list.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../supplierv3/lib/ui/purchase_order_list.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/lib/ui/purchase_order_list.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../supplierv3/lib/ui/settlements.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/lib/ui/settlements.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../supplierv3/test/test_shared_prefs.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/test/test_shared_prefs.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../supplierv3/test/widget_test.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/test/widget_test.dart" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -558,7 +538,7 @@
   </component>
   <component name="PropertiesComponent">
     <property name="android.sdk.path" value="$USER_HOME$/Library/Android/sdk" />
-    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1543839564383" />
+    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1543883283087" />
     <property name="dart.analysis.tool.window.force.activate" value="false" />
     <property name="io.flutter.reload.alreadyRun" value="true" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
@@ -977,7 +957,6 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="1440" y="0" width="1920" height="1080" extended-state="0" />
-    <editor active="true" />
     <layout>
       <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.7253635" visible="true" weight="0.3035144" />
       <window_info id="Structure" order="1" sideWeight="0.2746365" side_tool="true" visible="true" weight="0.3035144" />

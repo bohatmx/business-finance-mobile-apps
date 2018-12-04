@@ -1,3 +1,4 @@
+import 'package:businesslibrary/api/data_api3.dart';
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/data/invoice_bid.dart';
 import 'package:businesslibrary/data/offer.dart';
@@ -6,6 +7,7 @@ import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:flutter/material.dart';
+import 'package:supplierv3/common.dart';
 import 'package:supplierv3/supplier_bloc.dart';
 
 class OfferDetails extends StatefulWidget {
@@ -18,7 +20,7 @@ class OfferDetails extends StatefulWidget {
 }
 
 class _OfferDetailsState extends State<OfferDetails>
-    implements InvoiceBidListener {
+    implements InvoiceBidListener, DiscountListener, SnackBarListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   List<InvoiceBid> bids = List();
   OfferBag bag;
@@ -38,7 +40,7 @@ class _OfferDetailsState extends State<OfferDetails>
         textColor: Styles.white,
         backgroundColor: Styles.black);
 
-    bag = await ListAPI.getOfferWithBids(widget.mOffer.offerId);
+    bag = await ListAPI.getOfferWithBids(widget.mOffer.documentReference);
     bids = bag.invoiceBids;
     offer = bag.offer;
     _scaffoldKey.currentState.removeCurrentSnackBar();
@@ -203,6 +205,190 @@ class _OfferDetailsState extends State<OfferDetails>
     );
   }
 
+  Future _cancelOffer() async {
+    print('_OfferDetailsState._cancelOffer .........................');
+    if (offer.isCancelled == true) {
+      AppSnackbar.showErrorSnackbar(
+          scaffoldKey: _scaffoldKey,
+          message: 'Offer is already cancelled',
+          listener: this,
+          actionLabel: 'OK');
+      return;
+    }
+    AppSnackbar.showSnackbarWithProgressIndicator(
+        scaffoldKey: _scaffoldKey,
+        message: 'Cancelling Offer ...',
+        textColor: Styles.white,
+        backgroundColor: Styles.black);
+
+    try {
+      offer.isCancelled = true;
+      var mOffer = await DataAPI3.updateOffer(offer);
+      prettyPrint(mOffer.toJson(), '############ Cancelled Offer:');
+      AppSnackbar.showSnackbarWithAction(
+          scaffoldKey: _scaffoldKey,
+          message: 'Offer cancelled',
+          textColor: Styles.white,
+          backgroundColor: Theme.of(context).primaryColor,
+          actionLabel: 'Exit',
+          listener: this,
+          icon: Icons.done,
+          action: 3);
+
+      await supplierModelBloc.refreshModel();
+      setState(() {});
+    } catch (e) {
+      AppSnackbar.showErrorSnackbar(
+          scaffoldKey: _scaffoldKey,
+          message: 'Offer cancellation failed',
+          listener: this,
+          actionLabel: 'Close');
+    }
+  }
+  Future _updateOffer() async {
+    print('_OfferDetailsState._updateOffer  ..... $discountPercentage %');
+    if (discountPercentage == null) {
+      AppSnackbar.showErrorSnackbar(
+          scaffoldKey: _scaffoldKey,
+          message: 'Please select new discount percentage',
+          listener: this,
+          actionLabel: 'OK');
+      return;
+    }
+
+    AppSnackbar.showSnackbarWithProgressIndicator(
+        scaffoldKey: _scaffoldKey,
+        message: 'Updating Offer with new discount',
+        textColor: Styles.white,
+        backgroundColor: Styles.black);
+
+    offer.discountPercent = discountPercentage;
+    offer.offerAmount = offer.invoiceAmount * (100.0 - discountPercentage);
+    var end = DateTime.parse(offer.endTime);
+    var newTime = end.add(Duration(days: 14));
+    offer.endTime = getUTC(newTime);
+
+    try {
+      var res = await DataAPI3.updateOffer(offer);
+      prettyPrint(res.toJson(),
+          '########### UPDATED offer, discountPercent : $discountPercentage');
+
+      AppSnackbar.showSnackbarWithAction(
+          scaffoldKey: _scaffoldKey,
+          message: 'Offer updated with new discount',
+          textColor: Styles.white,
+          backgroundColor: Theme.of(context).primaryColor,
+          actionLabel: 'Exit',
+          listener: this,
+          icon: Icons.done,
+          action: 3);
+
+      await supplierModelBloc.refreshModel();
+      setState(() {});
+    } catch (e) {
+      AppSnackbar.showErrorSnackbar(
+          scaffoldKey: _scaffoldKey,
+          message: 'Discount percentage update failed',
+          listener: this,
+          actionLabel: 'Close');
+    }
+  }
+
+  double discountPercentage;
+  @override
+  onDiscount(String discount) {
+    print('_OfferDetailsState.onDiscount new percentage selected: $discount');
+    discountPercentage = double.parse(discount);
+    if (discountPercentage == offer.discountPercent) {
+      return;
+    } else {
+      setState(() {
+        offer.discountPercent = discountPercentage;
+        offer.offerAmount = offer.invoiceAmount * (100.0 - discountPercentage);
+      });
+    }
+  }
+
+  Widget _noBidsView() {
+    return Column(
+      children: <Widget>[
+        Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Text(
+            'No bids on the blockchain',
+            style: Styles.greyLabelMedium,
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(left: 16.0, right: 16.0),
+          child: Card(
+            elevation: 2.0,
+            child: Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Column(
+                children: <Widget>[
+                  Row(
+                    children: <Widget>[
+                      getDiscountDropDown(this),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 8.0),
+                        child: Text(
+                          discountPercentage == null
+                              ? '${offer.discountPercent.toStringAsFixed(2)}'
+                              : '${discountPercentage.toStringAsFixed(2)}',
+                          style: Styles.blackBoldLarge,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Text(
+                        'Offer Amount',
+                        style: Styles.greyLabelSmall,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 8.0),
+                        child: Text(
+                          getFormattedAmount('${offer.offerAmount}', context),
+                          style: Styles.tealBoldLarge,
+                        ),
+                      )
+                    ],
+                  ),
+                  Row(
+                    children: <Widget>[
+                      FlatButton(
+                        onPressed: _cancelOffer,
+                        child: Text('Cancel Offer', style: Styles.blueSmall,),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 12.0,top: 32.0, bottom: 20.0),
+                        child: RaisedButton(
+                          elevation: 6.0,
+                          onPressed: _updateOffer,
+                          color: Colors.pink,
+                          child: Padding(
+                            padding: const EdgeInsets.all(12.0),
+                            child: Text(
+                              'Update Offer',
+                              style: Styles.whiteSmall,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     offer = widget.mOffer;
@@ -218,17 +404,9 @@ class _OfferDetailsState extends State<OfferDetails>
           ),
         ],
       ),
+      backgroundColor: Colors.brown.shade100,
       body: bids.isEmpty
-          ? Container(
-//              color: Colors.indigo.shade400,
-              child: Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Text(
-                  'No bids on the blockchain',
-                  style: Styles.greyLabelMedium,
-                ),
-              ),
-            )
+          ? _noBidsView()
           : ListView.builder(
               itemCount: bids == null ? 0 : bids.length,
               itemBuilder: (BuildContext context, int index) {
@@ -262,6 +440,16 @@ class _OfferDetailsState extends State<OfferDetails>
         message: 'Invoice Bid arrived',
         textColor: Styles.white,
         backgroundColor: Styles.teal);
+  }
+
+  @override
+  onActionPressed(int action) {
+    switch(action) {
+      case 3:
+        Navigator.pop(context);
+        break;
+    }
+    return null;
   }
 }
 

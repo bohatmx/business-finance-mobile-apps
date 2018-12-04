@@ -57,7 +57,7 @@ class _MakeOfferPageState extends State<MakeOfferPage>
   @override
   initState() {
     super.initState();
-    _setItems();
+    _buildDiscountDropDownItems();
     _getSupplier();
     _calculateDays();
     _getSectors();
@@ -572,7 +572,7 @@ class _MakeOfferPageState extends State<MakeOfferPage>
     setState(() {});
   }
 
-  void _setItems() {
+  void _buildDiscountDropDownItems() {
     print('_MakeOfferPageState._setItems ................');
 
     var item6 = DropdownMenuItem<String>(
