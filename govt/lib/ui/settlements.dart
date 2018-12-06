@@ -1,5 +1,5 @@
 import 'package:businesslibrary/api/list_api.dart';
-import 'package:businesslibrary/data/govt_entity.dart';
+import 'package:businesslibrary/data/invoice.dart';
 import 'package:businesslibrary/data/invoice_settlement.dart';
 import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/util/lookups.dart';
@@ -10,6 +10,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:govt/customer_bloc.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:govt/ui/settle_invoice.dart';
 
 class SettlementList extends StatefulWidget {
   @override
@@ -288,17 +289,121 @@ class _SettlementListState extends State<SettlementList>
     return null;
   }
 
+  Invoice invoice;
   void _checkSettlement(InvestorInvoiceSettlement settlement) async {
-    var bid = await ListAPI.getInvoiceBidByDocRef(
-        invoiceBidDocRef: settlement.invoiceBidDocRef);
-    var bag = await ListAPI.getOfferByDocRef(bid.offerDocRef);
-    var invoice = await ListAPI.getCustomerInvoiceById(
-        documentRef: appModel.customer.documentReference,
-        invoiceId: bag.offer.invoice.split('#').elementAt(1));
+    try {
+      var bid = await ListAPI.getInvoiceBidByDocRef(
+          invoiceBidDocRef: settlement.invoiceBidDocRef);
+      offerBag = await ListAPI.getOfferByDocRef(bid.offerDocRef);
+      invoice = await ListAPI.getCustomerInvoiceById(
+          documentRef: appModel.customer.documentReference,
+          invoiceId: offerBag.offer.invoice.split('#').elementAt(1));
 
-    prettyPrint(bid.toJson(), '+++++++++++++++ Bid:');
-    bag.doPrint();
-    prettyPrint(invoice.toJson(), '########### Invoice to be settled by CUSTOMER!!!:');
+      prettyPrint(bid.toJson(), '+++++++++++++++ Bid:');
+      offerBag.doPrint();
+      prettyPrint(invoice.toJson(),
+          '########### Invoice to be settled by CUSTOMER!!!:');
+      _showInvoiceSettlementDialog();
+    } catch (e) {
+      print(e);
+    }
+
+  }
+  void _showInvoiceSettlementDialog() {
+    showDialog(
+        context: context,
+        builder: (_) => new AlertDialog(
+          title: new Text(
+            "Invoice Settlement",
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          content: Container(
+            height: 120.0,
+            child: Column(
+              children: <Widget>[
+                new Text("Do you want to settle this Invoice?\n\ "),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: Row(
+                    children: <Widget>[
+                      Text(
+                        'Invoice Number:',
+                        style: TextStyle(fontSize: 12.0),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 10.0),
+                        child: Text(
+                          '${invoice.invoiceNumber}',
+                          style: Styles.blackBoldMedium,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: Row(
+                    children: <Widget>[
+                      Text(
+                        'Invoice Amount:',
+                        style: TextStyle(fontSize: 12.0),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 10.0),
+                        child: Text(
+                          '${getFormattedAmount('${invoice.totalAmount}', context)}',
+                          style: Styles.tealBoldMedium,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            Padding(
+              padding: const EdgeInsets.only(bottom: 18.0),
+              child: FlatButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text(
+                  'NO',
+                  style: TextStyle(
+                    fontSize: 16.0,
+                    color: Colors.grey,
+                  ),
+                ),
+              ),
+            ),
+            new Padding(
+              padding: const EdgeInsets.only(
+                  left: 28.0, right: 16.0, bottom: 10.0),
+              child: RaisedButton(
+                elevation: 4.0,
+                onPressed: _startSettlement,
+                color: Colors.teal,
+                child: Text(
+                  'YES',
+                  style: TextStyle(
+                    fontSize: 16.0,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ));
+  }
+  OfferBag offerBag;
+  void _startSettlement() {
+    print('_SettlementListState._startSettlement .....................');
+    Navigator.push(
+      context,
+      new MaterialPageRoute(builder: (context) =>  SettleInvoice(invoice: invoice, offerBag: offerBag,)),
+    );
   }
 }
 
