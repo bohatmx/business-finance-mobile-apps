@@ -8,6 +8,7 @@ import 'package:businesslibrary/data/govt_entity.dart';
 import 'package:businesslibrary/data/sector.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/data/wallet.dart';
+import 'package:businesslibrary/util/message.dart';
 import 'package:businesslibrary/util/selectors.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/util.dart';
@@ -22,7 +23,7 @@ class SignInPage extends StatefulWidget {
   _SignInPageState createState() => _SignInPageState();
 }
 
-class _SignInPageState extends State<SignInPage> implements SnackBarListener {
+class _SignInPageState extends State<SignInPage> implements SnackBarListener, CustomerModelBlocListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   var adminEmail, password, adminCellphone, idNumber;
   final GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
@@ -124,6 +125,13 @@ class _SignInPageState extends State<SignInPage> implements SnackBarListener {
 
   @override
   Widget build(BuildContext context) {
+    List<ListTile> tiles = List();
+    messages.forEach((m) {
+      tiles.add(ListTile(
+        title: Text(m.message),
+        leading: Icon(Icons.cloud_download),
+      ));
+    });
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
@@ -192,6 +200,9 @@ class _SignInPageState extends State<SignInPage> implements SnackBarListener {
                       ),
                     ),
                   ),
+                  tiles.isEmpty? Container() : Column(
+                    children: tiles,
+                  ),
                 ],
               ),
             ),
@@ -201,6 +212,7 @@ class _SignInPageState extends State<SignInPage> implements SnackBarListener {
     );
   }
 
+  List<Message> messages = List();
   void _onSubmit() async {
     if (busy == true) {
       print('_SignInPageState._onSavePressed I am busy ... so piss off!');
@@ -287,7 +299,7 @@ class _SignInPageState extends State<SignInPage> implements SnackBarListener {
           if (wallet != null) {
             msg = 'Wallet recovered';
           }
-          await customerModelBloc.refreshModel();
+          await customerModelBloc.refreshModelWithListener(this);
           Navigator.push(
             context,
             new MaterialPageRoute(builder: (context) => new Dashboard(msg)),
@@ -346,5 +358,16 @@ class _SignInPageState extends State<SignInPage> implements SnackBarListener {
       context,
       new MaterialPageRoute(builder: (context) => new Dashboard(null)),
     );
+  }
+
+  @override
+  onEvent(String message) {
+    Message msg = Message(
+      message: message,
+      type: Message.GENERAL_MESSAGE,
+    );
+    setState(() {
+      messages.add(msg);
+    });
   }
 }

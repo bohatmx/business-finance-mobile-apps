@@ -16,11 +16,15 @@ import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/database.dart';
 import 'package:businesslibrary/util/Finders.dart';
 
+abstract class CustomerModelBlocListener {
+  onEvent(String message);
+}
 class CustomerModelBloc implements CustomerBlocListener {
   final StreamController<CustomerApplicationModel> _appModelController =
       StreamController<CustomerApplicationModel>();
   final StreamController<String> _errorController = StreamController<String>();
   final CustomerApplicationModel _appModel = CustomerApplicationModel();
+  CustomerModelBlocListener _customerModelBlocListener;
 
   CustomerModelBloc() {
     print(
@@ -31,6 +35,11 @@ class CustomerModelBloc implements CustomerBlocListener {
 
   get appModel => _appModel;
 
+  refreshModelWithListener(CustomerModelBlocListener listener) async {
+    _customerModelBlocListener = listener;
+    await _appModel.refreshModelWithListener(listener);
+    _appModelController.sink.add(_appModel);
+  }
   refreshModel() async {
     await _appModel.refreshModel();
     _appModelController.sink.add(_appModel);
@@ -38,6 +47,30 @@ class CustomerModelBloc implements CustomerBlocListener {
 
   refreshSettlements() async {
     await _appModel.refreshInvestorSettlements();
+    _appModelController.sink.add(_appModel);
+  }
+  refreshPurchaseOrders() async {
+    await _appModel.refreshPurchaseOrders();
+    _appModelController.sink.add(_appModel);
+  }
+  refreshDeliveryNotes() async {
+    await _appModel.refreshDeliveryNotes();
+    _appModelController.sink.add(_appModel);
+  }
+  refreshDeliveryAcceptances() async {
+    await _appModel.refreshDeliveryAcceptances();
+    _appModelController.sink.add(_appModel);
+  }
+  refreshInvoices() async {
+    await _appModel.refreshInvoices();
+    _appModelController.sink.add(_appModel);
+  }
+  refreshInvoiceAcceptances() async {
+    await _appModel.refreshInvoiceAcceptances();
+    _appModelController.sink.add(_appModel);
+  }
+  refreshOffers() async {
+    await _appModel.refreshOffers();
     _appModelController.sink.add(_appModel);
   }
 
@@ -360,6 +393,18 @@ class CustomerApplicationModel {
         InvestorInvoiceSettlements(_settlements));
     _setItemNumbers(_settlements);
   }
+  Future refreshPurchaseOrders() async {
+    if (_customer == null) {
+      _customer = await SharedPrefs.getGovEntity();
+      _user = await SharedPrefs.getUser();
+    }
+    if (_customer == null) return null;
+    _purchaseOrders =
+    await ListAPI.getCustomerPurchaseOrders(_customer.documentReference);
+    await Database.savePurchaseOrders(
+        PurchaseOrders(_purchaseOrders));
+    _setItemNumbers(_purchaseOrders);
+  }
   Future refreshModel() async {
     if (_customer == null) {
       _customer = await SharedPrefs.getGovEntity();
@@ -411,6 +456,7 @@ class CustomerApplicationModel {
         InvestorInvoiceSettlements(_settlements));
     _setItemNumbers(_settlements);
 
+
     var end = DateTime.now();
     print(
         '\n\nCustomerApplicationModel.refreshModel ############ Refresh Complete, elapsed: ${end.difference(start).inSeconds} seconds');
@@ -419,7 +465,73 @@ class CustomerApplicationModel {
     }
     return 0;
   }
+  Future refreshModelWithListener(CustomerModelBlocListener refreshListener) async {
+    if (_customer == null) {
+      _customer = await SharedPrefs.getGovEntity();
+      _user = await SharedPrefs.getUser();
+    }
+    if (_customer == null) return null;
+    print(
+        'CustomerApplicationModel.refreshModel - get fresh data from Firestore');
+    var start = DateTime.now();
+    _purchaseOrders =
+    await ListAPI.getCustomerPurchaseOrders(_customer.documentReference);
+    await Database.savePurchaseOrders(PurchaseOrders(_purchaseOrders));
+    _setItemNumbers(_purchaseOrders);
+    refreshListener.onEvent('Purchase Orders loaded: ${_purchaseOrders.length}');
 
+    _deliveryNotes = await ListAPI.getDeliveryNotes(
+        _customer.documentReference, 'govtEntities');
+    await Database.saveDeliveryNotes(DeliveryNotes(_deliveryNotes));
+    _setItemNumbers(_deliveryNotes);
+    refreshListener.onEvent('Delivery Notes loaded: ${_deliveryNotes.length}');
+    print('\n\n');
+
+    _invoices =
+    await ListAPI.getInvoices(_customer.documentReference, 'govtEntities');
+    await Database.saveInvoices(Invoices(_invoices));
+    _setItemNumbers(_invoices);
+    refreshListener.onEvent('Invoices loaded: ${_invoices.length}');
+    print('\n\n');
+
+    _offers = await ListAPI.getOffersByCustomer(_customer.participantId);
+    await Database.saveOffers(Offers(_offers));
+    _setItemNumbers(_offers);
+    refreshListener.onEvent('Offers loaded: ${_offers.length}');
+    print('\n\n');
+
+    _deliveryAcceptances = await ListAPI.getDeliveryAcceptances(
+        _customer.documentReference, 'govtEntities');
+    await Database.saveDeliveryAcceptances(
+        DeliveryAcceptances(_deliveryAcceptances));
+    _setItemNumbers(_deliveryAcceptances);
+    refreshListener.onEvent('Delivery Acceptances loaded: ${_deliveryAcceptances.length}');
+    print('\n\n');
+
+    _invoiceAcceptances = await ListAPI.getInvoiceAcceptances(
+        _customer.documentReference, 'govtEntities');
+    await Database.saveInvoiceAcceptances(
+        InvoiceAcceptances(_invoiceAcceptances));
+    _setItemNumbers(_invoiceAcceptances);
+    refreshListener.onEvent('Invoice Acceptances loaded: ${_invoiceAcceptances.length}');
+    print('\n\n');
+
+    _settlements =
+    await ListAPI.getCustomerInvestorSettlements(_customer.participantId);
+    await Database.saveInvestorInvoiceSettlements(
+        InvestorInvoiceSettlements(_settlements));
+    _setItemNumbers(_settlements);
+    refreshListener.onEvent('Settlementsloaded: ${_settlements.length}');
+
+
+    var end = DateTime.now();
+    print(
+        '\n\nCustomerApplicationModel.refreshModel ############ Refresh Complete, elapsed: ${end.difference(start).inSeconds} seconds');
+    if (_listener != null) {
+      _listener.onComplete();
+    }
+    return 0;
+  }
   Future refreshOffers() async {
     _offers = await ListAPI.getOffersByCustomer(_customer.participantId);
     _setItemNumbers(_offers);
@@ -431,5 +543,23 @@ class CustomerApplicationModel {
         _customer.documentReference, 'govtEntities');
     _setItemNumbers(_deliveryNotes);
     await Database.saveDeliveryNotes(DeliveryNotes(_deliveryNotes));
+  }
+  Future refreshInvoices() async {
+    _invoices = await ListAPI.getInvoices(
+        _customer.documentReference, 'govtEntities');
+    _setItemNumbers(_invoices);
+    await Database.saveInvoices(Invoices(_invoices));
+  }
+  Future refreshDeliveryAcceptances() async {
+    _deliveryAcceptances = await ListAPI.getDeliveryAcceptances(
+        _customer.documentReference, 'govtEntities');
+    _setItemNumbers(_deliveryAcceptances);
+    await Database.saveDeliveryAcceptances(DeliveryAcceptances(_deliveryAcceptances));
+  }
+  Future refreshInvoiceAcceptances() async {
+    _invoiceAcceptances = await ListAPI.getInvoiceAcceptances(
+        _customer.documentReference, 'govtEntities');
+    _setItemNumbers(_invoiceAcceptances);
+    await Database.saveInvoiceAcceptances(InvoiceAcceptances(_invoiceAcceptances));
   }
 }

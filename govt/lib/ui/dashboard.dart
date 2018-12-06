@@ -228,7 +228,7 @@ class _DashboardState extends State<Dashboard>
     _fcm.subscribeToTopic(
         FCM.TOPIC_DELIVERY_ACCEPTANCES + govtEntity.participantId);
     _fcm.subscribeToTopic(
-        FCM.TOPIC_INVOICE_ACCEPTANCES + govtEntity.documentReference);
+        FCM.TOPIC_INVOICE_ACCEPTANCES + govtEntity.participantId);
     _fcm.subscribeToTopic(FCM.TOPIC_GENERAL_MESSAGE);
     _fcm.subscribeToTopic(FCM.TOPIC_INVOICE_BIDS + govtEntity.participantId);
     _fcm.subscribeToTopic(FCM.TOPIC_OFFERS + govtEntity.participantId);
@@ -278,11 +278,19 @@ class _DashboardState extends State<Dashboard>
   @override
   Widget build(BuildContext context) {
     message = widget.message;
+    if (appModel.customer == null) {
+      return Scaffold(
+        appBar: AppBar(
+          title: Text('Dashboard loading ...'),
+        ),
+      );
+    }
     return StreamBuilder<CustomerApplicationModel>(
       initialData: customerModelBloc.appModel,
       stream: customerModelBloc.appModelStream,
       builder: (context, snapshot) {
         appModel = snapshot.data;
+        govtEntity = appModel.customer;
         if (snapshot.hasError) {
           return Center(
             child: Text('Houston, we got a Stream problem!', style: Styles.pinkBoldMedium,),
@@ -350,6 +358,19 @@ class _DashboardState extends State<Dashboard>
   }
 
   Widget _getListView() {
+    List<ListTile> tiles = List();
+    if (messages != null) {
+      messages.forEach((m) {
+        var tile = ListTile(
+          title: Text(m.message),
+          subtitle: Text(m.subTitle, style: Styles.blackBoldSmall,),
+          leading: m.icon,
+
+        );
+
+        tiles.add(tile);
+      });
+    }
     return Padding(
       padding: const EdgeInsets.only(top: 20.0),
       child: appModel == null
@@ -410,10 +431,16 @@ class _DashboardState extends State<Dashboard>
                     label: 'Settlements',
                     totalStyle: Styles.blueBoldLarge,
                     totalValueStyle: Styles.blackBoldMedium,
-                    elevation: 2.0,
+                    elevation: 8.0,
                     totalValue: appModel.settlements == null
                         ? 0.0
                         : appModel.getTotalSettlementAmount(),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    children: tiles,
                   ),
                 ),
               ],
@@ -489,7 +516,7 @@ class _DashboardState extends State<Dashboard>
           subTitle: deliveryNote.supplierName));
     });
     _showSnack(message: messages.last.message);
-    customerModelBloc.refreshModel();
+    customerModelBloc.refreshDeliveryNotes();
   }
 
   onInvoiceMessage(Invoice invoice) async {
@@ -501,7 +528,7 @@ class _DashboardState extends State<Dashboard>
           subTitle: invoice.supplierName));
     });
     _showSnack(message: messages.last.message);
-    customerModelBloc.refreshModel();
+    customerModelBloc.refreshInvoices();
   }
 
   onGeneralMessage(Map map) {
@@ -510,6 +537,9 @@ class _DashboardState extends State<Dashboard>
         type: Message.GENERAL_MESSAGE,
         message: map['message'],
       ));
+    });
+    setState(() {
+
     });
     _showSnack(message: messages.last.message);
   }
@@ -524,7 +554,10 @@ class _DashboardState extends State<Dashboard>
               settlement.supplierName + " from ${settlement.investorName}"));
     });
     _showSnack(message: messages.last.message);
-    await customerModelBloc.refreshModel();
+    await customerModelBloc.refreshSettlements();
+    setState(() {
+
+    });
   }
 
   void onInvoiceBidMessage(InvoiceBid bid) async {
@@ -536,7 +569,10 @@ class _DashboardState extends State<Dashboard>
           subTitle: bid.investorName));
     });
     _showSnack(message: messages.last.message);
-    await customerModelBloc.refreshModel();
+    //await customerModelBloc.refreshModel();
+    setState(() {
+
+    });
   }
 
   void onOfferMessage(Offer o) async {
@@ -549,7 +585,10 @@ class _DashboardState extends State<Dashboard>
               ' ${getFormattedAmount('${o.offerAmount}', context)}'));
     });
     _showSnack(message: messages.last.message);
-    await customerModelBloc.refreshModel();
+    await customerModelBloc.refreshOffers();
+    setState(() {
+
+    });
   }
 
   void onInvoiceAcceptanceMessage(InvoiceAcceptance acc) async {
@@ -561,7 +600,10 @@ class _DashboardState extends State<Dashboard>
           subTitle: acc.customerName));
     });
     _showSnack(message: messages.last.message);
-    await customerModelBloc.refreshModel();
+    await customerModelBloc.refreshInvoiceAcceptances();
+    setState(() {
+
+    });
   }
 
   void onDeliveryAcceptanceMessage(DeliveryAcceptance acc) async {
@@ -573,7 +615,10 @@ class _DashboardState extends State<Dashboard>
           subTitle: acc.customerName));
     });
     _showSnack(message: messages.last.message);
-    await customerModelBloc.refreshModel();
+    await customerModelBloc.refreshDeliveryAcceptances();
+    setState(() {
+
+    });
   }
 
   void onPurchaseOrderMessage(PurchaseOrder po) {
@@ -581,14 +626,17 @@ class _DashboardState extends State<Dashboard>
       messages.add(Message(
           type: Message.PURCHASE_ORDER,
           message:
-              'Settlement arrived: ${getFormattedDateShortWithTime('${po.date}', context)} ',
+              'Purchase Order arrived: ${getFormattedDateShortWithTime('${po.date}', context)} ',
           subTitle: po.supplierName));
     });
     _showSnack(message: messages.last.message);
-    customerModelBloc.refreshModel();
+    customerModelBloc.refreshPurchaseOrders();
+    setState(() {
+
+    });
   }
 
-  List<Message> messages;
+  List<Message> messages = List();
   void _showSnack(
       {@required String message, Color textColor, Color backColor}) {
     AppSnackbar.showSnackbar(
