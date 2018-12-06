@@ -10,6 +10,9 @@ import 'package:businesslibrary/util/database.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/Finders.dart';
 
+abstract class InvestorModelBlocListener {
+  onEvent(String message);
+}
 class InvestorModelBloc implements Model2Listener {
   final StreamController<InvestorAppModel2> _appModelController =
       StreamController<InvestorAppModel2>();
@@ -27,6 +30,10 @@ class InvestorModelBloc implements Model2Listener {
 
   refreshDashboard() async {
     await _appModel.refreshRemoteDashboard();
+    _appModelController.sink.add(_appModel);
+  }
+  refreshDashboardWithListener(InvestorModelBlocListener listener) async {
+    await _appModel.refreshRemoteDashboardWithListener(listener);
     _appModelController.sink.add(_appModel);
   }
 
@@ -205,16 +212,42 @@ class InvestorAppModel2 {
       _modelListener.onError(e.toString());
     }
   }
-
-  void setLists() {
+  Future refreshRemoteDashboardWithListener(InvestorModelBlocListener listener) async {
+    if (_investor == null) {
+      _investor = await SharedPrefs.getInvestor();
+    };
+    print(
+        'InvestorAppModel2.refreshDashboard ----- REFRESH from functions ...............');
+    try {
+      _dashboardData = await ListAPI.getInvestorDashboardData(
+          _investor.participantId, _investor.documentReference);
+      await Database.saveDashboard(_dashboardData);
+      setLists(mListener: listener);
+    } catch (e) {
+      _modelListener.onError(e.toString());
+    }
+  }
+  void setLists({InvestorModelBlocListener mListener}) {
     _settledInvoiceBids = _dashboardData.settledBids;
     _setItemNumbers(_settledInvoiceBids);
+    if (mListener != null) {
+      mListener.onEvent('Settled Invoice Bids loaded: ${_settledInvoiceBids.length}');
+    }
     _unsettledInvoiceBids = _dashboardData.unsettledBids;
     _setItemNumbers(_unsettledInvoiceBids);
+    if (mListener != null) {
+      mListener.onEvent('Unsettled Invoice Bids loaded: ${_unsettledInvoiceBids.length}');
+    }
     _offers = _dashboardData.openOffers;
     _setItemNumbers(_offers);
+    if (mListener != null) {
+      mListener.onEvent('Offers loaded: ${_offers.length}');
+    }
     _settlements = _dashboardData.settlements;
     _setItemNumbers(_settlements);
+    if (mListener != null) {
+      mListener.onEvent('Settlements loaded: ${_settlements.length}');
+    }
   }
 
   void _setItemNumbers(List<Findable> list) {

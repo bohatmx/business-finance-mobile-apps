@@ -16,6 +16,7 @@ import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:businesslibrary/util/message.dart';
+import 'package:businesslibrary/util/theme_bloc.dart';
 
 import 'package:businesslibrary/util/wallet_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -82,14 +83,6 @@ class _DashboardState extends State<Dashboard>
 
   _getCachedPrefs() async {
     govtEntity = await SharedPrefs.getGovEntity();
-    if (govtEntity == null) {
-      Navigator.pop(context);
-      Navigator.push(
-        context,
-        new MaterialPageRoute(builder: (context) => StartPage()),
-      );
-      return;
-    }
     user = await SharedPrefs.getUser();
     fullName = user.firstName + ' ' + user.lastName;
     _configureFCM();
@@ -265,12 +258,18 @@ class _DashboardState extends State<Dashboard>
     );
   }
 
+  void _onChangeTheme() async {
+    print('_DashboardState._onChangeTheme +++++++++++++++++++++++');
+    bloc.changeToRandomTheme();
+  }
+
   void _onRefreshPressed() async {
     AppSnackbar.showSnackbarWithProgressIndicator(
         scaffoldKey: _scaffoldKey,
         message: 'Refreshing data ...',
         textColor: Styles.white,
         backgroundColor: Styles.black);
+
     await customerModelBloc.refreshModel();
     _scaffoldKey.currentState.removeCurrentSnackBar();
   }
@@ -278,13 +277,7 @@ class _DashboardState extends State<Dashboard>
   @override
   Widget build(BuildContext context) {
     message = widget.message;
-    if (appModel.customer == null) {
-      return Scaffold(
-        appBar: AppBar(
-          title: Text('Dashboard loading ...'),
-        ),
-      );
-    }
+
     return StreamBuilder<CustomerApplicationModel>(
       initialData: customerModelBloc.appModel,
       stream: customerModelBloc.appModelStream,
@@ -293,21 +286,28 @@ class _DashboardState extends State<Dashboard>
         govtEntity = appModel.customer;
         if (snapshot.hasError) {
           return Center(
-            child: Text('Houston, we got a Stream problem!', style: Styles.pinkBoldMedium,),
+            child: Text(
+              'Houston, we got a Stream problem!',
+              style: Styles.pinkBoldMedium,
+            ),
           );
         }
-        switch(snapshot.connectionState) {
+        switch (snapshot.connectionState) {
           case ConnectionState.none:
-            print('_DashboardState.build ################## ConnectionState.none');
+            print(
+                '_DashboardState.build ################## ConnectionState.none');
             break;
           case ConnectionState.done:
-            print('_DashboardState.build ################## ConnectionState.done');
+            print(
+                '_DashboardState.build ################## ConnectionState.done');
             break;
           case ConnectionState.waiting:
-            print('_DashboardState.build ################## ConnectionState.waiting');
+            print(
+                '_DashboardState.build ################## ConnectionState.waiting');
             break;
           case ConnectionState.active:
-            print('_DashboardState.build ################## ConnectionState.active');
+            print(
+                '_DashboardState.build ################## ConnectionState.active');
             break;
         }
         return WillPopScope(
@@ -316,12 +316,13 @@ class _DashboardState extends State<Dashboard>
             key: _scaffoldKey,
             appBar: AppBar(
               elevation: 0.0,
-              backgroundColor: Colors.brown.shade200,
+//              backgroundColor: Colors.brown.shade200,
               title: Text(
                 'BFN - Dashboard',
                 style: TextStyle(fontWeight: FontWeight.w900),
               ),
-              leading: IconButton(icon: Icon(Icons.apps), onPressed: null),
+              leading:
+                  IconButton(icon: Icon(Icons.apps), onPressed: _onChangeTheme),
               bottom: _getBottom(),
               actions: <Widget>[
                 IconButton(
@@ -363,9 +364,11 @@ class _DashboardState extends State<Dashboard>
       messages.forEach((m) {
         var tile = ListTile(
           title: Text(m.message),
-          subtitle: Text(m.subTitle, style: Styles.blackBoldSmall,),
+          subtitle: Text(
+            m.subTitle,
+            style: Styles.blackBoldSmall,
+          ),
           leading: m.icon,
-
         );
 
         tiles.add(tile);
@@ -375,16 +378,21 @@ class _DashboardState extends State<Dashboard>
       padding: const EdgeInsets.only(top: 20.0),
       child: appModel == null
           ? Container(
-        child: Center(
-          child: Text('App Model is Loading ...', style: Styles.blackBoldLarge,),
-        ),
-      )
+              child: Center(
+                child: Text(
+                  'App Model is Loading ...',
+                  style: Styles.blackBoldLarge,
+                ),
+              ),
+            )
           : ListView(
               children: <Widget>[
                 new InkWell(
                   onTap: _onInvoicesTapped,
                   child: SummaryCard(
-                    total: appModel.invoices == null ? 0 : appModel.invoices.length,
+                    total: appModel.invoices == null
+                        ? 0
+                        : appModel.invoices.length,
                     label: 'Invoices',
                     totalStyle: Styles.pinkBoldLarge,
                     totalValue: appModel.invoices == null
@@ -538,9 +546,7 @@ class _DashboardState extends State<Dashboard>
         message: map['message'],
       ));
     });
-    setState(() {
-
-    });
+    setState(() {});
     _showSnack(message: messages.last.message);
   }
 
@@ -555,9 +561,7 @@ class _DashboardState extends State<Dashboard>
     });
     _showSnack(message: messages.last.message);
     await customerModelBloc.refreshSettlements();
-    setState(() {
-
-    });
+    setState(() {});
   }
 
   void onInvoiceBidMessage(InvoiceBid bid) async {
@@ -570,9 +574,7 @@ class _DashboardState extends State<Dashboard>
     });
     _showSnack(message: messages.last.message);
     //await customerModelBloc.refreshModel();
-    setState(() {
-
-    });
+    setState(() {});
   }
 
   void onOfferMessage(Offer o) async {
@@ -586,9 +588,7 @@ class _DashboardState extends State<Dashboard>
     });
     _showSnack(message: messages.last.message);
     await customerModelBloc.refreshOffers();
-    setState(() {
-
-    });
+    setState(() {});
   }
 
   void onInvoiceAcceptanceMessage(InvoiceAcceptance acc) async {
@@ -601,9 +601,7 @@ class _DashboardState extends State<Dashboard>
     });
     _showSnack(message: messages.last.message);
     await customerModelBloc.refreshInvoiceAcceptances();
-    setState(() {
-
-    });
+    setState(() {});
   }
 
   void onDeliveryAcceptanceMessage(DeliveryAcceptance acc) async {
@@ -616,9 +614,7 @@ class _DashboardState extends State<Dashboard>
     });
     _showSnack(message: messages.last.message);
     await customerModelBloc.refreshDeliveryAcceptances();
-    setState(() {
-
-    });
+    setState(() {});
   }
 
   void onPurchaseOrderMessage(PurchaseOrder po) {
@@ -631,9 +627,7 @@ class _DashboardState extends State<Dashboard>
     });
     _showSnack(message: messages.last.message);
     customerModelBloc.refreshPurchaseOrders();
-    setState(() {
-
-    });
+    setState(() {});
   }
 
   List<Message> messages = List();

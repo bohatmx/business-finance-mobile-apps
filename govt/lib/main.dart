@@ -1,3 +1,4 @@
+import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/govt_entity.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/theme_bloc.dart';
@@ -6,11 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:govt/ui/dashboard.dart';
 import 'package:govt/ui/signin_page.dart';
 import 'package:govt/ui/signup_page.dart';
-import 'package:govt/ui/theme_util.dart';
 
 void main() => runApp(new GovtApp());
-
-final FirebaseAuth _auth = FirebaseAuth.instance;
 
 class GovtApp extends StatelessWidget {
   // This widget is the root of your application.
@@ -25,7 +23,7 @@ class GovtApp extends StatelessWidget {
         theme: snapShot.data == null
             ? ThemeUtil.getTheme(themeIndex: 0)
             : ThemeUtil.getTheme(themeIndex: snapShot.data),
-        home: new Dashboard(null),
+        home: new StartPage(),
       ),
     );
   }
@@ -47,8 +45,21 @@ class _StartPageState extends State<StartPage> implements SnackBarListener {
   @override
   initState() {
     super.initState();
+    _check();
   }
 
+  void _check() async {
+    customer = await SharedPrefs.getGovEntity();
+    if (customer != null) {
+      Navigator.pop(context);
+      Navigator.push(
+        context,
+        new MaterialPageRoute(builder: (context) => Dashboard(null)),
+      );
+      return;
+    }
+  }
+  
   @override
   Widget build(BuildContext context) {
     return new Scaffold(

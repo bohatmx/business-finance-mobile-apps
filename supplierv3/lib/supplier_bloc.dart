@@ -31,8 +31,12 @@ class SupplierModelBloc implements SupplierBlocListener {
   get appModel => _appModel;
 
   refreshModel() async {
-    await _appModel.refreshModel();
-    _appModelController.sink.add(_appModel);
+    try {
+      await _appModel.refreshModel();
+      _appModelController.sink.add(_appModel);
+    } catch (e) {
+      print('SupplierModelBloc.refreshModel - ${e.message}');
+    }
   }
 
   closeStream() {
@@ -108,11 +112,12 @@ class SupplierApplicationModel  {
     _purchaseOrders = await Database.getPurchaseOrders();
     _setItemNumbers(_purchaseOrders);
 
-    print('SupplierAppModel.initialize, _purchaseOrders found in database: ${_purchaseOrders.length}');
     if (_purchaseOrders == null || _purchaseOrders.isEmpty) {
       refreshModel();
       return;
     }
+
+    print('SupplierAppModel.initialize, _purchaseOrders found in database: ${_purchaseOrders.length}');
     print('\n\nSupplierAppModel.initialize - ############### loading Model from cache ...');
     _deliveryNotes = await Database.getDeliveryNotes();
     _setItemNumbers(_deliveryNotes);
@@ -293,6 +298,7 @@ class SupplierApplicationModel  {
   }
 
   double getTotalSettlementAmount() {
+    if (_settlements == null) return 0.0;
     var tot = 0.0;
     _settlements.forEach((o) {
       tot += o.amount;

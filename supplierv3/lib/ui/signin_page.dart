@@ -246,6 +246,7 @@ class _SignInPageState extends State<SignInPage> implements SnackBarListener {
               'resource:com.oneconnect.biz.Supplier#' + supplier.participantId);
           prettyPrint(wallet.toJson(),
               '_SignInPageState.checkResult wallet recovered: check secret..');
+
           await supplierModelBloc.refreshModel();
           Navigator.push(
             context,

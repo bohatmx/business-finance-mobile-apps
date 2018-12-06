@@ -17,6 +17,7 @@ import 'package:businesslibrary/data/sector.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/data/wallet.dart';
 import 'package:businesslibrary/util/lookups.dart';
+import 'package:businesslibrary/util/message.dart';
 import 'package:businesslibrary/util/selectors.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
@@ -34,7 +35,7 @@ class SignUpPage extends StatefulWidget {
 }
 
 class _SignUpPageState extends State<SignUpPage>
-    implements SnackBarListener, FCMListener {
+    implements SnackBarListener, CustomerModelBlocListener {
   String name,
       email,
       address,
@@ -58,7 +59,6 @@ class _SignUpPageState extends State<SignUpPage>
   @override
   initState() {
     super.initState();
-    configureMessaging(this);
     _debug();
     _checkSectors();
   }
@@ -103,6 +103,13 @@ class _SignUpPageState extends State<SignUpPage>
 
   @override
   Widget build(BuildContext context) {
+    List<ListTile> tiles = List();
+    messages.forEach((m) {
+      tiles.add(ListTile(
+        title: Text(m.message),
+        leading: Icon(Icons.cloud_download, color: getRandomColor(),),
+      ));
+    });
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
@@ -279,7 +286,10 @@ class _SignUpPageState extends State<SignUpPage>
                               ),
                             ),
                           ),
-                        )
+                        ),
+                  tiles.isEmpty? Container() : Column(
+                    children: tiles,
+                  ),
                 ],
               ),
             ),
@@ -323,7 +333,7 @@ class _SignUpPageState extends State<SignUpPage>
       print('_SignUpPageState._onSavePressed ${admin.toJson()}');
       AppSnackbar.showSnackbarWithProgressIndicator(
         scaffoldKey: _scaffoldKey,
-        message: 'Govt Entity Sign Up ... ',
+        message: 'Customer Sign Up ... ',
         textColor: Colors.lightBlue,
         backgroundColor: Colors.black,
       );
@@ -331,11 +341,11 @@ class _SignUpPageState extends State<SignUpPage>
         btnOpacity = 0.0;
       });
       var result = await SignUp.signUpGovtEntity(govtEntity, admin);
-      await checkResult(result);
+      await _checkResult(result);
     }
   }
 
-  Future checkResult(int result) async {
+  Future _checkResult(int result) async {
     if (result == SignUp.Success) {
       print('_SignUpPageState._onSavePressed SUCCESS!!!!!!');
       await _subscribeToFCM();
@@ -354,7 +364,12 @@ class _SignUpPageState extends State<SignUpPage>
         //TODO - deal with error - wallet NOT on blockchain
         throw Exception('Wallet not found');
       }
-      await customerModelBloc.refreshModel();
+      await customerModelBloc.refreshModelWithListener(this);
+      Navigator.pop(context);
+      Navigator.push(
+        context,
+        new MaterialPageRoute(builder: (context) => new Dashboard(null)),
+      );
       return SignUp.Success;
     }
     setState(() {
@@ -423,67 +438,6 @@ class _SignUpPageState extends State<SignUpPage>
     exit();
   }
 
-  @override
-  onCompanySettlement(CompanyInvoiceSettlement settlement) {}
-
-  @override
-  onDeliveryAcceptance(DeliveryAcceptance deliveryAcceptance) {}
-
-  @override
-  onDeliveryNote(DeliveryNote deliveryNote) {}
-
-  @override
-  onGovtInvoiceSettlement(GovtInvoiceSettlement settlement) {}
-
-  @override
-  onInvestorSettlement(InvestorInvoiceSettlement settlement) {}
-
-  @override
-  onInvoiceBidMessage(InvoiceBid invoiceBid) {}
-
-  @override
-  onInvoiceMessage(Invoice invoice) {
-    prettyPrint(invoice.toJson(), 'SignUp - onInvoiceMessage: ');
-    AppSnackbar.showSnackbarWithAction(
-        scaffoldKey: _scaffoldKey,
-        message: 'Invoice arrived',
-        textColor: Colors.white,
-        backgroundColor: Colors.black,
-        actionLabel: 'OK',
-        listener: this,
-        action: InvoiceConstant,
-        icon: Icons.done_all);
-  }
-
-  @override
-  onOfferMessage(Offer offer) {}
-
-  @override
-  onPurchaseOrderMessage(PurchaseOrder purchaseOrder) {}
-
-  @override
-  onWalletError() {}
-
-  @override
-  onWalletMessage(Wallet wallet) async {
-    print('_SignUpPageState.onWalletMessage ++++++++++++++ wallet received');
-
-    if (_scaffoldKey.currentState != null) {
-      AppSnackbar.showSnackbarWithAction(
-          scaffoldKey: _scaffoldKey,
-          message: 'Wallet created',
-          textColor: Colors.white,
-          backgroundColor: Colors.black,
-          actionLabel: 'OK',
-          listener: this,
-          action: WalletConstant,
-          icon: Icons.done_all);
-    } else {
-      print(
-          '_SignUpPageState.onWalletMessage _scaffoldKey.currentState = null');
-    }
-  }
-
   void _autoChanged(bool value) {
     print('_SignUpPageState._autoChanged: value = $value');
     autoAccept = value;
@@ -549,8 +503,16 @@ class _SignUpPageState extends State<SignUpPage>
     'Brits Mining Works',
   ];
 
+
+  List<Message> messages = List();
   @override
-  onHeartbeat(Map map) {
-    // TODO: implement onHeartbeat
+  onEvent(String message) {
+    Message msg = Message(
+      message: message,
+      type: Message.GENERAL_MESSAGE,
+    );
+    setState(() {
+      messages.add(msg);
+    });
   }
 }

@@ -129,7 +129,7 @@ class _SignInPageState extends State<SignInPage> implements SnackBarListener, Cu
     messages.forEach((m) {
       tiles.add(ListTile(
         title: Text(m.message),
-        leading: Icon(Icons.cloud_download),
+        leading: Icon(Icons.cloud_download, color: getRandomColor(),),
       ));
     });
     return Scaffold(

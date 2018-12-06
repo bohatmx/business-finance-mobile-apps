@@ -1,3 +1,4 @@
+import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
@@ -24,7 +25,7 @@ class SupplierApp extends StatelessWidget {
         theme: snapShot.data == null
             ? ThemeUtil.getTheme(themeIndex: 0)
             : ThemeUtil.getTheme(themeIndex: snapShot.data),
-        home: new Dashboard(null),
+        home: new StartPage(),
       ),
     );
   }
@@ -46,8 +47,20 @@ class _StartPageState extends State<StartPage> {
   @override
   initState() {
     super.initState();
-  }
+    _getCache();
 
+  }
+ void _getCache() async {
+    supplier = await SharedPrefs.getSupplier();
+    if (supplier != null) {
+      Navigator.pop(context);
+      Navigator.push(
+        context,
+        new MaterialPageRoute(builder: (context) => new Dashboard(null)),
+      );
+      return;
+    }
+ }
   @override
   Widget build(BuildContext context) {
     return new Scaffold(

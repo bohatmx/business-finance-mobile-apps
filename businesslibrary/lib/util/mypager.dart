@@ -29,6 +29,10 @@ class BasePager {
   List<Findable> getFirstPage() {
     _pageNumber = 1;
     currentIndex = 0;
+    var m = pages.getPage(currentIndex);
+    if (m == null) {
+      return List();
+    }
     currentPage = pages.getPage(currentIndex).items;
     print('BasePager.getFirstPage ############# currentIndex: $currentIndex');
     return currentPage;
@@ -45,7 +49,10 @@ class BasePager {
       startKey = null;
       currentIndex = 0;
     }
-
+    var m = pages.getPage(currentIndex);
+    if (m == null) {
+      return List();
+    }
     currentPage = pages.getPage(currentIndex).items;
     return currentPage;
   }
@@ -69,7 +76,10 @@ class BasePager {
 
     print(
         '_BasePager._backPressed currentIndex: $currentIndex after process, , pageNumber: $_pageNumber - about to get page');
-
+    var m = pages.getPage(currentIndex);
+    if (m == null) {
+      return List();
+    }
     currentPage = pages.getPage(currentIndex).items;
     return currentPage;
   }

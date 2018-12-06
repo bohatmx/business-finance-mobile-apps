@@ -27,7 +27,7 @@ class InvestorApp extends StatelessWidget {
             theme: snapShot.data == null
                 ? ThemeUtil.getTheme(themeIndex: 0)
                 : ThemeUtil.getTheme(themeIndex: snapShot.data),
-            home: new Dashboard(null),
+            home: new StartPage(),
           ),
     );
   }
@@ -54,6 +54,7 @@ class _StartPageState extends State<StartPage> {
   _checkUser() async {
     investor = await SharedPrefs.getInvestor();
     if (investor != null) {
+      Navigator.pop(context);
       await Navigator.push(
         context,
         new MaterialPageRoute(builder: (context) => new Dashboard(null)),

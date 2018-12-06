@@ -86,6 +86,7 @@ class _DashboardState extends State<Dashboard>
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
     ]);
+    appModel = investorModelBloc.appModel;
   }
 
 
@@ -252,18 +253,10 @@ class _DashboardState extends State<Dashboard>
 
   Future _getCachedPrefs() async {
     investor = await SharedPrefs.getInvestor();
-    print(
-        '\n\n\n_DashboardState._getCachedPrefs ################### $investor');
-    if (investor == null) {
-      Navigator.push(
-        context,
-        new MaterialPageRoute(builder: (context) => StartPage()),
-      );
-      return;
-    }
     _configureFCM();
     _checkSectors();
     user = await SharedPrefs.getUser();
+    appModel = investorModelBloc.appModel;
     setState(() {
       count = 0;
     });
@@ -275,11 +268,19 @@ class _DashboardState extends State<Dashboard>
 
   @override
   Widget build(BuildContext context) {
+    if (appModel == null || appModel.investor == null) {
+      return Scaffold(
+        appBar: AppBar(
+          title: Text('Dashboard loading'),
+        ),
+      );
+    }
     return StreamBuilder<InvestorAppModel2>(
         initialData: investorModelBloc.appModel,
         stream: investorModelBloc.appModelStream,
         builder: (context, snapshot) {
           appModel = snapshot.data;
+          investor = appModel.investor;
           return WillPopScope(
             onWillPop: () async => false,
             child: Scaffold(
@@ -608,20 +609,6 @@ class _DashboardState extends State<Dashboard>
         message: message,
         textColor: Styles.white,
         backgroundColor: Theme.of(context).primaryColor);
-  }
-
-  @override
-  onComplete() {
-    print(
-        '\n\n_DashboardState.onComplete - ####################### message from AppModel, ######### what now??, kill snackbar?');
-    try {
-      setState(() {
-        //refreshModel = true;
-      });
-      _scaffoldKey.currentState.removeCurrentSnackBar();
-    } catch (e) {
-      print('_DashboardState.onComplete -- error killing snackbar or state $e');
-    }
   }
 
   @override

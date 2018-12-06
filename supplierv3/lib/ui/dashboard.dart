@@ -219,6 +219,7 @@ class _DashboardState extends State<Dashboard>
     _subscribeToFCMTopics();
   }
   _subscribeToFCMTopics() async {
+    if (supplier == null) return;
     _fcm.subscribeToTopic(FCM.TOPIC_PURCHASE_ORDERS + supplier.participantId);
     _fcm.subscribeToTopic(
         FCM.TOPIC_DELIVERY_ACCEPTANCES + supplier.participantId);
@@ -245,14 +246,6 @@ class _DashboardState extends State<Dashboard>
 
   Future _getCachedPrefs() async {
     supplier = await SharedPrefs.getSupplier();
-    if (supplier == null) {
-      Navigator.pop(context);
-      Navigator.push(
-        context,
-        new MaterialPageRoute(builder: (context) => new StartPage()),
-      );
-      return;
-    }
     user = await SharedPrefs.getUser();
     fullName = user.firstName + ' ' + user.lastName;
     assert(supplier != null);
@@ -337,9 +330,19 @@ class _DashboardState extends State<Dashboard>
     _scaffoldKey.currentState.removeCurrentSnackBar();
     setState(() {});
   }
-
+  int count = 0;
   @override
   Widget build(BuildContext context) {
+    count++;
+    print('_DashboardState.build ++++++++++++++ build +++++++++ build: #$count');
+    if (appModel == null || appModel.supplier == null) {
+      appModel = supplierModelBloc.appModel;
+      return Scaffold(
+        appBar: AppBar(
+          title: Text('Dashboard loading ...'),
+        ),
+      );
+    }
     return StreamBuilder<SupplierApplicationModel>(
       initialData: supplierModelBloc.appModel,
       stream: supplierModelBloc.appModelStream,
@@ -879,7 +882,7 @@ class OfferSummaryCard extends StatelessWidget {
                   ),
                   Padding(
                     padding: const EdgeInsets.only(left: 12.0),
-                    child: Text(
+                    child: Text(appModel.settlements == null? '0':
                       '${appModel.settlements.length}',
                       style: Styles.tealBoldMedium,
                     ),
