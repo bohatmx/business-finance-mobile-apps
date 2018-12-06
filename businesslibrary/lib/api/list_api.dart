@@ -354,6 +354,32 @@ class ListAPI {
     return list;
   }
 
+  static Future<InvoiceBid> getInvoiceBidByDocRef(
+      {String invoiceBidDocRef}) async {
+    assert(invoiceBidDocRef != null);
+    print(
+        'ListAPI.getInvoiceBidByDocRef =======> offer.documentReference: $invoiceBidDocRef');
+    var docSnapshot = await _firestore
+        .collection('invoiceBids')
+        .document(invoiceBidDocRef)
+        .get()
+        .catchError((e) {
+      print('ListAPI.getInvoiceBidByDocRef $e');
+      throw e;
+    });
+
+    if (docSnapshot.exists) {
+      print(
+          'ListAPI.getInvoiceBidByDocRef ######## found: 1');
+      var bid = InvoiceBid.fromJson(docSnapshot.data);
+      bid.documentReference = docSnapshot.documentID;
+      return bid;
+    } else {
+      throw Exception('Invoice Bid not found');
+    }
+
+  }
+
   static Future<OfferBag> getOfferByDocRef(String documentRef) async {
     print(
         '\n\n\nListAPI.getOfferByDocRef ............................... documentRef: $documentRef');
@@ -555,7 +581,30 @@ class ListAPI {
 
     return list;
   }
+  static Future<List<Offer>> getOffersByCustomer(String participantId) async {
+    print('ListAPI.getOffersByCustomer ---------------supplierId: $participantId');
+    List<Offer> list = List();
+    var qs = await _firestore
+        .collection('invoiceOffers')
+        .where('customer',
+        isEqualTo: NameSpace + 'GovtEntity#$participantId')
+        .orderBy('date', descending: true)
+        .getDocuments()
+        .catchError((e) {
+      print('ListAPI.getOffersByCustomer $e');
+      return list;
+    });
 
+    print('ListAPI.getOffersByCustomer found: ${qs.documents.length} ');
+
+    qs.documents.forEach((doc) {
+      var offer = Offer.fromJson(doc.data);
+      offer.documentReference = doc.documentID;
+      list.add(offer);
+    });
+
+    return list;
+  }
   static Future<List<InvestorInvoiceSettlement>> getSupplierInvestorSettlements(
       String supplierId) async {
     print(
@@ -564,7 +613,7 @@ class ListAPI {
     var qs = await _firestore
         .collection('settlements')
         .where('supplier',
-            isEqualTo: 'resource:com.oneconnect.biz.Supplier#$supplierId')
+            isEqualTo: NameSpace + 'Supplier#$supplierId')
         .orderBy('date', descending: true)
         .getDocuments()
         .catchError((e) {
@@ -574,11 +623,39 @@ class ListAPI {
 
     for (var doc in qs.documents) {
       var s = InvestorInvoiceSettlement.fromJson(doc.data);
+      s.documentReference = doc.documentID;
       list.add(s);
     }
 
     print(
         'ListAPI.getSupplierInvestorSettlements found: ${qs.documents.length} ');
+
+    return list;
+  }
+  static Future<List<InvestorInvoiceSettlement>> getCustomerInvestorSettlements(
+      String customerId) async {
+    print(
+        'ListAPI.getCustomerInvestorSettlements ---------------customerId: $customerId');
+    List<InvestorInvoiceSettlement> list = List();
+    var qs = await _firestore
+        .collection('settlements')
+        .where('customer',
+        isEqualTo: NameSpace + 'GovtEntity#$customerId')
+        .orderBy('date', descending: true)
+        .getDocuments()
+        .catchError((e) {
+      print('ListAPI.getCustomerInvestorSettlements $e');
+      return list;
+    });
+
+    for (var doc in qs.documents) {
+      var s = InvestorInvoiceSettlement.fromJson(doc.data);
+      s.documentReference = doc.documentID;
+      list.add(s);
+    }
+
+    print(
+        'ListAPI.getCustomerInvestorSettlements found: ${qs.documents.length} ');
 
     return list;
   }
@@ -1339,6 +1416,29 @@ class ListAPI {
 
     return invoice;
   }
+  static Future<Invoice> getCustomerInvoiceById(
+      {String documentRef, String invoiceId}) async {
+    print(
+        'ListAPI.getInvoiceById ............. invoiceId: $invoiceId ');
+    Invoice invoice;
+    var qs = await _firestore
+        .collection('govtEntities')
+        .document(documentRef)
+        .collection('invoices')
+        .where('invoiceId', isEqualTo: invoiceId)
+        .getDocuments()
+        .catchError((e) {
+      print('ListAPI.getInvoiceById $e');
+      throw e;
+    });
+    print('ListAPI.getInvoice ............. fouund: ${qs.documents.length}');
+    if (qs.documents.isNotEmpty) {
+      invoice = Invoice.fromJson(qs.documents.first.data);
+      invoice.documentReference = qs.documents.first.documentID;
+    }
+
+    return invoice;
+  }
 
   static Future<List<Invoice>> getInvoicesByPurchaseOrder(
       String purchaseOrderId, String supplierDocumentRef) async {
@@ -1513,8 +1613,8 @@ class ListAPI {
     return dn;
   }
 
-  static Future<Supplier> getSupplierById(String participantId) async {
-    Supplier supplier;
+  static Future<GovtEntity> getSupplierById(String participantId) async {
+    GovtEntity supplier;
     var qs = await _firestore
         .collection('suppliers')
         .where('participantId', isEqualTo: participantId)
@@ -1525,7 +1625,7 @@ class ListAPI {
     });
 
     if (qs.documents.isNotEmpty) {
-      supplier = Supplier.fromJson(qs.documents.first.data);
+      supplier = GovtEntity.fromJson(qs.documents.first.data);
       supplier.documentReference = qs.documents.first.documentID;
     }
 

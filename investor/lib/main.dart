@@ -1,18 +1,13 @@
-import 'dart:async';
-import 'dart:math';
 
 import 'package:businesslibrary/api/shared_prefs.dart';
-import 'package:businesslibrary/data/dashboard_data.dart';
 import 'package:businesslibrary/data/investor.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/util/theme_bloc.dart';
 
 import 'package:flutter/material.dart';
-import 'package:investor/app_model.dart';
 import 'package:investor/ui/dashboard.dart';
 import 'package:investor/ui/signin_page.dart';
 import 'package:investor/ui/signup_page.dart';
-import 'package:scoped_model/scoped_model.dart';
 
 void main() => runApp(new InvestorApp());
 
@@ -27,7 +22,7 @@ class InvestorApp extends StatelessWidget {
       initialData: null,
       stream: bloc.newThemeStream,
       builder: (context, snapShot) => MaterialApp(
-            title: 'FinanceNetwork',
+            title: 'BFNInvestor',
             debugShowCheckedModeBanner: false,
             theme: snapShot.data == null
                 ? ThemeUtil.getTheme(themeIndex: 0)
@@ -192,15 +187,6 @@ class BackImage extends StatelessWidget {
   }
 }
 
-class DashModel extends Model {
-  DashboardData _dashboardData;
-  DashboardData get dashboardData => _dashboardData;
-
-  void incrementOpenOffers() {
-    _dashboardData.totalOpenOffers++;
-    notifyListeners();
-  }
-}
 
 //
 

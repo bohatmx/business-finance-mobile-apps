@@ -29,9 +29,7 @@ class DeliveryNotePage extends StatefulWidget {
 
 class _DeliveryNotePageState extends State<DeliveryNotePage>
     implements
-        SnackBarListener,
-        DeliveryAcceptanceListener,
-        PurchaseOrderListener {
+        SnackBarListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   FirebaseMessaging _fcm = FirebaseMessaging();
   PurchaseOrder _purchaseOrder;
@@ -52,13 +50,6 @@ class _DeliveryNotePageState extends State<DeliveryNotePage>
     supplier = await SharedPrefs.getSupplier();
     userName = _user.firstName + ' ' + _user.lastName;
 
-    _fm.configureFCM(
-      deliveryAcceptanceListener: this,
-      purchaseOrderListener: this,
-    );
-    _fcm.subscribeToTopic(
-        FCM.TOPIC_DELIVERY_ACCEPTANCES + supplier.participantId);
-    _fcm.subscribeToTopic(FCM.TOPIC_PURCHASE_ORDERS + supplier.participantId);
     if (widget.purchaseOrder == null) {
       _getPurchaseOrders();
     }

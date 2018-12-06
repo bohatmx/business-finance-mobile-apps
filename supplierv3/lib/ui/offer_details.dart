@@ -20,7 +20,7 @@ class OfferDetails extends StatefulWidget {
 }
 
 class _OfferDetailsState extends State<OfferDetails>
-    implements InvoiceBidListener, DiscountListener, SnackBarListener {
+    implements  DiscountListener, SnackBarListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   List<InvoiceBid> bids = List();
   OfferBag bag;
@@ -258,12 +258,12 @@ class _OfferDetailsState extends State<OfferDetails>
 
     AppSnackbar.showSnackbarWithProgressIndicator(
         scaffoldKey: _scaffoldKey,
-        message: 'Updating Offer with new discount',
+        message: 'Updating Offer ...',
         textColor: Styles.white,
         backgroundColor: Styles.black);
 
     offer.discountPercent = discountPercentage;
-    offer.offerAmount = offer.invoiceAmount * (100.0 - discountPercentage);
+    offer.offerAmount = getOfferAmount();
     var end = DateTime.parse(offer.endTime);
     var newTime = end.add(Duration(days: 14));
     offer.endTime = getUTC(newTime);
@@ -275,7 +275,7 @@ class _OfferDetailsState extends State<OfferDetails>
 
       AppSnackbar.showSnackbarWithAction(
           scaffoldKey: _scaffoldKey,
-          message: 'Offer updated with new discount',
+          message: 'Offer updated',
           textColor: Styles.white,
           backgroundColor: Theme.of(context).primaryColor,
           actionLabel: 'Exit',
@@ -294,6 +294,10 @@ class _OfferDetailsState extends State<OfferDetails>
     }
   }
 
+  double getOfferAmount() {
+    var offerAmt = (offer.invoiceAmount * (100.0 - discountPercentage)) / 100.0;
+    return offerAmt;
+  }
   double discountPercentage;
   @override
   onDiscount(String discount) {
@@ -304,7 +308,7 @@ class _OfferDetailsState extends State<OfferDetails>
     } else {
       setState(() {
         offer.discountPercent = discountPercentage;
-        offer.offerAmount = offer.invoiceAmount * (100.0 - discountPercentage);
+        offer.offerAmount = getOfferAmount();
       });
     }
   }

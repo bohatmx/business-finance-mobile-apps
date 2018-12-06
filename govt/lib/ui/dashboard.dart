@@ -1,24 +1,33 @@
-import 'package:businesslibrary/api/list_api.dart';
+import 'dart:convert';
+
 import 'package:businesslibrary/api/shared_prefs.dart';
-import 'package:businesslibrary/data/dashboard_data.dart';
+import 'package:businesslibrary/data/delivery_acceptance.dart';
 import 'package:businesslibrary/data/delivery_note.dart';
 import 'package:businesslibrary/data/govt_entity.dart';
 import 'package:businesslibrary/data/invoice.dart';
+import 'package:businesslibrary/data/invoice_acceptance.dart';
+import 'package:businesslibrary/data/invoice_bid.dart';
+import 'package:businesslibrary/data/invoice_settlement.dart';
+import 'package:businesslibrary/data/offer.dart';
+import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/FCM.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
+import 'package:businesslibrary/util/message.dart';
+
 import 'package:businesslibrary/util/wallet_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:device_info/device_info.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:govt/customer_bloc.dart';
 import 'package:govt/main.dart';
-import 'package:govt/ui/acceptance.dart';
 import 'package:govt/ui/delivery_note_list.dart';
 import 'package:govt/ui/invoice_list.dart';
 import 'package:govt/ui/purchase_order_list.dart';
-import 'package:govt/ui/refresh.dart';
+import 'package:govt/ui/settlements.dart';
 import 'package:govt/ui/summary_card.dart';
 import 'package:govt/ui/theme_util.dart';
 
@@ -33,11 +42,7 @@ class Dashboard extends StatefulWidget {
 
 class _DashboardState extends State<Dashboard>
     with TickerProviderStateMixin
-    implements
-        SnackBarListener,
-        DeliveryNoteListener,
-        InvoiceListener,
-        GeneralMessageListener {
+    implements SnackBarListener {
   static const actionPayments = 1,
       actionInvoices = 2,
       actionPurchaseOrders = 3,
@@ -48,15 +53,12 @@ class _DashboardState extends State<Dashboard>
   AnimationController animationController;
   Animation<double> animation;
   GovtEntity govtEntity;
-//  List<Invoice> invoices;
-//  List<DeliveryNote> deliveryNotes;
-//  List<PurchaseOrder> purchaseOrders;
-//  List<GovtInvoiceSettlement> govtSettlements;
   User user;
   String fullName;
   int messageReceived;
   String message;
   bool listenersStarted = false;
+  CustomerApplicationModel appModel;
 
   @override
   initState() {
@@ -69,6 +71,7 @@ class _DashboardState extends State<Dashboard>
     animation = new Tween(begin: 0.0, end: 1.0).animate(animationController);
 
     _getCachedPrefs();
+    appModel = customerModelBloc.appModel;
   }
 
   @override
@@ -89,67 +92,160 @@ class _DashboardState extends State<Dashboard>
     }
     user = await SharedPrefs.getUser();
     fullName = user.firstName + ' ' + user.lastName;
-
-    dashboardData = await SharedPrefs.getDashboardData();
-    if (dashboardData != null) {
-      setState(() {});
-    } else {
-      AppSnackbar.showSnackbarWithProgressIndicator(
-          scaffoldKey: _scaffoldKey,
-          message: 'Loading fresh data',
-          textColor: Colors.white,
-          backgroundColor: Colors.black);
-      dashboardData =
-          await ListAPI.getCustomerDashboardData(govtEntity.documentReference);
-      if (_scaffoldKey.currentState != null) {
-        _scaffoldKey.currentState.hideCurrentSnackBar();
-      }
-      setState(() {});
-    }
-    assert(govtEntity != null);
-    _prepareFCM();
-    _getSummaryData(false);
+    _configureFCM();
   }
 
-  void _prepareFCM() {
-    FCM.configureFCM(
-      context: context,
-      deliveryNoteListener: this,
-      invoiceListener: this,
-      generalMessageListener: this,
+  //FCM methods #############################
+  _configureFCM() async {
+    print(
+        '\n\n\ ################ CONFIGURE FCM MESSAGE ###########  starting _firebaseMessaging');
+
+    AndroidDeviceInfo androidInfo;
+    IosDeviceInfo iosInfo;
+    DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+    bool isRunningIOs = false;
+    try {
+      androidInfo = await deviceInfo.androidInfo;
+      print(
+          '\n\n\n################  Running on ${androidInfo.model} ################\n\n');
+    } catch (e) {
+      print(
+          'FCM.configureFCM - error doing Android - this is NOT an Android phone!!');
+    }
+
+    try {
+      iosInfo = await deviceInfo.iosInfo;
+      print(
+          '\n\n\n################ Running on ${iosInfo.utsname.machine} ################\n\n');
+      isRunningIOs = true;
+    } catch (e) {
+      print('FCM.configureFCM error doing iOS - this is NOT an iPhone!!');
+    }
+
+    _fcm.configure(
+      onMessage: (Map<String, dynamic> map) async {
+        prettyPrint(map,
+            '\n\n################ Message from FCM ################# ${DateTime.now().toIso8601String()}');
+
+        String messageType = 'unknown';
+        String mJSON;
+        try {
+          if (isRunningIOs == true) {
+            messageType = map["messageType"];
+            mJSON = map['json'];
+            print('FCM.configureFCM platform is iOS');
+          } else {
+            var data = map['data'];
+            messageType = data["messageType"];
+            mJSON = data["json"];
+            print('FCM.configureFCM platform is Android');
+          }
+        } catch (e) {
+          print(e);
+          print(
+              'FCM.configureFCM -------- EXCEPTION handling platform detection');
+        }
+
+        print(
+            'FCM.configureFCM ************************** messageType: $messageType');
+
+        try {
+          switch (messageType) {
+            case 'PURCHASE_ORDER':
+              var m = PurchaseOrder.fromJson(json.decode(mJSON));
+              prettyPrint(
+                  m.toJson(), '\n\n########## FCM PURCHASE_ORDER MESSAGE :');
+              onPurchaseOrderMessage(m);
+              break;
+            case 'DELIVERY_NOTE':
+              var m = DeliveryNote.fromJson(json.decode(mJSON));
+              prettyPrint(
+                  m.toJson(), '\n\n########## FCM DELIVERY_NOTE MESSAGE :');
+              onDeliveryNoteMessage(m);
+              break;
+            case 'DELIVERY_ACCEPTANCE':
+              var m = DeliveryAcceptance.fromJson(json.decode(mJSON));
+              prettyPrint(m.toJson(),
+                  '\n\n########## FCM DELIVERY_ACCEPTANCE MESSAGE :');
+              onDeliveryAcceptanceMessage(m);
+              break;
+            case 'INVOICE':
+              var m = Invoice.fromJson(json.decode(mJSON));
+              prettyPrint(m.toJson(), '\n\n########## FCM MINVOICE ESSAGE :');
+              onInvoiceMessage(m);
+              break;
+            case 'INVOICE_ACCEPTANCE':
+              var m = InvoiceAcceptance.fromJson(json.decode(mJSON));
+              prettyPrint(m.toJson(), ' FCM INVOICE_ACCEPTANCE MESSAGE :');
+              onInvoiceAcceptanceMessage(m);
+              break;
+            case 'OFFER':
+              var m = Offer.fromJson(json.decode(mJSON));
+              prettyPrint(m.toJson(), '\n\n########## FCM OFFER MESSAGE :');
+              onOfferMessage(m);
+              break;
+            case 'INVOICE_BID':
+              var m = InvoiceBid.fromJson(json.decode(mJSON));
+              prettyPrint(
+                  m.toJson(), '\n\n########## FCM INVOICE_BID MESSAGE :');
+
+              onInvoiceBidMessage(m);
+              break;
+
+            case 'INVESTOR_INVOICE_SETTLEMENT':
+              Map map = json.decode(mJSON);
+              prettyPrint(
+                  map, '\n\n########## FCM INVESTOR_INVOICE_SETTLEMENT :');
+              onInvestorInvoiceSettlement(
+                  InvestorInvoiceSettlement.fromJson(map));
+              break;
+          }
+        } catch (e) {
+          print(
+              'FCM.configureFCM - Houston, we have a problem with null listener somewhere');
+          print(e);
+        }
+      },
+      onLaunch: (Map<String, dynamic> message) {
+        print('configureMessaging onLaunch *********** ');
+        prettyPrint(message, 'message delivered on LAUNCH!');
+      },
+      onResume: (Map<String, dynamic> message) {
+        print('configureMessaging onResume *********** ');
+        prettyPrint(message, 'message delivered on RESUME!');
+      },
     );
 
-    _fcm.subscribeToTopic(FCM.TOPIC_DELIVERY_NOTES + govtEntity.participantId);
-    _fcm.subscribeToTopic(FCM.TOPIC_INVOICES + govtEntity.participantId);
-    _fcm.subscribeToTopic(FCM.TOPIC_GENERAL_MESSAGE);
+    _fcm.requestNotificationPermissions(
+        const IosNotificationSettings(sound: true, badge: true, alert: true));
+
+    _fcm.onIosSettingsRegistered.listen((IosNotificationSettings settings) {});
+    _subscribeToFCMTopics();
   }
+
+  _subscribeToFCMTopics() async {
+    _fcm.subscribeToTopic(FCM.TOPIC_PURCHASE_ORDERS + govtEntity.participantId);
+    _fcm.subscribeToTopic(
+        FCM.TOPIC_DELIVERY_ACCEPTANCES + govtEntity.participantId);
+    _fcm.subscribeToTopic(
+        FCM.TOPIC_INVOICE_ACCEPTANCES + govtEntity.documentReference);
+    _fcm.subscribeToTopic(FCM.TOPIC_GENERAL_MESSAGE);
+    _fcm.subscribeToTopic(FCM.TOPIC_INVOICE_BIDS + govtEntity.participantId);
+    _fcm.subscribeToTopic(FCM.TOPIC_OFFERS + govtEntity.participantId);
+    _fcm.subscribeToTopic(FCM.TOPIC_INVOICES + govtEntity.participantId);
+    _fcm.subscribeToTopic(FCM.TOPIC_DELIVERY_NOTES + govtEntity.participantId);
+    _fcm.subscribeToTopic(
+        FCM.TOPIC_INVESTOR_INVOICE_SETTLEMENTS + govtEntity.participantId);
+    print(
+        '\n\n_DashboardState._subscribeToFCMTopics SUBSCRIBED to topis - POs, Delivery acceptance, Invoice acceptance');
+  }
+  //end of FCM methods ######################
 
   Firestore fs = Firestore.instance;
-  DashboardData dashboardData;
-
-  _getSummaryData(bool showSnack) async {
-    print('_DashboardState._getSummaryData ..................................');
-
-    if (showSnack) {
-      AppSnackbar.showSnackbarWithProgressIndicator(
-          scaffoldKey: _scaffoldKey,
-          message: 'Loading fresh data',
-          textColor: Styles.white,
-          backgroundColor: Styles.black);
-    }
-    await Refresh.refresh(govtEntity);
-    dashboardData = await SharedPrefs.getDashboardData();
-    setState(() {});
-
-    print('_DashboardState._getSummaryData REFRESH COMPLETE .......');
-    if (_scaffoldKey.currentState != null) {
-      _scaffoldKey.currentState.removeCurrentSnackBar();
-    }
-  }
 
   Widget _getBottom() {
     return PreferredSize(
-      preferredSize: const Size.fromHeight(60.0),
+      preferredSize: const Size.fromHeight(40.0),
       child: new Column(
         children: <Widget>[
           Row(
@@ -159,7 +255,7 @@ class _DashboardState extends State<Dashboard>
                 padding: const EdgeInsets.only(bottom: 20.0),
                 child: Text(
                   govtEntity == null ? 'Customer Name' : govtEntity.name,
-                  style: Styles.whiteBoldMedium,
+                  style: Styles.whiteBoldSmall,
                 ),
               )
             ],
@@ -169,110 +265,159 @@ class _DashboardState extends State<Dashboard>
     );
   }
 
-  void _onRefreshPressed() {
-    _getSummaryData(true);
+  void _onRefreshPressed() async {
+    AppSnackbar.showSnackbarWithProgressIndicator(
+        scaffoldKey: _scaffoldKey,
+        message: 'Refreshing data ...',
+        textColor: Styles.white,
+        backgroundColor: Styles.black);
+    await customerModelBloc.refreshModel();
+    _scaffoldKey.currentState.removeCurrentSnackBar();
   }
 
   @override
   Widget build(BuildContext context) {
     message = widget.message;
-    return new WillPopScope(
-      onWillPop: () async => false,
-      child: Scaffold(
-        key: _scaffoldKey,
-        appBar: AppBar(
-          elevation: 16.0,
-          title: Text(
-            'BFN - Dashboard',
-            style: TextStyle(fontWeight: FontWeight.w900),
+    return StreamBuilder<CustomerApplicationModel>(
+      initialData: customerModelBloc.appModel,
+      stream: customerModelBloc.appModelStream,
+      builder: (context, snapshot) {
+        appModel = snapshot.data;
+        if (snapshot.hasError) {
+          return Center(
+            child: Text('Houston, we got a Stream problem!', style: Styles.pinkBoldMedium,),
+          );
+        }
+        switch(snapshot.connectionState) {
+          case ConnectionState.none:
+            print('_DashboardState.build ################## ConnectionState.none');
+            break;
+          case ConnectionState.done:
+            print('_DashboardState.build ################## ConnectionState.done');
+            break;
+          case ConnectionState.waiting:
+            print('_DashboardState.build ################## ConnectionState.waiting');
+            break;
+          case ConnectionState.active:
+            print('_DashboardState.build ################## ConnectionState.active');
+            break;
+        }
+        return WillPopScope(
+          onWillPop: () async => false,
+          child: Scaffold(
+            key: _scaffoldKey,
+            appBar: AppBar(
+              elevation: 0.0,
+              backgroundColor: Colors.brown.shade200,
+              title: Text(
+                'BFN - Dashboard',
+                style: TextStyle(fontWeight: FontWeight.w900),
+              ),
+              leading: IconButton(icon: Icon(Icons.apps), onPressed: null),
+              bottom: _getBottom(),
+              actions: <Widget>[
+                IconButton(
+                  icon: Icon(Icons.refresh),
+                  onPressed: _onRefreshPressed,
+                ),
+                IconButton(
+                  icon: Icon(Icons.attach_money),
+                  onPressed: _goToWalletPage,
+                ),
+              ],
+            ),
+            backgroundColor: Colors.brown.shade100,
+            body: Stack(
+              children: <Widget>[
+                new Opacity(
+                  opacity: 0.3,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      image: DecorationImage(
+                        image: AssetImage('assets/fincash.jpg'),
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                ),
+                _getListView(),
+              ],
+            ),
           ),
-          leading: Container(),
-          bottom: _getBottom(),
-          actions: <Widget>[
-            IconButton(
-              icon: Icon(Icons.refresh),
-              onPressed: _onRefreshPressed,
-            ),
-            IconButton(
-              icon: Icon(Icons.attach_money),
-              onPressed: _goToWalletPage,
-            ),
-          ],
-        ),
-        backgroundColor: Colors.brown.shade100,
-        body: Stack(
-          children: <Widget>[
-//            new Opacity(
-//              opacity: 0.5,
-//              child: Container(
-//                decoration: BoxDecoration(
-//                  image: DecorationImage(
-//                    image: AssetImage('assets/fincash.jpg'),
-//                    fit: BoxFit.cover,
-//                  ),
-//                ),
-//              ),
-//            ),
-            _getListView(),
-          ],
-        ),
-      ),
+        );
+      },
     );
   }
 
   Widget _getListView() {
     return Padding(
       padding: const EdgeInsets.only(top: 20.0),
-      child: ListView(
-        children: <Widget>[
-          new InkWell(
-            onTap: _onInvoicesTapped,
-            child: SummaryCard(
-              total: dashboardData == null ? 0 : dashboardData.invoices,
-              label: 'Invoices',
-              totalStyle: Styles.pinkBoldLarge,
-              totalValue: dashboardData == null
-                  ? 0.0
-                  : dashboardData.totalInvoiceAmount,
-              totalValueStyle: Styles.blackBoldMedium,
-              elevation: 16.0,
+      child: appModel == null
+          ? Container(
+        child: Center(
+          child: Text('App Model is Loading ...', style: Styles.blackBoldLarge,),
+        ),
+      )
+          : ListView(
+              children: <Widget>[
+                new InkWell(
+                  onTap: _onInvoicesTapped,
+                  child: SummaryCard(
+                    total: appModel.invoices == null ? 0 : appModel.invoices.length,
+                    label: 'Invoices',
+                    totalStyle: Styles.pinkBoldLarge,
+                    totalValue: appModel.invoices == null
+                        ? 0.0
+                        : appModel.getTotalInvoiceAmount(),
+                    totalValueStyle: Styles.blackBoldMedium,
+                    elevation: 16.0,
+                  ),
+                ),
+                new InkWell(
+                  onTap: _onPurchaseOrdersTapped,
+                  child: SummaryCard(
+                    total: appModel.purchaseOrders == null
+                        ? 0
+                        : appModel.purchaseOrders.length,
+                    label: 'Purchase Orders',
+                    totalStyle: Styles.tealBoldLarge,
+                    totalValue: appModel.purchaseOrders == null
+                        ? 0.0
+                        : appModel.getTotalPurchaseOrderAmount(),
+                    elevation: 2.0,
+                  ),
+                ),
+                new InkWell(
+                  onTap: _onDeliveryNotesTapped,
+                  child: SummaryCard(
+                    total: appModel.deliveryNotes == null
+                        ? 0
+                        : appModel.deliveryNotes.length,
+                    label: 'Delivery Notes',
+                    totalStyle: Styles.blackBoldLarge,
+                    totalValue: appModel.deliveryNotes == null
+                        ? 0.0
+                        : appModel.getTotalDeliveryNoteAmount(),
+                    elevation: 2.0,
+                  ),
+                ),
+                new InkWell(
+                  onTap: _onPaymentsTapped,
+                  child: SummaryCard(
+                    total: appModel.settlements == null
+                        ? 0
+                        : appModel.settlements.length,
+                    label: 'Settlements',
+                    totalStyle: Styles.blueBoldLarge,
+                    totalValueStyle: Styles.blackBoldMedium,
+                    elevation: 2.0,
+                    totalValue: appModel.settlements == null
+                        ? 0.0
+                        : appModel.getTotalSettlementAmount(),
+                  ),
+                ),
+              ],
             ),
-          ),
-          new InkWell(
-            onTap: _onPurchaseOrdersTapped,
-            child: SummaryCard(
-              total: dashboardData == null ? 0 : dashboardData.purchaseOrders,
-              label: 'Purchase Orders',
-              totalStyle: Styles.tealBoldLarge,
-              totalValue: dashboardData == null
-                  ? 0.0
-                  : dashboardData.totalPurchaseOrderAmount,
-              elevation: 2.0,
-            ),
-          ),
-          new InkWell(
-            onTap: _onDeliveryNotesTapped,
-            child: SummaryCard(
-              total: dashboardData == null ? 0 : dashboardData.deliveryNotes,
-              label: 'Delivery Notes',
-              totalStyle: Styles.blackBoldLarge,
-              totalValue: dashboardData == null
-                  ? 0.0
-                  : dashboardData.totalDeliveryNoteAmount,
-              elevation: 2.0,
-            ),
-          ),
-          new InkWell(
-            onTap: _onPaymentsTapped,
-            child: SummaryCard(
-              total: dashboardData == null ? 0 : 0,
-              label: 'Payments',
-              totalStyle: Styles.blueBoldLarge,
-              elevation: 2.0,
-            ),
-          ),
-        ],
-      ),
     );
   }
 
@@ -314,6 +459,10 @@ class _DashboardState extends State<Dashboard>
 
   void _onPaymentsTapped() {
     print('_MainPageState._onPaymentsTapped - go to payments');
+    Navigator.push(
+      context,
+      new MaterialPageRoute(builder: (context) => new SettlementList()),
+    );
   }
 
   @override
@@ -330,62 +479,123 @@ class _DashboardState extends State<Dashboard>
     }
   }
 
-  @override
   onDeliveryNoteMessage(DeliveryNote deliveryNote) {
     prettyPrint(deliveryNote.toJson(), '#### Delivery Note Arrived');
-    AppSnackbar.showSnackbarWithAction(
-        scaffoldKey: _scaffoldKey,
-        message: 'Delivery Note arrived',
-        textColor: Colors.white,
-        backgroundColor: Colors.deepPurple,
-        actionLabel: 'Notes',
-        listener: this,
-        action: DeliveryNoteConstant,
-        icon: Icons.create);
-
-    _getSummaryData(true);
+    setState(() {
+      messages.add(Message(
+          type: Message.DELIVERY_NOTE,
+          message:
+              'Delivery Note arrived: ${getFormattedDateShortWithTime('${deliveryNote.date}', context)} ',
+          subTitle: deliveryNote.supplierName));
+    });
+    _showSnack(message: messages.last.message);
+    customerModelBloc.refreshModel();
   }
 
-  @override
   onInvoiceMessage(Invoice invoice) async {
-    prettyPrint(invoice.toJson(), '#### Invoice Arrived');
-    AppSnackbar.showSnackbarWithAction(
-        scaffoldKey: _scaffoldKey,
-        message: 'Invoice arrived',
-        textColor: Colors.white,
-        backgroundColor: Colors.deepPurple,
-        actionLabel: 'Invoices',
-        listener: this,
-        action: InvoiceConstant,
-        icon: Icons.collections_bookmark);
-
-    _getSummaryData(true);
-
-    if (govtEntity.allowAutoAccept != null) {
-      if (govtEntity.allowAutoAccept) {
-        var res = await Accept.sendInvoiceAcceptance(invoice, user);
-        if (res != '0') {
-          AppSnackbar.showSnackbar(
-              scaffoldKey: _scaffoldKey,
-              message: 'Invoice accepted',
-              textColor: Styles.lightGreen,
-              backgroundColor: Styles.black);
-        }
-      }
-    }
+    setState(() {
+      messages.add(Message(
+          type: Message.INVOICE,
+          message:
+              'Invoice arrived: ${getFormattedDateShortWithTime('${invoice.date}', context)} ',
+          subTitle: invoice.supplierName));
+    });
+    _showSnack(message: messages.last.message);
+    customerModelBloc.refreshModel();
   }
 
-  @override
   onGeneralMessage(Map map) {
-    AppSnackbar.showSnackbarWithAction(
+    setState(() {
+      messages.add(Message(
+        type: Message.GENERAL_MESSAGE,
+        message: map['message'],
+      ));
+    });
+    _showSnack(message: messages.last.message);
+  }
+
+  void onInvestorInvoiceSettlement(InvestorInvoiceSettlement settlement) async {
+    setState(() {
+      messages.add(Message(
+          type: Message.SETTLEMENT,
+          message:
+              'Settlement arrived: ${getFormattedDateShortWithTime('${settlement.date}', context)} ',
+          subTitle:
+              settlement.supplierName + " from ${settlement.investorName}"));
+    });
+    _showSnack(message: messages.last.message);
+    await customerModelBloc.refreshModel();
+  }
+
+  void onInvoiceBidMessage(InvoiceBid bid) async {
+    setState(() {
+      messages.add(Message(
+          type: Message.INVOICE_BID,
+          message:
+              'Invoice Bid arrived: ${getFormattedDateShortWithTime('${bid.date}', context)} ',
+          subTitle: bid.investorName));
+    });
+    _showSnack(message: messages.last.message);
+    await customerModelBloc.refreshModel();
+  }
+
+  void onOfferMessage(Offer o) async {
+    setState(() {
+      messages.add(Message(
+          type: Message.OFFER,
+          message:
+              'Offer arrived: ${getFormattedDateShortWithTime('${o.date}', context)} ',
+          subTitle: o.supplierName +
+              ' ${getFormattedAmount('${o.offerAmount}', context)}'));
+    });
+    _showSnack(message: messages.last.message);
+    await customerModelBloc.refreshModel();
+  }
+
+  void onInvoiceAcceptanceMessage(InvoiceAcceptance acc) async {
+    setState(() {
+      messages.add(Message(
+          type: Message.INVOICE_ACCEPTANCE,
+          message:
+              'Invoice Acceptance arrived: ${getFormattedDateShortWithTime('${acc.date}', context)} ',
+          subTitle: acc.customerName));
+    });
+    _showSnack(message: messages.last.message);
+    await customerModelBloc.refreshModel();
+  }
+
+  void onDeliveryAcceptanceMessage(DeliveryAcceptance acc) async {
+    setState(() {
+      messages.add(Message(
+          type: Message.DELIVERY_ACCEPTANCE,
+          message:
+              'Delivery Acceptance arrived: ${getFormattedDateShortWithTime('${acc.date}', context)} ',
+          subTitle: acc.customerName));
+    });
+    _showSnack(message: messages.last.message);
+    await customerModelBloc.refreshModel();
+  }
+
+  void onPurchaseOrderMessage(PurchaseOrder po) {
+    setState(() {
+      messages.add(Message(
+          type: Message.PURCHASE_ORDER,
+          message:
+              'Settlement arrived: ${getFormattedDateShortWithTime('${po.date}', context)} ',
+          subTitle: po.supplierName));
+    });
+    _showSnack(message: messages.last.message);
+    customerModelBloc.refreshModel();
+  }
+
+  List<Message> messages;
+  void _showSnack(
+      {@required String message, Color textColor, Color backColor}) {
+    AppSnackbar.showSnackbar(
         scaffoldKey: _scaffoldKey,
-        message: 'General message arrived',
-        textColor: Colors.white,
-        backgroundColor: Colors.deepPurple,
-        actionLabel: 'Close',
-        listener: this,
-        action: InvoiceConstant,
-        icon: Icons.collections_bookmark);
+        message: message,
+        textColor: textColor == null ? Colors.white : textColor,
+        backgroundColor: backColor == null ? Colors.black : backColor);
   }
 }
 

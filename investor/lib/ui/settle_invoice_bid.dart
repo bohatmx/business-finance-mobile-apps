@@ -19,10 +19,8 @@ import 'package:businesslibrary/util/webview.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:investor/app_model.dart';
 import 'package:investor/investor_model_bloc.dart';
 import 'package:investor/ui/unsettled_bids.dart';
-import 'package:scoped_model/scoped_model.dart';
 
 class SettleInvoiceBid extends StatefulWidget {
   final InvoiceBid invoiceBid;
@@ -35,9 +33,7 @@ class SettleInvoiceBid extends StatefulWidget {
 
 class _SettleInvoiceBid extends State<SettleInvoiceBid>
     implements
-        SnackBarListener,
-        InvoiceBidListener,
-        InvestorInvoiceSettlementListener {
+        SnackBarListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   final FirebaseMessaging fm = FirebaseMessaging();
   final Firestore fs = Firestore.instance;
@@ -65,9 +61,6 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
     user = await SharedPrefs.getUser();
     investor = await SharedPrefs.getInvestor();
 
-    _fcm.configureFCM(
-        invoiceBidListener: this, investorInvoiceSettlementListener: this);
-    fm.subscribeToTopic(FCM.TOPIC_INVOICE_BIDS + investor.participantId);
   }
 
   StreamSubscription<QuerySnapshot> streamSub, streamTrans;

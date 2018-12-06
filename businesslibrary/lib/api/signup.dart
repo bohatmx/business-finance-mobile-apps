@@ -72,7 +72,7 @@ class SignUp {
     var qs = await _firestore
         .collection('govtEntities')
         .where('name', isEqualTo: govtEntity.name)
-        .where('country', isEqualTo: govtEntity.govtEntityType)
+        .where('country', isEqualTo: govtEntity.country)
         .getDocuments()
         .catchError((e) {
       print('SignUp.signUpGovtEntity ERROR $e');

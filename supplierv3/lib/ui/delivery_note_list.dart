@@ -30,11 +30,8 @@ class DeliveryNoteList extends StatefulWidget {
 class _DeliveryNoteListState extends State<DeliveryNoteList>
     implements
         SnackBarListener,
-        DeliveryNoteCardListener,
-        InvoiceBidListener,
-        InvoiceAcceptanceListener,
-        PagerControlListener,
-        DeliveryAcceptanceListener {
+        DeliveryNoteCardListener, PagerControlListener
+        {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   List<DeliveryNote> currentPage = List(), baseList;
   FirebaseMessaging _fcm = FirebaseMessaging();
@@ -59,15 +56,6 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
     pageLimit = await SharedPrefs.getPageLimit();
     baseList = await Database.getDeliveryNotes();
     dashboardData = await SharedPrefs.getDashboardData();
-
-    _fm.configureFCM(
-      deliveryAcceptanceListener: this,
-    );
-    _fcm.subscribeToTopic(
-        FCM.TOPIC_DELIVERY_ACCEPTANCES + supplier.participantId);
-    _fcm.subscribeToTopic(FCM.TOPIC_GENERAL_MESSAGE);
-    _fcm.subscribeToTopic(
-        FCM.TOPIC_INVOICE_ACCEPTANCES + supplier.participantId);
 
     setState(() {});
   }

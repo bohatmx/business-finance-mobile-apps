@@ -8,17 +8,16 @@ import 'package:businesslibrary/data/govt_entity.dart';
 import 'package:businesslibrary/data/invoice.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
-import 'package:businesslibrary/util/FCM.dart';
 import 'package:businesslibrary/util/Finders.dart';
 import 'package:businesslibrary/util/database.dart';
 import 'package:businesslibrary/util/lookups.dart';
-import 'package:businesslibrary/util/pager.dart';
-import 'package:businesslibrary/util/pager_helper.dart';
+import 'package:businesslibrary/util/mypager.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:govt/customer_bloc.dart';
 import 'package:govt/ui/refresh.dart';
 
 class DeliveryNoteList extends StatefulWidget {
@@ -29,17 +28,15 @@ class DeliveryNoteList extends StatefulWidget {
 class _DeliveryNoteListState extends State<DeliveryNoteList>
     implements
         SnackBarListener,
-        DeliveryNoteListener,
-        InvoiceListener,
-        Pager3Listener,
+
+        PagerControlListener,
         DeliveryNoteCardListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   final FirebaseMessaging _fcm = FirebaseMessaging();
   List<Supplier> suppliers;
-  List<DeliveryNote> deliveryNotes = List();
   User user;
   GovtEntity govtEntity;
-  List<DeliveryNote> baseList;
+  CustomerApplicationModel appModel;
   @override
   void initState() {
     super.initState();
@@ -49,24 +46,18 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
   _getCachedPrefs() async {
     user = await SharedPrefs.getUser();
     govtEntity = await SharedPrefs.getGovEntity();
-    dashboardData = await SharedPrefs.getDashboardData();
-    baseList = await Database.getDeliveryNotes();
-    pageLimit = await SharedPrefs.getPageLimit();
-    FCM.configureFCM(
-      context: context,
-      deliveryNoteListener: this,
-      invoiceListener: this,
-    );
-    _fcm.subscribeToTopic(FCM.TOPIC_DELIVERY_NOTES + govtEntity.participantId);
-    _fcm.subscribeToTopic(FCM.TOPIC_INVOICES + govtEntity.participantId);
-    _fcm.subscribeToTopic(FCM.TOPIC_GENERAL_MESSAGE);
-
-    setState(() {});
-    _refresh(false);
+    appModel = customerModelBloc.appModel;
+    setBasePager();
   }
 
-  void _onRefreshPressed() {
-    _refresh(true);
+  void _onRefreshPressed() async{
+    AppSnackbar.showSnackbarWithProgressIndicator(
+        scaffoldKey: _scaffoldKey,
+        message: 'Refreshing data ...',
+        textColor: Styles.white,
+        backgroundColor: Styles.black);
+    await customerModelBloc.refreshModel();
+    _scaffoldKey.currentState.removeCurrentSnackBar();
   }
 
   @override
@@ -88,7 +79,7 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
           child: new Column(
             children: <Widget>[
               new Flexible(
-                child: _buildList(),
+                child: _getListView(),
               ),
             ],
           ),
@@ -97,70 +88,167 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
     );
   }
 
-  Future _refresh(bool showSnack) async {
-    if (showSnack) {
-      AppSnackbar.showSnackbarWithProgressIndicator(
-          scaffoldKey: _scaffoldKey,
-          message: 'Refreshing data ...',
-          textColor: Styles.white,
-          backgroundColor: Styles.black);
-    }
-    await Refresh.refresh(govtEntity);
-    if (_scaffoldKey.currentState != null) {
-      _scaffoldKey.currentState.removeCurrentSnackBar();
-    }
-    baseList = await Database.getDeliveryNotes();
-    setState(() {});
-  }
 
-  DashboardData dashboardData;
   Widget _getBottom() {
     return PreferredSize(
       preferredSize: new Size.fromHeight(200.0),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.end,
         children: <Widget>[
-          baseList == null
+          appModel == null
               ? Container()
-              : Padding(
-                  padding: const EdgeInsets.only(
-                      top: 10.0, bottom: 20.0, left: 8.0, right: 8.0),
-                  child: Pager3(
-                    addHeader: true,
-                    listener: this,
-                    type: PagerHelper.DELIVERY_NOTE,
-                    pageLimit: pageLimit == null ? 4 : pageLimit,
-                    itemName: 'Delivery Notes',
-                    items: baseList,
-                    elevation: 16.0,
-                  ),
+              : Column(
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.only(bottom: 10.0),
+                child: PagingTotalsView(
+                  pageValue: _getPageValue(),
+                  totalValue: _getTotalValue(),
+                  labelStyle: Styles.blackSmall,
+                  pageValueStyle: Styles.blackBoldLarge,
+                  totalValueStyle: Styles.brownBoldMedium,
                 ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(
+                    bottom: 12.0),
+                child: PagerControl(
+                  itemName: 'Delivery Notes',
+                  pageLimit: appModel.pageLimit,
+                  elevation: 8.0,
+                  items: appModel.deliveryNotes.length,
+                  listener: this,
+                  color: Colors.purple.shade50,
+                  pageNumber: _pageNumber,
+                ),
+              ),
+            ],
+          ),
         ],
       ),
     );
   }
 
   ScrollController controller1 = ScrollController();
-  Widget _buildList() {
+  List<DeliveryNote> currentPage;
+  Widget _getListView() {
     SchedulerBinding.instance.addPostFrameCallback((_) {
       controller1.animateTo(
         controller1.position.minScrollExtent,
-        duration: const Duration(milliseconds: 10),
+        duration: const Duration(milliseconds: 1000),
         curve: Curves.easeOut,
       );
     });
+    if (appModel == null || currentPage == null) {
+      return Container();
+    }
     return ListView.builder(
-        itemCount: deliveryNotes == null ? 0 : deliveryNotes.length,
+        itemCount: currentPage == null ? 0 : currentPage.length,
         controller: controller1,
         itemBuilder: (BuildContext context, int index) {
-          return new Padding(
-            padding: const EdgeInsets.only(bottom: 0.0),
-            child: new DeliveryNoteCard(
-                deliveryNote: deliveryNotes.elementAt(index), listener: this),
-          );
+          return new DeliveryNoteCard(
+              deliveryNote: currentPage.elementAt(index), listener: this);
         });
   }
+  //paging constructs
+  BasePager basePager;
+  void setBasePager() {
+    if (appModel == null) return;
+    print(
+        '_DeliveryNoteListState.setBasePager appModel.pageLimit: ${appModel.pageLimit}, get first page');
+    if (basePager == null) {
+      basePager = BasePager(
+        items: appModel.deliveryNotes,
+        pageLimit: appModel.pageLimit,
+      );
+    }
 
+    if (currentPage == null) currentPage = List();
+    var page = basePager.getFirstPage();
+    page.forEach((f) {
+      currentPage.add(f);
+    });
+    setState(() {
+
+    });
+  }
+
+  double _getPageValue() {
+    if (currentPage == null) return 0.00;
+    var t = 0.0;
+    currentPage.forEach((po) {
+      t += po.amount;
+    });
+    return t;
+  }
+
+  double _getTotalValue() {
+    if (appModel == null) return 0.00;
+    var t = 0.0;
+    appModel.deliveryNotes.forEach((po) {
+      t += po.amount;
+    });
+    return t;
+  }
+
+  int _pageNumber = 1;
+  @override
+  onNextPageRequired() {
+    print('_InvoicesOnOfferState.onNextPageRequired');
+    if (currentPage == null) {
+      currentPage = List();
+    } else {
+      currentPage.clear();
+    }
+    var page = basePager.getNextPage();
+    if (page == null) {
+      return;
+    }
+    page.forEach((f) {
+      currentPage.add(f);
+    });
+
+    setState(() {
+      _pageNumber = basePager.pageNumber;
+    });
+  }
+
+  @override
+  onPageLimit(int pageLimit) async {
+    print('_InvoicesOnOfferState.onPageLimit');
+    await appModel.updatePageLimit(pageLimit);
+    _pageNumber = 1;
+    basePager.getNextPage();
+    return null;
+  }
+
+  @override
+  onPreviousPageRequired() {
+    print('_InvoicesOnOfferState.onPreviousPageRequired');
+    if (currentPage == null) {
+      currentPage = List();
+    }
+
+    var page = basePager.getPreviousPage();
+    if (page == null) {
+      AppSnackbar.showSnackbar(
+          scaffoldKey: _scaffoldKey,
+          message: 'No more. No mas.',
+          textColor: Styles.white,
+          backgroundColor: Styles.brown);
+      return;
+    }
+    currentPage.clear();
+    page.forEach((f) {
+      currentPage.add(f);
+    });
+
+    setState(() {
+      _pageNumber = basePager.pageNumber;
+    });
+  }
+
+//end of paging constructs
   DeliveryNote deliveryNote;
   @override
   onActionPressed(int action) {
@@ -331,65 +419,7 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
 
   int pageLimit;
 
-  @override
-  onDeliveryNoteArrived(DeliveryNote note) {
-    if (deliveryNotes == null) {
-      deliveryNotes = List();
-    }
-    deliveryNotes.insert(0, note);
-    setState(() {});
-  }
 
-  @override
-  onDeliveryNoteMessage(DeliveryNote deliveryNote) {
-    prettyPrint(deliveryNote.toJson(), '### Delivery Note Arrived');
-    baseList.insert(0, deliveryNote);
-    setState(() {});
-
-    AppSnackbar.showSnackbar(
-        scaffoldKey: _scaffoldKey,
-        message: 'Delivery Note Arrived',
-        textColor: Styles.lightBlue,
-        backgroundColor: Styles.black);
-  }
-
-  @override
-  onInvoiceMessage(Invoice invoice) {
-    prettyPrint(invoice.toJson(), '### Invoice Arrived');
-
-    AppSnackbar.showSnackbar(
-        scaffoldKey: _scaffoldKey,
-        message: 'Invoice Arrived',
-        textColor: Styles.lightGreen,
-        backgroundColor: Styles.black);
-  }
-
-  @override
-  onNoMoreData() {
-    AppSnackbar.showSnackbar(
-        scaffoldKey: _scaffoldKey,
-        message: 'No mas. No more. Have not.',
-        textColor: Styles.white,
-        backgroundColor: Colors.brown.shade300);
-  }
-
-  @override
-  onInitialPage(List<Findable> items) {
-    _setNotes(items);
-  }
-
-  @override
-  onPage(List<Findable> items) {
-    _setNotes(items);
-  }
-
-  void _setNotes(List<Findable> items) {
-    deliveryNotes.clear();
-    items.forEach((f) {
-      deliveryNotes.add(f);
-    });
-    setState(() {});
-  }
 }
 
 class DeliveryNoteCard extends StatelessWidget {

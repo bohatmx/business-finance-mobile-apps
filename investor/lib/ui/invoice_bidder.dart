@@ -13,10 +13,8 @@ import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:investor/app_model.dart';
 import 'package:investor/investor_model_bloc.dart';
 import 'package:investor/ui/invoice_due_diligence.dart';
-import 'package:scoped_model/scoped_model.dart';
 
 class InvoiceBidder extends StatefulWidget {
   final Offer offer;

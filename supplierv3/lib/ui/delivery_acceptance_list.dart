@@ -20,9 +20,7 @@ class DeliveryAcceptanceList extends StatefulWidget {
 
 class _DeliveryAcceptanceListState extends State<DeliveryAcceptanceList>
     implements
-        SnackBarListener,
-        DeliveryAcceptanceListener,
-        InvoiceAcceptanceListener {
+        SnackBarListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   FirebaseMessaging _fcm = FirebaseMessaging();
 
@@ -43,17 +41,6 @@ class _DeliveryAcceptanceListState extends State<DeliveryAcceptanceList>
   _getAcceptances() async {
     user = await SharedPrefs.getUser();
     supplier = await SharedPrefs.getSupplier();
-    _fm.configureFCM(
-      deliveryAcceptanceListener: this,
-      invoiceAcceptanceListener: this,
-    );
-
-    _fcm.subscribeToTopic(
-        FCM.TOPIC_DELIVERY_ACCEPTANCES + supplier.participantId);
-    _fcm.subscribeToTopic(
-        FCM.TOPIC_INVOICE_ACCEPTANCES + supplier.participantId);
-    print(
-        '_DeliveryAcceptanceListState._getAcceptances SUBSCRIBED to delivery and invoice acceptance topics');
 
     setState(() {});
     AppSnackbar.showSnackbarWithProgressIndicator(

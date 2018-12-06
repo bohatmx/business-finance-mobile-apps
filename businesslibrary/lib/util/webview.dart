@@ -1,10 +1,13 @@
 import 'dart:async';
+import 'dart:convert';
 
+import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/util/FCM.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/peach.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:device_info/device_info.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
@@ -20,10 +23,10 @@ class BFNWebView extends StatefulWidget {
   _BFNWebViewState createState() => _BFNWebViewState();
 }
 
-class _BFNWebViewState extends State<BFNWebView> implements PeachSuccessListener, PeachCancelListener, PeachErrorListener{
-  final FirebaseMessaging fm = FirebaseMessaging();
+class _BFNWebViewState extends State<BFNWebView> {
+  final FirebaseMessaging _fcm = FirebaseMessaging();
   final Firestore fs = Firestore.instance;
-  FCM _fcm = FCM();
+
   @override
   void initState() {
     super.initState();
@@ -41,20 +44,126 @@ class _BFNWebViewState extends State<BFNWebView> implements PeachSuccessListener
 //    _listenForSuccess();
 //    print('_BFNWebViewState.runOnceAfterBuild - listening for Peach events');
 
-    _fcm.configureFCM(
-      peachSuccessListener: this,
-      peachCancelListener: this,
-      peachErrorListener: this,
-    );
-    fm.subscribeToTopic(FCM.TOPIC_PEACH_CANCEL);
-    fm.subscribeToTopic(FCM.TOPIC_PEACH_SUCCESS);
-    fm.subscribeToTopic(FCM.TOPIC_PEACH_ERROR);
+  _configureFCM();
     print('_BFNWebViewState.initState - subscribed to Peach topics');
   }
   void exit() {
     print('_BFNWebViewState.exit ********************************');
     Navigator.pop(context);
   }
+
+  //FCM methods #############################
+  _configureFCM() async {
+    print(
+        '\n\n\ ################ CONFIGURE FCM MESSAGE ###########  starting _firebaseMessaging');
+
+    AndroidDeviceInfo androidInfo;
+    IosDeviceInfo iosInfo;
+    DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+    bool isRunningIOs = false;
+    try {
+      androidInfo = await deviceInfo.androidInfo;
+      print(
+          '\n\n\n################  Running on ${androidInfo.model} ################\n\n');
+    } catch (e) {
+      print(
+          'FCM.configureFCM - error doing Android - this is NOT an Android phone!!');
+    }
+
+    try {
+      iosInfo = await deviceInfo.iosInfo;
+      print(
+          '\n\n\n################ Running on ${iosInfo.utsname.machine} ################\n\n');
+      isRunningIOs = true;
+    } catch (e) {
+      print('FCM.configureFCM error doing iOS - this is NOT an iPhone!!');
+    }
+
+    _fcm.configure(
+      onMessage: (Map<String, dynamic> map) async {
+        prettyPrint(map,
+            '\n\n################ Message from FCM ################# ${DateTime.now().toIso8601String()}');
+
+        String messageType = 'unknown';
+        String mJSON;
+        try {
+          if (isRunningIOs == true) {
+            messageType = map["messageType"];
+            mJSON = map['json'];
+            print('FCM.configureFCM platform is iOS');
+          } else {
+            var data = map['data'];
+            messageType = data["messageType"];
+            mJSON = data["json"];
+            print('FCM.configureFCM platform is Android');
+          }
+        } catch (e) {
+          print(e);
+          print(
+              'FCM.configureFCM -------- EXCEPTION handling platform detection');
+        }
+
+        print(
+            'FCM.configureFCM ************************** messageType: $messageType');
+
+        try {
+          switch (messageType) {
+
+            case 'PEACH_SUCCESS':
+              Map map = json.decode(mJSON);
+              prettyPrint(map, '\n\n########## FCM PEACH_SUCCESS :');
+              onPeachSuccess(map);
+              break;
+            case 'PEACH_CANCEL':
+              Map map = json.decode(mJSON);
+              prettyPrint(map, '\n\n########## FCM PEACH_CANCEL :');
+              onPeachCancel(map);
+              break;
+            case 'PEACH_ERROR':
+              Map map = json.decode(mJSON);
+              prettyPrint(map, '\n\n########## FCM PEACH_ERROR :');
+              onPeachError(PeachNotification.fromJson(map));
+              break;
+            case 'PEACH_NOTIFY':
+              Map map = json.decode(mJSON);
+              prettyPrint(map, '\n\n########## FCM PEACH_NOTIFY:');
+              onPeachNotify(PeachNotification.fromJson(map));
+              break;
+
+          }
+        } catch (e) {
+          print(
+              'FCM.configureFCM - Houston, we have a problem with null listener somewhere');
+          print(e);
+        }
+      },
+      onLaunch: (Map<String, dynamic> message) {
+        print('configureMessaging onLaunch *********** ');
+        prettyPrint(message, 'message delivered on LAUNCH!');
+      },
+      onResume: (Map<String, dynamic> message) {
+        print('configureMessaging onResume *********** ');
+        prettyPrint(message, 'message delivered on RESUME!');
+      },
+    );
+
+    _fcm.requestNotificationPermissions(
+        const IosNotificationSettings(sound: true, badge: true, alert: true));
+
+    _fcm.onIosSettingsRegistered
+        .listen((IosNotificationSettings settings) {});
+    _subscribeToFCMTopics();
+  }
+  _subscribeToFCMTopics() async {
+    _fcm.subscribeToTopic(FCM.TOPIC_PEACH_SUCCESS);
+    _fcm.subscribeToTopic(FCM.TOPIC_PEACH_CANCEL);
+    _fcm.subscribeToTopic(FCM.TOPIC_PEACH_ERROR);
+    _fcm.subscribeToTopic(FCM.TOPIC_PEACH_NOTIFY);
+
+    print(
+        '\n\n_DashboardState._subscribeToFCMTopics SUBSCRIBED to topis - POs, Delivery acceptance, Invoice acceptance');
+  }
+  //end of FCM methods ######################
 
   @override
   Widget build(BuildContext context) {
@@ -77,19 +186,19 @@ class _BFNWebViewState extends State<BFNWebView> implements PeachSuccessListener
       );
     }
   }
-  @override
+
   onPeachCancel(Map map) {
     print('_BFNWebViewState.onPeachCancel');
 
     Navigator.pop(context, PeachCancel);
   }
-  @override
+
   onPeachError(PeachNotification map) {
     print('_BFNWebViewState.onPeachError');
 
     Navigator.pop(context, PeachError);
   }
-  @override
+
   onPeachSuccess(Map map) {
     print(
         '\n\n_BFNWebViewState.onPeachSuccess ############################# waiting for notify with result data....\n\n');
@@ -97,7 +206,7 @@ class _BFNWebViewState extends State<BFNWebView> implements PeachSuccessListener
     Navigator.pop(context, PeachSuccess);
   }
 
-  onPeachNotify(Map map) {
+  onPeachNotify(PeachNotification map) {
     print(
         '\n\n_BFNWebViewState.onPeachNotify ############################# n\n');
 

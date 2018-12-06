@@ -24,6 +24,7 @@ import 'package:businesslibrary/util/util.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:govt/customer_bloc.dart';
 import 'package:govt/ui/dashboard.dart';
 import 'package:govt/ui/theme_util.dart';
 
@@ -351,8 +352,9 @@ class _SignUpPageState extends State<SignUpPage>
             icon: Icons.done_all);
       } else {
         //TODO - deal with error - wallet NOT on blockchain
-        exit();
+        throw Exception('Wallet not found');
       }
+      await customerModelBloc.refreshModel();
       return SignUp.Success;
     }
     setState(() {

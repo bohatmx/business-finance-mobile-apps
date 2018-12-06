@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:businesslibrary/api/data_api3.dart';
 import 'package:businesslibrary/api/list_api.dart';
@@ -24,11 +25,10 @@ import 'package:businesslibrary/util/summary_card.dart';
 import 'package:businesslibrary/util/theme_bloc.dart';
 import 'package:businesslibrary/util/util.dart';
 import 'package:businesslibrary/util/wallet_page.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:device_info/device_info.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:investor/app_model.dart';
 import 'package:investor/investor_model_bloc.dart';
 import 'package:investor/investor_summary_card.dart';
 import 'package:investor/main.dart';
@@ -36,7 +36,6 @@ import 'package:investor/ui/charts.dart';
 import 'package:investor/ui/offer_list.dart';
 import 'package:investor/ui/profile.dart';
 import 'package:investor/ui/unsettled_bids.dart';
-import 'package:scoped_model/scoped_model.dart';
 
 class Dashboard extends StatefulWidget {
   @override
@@ -53,10 +52,8 @@ class _DashboardState extends State<Dashboard>
     with TickerProviderStateMixin, WidgetsBindingObserver
     implements
         SnackBarListener,
-        InvoiceBidListener,
-        OfferListener,
-        InvestorCardListener,
-        ModelListener {
+        InvestorCardListener
+         {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   static const platform = const MethodChannel('com.oneconnect.biz.CHANNEL');
   final FirebaseMessaging _fm = new FirebaseMessaging();
@@ -94,7 +91,7 @@ class _DashboardState extends State<Dashboard>
 
   List<Offer> mOfferList = List();
   List<InvestorProfile> profiles = List();
-  FCM _fcm = FCM();
+  FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     print('_DashboardState.didChangeAppLifecycleState state: $state');
@@ -108,13 +105,118 @@ class _DashboardState extends State<Dashboard>
     });
   }
 
-  void _subscribeToFCM() {
-    _fcm.configureFCM(invoiceBidListener: this, offerListener: this);
-    _fm.subscribeToTopic(FCM.TOPIC_INVOICE_BIDS);
-    _fm.subscribeToTopic(FCM.TOPIC_OFFERS);
+
+  //FCM methods #############################
+  _configureFCM() async {
     print(
-        '_DashboardState._subscribeToFCM ########## subscribed! ${FCM.TOPIC_INVOICE_BIDS} and ${FCM.TOPIC_OFFERS}');
+        '\n\n\ ################ CONFIGURE FCM MESSAGE ###########  starting _firebaseMessaging');
+
+    AndroidDeviceInfo androidInfo;
+    IosDeviceInfo iosInfo;
+    DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+    bool isRunningIOs = false;
+    try {
+      androidInfo = await deviceInfo.androidInfo;
+      print(
+          '\n\n\n################  Running on ${androidInfo.model} ################\n\n');
+    } catch (e) {
+      print(
+          'FCM.configureFCM - error doing Android - this is NOT an Android phone!!');
+    }
+
+    try {
+      iosInfo = await deviceInfo.iosInfo;
+      print(
+          '\n\n\n################ Running on ${iosInfo.utsname.machine} ################\n\n');
+      isRunningIOs = true;
+    } catch (e) {
+      print('FCM.configureFCM error doing iOS - this is NOT an iPhone!!');
+    }
+
+    _firebaseMessaging.configure(
+      onMessage: (Map<String, dynamic> map) async {
+        prettyPrint(map,
+            '\n\n################ Message from FCM ################# ${DateTime.now().toIso8601String()}');
+
+        String messageType = 'unknown';
+        String mJSON;
+        try {
+          if (isRunningIOs == true) {
+            messageType = map["messageType"];
+            mJSON = map['json'];
+            print('FCM.configureFCM platform is iOS');
+          } else {
+            var data = map['data'];
+            messageType = data["messageType"];
+            mJSON = data["json"];
+            print('FCM.configureFCM platform is Android');
+          }
+        } catch (e) {
+          print(e);
+          print(
+              'FCM.configureFCM -------- EXCEPTION handling platform detection');
+        }
+
+        print(
+            'FCM.configureFCM ************************** messageType: $messageType');
+
+        try {
+          switch (messageType) {
+
+            case 'OFFER':
+              var m = Offer.fromJson(json.decode(mJSON));
+              prettyPrint(m.toJson(), '\n\n########## FCM OFFER MESSAGE :');
+              onOfferMessage(m);
+              break;
+            case 'INVOICE_BID':
+              var m = InvoiceBid.fromJson(json.decode(mJSON));
+              prettyPrint(
+                  m.toJson(), '\n\n########## FCM INVOICE_BID MESSAGE :');
+              onInvoiceBidMessage(m);
+              break;
+
+            case 'INVESTOR_INVOICE_SETTLEMENT':
+              Map map = json.decode(mJSON);
+              prettyPrint(
+                  map, '\n\n########## FCM INVESTOR_INVOICE_SETTLEMENT :');
+              onInvestorInvoiceSettlement(
+                  InvestorInvoiceSettlement.fromJson(map));
+              break;
+          }
+        } catch (e) {
+          print(
+              'FCM.configureFCM - Houston, we have a problem with null listener somewhere');
+          print(e);
+        }
+      },
+      onLaunch: (Map<String, dynamic> message) {
+        print('configureMessaging onLaunch *********** ');
+        prettyPrint(message, 'message delivered on LAUNCH!');
+      },
+      onResume: (Map<String, dynamic> message) {
+        print('configureMessaging onResume *********** ');
+        prettyPrint(message, 'message delivered on RESUME!');
+      },
+    );
+
+    _firebaseMessaging.requestNotificationPermissions(
+        const IosNotificationSettings(sound: true, badge: true, alert: true));
+
+    _firebaseMessaging.onIosSettingsRegistered
+        .listen((IosNotificationSettings settings) {});
+
+    _subscribeToFCMTopics();
   }
+  _subscribeToFCMTopics() async {
+
+    _firebaseMessaging.subscribeToTopic(FCM.TOPIC_GENERAL_MESSAGE);
+    _firebaseMessaging.subscribeToTopic(FCM.TOPIC_INVOICE_BIDS + investor.participantId);
+    _firebaseMessaging.subscribeToTopic(FCM.TOPIC_OFFERS);
+    _firebaseMessaging.subscribeToTopic(FCM.TOPIC_INVESTOR_INVOICE_SETTLEMENTS + investor.participantId);
+    print(
+        '\n\n_DashboardState._subscribeToFCMTopics SUBSCRIBED to topis - Bids, Offers, Settlements and General');
+  }
+  //end of FCM methods ######################
 
   void _checkSectors() async {
     sectors = await ListAPI.getSectors();
@@ -159,7 +261,7 @@ class _DashboardState extends State<Dashboard>
       );
       return;
     }
-    _subscribeToFCM();
+    _configureFCM();
     _checkSectors();
     user = await SharedPrefs.getUser();
     setState(() {
@@ -450,7 +552,7 @@ class _DashboardState extends State<Dashboard>
   }
 
   bool invoiceBidArrived = false;
-  @override
+
   onInvoiceBidMessage(InvoiceBid bid) async {
     print(
         '_DashboardState.onInvoiceBidMessage - bid arrived in dashboard ###############################');
@@ -485,7 +587,7 @@ class _DashboardState extends State<Dashboard>
   String name;
 
   bool offerArrived = false;
-  @override
+
   onOfferMessage(Offer offer) async {
     print(
         '_DashboardState.onOfferMessage #################### ${offer.supplierName} ${offer.offerAmount}');
@@ -496,7 +598,10 @@ class _DashboardState extends State<Dashboard>
     _showSnack(
         'Offer arrived ${getFormattedAmount('${offer.offerAmount}', context)}');
   }
-
+  onInvestorInvoiceSettlement(
+  InvestorInvoiceSettlement s) {
+    print('_DashboardState.onInvestorInvoiceSettlement');
+  }
   void _showSnack(String message) {
     AppSnackbar.showSnackbar(
         scaffoldKey: _scaffoldKey,

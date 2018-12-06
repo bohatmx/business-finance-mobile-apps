@@ -1,5 +1,6 @@
 import 'package:businesslibrary/data/govt_entity.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
+import 'package:businesslibrary/util/theme_bloc.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:govt/ui/dashboard.dart';
@@ -15,11 +16,17 @@ class GovtApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return new MaterialApp(
-      title: 'FinanceNetwork',
-      debugShowCheckedModeBanner: false,
-      theme: getTheme(),
-      home: new Dashboard('Business Finance Network'),
+    return StreamBuilder<int>(
+      initialData: null,
+      stream: bloc.newThemeStream,
+      builder: (context, snapShot) => MaterialApp(
+        title: 'BFNCustomer',
+        debugShowCheckedModeBanner: false,
+        theme: snapShot.data == null
+            ? ThemeUtil.getTheme(themeIndex: 0)
+            : ThemeUtil.getTheme(themeIndex: snapShot.data),
+        home: new Dashboard(null),
+      ),
     );
   }
 }

@@ -21,6 +21,7 @@ import 'package:businesslibrary/util/util.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:supplierv3/supplier_bloc.dart';
 import 'package:supplierv3/ui/dashboard.dart';
 
 class SignInPage extends StatefulWidget {
@@ -240,13 +241,12 @@ class _SignInPageState extends State<SignInPage> implements SnackBarListener {
               message: 'Unable to sign you in as a  Supplier',
               actionLabel: "close");
         } else {
-          _subscribeToFCM();
           //get wallet
           Wallet wallet = await ListAPI.getWallet('supplier',
               'resource:com.oneconnect.biz.Supplier#' + supplier.participantId);
           prettyPrint(wallet.toJson(),
               '_SignInPageState.checkResult wallet recovered: check secret..');
-
+          await supplierModelBloc.refreshModel();
           Navigator.push(
             context,
             new MaterialPageRoute(
@@ -287,12 +287,6 @@ class _SignInPageState extends State<SignInPage> implements SnackBarListener {
             actionLabel: "Close");
         break;
     }
-  }
-
-  void _subscribeToFCM() {
-    _firebaseMessaging.subscribeToTopic(FCM.TOPIC_GENERAL_MESSAGE);
-
-    print('_SignUpPageState._subscribe to general topic');
   }
 
   @override

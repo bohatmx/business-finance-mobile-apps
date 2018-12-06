@@ -156,6 +156,7 @@ class InvestorAppModel2 {
   void initialize() async {
     print('\n\nInvestorAppModel2.initialize ################################ ');
     _investor = await SharedPrefs.getInvestor();
+    if (_investor == null) return;
     _pageLimit = await SharedPrefs.getPageLimit();
     if (_pageLimit == null) {
       _pageLimit = 10;
@@ -192,6 +193,7 @@ class InvestorAppModel2 {
   }
 
   Future refreshRemoteDashboard() async {
+    if (_investor == null) return null;
     print(
         'InvestorAppModel2.refreshDashboard ----- REFRESH from functions ...............');
     try {

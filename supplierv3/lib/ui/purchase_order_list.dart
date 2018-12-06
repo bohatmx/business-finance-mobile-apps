@@ -29,8 +29,7 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
     implements
         SnackBarListener,
         POListener,
-        PagerControlListener,
-        PurchaseOrderListener {
+        PagerControlListener{
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   List<PurchaseOrder> currentPage = List(), baseList;
   FirebaseMessaging _fcm = FirebaseMessaging();
@@ -56,9 +55,6 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
 
   void _getCached() async {
     supplier = await SharedPrefs.getSupplier();
-    _fm.configureFCM(
-      purchaseOrderListener: this,
-    );
     _fcm.subscribeToTopic(FCM.TOPIC_PURCHASE_ORDERS + supplier.participantId);
     print('\n\n_PurchaseOrderListPageState._getCached SUBSCRIBED to PO topic');
 //    setState(() {});

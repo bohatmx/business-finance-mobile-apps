@@ -23,7 +23,7 @@ class SummaryCard extends StatelessWidget {
     var top = 10.0;
 
     return new Padding(
-      padding: const EdgeInsets.only(left: 20.0, right: 20.0, top: 20.0),
+      padding: const EdgeInsets.only(left: 20.0, right: 20.0, top: 10.0),
       child: Card(
         elevation: elevation == null ? 6.0 : elevation,
         child: Column(

@@ -14,6 +14,7 @@ import 'package:businesslibrary/util/util.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:govt/customer_bloc.dart';
 import 'package:govt/ui/dashboard.dart';
 
 class SignInPage extends StatefulWidget {
@@ -286,6 +287,7 @@ class _SignInPageState extends State<SignInPage> implements SnackBarListener {
           if (wallet != null) {
             msg = 'Wallet recovered';
           }
+          await customerModelBloc.refreshModel();
           Navigator.push(
             context,
             new MaterialPageRoute(builder: (context) => new Dashboard(msg)),

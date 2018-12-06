@@ -28,9 +28,7 @@ class InvoiceList extends StatefulWidget {
 class _InvoiceListState extends State<InvoiceList>
     implements
         SnackBarListener,
-        CardListener,
-        InvoiceBidListener,
-        InvoiceAcceptanceListener {
+        CardListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   static const MakeOffer = '1', CancelOffer = '2', EditInvoice = '3';
   List<Invoice> invoicesOpen = List(),

@@ -2,6 +2,7 @@ import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/delivery_note.dart';
 import 'package:businesslibrary/data/invoice.dart';
 import 'package:businesslibrary/data/invoice_bid.dart';
+import 'package:businesslibrary/data/invoice_settlement.dart';
 import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/util/Finders.dart';
@@ -144,7 +145,13 @@ class Pages {
 
   Page getPage(int index) {
     print('Pages.getPage ........... index: $index');
+    if (_pages.isEmpty) {
+      print('Pages.getPage ------------ _pages.isEmpty. QUIT, return null page ...');
+
+      return null;
+    }
     var page = _pages.elementAt(index);
+    print('Pages.getPage ###### items in new page: ${page.items.length}. check if 0');
     page.items.forEach((i) {
       if (i is Offer) {
         print(
@@ -165,6 +172,10 @@ class Pages {
       if (i is InvoiceBid) {
         print(
             'itemNumber: ${i.itemNumber} ${i.intDate} ${i.date} ${i.investorName} reservePercent: ${i.reservePercent} ${i.amount}');
+      }
+      if (i is InvestorInvoiceSettlement) {
+        print(
+            'itemNumber: ${i.itemNumber} ${i.intDate} ${i.date} ${i.investorName} supplier: ${i.supplierName} ${i.amount}');
       }
     });
     return page;
@@ -321,7 +332,7 @@ class PagerControl extends StatelessWidget {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(left: 20.0),
+                  padding: const EdgeInsets.only(left: 8.0),
                   child: GestureDetector(
                     onTap: _onNextPage,
                     child: Row(

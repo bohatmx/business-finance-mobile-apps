@@ -1,16 +1,20 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/invoice_bid.dart';
+import 'package:businesslibrary/data/invoice_settlement.dart';
 import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/util/FCM.dart';
+import 'package:businesslibrary/util/lookups.dart';
 
 import 'package:businesslibrary/util/mypager.dart';
 import 'package:businesslibrary/util/offer_card.dart';
 
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
+import 'package:device_info/device_info.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -30,7 +34,7 @@ class OfferList extends StatefulWidget {
 
 class _OfferListState extends State<OfferList>
     with WidgetsBindingObserver
-    implements InvoiceBidListener, SnackBarListener, PagerControlListener {
+    implements SnackBarListener, PagerControlListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   FirebaseMessaging _fcm = FirebaseMessaging();
   Supplier supplier;
@@ -45,14 +49,106 @@ class _OfferListState extends State<OfferList>
     _getCached();
   }
 
-  FCM _fm = FCM();
   void _getCached() async {
     supplier = await SharedPrefs.getSupplier();
-    _fm.configureFCM(invoiceBidListener: this);
     _fcm.subscribeToTopic(FCM.TOPIC_INVOICE_BIDS + supplier.participantId);
+    _fcm.subscribeToTopic(FCM.TOPIC_INVESTOR_INVOICE_SETTLEMENTS + supplier.participantId);
+    _configureFCM();
     setBasePager();
   }
+  _configureFCM() async {
+    print(
+        '\n\n\ ################ CONFIGURE FCM MESSAGE ###########  starting _firebaseMessaging');
 
+    AndroidDeviceInfo androidInfo;
+    IosDeviceInfo iosInfo;
+    DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+    bool isRunningIOs = false;
+    try {
+      androidInfo = await deviceInfo.androidInfo;
+      print(
+          '\n\n\n################  Running on ${androidInfo.model} ################\n\n');
+    } catch (e) {
+      print(
+          'FCM.configureFCM - error doing Android - this is NOT an Android phone!!');
+    }
+
+    try {
+      iosInfo = await deviceInfo.iosInfo;
+      print(
+          '\n\n\n################ Running on ${iosInfo.utsname.machine} ################\n\n');
+      isRunningIOs = true;
+    } catch (e) {
+      print('FCM.configureFCM error doing iOS - this is NOT an iPhone!!');
+    }
+
+    _fcm.configure(
+      onMessage: (Map<String, dynamic> map) async {
+        prettyPrint(map,
+            '\n\n################ Message from FCM ################# ${DateTime.now().toIso8601String()}');
+
+        String messageType = 'unknown';
+        String mJSON;
+        try {
+          if (isRunningIOs == true) {
+            messageType = map["messageType"];
+            mJSON = map['json'];
+            print('FCM.configureFCM platform is iOS');
+          } else {
+            var data = map['data'];
+            messageType = data["messageType"];
+            mJSON = data["json"];
+            print('FCM.configureFCM platform is Android');
+          }
+        } catch (e) {
+          print(e);
+          print(
+              'FCM.configureFCM -------- EXCEPTION handling platform detection');
+        }
+
+        print(
+            'FCM.configureFCM ************************** messageType: $messageType');
+
+        try {
+          switch (messageType) {
+
+            case 'INVOICE_BID':
+              var m = InvoiceBid.fromJson(json.decode(mJSON));
+              prettyPrint(
+                  m.toJson(), '\n\n########## FCM INVOICE_BID MESSAGE :');
+              onInvoiceBidMessage(m);
+              break;
+
+            case 'INVESTOR_INVOICE_SETTLEMENT':
+              Map map = json.decode(mJSON);
+              prettyPrint(
+                  map, '\n\n########## FCM INVESTOR_INVOICE_SETTLEMENT :');
+              onInvestorInvoiceSettlement(
+                  InvestorInvoiceSettlement.fromJson(map));
+              break;
+          }
+        } catch (e) {
+          print(
+              'FCM.configureFCM - Houston, we have a problem with null listener somewhere');
+          print(e);
+        }
+      },
+      onLaunch: (Map<String, dynamic> message) {
+        print('configureMessaging onLaunch *********** ');
+        prettyPrint(message, 'message delivered on LAUNCH!');
+      },
+      onResume: (Map<String, dynamic> message) {
+        print('configureMessaging onResume *********** ');
+        prettyPrint(message, 'message delivered on RESUME!');
+      },
+    );
+
+    _fcm.requestNotificationPermissions(
+        const IosNotificationSettings(sound: true, badge: true, alert: true));
+
+    _fcm.onIosSettingsRegistered
+        .listen((IosNotificationSettings settings) {});
+  }
   _checkBids(Offer offer) async {
     this.offer = offer;
 
@@ -167,7 +263,7 @@ class _OfferListState extends State<OfferList>
   }
 
   @override
-  onInvoiceBidMessage(InvoiceBid invoiceBid) {
+  onInvoiceBidMessage(InvoiceBid invoiceBid) async{
     print(
         '\n\n_OfferListState.onInvoiceBidMessage, ${invoiceBid.investorName} amount: ${invoiceBid.amount}');
     AppSnackbar.showSnackbar(
@@ -176,7 +272,7 @@ class _OfferListState extends State<OfferList>
         textColor: Styles.white,
         backgroundColor: Styles.black);
 
-    appModel.addUnsettledInvoiceBid(invoiceBid);
+    await supplierModelBloc.refreshModel();
   }
 
   //paging constructs
@@ -273,6 +369,17 @@ class _OfferListState extends State<OfferList>
     setState(() {
       _pageNumber = basePager.pageNumber;
     });
+  }
+
+  void onInvestorInvoiceSettlement(InvestorInvoiceSettlement investorInvoiceSettlement) async{
+    print('_OfferListState.onInvestorInvoiceSettlement');
+    AppSnackbar.showSnackbar(
+        scaffoldKey: _scaffoldKey,
+        message: 'Invoice Settlement arrived',
+        textColor: Styles.white,
+        backgroundColor: Styles.black);
+
+    await supplierModelBloc.refreshModel();
   }
 
   //end of paging constructs

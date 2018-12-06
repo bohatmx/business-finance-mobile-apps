@@ -28,9 +28,7 @@ class NewInvoicePage extends StatefulWidget {
 ///
 class _NewInvoicePageState extends State<NewInvoicePage>
     implements
-        SnackBarListener,
-        DeliveryAcceptanceListener,
-        InvoiceAcceptanceListener {
+        SnackBarListener {
   final GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 

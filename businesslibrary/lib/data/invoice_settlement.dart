@@ -15,7 +15,6 @@ class InvestorInvoiceSettlement extends Findable {
 
   InvestorInvoiceSettlement(
       {this.invoiceSettlementId,
-      this.date,
       this.amount,
       this.peachPaymentKey,
       this.invoiceBid,
@@ -36,6 +35,11 @@ class InvestorInvoiceSettlement extends Findable {
   InvestorInvoiceSettlement.fromJson(Map data) {
     this.invoiceSettlementId = data['invoiceSettlementId'];
     this.date = data['date'];
+    if (data['intDate'] == null) {
+      this.intDate = DateTime.parse(this.date).millisecondsSinceEpoch;
+    } else {
+      this.intDate = data['intDate'];
+    }
     this.amount = data['amount'] * 1.0;
     this.peachPaymentKey = data['peachPaymentKey'];
     this.peachTransactionId = data['peachTransactionId'];
@@ -59,6 +63,7 @@ class InvestorInvoiceSettlement extends Findable {
   Map<String, dynamic> toJson() => <String, dynamic>{
         'invoiceSettlementId': invoiceSettlementId,
         'date': date,
+        'intDate': intDate,
         'invoiceBidDocRef': invoiceBidDocRef,
         'amount': amount,
         'peachPaymentKey': peachPaymentKey,

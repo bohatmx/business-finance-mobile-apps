@@ -13,6 +13,7 @@ import 'package:businesslibrary/util/util.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:investor/investor_model_bloc.dart';
 import 'package:investor/ui/dashboard.dart';
 
 class SignInPage extends StatefulWidget {
@@ -151,6 +152,7 @@ class _SignInPageState extends State<SignInPage> implements SnackBarListener {
               'resource:com.oneconnect.biz.Investor#' + investor.participantId);
           print(
               '_SignInPageState.checkResult wallet recovered ${wallet.toJson()}');
+          await investorModelBloc.refreshDashboard();
           Navigator.push(
             context,
             new MaterialPageRoute(

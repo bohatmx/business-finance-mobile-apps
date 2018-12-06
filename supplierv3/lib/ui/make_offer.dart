@@ -31,7 +31,7 @@ class MakeOfferPage extends StatefulWidget {
 }
 
 class _MakeOfferPageState extends State<MakeOfferPage>
-    implements SnackBarListener, InvoiceBidListener, PurchaseOrderListener {
+    implements SnackBarListener {
   static const NameSpace = 'resource:com.oneconnect.biz.';
   static GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   FirebaseMessaging _fcm = FirebaseMessaging();
@@ -110,10 +110,7 @@ class _MakeOfferPageState extends State<MakeOfferPage>
   _getSupplier() async {
     supplier = await SharedPrefs.getSupplier();
     user = await SharedPrefs.getUser();
-    _fm.configureFCM(
-      invoiceBidListener: this,
-      purchaseOrderListener: this,
-    );
+
 
     var offers = await ListAPI.getOpenOffersBySupplier(supplier.participantId);
     offers.forEach((o) {

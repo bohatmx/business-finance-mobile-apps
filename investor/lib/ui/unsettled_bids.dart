@@ -21,7 +21,7 @@ class UnsettledBids extends StatefulWidget {
 }
 
 class _UnsettledBidsState extends State<UnsettledBids>
-    implements PagerControlListener, InvoiceBidListener, PeachNotifyListener {
+    implements PagerControlListener{
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   Investor investor;
   List<InvoiceBid> currentPage = List();
@@ -42,16 +42,9 @@ class _UnsettledBidsState extends State<UnsettledBids>
     investor = await SharedPrefs.getInvestor();
     _setBasePager();
     setState(() {
-      _subscribeToFCM();
     });
   }
 
-  void _subscribeToFCM() {
-    _fcm.configureFCM(invoiceBidListener: this, peachNotifyListener: this);
-    _fm.subscribeToTopic(FCM.TOPIC_INVOICE_BIDS);
-    _fm.subscribeToTopic(FCM.TOPIC_OFFERS);
-    print('_DashboardState._subscribeToFCM ########## subscribed!');
-  }
 
   double _getHeight() {
     if (appModel.unsettledInvoiceBids == null) return 200.0;

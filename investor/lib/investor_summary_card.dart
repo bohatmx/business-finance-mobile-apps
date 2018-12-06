@@ -1,7 +1,6 @@
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:flutter/material.dart';
-import 'package:investor/app_model.dart';
 import 'package:investor/investor_model_bloc.dart';
 
 class InvestorSummaryCard extends StatelessWidget {

@@ -26,7 +26,7 @@ class PurchaseOrderPageGovt extends StatefulWidget {
 }
 
 class _PurchaseOrderPageState extends State<PurchaseOrderPageGovt>
-    implements SnackBarListener, DeliveryNoteListener, InvoiceListener {
+    implements SnackBarListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   final GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
   FirebaseMessaging _fcm = FirebaseMessaging();
@@ -35,7 +35,7 @@ class _PurchaseOrderPageState extends State<PurchaseOrderPageGovt>
   User user;
   GovtEntity govtEntity;
   Company company;
-  Supplier supplier;
+  GovtEntity supplier;
   String poNumber, amount;
 
   @override
@@ -67,19 +67,8 @@ class _PurchaseOrderPageState extends State<PurchaseOrderPageGovt>
     }
     govtEntity = await SharedPrefs.getGovEntity();
     assert(govtEntity != null);
-    FCM.configureFCM(
-      context: context,
-      deliveryNoteListener: this,
-      invoiceListener: this,
-    );
-    _fcm.subscribeToTopic(FCM.TOPIC_DELIVERY_NOTES + govtEntity.participantId);
-    _fcm.subscribeToTopic(FCM.TOPIC_INVOICES + govtEntity.participantId);
-    print(
-        '_PurchaseOrderPageState._getCachedPrefs SUBSCRIBED to delivery note and invoice topics');
 
-    if (govtEntity != null) {
-      name = govtEntity.name;
-    }
+    name = govtEntity.name;
 
     setState(() {});
   }

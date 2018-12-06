@@ -19,7 +19,7 @@ class SupplierApp extends StatelessWidget {
       initialData: null,
       stream: bloc.newThemeStream,
       builder: (context, snapShot) => MaterialApp(
-        title: 'FinanceNetwork',
+        title: 'BFNSupplier',
         debugShowCheckedModeBanner: false,
         theme: snapShot.data == null
             ? ThemeUtil.getTheme(themeIndex: 0)

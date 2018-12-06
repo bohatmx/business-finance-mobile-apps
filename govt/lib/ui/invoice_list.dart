@@ -5,19 +5,15 @@ import 'package:businesslibrary/data/govt_entity.dart';
 import 'package:businesslibrary/data/invoice.dart';
 import 'package:businesslibrary/data/invoice_acceptance.dart';
 import 'package:businesslibrary/data/user.dart';
-import 'package:businesslibrary/util/FCM.dart';
 import 'package:businesslibrary/util/Finders.dart';
-import 'package:businesslibrary/util/database.dart';
 import 'package:businesslibrary/util/lookups.dart';
-import 'package:businesslibrary/util/pager.dart';
-import 'package:businesslibrary/util/pager_helper.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:govt/customer_bloc.dart';
 import 'package:govt/ui/invoice_settlement.dart';
-import 'package:scoped_model/scoped_model.dart';
 import 'package:businesslibrary/util/mypager.dart';
 
 
@@ -27,17 +23,15 @@ class InvoiceList extends StatefulWidget {
 }
 
 class _InvoiceListState extends State<InvoiceList>
-    implements SnackBarListener, InvoiceListener, PagerControlListener {
+    implements SnackBarListener, PagerControlListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   FirebaseMessaging _fcm = FirebaseMessaging();
 
   GovtEntity entity;
   List<Invoice> currentPage = List();
-  List<Invoice> baseList;
   Invoice invoice;
   User user;
-  int currentStartKey;
-  DashboardData dashboardData;
+  CustomerApplicationModel appModel;
   int pageLimit;
 
   @override
@@ -47,57 +41,12 @@ class _InvoiceListState extends State<InvoiceList>
 
   }
 
-  _getInvoices() async {
-    print('_InvoiceListState._getInvoices ..........');
-    AppSnackbar.showSnackbar(
-        scaffoldKey: _scaffoldKey,
-        message: 'Looding invoices ...',
-        textColor: Colors.yellow,
-        backgroundColor: Colors.black);
-    baseList = await Database.getInvoices();
-    int num = 1;
-    baseList.forEach((i) {
-      i.itemNumber = num;
-      num++;
-    });
-    _setBasePager();
-    //_getInvoicePageItems();
-
-    try {
-      _scaffoldKey.currentState.hideCurrentSnackBar();
-    } catch (e) {}
-    print(
-        '\n\n_InvoiceListState._getInvoices, ############ found: ${currentPage.length} ');
-    setState(() {});
-  }
-
-  _getInvoicePageItems() {
-    var result = Finder.find(
-        intDate: currentStartKey, pageLimit: pageLimit, baseList: baseList);
-    currentPage.clear();
-    result.items.forEach((item) {
-      if (item is Invoice) {
-        currentPage.add(item);
-        print(
-            '${item.date} - ${item.intDate} ${item.customerName} --> ${item.supplierName}');
-      }
-    });
-    currentStartKey = result.startKey;
-  }
-
   _getCached() async {
     entity = await SharedPrefs.getGovEntity();
     user = await SharedPrefs.getUser();
-    dashboardData = await SharedPrefs.getDashboardData();
-    pageLimit = await SharedPrefs.getPageLimit();
-
-    FCM.configureFCM(
-      context: context,
-      invoiceListener: this,
-    );
-    _fcm.subscribeToTopic(FCM.TOPIC_INVOICES + entity.participantId);
-    print('_InvoiceListState._getCached SUBSCRIBED to invoices topic');
-    _getInvoices();
+    appModel = customerModelBloc.appModel;
+    pageLimit = appModel.pageLimit;
+    _setBasePager();
     setState(() {});
   }
 
@@ -127,7 +76,6 @@ class _InvoiceListState extends State<InvoiceList>
       if (result != null) {
         showError();
       } else {
-        _getInvoices();
         AppSnackbar.showSnackbar(
             scaffoldKey: _scaffoldKey,
             message: 'Invoice accepted',
@@ -161,7 +109,7 @@ class _InvoiceListState extends State<InvoiceList>
   Widget _getBottom() {
     return PreferredSize(
       preferredSize: Size.fromHeight(200.0),
-      child:  baseList == null? Container() : Column(
+      child:  appModel == null? Container() : Column(
         children: <Widget>[
           Padding(
             padding: const EdgeInsets.only(bottom: 10.0),
@@ -180,7 +128,7 @@ class _InvoiceListState extends State<InvoiceList>
               itemName: 'Invoice Bids to Settle',
               pageLimit: pageLimit,
               elevation: 16.0,
-              items: baseList.length,
+              items: appModel.invoices.length,
               listener: this,
               color: Colors.purple.shade50,
               pageNumber: _pageNumber,
@@ -191,9 +139,13 @@ class _InvoiceListState extends State<InvoiceList>
     );
   }
 
-
+  bool basePagerHasExecuted = false;
   @override
   Widget build(BuildContext context) {
+    if (!basePagerHasExecuted) {
+      _setBasePager();
+      basePagerHasExecuted = true;
+    }
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
@@ -205,7 +157,9 @@ class _InvoiceListState extends State<InvoiceList>
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.refresh),
-            onPressed: _getInvoices,
+            onPressed: () {
+              customerModelBloc.refreshModel();
+            },
           )
         ],
         bottom: _getBottom(),
@@ -216,7 +170,7 @@ class _InvoiceListState extends State<InvoiceList>
         child: new Column(
           children: <Widget>[
             new Flexible(
-              child: _buildList(),
+              child: _getListView(),
             ),
           ],
         ),
@@ -226,7 +180,7 @@ class _InvoiceListState extends State<InvoiceList>
 
   ScrollController controller1 = ScrollController();
 
-  Widget _buildList() {
+  Widget _getListView() {
     SchedulerBinding.instance.addPostFrameCallback((_) {
       controller1.animateTo(
         controller1.position.minScrollExtent,
@@ -421,7 +375,7 @@ class _InvoiceListState extends State<InvoiceList>
         message: 'Invoice arrived',
         textColor: Styles.lightGreen,
         backgroundColor: Styles.black);
-    baseList.insert(0, invoice);
+
     setState(() {});
   }
 
@@ -455,10 +409,10 @@ class _InvoiceListState extends State<InvoiceList>
   //paging constructs
   BasePager basePager;
   void _setBasePager() {
-
+    if (appModel == null) return;
     if (basePager == null) {
       basePager = BasePager(
-        items: baseList,
+        items: appModel.invoices,
         pageLimit: pageLimit,
       );
     }
@@ -483,9 +437,9 @@ class _InvoiceListState extends State<InvoiceList>
   }
 
   double _getTotalValue() {
-    if (baseList  == null) return 0.00;
+    if (appModel.invoices  == null) return 0.00;
     var t = 0.0;
-    baseList.forEach((po) {
+    appModel.invoices.forEach((po) {
       t += po.amount;
     });
     return t;
@@ -522,7 +476,7 @@ class _InvoiceListState extends State<InvoiceList>
     this.pageLimit = pageLimit;
     _pageNumber = 1;
     basePager = BasePager(
-      items: baseList,
+      items: appModel.invoices,
       pageLimit: pageLimit,
     );
     currentPage.clear();
@@ -568,7 +522,8 @@ class _InvoiceListState extends State<InvoiceList>
 class InvoiceCard extends StatelessWidget {
   final Invoice invoice;
   final BuildContext context;
-  InvoiceCard({this.invoice, this.context});
+  final double elevation;
+  InvoiceCard({this.invoice, this.context, this.elevation});
 
   @override
   Widget build(BuildContext context) {
@@ -583,7 +538,7 @@ class InvoiceCard extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(left: 12.0, right: 12.0, bottom: 4.0),
       child: Card(
-        elevation: 2.0,
+        elevation: elevation == null? 1.0 : elevation,
         child: Padding(
           padding: const EdgeInsets.only(left: 12.0),
           child: Column(

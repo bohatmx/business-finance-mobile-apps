@@ -17,6 +17,7 @@ import 'package:businesslibrary/util/util.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:investor/investor_model_bloc.dart';
 import 'package:investor/ui/dashboard.dart';
 import 'package:investor/ui/profile.dart';
 
@@ -279,7 +280,7 @@ class _SignUpPageState extends State<SignUpPage>
     }
   }
 
-  void checkResult(int result, Investor investor) {
+  void checkResult(int result, Investor investor) async{
     switch (result) {
       case SignUp.Success:
         print('_SignUpPageState._onSavePressed SUCCESS!!!!!!');
@@ -295,7 +296,7 @@ class _SignUpPageState extends State<SignUpPage>
               actionLabel: 'Start',
               action: 0,
               icon: Icons.done_all);
-          _subscribeToFCM();
+          await investorModelBloc.refreshDashboard();
           checkProfile();
         } else {
           //TODO - wallet not on blockchain.
@@ -345,12 +346,6 @@ class _SignUpPageState extends State<SignUpPage>
         break;
     }
   }
-
-  void _subscribeToFCM() {
-    _firebaseMessaging.subscribeToTopic('invoiceBids');
-    _firebaseMessaging.subscribeToTopic('general');
-  }
-
   void _checkSectors() async {
     sectors = await ListAPI.getSectors();
     if (sectors.isEmpty) {

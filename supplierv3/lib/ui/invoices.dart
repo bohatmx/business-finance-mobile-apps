@@ -6,7 +6,6 @@ import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/data/offerCancellation.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/mypager.dart';
-import 'package:businesslibrary/util/pager.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:flutter/material.dart';
@@ -29,7 +28,6 @@ class _InvoicesOnOfferState extends State<InvoicesOnOffer>
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   int currentStartKey;
   SupplierApplicationModel appModel;
-  Pager3 pager;
 
   @override
   void initState() {

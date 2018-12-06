@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
@@ -7,16 +8,21 @@ import 'package:businesslibrary/data/delivery_note.dart';
 import 'package:businesslibrary/data/invoice.dart';
 import 'package:businesslibrary/data/invoice_acceptance.dart';
 import 'package:businesslibrary/data/invoice_bid.dart';
+import 'package:businesslibrary/data/invoice_settlement.dart';
+import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/FCM.dart';
 import 'package:businesslibrary/util/invoice_bid_card.dart';
 import 'package:businesslibrary/util/lookups.dart';
+import 'package:businesslibrary/util/message.dart';
+
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:businesslibrary/util/theme_bloc.dart';
 import 'package:businesslibrary/util/wallet_page.dart';
+import 'package:device_info/device_info.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -44,12 +50,8 @@ class Dashboard extends StatefulWidget {
 class _DashboardState extends State<Dashboard>
     with TickerProviderStateMixin
     implements
-        SnackBarListener,
-        PurchaseOrderListener,
-        DeliveryAcceptanceListener,
-        InvoiceAcceptanceListener,
-        InvoiceBidListener,
-        GeneralMessageListener {
+        SnackBarListener
+         {
   static GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   static const platform = const MethodChannel('com.oneconnect.files/pdf');
   FirebaseMessaging _fcm = FirebaseMessaging();
@@ -60,7 +62,7 @@ class _DashboardState extends State<Dashboard>
   User user;
   String fullName;
   DeliveryAcceptance acceptance;
-  FCM _fm = FCM();
+
   @override
   initState() {
     super.initState();
@@ -72,11 +74,172 @@ class _DashboardState extends State<Dashboard>
 
     _getCachedPrefs();
     appModel = supplierModelBloc.appModel;
+    _configureFCM();
   }
+
+  //FCM methods #############################
+  _configureFCM() async {
+    print(
+        '\n\n\ ################ CONFIGURE FCM MESSAGE ###########  starting _firebaseMessaging');
+
+    AndroidDeviceInfo androidInfo;
+    IosDeviceInfo iosInfo;
+    DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+    bool isRunningIOs = false;
+    try {
+      androidInfo = await deviceInfo.androidInfo;
+      print(
+          '\n\n\n################  Running on ${androidInfo.model} ################\n\n');
+    } catch (e) {
+      print(
+          'FCM.configureFCM - error doing Android - this is NOT an Android phone!!');
+    }
+
+    try {
+      iosInfo = await deviceInfo.iosInfo;
+      print(
+          '\n\n\n################ Running on ${iosInfo.utsname.machine} ################\n\n');
+      isRunningIOs = true;
+    } catch (e) {
+      print('FCM.configureFCM error doing iOS - this is NOT an iPhone!!');
+    }
+
+    _fcm.configure(
+        onMessage: (Map<String, dynamic> map) async {
+          prettyPrint(map,
+              '\n\n################ Message from FCM ################# ${DateTime.now().toIso8601String()}');
+
+          String messageType = 'unknown';
+          String mJSON;
+          try {
+            if (isRunningIOs == true) {
+              messageType = map["messageType"];
+              mJSON = map['json'];
+              print('FCM.configureFCM platform is iOS');
+            } else {
+              var data = map['data'];
+              messageType = data["messageType"];
+              mJSON = data["json"];
+              print('FCM.configureFCM platform is Android');
+            }
+          } catch (e) {
+            print(e);
+            print(
+                'FCM.configureFCM -------- EXCEPTION handling platform detection');
+          }
+
+          print(
+              'FCM.configureFCM ************************** messageType: $messageType');
+
+          try {
+            switch (messageType) {
+              case 'PURCHASE_ORDER':
+                var m = PurchaseOrder.fromJson(json.decode(mJSON));
+                prettyPrint(
+                    m.toJson(), '\n\n########## FCM PURCHASE_ORDER MESSAGE :');
+                onPurchaseOrderMessage(m);
+                break;
+              case 'DELIVERY_NOTE':
+                var m = DeliveryNote.fromJson(json.decode(mJSON));
+                prettyPrint(
+                    m.toJson(), '\n\n########## FCM DELIVERY_NOTE MESSAGE :');
+                onDeliveryNoteMessage(m);
+                break;
+              case 'DELIVERY_ACCEPTANCE':
+                var m = DeliveryAcceptance.fromJson(json.decode(mJSON));
+                prettyPrint(m.toJson(),
+                    '\n\n########## FCM DELIVERY_ACCEPTANCE MESSAGE :');
+                onDeliveryAcceptanceMessage(m);
+                break;
+              case 'INVOICE':
+                var m = Invoice.fromJson(json.decode(mJSON));
+                prettyPrint(m.toJson(), '\n\n########## FCM MINVOICE ESSAGE :');
+                onInvoiceMessage(m);
+                break;
+              case 'INVOICE_ACCEPTANCE':
+                var m = InvoiceAcceptance.fromJson(json.decode(mJSON));
+                prettyPrint(m.toJson(), ' FCM INVOICE_ACCEPTANCE MESSAGE :');
+                onInvoiceAcceptanceMessage(m);
+                break;
+              case 'OFFER':
+                var m = Offer.fromJson(json.decode(mJSON));
+                prettyPrint(m.toJson(), '\n\n########## FCM OFFER MESSAGE :');
+                onOfferMessage(m);
+                break;
+              case 'INVOICE_BID':
+                var m = InvoiceBid.fromJson(json.decode(mJSON));
+                prettyPrint(
+                    m.toJson(), '\n\n########## FCM INVOICE_BID MESSAGE :');
+                onInvoiceBidMessage(m);
+                break;
+
+              case 'INVESTOR_INVOICE_SETTLEMENT':
+                Map map = json.decode(mJSON);
+                prettyPrint(
+                    map, '\n\n########## FCM INVESTOR_INVOICE_SETTLEMENT :');
+                onInvestorInvoiceSettlement(
+                    InvestorInvoiceSettlement.fromJson(map));
+                break;
+            }
+          } catch (e) {
+            print(
+                'FCM.configureFCM - Houston, we have a problem with null listener somewhere');
+            print(e);
+          }
+        },
+      onLaunch: (Map<String, dynamic> message) {
+        print('configureMessaging onLaunch *********** ');
+        prettyPrint(message, 'message delivered on LAUNCH!');
+      },
+      onResume: (Map<String, dynamic> message) {
+        print('configureMessaging onResume *********** ');
+        prettyPrint(message, 'message delivered on RESUME!');
+      },
+    );
+
+    _fcm.requestNotificationPermissions(
+        const IosNotificationSettings(sound: true, badge: true, alert: true));
+
+    _fcm.onIosSettingsRegistered
+        .listen((IosNotificationSettings settings) {});
+
+//    _fcm.getToken().then((String token) async {
+//      assert(token != null);
+//      var oldToken = await SharedPrefs.getFCMToken();
+//      if (token != oldToken) {
+//        await SharedPrefs.saveFCMToken(token);
+//        print('configureMessaging fcm token saved: $token');
+//        _updateToken(token);
+//      } else {
+//        print('\nFCM: access token has not changed. no need to save. duh!');
+//      }
+//    }).catchError((e) {
+//      print('configureMessaging ERROR fcmToken $e');
+//    });
+    _subscribeToFCMTopics();
+  }
+  _subscribeToFCMTopics() async {
+    _fcm.subscribeToTopic(FCM.TOPIC_PURCHASE_ORDERS + supplier.participantId);
+    _fcm.subscribeToTopic(
+        FCM.TOPIC_DELIVERY_ACCEPTANCES + supplier.participantId);
+    _fcm.subscribeToTopic(
+        FCM.TOPIC_INVOICE_ACCEPTANCES + supplier.documentReference);
+    _fcm.subscribeToTopic(FCM.TOPIC_GENERAL_MESSAGE);
+    _fcm.subscribeToTopic(FCM.TOPIC_INVOICE_BIDS + supplier.participantId);
+    _fcm.subscribeToTopic(FCM.TOPIC_OFFERS + supplier.participantId);
+    _fcm.subscribeToTopic(FCM.TOPIC_INVOICES + supplier.participantId);
+    _fcm.subscribeToTopic(FCM.TOPIC_DELIVERY_NOTES+ supplier.participantId);
+    _fcm.subscribeToTopic(FCM.TOPIC_INVESTOR_INVOICE_SETTLEMENTS+ supplier.participantId);
+    print(
+        '\n\n_DashboardState._subscribeToFCMTopics SUBSCRIBED to topis - POs, Delivery acceptance, Invoice acceptance');
+  }
+  //end of FCM methods ######################
 
   @override
   void dispose() {
+    print('_DashboardState.dispose closing stream: supplierModelBloc.closeStream();');
     animationController.dispose();
+    supplierModelBloc.closeStream();
     super.dispose();
   }
 
@@ -96,27 +259,10 @@ class _DashboardState extends State<Dashboard>
     name = supplier.name;
     setState(() {});
     //
-    _fm.configureFCM(
-      purchaseOrderListener: this,
-      deliveryAcceptanceListener: this,
-      invoiceAcceptanceListener: this,
-      invoiceBidListener: this,
-      generalMessageListener: this,
-    );
-    _subscribeToFCMTopics();
+
   }
 
-  _subscribeToFCMTopics() async {
-    _fcm.subscribeToTopic(FCM.TOPIC_PURCHASE_ORDERS + supplier.participantId);
-    _fcm.subscribeToTopic(
-        FCM.TOPIC_DELIVERY_ACCEPTANCES + supplier.participantId);
-    _fcm.subscribeToTopic(
-        FCM.TOPIC_INVOICE_ACCEPTANCES + supplier.documentReference);
-    _fcm.subscribeToTopic(FCM.TOPIC_GENERAL_MESSAGE);
-    _fcm.subscribeToTopic(FCM.TOPIC_INVOICE_BIDS + supplier.participantId);
-    print(
-        '\n\n_DashboardState._subscribeToFCMTopics SUBSCRIBED to topis - POs, Delivery acceptance, Invoice acceptance');
-  }
+
 
   _showBottomSheet(InvoiceBid bid) {
     if (_scaffoldKey.currentState == null) return;
@@ -198,6 +344,26 @@ class _DashboardState extends State<Dashboard>
       initialData: supplierModelBloc.appModel,
       stream: supplierModelBloc.appModelStream,
       builder: (context, snapshot) {
+        switch(snapshot.connectionState) {
+          case ConnectionState.none:
+            print('_DashboardState.build ConnectionState.nonne');
+            break;
+          case ConnectionState.active:
+            print('_DashboardState.build ConnectionState.active');
+            break;
+          case ConnectionState.done:
+            print('_DashboardState.build ConnectionState.done');
+            break;
+          case ConnectionState.waiting:
+            print('_DashboardState.build ConnectionState.waiting');
+
+            break;
+          default:
+            if (snapshot.hasError) {
+              print('_DashboardState.build snapshot has error');
+            }
+            break;
+        }
         appModel = snapshot.data;
         return WillPopScope(
           onWillPop: () async => false,
@@ -460,8 +626,8 @@ class _DashboardState extends State<Dashboard>
 
   InvoiceBid invoiceBid;
   bool isAddInvoiceAcceptance = false, isAddDeliveryAcceptance = false;
-  @override
-  onDeliveryAcceptanceMessage(DeliveryAcceptance acceptance) {
+
+  onDeliveryAcceptanceMessage(DeliveryAcceptance acceptance) async{
     deliveryAcceptance = acceptance;
     _showSnack('Delivery Acceptance arrived', Colors.green);
 
@@ -473,10 +639,11 @@ class _DashboardState extends State<Dashboard>
         subTitle: acceptance.customerName
       ));
     });
+    await supplierModelBloc.refreshModel();
   }
 
-  @override
-  onInvoiceAcceptanceMessage(InvoiceAcceptance acceptance) {
+
+  onInvoiceAcceptanceMessage(InvoiceAcceptance acceptance) async{
     invoiceAcceptance = acceptance;
     _showSnack('Invoice Acceptance arrived', Colors.yellow);
     setState(() {
@@ -487,10 +654,11 @@ class _DashboardState extends State<Dashboard>
         subTitle: acceptance.customerName,
       ));
     });
+    await supplierModelBloc.refreshModel();
   }
 
   bool isAddInvoiceBid = false;
-  @override
+
   onInvoiceBidMessage(InvoiceBid invoiceBid) async {
     this.invoiceBid = invoiceBid;
     print(
@@ -505,11 +673,12 @@ class _DashboardState extends State<Dashboard>
         subTitle: invoiceBid.investorName
       ));
     });
+    await supplierModelBloc.refreshModel();
   }
 
   bool isAddPurchaseOrder = false;
-  @override
-  onPurchaseOrderMessage(PurchaseOrder purchaseOrder) {
+
+  onPurchaseOrderMessage(PurchaseOrder purchaseOrder) async{
     _showSnack('Purchase Order arrived', Colors.lime);
     this.purchaseOrder = purchaseOrder;
     setState(() {
@@ -520,10 +689,11 @@ class _DashboardState extends State<Dashboard>
         subTitle: purchaseOrder.purchaserName
       ));
     });
+    await supplierModelBloc.refreshModel();
   }
 
-  @override
-  onGeneralMessage(Map map) {
+
+  onGeneralMessage(Map map) async{
     _showSnack(map['message'], Colors.white);
     setState(() {
       messages.add(Message(
@@ -531,6 +701,7 @@ class _DashboardState extends State<Dashboard>
         message: map['message'],
       ));
     });
+    await supplierModelBloc.refreshModel();
   }
 
   void _showSnack(String message, Color color) {
@@ -562,6 +733,53 @@ class _DashboardState extends State<Dashboard>
 
   void _toggleTheme() {
     bloc.changeToRandomTheme();
+  }
+
+  void onInvestorInvoiceSettlement(InvestorInvoiceSettlement investorInvoiceSettlement) async{
+    setState(() {
+      messages.add(Message(
+          type: Message.SETTLEMENT,
+          message:
+          'Invoice Settlement arrived: ${getFormattedDateShortWithTime('${investorInvoiceSettlement.date}', context)} ',
+          subTitle: investorInvoiceSettlement.customerName
+      ));
+    });
+    await supplierModelBloc.refreshModel();
+  }
+
+  void onDeliveryNoteMessage(DeliveryNote m) async{
+    setState(() {
+      messages.add(Message(
+          type: Message.DELIVERY_NOTE,
+          message:
+          'Delivery Note arrived: ${getFormattedDateShortWithTime('${m.date}', context)} ',
+          subTitle: m.customerName
+      ));
+    });
+    await supplierModelBloc.refreshModel();
+  }
+
+  void onOfferMessage(Offer offer) async{
+    setState(() {
+      messages.add(Message(
+          type: Message.OFFER,
+          message:
+          'Offer arrived: ${getFormattedDateShortWithTime('${offer.date}', context)} ',
+          subTitle: offer.customerName
+      ));
+    });
+    await supplierModelBloc.refreshModel();
+  }
+  void onInvoiceMessage(Invoice invoice) async{
+    setState(() {
+      messages.add(Message(
+          type: Message.INVOICE,
+          message:
+          'Invoice arrived: ${getFormattedDateShortWithTime('${invoice.date}', context)} ',
+          subTitle: invoice.customerName
+      ));
+    });
+    await supplierModelBloc.refreshModel();
   }
 }
 
@@ -698,35 +916,3 @@ class OfferSummaryCard extends StatelessWidget {
   }
 }
 
-class Message {
-  int type;
-  String message, subTitle;
-  Icon icon;
-
-  Message({this.type, this.message, this.subTitle}) {
-    switch(type) {
-      case PURCHASE_ORDER:
-        icon = Icon(Icons.shopping_cart, color: Colors.black);
-        break;
-      case DELIVERY_ACCEPTANCE:
-        icon = Icon(FontAwesomeIcons.truck, color: Colors.pink);
-        break;
-      case INVOICE_ACCEPTANCE:
-        icon = Icon(FontAwesomeIcons.inbox, color: Colors.blue);
-        break;
-      case GENERAL_MESSAGE:
-        icon = Icon(Icons.add_alert, color: Colors.black);
-        break;
-      case INVOICE_BID:
-        icon = Icon(Icons.account_balance, color: Colors.teal,);
-        break;
-    }
-  }
-
-  static const int PURCHASE_ORDER = 1,
-      DELIVERY_ACCEPTANCE = 2,
-      INVOICE_ACCEPTANCE = 3,
-      INVOICE_BID = 4,
-      SETTLEMENT = 5,
-      GENERAL_MESSAGE = 6;
-}

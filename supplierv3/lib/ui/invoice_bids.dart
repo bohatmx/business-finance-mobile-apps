@@ -25,10 +25,8 @@ class InvoiceBids extends StatefulWidget {
 
 class _InvoiceBidsState extends State<InvoiceBids>
     implements
-        SnackBarListener,
-        InvoiceBidListener,
-        PurchaseOrderListener,
-        InvoiceAcceptanceListener {
+        SnackBarListener
+        {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   final FirebaseMessaging _fcm = FirebaseMessaging();
 

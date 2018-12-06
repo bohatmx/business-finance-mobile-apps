@@ -21,6 +21,7 @@ import 'package:businesslibrary/util/util.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:supplierv3/supplier_bloc.dart';
 import 'package:supplierv3/ui/dashboard.dart';
 
 class SignUpPage extends StatefulWidget {
@@ -320,7 +321,7 @@ class _SignUpPageState extends State<SignUpPage>
               action: 0,
               icon: Icons.done_all);
 
-          _subscribe(supplier);
+          await supplierModelBloc.refreshModel();
         } else {
           exit();
         }
@@ -375,19 +376,6 @@ class _SignUpPageState extends State<SignUpPage>
       context,
       new MaterialPageRoute(builder: (context) => new Dashboard(null)),
     );
-  }
-
-  void _subscribe(Supplier supplier) {
-    _firebaseMessaging
-        .subscribeToTopic('purchaseOrders' + supplier.documentReference);
-    _firebaseMessaging.subscribeToTopic('general');
-    _firebaseMessaging
-        .subscribeToTopic('settlements' + supplier.documentReference);
-    _firebaseMessaging
-        .subscribeToTopic('invoiceBids' + supplier.documentReference);
-    _firebaseMessaging
-        .subscribeToTopic('deliveryAcceptances' + supplier.documentReference);
-    print('_SignUpPageState._subscribe to 5 topics');
   }
 
   @override

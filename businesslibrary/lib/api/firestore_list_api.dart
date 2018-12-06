@@ -42,7 +42,7 @@ class FirestoreListAPI {
       return list;
     });
     qs.documents.forEach((doc) {
-      Supplier s = new Supplier.fromJson(doc.data);
+      var s = new Supplier.fromJson(doc.data);
       s.documentReference = doc.documentID;
       list.add(s);
     });
@@ -154,7 +154,7 @@ class FirestoreListAPI {
     return list;
   }
 
-  static Future<List<Invoice>> getGovtInvoices(GovtEntity govtEntity) async {
+  static Future<List<Invoice>> getGovtInvoices(Supplier govtEntity) async {
     List<Invoice> list = List();
     var querySnapshot = await _firestore
         .collection('govtEntities')
@@ -175,7 +175,7 @@ class FirestoreListAPI {
   }
 
   static Future<List<GovtInvoiceSettlement>> getSupplierGovtSettlements(
-      Supplier supplier) async {
+      GovtEntity supplier) async {
     List<GovtInvoiceSettlement> list = List();
     var querySnapshot = await _firestore
         .collection('suppliers')
