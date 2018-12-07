@@ -45,7 +45,6 @@ class _InvoiceBidderState extends State<InvoiceBidder>
     print(
         '_InvoiceBidderState.initState ==================================>>>');
     _getCached();
-    configureMessaging(this);
   }
 
   void _getCached() async {

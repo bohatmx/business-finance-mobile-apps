@@ -111,7 +111,7 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
               ),
               Padding(
                 padding: const EdgeInsets.only(
-                    bottom: 12.0),
+                    bottom: 12.0, left: 12.0, right: 12),
                 child: PagerControl(
                   itemName: 'Delivery Notes',
                   pageLimit: appModel.pageLimit,

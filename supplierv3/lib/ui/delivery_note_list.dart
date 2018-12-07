@@ -77,19 +77,19 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
                     totalValue: _getTotalValue(),
                     labelStyle: Styles.blackSmall,
                     pageValueStyle: Styles.blackBoldLarge,
-                    totalValueStyle: Styles.brownBoldMedium,
+                    totalValueStyle: Styles.whiteBoldMedium,
                   ),
                 ),
                 Padding(
                   padding: const EdgeInsets.only(
-                      left: 8.0, right: 8.0, bottom: 12.0),
+                      left: 8.0, right: 8.0, bottom: 20.0),
                   child: PagerControl(
                     itemName: 'Delivery Notes',
                     pageLimit: appModel.pageLimit,
                     elevation: 16.0,
                     items: appModel.offers.length,
                     listener: this,
-                    color: Colors.brown.shade100,
+                    color: Colors.orange.shade100,
                     pageNumber: _pageNumber,
                   ),
                 ),
@@ -111,6 +111,7 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
       appBar: AppBar(
         title: Text('Delivery Notes'),
         bottom: _getBottom(),
+        backgroundColor: Colors.indigo.shade300,
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.add),

@@ -49,7 +49,6 @@ class _SignUpPageState extends State<SignUpPage>
   initState() {
     super.initState();
     _debug();
-    configureMessaging(this);
     _checkSectors();
   }
 

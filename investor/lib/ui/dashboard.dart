@@ -18,6 +18,7 @@ import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/FCM.dart';
 import 'package:businesslibrary/util/invoice_bid_card.dart';
 import 'package:businesslibrary/util/lookups.dart';
+import 'package:businesslibrary/util/message.dart';
 import 'package:businesslibrary/util/selectors.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
@@ -112,27 +113,8 @@ class _DashboardState extends State<Dashboard>
     print(
         '\n\n\ ################ CONFIGURE FCM MESSAGE ###########  starting _firebaseMessaging');
 
-    AndroidDeviceInfo androidInfo;
-    IosDeviceInfo iosInfo;
-    DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
-    bool isRunningIOs = false;
-    try {
-      androidInfo = await deviceInfo.androidInfo;
-      print(
-          '\n\n\n################  Running on ${androidInfo.model} ################\n\n');
-    } catch (e) {
-      print(
-          'FCM.configureFCM - error doing Android - this is NOT an Android phone!!');
-    }
 
-    try {
-      iosInfo = await deviceInfo.iosInfo;
-      print(
-          '\n\n\n################ Running on ${iosInfo.utsname.machine} ################\n\n');
-      isRunningIOs = true;
-    } catch (e) {
-      print('FCM.configureFCM error doing iOS - this is NOT an iPhone!!');
-    }
+    bool isRunningIOs = await isDeviceIOS();
 
     _firebaseMessaging.configure(
       onMessage: (Map<String, dynamic> map) async {
@@ -349,12 +331,9 @@ class _DashboardState extends State<Dashboard>
     tiles.clear();
     messages.forEach((m) {
       var tile = ListTile(
-        leading: Icon(
-          Icons.apps,
-          color: getRandomColor(),
-        ),
+        leading: m.icon,
         title: Text(
-          '${m.title}',
+          '${m.message}',
           style: Styles.blackBoldSmall,
         ),
         subtitle: Text(
@@ -512,7 +491,7 @@ class _DashboardState extends State<Dashboard>
     );
   }
 
-  List<BidMessage> messages = List();
+  List<Message> messages = List();
 
   InvoiceBid invoiceBid;
   _showBottomSheet(InvoiceBid bid) {
@@ -560,28 +539,22 @@ class _DashboardState extends State<Dashboard>
     this.invoiceBid = bid;
     invoiceBidArrived = true;
 
-    setState(() {});
-    String msg =
-        'Bid made, amount: ${getFormattedAmount('${bid.amount}', context)} discount; ${bid.discountPercent.toStringAsFixed(2)} %';
+    setState(() {
+      messages.add(Message(
+          type: Message.INVOICE_BID,
+          message:
+          'Invoice Bid made: ${getFormattedDateShortWithTime('${bid.date}', context)} ',
+          subTitle: bid.supplierName
+      ));
+    });
 
+    _showSnack(
+        'Invoice Bid arrived ${getFormattedAmount('${bid.amount}', context)}');
     var id = bid.investor.split('#').elementAt(1);
     if (id == investor.participantId) {
-      var amt = getFormattedAmount('${bid.amount}', context);
-      var dt = getFormattedDateShortWithTime(
-          '${DateTime.parse(bid.date).toLocal().toIso8601String()}', context);
-      var msg =
-          BidMessage(title: 'Invoice Bid made for: $amt', subTitle: '$dt');
-      setState(() {
-        messages.add(msg);
-      });
       _showBottomSheet(bid);
-    } else {
-      AppSnackbar.showSnackbar(
-          scaffoldKey: _scaffoldKey,
-          message: msg,
-          textColor: Styles.white,
-          backgroundColor: Theme.of(context).primaryColor);
     }
+    await investorModelBloc.refreshDashboard();
   }
 
   double opacity = 1.0;
@@ -593,15 +566,29 @@ class _DashboardState extends State<Dashboard>
     print(
         '_DashboardState.onOfferMessage #################### ${offer.supplierName} ${offer.offerAmount}');
     setState(() {
-      this.offer = offer;
-      offerArrived = true;
+      messages.add(Message(
+          type: Message.OFFER,
+          message:
+          'Offer arrived: ${getFormattedDateShortWithTime('${offer.date}', context)} ',
+          subTitle: offer.supplierName
+      ));
     });
+    await investorModelBloc.refreshDashboard();
     _showSnack(
         'Offer arrived ${getFormattedAmount('${offer.offerAmount}', context)}');
   }
   onInvestorInvoiceSettlement(
-  InvestorInvoiceSettlement s) {
+  InvestorInvoiceSettlement s) async{
     print('_DashboardState.onInvestorInvoiceSettlement');
+    setState(() {
+      messages.add(Message(
+          type: Message.SETTLEMENT,
+          message:
+          'Settlement arrived: ${getFormattedDateShortWithTime('${s.date}', context)} ',
+          subTitle: s.supplierName
+      ));
+    });
+    await investorModelBloc.refreshDashboard();
   }
   void _showSnack(String message) {
     AppSnackbar.showSnackbar(

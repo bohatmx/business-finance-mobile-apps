@@ -48,7 +48,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage>
-    implements GenListener, SnackBarListener, OfferListener {
+    implements GenListener, SnackBarListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
   int _phaseCounter = 0;
@@ -64,9 +64,7 @@ class _MyHomePageState extends State<MyHomePage>
   @override
   initState() {
     super.initState();
-    _fcm.configureFCM(
-      offerListener: this,
-    );
+
   }
 
   void _generateBrandNewNetwork() async {

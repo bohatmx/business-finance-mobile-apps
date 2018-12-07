@@ -10,6 +10,7 @@ import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/data/wallet.dart';
 import 'package:businesslibrary/util/util.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:device_info/device_info.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -532,63 +533,31 @@ prettyPrint(Map map, String name) {
   print('\n}\n\n');
 }
 
-configureMessaging(FCMListener listener) async {
-  print('configureMessaging starting _firebaseMessaging config shit');
-  final FirebaseMessaging _firebaseMessaging = new FirebaseMessaging();
+Future<bool> isDeviceIOS() async {
+  AndroidDeviceInfo androidInfo;
+  IosDeviceInfo iosInfo;
+  DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+  bool isRunningIOs = false;
+  try {
+    androidInfo = await deviceInfo.androidInfo;
+    print(
+        '\n\n\n################ isDeviceIOS: Running on ${androidInfo.model} ################\n\n');
+    return isRunningIOs;
+  } catch (e) {
+    print(
+        'isDeviceIOS - error doing Android - this is NOT an Android phone!!');
+  }
 
-  _firebaseMessaging.configure(
-    onMessage: (Map<String, dynamic> message) async {
-      print('\n\nRECEIVED FCM message, onMessage:\n$message \n');
-      var data = message['data'];
-      String messageType = data["messageType"];
-      try {
-        if (messageType.contains("INVOICE_BID")) {
-          var invoiceBid = InvoiceBid.fromJson(json.decode(data['json']));
-          listener.onInvoiceBidMessage(invoiceBid);
-        }
-        if (messageType.contains("OFFER")) {
-          var offer = Offer.fromJson(json.decode(data['json']));
-          listener.onOfferMessage(offer);
-        }
-        if (messageType.contains("HEARTBEAT")) {
-          Map map = json.decode(data['json']);
-          listener.onHeartbeat(map);
-        }
-      } catch (e) {
-        print(e);
-      }
-    },
-    onLaunch: (Map<String, dynamic> message) {
-      print('configureMessaging onLaunch *********** ');
-      prettyPrint(message, 'message delivered on LAUNCH!');
-    },
-    onResume: (Map<String, dynamic> message) {
-      print('configureMessaging onResume *********** ');
-      prettyPrint(message, 'message delivered on RESUME!');
-    },
-  );
-
-  _firebaseMessaging.requestNotificationPermissions(
-      const IosNotificationSettings(sound: true, badge: true, alert: true));
-
-  _firebaseMessaging.onIosSettingsRegistered
-      .listen((IosNotificationSettings settings) {});
-
-  _firebaseMessaging.getToken().then((String token) async {
-    assert(token != null);
-    var oldToken = await SharedPrefs.getFCMToken();
-    if (token != oldToken) {
-      await SharedPrefs.saveFCMToken(token);
-      print('configureMessaging fcm token saved: $token');
-      _updateToken(token);
-    } else {
-      print('configureMessaging: token has not changed. no need to save');
-    }
-  }).catchError((e) {
-    print('configureMessaging ERROR fcmToken $e');
-  });
+  try {
+    iosInfo = await deviceInfo.iosInfo;
+    print(
+        '\n\n\n################ isDeviceIOS: Running on ${iosInfo.utsname.machine} ################\n\n');
+    isRunningIOs = true;
+  } catch (e) {
+    print('isDeviceIOSerror doing iOS - this is NOT an iPhone!!');
+  }
+  return isRunningIOs;
 }
-
 final Firestore _firestore = Firestore.instance;
 
 _updateToken(String token) async {

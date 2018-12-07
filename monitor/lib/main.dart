@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:businesslibrary/api/data_api3.dart';
 import 'package:businesslibrary/api/list_api.dart';
@@ -17,6 +18,7 @@ import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:businesslibrary/util/webview.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:device_info/device_info.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
@@ -55,10 +57,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage>
     implements
-        SnackBarListener,
-        InvoiceBidListener,
-        OfferListener,
-        HeartbeatListener {
+        SnackBarListener {
   static const NUMBER_OF_BIDS_TO_MAKE = 2;
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   final FirebaseMessaging _firebaseMessaging = new FirebaseMessaging();
@@ -69,7 +68,98 @@ class _MyHomePageState extends State<MyHomePage>
   OpenOfferSummary summary;
   String webViewTitle, webViewUrl;
   AutoTradeStart autoTradeStart = AutoTradeStart();
-  FCM _fcm = FCM();
+
+  //FCM methods #############################
+  _configureFCM() async {
+    print(
+        '\n\n\ ################ CONFIGURE FCM MESSAGE ###########  starting _firebaseMessaging');
+
+    bool isRunningIOS = await isDeviceIOS();
+
+    _firebaseMessaging.configure(
+      onMessage: (Map<String, dynamic> map) async {
+        prettyPrint(map,
+            '\n\n################ Message from FCM ################# ${DateTime.now().toIso8601String()}');
+
+        String messageType = 'unknown';
+        String mJSON;
+        try {
+          if (isRunningIOS == true) {
+            messageType = map["messageType"];
+            mJSON = map['json'];
+            print('FCM.configureFCM platform is iOS');
+          } else {
+            var data = map['data'];
+            messageType = data["messageType"];
+            mJSON = data["json"];
+            print('FCM.configureFCM platform is Android');
+          }
+        } catch (e) {
+          print(e);
+          print(
+              'FCM.configureFCM -------- EXCEPTION handling platform detection');
+        }
+
+        print(
+            'FCM.configureFCM ************************** messageType: $messageType');
+
+        try {
+          switch (messageType) {
+
+            case 'OFFER':
+              var m = Offer.fromJson(json.decode(mJSON));
+              prettyPrint(m.toJson(), '\n\n########## FCM OFFER MESSAGE :');
+              onOfferMessage(m);
+              break;
+            case 'INVOICE_BID':
+              var m = InvoiceBid.fromJson(json.decode(mJSON));
+              prettyPrint(
+                  m.toJson(), '\n\n########## FCM INVOICE_BID MESSAGE :');
+              onInvoiceBidMessage(m);
+              break;
+
+            case 'HEARTBEAT':
+              Map map = json.decode(mJSON);
+              prettyPrint(
+                  map, '\n\n########## FCM HEARTBEAT :');
+              onHeartbeat(map);
+              break;
+          }
+        } catch (e) {
+          print(
+              'FCM.configureFCM - Houston, we have a problem with null listener somewhere');
+          print(e);
+        }
+      },
+      onLaunch: (Map<String, dynamic> message) {
+        print('configureMessaging onLaunch *********** ');
+        prettyPrint(message, 'message delivered on LAUNCH!');
+      },
+      onResume: (Map<String, dynamic> message) {
+        print('configureMessaging onResume *********** ');
+        prettyPrint(message, 'message delivered on RESUME!');
+      },
+    );
+
+    _firebaseMessaging.requestNotificationPermissions(
+        const IosNotificationSettings(sound: true, badge: true, alert: true));
+
+    _firebaseMessaging.onIosSettingsRegistered
+        .listen((IosNotificationSettings settings) {});
+
+    _subscribeToFCMTopics();
+  }
+  _subscribeToFCMTopics() async {
+
+    _firebaseMessaging.subscribeToTopic(FCM.TOPIC_GENERAL_MESSAGE);
+    _firebaseMessaging.subscribeToTopic(FCM.TOPIC_INVOICE_BIDS );
+    _firebaseMessaging.subscribeToTopic(FCM.TOPIC_OFFERS);
+    _firebaseMessaging.subscribeToTopic(FCM.TOPIC_HEARTBEATS);
+    print(
+        '\n\n_DashboardState._subscribeToFCMTopics SUBSCRIBED to topis - Bids, Offers, heartbeat and General');
+  }
+  //end of FCM methods ######################
+
 
   void _fixProfiles() async {
     Firestore fs = Firestore.instance;
@@ -104,17 +194,14 @@ class _MyHomePageState extends State<MyHomePage>
   @override
   void initState() {
     super.initState();
-    _getLists(true);
-    _fcm.configureFCM(
-      invoiceBidListener: this,
-      heartbeatListener: this,
-      offerListener: this,
-    );
+
+    _configureFCM();
     _firebaseMessaging.subscribeToTopic(FCM.TOPIC_INVOICE_BIDS);
     _firebaseMessaging.subscribeToTopic(FCM.TOPIC_OFFERS);
     _firebaseMessaging.subscribeToTopic(FCM.TOPIC_HEARTBEATS);
     print(
         '_MyHomePageState.initState ############ subscribed to invoiceBids, heartbeats and offers topics');
+    _getLists(true);
   }
 
   int minutes = 120;
@@ -197,7 +284,6 @@ class _MyHomePageState extends State<MyHomePage>
           setState(() {
             _showProgress = true;
             autoTradeStart = AutoTradeStart();
-            invaliTrades.clear();
             bidsArrived.clear();
           });
           setState(() {
@@ -291,7 +377,6 @@ class _MyHomePageState extends State<MyHomePage>
             totalValidBids: 0,
             elapsedSeconds: 0,
           );
-          invaliTrades.clear();
           bidsArrived.clear();
           opacity = 0.0;
         });
@@ -959,8 +1044,6 @@ class _MyHomePageState extends State<MyHomePage>
   }
 
   List<InvoiceBid> bidsArrived = List();
-  List<InvalidTrade> invaliTrades = List();
-  @override
   onInvoiceBidMessage(InvoiceBid invoiceBid) {
     print(
         '_MyHomePageState.onInvoiceBidMessage ############# INVOICE BID arrived: ${invoiceBid.amount} ${invoiceBid.investorName}');
@@ -999,13 +1082,11 @@ class _MyHomePageState extends State<MyHomePage>
         backgroundColor: Styles.teal);
   }
 
-  @override
   onOfferMessage(Offer offer) {
     print('_MyHomePageState.onOfferMessage');
     prettyPrint(offer.toJson(), 'OFFER arrived via FCM');
   }
 
-  @override
   onHeartbeat(Map map) {
     print('\n\n_MyHomePageState.onHeartbeat ############ map: $map');
     print('_MyHomePageState.onHeartbeat updating messages');

@@ -144,7 +144,7 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
       child: Column(
         children: <Widget>[
           Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.all(12.0),
             child: appModel == null
                 ? Container()
                 : Column(
@@ -157,7 +157,7 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
                   totalValueStyle: Styles.brownBoldMedium,
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(top:8.0),
+                  padding: const EdgeInsets.only(top:8.0, bottom: 12),
                   child: PagerControl(
                     listener: this,
                     itemName: 'Purchase Orders',
