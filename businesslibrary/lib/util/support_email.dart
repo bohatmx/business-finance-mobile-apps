@@ -113,7 +113,7 @@ class _SupportEmailState extends State<SupportEmail> {
                     offerIssue,
                     style: Styles.blackBoldSmall,
                   ),
-                  leading: Icon(Icons.apps, color: getRandomColor()),
+                  leading: Icon(Icons.access_alarm, color: getRandomColor()),
                   onTap: () {
                     print('_SupportEmailState.build -- tapped $offerIssue');
                     subject = offerIssue;
@@ -128,7 +128,7 @@ class _SupportEmailState extends State<SupportEmail> {
                     settlementIssue,
                     style: Styles.blackBoldSmall,
                   ),
-                  leading: Icon(Icons.apps, color: getRandomColor()),
+                  leading: Icon(Icons.attach_money, color: getRandomColor()),
                   onTap: () {
                     print(
                         '_SupportEmailState.build -- tapped $settlementIssue');
@@ -144,7 +144,7 @@ class _SupportEmailState extends State<SupportEmail> {
                     purchaseOrderIssue,
                     style: Styles.blackBoldSmall,
                   ),
-                  leading: Icon(Icons.apps, color: getRandomColor()),
+                  leading: Icon(Icons.assignment, color: getRandomColor()),
                   onTap: () {
                     print(
                         '_SupportEmailState.build -- tapped $purchaseOrderIssue');
@@ -160,7 +160,7 @@ class _SupportEmailState extends State<SupportEmail> {
                     deliveryNoteIssue,
                     style: Styles.blackBoldSmall,
                   ),
-                  leading: Icon(Icons.apps, color: getRandomColor()),
+                  leading: Icon(Icons.add_alert, color: getRandomColor()),
                   onTap: () {
                     print(
                         '_SupportEmailState.build -- tapped $deliveryNoteIssue');
@@ -176,7 +176,7 @@ class _SupportEmailState extends State<SupportEmail> {
                     messageIssue,
                     style: Styles.blackBoldSmall,
                   ),
-                  leading: Icon(Icons.apps, color: getRandomColor()),
+                  leading: Icon(Icons.chat, color: getRandomColor()),
                   onTap: () {
                     print('_SupportEmailState.build -- tapped $messageIssue');
                     subject = messageIssue;
@@ -191,7 +191,7 @@ class _SupportEmailState extends State<SupportEmail> {
                     generalIssue,
                     style: Styles.blackBoldSmall,
                   ),
-                  leading: Icon(Icons.apps, color: getRandomColor()),
+                  leading: Icon(Icons.subject, color: getRandomColor()),
                   onTap: () {
                     print('_SupportEmailState.build -- tapped $generalIssue');
                     subject = generalIssue;
@@ -224,6 +224,7 @@ class _SupportEmailState extends State<SupportEmail> {
     print('_SupportEmailState._sendEmail uri: $mUrl');
     print('_SupportEmailState._sendEmail encoded: $encoded');
     if (await canLaunch(encoded)) {
+      Navigator.pop(context);
       await launch(encoded);
     } else {
       throw 'Could not launch $encoded';

@@ -6,31 +6,14 @@
     </shared>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b840dc6a-331e-46d9-b624-92fa4c1707ed" name="Default" comment="refactored invoice bidder - crowd funded offer - multiple bids">
-      <change afterPath="$PROJECT_DIR$/../businesslibrary/lib/util/contact_us.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../businesslibrary/lib/util/support_email.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/computers.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../businesslibrary/.flutter-plugins" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/.flutter-plugins" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../businesslibrary/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/pubspec.yaml" afterDir="false" />
+    <list default="true" id="b840dc6a-331e-46d9-b624-92fa4c1707ed" name="Default" comment="added support feature - email first capability; bring default mail app up">
+      <change afterPath="$PROJECT_DIR$/../businesslibrary/lib/data/chat_message.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../businesslibrary/lib/util/chat.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/api/shared_prefs.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/api/shared_prefs.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/util/contact_us.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/util/contact_us.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/util/support_email.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/util/support_email.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../crudderv3/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../crudderv3/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../crudderv3/lib/generator.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../crudderv3/lib/generator.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../crudderv3/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../crudderv3/lib/main.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/.idea/libraries/Dart_Packages.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../govt/.idea/libraries/Dart_Packages.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/.idea/libraries/Flutter_Plugins.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../govt/.idea/libraries/Flutter_Plugins.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Flutter_Plugins.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Flutter_Plugins.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/android/app/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/android/app/src/main/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/src/main/AndroidManifest.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ios/Podfile" beforeDir="false" afterPath="$PROJECT_DIR$/ios/Podfile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ios/Podfile.lock" beforeDir="false" afterPath="$PROJECT_DIR$/ios/Podfile.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ios/Runner.xcodeproj/project.pbxproj" beforeDir="false" afterPath="$PROJECT_DIR$/ios/Runner.xcodeproj/project.pbxproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ios/Runner/AppDelegate.swift" beforeDir="false" afterPath="$PROJECT_DIR$/ios/Runner/AppDelegate.swift" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ios/Runner/Info.plist" beforeDir="false" afterPath="$PROJECT_DIR$/ios/Runner/Info.plist" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/ui/dashboard.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/ui/dashboard.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../supplierv3/.idea/libraries/Dart_Packages.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/.idea/libraries/Dart_Packages.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../supplierv3/.idea/libraries/Flutter_Plugins.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/.idea/libraries/Flutter_Plugins.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../supplierv3/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/.idea/workspace.xml" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
@@ -45,13 +28,13 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/lib/ui/dashboard.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="393">
-              <caret line="400" column="45" selection-start-line="400" selection-start-column="45" selection-end-line="400" selection-end-column="45" />
+            <state relative-caret-position="95">
+              <caret line="5" column="29" selection-start-line="5" selection-end-line="6" />
               <folding>
-                <element signature="e#0#20#0" expanded="true" />
                 <element signature="n#!!block;n#Dashboard#0" />
                 <element signature="e#8533#10182#0" expanded="true" />
                 <element signature="e#10750#12532#0" expanded="true" />
+                <element signature="e#12559#12858#0" expanded="true" />
                 <element signature="n#!!block;n#BidMessage#0" />
               </folding>
             </state>
@@ -67,17 +50,16 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/../businesslibrary/lib/util/support_email.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="314">
-              <caret line="214" column="58" lean-forward="true" selection-start-line="214" selection-start-column="58" selection-end-line="214" selection-end-column="58" />
+            <state relative-caret-position="350">
+              <caret line="226" column="29" selection-start-line="226" selection-start-column="29" selection-end-line="226" selection-end-column="29" />
               <folding>
                 <element signature="e#0#22#0" expanded="true" />
                 <element signature="e#925#971#0" expanded="true" />
                 <element signature="e#1437#6432#0" expanded="true" />
                 <element signature="e#1774#2232#0" expanded="true" />
-                <element signature="e#6913#7329#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -86,12 +68,13 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/../businesslibrary/lib/util/contact_us.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="289">
-              <caret line="163" selection-start-line="163" selection-end-line="163" />
+            <state relative-caret-position="87">
+              <caret line="141" selection-start-line="141" selection-end-line="141" />
               <folding>
                 <element signature="e#0#20#0" expanded="true" />
                 <element signature="e#710#973#0" expanded="true" />
                 <element signature="e#1529#1878#0" expanded="true" />
+                <element signature="e#2239#2698#0" expanded="true" />
                 <element signature="e#4773#4836#0" expanded="true" />
                 <element signature="e#4861#4924#0" expanded="true" />
               </folding>
@@ -99,29 +82,39 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/pubspec.yaml">
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/../businesslibrary/lib/util/chat.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="346">
-              <caret line="23" column="29" selection-start-line="23" selection-start-column="29" selection-end-line="23" selection-end-column="29" />
+            <state relative-caret-position="43">
+              <caret line="92" column="35" selection-start-line="92" selection-start-column="35" selection-end-line="92" selection-end-column="35" />
+              <folding>
+                <element signature="e#0#59#0" expanded="true" />
+                <element signature="e#481#542#0" expanded="true" />
+                <element signature="e#806#903#0" expanded="true" />
+                <element signature="e#3430#4093#0" expanded="true" />
+                <element signature="e#4121#5868#0" expanded="true" />
+                <element signature="e#5900#6312#0" expanded="true" />
+                <element signature="e#6343#6449#0" expanded="true" />
+                <element signature="e#6688#7819#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/../../../flutter/.pub-cache/hosted/pub.dartlang.org/google_maps_flutter-0.0.3+3/lib/src/google_map.dart">
+        <entry file="file://$PROJECT_DIR$/../businesslibrary/lib/api/shared_prefs.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="217">
-              <caret line="17" column="14" selection-start-line="17" selection-start-column="14" selection-end-line="17" selection-end-column="14" />
+            <state relative-caret-position="298">
+              <caret line="70" column="19" selection-start-line="70" selection-start-column="19" selection-end-line="70" selection-end-column="19" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/../../../flutter/.pub-cache/hosted/pub.dartlang.org/google_maps_flutter-0.0.3+3/lib/src/ui.dart">
+        <entry file="file://$PROJECT_DIR$/../businesslibrary/lib/data/chat_message.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="272">
-              <caret line="77" column="12" selection-start-line="77" selection-start-column="2" selection-end-line="77" selection-end-column="18" />
+            <state relative-caret-position="420">
+              <caret line="28" column="33" selection-start-line="28" selection-start-column="33" selection-end-line="28" selection-end-column="33" />
             </state>
           </provider>
         </entry>
@@ -137,7 +130,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>PEACH notification - what now?</find>
       <find>############ PEACH notification - what now?</find>
       <find>100.0</find>
       <find>120.0</find>
@@ -167,6 +159,7 @@
       <find>Navigator.push</find>
       <find>http</find>
       <find>blackBoldMedium</find>
+      <find>Bank</find>
     </findStrings>
     <replaceStrings>
       <replace>89.0</replace>
@@ -197,6 +190,7 @@
       <replace>BFNWebViewState</replace>
       <replace>_firebaseMessaging</replace>
       <replace>blackBoldSmall</replace>
+      <replace>ChatMessage</replace>
     </replaceStrings>
   </component>
   <component name="Git.Settings">
@@ -205,10 +199,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/../businesslibrary/lib/util/util.dart" />
-        <option value="$PROJECT_DIR$/../businesslibrary/lib/util/summary_card.dart" />
-        <option value="$PROJECT_DIR$/../businesslibrary/lib/util/pager_helper.dart" />
-        <option value="$PROJECT_DIR$/../businesslibrary/lib/api/shared_prefs.dart" />
         <option value="$PROJECT_DIR$/../businesslibrary/lib/data/investor-unsettled-summary.dart" />
         <option value="$PROJECT_DIR$/../businesslibrary/lib/util/inherited.dart" />
         <option value="$PROJECT_DIR$/lib/ui/refresh.dart" />
@@ -252,10 +242,14 @@
         <option value="$PROJECT_DIR$/lib/ui/dashboard.dart" />
         <option value="$PROJECT_DIR$/android/app/src/main/AndroidManifest.xml" />
         <option value="$PROJECT_DIR$/pubspec.yaml" />
-        <option value="$PROJECT_DIR$/../businesslibrary/lib/util/contact_us.dart" />
         <option value="$PROJECT_DIR$/android/app/build.gradle" />
         <option value="$PROJECT_DIR$/../businesslibrary/pubspec.yaml" />
         <option value="$PROJECT_DIR$/../businesslibrary/lib/util/support_email.dart" />
+        <option value="$PROJECT_DIR$/../businesslibrary/lib/data/support_message.dart" />
+        <option value="$PROJECT_DIR$/../businesslibrary/lib/util/contact_us.dart" />
+        <option value="$PROJECT_DIR$/../businesslibrary/lib/api/shared_prefs.dart" />
+        <option value="$PROJECT_DIR$/../businesslibrary/lib/data/chat_message.dart" />
+        <option value="$PROJECT_DIR$/../businesslibrary/lib/util/chat.dart" />
       </list>
     </option>
   </component>
@@ -265,11 +259,11 @@
       <select />
     </treeState>
   </component>
-  <component name="ProjectFrameBounds">
-    <option name="x" value="1440" />
+  <component name="ProjectFrameBounds" extendedState="6">
+    <option name="x" value="1704" />
     <option name="y" value="23" />
-    <option name="width" value="1920" />
-    <option name="height" value="1010" />
+    <option name="width" value="1646" />
+    <option name="height" value="1007" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true">
     <ConfirmationsSetting value="2" id="Add" />
@@ -290,6 +284,19 @@
               <item name="investor" type="b2602c69:ProjectViewProjectNode" />
               <item name="investor" type="47feb1d3:ProjectViewModuleNode" />
               <item name="businesslibrary" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="investor" type="b2602c69:ProjectViewProjectNode" />
+              <item name="investor" type="47feb1d3:ProjectViewModuleNode" />
+              <item name="businesslibrary" type="462c0819:PsiDirectoryNode" />
+              <item name="lib" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="investor" type="b2602c69:ProjectViewProjectNode" />
+              <item name="investor" type="47feb1d3:ProjectViewModuleNode" />
+              <item name="businesslibrary" type="462c0819:PsiDirectoryNode" />
+              <item name="lib" type="462c0819:PsiDirectoryNode" />
+              <item name="data" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="investor" type="b2602c69:ProjectViewProjectNode" />
@@ -356,7 +363,7 @@
   </component>
   <component name="PropertiesComponent">
     <property name="android.sdk.path" value="$USER_HOME$/Library/Android/sdk" />
-    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1544722699950" />
+    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1544730079759" />
     <property name="dart.analysis.tool.window.force.activate" value="false" />
     <property name="io.flutter.reload.alreadyRun" value="true" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
@@ -366,6 +373,7 @@
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/../businesslibrary/lib/data" />
       <recent name="$PROJECT_DIR$/assets" />
       <recent name="$PROJECT_DIR$/android/app/src/main/res/drawable" />
       <recent name="$PROJECT_DIR$/lib/ui" />
@@ -419,13 +427,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1530197618099</updated>
-    </task>
-    <task id="LOCAL-00020" summary="added invoice bid FCM message to investors">
-      <created>1540094305425</created>
-      <option name="number" value="00020" />
-      <option name="presentableId" value="LOCAL-00020" />
-      <option name="project" value="LOCAL" />
-      <updated>1540094305426</updated>
     </task>
     <task id="LOCAL-00021" summary="cleaned-up!!">
       <created>1540268148307</created>
@@ -763,7 +764,14 @@
       <option name="project" value="LOCAL" />
       <updated>1543826817044</updated>
     </task>
-    <option name="localTasksCounter" value="69" />
+    <task id="LOCAL-00069" summary="added support feature - email first capability; bring default mail app up">
+      <created>1544722772055</created>
+      <option name="number" value="00069" />
+      <option name="presentableId" value="LOCAL-00069" />
+      <option name="project" value="LOCAL" />
+      <updated>1544722772057</updated>
+    </task>
+    <option name="localTasksCounter" value="70" />
     <servers />
   </component>
   <component name="TodoView">
@@ -776,11 +784,11 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="1440" y="23" width="1920" height="1010" extended-state="0" />
+    <frame x="1440" y="23" width="1920" height="1008" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.47924528" visible="true" weight="0.2257721" />
-      <window_info id="Structure" order="1" sideWeight="0.5207547" side_tool="true" visible="true" weight="0.2257721" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.6978131" visible="true" weight="0.2257721" />
+      <window_info id="Structure" order="1" sideWeight="0.30218688" side_tool="true" visible="true" weight="0.2257721" />
       <window_info id="Designer" order="2" />
       <window_info id="Build Variants" order="3" side_tool="true" />
       <window_info id="Image Layers" order="4" />
@@ -793,7 +801,7 @@
       <window_info anchor="bottom" id="Debug" order="2" sideWeight="0.5954546" weight="0.43564355" />
       <window_info anchor="bottom" id="Cvs" order="3" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="4" weight="0.4" />
-      <window_info active="true" anchor="bottom" id="Run" order="5" sideWeight="0.85630745" visible="true" weight="0.13398694" />
+      <window_info active="true" anchor="bottom" id="Run" order="5" sideWeight="0.85630745" visible="true" weight="0.45087337" />
       <window_info anchor="bottom" id="TODO" order="6" weight="0.3297062" />
       <window_info anchor="bottom" id="Dart Analysis" order="7" sideWeight="0.49122807" weight="0.32570806" />
       <window_info anchor="bottom" id="Android Profiler" order="8" show_stripe_button="false" />
@@ -818,7 +826,6 @@
     </layout>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="small tweaks ..." />
     <MESSAGE value="added scoped model to investor - should apply to all apps!" />
     <MESSAGE value="refactored scoped model ui flow when settling bids" />
     <MESSAGE value="refactored scoped model ui flow when settling ALL bids" />
@@ -843,7 +850,8 @@
     <MESSAGE value="go watch the NFL - week 12 - invoice bidder refactored" />
     <MESSAGE value="refactored invoice bidder - checks before submit bid + ui tweaks" />
     <MESSAGE value="refactored invoice bidder - crowd funded offer - multiple bids" />
-    <option name="LAST_COMMIT_MESSAGE" value="refactored invoice bidder - crowd funded offer - multiple bids" />
+    <MESSAGE value="added support feature - email first capability; bring default mail app up" />
+    <option name="LAST_COMMIT_MESSAGE" value="added support feature - email first capability; bring default mail app up" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -891,21 +899,6 @@
     </expressions>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/../businesslibrary/lib/data/investor.dart">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="310">
-          <caret line="22" column="30" selection-start-line="22" selection-start-column="30" selection-end-line="22" selection-end-column="30" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../businesslibrary/lib/data/investor_profile.dart">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="462">
-          <caret line="53" column="23" selection-start-line="53" selection-start-column="23" selection-end-line="53" selection-end-column="23" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../businesslibrary/lib/util/pager.dart" />
     <entry file="file://$PROJECT_DIR$/lib/ui/unsettled_bids2.dart" />
     <entry file="file://$PROJECT_DIR$/../businesslibrary/lib/util/snackbar_util.dart">
       <provider selected="true" editor-type-id="text-editor">
@@ -1172,20 +1165,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/lib/ui/dashboard.dart">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="393">
-          <caret line="400" column="45" selection-start-line="400" selection-start-column="45" selection-end-line="400" selection-end-column="45" />
-          <folding>
-            <element signature="e#0#20#0" expanded="true" />
-            <element signature="n#!!block;n#Dashboard#0" />
-            <element signature="e#8533#10182#0" expanded="true" />
-            <element signature="e#10750#12532#0" expanded="true" />
-            <element signature="n#!!block;n#BidMessage#0" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/../../../flutter/.pub-cache/hosted/pub.dartlang.org/google_maps_flutter-0.0.3+3/lib/src/google_map.dart">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="217">
@@ -1217,20 +1196,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/../businesslibrary/lib/util/contact_us.dart">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="289">
-          <caret line="163" selection-start-line="163" selection-end-line="163" />
-          <folding>
-            <element signature="e#0#20#0" expanded="true" />
-            <element signature="e#710#973#0" expanded="true" />
-            <element signature="e#1529#1878#0" expanded="true" />
-            <element signature="e#4773#4836#0" expanded="true" />
-            <element signature="e#4861#4924#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/android/app/build.gradle">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="458">
@@ -1248,13 +1213,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/../../../flutter/.pub-cache/hosted/pub.dartlang.org/google_maps_flutter-0.0.3+3/lib/src/ui.dart">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="272">
-          <caret line="77" column="12" selection-start-line="77" selection-start-column="2" selection-end-line="77" selection-end-column="18" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/../businesslibrary/pubspec.yaml">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="331">
@@ -1264,14 +1222,80 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/../businesslibrary/lib/util/support_email.dart">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="314">
-          <caret line="214" column="58" lean-forward="true" selection-start-line="214" selection-start-column="58" selection-end-line="214" selection-end-column="58" />
+        <state relative-caret-position="350">
+          <caret line="226" column="29" selection-start-line="226" selection-start-column="29" selection-end-line="226" selection-end-column="29" />
           <folding>
             <element signature="e#0#22#0" expanded="true" />
             <element signature="e#925#971#0" expanded="true" />
             <element signature="e#1437#6432#0" expanded="true" />
             <element signature="e#1774#2232#0" expanded="true" />
-            <element signature="e#6913#7329#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lib/ui/dashboard.dart">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="95">
+          <caret line="5" column="29" selection-start-line="5" selection-end-line="6" />
+          <folding>
+            <element signature="n#!!block;n#Dashboard#0" />
+            <element signature="e#8533#10182#0" expanded="true" />
+            <element signature="e#10750#12532#0" expanded="true" />
+            <element signature="e#12559#12858#0" expanded="true" />
+            <element signature="n#!!block;n#BidMessage#0" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../businesslibrary/lib/util/contact_us.dart">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="87">
+          <caret line="141" selection-start-line="141" selection-end-line="141" />
+          <folding>
+            <element signature="e#0#20#0" expanded="true" />
+            <element signature="e#710#973#0" expanded="true" />
+            <element signature="e#1529#1878#0" expanded="true" />
+            <element signature="e#2239#2698#0" expanded="true" />
+            <element signature="e#4773#4836#0" expanded="true" />
+            <element signature="e#4861#4924#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../../../flutter/.pub-cache/hosted/pub.dartlang.org/google_maps_flutter-0.0.3+3/lib/src/ui.dart">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="272">
+          <caret line="77" column="12" selection-start-line="77" selection-start-column="2" selection-end-line="77" selection-end-column="18" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../businesslibrary/lib/api/shared_prefs.dart">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="298">
+          <caret line="70" column="19" selection-start-line="70" selection-start-column="19" selection-end-line="70" selection-end-column="19" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../businesslibrary/lib/data/chat_message.dart">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="420">
+          <caret line="28" column="33" selection-start-line="28" selection-start-column="33" selection-end-line="28" selection-end-column="33" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../businesslibrary/lib/util/chat.dart">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="43">
+          <caret line="92" column="35" selection-start-line="92" selection-start-column="35" selection-end-line="92" selection-end-column="35" />
+          <folding>
+            <element signature="e#0#59#0" expanded="true" />
+            <element signature="e#481#542#0" expanded="true" />
+            <element signature="e#806#903#0" expanded="true" />
+            <element signature="e#3430#4093#0" expanded="true" />
+            <element signature="e#4121#5868#0" expanded="true" />
+            <element signature="e#5900#6312#0" expanded="true" />
+            <element signature="e#6343#6449#0" expanded="true" />
+            <element signature="e#6688#7819#0" expanded="true" />
           </folding>
         </state>
       </provider>

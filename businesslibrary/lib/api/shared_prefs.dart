@@ -66,7 +66,7 @@ class SharedPrefs {
     }
 
     var jx = json.decode(string);
-//    prettyPrint(jx, 'User from cache: ');
+    prettyPrint(jx, 'User from cache: ');
     User account = new User.fromJson(jx);
     return account;
   }

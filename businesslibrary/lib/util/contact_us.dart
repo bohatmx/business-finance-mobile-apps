@@ -5,6 +5,7 @@ import 'package:businesslibrary/data/govt_entity.dart';
 import 'package:businesslibrary/data/investor.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
+import 'package:businesslibrary/util/chat.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:businesslibrary/util/support_email.dart';
 import 'package:flutter/material.dart';
@@ -101,7 +102,7 @@ void getCached() async {
 
   Widget _getBottom() {
     return PreferredSize(
-      preferredSize: Size.fromHeight(80.0),
+      preferredSize: Size.fromHeight(120.0),
       child: Column(
         children: <Widget>[
           Padding(
@@ -112,7 +113,7 @@ void getCached() async {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.only(top:8.0, bottom: 16.0, left: 12.0, right: 12.0),
+            padding: const EdgeInsets.only(top:8.0, bottom: 30.0, left: 12.0, right: 12.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: <Widget>[
@@ -185,5 +186,9 @@ void getCached() async {
   }
   void _onChatTapped() {
     print('_ContactUsState._onChatTapped ............');
+    Navigator.push(
+      context,
+      new MaterialPageRoute(builder: (context) => Chat()),
+    );
   }
 }
