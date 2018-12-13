@@ -16,6 +16,9 @@
         android:name="io.flutter.app.FlutterApplication"
         android:label="investor"
         android:icon="@mipmap/ic_launcher">
+        <meta-data android:name="com.google.android.geo.API_KEY"
+                   android:value="AIzaSyBj5ONubUcdtweuIdQPFszc2Z_kZdhd5g8"/>
+
         <receiver android:name=".TapReceiver"/>
         <activity
             android:name=".MainActivity"

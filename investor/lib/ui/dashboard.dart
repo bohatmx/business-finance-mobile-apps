@@ -19,7 +19,7 @@ import 'package:businesslibrary/util/FCM.dart';
 import 'package:businesslibrary/util/invoice_bid_card.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/message.dart';
-import 'package:businesslibrary/util/selectors.dart';
+import 'package:businesslibrary/util/contact_us.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:businesslibrary/util/summary_card.dart';
@@ -387,13 +387,18 @@ class _DashboardState extends State<Dashboard>
 
   void _goToWalletPage() {
     print('_MainPageState._goToWalletPage .... ');
+//    Navigator.push(
+//      context,
+//      new MaterialPageRoute(
+//          builder: (context) => new WalletPage(
+//              name: investor.name,
+//              participantId: investor.participantId,
+//              type: InvestorType)),
+//    );
     Navigator.push(
       context,
       new MaterialPageRoute(
-          builder: (context) => new WalletPage(
-              name: investor.name,
-              participantId: investor.participantId,
-              type: InvestorType)),
+          builder: (context) => new ContactUs()),
     );
   }
 

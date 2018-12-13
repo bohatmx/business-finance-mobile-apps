@@ -39,16 +39,24 @@ class Generator {
   static BuildContext context;
   static final FirebaseMessaging _fcm = FirebaseMessaging();
 
-
   static Future fixBids() async {
     Firestore fs = Firestore.instance;
 
     print(
         '\n\n\n_DashboardState.fixBids ##########################################');
     int count = 0, count2 = 0;
-    var qs = await fs.collection('invoiceOffers').where('isOpen', isEqualTo: true).orderBy('date').getDocuments();
-    var qs2 = await fs.collection('invoiceOffers').where('isOpen', isEqualTo: false).orderBy('date').getDocuments();
-    var qs3 = await fs.collection('invoiceOffers').orderBy('date').getDocuments();
+    var qs = await fs
+        .collection('invoiceOffers')
+        .where('isOpen', isEqualTo: true)
+        .orderBy('date')
+        .getDocuments();
+    var qs2 = await fs
+        .collection('invoiceOffers')
+        .where('isOpen', isEqualTo: false)
+        .orderBy('date')
+        .getDocuments();
+    var qs3 =
+        await fs.collection('invoiceOffers').orderBy('date').getDocuments();
     print(
         '_DashboardState.fixBids ============ ${qs.documents.length} open offers found ...\n\n');
     print(
@@ -56,12 +64,11 @@ class Generator {
     print(
         '_DashboardState.fixBids ============ ${qs3.documents.length} ALL offers found. Summed: ${qs.documents.length + qs2.documents.length}..\n\n');
 
-
-
     print('_DashboardState.fixBids ######################### COMPLETED!!!!');
   }
 
   static Future generateOffers(GenListener listener, BuildContext ctx) async {
+    listener.onEvent('### Starting Offer Generation ###', false);
     listener.onEvent(
         '## Checking if accepted invoices need offers generated ...', false);
     suppliers = await ListAPI.getSuppliers();
@@ -70,17 +77,32 @@ class Generator {
     context = ctx;
     index = 0;
     offers = List();
+    var cntAlready = 0, cnt = 0;
+    print(
+        '\n\n\nGenerator.generateOffers ++++++++++++ execute for ${suppliers.length} suppliers');
     for (var supplier in suppliers) {
       invoices =
           await ListAPI.getInvoices(supplier.documentReference, 'suppliers');
+      print(
+          '\n\n\nGenerator.generateOffers ################# ${supplier.name} has ${invoices.length} invoices');
+      listener.onEvent('Generating offers for ${supplier.name}', false);
       for (var invoice in invoices) {
-        if (!invoice.isOnOffer) {
+        if (invoice.isOnOffer == true) {
+          cntAlready++;
+          print(
+              'Generator.generateOffers invoice ${invoice.invoiceNumber} already on offer: #$cntAlready');
+        } else {
           await _makeOffer(invoice, supplier);
+          cnt++;
+          print(
+              'Generator.generateOffers offer made for ${invoice.invoiceNumber}, offer #$cnt');
         }
       }
+      listener.onEvent('Completed offers for ${supplier.name}', false);
     }
     listener.onResetCounter();
-    print('Generator.generateOffers made ${offers.length} offers in session');
+    print(
+        '\n\nGenerator.generateOffers made ${offers.length} offers in session');
     listener.onEvent('Done! made ${offers.length} offers in session', false);
   }
 

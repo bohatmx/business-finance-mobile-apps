@@ -2,6 +2,7 @@
 platform :ios, '10.0'
 pod 'Firebase/Core'
 pod 'Firebase/Messaging'
+pod 'GoogleMaps'
 
 # CocoaPods analytics sends network stats synchronously affecting flutter build latency.
 ENV['COCOAPODS_DISABLE_STATS'] = 'true'
