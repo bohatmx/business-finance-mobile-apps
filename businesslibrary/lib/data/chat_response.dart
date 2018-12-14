@@ -3,15 +3,16 @@ import 'package:businesslibrary/data/chat_message.dart';
 class ChatResponse {
   String documentPath;
   String responderName;
-  String responseMessage;
+  String responseMessage, fcmToken;
   ChatMessage chatMessage;
-  DateTime dateTime;
+  String dateTime;
 
   ChatResponse({
     this.documentPath,
     this.responderName,
     this.responseMessage,
     this.dateTime,
+    this.fcmToken,
     this.chatMessage,
   });
 
@@ -24,7 +25,7 @@ class ChatResponse {
     this.responderName = data['responderName'];
     this.responseMessage = data['responseMessage'];
     this.dateTime = data['dateTime'];
-
+    this.fcmToken = data['fcmToken'];
     if (data['chatMessage'] != null) {
       this.chatMessage = ChatMessage.fromJson(data['chatMessage']);
     }
@@ -34,11 +35,13 @@ class ChatResponse {
     map['documentPath'] = this.documentPath;
     map['responderName'] = this.responderName;
     if (this.chatMessage != null) {
+      print('ChatResponse.toJson --- path: ${this.chatMessage.path}');
       map['chatMessage'] = this.chatMessage.toJson();
     }
 
     map['responseMessage'] = this.responseMessage;
     map['dateTime'] = this.dateTime;
+    map['fcmToken'] = this.fcmToken;
     return map;
   }
 }

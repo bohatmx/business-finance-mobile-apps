@@ -81,7 +81,8 @@ class _MyHomePageState extends State<MyHomePage>
     _firebaseMessaging.configure(
       onMessage: (Map<String, dynamic> map) async {
         prettyPrint(map,
-            '\n\n################ Message from FCM ################# ${DateTime.now().toIso8601String()}');
+            '\n\n################ Message from FCM ################# ${DateTime
+                .now().toIso8601String()}');
 
         String messageType = 'unknown';
         String mJSON;
@@ -107,7 +108,6 @@ class _MyHomePageState extends State<MyHomePage>
 
         try {
           switch (messageType) {
-
             case 'CHAT_MESSAGE':
               var m = ChatMessage.fromJson(json.decode(mJSON));
               prettyPrint(m.toJson(), '\n\n########## FCM CHAT MESSAGE :');
@@ -156,26 +156,27 @@ class _MyHomePageState extends State<MyHomePage>
 
     _subscribeToFCMTopics();
   }
-  _subscribeToFCMTopics() async {
 
+  _subscribeToFCMTopics() async {
     _firebaseMessaging.subscribeToTopic(FCM.TOPIC_GENERAL_MESSAGE);
-    _firebaseMessaging.subscribeToTopic(FCM.TOPIC_INVOICE_BIDS );
+    _firebaseMessaging.subscribeToTopic(FCM.TOPIC_INVOICE_BIDS);
     _firebaseMessaging.subscribeToTopic(FCM.TOPIC_OFFERS);
     _firebaseMessaging.subscribeToTopic(FCM.TOPIC_HEARTBEATS);
     _firebaseMessaging.subscribeToTopic(FCM.TOPIC_CHAT_MESSAGES_ADDED);
     print(
         '\n\n_DashboardState._subscribeToFCMTopics SUBSCRIBED to topis - Bids, Offers, heartbeat and General');
   }
+
   //end of FCM methods ######################
 
- void onChatMessage(ChatMessage msg) {
-   print('_MyHomePageState.onChatMessage ........... .................');
-   prettyPrint(msg.toJson(), '##### process this message just arrived:');
-   Navigator.push(
-     context,
-     new MaterialPageRoute(builder: (context) => new ChatResponsePage()),
-   );
- }
+  void onChatMessage(ChatMessage msg) {
+    print('_MyHomePageState.onChatMessage ........... .................');
+    prettyPrint(msg.toJson(), '##### process this message just arrived:');
+    Navigator.push(
+      context,
+      new MaterialPageRoute(builder: (context) => new ChatResponsePage()),
+    );
+  }
 
   @override
   void initState() {
@@ -191,6 +192,7 @@ class _MyHomePageState extends State<MyHomePage>
   }
 
   int minutes = 120;
+
   _getMinutes() async {
     minutes = await SharedPrefs.getMinutes();
     if (minutes == null || minutes == 0) {
@@ -248,19 +250,22 @@ class _MyHomePageState extends State<MyHomePage>
   ///start periodic timer to control AutoTradeExecutionBuilder
   _start() async {
     print(
-        '_MyHomePageState._start ..... Timer.periodic(Duration((minutes: $minutes) time: ${DateTime.now().toIso8601String()}');
+        '_MyHomePageState._start ..... Timer.periodic(Duration((minutes: $minutes) time: ${DateTime
+            .now().toIso8601String()}');
     if (timer != null) {
       if (timer.isActive) {
         timer.cancel();
         print(
-            '_MyHomePageState._start -------- TIMER cancelled. timer.tick: ${timer.tick}');
+            '_MyHomePageState._start -------- TIMER cancelled. timer.tick: ${timer
+                .tick}');
       }
     }
     try {
       timer = Timer.periodic(Duration(minutes: minutes), (mTimer) async {
         print(
             '_MyHomePageState._start:\n\n\n TIMER tripping - starting AUTO TRADE cycle .......time: '
-            '${DateTime.now().toIso8601String()}.  mTimer.tick: ${mTimer.tick}...\n\n');
+                '${DateTime.now().toIso8601String()}.  mTimer.tick: ${mTimer
+                .tick}...\n\n');
         summary = await ListAPI.getOpenOffersSummary();
         if (summary.totalOpenOffers == null) {
           summary.totalOpenOffers = 0;
@@ -282,7 +287,6 @@ class _MyHomePageState extends State<MyHomePage>
           prettyPrint(
               autoTradeStart.toJson(), '\n\n####### RESULT from AutoTrades:');
           if (autoTradeStart == null) {
-
             setState(() {
               messages.add('Problem with Auto Trade Session');
             });
@@ -345,7 +349,6 @@ class _MyHomePageState extends State<MyHomePage>
   }
 
   void _restart() async {
-
     setState(() {
       messages.clear();
     });
@@ -453,8 +456,17 @@ class _MyHomePageState extends State<MyHomePage>
 
   TextEditingController controller = TextEditingController();
   bool _showProgress;
+
   _refresh() {
     _getLists(true);
+  }
+
+  _goToMessages() {
+    Navigator.push(
+      context,
+      new MaterialPageRoute(
+          builder: (context) => new ChatResponsePage()),
+    );
   }
 
   @override
@@ -481,6 +493,13 @@ class _MyHomePageState extends State<MyHomePage>
               color: Colors.white,
             ),
             onPressed: _refresh,
+          ),
+          IconButton(
+            icon: Icon(
+              Icons.message,
+              color: Colors.white,
+            ),
+            onPressed: _goToMessages,
           ),
         ],
       ),

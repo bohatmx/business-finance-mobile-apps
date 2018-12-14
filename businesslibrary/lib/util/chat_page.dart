@@ -1,13 +1,18 @@
+import 'dart:convert';
+
 import 'package:businesslibrary/api/data_api3.dart';
 import 'package:businesslibrary/data/chat_message.dart';
+import 'package:businesslibrary/data/chat_response.dart';
 import 'package:businesslibrary/data/govt_entity.dart';
 import 'package:businesslibrary/data/investor.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
+import 'package:businesslibrary/util/FCM.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
@@ -33,6 +38,8 @@ class ChatWindow extends State<ChatPage>
   Supplier supplier;
   Investor investor;
   String uType, participantId, org;
+  FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
+  String fcmToken;
   @override
   void initState() {
     super.initState();
@@ -63,23 +70,90 @@ class ChatWindow extends State<ChatPage>
       participantId = investor.participantId;
       org = investor.name;
     }
-    _listenForResponses();
+    _configureFCM();
   }
 
-  void _listenForResponses() async{
-    print('ChatWindow._listenForResponses ++++++++++++++++++++++++++++++++++');
-    Firestore fs = Firestore.instance;
-    CollectionReference collectionReference = fs.collection('chatMessages').document(user.userId).collection('messages');
-    collectionReference.snapshots().listen((querySnapshot) {
-      querySnapshot.documentChanges.forEach((docChange) {
-        if (docChange.type == DocumentChangeType.added) {
-           var m = ChatMessage.fromJson(docChange.document.data);
-           prettyPrint(m.toJson(), '########### firestore listener awoke, message: find response here????');
+  //FCM methods #############################
+  _configureFCM() async {
+    print(
+        '\n\n\ ################ CONFIGURE FCM MESSAGE ###########  starting _firebaseMessaging');
+
+    bool isRunningIOs = await isDeviceIOS();
+    fcmToken = await _firebaseMessaging.getToken();
+    print(
+        '\n\nChatWindow._configureFCM : **************** fcmtoken: $fcmToken');
+
+    _firebaseMessaging.configure(
+      onMessage: (Map<String, dynamic> map) async {
+        prettyPrint(map,
+            '\n\n################ Message from FCM ################# ${DateTime.now().toIso8601String()}');
+
+        String messageType = 'unknown';
+        String mJSON;
+        try {
+          if (isRunningIOs == true) {
+            messageType = map["messageType"];
+            mJSON = map['json'];
+            print('configureFCM platform is iOS');
+          } else {
+            var data = map['data'];
+            messageType = data["messageType"];
+            mJSON = data["json"];
+            print('configureFCM platform is Android');
+          }
+        } catch (e) {
+          print(e);
+          print('configureFCM -------- EXCEPTION handling platform detection');
         }
 
-      });
-    });
+        print(
+            'configureFCM ************************** messageType: $messageType');
+        try {
+          switch (messageType) {
+            case 'CHAT_RESPONSE':
+              var m = ChatResponse.fromJson(json.decode(mJSON));
+              prettyPrint(
+                  m.toJson(), '\n\n########## FCM CHAT_RESPONSE MESSAGE :');
+              onChatResponseMessage(m);
+              break;
+          }
+        } catch (e) {
+          print(
+              'configureFCM - Houston, we have a problem with null listener somewhere');
+          print(e);
+        }
+      },
+      onLaunch: (Map<String, dynamic> message) {
+        print('configureMessaging onLaunch *********** ');
+        prettyPrint(message, 'message delivered on LAUNCH!');
+      },
+      onResume: (Map<String, dynamic> message) {
+        print('configureMessaging onResume *********** ');
+        prettyPrint(message, 'message delivered on RESUME!');
+      },
+    );
+
+    _firebaseMessaging.requestNotificationPermissions(
+        const IosNotificationSettings(sound: true, badge: true, alert: true));
+
+    _firebaseMessaging.onIosSettingsRegistered
+        .listen((IosNotificationSettings settings) {});
   }
+
+  //end of FCM methods ######################
+
+  void onChatResponseMessage(ChatResponse msg) {
+    print('\n\n\nChatResponseWindow.onChatResponseMessage --------------- message received');
+    prettyPrint(msg.toJson(), '########## RESPONSE RECEIVED!!!');
+    _submitMsg(
+        txt: msg.responseMessage,
+        addToFirestore: false,
+        color: Colors.pink,
+        name: 'Support Staff');
+
+    setState(() {});
+  }
+
   void _getMessages() async {
     print('ChatWindow._getMessages %%%%%%%%%% start ......');
     var qs = await fs
@@ -93,7 +167,11 @@ class ChatWindow extends State<ChatPage>
     });
 
     chatMessages.forEach((m) {
-      _submitMsg(m.message, false);
+      _submitMsg(
+          txt: m.message,
+          addToFirestore: false,
+          color: Colors.indigo,
+          name: user.firstName);
     });
     print(
         'ChatWindow._getMessages ... ################## found: ${_messages.length}');
@@ -102,9 +180,11 @@ class ChatWindow extends State<ChatPage>
 
   void _addMessage(String text) async {
     assert(text != null);
-    print('ChatWindow._addMessage --> $text');
+    print(
+        'ChatWindow._addMessage ------------------------------------> \n$text');
 
     assert(uType != null);
+    assert(fcmToken != null);
     var cm = ChatMessage(
       date: DateTime.now().toIso8601String(),
       message: text,
@@ -112,6 +192,7 @@ class ChatWindow extends State<ChatPage>
       participantId: participantId,
       userId: user.userId,
       userType: uType,
+      fcmToken: fcmToken,
       org: org,
     );
     try {
@@ -192,12 +273,20 @@ class ChatWindow extends State<ChatPage>
                       ? new CupertinoButton(
                           child: new Text("Submit"),
                           onPressed: _isWriting
-                              ? () => _submitMsg(_textController.text, true)
+                              ? () => _submitMsg(
+                                  color: Colors.indigo,
+                                  txt: _textController.text,
+                                  name: user == null ? '' : user.firstName,
+                                  addToFirestore: true)
                               : null)
                       : new IconButton(
                           icon: new Icon(Icons.message),
                           onPressed: _isWriting
-                              ? () => _submitMsg(_textController.text, true)
+                              ? () => _submitMsg(
+                                  color: Colors.indigo,
+                                  txt: _textController.text,
+                                  name: user == null ? '' : user.firstName,
+                                  addToFirestore: true)
                               : null,
                         )),
             ],
@@ -209,14 +298,16 @@ class ChatWindow extends State<ChatPage>
     );
   }
 
-  void _submitMsg(String txt, bool addToFirestore) {
+  void _submitMsg({String txt, bool addToFirestore, Color color, String name}) {
     _textController.clear();
+    assert(name != null);
     setState(() {
       _isWriting = false;
     });
     Msg msg = Msg(
-      defaultUserName: user.firstName,
+      defaultUserName: name,
       txt: txt,
+      color: color,
       animationController: new AnimationController(
           vsync: this, duration: new Duration(milliseconds: 800)),
     );
@@ -246,9 +337,10 @@ class ChatWindow extends State<ChatPage>
 }
 
 class Msg extends StatelessWidget {
-  Msg({this.txt, this.animationController, this.defaultUserName});
+  Msg({this.txt, this.animationController, this.defaultUserName, this.color});
   final String txt, defaultUserName;
   final AnimationController animationController;
+  final Color color;
 
   @override
   Widget build(BuildContext ctx) {
@@ -263,7 +355,9 @@ class Msg extends StatelessWidget {
           children: <Widget>[
             new Container(
               margin: const EdgeInsets.only(right: 18.0, left: 12),
-              child: new CircleAvatar(child: new Text(defaultUserName[0])),
+              child: new CircleAvatar(
+                  backgroundColor: color == null ? Colors.indigo : color,
+                  child: new Text(defaultUserName[0])),
             ),
             new Expanded(
               child: new Column(

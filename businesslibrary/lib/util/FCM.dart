@@ -21,6 +21,7 @@ class FCM {
   static const TOPIC_INVESTOR_INVOICE_SETTLEMENTS =
       "investorInvoiceSettlements";
   static const TOPIC_CHAT_MESSAGES_ADDED = "chatMessagesAdded";
+  static const TOPIC_CHAT_RESPONSES_ADDED = "chatResponsesAdded";
 
 
 }

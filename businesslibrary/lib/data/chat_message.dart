@@ -4,7 +4,7 @@ class ChatMessage {
   String participantId;
   String name;
   String message, userId;
-  String date, path, userType, org;
+  String date, path, userType, org, fcmToken, responseFCMToken;
   bool hasResponse;
   List<ChatResponse> responses;
 
@@ -16,9 +16,11 @@ class ChatMessage {
     this.path,
     this.userType,
     this.org,
+    this.fcmToken,
     this.hasResponse,
     this.responses,
     this.date,
+    this.responseFCMToken,
   });
 
   static const String SUPPLIER = 'Supplier',
@@ -34,6 +36,8 @@ class ChatMessage {
     this.path = data['path'];
     this.userType = data['userType'];
     this.org = data['org'];
+    this.fcmToken = data['fcmToken'];
+    this.responseFCMToken = data['responseFCMToken'];
     this.responses = List();
     if (data['responses'] != null) {
       data['responses'].forEach((m) {
@@ -55,6 +59,8 @@ class ChatMessage {
         'path': path,
         'userType': userType,
         'org': org,
+        'fcmToken': fcmToken,
+        'responseFCMToken': responseFCMToken,
         'hasResponse': hasResponse,
         'responses': responses,
       };
