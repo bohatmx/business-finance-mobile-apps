@@ -6,12 +6,14 @@ import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/auto_start_stop.dart';
 import 'package:businesslibrary/data/auto_trade_order.dart';
+import 'package:businesslibrary/data/chat_message.dart';
 import 'package:businesslibrary/data/invalid_trade.dart';
 import 'package:businesslibrary/data/investor.dart';
 import 'package:businesslibrary/data/investor_profile.dart';
 import 'package:businesslibrary/data/invoice_bid.dart';
 import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/util/FCM.dart';
+import 'package:businesslibrary/util/chat_response_page.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/selectors.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
@@ -106,6 +108,11 @@ class _MyHomePageState extends State<MyHomePage>
         try {
           switch (messageType) {
 
+            case 'CHAT_MESSAGE':
+              var m = ChatMessage.fromJson(json.decode(mJSON));
+              prettyPrint(m.toJson(), '\n\n########## FCM CHAT MESSAGE :');
+              onChatMessage(m);
+              break;
             case 'OFFER':
               var m = Offer.fromJson(json.decode(mJSON));
               prettyPrint(m.toJson(), '\n\n########## FCM OFFER MESSAGE :');
@@ -155,41 +162,20 @@ class _MyHomePageState extends State<MyHomePage>
     _firebaseMessaging.subscribeToTopic(FCM.TOPIC_INVOICE_BIDS );
     _firebaseMessaging.subscribeToTopic(FCM.TOPIC_OFFERS);
     _firebaseMessaging.subscribeToTopic(FCM.TOPIC_HEARTBEATS);
+    _firebaseMessaging.subscribeToTopic(FCM.TOPIC_CHAT_MESSAGES_ADDED);
     print(
         '\n\n_DashboardState._subscribeToFCMTopics SUBSCRIBED to topis - Bids, Offers, heartbeat and General');
   }
   //end of FCM methods ######################
 
-
-  void _fixProfiles() async {
-    Firestore fs = Firestore.instance;
-    var qs = await fs.collection('investorProfiles').getDocuments();
-    int count = 0;
-    print('_MyHomePageState.fixProfiles ************ found: ${qs.documents.length}');
-    for (var doc in qs.documents) {
-      var profile = InvestorProfile.fromJson(doc.data);
-      var qs2 = await fs.collection('investors').where('participantId', isEqualTo: profile.investor.split('#').elementAt(1)).getDocuments();
-      if (qs2.documents.isNotEmpty) {
-        profile.investorDocRef = qs2.documents.first.documentID;
-        await doc.reference.setData(profile.toJson());
-        count++;
-        print('\n_MyHomePageState.fixProfiles - updated profile #$count ${profile.name} - investorDocRef : ${profile.investorDocRef}');
-      } else {
-        print('_MyHomePageState.fixProfiles - investor not found: profile: ${profile.name} ${profile.investor}');
-        Investor m = Investor(
-          participantId: profile.investor.split('#').elementAt(1),
-          name: profile.name,
-          country: 'South Africa',
-          description: 'Test Investor',
-          dateRegistered: getUTCDate(),
-        );
-        var ref = await fs.collection('investors').add(m.toJson());
-        m.documentReference = ref.documentID;
-        await ref.setData(m.toJson());
-        print('_MyHomePageState.fixProfiles ########## investor added ${m.name} ${m.documentReference}');
-      }
-    }
-  }
+ void onChatMessage(ChatMessage msg) {
+   print('_MyHomePageState.onChatMessage ........... .................');
+   prettyPrint(msg.toJson(), '##### process this message just arrived:');
+   Navigator.push(
+     context,
+     new MaterialPageRoute(builder: (context) => new ChatResponsePage()),
+   );
+ }
 
   @override
   void initState() {

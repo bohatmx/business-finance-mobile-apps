@@ -10,6 +10,8 @@ import 'package:businesslibrary/data/auditor.dart';
 import 'package:businesslibrary/data/auto_start_stop.dart';
 import 'package:businesslibrary/data/auto_trade_order.dart';
 import 'package:businesslibrary/data/bank.dart';
+import 'package:businesslibrary/data/chat_message.dart';
+import 'package:businesslibrary/data/chat_response.dart';
 import 'package:businesslibrary/data/delivery_acceptance.dart';
 import 'package:businesslibrary/data/delivery_note.dart';
 import 'package:businesslibrary/data/govt_entity.dart';
@@ -28,6 +30,7 @@ import 'package:businesslibrary/data/sector.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/data/wallet.dart';
+import 'package:businesslibrary/util/chat_response_page.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/util.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -48,6 +51,8 @@ class DataAPI3 {
       MAKE_OFFER = 'makeOffer',
       UPDATE_OFFER = 'updateOffer',
       CLOSE_OFFER = 'closeOffer',
+      ADD_CHAT_RESPONSE = 'addChatResponse',
+      ADD_CHAT_MESSAGE = 'addChatMessage',
       MAKE_INVOICE_BID = 'makeInvoiceBid',
       MAKE_INVESTOR_INVOICE_SETTLEMENT = 'makeInvestorInvoiceSettlement',
       ACCEPT_INVOICE = 'acceptInvoice';
@@ -93,7 +98,7 @@ class DataAPI3 {
         'DataAPI3.registerPurchaseOrder getFunctionsURL(): ${getFunctionsURL() + REGISTER_PURCHASE_ORDER}\n\n');
     try {
       var mResponse =
-          await _doHTTP(getFunctionsURL() + REGISTER_PURCHASE_ORDER, bag);
+          await _callCloudFunction(getFunctionsURL() + REGISTER_PURCHASE_ORDER, bag);
       if (mResponse.statusCode == 200) {
         var map = json.decode(mResponse.body);
         var po = PurchaseOrder.fromJson(map);
@@ -109,12 +114,64 @@ class DataAPI3 {
     }
   }
 
+  static Future<ChatMessage> addChatMessage(
+      ChatMessage chatMessage) async {
+    var bag = APIBag(
+      debug: isInDebugMode,
+      data: chatMessage.toJson(),
+    );
+
+    print(
+        'DataAPI3.addChatMessage getFunctionsURL(): ${getFunctionsURL() + ADD_CHAT_MESSAGE}\n\n');
+    try {
+      var mResponse =
+      await _callCloudFunction(getFunctionsURL() + ADD_CHAT_MESSAGE, bag);
+      if (mResponse.statusCode == 200) {
+        var map = json.decode(mResponse.body);
+        var po = ChatMessage.fromJson(map);
+        return po;
+      } else {
+        print(
+            '\n\nDataAPI3.addChatMessage .... we have a problem\n\n\n');
+        throw Exception('addChatMessage failed!: ${mResponse.body}');
+      }
+    } catch (e) {
+      print('DataAPI3.addChatMessage ERROR $e');
+      throw e;
+    }
+  }
+  static Future<ChatResponse> addChatResponse(
+      ChatResponse chatResponse) async {
+    var bag = APIBag(
+      debug: isInDebugMode,
+      data: chatResponse.toJson(),
+    );
+
+    print(
+        'DataAPI3.addChatMessage getFunctionsURL(): ${getFunctionsURL() + ADD_CHAT_RESPONSE}\n\n');
+    try {
+      var mResponse =
+      await _callCloudFunction(getFunctionsURL() + ADD_CHAT_RESPONSE, bag);
+      if (mResponse.statusCode == 200) {
+        var map = json.decode(mResponse.body);
+        var po = ChatResponse.fromJson(map);
+        return po;
+      } else {
+        print(
+            '\n\nDataAPI3.addChatResponse .... we have a problem\n\n\n');
+        throw Exception('addChatResponse failed!: ${mResponse.body}');
+      }
+    } catch (e) {
+      print('DataAPI3.addChatResponse ERROR $e');
+      throw e;
+    }
+  }
   static const Map<String, String> headers = {
     'Content-type': 'application/json',
     'Accept': 'application/json',
   };
 
-  static Future _doHTTP(String mUrl, APIBag bag) async {
+  static Future _callCloudFunction(String mUrl, APIBag bag) async {
     var start = DateTime.now();
     var client = new http.Client();
     var resp = await client
@@ -147,7 +204,7 @@ class DataAPI3 {
 
     try {
       var mResponse =
-          await _doHTTP(getFunctionsURL() + REGISTER_DELIVERY_NOTE, bag);
+          await _callCloudFunction(getFunctionsURL() + REGISTER_DELIVERY_NOTE, bag);
       if (mResponse.statusCode == 200) {
         var note = DeliveryNote.fromJson(json.decode(mResponse.body));
         return note;
@@ -173,7 +230,7 @@ class DataAPI3 {
         'DataAPI3.acceptDelivery url: ${getFunctionsURL() + ACCEPT_DELIVERY_NOTE}');
     try {
       var mResponse =
-          await _doHTTP(getFunctionsURL() + ACCEPT_DELIVERY_NOTE, bag);
+          await _callCloudFunction(getFunctionsURL() + ACCEPT_DELIVERY_NOTE, bag);
       if (mResponse.statusCode == 200) {
         return DeliveryAcceptance.fromJson(json.decode(mResponse.body));
       } else {
@@ -200,7 +257,7 @@ class DataAPI3 {
         'DataAPI3.registerInvoice url: ${getFunctionsURL() + REGISTER_INVOICE}');
 
     try {
-      var mResponse = await _doHTTP(getFunctionsURL() + REGISTER_INVOICE, bag);
+      var mResponse = await _callCloudFunction(getFunctionsURL() + REGISTER_INVOICE, bag);
       switch (mResponse.statusCode) {
         case 200:
           print('DataAPI3.registerInvoice: invoice registered');
@@ -236,7 +293,7 @@ class DataAPI3 {
     print('DataAPI3.saveInvoice url: ${getFunctionsURL() + REGISTER_INVOICE}');
 
     try {
-      var mResponse = await _doHTTP(getFunctionsURL() + REGISTER_INVOICE, bag);
+      var mResponse = await _callCloudFunction(getFunctionsURL() + REGISTER_INVOICE, bag);
       print(mResponse.body);
       switch (mResponse.statusCode) {
         case 200:
@@ -272,7 +329,7 @@ class DataAPI3 {
     );
     print('DataAPI3.acceptInvoice url: ${getFunctionsURL() + ACCEPT_INVOICE}');
     try {
-      var mResponse = await _doHTTP(getFunctionsURL() + ACCEPT_INVOICE, bag);
+      var mResponse = await _callCloudFunction(getFunctionsURL() + ACCEPT_INVOICE, bag);
       if (mResponse.statusCode == 200) {
         return InvoiceAcceptance.fromJson(json.decode(mResponse.body));
       } else {
@@ -297,7 +354,7 @@ class DataAPI3 {
     );
     print('DataAPI3.makeOffer  ${getFunctionsURL() + MAKE_OFFER}');
     try {
-      var mResponse = await _doHTTP(getFunctionsURL() + MAKE_OFFER, bag);
+      var mResponse = await _callCloudFunction(getFunctionsURL() + MAKE_OFFER, bag);
       if (mResponse.statusCode == 200) {
         return Offer.fromJson(json.decode(mResponse.body));
       } else {
@@ -317,7 +374,7 @@ class DataAPI3 {
     );
     print('DataAPI3.updateOffer  ${getFunctionsURL() + UPDATE_OFFER}');
     try {
-      var mResponse = await _doHTTP(getFunctionsURL() + UPDATE_OFFER, bag);
+      var mResponse = await _callCloudFunction(getFunctionsURL() + UPDATE_OFFER, bag);
       if (mResponse.statusCode == 200) {
         return Offer.fromJson(json.decode(mResponse.body));
       } else {
@@ -375,7 +432,7 @@ class DataAPI3 {
     );
     print('DataAPI3.makeInvoiceBid ${getFunctionsURL() + MAKE_INVOICE_BID}');
     try {
-      var mResponse = await _doHTTP(getFunctionsURL() + MAKE_INVOICE_BID, bag);
+      var mResponse = await _callCloudFunction(getFunctionsURL() + MAKE_INVOICE_BID, bag);
       if (mResponse.statusCode == 200) {
         return 0;
       } else {
@@ -402,7 +459,7 @@ class DataAPI3 {
     print(
         'DataAPI3.makeInvestorInvoiceSettlement ${getFunctionsURL() + MAKE_INVESTOR_INVOICE_SETTLEMENT}');
     try {
-      var mResponse = await _doHTTP(
+      var mResponse = await _callCloudFunction(
           getFunctionsURL() + MAKE_INVESTOR_INVOICE_SETTLEMENT, bag);
       if (mResponse.statusCode == 200) {
         return 0;
@@ -455,7 +512,7 @@ class DataAPI3 {
     };
      */
     try {
-      var resp = await _doHTTP(getFunctionsURL() + ADD_PARTICIPANT, bag);
+      var resp = await _callCloudFunction(getFunctionsURL() + ADD_PARTICIPANT, bag);
       print(resp.body);
       if (resp.statusCode == 200) {
         Map map = json.decode(resp.body);
@@ -492,7 +549,7 @@ class DataAPI3 {
     );
     try {
       var mResponse =
-          await _doHTTP(getFunctionsURL() + EXECUTE_AUTO_TRADES, bag);
+          await _callCloudFunction(getFunctionsURL() + EXECUTE_AUTO_TRADES, bag);
       if (mResponse.statusCode == 200) {
         var mjson = json.decode(mResponse.body);
         var start = AutoTradeStart.fromJson(mjson);
@@ -710,7 +767,7 @@ class DataAPI3 {
         collectionName: 'suppliers');
     print('DataAPI3.addSupplier url: ${getFunctionsURL() + ADD_PARTICIPANT}');
     try {
-      var mResponse = await _doHTTP(getFunctionsURL() + ADD_PARTICIPANT, bag);
+      var mResponse = await _callCloudFunction(getFunctionsURL() + ADD_PARTICIPANT, bag);
       if (mResponse.statusCode == 200) {
         Map map = json.decode(mResponse.body);
         supplier.documentReference =
@@ -806,7 +863,7 @@ class DataAPI3 {
     prettyPrint(bag.toJson(), 'DataAPI3.addInvestor : ');
 
     try {
-      var mResponse = await _doHTTP(getFunctionsURL() + ADD_PARTICIPANT, bag);
+      var mResponse = await _callCloudFunction(getFunctionsURL() + ADD_PARTICIPANT, bag);
       if (mResponse.statusCode == 200) {
         Map map = json.decode(mResponse.body);
         investor.documentReference =

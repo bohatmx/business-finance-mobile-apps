@@ -1,10 +1,12 @@
-import 'package:businesslibrary/data/misc_data.dart';
+import 'package:businesslibrary/data/chat_response.dart';
 
-class ChatMessage extends BaseParticipant {
+class ChatMessage {
   String participantId;
   String name;
   String message, userId;
   String date, path, userType, org;
+  bool hasResponse;
+  List<ChatResponse> responses;
 
   ChatMessage({
     this.participantId,
@@ -14,6 +16,8 @@ class ChatMessage extends BaseParticipant {
     this.path,
     this.userType,
     this.org,
+    this.hasResponse,
+    this.responses,
     this.date,
   });
 
@@ -30,8 +34,19 @@ class ChatMessage extends BaseParticipant {
     this.path = data['path'];
     this.userType = data['userType'];
     this.org = data['org'];
+    this.responses = List();
+    if (data['responses'] != null) {
+      data['responses'].forEach((m) {
+        var x = ChatResponse.fromJson(m);
+        responses.add(x);
+      });
+    }
+    this.hasResponse = false;
+    if (data['hasResponse'] != null) {
+      this.hasResponse = true;
+    }
   }
-  Map<String, String> toJson() => <String, String>{
+  Map<String, dynamic> toJson() => <String, dynamic>{
         'participantId': participantId,
         'name': name,
         'userId': userId,
@@ -40,5 +55,7 @@ class ChatMessage extends BaseParticipant {
         'path': path,
         'userType': userType,
         'org': org,
+        'hasResponse': hasResponse,
+        'responses': responses,
       };
 }

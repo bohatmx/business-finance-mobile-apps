@@ -5,7 +5,7 @@ import 'package:businesslibrary/data/govt_entity.dart';
 import 'package:businesslibrary/data/investor.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
-import 'package:businesslibrary/util/chat.dart';
+import 'package:businesslibrary/util/chat_page.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:businesslibrary/util/support_email.dart';
 import 'package:flutter/material.dart';
@@ -188,7 +188,7 @@ void getCached() async {
     print('_ContactUsState._onChatTapped ............');
     Navigator.push(
       context,
-      new MaterialPageRoute(builder: (context) => Chat()),
+      new MaterialPageRoute(builder: (context) => ChatPage()),
     );
   }
 }

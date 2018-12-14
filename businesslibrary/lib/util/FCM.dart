@@ -20,6 +20,7 @@ class FCM {
   static const TOPIC_PEACH_SUCCESS = "peachSuccess";
   static const TOPIC_INVESTOR_INVOICE_SETTLEMENTS =
       "investorInvoiceSettlements";
+  static const TOPIC_CHAT_MESSAGES_ADDED = "chatMessagesAdded";
 
 
 }

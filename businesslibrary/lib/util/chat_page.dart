@@ -1,22 +1,30 @@
+import 'package:businesslibrary/api/data_api3.dart';
 import 'package:businesslibrary/data/chat_message.dart';
 import 'package:businesslibrary/data/govt_entity.dart';
 import 'package:businesslibrary/data/investor.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
+import 'package:businesslibrary/util/lookups.dart';
+import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 
-class Chat extends StatefulWidget {
+class ChatPage extends StatefulWidget {
   @override
   State createState() => new ChatWindow();
 }
 
-class ChatWindow extends State<Chat> with TickerProviderStateMixin {
+class ChatWindow extends State<ChatPage>
+    with TickerProviderStateMixin
+    implements SnackBarListener {
   final List<Msg> _messages = <Msg>[];
   final TextEditingController _textController = new TextEditingController();
+  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+
   final Firestore fs = Firestore.instance;
   List<ChatMessage> chatMessages = List();
   bool _isWriting = false;
@@ -55,8 +63,23 @@ class ChatWindow extends State<Chat> with TickerProviderStateMixin {
       participantId = investor.participantId;
       org = investor.name;
     }
+    _listenForResponses();
   }
 
+  void _listenForResponses() async{
+    print('ChatWindow._listenForResponses ++++++++++++++++++++++++++++++++++');
+    Firestore fs = Firestore.instance;
+    CollectionReference collectionReference = fs.collection('chatMessages').document(user.userId).collection('messages');
+    collectionReference.snapshots().listen((querySnapshot) {
+      querySnapshot.documentChanges.forEach((docChange) {
+        if (docChange.type == DocumentChangeType.added) {
+           var m = ChatMessage.fromJson(docChange.document.data);
+           prettyPrint(m.toJson(), '########### firestore listener awoke, message: find response here????');
+        }
+
+      });
+    });
+  }
   void _getMessages() async {
     print('ChatWindow._getMessages %%%%%%%%%% start ......');
     var qs = await fs
@@ -70,11 +93,7 @@ class ChatWindow extends State<Chat> with TickerProviderStateMixin {
     });
 
     chatMessages.forEach((m) {
-      _messages.add(Msg(
-        defaultUserName: user.firstName,
-        animationController: new AnimationController(
-            vsync: this, duration: new Duration(milliseconds: 800)),
-      ));
+      _submitMsg(m.message, false);
     });
     print(
         'ChatWindow._getMessages ... ################## found: ${_messages.length}');
@@ -95,17 +114,44 @@ class ChatWindow extends State<Chat> with TickerProviderStateMixin {
       userType: uType,
       org: org,
     );
-    var ref = await fs
-        .collection('chatMessages')
-        .document(user.userId)
-        .collection('messages')
-        .add(cm.toJson())
-        .catchError((err) {});
-    print('ChatWindow._addMessage -- added message ${ref.path}');
-    cm.path = ref.path;
-    await ref.setData(cm.toJson());
-    print('ChatWindow._addMessage -- updated message ${ref.path} with path.');
-    //setState(() {});
+    try {
+      ChatMessage resp = await DataAPI3.addChatMessage(cm);
+      prettyPrint(resp.toJson(), '######### message from function call:');
+    } catch (e) {
+      print(e);
+      AppSnackbar.showErrorSnackbar(
+          scaffoldKey: _scaffoldKey,
+          message: 'Message cannot be sent',
+          listener: this,
+          actionLabel: 'close');
+    }
+  }
+
+  Widget _getColumn() {
+    print(
+        'ChatWindow._getColumn rebuilding ListView ...... ${_messages.length}');
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Card(
+        elevation: 4.0,
+        child: Column(
+          children: <Widget>[
+            new Flexible(
+                child: new ListView.builder(
+              itemBuilder: (_, int index) => _messages[index],
+              itemCount: _messages.length,
+              reverse: true,
+              padding: new EdgeInsets.all(6.0),
+            )),
+            new Divider(height: 4.0),
+            new Container(
+              child: _buildComposer(),
+              decoration: new BoxDecoration(color: Colors.brown.shade100),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -115,20 +161,8 @@ class ChatWindow extends State<Chat> with TickerProviderStateMixin {
         title: new Text("BFN Support Chat"),
         elevation: Theme.of(ctx).platform == TargetPlatform.iOS ? 0.0 : 6.0,
       ),
-      body: new Column(children: <Widget>[
-        new Flexible(
-            child: new ListView.builder(
-          itemBuilder: (_, int index) => _messages[index],
-          itemCount: _messages.length,
-          reverse: true,
-          padding: new EdgeInsets.all(6.0),
-        )),
-        new Divider(height: 1.0),
-        new Container(
-          child: _buildComposer(),
-          decoration: new BoxDecoration(color: Colors.brown.shade100),
-        ),
-      ]),
+      backgroundColor: Colors.brown.shade100,
+      body: _getColumn(),
     );
   }
 
@@ -148,7 +182,6 @@ class ChatWindow extends State<Chat> with TickerProviderStateMixin {
                       _isWriting = txt.length > 0;
                     });
                   },
-                  onSubmitted: _submitMsg,
                   decoration: new InputDecoration.collapsed(
                       hintText: "Enter some text to send a message"),
                 ),
@@ -159,12 +192,12 @@ class ChatWindow extends State<Chat> with TickerProviderStateMixin {
                       ? new CupertinoButton(
                           child: new Text("Submit"),
                           onPressed: _isWriting
-                              ? () => _submitMsg(_textController.text)
+                              ? () => _submitMsg(_textController.text, true)
                               : null)
                       : new IconButton(
                           icon: new Icon(Icons.message),
                           onPressed: _isWriting
-                              ? () => _submitMsg(_textController.text)
+                              ? () => _submitMsg(_textController.text, true)
                               : null,
                         )),
             ],
@@ -176,7 +209,7 @@ class ChatWindow extends State<Chat> with TickerProviderStateMixin {
     );
   }
 
-  void _submitMsg(String txt) {
+  void _submitMsg(String txt, bool addToFirestore) {
     _textController.clear();
     setState(() {
       _isWriting = false;
@@ -192,7 +225,9 @@ class ChatWindow extends State<Chat> with TickerProviderStateMixin {
     });
     msg.animationController.forward();
     //
-    _addMessage(txt);
+    if (addToFirestore) {
+      _addMessage(txt);
+    }
   }
 
   @override
@@ -201,6 +236,12 @@ class ChatWindow extends State<Chat> with TickerProviderStateMixin {
       msg.animationController.dispose();
     }
     super.dispose();
+  }
+
+  @override
+  onActionPressed(int action) {
+    // TODO: implement onActionPressed
+    return null;
   }
 }
 
@@ -221,7 +262,7 @@ class Msg extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             new Container(
-              margin: const EdgeInsets.only(right: 18.0),
+              margin: const EdgeInsets.only(right: 18.0, left: 12),
               child: new CircleAvatar(child: new Text(defaultUserName[0])),
             ),
             new Expanded(
