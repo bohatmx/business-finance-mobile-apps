@@ -49,6 +49,9 @@ class ChatResponseWindow extends State<ChatResponsePage>
 
     bool isRunningIOs = await isDeviceIOS();
     fcmToken = await _firebaseMessaging.getToken();
+    if (fcmToken != null) {
+      SharedPrefs.saveFCMToken(fcmToken);
+    }
     _firebaseMessaging.configure(
       onMessage: (Map<String, dynamic> map) async {
         prettyPrint(map,
@@ -116,9 +119,14 @@ class ChatResponseWindow extends State<ChatResponsePage>
   //end of FCM methods ######################
 
   void onChatMessage(ChatMessage msg) {
-    print('ChatResponseWindow.onChatMessage - message received');
+    print('\n\nChatResponseWindow.onChatMessage - message received: ${msg.message}');
     chatMessagesPending.add(msg);
-    setState(() {});
+    _submitMsg(
+      addToFirestore: false,
+      color: Colors.indigo,
+      txt: msg.message,
+      defaultUserName: msg.name,
+    );
   }
 
   void _getMessages() async {

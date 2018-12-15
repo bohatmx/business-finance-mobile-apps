@@ -82,6 +82,9 @@ class ChatWindow extends State<ChatPage>
     fcmToken = await _firebaseMessaging.getToken();
     print(
         '\n\nChatWindow._configureFCM : **************** fcmtoken: $fcmToken');
+    if (fcmToken != null) {
+      SharedPrefs.saveFCMToken(fcmToken);
+    }
 
     _firebaseMessaging.configure(
       onMessage: (Map<String, dynamic> map) async {
