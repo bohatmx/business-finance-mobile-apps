@@ -1,5 +1,6 @@
 import 'package:businesslibrary/util/page_util/data.dart';
 import 'package:businesslibrary/util/page_util/page_transformer.dart';
+import 'package:businesslibrary/util/styles.dart';
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 
@@ -7,10 +8,12 @@ class IntroPageItem extends StatelessWidget {
   IntroPageItem({
     @required this.item,
     @required this.pageVisibility,
+    @required this.listener
   });
 
   final IntroItem item;
   final PageVisibility pageVisibility;
+  final IntroPageListener listener;
 
   Widget _applyTextEffects({
     @required double translationFactor,
@@ -105,7 +108,7 @@ class IntroPageItem extends StatelessWidget {
         horizontal: 8.0,
       ),
       child: Material(
-        elevation: 4.0,
+        elevation: 8.0,
         borderRadius: BorderRadius.circular(8.0),
         child: Stack(
           fit: StackFit.expand,
@@ -118,4 +121,28 @@ class IntroPageItem extends StatelessWidget {
       ),
     );
   }
+
+  Widget _widget() {
+    return Positioned(
+      bottom: 4,
+      left: 80,
+      right: 80,
+      child: RaisedButton(
+        onPressed: _onPressed,
+        color: Colors.pink,
+        child: Text('Contact Us',style: Styles.whiteSmall),
+      ),
+    );
+  }
+
+
+
+  void _onPressed() {
+    print('IntroPageItem._onPressed - telling listener');
+    listener.onContactRequested();
+  }
+}
+
+abstract class IntroPageListener {
+  onContactRequested();
 }

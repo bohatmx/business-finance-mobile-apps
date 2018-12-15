@@ -53,7 +53,7 @@ class _SupportEmailState extends State<SupportEmail> {
 
   @override
   Widget build(BuildContext context) {
-    var title;
+    var title = 'General Support';
     switch (widget.userType) {
       case USER_CUSTOMER:
         title = 'Customer Support';
