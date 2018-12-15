@@ -1,3 +1,4 @@
+import 'package:businesslibrary/util/selectors.dart';
 import 'package:flutter/material.dart';
 
 class Message {
@@ -20,7 +21,7 @@ class Message {
         icon = Icon(Icons.add_alert, color: Colors.black);
         break;
       case INVOICE_BID:
-        icon = Icon(Icons.account_balance, color: Colors.teal.shade900,);
+        icon = Icon(Icons.assessment, color: getRandomColor(),);
         break;
       case INVOICE:
         icon = Icon(Icons.airport_shuttle, color: Colors.purple,);

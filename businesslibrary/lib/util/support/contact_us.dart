@@ -5,18 +5,20 @@ import 'package:businesslibrary/data/govt_entity.dart';
 import 'package:businesslibrary/data/investor.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
-import 'package:businesslibrary/util/chat_page.dart';
+import 'package:businesslibrary/util/support/chat_page.dart';
+import 'package:businesslibrary/util/page_util/data.dart';
+import 'package:businesslibrary/util/page_util/intro_page_view.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:businesslibrary/util/support_email.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ContactUs extends StatefulWidget {
   @override
   _ContactUsState createState() => _ContactUsState();
-
 }
 
 class _ContactUsState extends State<ContactUs> {
@@ -37,7 +39,9 @@ class _ContactUsState extends State<ContactUs> {
   double mLat = -25.883328, mLng = 28.168771;
   String userType;
   Image image1;
-  static const String USER_SUPPLIER = '1', USER_INVESTOR = '2', USER_CUSTOMER = '3';
+  static const String USER_SUPPLIER = '1',
+      USER_INVESTOR = '2',
+      USER_CUSTOMER = '3';
 
   @override
   void initState() {
@@ -45,28 +49,28 @@ class _ContactUsState extends State<ContactUs> {
     super.initState();
     initPlatformState();
     getCached();
+  }
 
-  }
-void getCached() async {
-  user = await SharedPrefs.getUser();
-  customer = await SharedPrefs.getGovEntity();
-  investor = await SharedPrefs.getInvestor();
-  supplier = await SharedPrefs.getSupplier();
+  void getCached() async {
+    user = await SharedPrefs.getUser();
+    customer = await SharedPrefs.getGovEntity();
+    investor = await SharedPrefs.getInvestor();
+    supplier = await SharedPrefs.getSupplier();
 
-  if (customer != null) {
-    userType = USER_CUSTOMER;
+    if (customer != null) {
+      userType = USER_CUSTOMER;
+    }
+    if (investor != null) {
+      userType = USER_INVESTOR;
+    }
+    if (supplier != null) {
+      userType = USER_SUPPLIER;
+    }
+    _locationSubscription =
+        _location.onLocationChanged().listen((Map<String, double> result) {});
+    print('_ContactUsState.getCached user: ${user.toJson()}');
   }
-  if (investor != null) {
-    userType = USER_INVESTOR;
-  }
-  if (supplier != null) {
-    userType = USER_SUPPLIER;
-  }
-  _locationSubscription =
-      _location.onLocationChanged().listen((Map<String, double> result) {
-      });
-  print('_ContactUsState.getCached user: ${user.toJson()}');
-}
+
   void getLocation() async {}
   initPlatformState() async {
     print('_ContactUsState.initPlatformState ..............................');
@@ -102,35 +106,61 @@ void getCached() async {
 
   Widget _getBottom() {
     return PreferredSize(
-      preferredSize: Size.fromHeight(120.0),
+      preferredSize: Size.fromHeight(140.0),
       child: Column(
         children: <Widget>[
           Padding(
-            padding: const EdgeInsets.only(top:20.0),
+            padding: const EdgeInsets.only(top: 20.0, bottom: 10.0),
             child: Text(
               '340 Witch Hazel Avenue, Centurion',
               style: Styles.whiteBoldSmall,
             ),
           ),
           Padding(
-            padding: const EdgeInsets.only(top:8.0, bottom: 30.0, left: 12.0, right: 12.0),
+            padding: const EdgeInsets.only(left:40.0,right:40.0, top: 10.0),
+            child: Divider(
+              color: Colors.black,
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(
+                top: 8.0, bottom: 30.0, left: 12.0, right: 12.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: <Widget>[
                 InkWell(
                   onTap: _onPhoneTapped,
-                  child: Text(
-                    '012 346 5670',
-                    style: Styles.whiteBoldLarge,
+                  child: Row(
+                    children: <Widget>[
+                      Icon(Icons.phone),
+                      SizedBox(width: 4.0,),
+
+                      Text(
+                        '012 346 5670',
+                        style: Styles.whiteBoldLarge,
+                      ),
+                    ],
                   ),
                 ),
-                SizedBox(width: 20.0,),
-                IconButton(
-                  icon: Icon(Icons.email, color: Colors.white,), onPressed: _onEmailTapped,
+                SizedBox(
+                  width: 20.0,
                 ),
-                SizedBox(width: 20.0,),
                 IconButton(
-                  icon: Icon(Icons.chat, color: Colors.white,), onPressed: _onChatTapped,
+                  icon: Icon(
+                    Icons.email,
+                    color: Colors.white,
+                  ),
+                  onPressed: _onEmailTapped,
+                ),
+                SizedBox(
+                  width: 20.0,
+                ),
+                IconButton(
+                  icon: Icon(
+                    Icons.chat,
+                    color: Colors.white,
+                  ),
+                  onPressed: _onChatTapped,
                 ),
               ],
             ),
@@ -142,39 +172,57 @@ void getCached() async {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       appBar: AppBar(
         title: Text('BFN - OneConnect'),
         bottom: _getBottom(),
       ),
-      body: GoogleMap(
-        onMapCreated: (controller) {
-          print('_ContactUsState.build ------ onMapCreated');
-          _mapController = controller;
-          setMapStuff();
-        },
-        options: GoogleMapOptions(
-          myLocationEnabled: true,
-          compassEnabled: true,
-          zoomGesturesEnabled: true,
-        ),
+      body: Stack(
+        children: <Widget>[
+          GoogleMap(
+            onMapCreated: (controller) {
+              print('_ContactUsState.build ------ onMapCreated');
+              _mapController = controller;
+              setMapStuff();
+            },
+            options: GoogleMapOptions(
+              myLocationEnabled: true,
+              compassEnabled: true,
+              zoomGesturesEnabled: true,
+            ),
+          ),
+          Positioned(
+            left: 100.0,
+            right: 100.0,
+            bottom: 10.0,
+            child: RaisedButton(
+              elevation: 16.0,
+              color: Colors.deepOrange,
+              onPressed: _onPressed,
+            child: Text('Information', style: Styles.whiteSmall,),),
+          ),
+        ],
+
       ),
     );
   }
 
   void setMapStuff() {
     _mapController.animateCamera(CameraUpdate.newCameraPosition(
-        CameraPosition(target: LatLng(mLat, mLng), zoom: 12.0)));
+        CameraPosition(target: LatLng(mLat, mLng), zoom: 10.0)));
     _mapController.addMarker(MarkerOptions(
       position: LatLng(mLat, mLng),
-      icon: BitmapDescriptor.fromAsset('assets/computers.png'), zIndex: 4.0,
+      icon: BitmapDescriptor.fromAsset('assets/computers.png'),
+      zIndex: 4.0,
       infoWindowText: InfoWindowText('OneConnect', 'We are the FinTech People'),
     ));
   }
+
   void _onPhoneTapped() {
     print('_ContactUsState._onPhoneTapped ............');
+    launch("tel:0710441887");
   }
+
   void _onEmailTapped() {
     print('_ContactUsState._onEmailTapped ............');
     print('_ContactUsState._onEmailTapped userType; $userType');
@@ -184,11 +232,20 @@ void getCached() async {
       new MaterialPageRoute(builder: (context) => SupportEmail(userType)),
     );
   }
+
   void _onChatTapped() {
     print('_ContactUsState._onChatTapped ............');
     Navigator.push(
       context,
       new MaterialPageRoute(builder: (context) => ChatPage()),
+    );
+  }
+
+  void _onPressed() {
+    print('_ContactUsState._onPressed ...');
+    Navigator.push(
+      context,
+      new MaterialPageRoute(builder: (context) => IntroPageView(sampleItems)),
     );
   }
 }

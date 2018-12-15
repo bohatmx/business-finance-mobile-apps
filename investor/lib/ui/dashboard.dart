@@ -19,7 +19,7 @@ import 'package:businesslibrary/util/FCM.dart';
 import 'package:businesslibrary/util/invoice_bid_card.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/message.dart';
-import 'package:businesslibrary/util/contact_us.dart';
+import 'package:businesslibrary/util/support/contact_us.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:businesslibrary/util/summary_card.dart';
@@ -286,13 +286,14 @@ class _DashboardState extends State<Dashboard>
                     onPressed: _onProfileRequested,
                   ),
                   IconButton(
-                    icon: Icon(Icons.attach_money),
-                    onPressed: _goToWalletPage,
-                  ),
-                  IconButton(
                     icon: Icon(Icons.refresh),
                     onPressed: _refresh,
                   ),
+                  IconButton(
+                    icon: Icon(Icons.help_outline),
+                    onPressed: _goToContactUsPage,
+                  ),
+
                 ],
               ),
               backgroundColor: Colors.brown.shade100,
@@ -385,7 +386,7 @@ class _DashboardState extends State<Dashboard>
           );
   }
 
-  void _goToWalletPage() {
+  void _goToContactUsPage() {
     print('_MainPageState._goToWalletPage .... ');
 //    Navigator.push(
 //      context,

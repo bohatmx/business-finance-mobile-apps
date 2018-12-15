@@ -2,6 +2,8 @@
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/investor.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
+import 'package:businesslibrary/util/page_util/data.dart';
+import 'package:businesslibrary/util/page_util/intro_page_view.dart';
 import 'package:businesslibrary/util/theme_bloc.dart';
 
 import 'package:flutter/material.dart';
@@ -134,6 +136,22 @@ class _StartPageState extends State<StartPage> {
                     ),
                   ),
                 ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 20.0),
+                  child: RaisedButton(
+                    onPressed: _startOnboarding,
+                    color: Colors.pink,
+                    elevation: 16.0,
+                    child: new Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: Text(
+                        'Information',
+                        style: TextStyle(
+                            color: Colors.white, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+                ),
               ],
             ),
           )
@@ -164,6 +182,13 @@ class _StartPageState extends State<StartPage> {
     Navigator.push(
       context,
       new MaterialPageRoute(builder: (context) => new Dashboard(null)),
+    );
+  }
+
+  void _startOnboarding() {
+    Navigator.push(
+      context,
+      new MaterialPageRoute(builder: (context) => new IntroPageView(sampleItems)),
     );
   }
 }

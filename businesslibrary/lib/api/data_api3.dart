@@ -30,7 +30,7 @@ import 'package:businesslibrary/data/sector.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/data/wallet.dart';
-import 'package:businesslibrary/util/chat_response_page.dart';
+import 'package:businesslibrary/util/support/chat_response_page.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/util.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';

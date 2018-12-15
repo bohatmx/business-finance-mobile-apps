@@ -145,9 +145,11 @@ class ChatWindow extends State<ChatPage>
 
   //end of FCM methods ######################
 
+  ChatResponse _chatResponse;
   void onChatResponseMessage(ChatResponse msg) {
     print('\n\n\nChatResponseWindow.onChatResponseMessage --------------- message received');
     prettyPrint(msg.toJson(), '########## RESPONSE RECEIVED!!!');
+    _chatResponse = msg;
     _submitMsg(
         txt: msg.responseMessage,
         addToFirestore: false,
@@ -198,6 +200,11 @@ class ChatWindow extends State<ChatPage>
       fcmToken: fcmToken,
       org: org,
     );
+    if (_chatResponse != null) {
+      prettyPrint(_chatResponse.toJson(), 'ChatResponse received from FCM');
+      cm.responseFCMToken = _chatResponse.fcmToken;
+    }
+    prettyPrint(cm.toJson(), 'ChatMessage to send to DataAPI3 ..');
     try {
       ChatMessage resp = await DataAPI3.addChatMessage(cm);
       prettyPrint(resp.toJson(), '######### message from function call:');

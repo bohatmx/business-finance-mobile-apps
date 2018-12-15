@@ -39,6 +39,7 @@ class InvestorModelBloc implements Model2Listener {
 
   closeStream() {
     _appModelController.close();
+    _errorController.close();
   }
 
   get appModelStream => _appModelController.stream;

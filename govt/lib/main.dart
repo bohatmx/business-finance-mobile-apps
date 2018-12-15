@@ -1,8 +1,9 @@
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/govt_entity.dart';
+import 'package:businesslibrary/util/page_util/data.dart';
+import 'package:businesslibrary/util/page_util/intro_page_view.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/theme_bloc.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:govt/ui/dashboard.dart';
 import 'package:govt/ui/signin_page.dart';
@@ -133,24 +134,35 @@ class _StartPageState extends State<StartPage> implements SnackBarListener {
                     ),
                   ),
                 ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 20.0),
+                  child: RaisedButton(
+                    onPressed: _startOnboarding,
+                    color: Colors.pink,
+                    elevation: 16.0,
+                    child: new Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: Text(
+                        'Information',
+                        style: TextStyle(
+                            color: Colors.white, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+                ),
               ],
             ),
           )
         ],
       ),
-
-//      floatingActionButton: new Opacity(
-//        opacity: fabOpacity,
-//        child: new FloatingActionButton(
-//          onPressed: _startSignUp,
-//          tooltip: 'Increment',
-//          child: new Icon(FontAwesomeIcons.lockOpen),
-//        ),
-      //-LOgb4poza3eLtedkXMq
-//      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
-
+  void _startOnboarding() {
+    Navigator.push(
+      context,
+      new MaterialPageRoute(builder: (context) => new IntroPageView(sampleItems)),
+    );
+  }
   void _startSignUpPage() async {
     print('_MyHomePageState._btnPressed ................');
     await Navigator.push(
