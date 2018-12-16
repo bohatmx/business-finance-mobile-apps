@@ -11,7 +11,7 @@ import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:investor/investor_model_bloc.dart';
+import 'package:businesslibrary/blocs/investor_model_bloc.dart';
 import 'package:investor/ui/settle_invoice_bid.dart';
 import 'package:flutter/scheduler.dart';
 

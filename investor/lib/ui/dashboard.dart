@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:businesslibrary/api/data_api3.dart';
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
+import 'package:businesslibrary/blocs/chat_bloc.dart';
 import 'package:businesslibrary/data/auto_trade_order.dart';
 import 'package:businesslibrary/data/chat_response.dart';
 import 'package:businesslibrary/data/delivery_acceptance.dart';
@@ -30,7 +31,7 @@ import 'package:businesslibrary/util/util.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:investor/investor_model_bloc.dart';
+import 'package:businesslibrary/blocs/investor_model_bloc.dart';
 import 'package:investor/investor_summary_card.dart';
 import 'package:investor/ui/charts.dart';
 import 'package:investor/ui/offer_list.dart';
@@ -53,7 +54,6 @@ class _DashboardState extends State<Dashboard>
     implements SnackBarListener, InvestorCardListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   static const platform = const MethodChannel('com.oneconnect.biz.CHANNEL');
-  final FirebaseMessaging _fm = new FirebaseMessaging();
 
   AnimationController animationController;
   Animation<double> animation;
@@ -105,13 +105,12 @@ class _DashboardState extends State<Dashboard>
   //FCM methods #############################
   _configureFCM() async {
     print(
-        '\n\n\ ################ CONFIGURE FCM MESSAGE ###########  starting _firebaseMessaging');
+        '\n\n\ _DashboardState################ CONFIGURE FCM MESSAGE ###########  starting _firebaseMessaging');
     bool isRunningIOs = await isDeviceIOS();
-
     _firebaseMessaging.configure(
       onMessage: (Map<String, dynamic> map) async {
         prettyPrint(map,
-            '\n\n################ Message from FCM ################# ${DateTime.now().toIso8601String()}');
+            '\n\n_DashboardState ################ Message from FCM ################# ${DateTime.now().toIso8601String()}');
 
         String messageType = 'unknown';
         String mJSON;
@@ -124,16 +123,16 @@ class _DashboardState extends State<Dashboard>
             var data = map['data'];
             messageType = data["messageType"];
             mJSON = data["json"];
-            print('FCM.configureFCM platform is Android');
+            print('_DashboardState.configureFCM platform is Android');
           }
         } catch (e) {
           print(e);
           print(
-              'FCM.configureFCM -------- EXCEPTION handling platform detection');
+              '_DashboardState.configureFCM -------- EXCEPTION handling platform detection');
         }
 
         print(
-            'FCM.configureFCM ************************** messageType: $messageType');
+            '_DashboardState.configureFCM ************************** messageType: $messageType');
 
         try {
           switch (messageType) {
@@ -165,16 +164,16 @@ class _DashboardState extends State<Dashboard>
           }
         } catch (e) {
           print(
-              'FCM.configureFCM - Houston, we have a problem with null listener somewhere');
+              '_DashboardState.configureFCM - Houston, we have a problem with null listener somewhere. error below\n\n');
           print(e);
         }
       },
       onLaunch: (Map<String, dynamic> message) {
-        print('configureMessaging onLaunch *********** ');
+        print('_DashboardState.configureFCM  onLaunch *********** ');
         prettyPrint(message, 'message delivered on LAUNCH!');
       },
       onResume: (Map<String, dynamic> message) {
-        print('configureMessaging onResume *********** ');
+        print('_DashboardState.configureFCM  onResume *********** ');
         prettyPrint(message, 'message delivered on RESUME!');
       },
     );
@@ -257,7 +256,7 @@ class _DashboardState extends State<Dashboard>
       );
     }
     print('\n\n\n_DashboardState.build ********** DASHBOARD RE_BUILD ***********');
-    _configureFCM();
+//    _configureFCM();
     return StreamBuilder<InvestorAppModel2>(
         initialData: investorModelBloc.appModel,
         stream: investorModelBloc.appModelStream,
@@ -291,7 +290,7 @@ class _DashboardState extends State<Dashboard>
                     onPressed: _refresh,
                   ),
                   IconButton(
-                    icon: Icon(Icons.help_outline),
+                    icon: Icon(Icons.help),
                     onPressed: _goToContactUsPage,
                   ),
                 ],
@@ -388,14 +387,6 @@ class _DashboardState extends State<Dashboard>
 
   void _goToContactUsPage() {
     print('_MainPageState._goToWalletPage .... ');
-//    Navigator.push(
-//      context,
-//      new MaterialPageRoute(
-//          builder: (context) => new WalletPage(
-//              name: investor.name,
-//              participantId: investor.participantId,
-//              type: InvestorType)),
-//    );
     Navigator.push(
       context,
       new MaterialPageRoute(builder: (context) => new ContactUs()),
@@ -627,9 +618,10 @@ class _DashboardState extends State<Dashboard>
   void onChatResponseMessage(ChatResponse chatResponse) {
     this.chatResponse = chatResponse;
     prettyPrint(
-        chatResponse.toJson(), '############ chatResponse received, should start Chat');
+        chatResponse.toJson(), 'DASHBOARD: ############ chatResponse received, should start Chat');
     _showSnack(chatResponse.responseMessage);
-    _showGoToChatDialog();
+    //_showGoToChatDialog();
+    chatBloc.receiveChatResponse(chatResponse);
 
 
   }

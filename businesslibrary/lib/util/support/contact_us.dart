@@ -17,6 +17,10 @@ import 'package:location/location.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ContactUs extends StatefulWidget {
+  final Function receiveResponse;
+
+  const ContactUs({Key key, this.receiveResponse}) : super(key: key);
+
   @override
   _ContactUsState createState() => _ContactUsState();
 }
@@ -253,10 +257,13 @@ class _ContactUsState extends State<ContactUs> {
     print('_ContactUsState._onChatTapped ............');
     Navigator.push(
       context,
-      new MaterialPageRoute(builder: (context) => ChatPage()),
+      new MaterialPageRoute(builder: (context) => ChatPage(doSomething: doSomething,)),
     );
   }
 
+  void doSomething() {
+    print('\n\n_ContactUsState.doSomething ......... YAY! executed by child widget');
+  }
   void _onPressed() {
     print('_ContactUsState._onPressed ...');
     Navigator.push(

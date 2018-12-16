@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
+import 'package:businesslibrary/data/chat_response.dart';
 import 'package:businesslibrary/data/dashboard_data.dart';
 import 'package:businesslibrary/data/investor.dart';
 import 'package:businesslibrary/data/invoice_bid.dart';
@@ -17,6 +18,7 @@ class InvestorModelBloc implements Model2Listener {
   final StreamController<InvestorAppModel2> _appModelController =
       StreamController<InvestorAppModel2>();
   final StreamController<String> _errorController = StreamController<String>();
+  final StreamController<ChatResponse> _chatController = StreamController<ChatResponse>();
   final InvestorAppModel2 _appModel = InvestorAppModel2();
 
   InvestorModelBloc() {
@@ -40,10 +42,15 @@ class InvestorModelBloc implements Model2Listener {
   closeStream() {
     _appModelController.close();
     _errorController.close();
+    _chatController.close();
   }
 
   get appModelStream => _appModelController.stream;
+  get chatResponseStream => _chatController.stream;
 
+  receiveChatResponse(ChatResponse chatResponse) {
+    _chatController.sink.add(chatResponse);
+  }
   @override
   onComplete() {
     print(

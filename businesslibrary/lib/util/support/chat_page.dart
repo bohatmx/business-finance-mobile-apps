@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:businesslibrary/api/data_api3.dart';
 import 'package:businesslibrary/api/list_api.dart';
+import 'package:businesslibrary/blocs/chat_bloc.dart';
+import 'package:businesslibrary/blocs/investor_model_bloc.dart';
 import 'package:businesslibrary/data/chat_message.dart';
 import 'package:businesslibrary/data/chat_response.dart';
 import 'package:businesslibrary/data/govt_entity.dart';
@@ -19,8 +21,8 @@ import 'package:businesslibrary/api/shared_prefs.dart';
 
 class ChatPage extends StatefulWidget {
   final ChatResponse chatResponse;
-
-  ChatPage({this.chatResponse});
+  final Function doSomething;
+  ChatPage({this.chatResponse, this.doSomething});
 
   @override
   State createState() => new ChatWindow();
@@ -43,6 +45,7 @@ class ChatWindow extends State<ChatPage>
   String uType, participantId, org;
   FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
   String fcmToken;
+  ChatResponse _chatResponse;
   @override
   void initState() {
     super.initState();
@@ -54,17 +57,18 @@ class ChatWindow extends State<ChatPage>
 
   void _getCached() async {
     user = await SharedPrefs.getUser();
+    fcmToken = await SharedPrefs.getFCMToken();
     assert(user != null);
     print('ChatWindow._getCached ====== user: ${user.toJson()}');
+    widget.doSomething();
     if (widget.chatResponse == null) {
       _getMessages();
     } else {
       _submitMsg(
-        txt: _chatResponse.responseMessage,
-        color: Colors.pink,
-        addToFirestore: false,
-        name: _chatResponse.responderName
-      );
+          txt: _chatResponse.responseMessage,
+          color: Colors.pink,
+          addToFirestore: false,
+          name: _chatResponse.responderName);
     }
 
     if (user.supplier != null) {
@@ -85,94 +89,125 @@ class ChatWindow extends State<ChatPage>
       participantId = investor.participantId;
       org = investor.name;
     }
-    _configureFCM();
+//    _listenForResponses();
+//    _configureFCM();
   }
 
-  //FCM methods #############################
-  _configureFCM() async {
-    print(
-        '\n\n\ ################ CONFIGURE FCM MESSAGE ###########  starting _firebaseMessaging');
-
-    bool isRunningIOs = await isDeviceIOS();
-    fcmToken = await _firebaseMessaging.getToken();
-    print(
-        '\n\nChatWindow._configureFCM : **************** fcmtoken: $fcmToken');
-    if (fcmToken != null) {
-      SharedPrefs.saveFCMToken(fcmToken);
-    }
-
-    _firebaseMessaging.configure(
-      onMessage: (Map<String, dynamic> map) async {
-        prettyPrint(map,
-            '\n\n################ Message from FCM ################# ${DateTime.now().toIso8601String()}');
-
-        String messageType = 'unknown';
-        String mJSON;
-        try {
-          if (isRunningIOs == true) {
-            messageType = map["messageType"];
-            mJSON = map['json'];
-            print('configureFCM platform is iOS');
-          } else {
-            var data = map['data'];
-            messageType = data["messageType"];
-            mJSON = data["json"];
-            print('configureFCM platform is Android');
-          }
-        } catch (e) {
-          print(e);
-          print('configureFCM -------- EXCEPTION handling platform detection');
-        }
-
-        print(
-            'configureFCM ************************** messageType: $messageType');
-        try {
-          switch (messageType) {
-            case 'CHAT_RESPONSE':
-              var m = ChatResponse.fromJson(json.decode(mJSON));
-              prettyPrint(
-                  m.toJson(), '\n\n########## FCM CHAT_RESPONSE MESSAGE :');
-              onChatResponseMessage(m);
-              break;
-          }
-        } catch (e) {
+//
+//  //FCM methods #############################
+//  _configureFCM() async {
+//    print(
+//        '\n\n\ ################ CONFIGURE FCM MESSAGE ###########  starting _firebaseMessaging');
+//
+//    bool isRunningIOs = await isDeviceIOS();
+//    fcmToken = await _firebaseMessaging.getToken();
+//    print(
+//        '\n\nChatWindow._configureFCM : **************** fcmtoken: $fcmToken');
+//    if (fcmToken != null) {
+//      SharedPrefs.saveFCMToken(fcmToken);
+//    }
+//
+//    _firebaseMessaging.configure(
+//      onMessage: (Map<String, dynamic> map) async {
+//        prettyPrint(map,
+//            '\n\n################ Message from FCM ################# ${DateTime.now().toIso8601String()}');
+//
+//        String messageType = 'unknown';
+//        String mJSON;
+//        try {
+//          if (isRunningIOs == true) {
+//            messageType = map["messageType"];
+//            mJSON = map['json'];
+//            print('configureFCM platform is iOS');
+//          } else {
+//            var data = map['data'];
+//            messageType = data["messageType"];
+//            mJSON = data["json"];
+//            print('configureFCM platform is Android');
+//          }
+//        } catch (e) {
+//          print(e);
+//          print('configureFCM -------- EXCEPTION handling platform detection');
+//        }
+//
+//        print(
+//            'configureFCM ************************** messageType: $messageType');
+//        try {
+//          switch (messageType) {
+//            case 'CHAT_RESPONSE':
+//              var m = ChatResponse.fromJson(json.decode(mJSON));
+//              prettyPrint(
+//                  m.toJson(), '\n\n########## FCM CHAT_RESPONSE MESSAGE :');
+//              onChatResponseMessage(m);
+//              break;
+//          }
+//        } catch (e) {
+//          print(
+//              'configureFCM - Houston, we have a problem with null listener somewhere');
+//          print(e);
+//        }
+//      },
+//      onLaunch: (Map<String, dynamic> message) {
+//        print('configureMessaging onLaunch *********** ');
+//        prettyPrint(message, 'message delivered on LAUNCH!');
+//      },
+//      onResume: (Map<String, dynamic> message) {
+//        print('configureMessaging onResume *********** ');
+//        prettyPrint(message, 'message delivered on RESUME!');
+//      },
+//    );
+//
+//    _firebaseMessaging.requestNotificationPermissions(
+//        const IosNotificationSettings(sound: true, badge: true, alert: true));
+//
+//    _firebaseMessaging.onIosSettingsRegistered
+//        .listen((IosNotificationSettings settings) {});
+//  }
+//
+//  //end of FCM methods ######################
+//
+//
+//  void onChatResponseMessage(ChatResponse msg) {
+//    print(
+//        '\n\n\nChatResponseWindow.onChatResponseMessage --------------- message received');
+//    prettyPrint(msg.toJson(), '########## RESPONSE RECEIVED!!!');
+//    _chatResponse = msg;
+//    _submitMsg(
+//        txt: msg.responseMessage,
+//        addToFirestore: false,
+//        color: Colors.pink,
+//        name: 'Support Staff');
+//
+//
+//  }
+  CollectionReference collectionReference;
+  void _listenForResponses() {
+    print('ChatWindow._listenForResponses ++++++++++++++++++++++++++++ start');
+    collectionReference = fs
+        .collection('chatMessages')
+        .document(user.userId)
+        .collection('messages');
+    collectionReference.snapshots().listen((querySnap) async {
+      print(
+          '\n\n################# ChatWindow._listenForResponses ---- querySnap.documentChanges: ${querySnap.documentChanges.length}');
+      if (querySnap.documentChanges.first != null) {
+        var qs = await querySnap.documentChanges.first.document.reference
+            .collection('responses')
+            .getDocuments();
+        if (qs.documents.isNotEmpty) {
+          var data = qs.documents.last.data;
+          prettyPrint(data, '\n\n###### Last ChatResponse change in listener:');
+          _chatResponse = ChatResponse.fromJson(data);
           print(
-              'configureFCM - Houston, we have a problem with null listener somewhere');
-          print(e);
+              'ChatWindow._listenForResponses ....... calling _submitMsg .........');
+          _submitMsg(
+              name: _chatResponse.responderName,
+              addToFirestore: false,
+              color: Colors.pink,
+              txt: _chatResponse.responseMessage);
         }
-      },
-      onLaunch: (Map<String, dynamic> message) {
-        print('configureMessaging onLaunch *********** ');
-        prettyPrint(message, 'message delivered on LAUNCH!');
-      },
-      onResume: (Map<String, dynamic> message) {
-        print('configureMessaging onResume *********** ');
-        prettyPrint(message, 'message delivered on RESUME!');
-      },
-    );
-
-    _firebaseMessaging.requestNotificationPermissions(
-        const IosNotificationSettings(sound: true, badge: true, alert: true));
-
-    _firebaseMessaging.onIosSettingsRegistered
-        .listen((IosNotificationSettings settings) {});
-  }
-
-  //end of FCM methods ######################
-
-  ChatResponse _chatResponse;
-  void onChatResponseMessage(ChatResponse msg) {
-    print(
-        '\n\n\nChatResponseWindow.onChatResponseMessage --------------- message received');
-    prettyPrint(msg.toJson(), '########## RESPONSE RECEIVED!!!');
-    _chatResponse = msg;
-    _submitMsg(
-        txt: msg.responseMessage,
-        addToFirestore: false,
-        color: Colors.pink,
-        name: 'Support Staff');
-
-    setState(() {});
+      }
+    });
   }
 
   List<ChatResponse> chatResponses = List();
@@ -279,14 +314,54 @@ class ChatWindow extends State<ChatPage>
 
   @override
   Widget build(BuildContext ctx) {
-    return new Scaffold(
-      appBar: new AppBar(
-        title: new Text("BFN Support Chat"),
-        elevation: Theme.of(ctx).platform == TargetPlatform.iOS ? 0.0 : 6.0,
-      ),
-      backgroundColor: Colors.brown.shade100,
-      body: _getColumn(),
+    return StreamBuilder<ChatResponse>(
+      stream: chatBloc.chatResponseStream,
+      builder: (context, snapshot) {
+        print('ChatWindow.build ......... in StreamBuilder method');
+        processResponse(snapshot);
+        return Scaffold(
+          appBar: new AppBar(
+            title: new Text("BFN Support Chat"),
+            elevation: Theme.of(ctx).platform == TargetPlatform.iOS ? 0.0 : 6.0,
+          ),
+          backgroundColor: Colors.brown.shade100,
+          body: _getColumn(),
+        );
+      },
     );
+  }
+
+  void processResponse(AsyncSnapshot<ChatResponse> snapshot) {
+     if (snapshot.hasError) {
+      print('ChatWindow.build ----------------- snapshot.hasError');
+      return;
+    }
+    if (snapshot.hasData) {
+      print(
+          'ChatWindow.build ----------------- snapshot.hasData: ${snapshot.data.toJson()}');
+      if (_chatResponse != null) {
+        if (_chatResponse.documentPath == snapshot.data.documentPath) {
+          print('ChatWindow.build ------- IGNORE, already known');
+        } else {
+          addResponseToView(snapshot);
+        }
+      } else {
+        addResponseToView(snapshot);
+      }
+    }
+  }
+
+  void addResponseToView(AsyncSnapshot<ChatResponse> snapshot) {
+     _chatResponse = snapshot.data;
+    Msg msg = Msg(
+      defaultUserName: _chatResponse.responderName,
+      txt: _chatResponse.responseMessage,
+      color: Colors.pink,
+      animationController: new AnimationController(
+          vsync: this, duration: new Duration(milliseconds: 800)),
+    );
+    _messages.insert(0, msg);
+    msg.animationController.forward();
   }
 
   Widget _buildComposer() {
@@ -340,18 +415,13 @@ class ChatWindow extends State<ChatPage>
     );
   }
 
-  void _submitMsg(
-      {String txt,
-      bool addToFirestore,
-      Color color,
-      String name}) {
+  void _submitMsg({String txt, bool addToFirestore, Color color, String name}) {
     _textController.clear();
-    assert(name != null);
     setState(() {
       _isWriting = false;
     });
     Msg msg = Msg(
-      defaultUserName: name,
+      defaultUserName: name == null ? 'NOT KNOWN' : name,
       txt: txt,
       color: color,
       animationController: new AnimationController(

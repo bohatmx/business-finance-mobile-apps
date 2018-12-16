@@ -19,7 +19,7 @@ import 'package:businesslibrary/util/webview.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:investor/investor_model_bloc.dart';
+import 'package:businesslibrary/blocs/investor_model_bloc.dart';
 import 'package:investor/ui/unsettled_bids.dart';
 
 class SettleInvoiceBid extends StatefulWidget {
