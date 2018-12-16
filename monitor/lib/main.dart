@@ -7,20 +7,15 @@ import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/auto_start_stop.dart';
 import 'package:businesslibrary/data/auto_trade_order.dart';
 import 'package:businesslibrary/data/chat_message.dart';
-import 'package:businesslibrary/data/invalid_trade.dart';
-import 'package:businesslibrary/data/investor.dart';
 import 'package:businesslibrary/data/investor_profile.dart';
 import 'package:businesslibrary/data/invoice_bid.dart';
 import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/util/FCM.dart';
-import 'package:businesslibrary/util/chat_response_page.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/selectors.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
-import 'package:businesslibrary/util/webview.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:device_info/device_info.dart';
+import 'package:businesslibrary/util/support/chat_response_page.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
@@ -174,7 +169,7 @@ class _MyHomePageState extends State<MyHomePage>
     prettyPrint(msg.toJson(), '##### process this message just arrived:');
     Navigator.push(
       context,
-      new MaterialPageRoute(builder: (context) => new ChatResponsePage()),
+      new MaterialPageRoute(builder: (context) => new ChatResponsePage(chatMessage: msg,)),
     );
   }
 

@@ -1,13 +1,13 @@
 import 'dart:convert';
 
 import 'package:businesslibrary/api/data_api3.dart';
+import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/data/chat_message.dart';
 import 'package:businesslibrary/data/chat_response.dart';
 import 'package:businesslibrary/data/govt_entity.dart';
 import 'package:businesslibrary/data/investor.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
-import 'package:businesslibrary/util/FCM.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
@@ -16,9 +16,12 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
-import 'package:cloud_functions/cloud_functions.dart';
 
 class ChatPage extends StatefulWidget {
+  final ChatResponse chatResponse;
+
+  ChatPage({this.chatResponse});
+
   @override
   State createState() => new ChatWindow();
 }
@@ -44,13 +47,25 @@ class ChatWindow extends State<ChatPage>
   void initState() {
     super.initState();
     _getCached();
+    if (widget.chatResponse != null) {
+      _chatResponse = widget.chatResponse;
+    }
   }
 
   void _getCached() async {
     user = await SharedPrefs.getUser();
     assert(user != null);
     print('ChatWindow._getCached ====== user: ${user.toJson()}');
-    _getMessages();
+    if (widget.chatResponse == null) {
+      _getMessages();
+    } else {
+      _submitMsg(
+        txt: _chatResponse.responseMessage,
+        color: Colors.pink,
+        addToFirestore: false,
+        name: _chatResponse.responderName
+      );
+    }
 
     if (user.supplier != null) {
       uType = ChatMessage.SUPPLIER;
@@ -147,7 +162,8 @@ class ChatWindow extends State<ChatPage>
 
   ChatResponse _chatResponse;
   void onChatResponseMessage(ChatResponse msg) {
-    print('\n\n\nChatResponseWindow.onChatResponseMessage --------------- message received');
+    print(
+        '\n\n\nChatResponseWindow.onChatResponseMessage --------------- message received');
     prettyPrint(msg.toJson(), '########## RESPONSE RECEIVED!!!');
     _chatResponse = msg;
     _submitMsg(
@@ -159,18 +175,11 @@ class ChatWindow extends State<ChatPage>
     setState(() {});
   }
 
+  List<ChatResponse> chatResponses = List();
   void _getMessages() async {
     print('ChatWindow._getMessages %%%%%%%%%% start ......');
-    var qs = await fs
-        .collection('chatMessages')
-        .document(user.userId)
-        .collection('messages')
-        .orderBy('date')
-        .getDocuments();
-    qs.documents.forEach((doc) {
-      chatMessages.add(ChatMessage.fromJson(doc.data));
-    });
-
+    chatMessages = await ListAPI.getChatMessages(user.userId);
+    chatMessages.sort((xa, xb) => xa.date.compareTo(xb.date));
     chatMessages.forEach((m) {
       _submitMsg(
           txt: m.message,
@@ -178,9 +187,32 @@ class ChatWindow extends State<ChatPage>
           color: Colors.indigo,
           name: user.firstName);
     });
+
+    var start = DateTime.now();
     print(
-        'ChatWindow._getMessages ... ################## found: ${_messages.length}');
-    setState(() {});
+        'ChatWindow._getMessages ... ################## found: ${chatMessages.length} ... finding responses ....');
+
+    _messages.clear();
+    chatMessages.sort((xa, xb) => xa.date.compareTo(xb.date));
+    chatMessages.forEach((m) {
+      _submitMsg(
+          txt: m.message,
+          addToFirestore: false,
+          color: Colors.indigo,
+          name: user.firstName);
+      if (m.responses != null && m.responses.isNotEmpty) {
+        m.responses.forEach((r) {
+          _submitMsg(
+              txt: r.responseMessage,
+              addToFirestore: false,
+              color: Colors.pink,
+              name: r.responderName);
+        });
+      }
+    });
+    var end = DateTime.now();
+    print(
+        'ChatWindow._getMessages ########### getting responses took ${end.difference(start).inMilliseconds} ms');
   }
 
   void _addMessage(String text) async {
@@ -308,7 +340,11 @@ class ChatWindow extends State<ChatPage>
     );
   }
 
-  void _submitMsg({String txt, bool addToFirestore, Color color, String name}) {
+  void _submitMsg(
+      {String txt,
+      bool addToFirestore,
+      Color color,
+      String name}) {
     _textController.clear();
     assert(name != null);
     setState(() {
@@ -321,6 +357,7 @@ class ChatWindow extends State<ChatPage>
       animationController: new AnimationController(
           vsync: this, duration: new Duration(milliseconds: 800)),
     );
+
     setState(() {
       _messages.insert(0, msg);
     });

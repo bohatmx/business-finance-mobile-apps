@@ -4,6 +4,8 @@ import 'dart:convert';
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/auto_start_stop.dart';
 import 'package:businesslibrary/data/auto_trade_order.dart';
+import 'package:businesslibrary/data/chat_message.dart';
+import 'package:businesslibrary/data/chat_response.dart';
 import 'package:businesslibrary/data/company.dart';
 import 'package:businesslibrary/data/dashboard_data.dart';
 import 'package:businesslibrary/data/delivery_acceptance.dart';
@@ -135,7 +137,7 @@ class ListAPI {
       var offer = Offer.fromJson(docSnapshot.data);
       var snap = await _firestore
           .collection('invoiceBids')
-          .where('offerDocRef',isEqualTo: docSnapshot.documentID)
+          .where('offerDocRef', isEqualTo: docSnapshot.documentID)
           .getDocuments();
 
       snap.documents.forEach((doc) {
@@ -145,7 +147,6 @@ class ListAPI {
       print('ListAPI.getInvoiceBidsByOffer found ${list.length} invoice bids');
       bag = OfferBag(offer: offer, invoiceBids: list);
     }
-
 
     return bag;
   }
@@ -323,11 +324,9 @@ class ListAPI {
     List<InvoiceBid> list = List();
     var qs = await _firestore
         .collection('invoiceBids')
-        .where('offer',
-            isEqualTo: NameSpace + 'Offer#${offer.offerId}')
+        .where('offer', isEqualTo: NameSpace + 'Offer#${offer.offerId}')
         .where('investor',
-            isEqualTo: NameSpace +
-                'Investor#${investor.participantId}')
+            isEqualTo: NameSpace + 'Investor#${investor.participantId}')
         .orderBy('date', descending: true)
         .getDocuments()
         .catchError((e) {
@@ -369,15 +368,13 @@ class ListAPI {
     });
 
     if (docSnapshot.exists) {
-      print(
-          'ListAPI.getInvoiceBidByDocRef ######## found: 1');
+      print('ListAPI.getInvoiceBidByDocRef ######## found: 1');
       var bid = InvoiceBid.fromJson(docSnapshot.data);
       bid.documentReference = docSnapshot.documentID;
       return bid;
     } else {
       throw Exception('Invoice Bid not found');
     }
-
   }
 
   static Future<OfferBag> getOfferByDocRef(String documentRef) async {
@@ -484,7 +481,7 @@ class ListAPI {
 
     var qs1 = await _firestore
         .collection('invoiceBids')
-    .where('offerDocRef', isEqualTo: offer.documentReference)
+        .where('offerDocRef', isEqualTo: offer.documentReference)
         .getDocuments()
         .catchError((e) {
       print('ListAPI.getOfferByInvoice $e');
@@ -581,13 +578,14 @@ class ListAPI {
 
     return list;
   }
+
   static Future<List<Offer>> getOffersByCustomer(String participantId) async {
-    print('ListAPI.getOffersByCustomer ---------------supplierId: $participantId');
+    print(
+        'ListAPI.getOffersByCustomer ---------------supplierId: $participantId');
     List<Offer> list = List();
     var qs = await _firestore
         .collection('invoiceOffers')
-        .where('customer',
-        isEqualTo: NameSpace + 'GovtEntity#$participantId')
+        .where('customer', isEqualTo: NameSpace + 'GovtEntity#$participantId')
         .orderBy('date', descending: true)
         .getDocuments()
         .catchError((e) {
@@ -605,6 +603,7 @@ class ListAPI {
 
     return list;
   }
+
   static Future<List<InvestorInvoiceSettlement>> getSupplierInvestorSettlements(
       String supplierId) async {
     print(
@@ -612,8 +611,7 @@ class ListAPI {
     List<InvestorInvoiceSettlement> list = List();
     var qs = await _firestore
         .collection('settlements')
-        .where('supplier',
-            isEqualTo: NameSpace + 'Supplier#$supplierId')
+        .where('supplier', isEqualTo: NameSpace + 'Supplier#$supplierId')
         .orderBy('date', descending: true)
         .getDocuments()
         .catchError((e) {
@@ -632,6 +630,7 @@ class ListAPI {
 
     return list;
   }
+
   static Future<List<InvestorInvoiceSettlement>> getCustomerInvestorSettlements(
       String customerId) async {
     print(
@@ -639,8 +638,7 @@ class ListAPI {
     List<InvestorInvoiceSettlement> list = List();
     var qs = await _firestore
         .collection('settlements')
-        .where('customer',
-        isEqualTo: NameSpace + 'GovtEntity#$customerId')
+        .where('customer', isEqualTo: NameSpace + 'GovtEntity#$customerId')
         .orderBy('date', descending: true)
         .getDocuments()
         .catchError((e) {
@@ -941,7 +939,7 @@ class ListAPI {
 
     try {
       DashboardData result =
-      await _doDashboardHTTP(getFunctionsURL() + 'investorDashboard', data);
+          await _doDashboardHTTP(getFunctionsURL() + 'investorDashboard', data);
 
       return result;
     } catch (e) {
@@ -1416,10 +1414,10 @@ class ListAPI {
 
     return invoice;
   }
+
   static Future<Invoice> getCustomerInvoiceById(
       {String documentRef, String invoiceId}) async {
-    print(
-        'ListAPI.getInvoiceById ............. invoiceId: $invoiceId ');
+    print('ListAPI.getInvoiceById ............. invoiceId: $invoiceId ');
     Invoice invoice;
     var qs = await _firestore
         .collection('govtEntities')
@@ -1682,6 +1680,30 @@ class ListAPI {
     print(
         'ListAPI.getSupplierGovtContracts ############ found: ${list.length}');
     return list;
+  }
+
+  static Future<List<ChatMessage>> getChatMessages(String userId) async {
+    List<ChatMessage> chatMessages = List();
+    var qs = await _firestore
+        .collection('chatMessages')
+        .document(userId)
+        .collection('messages')
+        .limit(3)
+        .orderBy('date', descending: true)
+        .getDocuments();
+
+    for (var doc in qs.documents) {
+      var chatMsg = ChatMessage.fromJson(doc.data);
+      chatMsg.responses = List();
+      var qs2 = await doc.reference.collection('responses').getDocuments();
+      print(
+          'ChatWindow._getMessages ........ responses: ${qs2.documents.length}');
+      qs2.documents.forEach((rdoc) {
+        chatMsg.responses.add(ChatResponse.fromJson(rdoc.data));
+      });
+      chatMessages.add(chatMsg);
+    }
+    return chatMessages;
   }
 
   static Future<List<SupplierContract>> getSupplierCompanyContracts(

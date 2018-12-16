@@ -5,10 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="80b8d4ed-f360-4af7-bada-dfcc0519f100" name="Default" comment="added offer discount update + offer cancellation">
-      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/util/page_util/intro_page_item.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/util/page_util/intro_page_item.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/util/page_util/intro_page_view.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/util/page_util/intro_page_view.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/util/support_email.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/util/support_email.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/util/support/chat_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/util/support/chat_page.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/util/support/contact_us.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/util/support/contact_us.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../investor/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../investor/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../investor/lib/ui/dashboard.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../investor/lib/ui/dashboard.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../monitor/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../monitor/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
@@ -254,7 +254,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/lib/ui/dashboard.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="239">
+            <state relative-caret-position="2546">
               <caret line="412" column="24" selection-start-line="412" selection-start-column="24" selection-end-line="412" selection-end-column="24" />
               <folding>
                 <element signature="e#0#20#0" expanded="true" />
@@ -269,12 +269,11 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/lib/main.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="743">
-              <caret line="163" column="57" selection-start-line="163" selection-start-column="57" selection-end-line="163" selection-end-column="57" />
+            <state relative-caret-position="358">
+              <caret line="44" column="48" lean-forward="true" selection-start-line="44" selection-start-column="48" selection-end-line="44" selection-end-column="48" />
               <folding>
                 <element signature="e#0#55#0" expanded="true" />
-                <element signature="e#1507#1765#0" expanded="true" />
-                <element signature="e#1815#4641#0" expanded="true" />
+                <element signature="e#5430#5560#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -487,8 +486,6 @@
     </navigator>
     <panes>
       <pane id="Scope" />
-      <pane id="PackagesPane" />
-      <pane id="AndroidView" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -535,11 +532,13 @@
           <select />
         </subPane>
       </pane>
+      <pane id="PackagesPane" />
+      <pane id="AndroidView" />
     </panes>
   </component>
   <component name="PropertiesComponent">
     <property name="android.sdk.path" value="$USER_HOME$/Library/Android/sdk" />
-    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1544900631912" />
+    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1544940525693" />
     <property name="dart.analysis.tool.window.force.activate" value="false" />
     <property name="io.flutter.reload.alreadyRun" value="true" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
@@ -1027,8 +1026,8 @@
     <frame x="1440" y="0" width="1920" height="1080" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.54653466" visible="true" weight="0.20234291" />
-      <window_info active="true" id="Structure" order="1" sideWeight="0.45346534" side_tool="true" visible="true" weight="0.20234291" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.54363376" visible="true" weight="0.20234291" />
+      <window_info id="Structure" order="1" sideWeight="0.45636624" side_tool="true" visible="true" weight="0.20234291" />
       <window_info id="Designer" order="2" />
       <window_info id="Build Variants" order="3" sideWeight="0.5203956" side_tool="true" weight="0.25656688" />
       <window_info id="Image Layers" order="4" />
@@ -1048,7 +1047,7 @@
       <window_info anchor="bottom" id="Event Log" order="9" sideWeight="0.20239282" side_tool="true" weight="0.31688598" />
       <window_info anchor="bottom" id="Logcat" order="10" sideWeight="0.4993895" weight="0.32918552" />
       <window_info anchor="bottom" id="Version Control" order="11" weight="0.32936978" />
-      <window_info anchor="bottom" id="Terminal" order="12" sideWeight="0.77529883" weight="0.30792078" />
+      <window_info active="true" anchor="bottom" id="Terminal" order="12" sideWeight="0.77529883" visible="true" weight="0.30792078" />
       <window_info anchor="bottom" id="Messages" order="13" sideWeight="0.49785408" visible="true" weight="0.3654267" />
       <window_info anchor="bottom" id="Flutter Performance" order="14" side_tool="true" />
       <window_info anchor="right" id="Commander" order="0" weight="0.4" />
@@ -1430,7 +1429,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/lib/ui/dashboard.dart">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="239">
+        <state relative-caret-position="2546">
           <caret line="412" column="24" selection-start-line="412" selection-start-column="24" selection-end-line="412" selection-end-column="24" />
           <folding>
             <element signature="e#0#20#0" expanded="true" />
@@ -1483,12 +1482,11 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/lib/main.dart">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="743">
-          <caret line="163" column="57" selection-start-line="163" selection-start-column="57" selection-end-line="163" selection-end-column="57" />
+        <state relative-caret-position="358">
+          <caret line="44" column="48" lean-forward="true" selection-start-line="44" selection-start-column="48" selection-end-line="44" selection-end-column="48" />
           <folding>
             <element signature="e#0#55#0" expanded="true" />
-            <element signature="e#1507#1765#0" expanded="true" />
-            <element signature="e#1815#4641#0" expanded="true" />
+            <element signature="e#5430#5560#0" expanded="true" />
           </folding>
         </state>
       </provider>

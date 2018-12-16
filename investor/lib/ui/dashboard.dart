@@ -5,6 +5,7 @@ import 'package:businesslibrary/api/data_api3.dart';
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/auto_trade_order.dart';
+import 'package:businesslibrary/data/chat_response.dart';
 import 'package:businesslibrary/data/delivery_acceptance.dart';
 import 'package:businesslibrary/data/delivery_note.dart';
 import 'package:businesslibrary/data/investor.dart';
@@ -19,20 +20,18 @@ import 'package:businesslibrary/util/FCM.dart';
 import 'package:businesslibrary/util/invoice_bid_card.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/message.dart';
+import 'package:businesslibrary/util/support/chat_page.dart';
 import 'package:businesslibrary/util/support/contact_us.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:businesslibrary/util/summary_card.dart';
 import 'package:businesslibrary/util/theme_bloc.dart';
 import 'package:businesslibrary/util/util.dart';
-import 'package:businesslibrary/util/wallet_page.dart';
-import 'package:device_info/device_info.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:investor/investor_model_bloc.dart';
 import 'package:investor/investor_summary_card.dart';
-import 'package:investor/main.dart';
 import 'package:investor/ui/charts.dart';
 import 'package:investor/ui/offer_list.dart';
 import 'package:investor/ui/profile.dart';
@@ -51,10 +50,7 @@ class Dashboard extends StatefulWidget {
 
 class _DashboardState extends State<Dashboard>
     with TickerProviderStateMixin, WidgetsBindingObserver
-    implements
-        SnackBarListener,
-        InvestorCardListener
-         {
+    implements SnackBarListener, InvestorCardListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   static const platform = const MethodChannel('com.oneconnect.biz.CHANNEL');
   final FirebaseMessaging _fm = new FirebaseMessaging();
@@ -90,7 +86,6 @@ class _DashboardState extends State<Dashboard>
     appModel = investorModelBloc.appModel;
   }
 
-
   List<Offer> mOfferList = List();
   List<InvestorProfile> profiles = List();
   FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
@@ -107,13 +102,10 @@ class _DashboardState extends State<Dashboard>
     });
   }
 
-
   //FCM methods #############################
   _configureFCM() async {
     print(
         '\n\n\ ################ CONFIGURE FCM MESSAGE ###########  starting _firebaseMessaging');
-
-
     bool isRunningIOs = await isDeviceIOS();
 
     _firebaseMessaging.configure(
@@ -145,11 +137,16 @@ class _DashboardState extends State<Dashboard>
 
         try {
           switch (messageType) {
-
             case 'OFFER':
               var m = Offer.fromJson(json.decode(mJSON));
               prettyPrint(m.toJson(), '\n\n########## FCM OFFER MESSAGE :');
               onOfferMessage(m);
+              break;
+            case 'CHAT_RESPONSE':
+              var m = ChatResponse.fromJson(json.decode(mJSON));
+              prettyPrint(
+                  m.toJson(), '\n\n########## FCM CHAT_RESPONSE MESSAGE :');
+              onChatResponseMessage(m);
               break;
             case 'INVOICE_BID':
               var m = InvoiceBid.fromJson(json.decode(mJSON));
@@ -190,12 +187,14 @@ class _DashboardState extends State<Dashboard>
 
     _subscribeToFCMTopics();
   }
-  _subscribeToFCMTopics() async {
 
+  _subscribeToFCMTopics() async {
     _firebaseMessaging.subscribeToTopic(FCM.TOPIC_GENERAL_MESSAGE);
-    _firebaseMessaging.subscribeToTopic(FCM.TOPIC_INVOICE_BIDS + investor.participantId);
+    _firebaseMessaging
+        .subscribeToTopic(FCM.TOPIC_INVOICE_BIDS + investor.participantId);
     _firebaseMessaging.subscribeToTopic(FCM.TOPIC_OFFERS);
-    _firebaseMessaging.subscribeToTopic(FCM.TOPIC_INVESTOR_INVOICE_SETTLEMENTS + investor.participantId);
+    _firebaseMessaging.subscribeToTopic(
+        FCM.TOPIC_INVESTOR_INVOICE_SETTLEMENTS + investor.participantId);
     print(
         '\n\n_DashboardState._subscribeToFCMTopics SUBSCRIBED to topis - Bids, Offers, Settlements and General');
   }
@@ -257,6 +256,8 @@ class _DashboardState extends State<Dashboard>
         ),
       );
     }
+    print('\n\n\n_DashboardState.build ********** DASHBOARD RE_BUILD ***********');
+    _configureFCM();
     return StreamBuilder<InvestorAppModel2>(
         initialData: investorModelBloc.appModel,
         stream: investorModelBloc.appModelStream,
@@ -293,7 +294,6 @@ class _DashboardState extends State<Dashboard>
                     icon: Icon(Icons.help_outline),
                     onPressed: _goToContactUsPage,
                   ),
-
                 ],
               ),
               backgroundColor: Colors.brown.shade100,
@@ -398,8 +398,7 @@ class _DashboardState extends State<Dashboard>
 //    );
     Navigator.push(
       context,
-      new MaterialPageRoute(
-          builder: (context) => new ContactUs()),
+      new MaterialPageRoute(builder: (context) => new ContactUs()),
     );
   }
 
@@ -549,9 +548,8 @@ class _DashboardState extends State<Dashboard>
       messages.add(Message(
           type: Message.INVOICE_BID,
           message:
-          'Invoice Bid made: ${getFormattedDateShortWithTime('${bid.date}', context)} ',
-          subTitle: bid.supplierName
-      ));
+              'Invoice Bid made: ${getFormattedDateShortWithTime('${bid.date}', context)} ',
+          subTitle: bid.supplierName));
     });
 
     _showSnack(
@@ -575,27 +573,26 @@ class _DashboardState extends State<Dashboard>
       messages.add(Message(
           type: Message.OFFER,
           message:
-          'Offer arrived: ${getFormattedDateShortWithTime('${offer.date}', context)} ',
-          subTitle: offer.supplierName
-      ));
+              'Offer arrived: ${getFormattedDateShortWithTime('${offer.date}', context)} ',
+          subTitle: offer.supplierName));
     });
     await investorModelBloc.refreshDashboard();
     _showSnack(
         'Offer arrived ${getFormattedAmount('${offer.offerAmount}', context)}');
   }
-  onInvestorInvoiceSettlement(
-  InvestorInvoiceSettlement s) async{
+
+  onInvestorInvoiceSettlement(InvestorInvoiceSettlement s) async {
     print('_DashboardState.onInvestorInvoiceSettlement');
     setState(() {
       messages.add(Message(
           type: Message.SETTLEMENT,
           message:
-          'Settlement arrived: ${getFormattedDateShortWithTime('${s.date}', context)} ',
-          subTitle: s.supplierName
-      ));
+              'Settlement arrived: ${getFormattedDateShortWithTime('${s.date}', context)} ',
+          subTitle: s.supplierName));
     });
     await investorModelBloc.refreshDashboard();
   }
+
   void _showSnack(String message) {
     AppSnackbar.showSnackbar(
         scaffoldKey: _scaffoldKey,
@@ -625,6 +622,58 @@ class _DashboardState extends State<Dashboard>
 
   void _changeTheme() {
     bloc.changeToRandomTheme();
+  }
+
+  void onChatResponseMessage(ChatResponse chatResponse) {
+    this.chatResponse = chatResponse;
+    prettyPrint(
+        chatResponse.toJson(), '############ chatResponse received, should start Chat');
+    _showSnack(chatResponse.responseMessage);
+    _showGoToChatDialog();
+
+
+  }
+  ChatResponse chatResponse;
+  void _showGoToChatDialog() {
+
+    showDialog(
+        context: context,
+        builder: (_) => new AlertDialog(
+          title: new Text(
+            "Respond to Incoming Message",
+            style: Styles.greyLabelMedium,
+          ),
+          content: Container(
+            height: 200.0,
+            child: Text(
+                'Do you  want to respond to this message:\n${chatResponse.responseMessage}\nfrom ${chatResponse.responderName}'),
+          ),
+          actions: <Widget>[
+            FlatButton(onPressed: _ignore, child: Text('NO')),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: RaisedButton(
+                  color: Colors.teal,
+                  onPressed: _goToChat, child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text('YES', style: Styles.whiteSmall,),
+                  ),),
+            ),
+          ],
+        ));
+  }
+
+  void _ignore() {
+    Navigator.pop(context);
+  }
+  void _goToChat() {
+    Navigator.pop(context);
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => ChatPage(
+              chatResponse: chatResponse,
+            )));
   }
 }
 

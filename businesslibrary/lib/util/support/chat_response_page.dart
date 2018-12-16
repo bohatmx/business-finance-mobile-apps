@@ -3,10 +3,6 @@ import 'dart:convert';
 import 'package:businesslibrary/api/data_api3.dart';
 import 'package:businesslibrary/data/chat_message.dart';
 import 'package:businesslibrary/data/chat_response.dart';
-import 'package:businesslibrary/data/govt_entity.dart';
-import 'package:businesslibrary/data/investor.dart';
-import 'package:businesslibrary/data/supplier.dart';
-import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/FCM.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/selectors.dart';
@@ -19,6 +15,10 @@ import 'package:flutter/material.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
 
 class ChatResponsePage extends StatefulWidget {
+  final ChatMessage chatMessage;
+
+  ChatResponsePage({this.chatMessage});
+
   @override
   State createState() => new ChatResponseWindow();
 }
@@ -38,8 +38,13 @@ class ChatResponseWindow extends State<ChatResponsePage>
   @override
   void initState() {
     super.initState();
-    _getMessages();
-
+    
+    if (widget.chatMessage == null) {
+      _getMessages();
+    } else {
+      selectedMessage = widget.chatMessage;
+    }
+    _configureFCM();
   }
 
   //FCM methods #############################
@@ -120,7 +125,7 @@ class ChatResponseWindow extends State<ChatResponsePage>
 
   void onChatMessage(ChatMessage msg) {
     print('\n\nChatResponseWindow.onChatMessage - message received: ${msg.message}');
-    chatMessagesPending.add(msg);
+    selectedMessage = msg;
     _submitMsg(
       addToFirestore: false,
       color: Colors.indigo,
@@ -150,25 +155,14 @@ class ChatResponseWindow extends State<ChatResponsePage>
   }
 
   ChatMessage selectedMessage;
-  List<ChatMessage> selectedMessages = List();
   List<DropdownMenuItem<ChatMessage>> dropdownMenuItems = List();
   Map<String, ChatMessage> map = Map();
   void _buildDropDownItems() {
     if (chatMessagesPending == null) return;
     print(
         'ChatResponseWindow._buildDropDownItems - chatMessagesPending: ${chatMessagesPending.length}');
-    selectedMessages.clear();
+  
     chatMessagesPending.forEach((m) {
-      try {
-        selectedMessages.firstWhere((msg) =>
-        msg.participantId == m.participantId);
-      } catch (e) {
-        selectedMessages.add(m);
-      }
-    });
-    print(
-        'ChatResponseWindow._buildDropDownItems - selectedMessages: ${selectedMessages.length}');
-    selectedMessages.forEach((m) {
       var x = DropdownMenuItem<ChatMessage>(
         value: m,
         child: Row(
@@ -196,15 +190,15 @@ class ChatResponseWindow extends State<ChatResponsePage>
   void _addMessage(String text) async {
     assert(text != null);
     print('ChatResponseWindow._addMessage --> $text');
-    assert(selectedMessages.isNotEmpty);
+    assert(selectedMessage != null);
     var cm = ChatResponse(
       dateTime: getUTCDate(),
       responseMessage: text,
-      chatMessage: selectedMessages.last,
+      chatMessage: selectedMessage,
       responderName: 'Support Staff',
       fcmToken: fcmToken,
     );
-    prettyPrint(cm.toJson(), '.... about to write chatResponse:');
+    prettyPrint(cm.toJson(), '.... about to write this chatResponse:');
     try {
       ChatResponse resp = await DataAPI3.addChatResponse(cm);
       prettyPrint(resp.toJson(), '###### function call returned response:');
@@ -252,7 +246,7 @@ class ChatResponseWindow extends State<ChatResponsePage>
           Padding(
             padding: const EdgeInsets.only(bottom: 8.0),
             child: DropdownButton<ChatMessage>(
-              onChanged: _onUserSelected,
+              onChanged: _onMessageSelected,
               items: dropdownMenuItems,
               elevation: 4,
               hint: Padding(
@@ -387,25 +381,17 @@ class ChatResponseWindow extends State<ChatResponsePage>
     return null;
   }
 
-  void _onUserSelected(ChatMessage msg) {
-    prettyPrint(msg.toJson(), 'ChatResponseWindow._onUserSelected ...');
+  void _onMessageSelected(ChatMessage msg) {
+    prettyPrint(msg.toJson(), 'ChatResponseWindow._onMessageSelected ...');
     selectedMessage = msg;
-    //pull out messages for this participant
-    selectedMessages.clear();
-    chatMessagesPending.forEach((cm) {
-      if (cm.participantId == msg.participantId) {
-        selectedMessages.add(cm);
-      }
-    });
-    selectedMessages.forEach((m) {
-      _submitMsg(
+    _messages.clear();
+    _submitMsg(
         addToFirestore: false,
-        txt: m.message,
+        txt: msg.message,
         color: Colors.indigo,
-        defaultUserName: m.name
-      );
-    });
-    setState(() {});
+        defaultUserName: msg.name
+    );
+
   }
 }
 

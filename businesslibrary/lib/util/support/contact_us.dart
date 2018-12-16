@@ -117,7 +117,7 @@ class _ContactUsState extends State<ContactUs> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.only(left:40.0,right:40.0, top: 10.0),
+            padding: const EdgeInsets.only(left: 40.0, right: 40.0, top: 10.0),
             child: Divider(
               color: Colors.black,
             ),
@@ -128,19 +128,13 @@ class _ContactUsState extends State<ContactUs> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: <Widget>[
-                InkWell(
-                  onTap: _onPhoneTapped,
-                  child: Row(
-                    children: <Widget>[
-                      Icon(Icons.phone),
-                      SizedBox(width: 4.0,),
-
-                      Text(
-                        '012 346 5670',
-                        style: Styles.whiteBoldLarge,
-                      ),
-                    ],
+                IconButton(
+                  icon: Icon(
+                    Icons.phone,
+                    size: 30.0,
+                    color: Colors.black,
                   ),
+                  onPressed: _onPhoneTapped,
                 ),
                 SizedBox(
                   width: 20.0,
@@ -192,29 +186,51 @@ class _ContactUsState extends State<ContactUs> {
             ),
           ),
           Positioned(
+            left: 10.0,
+            top: 10.0,
+            child: FloatingActionButton(
+              onPressed: _onMapTypeToggle,
+              elevation: 16.0,
+              mini: true,
+              child: Icon(
+                Icons.map,
+                color: Colors.white,
+              ),
+            ),
+          ),
+          Positioned(
             left: 100.0,
             right: 100.0,
             bottom: 10.0,
             child: RaisedButton(
               elevation: 16.0,
-              color: Colors.deepOrange,
+              color: Colors.pink,
               onPressed: _onPressed,
-            child: Text('Information', style: Styles.whiteSmall,),),
+              child: Text(
+                'Information',
+                style: Styles.whiteSmall,
+              ),
+            ),
           ),
         ],
-
       ),
     );
   }
 
   void setMapStuff() {
+    _mapController.updateMapOptions(GoogleMapOptions(
+        zoomGesturesEnabled: true,
+        myLocationEnabled: true,
+        compassEnabled: true,
+        mapType: MapType.normal));
+
     _mapController.animateCamera(CameraUpdate.newCameraPosition(
-        CameraPosition(target: LatLng(mLat, mLng), zoom: 10.0)));
+        CameraPosition(target: LatLng(mLat, mLng), zoom: 12.0)));
     _mapController.addMarker(MarkerOptions(
       position: LatLng(mLat, mLng),
       icon: BitmapDescriptor.fromAsset('assets/computers.png'),
       zIndex: 4.0,
-      infoWindowText: InfoWindowText('OneConnect', 'We are the FinTech People'),
+      infoWindowText: InfoWindowText('OneConnect BFN', 'We are the FinTech People'),
     ));
   }
 
@@ -247,5 +263,59 @@ class _ContactUsState extends State<ContactUs> {
       context,
       new MaterialPageRoute(builder: (context) => IntroPageView(sampleItems)),
     );
+  }
+
+  int toggle = 0;
+  void _onMapTypeToggle() {
+    if (toggle == null) {
+      toggle = 0;
+    } else {
+      if (toggle == 0) {
+        toggle = 1;
+      } else {
+        if (toggle == 1) {
+          toggle = 2;
+        } else {
+          if (toggle == 2) {
+            toggle = 0;
+          }
+        }
+      }
+    }
+    switch (toggle) {
+      case 0:
+        _doNormalMap();
+        break;
+      case 1:
+        _doTerrainMap();
+        break;
+      case 2:
+        _doSatelliteMap();
+        break;
+    }
+  }
+
+  void _doTerrainMap() {
+    _mapController.updateMapOptions(GoogleMapOptions(
+        zoomGesturesEnabled: true,
+        myLocationEnabled: true,
+        compassEnabled: true,
+        mapType: MapType.terrain));
+  }
+
+  void _doSatelliteMap() {
+    _mapController.updateMapOptions(GoogleMapOptions(
+        zoomGesturesEnabled: true,
+        myLocationEnabled: true,
+        compassEnabled: true,
+        mapType: MapType.satellite));
+  }
+
+  void _doNormalMap() {
+    _mapController.updateMapOptions(GoogleMapOptions(
+        zoomGesturesEnabled: true,
+        myLocationEnabled: true,
+        compassEnabled: true,
+        mapType: MapType.normal));
   }
 }
