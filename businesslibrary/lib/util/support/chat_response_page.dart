@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:businesslibrary/api/data_api3.dart';
+import 'package:businesslibrary/blocs/chat_bloc.dart';
 import 'package:businesslibrary/data/chat_message.dart';
 import 'package:businesslibrary/data/chat_response.dart';
 import 'package:businesslibrary/util/FCM.dart';
@@ -33,125 +34,26 @@ class ChatResponseWindow extends State<ChatResponsePage>
   final Firestore fs = Firestore.instance;
   List<ChatMessage> chatMessagesPending = List(), filteredMessages = List();
   bool _isWriting = false;
-  FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
   String fcmToken;
   @override
   void initState() {
     super.initState();
-    
+
     if (widget.chatMessage == null) {
       _getMessages();
     } else {
       selectedMessage = widget.chatMessage;
+      addChatMessageToView();
     }
-    _configureFCM();
   }
 
-  //FCM methods #############################
-  _configureFCM() async {
-    print(
-        '\n\n\ ################ CONFIGURE FCM MESSAGE ###########  starting _firebaseMessaging');
-
-    bool isRunningIOs = await isDeviceIOS();
-    fcmToken = await _firebaseMessaging.getToken();
-    if (fcmToken != null) {
-      SharedPrefs.saveFCMToken(fcmToken);
-    }
-    _firebaseMessaging.configure(
-      onMessage: (Map<String, dynamic> map) async {
-        prettyPrint(map,
-            '\n\n################ Message from FCM ################# ${DateTime.now().toIso8601String()}');
-
-        String messageType = 'unknown';
-        String mJSON;
-        try {
-          if (isRunningIOs == true) {
-            messageType = map["messageType"];
-            mJSON = map['json'];
-            print('FCM.configureFCM platform is iOS');
-          } else {
-            var data = map['data'];
-            messageType = data["messageType"];
-            mJSON = data["json"];
-            print('FCM.configureFCM platform is Android');
-          }
-        } catch (e) {
-          print(e);
-          print('configureFCM -------- EXCEPTION handling platform detection');
-        }
-
-        print(
-            'configureFCM ************************** messageType: $messageType');
-        try {
-          switch (messageType) {
-            case 'CHAT_MESSAGE':
-              var m = ChatMessage.fromJson(json.decode(mJSON));
-              prettyPrint(m.toJson(), '\n\n########## FCM CHAT MESSAGE :');
-              onChatMessage(m);
-              break;
-          }
-        } catch (e) {
-          print(
-              'FCM.configureFCM - Houston, we have a problem with null listener somewhere');
-          print(e);
-        }
-      },
-      onLaunch: (Map<String, dynamic> message) {
-        print('configureMessaging onLaunch *********** ');
-        prettyPrint(message, 'message delivered on LAUNCH!');
-      },
-      onResume: (Map<String, dynamic> message) {
-        print('configureMessaging onResume *********** ');
-        prettyPrint(message, 'message delivered on RESUME!');
-      },
-    );
-
-    _firebaseMessaging.requestNotificationPermissions(
-        const IosNotificationSettings(sound: true, badge: true, alert: true));
-
-    _firebaseMessaging.onIosSettingsRegistered
-        .listen((IosNotificationSettings settings) {});
-
-    _subscribeToFCMTopics();
-  }
-
-  _subscribeToFCMTopics() async {
-    _firebaseMessaging.subscribeToTopic(FCM.TOPIC_CHAT_MESSAGES_ADDED);
-
-    print(
-        '\n\n_DashboardState._subscribeToFCMTopics SUBSCRIBED to topis - ${FCM.TOPIC_CHAT_MESSAGES_ADDED}');
-  }
-  //end of FCM methods ######################
-
-  void onChatMessage(ChatMessage msg) {
-    print('\n\nChatResponseWindow.onChatMessage - message received: ${msg.message}');
-    selectedMessage = msg;
-    _submitMsg(
-      addToFirestore: false,
-      color: Colors.indigo,
-      txt: msg.message,
-      defaultUserName: msg.name,
-    );
-  }
 
   void _getMessages() async {
     print('ChatResponseWindow._getMessages Pending %%%%%%%%%% start ......');
-    var qs = await fs
-        .collection('chatResponsesPending')
-        .where('hasResponse', isEqualTo: null)
-        .orderBy('date')
-        .getDocuments();
-    int cnt = 0;
-    qs.documents.forEach((doc) {
-      var msg = ChatMessage.fromJson(doc.data);
-      chatMessagesPending.add(msg);
-    });
-
+    chatMessagesPending = await chatBloc.getPendingChatMessages();
     print(
-        'ChatResponseWindow._getMessages --- pending messages: ${qs.documents.length}');
-    setState(() {
-
-    });
+        'ChatResponseWindow._getMessages --- pending messages: ${chatMessagesPending.length}');
+    setState(() {});
   }
 
   ChatMessage selectedMessage;
@@ -161,7 +63,7 @@ class ChatResponseWindow extends State<ChatResponsePage>
     if (chatMessagesPending == null) return;
     print(
         'ChatResponseWindow._buildDropDownItems - chatMessagesPending: ${chatMessagesPending.length}');
-  
+
     chatMessagesPending.forEach((m) {
       var x = DropdownMenuItem<ChatMessage>(
         value: m,
@@ -279,28 +181,71 @@ class ChatResponseWindow extends State<ChatResponsePage>
 
   @override
   Widget build(BuildContext ctx) {
-    print('ChatResponseWindow.build #################### rebuild widget + _configureFCM');
-    _configureFCM();
+    print(
+        'ChatResponseWindow.build #################### rebuild widget + _configureFCM');
     _buildDropDownItems();
-    return new Scaffold(
-      appBar: new AppBar(
-        title: new Text("Support Chat"),
-        elevation: Theme.of(ctx).platform == TargetPlatform.iOS ? 0.0 : 6.0,
-        bottom: _getBottom(),
-        actions: <Widget>[
-          IconButton(
-            onPressed: _getRegularUsers,
-            icon: Icon(Icons.people, color: Colors.black,),
+    return StreamBuilder<ChatMessage>(
+      stream: chatBloc.chatMessageStream,
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          print('\n\nChatResponseWindow.build ---------- snapshot.hasError ---------');
+        }
+        processChatMessage(snapshot);
+        return Scaffold(
+          appBar: new AppBar(
+            title: new Text("Support Chat"),
+            elevation: Theme.of(ctx).platform == TargetPlatform.iOS ? 0.0 : 6.0,
+            bottom: _getBottom(),
+            actions: <Widget>[
+              IconButton(
+                onPressed: _getRegularUsers,
+                icon: Icon(
+                  Icons.people,
+                  color: Colors.black,
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
-      backgroundColor: Colors.brown.shade100,
-      body: _getColumn(),
+          backgroundColor: Colors.brown.shade100,
+          body: _getColumn(),
+        );
+      },
     );
   }
+
+  void processChatMessage(AsyncSnapshot<ChatMessage> snapshot) {
+     if (snapshot.hasData) {
+       if (selectedMessage != null) {
+         if (selectedMessage.path == snapshot.data.path) {
+           //ignore
+         } else {
+           selectedMessage = snapshot.data;
+           addChatMessageToView();
+         }
+       } else {
+         selectedMessage = snapshot.data;
+         addChatMessageToView();
+       }
+      
+    }
+  }
+
+  void addChatMessageToView() {
+    Msg msg = Msg(
+      defaultUserName: selectedMessage.name,
+      txt: selectedMessage.message,
+      color: Colors.indigo,
+      animationController: new AnimationController(
+          vsync: this, duration: new Duration(milliseconds: 800)),
+    );
+    _messages.insert(0, msg);
+    msg.animationController.forward();
+  }
+
   _getRegularUsers() {
     print('ChatResponseWindow._getRegularUsers .................');
   }
+
   Widget _buildComposer() {
     return new IconTheme(
       data: new IconThemeData(color: Theme.of(context).accentColor),
@@ -327,12 +272,18 @@ class ChatResponseWindow extends State<ChatResponsePage>
                       ? new CupertinoButton(
                           child: new Text("Submit"),
                           onPressed: _isWriting
-                              ? () => _submitMsg(txt: _textController.text, addToFirestore: true, defaultUserName: 'Support Staff')
+                              ? () => _submitMsg(
+                                  txt: _textController.text,
+                                  addToFirestore: true,
+                                  defaultUserName: 'Support Staff')
                               : null)
                       : new IconButton(
                           icon: new Icon(Icons.message),
                           onPressed: _isWriting
-                              ? () => _submitMsg(txt: _textController.text, addToFirestore: true, defaultUserName: 'Support Staff')
+                              ? () => _submitMsg(
+                                  txt: _textController.text,
+                                  addToFirestore: true,
+                                  defaultUserName: 'Support Staff')
                               : null,
                         )),
             ],
@@ -344,7 +295,8 @@ class ChatResponseWindow extends State<ChatResponsePage>
     );
   }
 
-  void _submitMsg({String txt, bool addToFirestore, Color color, String defaultUserName}) {
+  void _submitMsg(
+      {String txt, bool addToFirestore, Color color, String defaultUserName}) {
     _textController.clear();
     setState(() {
       _isWriting = false;
@@ -389,9 +341,7 @@ class ChatResponseWindow extends State<ChatResponsePage>
         addToFirestore: false,
         txt: msg.message,
         color: Colors.indigo,
-        defaultUserName: msg.name
-    );
-
+        defaultUserName: msg.name);
   }
 }
 
@@ -415,7 +365,7 @@ class Msg extends StatelessWidget {
             new Container(
               margin: const EdgeInsets.only(right: 18.0, left: 12),
               child: new CircleAvatar(
-                  backgroundColor: color == null? Colors.pink : color,
+                  backgroundColor: color == null ? Colors.pink : color,
                   child: new Text(
                     defaultUserName[0] + defaultUserName[1],
                     style: Styles.whiteSmall,

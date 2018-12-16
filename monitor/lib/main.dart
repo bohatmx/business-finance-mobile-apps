@@ -20,6 +20,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 import 'package:monitor/ui/theme_util.dart';
+import 'package:businesslibrary/blocs/chat_bloc.dart';
 
 void main() => runApp(new MyApp());
 
@@ -52,9 +53,7 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => new _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage>
-    implements
-        SnackBarListener {
+class _MyHomePageState extends State<MyHomePage> implements SnackBarListener {
   static const NUMBER_OF_BIDS_TO_MAKE = 2;
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   final FirebaseMessaging _firebaseMessaging = new FirebaseMessaging();
@@ -76,8 +75,7 @@ class _MyHomePageState extends State<MyHomePage>
     _firebaseMessaging.configure(
       onMessage: (Map<String, dynamic> map) async {
         prettyPrint(map,
-            '\n\n################ Message from FCM ################# ${DateTime
-                .now().toIso8601String()}');
+            '\n\n################ Message from FCM ################# ${DateTime.now().toIso8601String()}');
 
         String messageType = 'unknown';
         String mJSON;
@@ -122,8 +120,7 @@ class _MyHomePageState extends State<MyHomePage>
 
             case 'HEARTBEAT':
               Map map = json.decode(mJSON);
-              prettyPrint(
-                  map, '\n\n########## FCM HEARTBEAT :');
+              prettyPrint(map, '\n\n########## FCM HEARTBEAT :');
               onHeartbeat(map);
               break;
           }
@@ -167,10 +164,18 @@ class _MyHomePageState extends State<MyHomePage>
   void onChatMessage(ChatMessage msg) {
     print('_MyHomePageState.onChatMessage ........... .................');
     prettyPrint(msg.toJson(), '##### process this message just arrived:');
-    Navigator.push(
-      context,
-      new MaterialPageRoute(builder: (context) => new ChatResponsePage(chatMessage: msg,)),
-    );
+    this.chatMessage = msg;
+    chatBloc.receiveChatMessage(msg);
+    AppSnackbar.showSnackbarWithAction(
+        scaffoldKey: _scaffoldKey,
+        message: msg.message,
+        textColor: Styles.white,
+        backgroundColor: Styles.black,
+        actionLabel: 'Reply',
+        listener: this,
+        icon: Icons.chat,
+        action: 3);
+
   }
 
   @override
@@ -245,22 +250,19 @@ class _MyHomePageState extends State<MyHomePage>
   ///start periodic timer to control AutoTradeExecutionBuilder
   _start() async {
     print(
-        '_MyHomePageState._start ..... Timer.periodic(Duration((minutes: $minutes) time: ${DateTime
-            .now().toIso8601String()}');
+        '_MyHomePageState._start ..... Timer.periodic(Duration((minutes: $minutes) time: ${DateTime.now().toIso8601String()}');
     if (timer != null) {
       if (timer.isActive) {
         timer.cancel();
         print(
-            '_MyHomePageState._start -------- TIMER cancelled. timer.tick: ${timer
-                .tick}');
+            '_MyHomePageState._start -------- TIMER cancelled. timer.tick: ${timer.tick}');
       }
     }
     try {
       timer = Timer.periodic(Duration(minutes: minutes), (mTimer) async {
         print(
             '_MyHomePageState._start:\n\n\n TIMER tripping - starting AUTO TRADE cycle .......time: '
-                '${DateTime.now().toIso8601String()}.  mTimer.tick: ${mTimer
-                .tick}...\n\n');
+            '${DateTime.now().toIso8601String()}.  mTimer.tick: ${mTimer.tick}...\n\n');
         summary = await ListAPI.getOpenOffersSummary();
         if (summary.totalOpenOffers == null) {
           summary.totalOpenOffers = 0;
@@ -459,8 +461,7 @@ class _MyHomePageState extends State<MyHomePage>
   _goToMessages() {
     Navigator.push(
       context,
-      new MaterialPageRoute(
-          builder: (context) => new ChatResponsePage()),
+      new MaterialPageRoute(builder: (context) => new ChatResponsePage()),
     );
   }
 
@@ -515,19 +516,22 @@ class _MyHomePageState extends State<MyHomePage>
           _getBody(),
         ],
       ),
-
-//      floatingActionButton: FloatingActionButton(
-//        onPressed: _restart,
-//        elevation: 16.0,
-//        tooltip: 'Restart',
-//        child: Icon(Icons.directions_bike),
-//      ), // This trailing comma makes auto-formatting nicer for build methods.
+      
     );
   }
 
+  ChatMessage chatMessage;
   @override
   onActionPressed(int action) {
-    // TODO: implement onActionPressed
+    switch(action) {
+      case 3:
+        AssertionError(chatMessage != null);
+        Navigator.push(
+      context,
+      new MaterialPageRoute(builder: (context) => new ChatResponsePage(chatMessage: chatMessage,)),
+    );
+        break;
+    }
   }
 
   void _onMinutesChanged(String value) {
@@ -880,7 +884,8 @@ class _MyHomePageState extends State<MyHomePage>
                 child: Text(
                   autoTradeStart == null
                       ? '00:00'
-                      : getFormattedDateHour(_formatDate(autoTradeStart.dateEnded)),
+                      : getFormattedDateHour(
+                          _formatDate(autoTradeStart.dateEnded)),
                   style: Styles.blackSmall,
                 ),
               ),
@@ -890,6 +895,7 @@ class _MyHomePageState extends State<MyHomePage>
       ],
     );
   }
+
   String _formatDate(String date) {
     if (date == null) return '';
     try {
@@ -899,6 +905,7 @@ class _MyHomePageState extends State<MyHomePage>
       return '';
     }
   }
+
   Widget _getDate() {
     if (autoTradeStart == null) {
       return _getNow();
@@ -911,14 +918,20 @@ class _MyHomePageState extends State<MyHomePage>
             .toLocal()
             .toIso8601String();
         return Text(
-          getFormattedDateShort('$date', context), style: Styles.blackSmall,);
+          getFormattedDateShort('$date', context),
+          style: Styles.blackSmall,
+        );
       } catch (e) {
         return _getNow();
       }
     }
   }
+
   Text _getNow() {
-    return Text(getFormattedDateShort('${DateTime.now().toIso8601String()}', context), style: Styles.blackSmall,);
+    return Text(
+      getFormattedDateShort('${DateTime.now().toIso8601String()}', context),
+      style: Styles.blackSmall,
+    );
   }
 
   Widget _getAmount() {
