@@ -62,7 +62,7 @@ class ChatWindow extends State<ChatPage>
           txt: _chatResponse.responseMessage,
           color: Colors.pink,
           addToFirestore: false,
-          name: _chatResponse.responderName);
+          name: _chatResponse.responderName + ': ' + getFormattedDateShortWithTime(_chatResponse.dateTime, context));
     }
 
     if (user.supplier != null) {
@@ -95,7 +95,7 @@ class ChatWindow extends State<ChatPage>
           txt: m.message,
           addToFirestore: false,
           color: Colors.indigo,
-          name: user.firstName);
+          name: user.firstName+ ': ' + getFormattedDateShortWithTime(m.date, context));
     });
 
     var start = DateTime.now();
@@ -109,14 +109,14 @@ class ChatWindow extends State<ChatPage>
           txt: m.message,
           addToFirestore: false,
           color: Colors.indigo,
-          name: user.firstName);
+          name: user.firstName+ ': ' + getFormattedDateShortWithTime(m.date, context));
       if (m.responses != null && m.responses.isNotEmpty) {
         m.responses.forEach((r) {
           _submitMsg(
               txt: r.responseMessage,
               addToFirestore: false,
               color: Colors.pink,
-              name: r.responderName);
+              name: r.responderName+ ': ' + getFormattedDateShortWithTime(r.dateTime, context));
         });
       }
     });
@@ -249,14 +249,14 @@ class ChatWindow extends State<ChatPage>
               new Flexible(
                 child: new TextField(
                   controller: _textController,
-                  style: Styles.blackBoldSmall,
+                  style: Styles.blackMedium,
                   onChanged: (String txt) {
                     setState(() {
                       _isWriting = txt.length > 0;
                     });
                   },
                   decoration: new InputDecoration.collapsed(
-                      hintText: "Enter some text to send a message"),
+                      hintText: "Enter some text ..."),
                 ),
               ),
               new Container(
@@ -348,8 +348,9 @@ class Msg extends StatelessWidget {
             new Container(
               margin: const EdgeInsets.only(right: 18.0, left: 12),
               child: new CircleAvatar(
+                radius: 12.0,
                   backgroundColor: color == null ? Colors.indigo : color,
-                  child: new Text(defaultUserName[0])),
+                  child: new Text(defaultUserName[0], style: Styles.whiteSmall,)),
             ),
             new Expanded(
               child: new Column(

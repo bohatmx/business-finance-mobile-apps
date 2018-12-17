@@ -154,7 +154,7 @@ class ChatResponseWindow extends State<ChatResponsePage>
               hint: Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Text(
-                  'Select User',
+                  'Select Message',
                   style: Styles.whiteBoldMedium,
                 ),
               ),

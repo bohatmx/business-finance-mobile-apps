@@ -107,6 +107,10 @@ class _DashboardState extends State<Dashboard>
     print(
         '\n\n\ _DashboardState################ CONFIGURE FCM MESSAGE ###########  starting _firebaseMessaging');
     bool isRunningIOs = await isDeviceIOS();
+    var token = await _firebaseMessaging.getToken();
+    if (token != null) {
+      SharedPrefs.saveFCMToken(token);
+    }
     _firebaseMessaging.configure(
       onMessage: (Map<String, dynamic> map) async {
         prettyPrint(map,
