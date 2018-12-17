@@ -89,7 +89,7 @@ class ChatResponseWindow extends State<ChatResponsePage>
     setState(() {});
   }
 
-  void _addMessage(String text) async {
+  void _addChatResponse(String text) async {
     assert(text != null);
     print('ChatResponseWindow._addMessage --> $text');
     assert(selectedMessage != null);
@@ -97,13 +97,13 @@ class ChatResponseWindow extends State<ChatResponsePage>
       dateTime: getUTCDate(),
       responseMessage: text,
       chatMessage: selectedMessage,
-      responderName: 'Support Staff',
+      responderName: 'BFN Support',
       fcmToken: fcmToken,
     );
     prettyPrint(cm.toJson(), '.... about to write this chatResponse:');
     try {
-      ChatResponse resp = await DataAPI3.addChatResponse(cm);
-      prettyPrint(resp.toJson(), '###### function call returned response:');
+      ChatResponse resp = await chatBloc.addChatResponse(cm);
+      prettyPrint(resp.toJson(), '###### function call returned ChatResponse:');
     } catch (e) {
       print(e);
       AppSnackbar.showErrorSnackbar(
@@ -315,7 +315,7 @@ class ChatResponseWindow extends State<ChatResponsePage>
     msg.animationController.forward();
     //
     if (addToFirestore) {
-      _addMessage(txt);
+      _addChatResponse(txt);
     }
   }
 

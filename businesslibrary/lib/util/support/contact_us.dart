@@ -10,6 +10,7 @@ import 'package:businesslibrary/util/page_util/data.dart';
 import 'package:businesslibrary/util/page_util/intro_page_view.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:businesslibrary/util/support_email.dart';
+import 'package:businesslibrary/util/theme_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -25,7 +26,7 @@ class ContactUs extends StatefulWidget {
   _ContactUsState createState() => _ContactUsState();
 }
 
-class _ContactUsState extends State<ContactUs> {
+class _ContactUsState extends State<ContactUs> with SingleTickerProviderStateMixin {
   GoogleMapController _mapController;
   Map<String, double> _startLocation;
   Map<String, double> _currentLocation;
@@ -34,6 +35,8 @@ class _ContactUsState extends State<ContactUs> {
   GovtEntity customer;
   User user;
   StreamSubscription<Map<String, double>> _locationSubscription;
+  AnimationController _animationController;
+  Animation<double> _animation;
 
   Location _location = new Location();
   bool _permission = false;
@@ -49,13 +52,24 @@ class _ContactUsState extends State<ContactUs> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     initPlatformState();
     getCached();
+
+    _animationController = AnimationController(
+        duration: Duration(milliseconds: 1000),
+        vsync: this);
+    _animation = Tween(begin: 0.0, end: 1.0).animate(_animationController);
+    _animationController.forward();
+  }
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
   }
 
   void getCached() async {
+
     user = await SharedPrefs.getUser();
     customer = await SharedPrefs.getGovEntity();
     investor = await SharedPrefs.getInvestor();
@@ -132,13 +146,16 @@ class _ContactUsState extends State<ContactUs> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: <Widget>[
-                IconButton(
-                  icon: Icon(
-                    Icons.phone,
-                    size: 30.0,
-                    color: Colors.black,
+                FadeTransition(
+                  opacity: _animation,
+                  child: IconButton(
+                    icon: Icon(
+                      Icons.phone,
+                      size: 30.0,
+                      color: Colors.black,
+                    ),
+                    onPressed: _onPhoneTapped,
                   ),
-                  onPressed: _onPhoneTapped,
                 ),
                 SizedBox(
                   width: 20.0,
@@ -211,7 +228,7 @@ class _ContactUsState extends State<ContactUs> {
               color: Colors.pink,
               onPressed: _onPressed,
               child: Text(
-                'Information',
+                'More Information',
                 style: Styles.whiteSmall,
               ),
             ),

@@ -14,10 +14,7 @@ class AppSnackbar {
     }
     scaffoldKey.currentState.removeCurrentSnackBar();
     scaffoldKey.currentState.showSnackBar(new SnackBar(
-      content: new Text(
-        message,
-        style: new TextStyle(color: textColor),
-      ),
+      content:  _getText(message, textColor),
       duration: new Duration(seconds: 15),
       backgroundColor: backgroundColor,
     ));
@@ -45,10 +42,7 @@ class AppSnackbar {
               ),
             ),
           ),
-          new Text(
-            message,
-            style: new TextStyle(color: textColor),
-          ),
+          _getText(message, textColor),
         ],
       ),
       duration: new Duration(minutes: 5),
@@ -64,7 +58,7 @@ class AppSnackbar {
       @required String actionLabel,
       @required SnackBarListener listener,
       @required IconData icon,
-        int durationMinutes,
+      int durationMinutes,
       @required int action}) {
     if (scaffoldKey.currentState == null) {
       print(
@@ -83,13 +77,11 @@ class AppSnackbar {
               child: Icon(icon),
             ),
           ),
-          new Text(
-            message,
-            style: new TextStyle(color: textColor),
-          ),
+          _getText(message, textColor),
         ],
       ),
-      duration: new Duration(minutes: durationMinutes == null? 10: durationMinutes),
+      duration:
+          new Duration(minutes: durationMinutes == null ? 10 : durationMinutes),
       backgroundColor: backgroundColor,
       action: SnackBarAction(
         label: actionLabel,
@@ -99,7 +91,18 @@ class AppSnackbar {
       ),
     ));
   }
-
+  static Widget _getText( String message,
+      Color textColor,) {
+    return Flexible(
+      child: Container(
+        child: Text(
+          message,
+          overflow: TextOverflow.clip,
+          style: new TextStyle(color: textColor),
+        ),
+      ),
+    );
+  }
   static showErrorSnackbar(
       {@required GlobalKey<ScaffoldState> scaffoldKey,
       @required String message,
@@ -111,10 +114,7 @@ class AppSnackbar {
     }
     scaffoldKey.currentState.removeCurrentSnackBar();
     var snackbar = new SnackBar(
-      content: new Text(
-        message,
-        style: new TextStyle(color: Colors.white),
-      ),
+      content:  _getText(message, Colors.white),
       duration: new Duration(seconds: 20),
       backgroundColor: Colors.red.shade900,
       action: SnackBarAction(

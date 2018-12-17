@@ -231,7 +231,12 @@ class _DashboardState extends State<Dashboard>
     });
   }
 
+  void _setTheme(int index) {
+    themeBloc.changeToTheme(index);
+  }
   Future _getCachedPrefs() async {
+    var index = await SharedPrefs.getThemeIndex();
+    _setTheme(index);
     investor = await SharedPrefs.getInvestor();
     _configureFCM();
     _checkSectors();
@@ -612,7 +617,7 @@ class _DashboardState extends State<Dashboard>
   }
 
   void _changeTheme() {
-    bloc.changeToRandomTheme();
+    themeBloc.changeToRandomTheme();
   }
 
   void onChatResponseMessage(ChatResponse chatResponse) {

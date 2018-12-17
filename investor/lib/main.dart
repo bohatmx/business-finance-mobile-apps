@@ -11,29 +11,42 @@ import 'package:investor/ui/dashboard.dart';
 import 'package:investor/ui/signin_page.dart';
 import 'package:investor/ui/signup_page.dart';
 
-void main() => runApp(new InvestorApp());
+void main() => runApp(new InvestorApp2());
 
-class InvestorApp extends StatelessWidget {
-  // This widget is the root of your application.
+class InvestorApp2 extends StatefulWidget {
+  @override
+  _InvestorApp2State createState() => _InvestorApp2State();
+}
 
-  InvestorApp({Key key}) : super(key: key);
-
+class _InvestorApp2State extends State<InvestorApp2> {
+  int themeIndex = 0;
+  @override
+  void initState() {
+    super.initState();
+    _getTheme();
+  }
+  void _getTheme() async {
+    themeIndex = await SharedPrefs.getThemeIndex();
+  }
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<int>(
-      initialData: null,
-      stream: bloc.newThemeStream,
+      initialData: themeIndex == null? 0: themeIndex,
+      stream: themeBloc.newThemeStream,
       builder: (context, snapShot) => MaterialApp(
-            title: 'BFNInvestor',
-            debugShowCheckedModeBanner: false,
-            theme: snapShot.data == null
-                ? ThemeUtil.getTheme(themeIndex: 0)
-                : ThemeUtil.getTheme(themeIndex: snapShot.data),
-            home: new StartPage(),
-          ),
+        title: 'BFNInvestor',
+        debugShowCheckedModeBanner: false,
+        theme: snapShot.data == null
+            ? ThemeUtil.getTheme(themeIndex: themeIndex)
+            : ThemeUtil.getTheme(themeIndex: snapShot.data),
+        home: new StartPage(),
+      ),
     );
   }
 }
+
+
+
 
 class StartPage extends StatefulWidget {
   StartPage({Key key, this.title}) : super(key: key);

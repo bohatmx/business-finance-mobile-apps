@@ -3,6 +3,8 @@ import 'dart:convert';
 
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
+import 'package:businesslibrary/blocs/chat_bloc.dart';
+import 'package:businesslibrary/data/chat_response.dart';
 import 'package:businesslibrary/data/delivery_acceptance.dart';
 import 'package:businesslibrary/data/delivery_note.dart';
 import 'package:businesslibrary/data/invoice.dart';
@@ -20,6 +22,8 @@ import 'package:businesslibrary/util/message.dart';
 
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
+import 'package:businesslibrary/util/support/chat_page.dart';
+import 'package:businesslibrary/util/support/contact_us.dart';
 import 'package:businesslibrary/util/theme_bloc.dart';
 import 'package:businesslibrary/util/wallet_page.dart';
 import 'package:device_info/device_info.dart';
@@ -49,9 +53,7 @@ class Dashboard extends StatefulWidget {
 
 class _DashboardState extends State<Dashboard>
     with TickerProviderStateMixin
-    implements
-        SnackBarListener
-         {
+    implements SnackBarListener {
   static GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   static const platform = const MethodChannel('com.oneconnect.files/pdf');
   FirebaseMessaging _fcm = FirebaseMessaging();
@@ -60,7 +62,7 @@ class _DashboardState extends State<Dashboard>
   Animation<double> animation;
   Supplier supplier;
   User user;
-  String fullName;
+  String fullName, fcmToken;
   DeliveryAcceptance acceptance;
 
   @override
@@ -82,111 +84,100 @@ class _DashboardState extends State<Dashboard>
     print(
         '\n\n\ ################ CONFIGURE FCM MESSAGE ###########  starting _firebaseMessaging');
 
-    AndroidDeviceInfo androidInfo;
-    IosDeviceInfo iosInfo;
-    DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
-    bool isRunningIOs = false;
-    try {
-      androidInfo = await deviceInfo.androidInfo;
-      print(
-          '\n\n\n################  Running on ${androidInfo.model} ################\n\n');
-    } catch (e) {
-      print(
-          'FCM.configureFCM - error doing Android - this is NOT an Android phone!!');
+    bool isRunningIOs = await isDeviceIOS();
+    fcmToken = await _fcm.getToken();
+    if (fcmToken != null) {
+      SharedPrefs.saveFCMToken(fcmToken);
     }
-
-    try {
-      iosInfo = await deviceInfo.iosInfo;
-      print(
-          '\n\n\n################ Running on ${iosInfo.utsname.machine} ################\n\n');
-      isRunningIOs = true;
-    } catch (e) {
-      print('FCM.configureFCM error doing iOS - this is NOT an iPhone!!');
-    }
-
     _fcm.configure(
-        onMessage: (Map<String, dynamic> map) async {
-          prettyPrint(map,
-              '\n\n################ Message from FCM ################# ${DateTime.now().toIso8601String()}');
+      onMessage: (Map<String, dynamic> map) async {
+        prettyPrint(map,
+            '\n\n################ Message from FCM ################# ${DateTime.now().toIso8601String()}');
 
-          String messageType = 'unknown';
-          String mJSON;
-          try {
-            if (isRunningIOs == true) {
-              messageType = map["messageType"];
-              mJSON = map['json'];
-              print('FCM.configureFCM platform is iOS');
-            } else {
-              var data = map['data'];
-              messageType = data["messageType"];
-              mJSON = data["json"];
-              print('FCM.configureFCM platform is Android');
-            }
-          } catch (e) {
-            print(e);
-            print(
-                'FCM.configureFCM -------- EXCEPTION handling platform detection');
+        String messageType = 'unknown';
+        String mJSON;
+        try {
+          if (isRunningIOs == true) {
+            messageType = map["messageType"];
+            mJSON = map['json'];
+            print('FCM.configureFCM platform is iOS');
+          } else {
+            var data = map['data'];
+            messageType = data["messageType"];
+            mJSON = data["json"];
+            print('FCM.configureFCM platform is Android');
           }
-
+        } catch (e) {
+          print(e);
           print(
-              'FCM.configureFCM ************************** messageType: $messageType');
+              'FCM.configureFCM -------- EXCEPTION handling platform detection');
+        }
 
-          try {
-            switch (messageType) {
-              case 'PURCHASE_ORDER':
-                var m = PurchaseOrder.fromJson(json.decode(mJSON));
-                prettyPrint(
-                    m.toJson(), '\n\n########## FCM PURCHASE_ORDER MESSAGE :');
-                onPurchaseOrderMessage(m);
-                break;
-              case 'DELIVERY_NOTE':
-                var m = DeliveryNote.fromJson(json.decode(mJSON));
-                prettyPrint(
-                    m.toJson(), '\n\n########## FCM DELIVERY_NOTE MESSAGE :');
-                onDeliveryNoteMessage(m);
-                break;
-              case 'DELIVERY_ACCEPTANCE':
-                var m = DeliveryAcceptance.fromJson(json.decode(mJSON));
-                prettyPrint(m.toJson(),
-                    '\n\n########## FCM DELIVERY_ACCEPTANCE MESSAGE :');
-                onDeliveryAcceptanceMessage(m);
-                break;
-              case 'INVOICE':
-                var m = Invoice.fromJson(json.decode(mJSON));
-                prettyPrint(m.toJson(), '\n\n########## FCM MINVOICE ESSAGE :');
-                onInvoiceMessage(m);
-                break;
-              case 'INVOICE_ACCEPTANCE':
-                var m = InvoiceAcceptance.fromJson(json.decode(mJSON));
-                prettyPrint(m.toJson(), ' FCM INVOICE_ACCEPTANCE MESSAGE :');
-                onInvoiceAcceptanceMessage(m);
-                break;
-              case 'OFFER':
-                var m = Offer.fromJson(json.decode(mJSON));
-                prettyPrint(m.toJson(), '\n\n########## FCM OFFER MESSAGE :');
-                onOfferMessage(m);
-                break;
-              case 'INVOICE_BID':
-                var m = InvoiceBid.fromJson(json.decode(mJSON));
-                prettyPrint(
-                    m.toJson(), '\n\n########## FCM INVOICE_BID MESSAGE :');
-                onInvoiceBidMessage(m);
-                break;
+        print(
+            'FCM.configureFCM ************************** messageType: $messageType');
 
-              case 'INVESTOR_INVOICE_SETTLEMENT':
-                Map map = json.decode(mJSON);
-                prettyPrint(
-                    map, '\n\n########## FCM INVESTOR_INVOICE_SETTLEMENT :');
-                onInvestorInvoiceSettlement(
-                    InvestorInvoiceSettlement.fromJson(map));
-                break;
-            }
-          } catch (e) {
-            print(
-                'FCM.configureFCM - Houston, we have a problem with null listener somewhere');
-            print(e);
+        try {
+          switch (messageType) {
+            case 'CHAT_RESPONSE':
+              var m = ChatResponse.fromJson(json.decode(mJSON));
+              prettyPrint(
+                  m.toJson(), '\n\n########## FCM CHAT_RESPONSE MESSAGE :');
+              onChatResponseMessage(m);
+              break;
+            case 'PURCHASE_ORDER':
+              var m = PurchaseOrder.fromJson(json.decode(mJSON));
+              prettyPrint(
+                  m.toJson(), '\n\n########## FCM PURCHASE_ORDER MESSAGE :');
+              onPurchaseOrderMessage(m);
+              break;
+            case 'DELIVERY_NOTE':
+              var m = DeliveryNote.fromJson(json.decode(mJSON));
+              prettyPrint(
+                  m.toJson(), '\n\n########## FCM DELIVERY_NOTE MESSAGE :');
+              onDeliveryNoteMessage(m);
+              break;
+            case 'DELIVERY_ACCEPTANCE':
+              var m = DeliveryAcceptance.fromJson(json.decode(mJSON));
+              prettyPrint(m.toJson(),
+                  '\n\n########## FCM DELIVERY_ACCEPTANCE MESSAGE :');
+              onDeliveryAcceptanceMessage(m);
+              break;
+            case 'INVOICE':
+              var m = Invoice.fromJson(json.decode(mJSON));
+              prettyPrint(m.toJson(), '\n\n########## FCM MINVOICE ESSAGE :');
+              onInvoiceMessage(m);
+              break;
+            case 'INVOICE_ACCEPTANCE':
+              var m = InvoiceAcceptance.fromJson(json.decode(mJSON));
+              prettyPrint(m.toJson(), ' FCM INVOICE_ACCEPTANCE MESSAGE :');
+              onInvoiceAcceptanceMessage(m);
+              break;
+            case 'OFFER':
+              var m = Offer.fromJson(json.decode(mJSON));
+              prettyPrint(m.toJson(), '\n\n########## FCM OFFER MESSAGE :');
+              onOfferMessage(m);
+              break;
+            case 'INVOICE_BID':
+              var m = InvoiceBid.fromJson(json.decode(mJSON));
+              prettyPrint(
+                  m.toJson(), '\n\n########## FCM INVOICE_BID MESSAGE :');
+              onInvoiceBidMessage(m);
+              break;
+
+            case 'INVESTOR_INVOICE_SETTLEMENT':
+              Map map = json.decode(mJSON);
+              prettyPrint(
+                  map, '\n\n########## FCM INVESTOR_INVOICE_SETTLEMENT :');
+              onInvestorInvoiceSettlement(
+                  InvestorInvoiceSettlement.fromJson(map));
+              break;
           }
-        },
+        } catch (e) {
+          print(
+              'FCM.configureFCM - Houston, we have a problem with null listener somewhere');
+          print(e);
+        }
+      },
       onLaunch: (Map<String, dynamic> message) {
         print('configureMessaging onLaunch *********** ');
         prettyPrint(message, 'message delivered on LAUNCH!');
@@ -200,8 +191,7 @@ class _DashboardState extends State<Dashboard>
     _fcm.requestNotificationPermissions(
         const IosNotificationSettings(sound: true, badge: true, alert: true));
 
-    _fcm.onIosSettingsRegistered
-        .listen((IosNotificationSettings settings) {});
+    _fcm.onIosSettingsRegistered.listen((IosNotificationSettings settings) {});
 
 //    _fcm.getToken().then((String token) async {
 //      assert(token != null);
@@ -218,6 +208,7 @@ class _DashboardState extends State<Dashboard>
 //    });
     _subscribeToFCMTopics();
   }
+
   _subscribeToFCMTopics() async {
     if (supplier == null) return;
     _fcm.subscribeToTopic(FCM.TOPIC_PURCHASE_ORDERS + supplier.participantId);
@@ -229,8 +220,9 @@ class _DashboardState extends State<Dashboard>
     _fcm.subscribeToTopic(FCM.TOPIC_INVOICE_BIDS + supplier.participantId);
     _fcm.subscribeToTopic(FCM.TOPIC_OFFERS + supplier.participantId);
     _fcm.subscribeToTopic(FCM.TOPIC_INVOICES + supplier.participantId);
-    _fcm.subscribeToTopic(FCM.TOPIC_DELIVERY_NOTES+ supplier.participantId);
-    _fcm.subscribeToTopic(FCM.TOPIC_INVESTOR_INVOICE_SETTLEMENTS+ supplier.participantId);
+    _fcm.subscribeToTopic(FCM.TOPIC_DELIVERY_NOTES + supplier.participantId);
+    _fcm.subscribeToTopic(
+        FCM.TOPIC_INVESTOR_INVOICE_SETTLEMENTS + supplier.participantId);
     print(
         '\n\n_DashboardState._subscribeToFCMTopics SUBSCRIBED to topis - POs, Delivery acceptance, Invoice acceptance');
   }
@@ -238,7 +230,8 @@ class _DashboardState extends State<Dashboard>
 
   @override
   void dispose() {
-    print('_DashboardState.dispose closing stream: supplierModelBloc.closeStream();');
+    print(
+        '_DashboardState.dispose closing stream: supplierModelBloc.closeStream();');
     animationController.dispose();
     supplierModelBloc.closeStream();
     super.dispose();
@@ -247,15 +240,14 @@ class _DashboardState extends State<Dashboard>
   Future _getCachedPrefs() async {
     supplier = await SharedPrefs.getSupplier();
     user = await SharedPrefs.getUser();
+    themeIndex = await SharedPrefs.getThemeIndex();
+    _setTheme(themeIndex);
     fullName = user.firstName + ' ' + user.lastName;
     assert(supplier != null);
     name = supplier.name;
     setState(() {});
     //
-
   }
-
-
 
   _showBottomSheet(InvoiceBid bid) {
     if (_scaffoldKey.currentState == null) return;
@@ -330,11 +322,13 @@ class _DashboardState extends State<Dashboard>
     _scaffoldKey.currentState.removeCurrentSnackBar();
     setState(() {});
   }
+
   int count = 0;
   @override
   Widget build(BuildContext context) {
     count++;
-    print('_DashboardState.build ++++++++++++++ build +++++++++ build: #$count');
+    print(
+        '_DashboardState.build ++++++++++++++ build +++++++++ build: #$count');
     if (appModel == null || appModel.supplier == null) {
       appModel = supplierModelBloc.appModel;
       return Scaffold(
@@ -347,7 +341,7 @@ class _DashboardState extends State<Dashboard>
       initialData: supplierModelBloc.appModel,
       stream: supplierModelBloc.appModelStream,
       builder: (context, snapshot) {
-        switch(snapshot.connectionState) {
+        switch (snapshot.connectionState) {
           case ConnectionState.none:
             print('_DashboardState.build ConnectionState.nonne');
             break;
@@ -395,8 +389,8 @@ class _DashboardState extends State<Dashboard>
                   onPressed: _onRefreshPressed,
                 ),
                 IconButton(
-                  icon: Icon(Icons.attach_money),
-                  onPressed: _goToWalletPage,
+                  icon: Icon(Icons.help),
+                  onPressed: _goToContactUsPage,
                 ),
               ],
             ),
@@ -454,8 +448,11 @@ class _DashboardState extends State<Dashboard>
     messages.forEach((m) {
       var tile = ListTile(
         title: Text(m.message),
-        subtitle: Text(m.subTitle, style: Styles.blackBoldSmall,),
-        leading:m.icon,
+        subtitle: Text(
+          m.subTitle,
+          style: Styles.blackBoldSmall,
+        ),
+        leading: m.icon,
       );
       tiles.add(tile);
     });
@@ -515,15 +512,11 @@ class _DashboardState extends State<Dashboard>
         ));
   }
 
-  void _goToWalletPage() {
-    print('_MainPageState._goToWalletPage .... ');
+  void _goToContactUsPage() {
+    print('_MainPageState._goToContactUsPage .... ');
     Navigator.push(
       context,
-      MaterialPageRoute(
-          builder: (context) => WalletPage(
-              name: supplier.name,
-              participantId: supplier.participantId,
-              type: SupplierType)),
+      MaterialPageRoute(builder: (context) => ContactUs()),
     );
   }
 
@@ -554,7 +547,6 @@ class _DashboardState extends State<Dashboard>
     );
   }
 
-
   @override
   onActionPressed(int action) {
     print(
@@ -573,6 +565,13 @@ class _DashboardState extends State<Dashboard>
           MaterialPageRoute(builder: (context) => DeliveryAcceptanceList()),
         );
         break;
+      case ChatResponseConstant:
+        Navigator.pop(context);
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => ChatPage(chatResponse: _chatResponse,)),
+        );
+        break;
       case InvoiceAcceptedConstant:
         _startOffer();
         break;
@@ -586,6 +585,7 @@ class _DashboardState extends State<Dashboard>
         break;
       case GovtSettlement:
         break;
+
     }
   }
 
@@ -619,10 +619,10 @@ class _DashboardState extends State<Dashboard>
       InvoiceBidConstant = 5,
       InvestorSettlement = 6,
       WalletConstant = 7,
-      InvoiceAcceptedConstant = 8;
+      InvoiceAcceptedConstant = 8, ChatResponseConstant = 10;
 
   PurchaseOrder purchaseOrder;
-
+  ChatResponse _chatResponse;
   DeliveryAcceptance deliveryAcceptance;
 
   InvoiceAcceptance invoiceAcceptance;
@@ -630,30 +630,28 @@ class _DashboardState extends State<Dashboard>
   InvoiceBid invoiceBid;
   bool isAddInvoiceAcceptance = false, isAddDeliveryAcceptance = false;
 
-  onDeliveryAcceptanceMessage(DeliveryAcceptance acceptance) async{
+  onDeliveryAcceptanceMessage(DeliveryAcceptance acceptance) async {
     deliveryAcceptance = acceptance;
     _showSnack('Delivery Acceptance arrived', Colors.green);
 
     setState(() {
       messages.add(Message(
-        type: Message.GENERAL_MESSAGE,
-        message:
-        'Delivery Acceptance arrived: ${getFormattedDateShortWithTime('${acceptance.date}', context)} ',
-        subTitle: acceptance.customerName
-      ));
+          type: Message.GENERAL_MESSAGE,
+          message:
+              'Delivery Acceptance arrived: ${getFormattedDateShortWithTime('${acceptance.date}', context)} ',
+          subTitle: acceptance.customerName));
     });
     await supplierModelBloc.refreshModel();
   }
 
-
-  onInvoiceAcceptanceMessage(InvoiceAcceptance acceptance) async{
+  onInvoiceAcceptanceMessage(InvoiceAcceptance acceptance) async {
     invoiceAcceptance = acceptance;
     _showSnack('Invoice Acceptance arrived', Colors.yellow);
     setState(() {
       messages.add(Message(
         type: Message.GENERAL_MESSAGE,
         message:
-        'Invoice Acceptance arrived: ${getFormattedDateShortWithTime('${acceptance.date}', context)} ',
+            'Invoice Acceptance arrived: ${getFormattedDateShortWithTime('${acceptance.date}', context)} ',
         subTitle: acceptance.customerName,
       ));
     });
@@ -669,34 +667,31 @@ class _DashboardState extends State<Dashboard>
     _showBottomSheet(invoiceBid);
     setState(() {
       messages.add(Message(
-        type: Message.GENERAL_MESSAGE,
-        message:
-            'Invoice Bid arrived: ${getFormattedAmount('${invoiceBid.amount}', context)} '
-                'on ${getFormattedDateShortWithTime(invoiceBid.date, context)}',
-        subTitle: invoiceBid.investorName
-      ));
+          type: Message.GENERAL_MESSAGE,
+          message:
+              'Invoice Bid arrived: ${getFormattedAmount('${invoiceBid.amount}', context)} '
+              'on ${getFormattedDateShortWithTime(invoiceBid.date, context)}',
+          subTitle: invoiceBid.investorName));
     });
     await supplierModelBloc.refreshModel();
   }
 
   bool isAddPurchaseOrder = false;
 
-  onPurchaseOrderMessage(PurchaseOrder purchaseOrder) async{
+  onPurchaseOrderMessage(PurchaseOrder purchaseOrder) async {
     _showSnack('Purchase Order arrived', Colors.lime);
     this.purchaseOrder = purchaseOrder;
     setState(() {
       messages.add(Message(
-        type: Message.PURCHASE_ORDER,
-        message:
-            'Purchase order arrived: ${getFormattedDateShortWithTime(DateTime.now().toIso8601String(), context)} ${getFormattedAmount('${purchaseOrder.amount}', context)}',
-        subTitle: purchaseOrder.purchaserName
-      ));
+          type: Message.PURCHASE_ORDER,
+          message:
+              'Purchase order arrived: ${getFormattedDateShortWithTime(DateTime.now().toIso8601String(), context)} ${getFormattedAmount('${purchaseOrder.amount}', context)}',
+          subTitle: purchaseOrder.purchaserName));
     });
     await supplierModelBloc.refreshModel();
   }
 
-
-  onGeneralMessage(Map map) async{
+  onGeneralMessage(Map map) async {
     _showSnack(map['message'], Colors.white);
     setState(() {
       messages.add(Message(
@@ -716,6 +711,7 @@ class _DashboardState extends State<Dashboard>
   }
 
   List<Message> messages = List();
+  int themeIndex = 0;
 
   void _onNavTap(int value) {
     print('_DashboardState._onNavTap ########################## $value');
@@ -735,54 +731,71 @@ class _DashboardState extends State<Dashboard>
   }
 
   void _toggleTheme() {
-    bloc.changeToRandomTheme();
+    themeBloc.changeToRandomTheme();
+  }
+  void _setTheme(int index) {
+    themeBloc.changeToTheme(index);
   }
 
-  void onInvestorInvoiceSettlement(InvestorInvoiceSettlement investorInvoiceSettlement) async{
+  void onInvestorInvoiceSettlement(
+      InvestorInvoiceSettlement investorInvoiceSettlement) async {
     setState(() {
       messages.add(Message(
           type: Message.SETTLEMENT,
           message:
-          'Invoice Settlement arrived: ${getFormattedDateShortWithTime('${investorInvoiceSettlement.date}', context)} ',
-          subTitle: investorInvoiceSettlement.customerName
-      ));
+              'Invoice Settlement arrived: ${getFormattedDateShortWithTime('${investorInvoiceSettlement.date}', context)} ',
+          subTitle: investorInvoiceSettlement.customerName));
     });
     await supplierModelBloc.refreshModel();
   }
 
-  void onDeliveryNoteMessage(DeliveryNote m) async{
+  void onDeliveryNoteMessage(DeliveryNote m) async {
     setState(() {
       messages.add(Message(
           type: Message.DELIVERY_NOTE,
           message:
-          'Delivery Note arrived: ${getFormattedDateShortWithTime('${m.date}', context)} ',
-          subTitle: m.customerName
-      ));
+              'Delivery Note arrived: ${getFormattedDateShortWithTime('${m.date}', context)} ',
+          subTitle: m.customerName));
     });
     await supplierModelBloc.refreshModel();
   }
 
-  void onOfferMessage(Offer offer) async{
+  void onOfferMessage(Offer offer) async {
     setState(() {
       messages.add(Message(
           type: Message.OFFER,
           message:
-          'Offer arrived: ${getFormattedDateShortWithTime('${offer.date}', context)} ',
-          subTitle: offer.customerName
-      ));
+              'Offer arrived: ${getFormattedDateShortWithTime('${offer.date}', context)} ',
+          subTitle: offer.customerName));
     });
     await supplierModelBloc.refreshModel();
   }
-  void onInvoiceMessage(Invoice invoice) async{
+
+  void onInvoiceMessage(Invoice invoice) async {
     setState(() {
       messages.add(Message(
           type: Message.INVOICE,
           message:
-          'Invoice arrived: ${getFormattedDateShortWithTime('${invoice.date}', context)} ',
-          subTitle: invoice.customerName
-      ));
+              'Invoice arrived: ${getFormattedDateShortWithTime('${invoice.date}', context)} ',
+          subTitle: invoice.customerName));
     });
     await supplierModelBloc.refreshModel();
+  }
+
+  void onChatResponseMessage(ChatResponse m) {
+    prettyPrint(
+        m.toJson(), '_DashboardState.onChatResponseMessage ...........');
+    chatBloc.receiveChatResponse(m);
+    _chatResponse = m;
+    AppSnackbar.showSnackbarWithAction(
+        scaffoldKey: _scaffoldKey,
+        message: m.responseMessage,
+        textColor: Styles.white,
+        backgroundColor: Styles.black,
+        actionLabel: 'Reply',
+        listener: this,
+        icon: Icons.chat,
+        action: ChatResponseConstant);
   }
 }
 
@@ -882,8 +895,10 @@ class OfferSummaryCard extends StatelessWidget {
                   ),
                   Padding(
                     padding: const EdgeInsets.only(left: 12.0),
-                    child: Text(appModel.settlements == null? '0':
-                      '${appModel.settlements.length}',
+                    child: Text(
+                      appModel.settlements == null
+                          ? '0'
+                          : '${appModel.settlements.length}',
                       style: Styles.tealBoldMedium,
                     ),
                   ),
@@ -918,4 +933,3 @@ class OfferSummaryCard extends StatelessWidget {
     );
   }
 }
-

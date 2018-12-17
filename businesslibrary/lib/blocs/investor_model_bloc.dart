@@ -16,9 +16,9 @@ abstract class InvestorModelBlocListener {
 }
 class InvestorModelBloc implements Model2Listener {
   final StreamController<InvestorAppModel2> _appModelController =
-      StreamController<InvestorAppModel2>();
-  final StreamController<String> _errorController = StreamController<String>();
-  final StreamController<ChatResponse> _chatController = StreamController<ChatResponse>();
+      StreamController<InvestorAppModel2>.broadcast();
+  final StreamController<String> _errorController = StreamController<String>.broadcast();
+  final StreamController<ChatResponse> _chatController = StreamController<ChatResponse>.broadcast();
   final InvestorAppModel2 _appModel = InvestorAppModel2();
 
   InvestorModelBloc() {
@@ -223,7 +223,7 @@ class InvestorAppModel2 {
   Future refreshRemoteDashboardWithListener(InvestorModelBlocListener listener) async {
     if (_investor == null) {
       _investor = await SharedPrefs.getInvestor();
-    };
+    }
     print(
         'InvestorAppModel2.refreshDashboard ----- REFRESH from functions ...............');
     try {

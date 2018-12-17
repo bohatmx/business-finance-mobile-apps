@@ -166,6 +166,7 @@ class _MyHomePageState extends State<MyHomePage> implements SnackBarListener {
     prettyPrint(msg.toJson(), '##### process this message just arrived:');
     this.chatMessage = msg;
     chatBloc.receiveChatMessage(msg);
+
     AppSnackbar.showSnackbarWithAction(
         scaffoldKey: _scaffoldKey,
         message: msg.message,
@@ -516,7 +517,7 @@ class _MyHomePageState extends State<MyHomePage> implements SnackBarListener {
           _getBody(),
         ],
       ),
-      
+
     );
   }
 

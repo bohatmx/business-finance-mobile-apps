@@ -12,20 +12,33 @@ import 'package:supplierv3/ui/signup_page.dart';
 import 'package:businesslibrary/util/theme_bloc.dart';
 
 
-void main() => runApp(new SupplierApp());
+void main() => runApp(new SupplierApp2());
 
-class SupplierApp extends StatelessWidget {
-  // This widget is the root of your application.
+class SupplierApp2 extends StatefulWidget {
+  @override
+  _SupplierApp2State createState() => _SupplierApp2State();
+}
+
+class _SupplierApp2State extends State<SupplierApp2> {
+  int themeIndex;
+  @override
+  void initState() {
+    super.initState();
+    _getTheme();
+  }
+  void _getTheme() async {
+    themeIndex = await SharedPrefs.getThemeIndex();
+  }
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<int>(
-      initialData: null,
-      stream: bloc.newThemeStream,
+      initialData: themeIndex == null? 0: themeIndex,
+      stream: themeBloc.newThemeStream,
       builder: (context, snapShot) => MaterialApp(
         title: 'BFNSupplier',
         debugShowCheckedModeBanner: false,
         theme: snapShot.data == null
-            ? ThemeUtil.getTheme(themeIndex: 0)
+            ? ThemeUtil.getTheme(themeIndex: themeIndex)
             : ThemeUtil.getTheme(themeIndex: snapShot.data),
         home: new StartPage(),
       ),

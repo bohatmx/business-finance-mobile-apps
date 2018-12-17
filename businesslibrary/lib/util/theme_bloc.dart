@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:math';
+import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:flutter/material.dart';
 
 class ThemeBloc {
@@ -15,6 +16,7 @@ class ThemeBloc {
   changeToRandomTheme() {
     var index = _rand.nextInt(ThemeUtil.getThemeCount() - 1);
     _themeController.sink.add(index);
+    SharedPrefs.saveThemeIndex(index);
   }
   closeStream() {
     _themeController.close();
@@ -23,7 +25,7 @@ class ThemeBloc {
   get newThemeStream => _themeController.stream;
 }
 
-final bloc = ThemeBloc();
+final themeBloc = ThemeBloc();
 
 class ThemeUtil {
   static List<ThemeData> _themes = List();
