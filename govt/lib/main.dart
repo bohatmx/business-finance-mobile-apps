@@ -17,7 +17,7 @@ class GovtApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return StreamBuilder<int>(
       initialData: null,
-      stream: bloc.newThemeStream,
+      stream: themeBloc.newThemeStream,
       builder: (context, snapShot) => MaterialApp(
         title: 'BFNCustomer',
         debugShowCheckedModeBanner: false,

@@ -260,7 +260,7 @@ class _DashboardState extends State<Dashboard>
 
   void _onChangeTheme() async {
     print('_DashboardState._onChangeTheme +++++++++++++++++++++++');
-    bloc.changeToRandomTheme();
+    themeBloc.changeToRandomTheme();
   }
 
   void _onRefreshPressed() async {
