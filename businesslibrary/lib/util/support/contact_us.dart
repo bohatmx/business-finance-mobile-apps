@@ -49,6 +49,7 @@ class _ContactUsState extends State<ContactUs> with SingleTickerProviderStateMix
   static const String USER_SUPPLIER = '1',
       USER_INVESTOR = '2',
       USER_CUSTOMER = '3';
+  bool isIOS;
 
   @override
   void initState() {
@@ -255,9 +256,18 @@ class _ContactUsState extends State<ContactUs> with SingleTickerProviderStateMix
     ));
   }
 
-  void _onPhoneTapped() {
+  void _onPhoneTapped() async{
     print('_ContactUsState._onPhoneTapped ............');
-    launch("tel:0710441887");
+    const url = 'tel:0710441887';
+    try {
+      if (await canLaunch(url)) {
+        await launch("tel:0710441887");
+      }
+    } catch (e) {
+      print('_ContactUsState._onPhoneTapped ERROR ERROR ERROR ERROR');
+      print(e);
+
+    }
   }
 
   void _onEmailTapped() {

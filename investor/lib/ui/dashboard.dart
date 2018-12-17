@@ -505,7 +505,7 @@ class _DashboardState extends State<Dashboard>
       return AnimatedContainer(
         curve: Curves.fastOutSlowIn,
         duration: Duration(seconds: 2),
-        height: 420.0,
+        height: 450.0,
         color: Colors.brown.shade200,
         child: Column(
           children: <Widget>[

@@ -93,14 +93,10 @@ class AppSnackbar {
   }
   static Widget _getText( String message,
       Color textColor,) {
-    return Flexible(
-      child: Container(
-        child: Text(
-          message,
-          overflow: TextOverflow.clip,
-          style: new TextStyle(color: textColor),
-        ),
-      ),
+    return Text(
+      message,
+      overflow: TextOverflow.clip,
+      style: new TextStyle(color: textColor),
     );
   }
   static showErrorSnackbar(

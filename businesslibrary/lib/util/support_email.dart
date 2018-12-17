@@ -223,11 +223,16 @@ class _SupportEmailState extends State<SupportEmail> {
     assert(mUrl == decoded);
     print('_SupportEmailState._sendEmail uri: $mUrl');
     print('_SupportEmailState._sendEmail encoded: $encoded');
-    if (await canLaunch(encoded)) {
-      Navigator.pop(context);
-      await launch(encoded);
-    } else {
-      throw 'Could not launch $encoded';
+    try {
+      if (await canLaunch(encoded)) {
+        Navigator.pop(context);
+        await launch(encoded);
+      } else {
+        throw 'Could not launch $encoded';
+      }
+    } catch (e) {
+      print('\n\n_SupportEmailState._startDefaultEmailApp ERROR ERROR ERROR ERROR');
+      print(e);
     }
   }
 }

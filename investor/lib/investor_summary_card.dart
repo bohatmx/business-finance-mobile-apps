@@ -11,7 +11,7 @@ class InvestorSummaryCard extends StatelessWidget {
   InvestorSummaryCard({this.appModel, this.context, this.listener});
 
   Widget _getTotalBids() {
-    if ( appModel == null || appModel.dashboardData.totalBids == null) {
+    if ( appModel == null || appModel.dashboardData == null) {
       return Container();
     }
     return Row(

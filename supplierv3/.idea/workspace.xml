@@ -4,15 +4,18 @@
     <option name="TOOL_WINDOW_CONFIGURED_FILTER" value="Show only selected application" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="80b8d4ed-f360-4af7-bada-dfcc0519f100" name="Default" comment="added support chat feature to supplier app + theme selection refactored">
-      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/util/support/chat_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/util/support/chat_page.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/util/support/chat_response_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/util/support/chat_response_page.dart" afterDir="false" />
+    <list default="true" id="80b8d4ed-f360-4af7-bada-dfcc0519f100" name="Default" comment="CHECKPOINT CHARLIE III - good things come to those who wait!">
+      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/util/snackbar_util.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/util/snackbar_util.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/util/support/contact_us.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/util/support/contact_us.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/util/support_email.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/util/support_email.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../investor/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../investor/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../investor/ios/Podfile.lock" beforeDir="false" afterPath="$PROJECT_DIR$/../investor/ios/Podfile.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../investor/ios/Runner.xcodeproj/project.pbxproj" beforeDir="false" afterPath="$PROJECT_DIR$/../investor/ios/Runner.xcodeproj/project.pbxproj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../investor/ios/Runner/Info.plist" beforeDir="false" afterPath="$PROJECT_DIR$/../investor/ios/Runner/Info.plist" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../investor/lib/investor_summary_card.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../investor/lib/investor_summary_card.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../investor/lib/ui/dashboard.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../investor/lib/ui/dashboard.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../monitor/.idea/libraries/Dart_Packages.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../monitor/.idea/libraries/Dart_Packages.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../monitor/.idea/libraries/Flutter_Plugins.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../monitor/.idea/libraries/Flutter_Plugins.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../monitor/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../monitor/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/ui/dashboard.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/ui/dashboard.dart" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <ignored path="../.gradle/4.4/fileChanges/last-build.bin" />
@@ -253,13 +256,16 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/lib/ui/dashboard.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="646">
-              <caret line="243" column="17" selection-start-line="242" selection-start-column="3" selection-end-line="243" selection-end-column="26" />
+            <state relative-caret-position="279">
+              <caret line="262" column="6" selection-start-line="262" selection-start-column="6" selection-end-line="262" selection-end-column="6" />
               <folding>
                 <element signature="n#!!block;n#Dashboard#0" />
+                <element signature="e#9331#9646#0" expanded="true" />
+                <element signature="e#9851#10753#0" expanded="true" />
+                <element signature="e#11726#15603#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -277,11 +283,20 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/../businesslibrary/lib/util/support/chat_page.dart">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="24">
               <caret line="258" column="55" selection-start-line="258" selection-start-column="55" selection-end-line="258" selection-end-column="55" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/../businesslibrary/lib/blocs/chat_bloc.dart">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="22">
+              <caret line="3" selection-start-line="3" selection-end-line="3" />
             </state>
           </provider>
         </entry>
@@ -423,10 +438,10 @@
         <option value="$PROJECT_DIR$/../businesslibrary/lib/blocs/investor_model_bloc.dart" />
         <option value="$PROJECT_DIR$/android/app/src/main/AndroidManifest.xml" />
         <option value="$PROJECT_DIR$/pubspec.yaml" />
-        <option value="$PROJECT_DIR$/lib/ui/dashboard.dart" />
         <option value="$PROJECT_DIR$/../businesslibrary/lib/util/theme_bloc.dart" />
         <option value="$PROJECT_DIR$/lib/main.dart" />
         <option value="$PROJECT_DIR$/../businesslibrary/lib/util/support/chat_page.dart" />
+        <option value="$PROJECT_DIR$/lib/ui/dashboard.dart" />
       </list>
     </option>
   </component>
@@ -439,11 +454,11 @@
   <component name="NamedScopeManager">
     <scope name="MyScope" pattern="" />
   </component>
-  <component name="ProjectFrameBounds" fullScreen="true">
+  <component name="ProjectFrameBounds" extendedState="1">
     <option name="x" value="1440" />
     <option name="y" value="23" />
-    <option name="width" value="1287" />
-    <option name="height" value="1008" />
+    <option name="width" value="1920" />
+    <option name="height" value="1057" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true">
     <ConfirmationsSetting value="2" id="Add" />
@@ -461,6 +476,24 @@
             <path>
               <item name="supplierv3" type="b2602c69:ProjectViewProjectNode" />
               <item name="supplierv3" type="47feb1d3:ProjectViewModuleNode" />
+            </path>
+            <path>
+              <item name="supplierv3" type="b2602c69:ProjectViewProjectNode" />
+              <item name="supplierv3" type="47feb1d3:ProjectViewModuleNode" />
+              <item name="businesslibrary" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="supplierv3" type="b2602c69:ProjectViewProjectNode" />
+              <item name="supplierv3" type="47feb1d3:ProjectViewModuleNode" />
+              <item name="businesslibrary" type="462c0819:PsiDirectoryNode" />
+              <item name="lib" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="supplierv3" type="b2602c69:ProjectViewProjectNode" />
+              <item name="supplierv3" type="47feb1d3:ProjectViewModuleNode" />
+              <item name="businesslibrary" type="462c0819:PsiDirectoryNode" />
+              <item name="lib" type="462c0819:PsiDirectoryNode" />
+              <item name="blocs" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="supplierv3" type="b2602c69:ProjectViewProjectNode" />
@@ -488,7 +521,7 @@
   </component>
   <component name="PropertiesComponent">
     <property name="android.sdk.path" value="$USER_HOME$/Library/Android/sdk" />
-    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1545027767980" />
+    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1545065693109" />
     <property name="dart.analysis.tool.window.force.activate" value="false" />
     <property name="io.flutter.reload.alreadyRun" value="true" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
@@ -936,7 +969,14 @@
       <option name="project" value="LOCAL" />
       <updated>1545025023305</updated>
     </task>
-    <option name="localTasksCounter" value="49" />
+    <task id="LOCAL-00049" summary="CHECKPOINT CHARLIE III - good things come to those who wait!">
+      <created>1545034553137</created>
+      <option name="number" value="00049" />
+      <option name="presentableId" value="LOCAL-00049" />
+      <option name="project" value="LOCAL" />
+      <updated>1545034553137</updated>
+    </task>
+    <option name="localTasksCounter" value="50" />
     <servers />
   </component>
   <component name="TestHistory">
@@ -981,10 +1021,11 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="1440" y="0" width="1920" height="1080" extended-state="0" />
+    <frame x="1440" y="23" width="1920" height="1057" extended-state="1" />
+    <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.5394737" visible="true" weight="0.20234291" />
-      <window_info id="Structure" order="1" sideWeight="0.46052632" side_tool="true" visible="true" weight="0.20234291" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.54043394" visible="true" weight="0.20234291" />
+      <window_info id="Structure" order="1" sideWeight="0.4595661" side_tool="true" visible="true" weight="0.20234291" />
       <window_info id="Designer" order="2" />
       <window_info id="Build Variants" order="3" sideWeight="0.5203956" side_tool="true" weight="0.25656688" />
       <window_info id="Image Layers" order="4" />
@@ -994,7 +1035,7 @@
       <window_info id="UI Designer" order="8" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32772276" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.7976072" visible="true" weight="0.54851484" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.7976072" visible="true" weight="0.4746114" />
       <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.74125874" weight="0.5752475" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -1058,7 +1099,6 @@
     </layout-to-restore>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="refactored delivery note and purchase order lists" />
     <MESSAGE value="added paging to purchase order lists and queries" />
     <MESSAGE value="tewaks to purchase order paging ui and algo" />
     <MESSAGE value="refactored FCM features" />
@@ -1083,7 +1123,8 @@
     <MESSAGE value="refactored supplier ui - state management with streambuilder + bloc" />
     <MESSAGE value="added offer discount update + offer cancellation" />
     <MESSAGE value="added support chat feature to supplier app + theme selection refactored" />
-    <option name="LAST_COMMIT_MESSAGE" value="added support chat feature to supplier app + theme selection refactored" />
+    <MESSAGE value="CHECKPOINT CHARLIE III - good things come to those who wait!" />
+    <option name="LAST_COMMIT_MESSAGE" value="CHECKPOINT CHARLIE III - good things come to those who wait!" />
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/../businesslibrary/lib/data/invoice_bid.dart">
@@ -1395,13 +1436,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/../businesslibrary/lib/blocs/chat_bloc.dart">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="57">
-          <caret line="3" selection-start-line="3" selection-end-line="3" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/../businesslibrary/lib/blocs/investor_model_bloc.dart">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="296">
@@ -1420,16 +1454,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="385">
           <caret line="32" column="29" selection-start-line="32" selection-start-column="29" selection-end-line="32" selection-end-column="29" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/lib/ui/dashboard.dart">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="646">
-          <caret line="243" column="17" selection-start-line="242" selection-start-column="3" selection-end-line="243" selection-end-column="26" />
-          <folding>
-            <element signature="n#!!block;n#Dashboard#0" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1454,6 +1478,26 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="24">
           <caret line="258" column="55" selection-start-line="258" selection-start-column="55" selection-end-line="258" selection-end-column="55" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../businesslibrary/lib/blocs/chat_bloc.dart">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="22">
+          <caret line="3" selection-start-line="3" selection-end-line="3" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lib/ui/dashboard.dart">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="279">
+          <caret line="262" column="6" selection-start-line="262" selection-start-column="6" selection-end-line="262" selection-end-column="6" />
+          <folding>
+            <element signature="n#!!block;n#Dashboard#0" />
+            <element signature="e#9331#9646#0" expanded="true" />
+            <element signature="e#9851#10753#0" expanded="true" />
+            <element signature="e#11726#15603#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
