@@ -4,17 +4,7 @@
     <option name="TOOL_WINDOW_CONFIGURED_FILTER" value="Show only selected application" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="80b8d4ed-f360-4af7-bada-dfcc0519f100" name="Default" comment="small tweaks, adjustments, mods etc.">
-      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/util/mypager.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/util/mypager.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/util/support/chat_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/util/support/chat_page.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../crudderv3/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../crudderv3/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../crudderv3/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../crudderv3/lib/main.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/lib/ui/dashboard.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../govt/lib/ui/dashboard.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../investor/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../investor/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../investor/lib/investor_summary_card.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../investor/lib/investor_summary_card.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../investor/lib/ui/offer_list.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../investor/lib/ui/offer_list.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../monitor/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../monitor/.idea/workspace.xml" afterDir="false" />
-    </list>
+    <list default="true" id="80b8d4ed-f360-4af7-bada-dfcc0519f100" name="Default" comment="small tweaks, adjustments, mods etc." />
     <ignored path="$PROJECT_DIR$/out/" />
     <ignored path="../.gradle/4.4/fileChanges/last-build.bin" />
     <ignored path="../.gradle/4.4/fileContent/fileContent.lock" />
@@ -254,20 +244,20 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/lib/ui/dashboard.dart">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="81">
-              <caret line="66" selection-start-line="66" selection-end-line="66" />
-              <folding>
-                <element signature="n#!!block;n#Dashboard#0" />
-                <element signature="e#3227#8107#0" expanded="true" />
-                <element signature="e#9331#9646#0" expanded="true" />
-                <element signature="e#12123#16003#0" expanded="true" />
-                <element signature="e#18305#18466#0" expanded="true" />
-                <element signature="e#24628#24670#0" expanded="true" />
-                <element signature="e#24699#24740#0" expanded="true" />
-              </folding>
+              <caret line="67" selection-start-line="67" selection-end-line="67" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/../businesslibrary/pubspec.yaml">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="301">
+              <caret line="32" selection-start-line="32" selection-end-line="32" />
             </state>
           </provider>
         </entry>
@@ -275,12 +265,10 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/lib/main.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="416">
-              <caret line="187" selection-start-line="187" selection-end-line="187" />
+            <state relative-caret-position="1040">
+              <caret line="220" selection-start-line="220" selection-end-line="220" />
               <folding>
                 <element signature="e#0#55#0" expanded="true" />
-                <element signature="e#907#952#0" expanded="true" />
-                <element signature="e#5732#5862#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -289,7 +277,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/android/app/src/main/AndroidManifest.xml">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="234">
+            <state relative-caret-position="272">
               <caret line="17" column="34" selection-start-line="17" selection-start-column="34" selection-end-line="17" selection-end-column="34" />
             </state>
           </provider>
@@ -298,7 +286,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/../businesslibrary/lib/util/support/chat_page.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1235">
+            <state relative-caret-position="1040">
               <caret line="259" column="55" selection-start-line="259" selection-start-column="55" selection-end-line="259" selection-end-column="55" />
             </state>
           </provider>
@@ -307,7 +295,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/../businesslibrary/lib/blocs/chat_bloc.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="57">
+            <state relative-caret-position="48">
               <caret line="3" selection-start-line="3" selection-end-line="3" />
             </state>
           </provider>
@@ -316,7 +304,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/../businesslibrary/lib/util/theme_bloc.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="285">
+            <state relative-caret-position="240">
               <caret line="26" selection-start-line="26" selection-end-line="26" />
             </state>
           </provider>
@@ -325,7 +313,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/../businesslibrary/lib/util/support/contact_us.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="390">
+            <state relative-caret-position="912">
               <caret line="282" column="23" selection-start-line="282" selection-start-column="23" selection-end-line="282" selection-end-column="23" />
               <folding>
                 <element signature="e#0#20#0" expanded="true" />
@@ -426,7 +414,6 @@
         <option value="$PROJECT_DIR$/lib/ui/settlements.dart" />
         <option value="$PROJECT_DIR$/test/test_shared_prefs.dart" />
         <option value="$PROJECT_DIR$/test/widget_test.dart" />
-        <option value="$PROJECT_DIR$/../businesslibrary/pubspec.yaml" />
         <option value="$PROJECT_DIR$/../businesslibrary/lib/util/styles.dart" />
         <option value="$PROJECT_DIR$/lib/common.dart" />
         <option value="$PROJECT_DIR$/lib/ui/invoices.dart" />
@@ -468,6 +455,7 @@
         <option value="$PROJECT_DIR$/../businesslibrary/lib/util/support/contact_us.dart" />
         <option value="$PROJECT_DIR$/android/app/src/main/AndroidManifest.xml" />
         <option value="$PROJECT_DIR$/lib/ui/dashboard.dart" />
+        <option value="$PROJECT_DIR$/../businesslibrary/pubspec.yaml" />
       </list>
     </option>
   </component>
@@ -482,8 +470,8 @@
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
     <option name="y" value="23" />
-    <option name="width" value="1287" />
-    <option name="height" value="786" />
+    <option name="width" value="1680" />
+    <option name="height" value="1027" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true">
     <ConfirmationsSetting value="2" id="Add" />
@@ -493,9 +481,9 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
       <pane id="PackagesPane" />
       <pane id="AndroidView" />
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -506,56 +494,7 @@
             <path>
               <item name="supplierv3" type="b2602c69:ProjectViewProjectNode" />
               <item name="supplierv3" type="47feb1d3:ProjectViewModuleNode" />
-              <item name="supplierv3" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="supplierv3" type="b2602c69:ProjectViewProjectNode" />
-              <item name="supplierv3" type="47feb1d3:ProjectViewModuleNode" />
-              <item name="supplierv3" type="462c0819:PsiDirectoryNode" />
-              <item name="android" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="supplierv3" type="b2602c69:ProjectViewProjectNode" />
-              <item name="supplierv3" type="47feb1d3:ProjectViewModuleNode" />
-              <item name="supplierv3" type="462c0819:PsiDirectoryNode" />
-              <item name="android" type="462c0819:PsiDirectoryNode" />
-              <item name="app" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="supplierv3" type="b2602c69:ProjectViewProjectNode" />
-              <item name="supplierv3" type="47feb1d3:ProjectViewModuleNode" />
-              <item name="supplierv3" type="462c0819:PsiDirectoryNode" />
-              <item name="android" type="462c0819:PsiDirectoryNode" />
-              <item name="app" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="supplierv3" type="b2602c69:ProjectViewProjectNode" />
-              <item name="supplierv3" type="47feb1d3:ProjectViewModuleNode" />
-              <item name="supplierv3" type="462c0819:PsiDirectoryNode" />
-              <item name="android" type="462c0819:PsiDirectoryNode" />
-              <item name="app" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="supplierv3" type="b2602c69:ProjectViewProjectNode" />
-              <item name="supplierv3" type="47feb1d3:ProjectViewModuleNode" />
-              <item name="supplierv3" type="462c0819:PsiDirectoryNode" />
-              <item name="lib" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="supplierv3" type="b2602c69:ProjectViewProjectNode" />
-              <item name="supplierv3" type="47feb1d3:ProjectViewModuleNode" />
-              <item name="supplierv3" type="462c0819:PsiDirectoryNode" />
-              <item name="lib" type="462c0819:PsiDirectoryNode" />
-              <item name="ui" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="supplierv3" type="b2602c69:ProjectViewProjectNode" />
-              <item name="supplierv3" type="47feb1d3:ProjectViewModuleNode" />
-              <item name="supplierv3" type="462c0819:PsiDirectoryNode" />
-              <item name="test" type="462c0819:PsiDirectoryNode" />
+              <item name="businesslibrary" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -1065,10 +1004,11 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="23" width="1440" height="786" extended-state="6" />
+    <frame x="0" y="23" width="1680" height="1027" extended-state="6" />
+    <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.53571427" visible="true" weight="0.27181688" />
-      <window_info id="Structure" order="1" sideWeight="0.4642857" side_tool="true" visible="true" weight="0.27181688" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.53483146" visible="true" weight="0.2905983" />
+      <window_info active="true" id="Structure" order="1" sideWeight="0.46516854" side_tool="true" visible="true" weight="0.25213677" />
       <window_info id="Designer" order="2" />
       <window_info id="Build Variants" order="3" sideWeight="0.5203956" side_tool="true" weight="0.25656688" />
       <window_info id="Image Layers" order="4" />
@@ -1078,7 +1018,7 @@
       <window_info id="UI Designer" order="8" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32772276" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.7976072" visible="true" weight="0.4351585" />
+      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.7976072" weight="0.4351585" />
       <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.74125874" weight="0.5752475" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -1088,8 +1028,8 @@
       <window_info anchor="bottom" id="Event Log" order="9" sideWeight="0.20239282" side_tool="true" weight="0.31688598" />
       <window_info anchor="bottom" id="Logcat" order="10" sideWeight="0.4993895" weight="0.32918552" />
       <window_info anchor="bottom" id="Version Control" order="11" weight="0.32936978" />
-      <window_info anchor="bottom" id="Terminal" order="12" sideWeight="0.77529883" weight="0.30792078" />
-      <window_info anchor="bottom" id="Messages" order="13" sideWeight="0.49785408" weight="0.3654267" />
+      <window_info anchor="bottom" id="Terminal" order="12" sideWeight="0.77529883" weight="0.30695188" />
+      <window_info anchor="bottom" id="Messages" order="13" sideWeight="0.49785408" weight="0.3647059" />
       <window_info anchor="bottom" id="Flutter Performance" order="14" side_tool="true" />
       <window_info anchor="right" id="Commander" order="0" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
@@ -1205,13 +1145,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="114">
           <caret line="10" selection-start-line="10" selection-end-line="10" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../businesslibrary/pubspec.yaml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="442">
-          <caret line="32" selection-start-line="32" selection-end-line="32" />
         </state>
       </provider>
     </entry>
@@ -1479,27 +1412,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/../businesslibrary/lib/util/support/chat_page.dart">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1235">
-          <caret line="259" column="55" selection-start-line="259" selection-start-column="55" selection-end-line="259" selection-end-column="55" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../businesslibrary/lib/blocs/chat_bloc.dart">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="57">
-          <caret line="3" selection-start-line="3" selection-end-line="3" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../businesslibrary/lib/util/theme_bloc.dart">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="285">
-          <caret line="26" selection-start-line="26" selection-end-line="26" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/ios/Podfile">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="446">
@@ -1507,9 +1419,54 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/lib/ui/dashboard.dart">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="81">
+          <caret line="67" selection-start-line="67" selection-end-line="67" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lib/main.dart">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1040">
+          <caret line="220" selection-start-line="220" selection-end-line="220" />
+          <folding>
+            <element signature="e#0#55#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/android/app/src/main/AndroidManifest.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="272">
+          <caret line="17" column="34" selection-start-line="17" selection-start-column="34" selection-end-line="17" selection-end-column="34" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../businesslibrary/lib/util/support/chat_page.dart">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1040">
+          <caret line="259" column="55" selection-start-line="259" selection-start-column="55" selection-end-line="259" selection-end-column="55" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../businesslibrary/lib/blocs/chat_bloc.dart">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="48">
+          <caret line="3" selection-start-line="3" selection-end-line="3" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../businesslibrary/lib/util/theme_bloc.dart">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="240">
+          <caret line="26" selection-start-line="26" selection-end-line="26" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/../businesslibrary/lib/util/support/contact_us.dart">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="390">
+        <state relative-caret-position="912">
           <caret line="282" column="23" selection-start-line="282" selection-start-column="23" selection-end-line="282" selection-end-column="23" />
           <folding>
             <element signature="e#0#20#0" expanded="true" />
@@ -1519,38 +1476,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/lib/main.dart">
+    <entry file="file://$PROJECT_DIR$/../businesslibrary/pubspec.yaml">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="416">
-          <caret line="187" selection-start-line="187" selection-end-line="187" />
-          <folding>
-            <element signature="e#0#55#0" expanded="true" />
-            <element signature="e#907#952#0" expanded="true" />
-            <element signature="e#5732#5862#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/android/app/src/main/AndroidManifest.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="234">
-          <caret line="17" column="34" selection-start-line="17" selection-start-column="34" selection-end-line="17" selection-end-column="34" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/lib/ui/dashboard.dart">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="81">
-          <caret line="66" selection-start-line="66" selection-end-line="66" />
-          <folding>
-            <element signature="n#!!block;n#Dashboard#0" />
-            <element signature="e#3227#8107#0" expanded="true" />
-            <element signature="e#9331#9646#0" expanded="true" />
-            <element signature="e#12123#16003#0" expanded="true" />
-            <element signature="e#18305#18466#0" expanded="true" />
-            <element signature="e#24628#24670#0" expanded="true" />
-            <element signature="e#24699#24740#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="301">
+          <caret line="32" selection-start-line="32" selection-end-line="32" />
         </state>
       </provider>
     </entry>
