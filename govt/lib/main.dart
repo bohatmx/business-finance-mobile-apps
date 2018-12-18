@@ -9,26 +9,44 @@ import 'package:govt/ui/dashboard.dart';
 import 'package:govt/ui/signin_page.dart';
 import 'package:govt/ui/signup_page.dart';
 
-void main() => runApp(new GovtApp());
+void main() => runApp(new GovtApp2());
 
-class GovtApp extends StatelessWidget {
-  // This widget is the root of your application.
+class GovtApp2 extends StatefulWidget {
+  @override
+  _GovtApp2State createState() => _GovtApp2State();
+}
+
+class _GovtApp2State extends State<GovtApp2> {
+  int themeIndex;
+
+  @override
+  void initState() {
+    super.initState();
+
+  }
+  void getCached() async {
+    themeIndex = await SharedPrefs.getThemeIndex();
+    setState(() {
+
+    });
+  }
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<int>(
-      initialData: null,
+      initialData: themeIndex == null? 0: themeIndex,
       stream: themeBloc.newThemeStream,
       builder: (context, snapShot) => MaterialApp(
         title: 'BFNCustomer',
         debugShowCheckedModeBanner: false,
         theme: snapShot.data == null
-            ? ThemeUtil.getTheme(themeIndex: 0)
+            ? ThemeUtil.getTheme(themeIndex: themeIndex)
             : ThemeUtil.getTheme(themeIndex: snapShot.data),
         home: new StartPage(),
       ),
     );
   }
 }
+
 
 class StartPage extends StatefulWidget {
   StartPage({Key key, this.title}) : super(key: key);
@@ -160,7 +178,7 @@ class _StartPageState extends State<StartPage> implements SnackBarListener {
   void _startOnboarding() {
     Navigator.push(
       context,
-      new MaterialPageRoute(builder: (context) => new IntroPageView(sampleItems)),
+      new MaterialPageRoute(builder: (context) => new IntroPageView(items: sampleItems, user: null,)),
     );
   }
   void _startSignUpPage() async {

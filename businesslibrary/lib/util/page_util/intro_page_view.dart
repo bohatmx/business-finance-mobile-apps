@@ -1,3 +1,4 @@
+import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/page_util/data.dart';
 import 'package:businesslibrary/util/page_util/intro_page_item.dart';
 import 'package:businesslibrary/util/page_util/page_transformer.dart';
@@ -9,8 +10,9 @@ import 'package:url_launcher/url_launcher.dart';
 
 class IntroPageView extends StatelessWidget implements IntroPageListener{
   final List<IntroItem> items;
+  final User user;
 
-  IntroPageView(this.items);
+  IntroPageView({this.items, this.user});
   BuildContext context;
   @override
   Widget build(BuildContext context) {
@@ -27,7 +29,7 @@ class IntroPageView extends StatelessWidget implements IntroPageListener{
             icon: Icon(Icons.email),
             onPressed: _onEmailTapped,
           ),
-          IconButton(
+          user == null? Container(): IconButton(
             icon: Icon(Icons.chat),
             onPressed: _onChatTapped,
           ),
@@ -86,8 +88,9 @@ class IntroPageView extends StatelessWidget implements IntroPageListener{
     );
   }
 
-  void _onChatTapped() {
+  void _onChatTapped() async{
     print('_ContactUsState._onChatTapped ............');
+    var user =
     Navigator.push(
       context,
       new MaterialPageRoute(builder: (context) => ChatPage()),

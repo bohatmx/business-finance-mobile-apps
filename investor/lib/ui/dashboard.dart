@@ -238,6 +238,7 @@ class _DashboardState extends State<Dashboard>
   void _setTheme(int index) {
     themeBloc.changeToTheme(index);
   }
+
   Future _getCachedPrefs() async {
     var index = await SharedPrefs.getThemeIndex();
     _setTheme(index);
@@ -264,7 +265,8 @@ class _DashboardState extends State<Dashboard>
         ),
       );
     }
-    print('\n\n\n_DashboardState.build ********** DASHBOARD RE_BUILD ***********');
+    print(
+        '\n\n\n_DashboardState.build ********** DASHBOARD RE_BUILD ***********');
 //    _configureFCM();
     return StreamBuilder<InvestorAppModel2>(
         initialData: investorModelBloc.appModel,
@@ -328,7 +330,7 @@ class _DashboardState extends State<Dashboard>
           ),
         ),
         new Padding(
-          padding: const EdgeInsets.only(top: 10.0, left: 20.0, right: 20.0),
+          padding: const EdgeInsets.only(top: 10.0, left: 10.0, right: 10.0),
           child: _getListView(),
         ),
       ],
@@ -365,6 +367,7 @@ class _DashboardState extends State<Dashboard>
                     context: context,
                     listener: this,
                     appModel: appModel,
+                    elevation: 8.0,
                   ),
                 ),
               ),
@@ -382,6 +385,7 @@ class _DashboardState extends State<Dashboard>
                         ? 0.00
                         : appModel.dashboardData.totalOpenOfferAmount,
                     totalValueStyle: Styles.tealBoldMedium,
+                    elevation: 2.0,
                   ),
                 ),
               ),
@@ -626,55 +630,59 @@ class _DashboardState extends State<Dashboard>
 
   void onChatResponseMessage(ChatResponse chatResponse) {
     this.chatResponse = chatResponse;
-    prettyPrint(
-        chatResponse.toJson(), 'DASHBOARD: ############ chatResponse received, should start Chat');
+    prettyPrint(chatResponse.toJson(),
+        'DASHBOARD: ############ chatResponse received, should start Chat');
     _showSnack(chatResponse.responseMessage);
     //_showGoToChatDialog();
     chatBloc.receiveChatResponse(chatResponse);
-
-
   }
+
   ChatResponse chatResponse;
   void _showGoToChatDialog() {
-
     showDialog(
         context: context,
         builder: (_) => new AlertDialog(
-          title: new Text(
-            "Respond to Incoming Message",
-            style: Styles.greyLabelMedium,
-          ),
-          content: Container(
-            height: 200.0,
-            child: Text(
-                'Do you  want to respond to this message:\n${chatResponse.responseMessage}\nfrom ${chatResponse.responderName}'),
-          ),
-          actions: <Widget>[
-            FlatButton(onPressed: _ignore, child: Text('NO')),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: RaisedButton(
-                  color: Colors.teal,
-                  onPressed: _goToChat, child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text('YES', style: Styles.whiteSmall,),
-                  ),),
-            ),
-          ],
-        ));
+              title: new Text(
+                "Respond to Incoming Message",
+                style: Styles.greyLabelMedium,
+              ),
+              content: Container(
+                height: 200.0,
+                child: Text(
+                    'Do you  want to respond to this message:\n${chatResponse.responseMessage}\nfrom ${chatResponse.responderName}'),
+              ),
+              actions: <Widget>[
+                FlatButton(onPressed: _ignore, child: Text('NO')),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: RaisedButton(
+                    color: Colors.teal,
+                    onPressed: _goToChat,
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        'YES',
+                        style: Styles.whiteSmall,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ));
   }
 
   void _ignore() {
     Navigator.pop(context);
   }
+
   void _goToChat() {
     Navigator.pop(context);
     Navigator.push(
         context,
         MaterialPageRoute(
             builder: (context) => ChatPage(
-              chatResponse: chatResponse,
-            )));
+                  chatResponse: chatResponse,
+                )));
   }
 }
 

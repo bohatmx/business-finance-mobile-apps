@@ -330,24 +330,26 @@ class SharedPrefs {
 
   static Future saveInvestor(Investor investor) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-
+    prettyPrint(investor.toJson(), '\n\n####### saving investor in SharedPrefs:');
     Map jsonx = investor.toJson();
     var jx = json.encode(jsonx);
-    print(jx);
+
     prefs.setString('investor', jx);
     print("SharedPrefs.saveInvestor =========  data SAVED.........");
   }
 
   static Future removeInvestor() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setString('investor', null);
+    prefs.remove('investor');
     print("SharedPrefs.saveInvestor =========  data REMOVED.........");
   }
 
   static Future<Investor> getInvestor() async {
     print(
         '\n\nSharedPrefs.getInvestor @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@');
+
     var prefs = await SharedPreferences.getInstance();
+    //prefs.remove('investor');
     var string = prefs.getString('investor');
     if (string == null) {
       print('\n\n\nSharedPrefs.getInvestor  --------------- NO Investor here!');

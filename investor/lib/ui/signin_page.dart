@@ -287,7 +287,7 @@ class _SignInPageState extends State<SignInPage> implements SnackBarListener, In
           AppSnackbar.showErrorSnackbar(
               listener: this,
               scaffoldKey: _scaffoldKey,
-              message: 'Unable to sign you in as a Customer',
+              message: 'Unable to sign you in as Investor',
               actionLabel: "close");
         } else {
           //get wallet

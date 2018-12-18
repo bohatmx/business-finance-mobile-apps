@@ -201,7 +201,7 @@ class _StartPageState extends State<StartPage> {
   void _startOnboarding() {
     Navigator.push(
       context,
-      new MaterialPageRoute(builder: (context) => new IntroPageView(sampleItems)),
+      new MaterialPageRoute(builder: (context) => new IntroPageView(items: sampleItems, user: null,)),
     );
   }
 }

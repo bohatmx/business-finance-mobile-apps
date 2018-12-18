@@ -78,6 +78,7 @@ class SignIn {
       var qSnap = await _firestore
           .collection('govtEntities')
           .where('participantId', isEqualTo: partId)
+          .limit(1)
           .getDocuments()
           .catchError((e) {
         return ErrorNoOwningEntity;
@@ -100,6 +101,7 @@ class SignIn {
       var qSnap = await _firestore
           .collection('suppliers')
           .where('participantId', isEqualTo: partId)
+          .limit(1)
           .getDocuments()
           .catchError((e) {
         return ErrorNoOwningEntity;
@@ -164,6 +166,7 @@ class SignIn {
       var qSnap = await _firestore
           .collection('investors')
           .where('participantId', isEqualTo: partId)
+          .limit(1)
           .getDocuments()
           .catchError((e) {
         return ErrorNoOwningEntity;

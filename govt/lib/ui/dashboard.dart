@@ -16,6 +16,7 @@ import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:businesslibrary/util/message.dart';
+import 'package:businesslibrary/util/support/contact_us.dart';
 import 'package:businesslibrary/util/theme_bloc.dart';
 
 import 'package:businesslibrary/util/wallet_page.dart';
@@ -60,6 +61,7 @@ class _DashboardState extends State<Dashboard>
   String message;
   bool listenersStarted = false;
   CustomerApplicationModel appModel;
+  String token;
 
   @override
   initState() {
@@ -92,29 +94,13 @@ class _DashboardState extends State<Dashboard>
   _configureFCM() async {
     print(
         '\n\n\ ################ CONFIGURE FCM MESSAGE ###########  starting _firebaseMessaging');
-
-    AndroidDeviceInfo androidInfo;
-    IosDeviceInfo iosInfo;
-    DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
-    bool isRunningIOs = false;
-    try {
-      androidInfo = await deviceInfo.androidInfo;
-      print(
-          '\n\n\n################  Running on ${androidInfo.model} ################\n\n');
-    } catch (e) {
-      print(
-          'FCM.configureFCM - error doing Android - this is NOT an Android phone!!');
+    
+    token = await _fcm.getToken();
+    if (token != null) {
+      SharedPrefs.saveFCMToken(token);
     }
-
-    try {
-      iosInfo = await deviceInfo.iosInfo;
-      print(
-          '\n\n\n################ Running on ${iosInfo.utsname.machine} ################\n\n');
-      isRunningIOs = true;
-    } catch (e) {
-      print('FCM.configureFCM error doing iOS - this is NOT an iPhone!!');
-    }
-
+    bool isRunningIOs = await isDeviceIOS();
+    
     _fcm.configure(
       onMessage: (Map<String, dynamic> map) async {
         prettyPrint(map,
@@ -330,8 +316,8 @@ class _DashboardState extends State<Dashboard>
                   onPressed: _onRefreshPressed,
                 ),
                 IconButton(
-                  icon: Icon(Icons.attach_money),
-                  onPressed: _goToWalletPage,
+                  icon: Icon(Icons.help),
+                  onPressed: _goToContactPage,
                 ),
               ],
             ),
@@ -456,16 +442,12 @@ class _DashboardState extends State<Dashboard>
     );
   }
 
-  void _goToWalletPage() {
+  void _goToContactPage() {
     print('_MainPageState._goToWalletPage .... ');
     Navigator.push(
       context,
       new MaterialPageRoute(
-          builder: (context) => new WalletPage(
-              name: govtEntity.name,
-              participantId: govtEntity.participantId,
-              type: GovtEntityType)),
-    );
+          builder: (context) => new ContactUs()));
   }
 
   void _onInvoicesTapped() {

@@ -295,7 +295,7 @@ class _ContactUsState extends State<ContactUs> with SingleTickerProviderStateMix
     print('_ContactUsState._onPressed ...');
     Navigator.push(
       context,
-      new MaterialPageRoute(builder: (context) => IntroPageView(sampleItems)),
+      new MaterialPageRoute(builder: (context) => IntroPageView(items: sampleItems, user: user)),
     );
   }
 

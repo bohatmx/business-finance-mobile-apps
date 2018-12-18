@@ -249,20 +249,6 @@ class _DashboardState extends State<Dashboard>
     //
   }
 
-  void testBottomsheet() async {
-    print('_DashboardState.testBottomsheet ...............');
-
-    var bid = InvoiceBid(
-      supplierName: 'Supplier 5656',
-      investorName: 'Investor 102',
-      amount: 456000.89,
-      date: DateTime.now().toIso8601String(),
-      customerName: 'Customer 6767',
-      discountPercent: 4.0,
-      reservePercent: 84.0,
-    );
-    _showBottomSheet(bid);
-  }
   _showBottomSheet(InvoiceBid bid) {
     if (_scaffoldKey.currentState == null) return;
     _scaffoldKey.currentState.showBottomSheet<Null>((BuildContext context) {
@@ -391,7 +377,7 @@ class _DashboardState extends State<Dashboard>
                     Icons.apps,
                     color: Colors.white,
                   ),
-                  onPressed: testBottomsheet),
+                  onPressed: _toggleTheme),
               bottom: _getBottom(),
               actions: <Widget>[
                 IconButton(

@@ -7,8 +7,9 @@ class InvestorSummaryCard extends StatelessWidget {
   final InvestorAppModel2 appModel;
   final BuildContext context;
   final InvestorCardListener listener;
+  final double elevation;
 
-  InvestorSummaryCard({this.appModel, this.context, this.listener});
+  InvestorSummaryCard({this.appModel, this.context, this.listener, this.elevation});
 
   Widget _getTotalBids() {
     if ( appModel == null || appModel.dashboardData == null) {
@@ -157,7 +158,7 @@ class InvestorSummaryCard extends StatelessWidget {
 //      print('InvestorSummaryCard.build ============= appModel.dashboardData is null ========= wtf?');
 //    }
     return Card(
-      elevation: 2.0,
+      elevation: elevation == null? 2.0: elevation,
       color: Colors.brown.shade50,
       child: Column(
         children: <Widget>[
