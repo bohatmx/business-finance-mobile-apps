@@ -53,7 +53,7 @@ class ChatWindow extends State<ChatPage>
     user = await SharedPrefs.getUser();
     fcmToken = await SharedPrefs.getFCMToken();
     assert(user != null);
-    print('ChatWindow._getCached ====== user: ${user.toJson()}');
+    print('\n\n\nChatWindow._getCached ====== user: ${user.toJson()}');
     widget.doSomething();
     if (widget.chatResponse == null) {
       _getMessages();
@@ -83,6 +83,7 @@ class ChatWindow extends State<ChatPage>
       participantId = investor.participantId;
       org = investor.name;
     }
+    print('ChatWindow._getCached ------- uType : $uType');
   }
 
   List<ChatResponse> chatResponses = List();

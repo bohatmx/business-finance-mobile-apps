@@ -428,7 +428,7 @@ class PagingTotalsView extends StatelessWidget {
     return Column(
       children: <Widget>[
         Padding(
-          padding: const EdgeInsets.only(left: 20.0, bottom: 4.0),
+          padding: const EdgeInsets.only(left: 20.0, bottom: 8.0),
           child: Row(
             children: <Widget>[
               Text(

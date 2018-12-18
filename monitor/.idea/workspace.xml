@@ -2,12 +2,15 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="8dad5fd6-5597-4773-ba4f-53b845122283" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/util/mypager.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/util/mypager.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/util/support/chat_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/util/support/chat_page.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../crudderv3/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../crudderv3/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../crudderv3/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../crudderv3/lib/main.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../govt/lib/ui/dashboard.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../govt/lib/ui/dashboard.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../investor/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../investor/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../investor/lib/ui/dashboard.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../investor/lib/ui/dashboard.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/main.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../investor/lib/investor_summary_card.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../investor/lib/investor_summary_card.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../investor/lib/ui/offer_list.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../investor/lib/ui/offer_list.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../supplierv3/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../supplierv3/lib/ui/dashboard.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/lib/ui/dashboard.dart" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -114,10 +117,9 @@
     </option>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="1440" />
     <option name="y" value="23" />
     <option name="width" value="1287" />
-    <option name="height" value="1008" />
+    <option name="height" value="786" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true">
     <ConfirmationsSetting value="2" id="Add" />
@@ -420,11 +422,10 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="1440" y="23" width="1287" height="1008" extended-state="0" />
-    <editor active="true" />
+    <frame x="0" y="23" width="1287" height="786" extended-state="0" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.65784115" visible="true" weight="0.2248996" />
-      <window_info id="Structure" order="1" sideWeight="0.34215885" side_tool="true" visible="true" weight="0.2248996" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.6542751" visible="true" weight="0.2248996" />
+      <window_info id="Structure" order="1" sideWeight="0.3457249" side_tool="true" visible="true" weight="0.2248996" />
       <window_info id="Designer" order="2" />
       <window_info id="Build Variants" order="3" side_tool="true" />
       <window_info id="Image Layers" order="4" />
@@ -434,7 +435,7 @@
       <window_info id="UI Designer" order="8" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.86024094" visible="true" weight="0.4639738" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.86024094" visible="true" weight="0.61239195" />
       <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.89638555" weight="0.6076433" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />

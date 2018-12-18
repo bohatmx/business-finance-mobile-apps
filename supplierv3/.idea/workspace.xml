@@ -5,12 +5,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="80b8d4ed-f360-4af7-bada-dfcc0519f100" name="Default" comment="small tweaks, adjustments, mods etc.">
+      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/util/mypager.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/util/mypager.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/util/support/chat_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/util/support/chat_page.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../crudderv3/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../crudderv3/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../crudderv3/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../crudderv3/lib/main.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../govt/lib/ui/dashboard.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../govt/lib/ui/dashboard.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../investor/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../investor/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../investor/lib/ui/dashboard.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../investor/lib/ui/dashboard.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../investor/lib/investor_summary_card.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../investor/lib/investor_summary_card.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../investor/lib/ui/offer_list.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../investor/lib/ui/offer_list.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../monitor/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../monitor/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../monitor/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../monitor/lib/main.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/ui/dashboard.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/ui/dashboard.dart" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <ignored path="../.gradle/4.4/fileChanges/last-build.bin" />
@@ -254,11 +257,13 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/lib/ui/dashboard.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="424">
-              <caret line="339" column="20" selection-start-line="339" selection-start-column="20" selection-end-line="339" selection-end-column="20" />
+            <state relative-caret-position="81">
+              <caret line="66" selection-start-line="66" selection-end-line="66" />
               <folding>
                 <element signature="n#!!block;n#Dashboard#0" />
+                <element signature="e#3227#8107#0" expanded="true" />
                 <element signature="e#9331#9646#0" expanded="true" />
+                <element signature="e#12123#16003#0" expanded="true" />
                 <element signature="e#18305#18466#0" expanded="true" />
                 <element signature="e#24628#24670#0" expanded="true" />
                 <element signature="e#24699#24740#0" expanded="true" />
@@ -294,7 +299,7 @@
         <entry file="file://$PROJECT_DIR$/../businesslibrary/lib/util/support/chat_page.dart">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="1235">
-              <caret line="258" column="55" selection-start-line="258" selection-start-column="55" selection-end-line="258" selection-end-column="55" />
+              <caret line="259" column="55" selection-start-line="259" selection-start-column="55" selection-end-line="259" selection-end-column="55" />
             </state>
           </provider>
         </entry>
@@ -475,11 +480,10 @@
   <component name="NamedScopeManager">
     <scope name="MyScope" pattern="" />
   </component>
-  <component name="ProjectFrameBounds">
-    <option name="x" value="1694" />
+  <component name="ProjectFrameBounds" extendedState="6">
     <option name="y" value="23" />
-    <option name="width" value="1666" />
-    <option name="height" value="1008" />
+    <option name="width" value="1287" />
+    <option name="height" value="786" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true">
     <ConfirmationsSetting value="2" id="Add" />
@@ -561,7 +565,7 @@
   </component>
   <component name="PropertiesComponent">
     <property name="android.sdk.path" value="$USER_HOME$/Library/Android/sdk" />
-    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1545103995522" />
+    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1545129135700" />
     <property name="dart.analysis.tool.window.force.activate" value="false" />
     <property name="io.flutter.reload.alreadyRun" value="true" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
@@ -1061,11 +1065,10 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="1694" y="23" width="1666" height="1008" extended-state="0" />
-    <editor active="true" />
+    <frame x="0" y="23" width="1440" height="786" extended-state="6" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.53745925" visible="true" weight="0.23399015" />
-      <window_info active="true" id="Structure" order="1" sideWeight="0.46254072" side_tool="true" visible="true" weight="0.23399015" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.53571427" visible="true" weight="0.27181688" />
+      <window_info id="Structure" order="1" sideWeight="0.4642857" side_tool="true" visible="true" weight="0.27181688" />
       <window_info id="Designer" order="2" />
       <window_info id="Build Variants" order="3" sideWeight="0.5203956" side_tool="true" weight="0.25656688" />
       <window_info id="Image Layers" order="4" />
@@ -1075,7 +1078,7 @@
       <window_info id="UI Designer" order="8" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32772276" />
-      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.7976072" visible="true" weight="0.32969433" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.7976072" visible="true" weight="0.4351585" />
       <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.74125874" weight="0.5752475" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -1479,7 +1482,7 @@
     <entry file="file://$PROJECT_DIR$/../businesslibrary/lib/util/support/chat_page.dart">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1235">
-          <caret line="258" column="55" selection-start-line="258" selection-start-column="55" selection-end-line="258" selection-end-column="55" />
+          <caret line="259" column="55" selection-start-line="259" selection-start-column="55" selection-end-line="259" selection-end-column="55" />
         </state>
       </provider>
     </entry>
@@ -1537,11 +1540,13 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/lib/ui/dashboard.dart">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="424">
-          <caret line="339" column="20" selection-start-line="339" selection-start-column="20" selection-end-line="339" selection-end-column="20" />
+        <state relative-caret-position="81">
+          <caret line="66" selection-start-line="66" selection-end-line="66" />
           <folding>
             <element signature="n#!!block;n#Dashboard#0" />
+            <element signature="e#3227#8107#0" expanded="true" />
             <element signature="e#9331#9646#0" expanded="true" />
+            <element signature="e#12123#16003#0" expanded="true" />
             <element signature="e#18305#18466#0" expanded="true" />
             <element signature="e#24628#24670#0" expanded="true" />
             <element signature="e#24699#24740#0" expanded="true" />

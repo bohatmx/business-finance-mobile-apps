@@ -2,12 +2,16 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="ee13a624-2909-4df1-b542-b77eab000913" name="Default" comment="refactored crudder ui + auto trading ui + api">
+      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/util/mypager.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/util/mypager.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/util/support/chat_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/util/support/chat_page.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/main.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../govt/lib/ui/dashboard.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../govt/lib/ui/dashboard.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../investor/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../investor/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../investor/lib/ui/dashboard.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../investor/lib/ui/dashboard.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../investor/lib/investor_summary_card.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../investor/lib/investor_summary_card.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../investor/lib/ui/offer_list.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../investor/lib/ui/offer_list.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../monitor/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../monitor/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../monitor/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../monitor/lib/main.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../supplierv3/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../supplierv3/lib/ui/dashboard.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/lib/ui/dashboard.dart" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <ignored path="../.gradle/4.4/fileChanges/last-build.bin" />
@@ -256,12 +260,12 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="FileEditorManager">
-    <leaf>
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/lib/main.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="279">
-              <caret line="178" column="22" selection-start-line="178" selection-start-column="22" selection-end-line="178" selection-end-column="22" />
+            <state relative-caret-position="105">
+              <caret line="188" column="48" lean-forward="true" selection-start-line="188" selection-start-column="48" selection-end-line="188" selection-end-column="48" />
               <folding>
                 <element signature="e#0#20#0" expanded="true" />
                 <element signature="e#2252#2281#0" expanded="true" />
@@ -361,11 +365,10 @@
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds">
-    <option name="x" value="1704" />
+  <component name="ProjectFrameBounds" extendedState="6">
     <option name="y" value="23" />
-    <option name="width" value="1646" />
-    <option name="height" value="1007" />
+    <option name="width" value="1287" />
+    <option name="height" value="786" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true">
     <ConfirmationsSetting value="2" id="Add" />
@@ -376,8 +379,8 @@
     </navigator>
     <panes>
       <pane id="PackagesPane" />
-      <pane id="Scope" />
       <pane id="AndroidView" />
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -540,11 +543,10 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="1704" y="23" width="1646" height="1007" extended-state="0" />
-    <editor active="true" />
+    <frame x="0" y="23" width="1440" height="786" extended-state="6" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.34081632" visible="true" weight="0.18703242" />
-      <window_info id="Structure" order="1" sideWeight="0.6591837" side_tool="true" visible="true" weight="0.18703242" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.33843213" visible="true" weight="0.21459228" />
+      <window_info id="Structure" order="1" sideWeight="0.66156787" side_tool="true" visible="true" weight="0.21459228" />
       <window_info id="Designer" order="2" />
       <window_info id="Build Variants" order="3" sideWeight="0.5014493" side_tool="true" weight="0.2496382" />
       <window_info id="Image Layers" order="4" />
@@ -554,7 +556,7 @@
       <window_info id="UI Designer" order="8" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.3295583" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.7752881" visible="true" weight="0.46448088" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.7752881" visible="true" weight="0.24639769" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.3990099" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -803,8 +805,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/lib/main.dart">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="279">
-          <caret line="178" column="22" selection-start-line="178" selection-start-column="22" selection-end-line="178" selection-end-column="22" />
+        <state relative-caret-position="105">
+          <caret line="188" column="48" lean-forward="true" selection-start-line="188" selection-start-column="48" selection-end-line="188" selection-end-column="48" />
           <folding>
             <element signature="e#0#20#0" expanded="true" />
             <element signature="e#2252#2281#0" expanded="true" />

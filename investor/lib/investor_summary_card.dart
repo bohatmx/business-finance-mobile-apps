@@ -278,7 +278,7 @@ class InvestorSummaryCard extends StatelessWidget {
             padding: const EdgeInsets.only(top: 10.0, bottom: 20.0),
             child: RaisedButton(
               elevation: 6.0,
-              color: Colors.indigo.shade200,
+              color: Theme.of(context).primaryColor,
               onPressed: _onStartCharts,
               child: Padding(
                 padding: const EdgeInsets.all(12.0),

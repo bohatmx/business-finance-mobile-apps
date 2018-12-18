@@ -263,7 +263,7 @@ class _DashboardState extends State<Dashboard>
   @override
   Widget build(BuildContext context) {
     message = widget.message;
-    print('_DashboardState.build ################## REBUILD DASHBOARD + _configureFCM');
+    print('_DashboardState.build ######');
     _configureFCM();
     return StreamBuilder<CustomerApplicationModel>(
       initialData: customerModelBloc.appModel,
