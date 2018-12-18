@@ -468,6 +468,8 @@ class _MyHomePageState extends State<MyHomePage> implements SnackBarListener {
 
   @override
   Widget build(BuildContext context) {
+    print('\n\n_MyHomePageState.build ##############REBUILD OF MAIN WIDGET - doing FCM config AGAIN - is this cool?');
+    _configureFCM();
     return new Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(

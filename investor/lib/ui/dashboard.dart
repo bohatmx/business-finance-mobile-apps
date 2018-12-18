@@ -266,8 +266,8 @@ class _DashboardState extends State<Dashboard>
       );
     }
     print(
-        '\n\n\n_DashboardState.build ********** DASHBOARD RE_BUILD ***********');
-//    _configureFCM();
+        '\n\n\n_DashboardState.build ********** DASHBOARD RE_BUILD *********** calling _configureFCM');
+    _configureFCM();
     return StreamBuilder<InvestorAppModel2>(
         initialData: investorModelBloc.appModel,
         stream: investorModelBloc.appModelStream,
@@ -399,17 +399,11 @@ class _DashboardState extends State<Dashboard>
   }
 
   void _goToContactUsPage() {
-    print('_MainPageState._goToWalletPage .... ');
+    print('_MainPageState._goToContactUsPage .... ');
     Navigator.push(
       context,
       new MaterialPageRoute(builder: (context) => new ContactUs()),
     );
-  }
-
-  refresh() {
-    print(
-        '_DashboardState.refresh: ################## REFRESH called. getSummary ...');
-    setState(() {});
   }
 
   @override

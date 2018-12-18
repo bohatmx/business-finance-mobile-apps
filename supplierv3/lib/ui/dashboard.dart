@@ -337,6 +337,7 @@ class _DashboardState extends State<Dashboard>
         ),
       );
     }
+    _configureFCM();
     return StreamBuilder<SupplierApplicationModel>(
       initialData: supplierModelBloc.appModel,
       stream: supplierModelBloc.appModelStream,
