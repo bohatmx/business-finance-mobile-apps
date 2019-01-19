@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:businesslibrary/api/data_api3.dart';
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
+import 'package:businesslibrary/blocs/chat_bloc.dart';
 import 'package:businesslibrary/data/auto_start_stop.dart';
 import 'package:businesslibrary/data/auto_trade_order.dart';
 import 'package:businesslibrary/data/chat_message.dart';
@@ -20,7 +21,6 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 import 'package:monitor/ui/theme_util.dart';
-import 'package:businesslibrary/blocs/chat_bloc.dart';
 
 void main() => runApp(new MyApp());
 
@@ -68,14 +68,13 @@ class _MyHomePageState extends State<MyHomePage> implements SnackBarListener {
   //FCM methods #############################
   _configureFCM() async {
     print(
-        '\n\n\ ################ CONFIGURE FCM MESSAGE ###########  starting _firebaseMessaging');
+        '\n\n\# 🔵  🔵 ############### CONFIGURE FCM MESSAGE ###########  starting _firebaseMessaging');
 
     bool isRunningIOS = await isDeviceIOS();
-
     _firebaseMessaging.configure(
       onMessage: (Map<String, dynamic> map) async {
         prettyPrint(map,
-            '\n\n################ Message from FCM ################# ${DateTime.now().toIso8601String()}');
+            '\n\n ✅ ################ Message from FCM ################# ${DateTime.now().toIso8601String()}');
 
         String messageType = 'unknown';
         String mJSON;
@@ -176,7 +175,6 @@ class _MyHomePageState extends State<MyHomePage> implements SnackBarListener {
         listener: this,
         icon: Icons.chat,
         action: 3);
-
   }
 
   @override
@@ -468,7 +466,8 @@ class _MyHomePageState extends State<MyHomePage> implements SnackBarListener {
 
   @override
   Widget build(BuildContext context) {
-    print('\n\n_MyHomePageState.build ##############REBUILD OF MAIN WIDGET - doing FCM config AGAIN - is this cool?');
+    print(
+        '\n\n🔵  🔵 MyHomePageState.build ##############REBUILD OF MAIN WIDGET - doing FCM config AGAIN - is this cool?');
     _configureFCM();
     return new Scaffold(
       key: _scaffoldKey,
@@ -519,20 +518,22 @@ class _MyHomePageState extends State<MyHomePage> implements SnackBarListener {
           _getBody(),
         ],
       ),
-
     );
   }
 
   ChatMessage chatMessage;
   @override
   onActionPressed(int action) {
-    switch(action) {
+    switch (action) {
       case 3:
         AssertionError(chatMessage != null);
         Navigator.push(
-      context,
-      new MaterialPageRoute(builder: (context) => new ChatResponsePage(chatMessage: chatMessage,)),
-    );
+          context,
+          new MaterialPageRoute(
+              builder: (context) => new ChatResponsePage(
+                    chatMessage: chatMessage,
+                  )),
+        );
         break;
     }
   }

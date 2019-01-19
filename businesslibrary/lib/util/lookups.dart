@@ -11,7 +11,6 @@ import 'package:businesslibrary/data/wallet.dart';
 import 'package:businesslibrary/util/util.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:device_info/device_info.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/date_symbol_data_local.dart';
@@ -285,6 +284,7 @@ String getFormattedDateLongWithTime(String date, BuildContext context) {
     return 'NoDate';
   }
 }
+
 String getFormattedDateShortWithTime(String date, BuildContext context) {
   Locale myLocale = Localizations.localeOf(context);
 
@@ -544,8 +544,7 @@ Future<bool> isDeviceIOS() async {
         '\n\n\n################ isDeviceIOS: Running on ${androidInfo.model} ################\n\n');
     return isRunningIOs;
   } catch (e) {
-    print(
-        'isDeviceIOS - error doing Android - this is NOT an Android phone!!');
+    print('isDeviceIOS - error doing Android - this is NOT an Android phone!!');
   }
 
   try {
@@ -558,6 +557,7 @@ Future<bool> isDeviceIOS() async {
   }
   return isRunningIOs;
 }
+
 final Firestore _firestore = Firestore.instance;
 
 _updateToken(String token) async {
