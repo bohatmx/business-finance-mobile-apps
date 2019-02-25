@@ -1,41 +1,21 @@
 class APIBag {
   bool debug;
-  Map data;
-  Map user;
-  String sourceSeed;
-  String collectionName, apiSuffix;
+  String jsonString;
+  String userName, functionName;
 
-  APIBag(
-      {this.debug,
-      this.data,
-      this.collectionName,
-      this.apiSuffix,
-      this.sourceSeed,
-      this.user});
+  APIBag({this.debug, this.userName, this.functionName, this.jsonString});
+
   APIBag.fromJson(Map data) {
     this.debug = data['debug'];
-    this.data = data['data'];
-    this.collectionName = data['collectionName'];
-    this.apiSuffix = data['apiSuffix'];
-    this.user = data['user'];
-    this.sourceSeed = data['sourceSeed'];
+    this.userName = data['userName'];
+    this.functionName = data['functionName'];
+    this.jsonString = data['jsonString'];
   }
 
   Map<String, dynamic> toJson() => <String, dynamic>{
         'debug': debug,
-        'data': data,
-        'collectionName': collectionName,
-        'apiSuffix': apiSuffix,
-        'user': user,
-        'sourceSeed': sourceSeed,
+        'userName': userName,
+        'functionName': functionName,
+        'jsonString': jsonString,
       };
 }
-
-/*
-const debug = request.body.debug;
-    const collectionName = request.body.collectionName;
-    const apiSuffix = request.body.apiSuffix;
-    const data = request.body.data;
-    const user = request.body.user;
-    const sourceSeed = request.body.sourceSeed;
- */

@@ -1,8 +1,8 @@
-
+import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/blocs/chat_bloc.dart';
 import 'package:businesslibrary/data/chat_message.dart';
 import 'package:businesslibrary/data/chat_response.dart';
-import 'package:businesslibrary/data/govt_entity.dart';
+import 'package:businesslibrary/data/customer.dart';
 import 'package:businesslibrary/data/investor.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
@@ -12,7 +12,6 @@ import 'package:businesslibrary/util/styles.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:businesslibrary/api/shared_prefs.dart';
 
 class ChatPage extends StatefulWidget {
   final ChatResponse chatResponse;
@@ -34,7 +33,7 @@ class ChatWindow extends State<ChatPage>
   List<ChatMessage> chatMessages = List();
   bool _isWriting = false;
   User user;
-  GovtEntity customer;
+  Customer customer;
   Supplier supplier;
   Investor investor;
   String uType, participantId, org;
@@ -62,7 +61,9 @@ class ChatWindow extends State<ChatPage>
           txt: _chatResponse.responseMessage,
           color: Colors.pink,
           addToFirestore: false,
-          name: _chatResponse.responderName + ': ' + getFormattedDateShortWithTime(_chatResponse.dateTime, context));
+          name: _chatResponse.responderName +
+              ': ' +
+              getFormattedDateShortWithTime(_chatResponse.dateTime, context));
     }
 
     if (user.supplier != null) {
@@ -71,7 +72,7 @@ class ChatWindow extends State<ChatPage>
       participantId = supplier.participantId;
       org = supplier.name;
     }
-    if (user.govtEntity != null) {
+    if (user.customer != null) {
       uType = ChatMessage.CUSTOMER;
       customer = await SharedPrefs.getGovEntity();
       participantId = customer.participantId;
@@ -96,7 +97,9 @@ class ChatWindow extends State<ChatPage>
           txt: m.message,
           addToFirestore: false,
           color: Colors.indigo,
-          name: user.firstName+ ': ' + getFormattedDateShortWithTime(m.date, context));
+          name: user.firstName +
+              ': ' +
+              getFormattedDateShortWithTime(m.date, context));
     });
 
     var start = DateTime.now();
@@ -110,14 +113,18 @@ class ChatWindow extends State<ChatPage>
           txt: m.message,
           addToFirestore: false,
           color: Colors.indigo,
-          name: user.firstName+ ': ' + getFormattedDateShortWithTime(m.date, context));
+          name: user.firstName +
+              ': ' +
+              getFormattedDateShortWithTime(m.date, context));
       if (m.responses != null && m.responses.isNotEmpty) {
         m.responses.forEach((r) {
           _submitMsg(
               txt: r.responseMessage,
               addToFirestore: false,
               color: Colors.pink,
-              name: r.responderName+ ': ' + getFormattedDateShortWithTime(r.dateTime, context));
+              name: r.responderName +
+                  ': ' +
+                  getFormattedDateShortWithTime(r.dateTime, context));
         });
       }
     });
@@ -208,7 +215,7 @@ class ChatWindow extends State<ChatPage>
   }
 
   void processResponse(AsyncSnapshot<ChatResponse> snapshot) {
-     if (snapshot.hasError) {
+    if (snapshot.hasError) {
       print('ChatWindow.build ----------------- snapshot.hasError');
       return;
     }
@@ -228,7 +235,7 @@ class ChatWindow extends State<ChatPage>
   }
 
   void addResponseToView(AsyncSnapshot<ChatResponse> snapshot) {
-     _chatResponse = snapshot.data;
+    _chatResponse = snapshot.data;
     Msg msg = Msg(
       defaultUserName: _chatResponse.responderName,
       txt: _chatResponse.responseMessage,
@@ -349,9 +356,12 @@ class Msg extends StatelessWidget {
             new Container(
               margin: const EdgeInsets.only(right: 18.0, left: 12),
               child: new CircleAvatar(
-                radius: 12.0,
+                  radius: 12.0,
                   backgroundColor: color == null ? Colors.indigo : color,
-                  child: new Text(defaultUserName[0], style: Styles.whiteSmall,)),
+                  child: new Text(
+                    defaultUserName[0],
+                    style: Styles.whiteSmall,
+                  )),
             ),
             new Expanded(
               child: new Column(

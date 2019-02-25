@@ -2,19 +2,14 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:businesslibrary/api/data_api.dart';
-import 'package:businesslibrary/api/shared_prefs.dart';
-import 'package:businesslibrary/api/signup.dart';
 import 'package:businesslibrary/data/api_bag.dart';
-import 'package:businesslibrary/data/auditor.dart';
-import 'package:businesslibrary/data/auto_start_stop.dart';
 import 'package:businesslibrary/data/auto_trade_order.dart';
-import 'package:businesslibrary/data/bank.dart';
 import 'package:businesslibrary/data/chat_message.dart';
 import 'package:businesslibrary/data/chat_response.dart';
+import 'package:businesslibrary/data/country.dart';
+import 'package:businesslibrary/data/customer.dart';
 import 'package:businesslibrary/data/delivery_acceptance.dart';
 import 'package:businesslibrary/data/delivery_note.dart';
-import 'package:businesslibrary/data/govt_entity.dart';
 import 'package:businesslibrary/data/investor.dart';
 import 'package:businesslibrary/data/investor_profile.dart';
 import 'package:businesslibrary/data/invoice.dart';
@@ -23,8 +18,6 @@ import 'package:businesslibrary/data/invoice_bid.dart';
 import 'package:businesslibrary/data/invoice_bid_keys.dart';
 import 'package:businesslibrary/data/invoice_settlement.dart';
 import 'package:businesslibrary/data/offer.dart';
-import 'package:businesslibrary/data/oneconnect.dart';
-import 'package:businesslibrary/data/procurement_office.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/sector.dart';
 import 'package:businesslibrary/data/supplier.dart';
@@ -34,7 +27,6 @@ import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/util.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:http/http.dart' as http;
-import 'package:uuid/uuid.dart';
 
 class DataAPI3 {
   static ContentType _contentType =
@@ -71,12 +63,14 @@ class DataAPI3 {
         investorName: bids.first.investorName);
 
     bids.forEach((b) {
-     bidKeys.addKey(b.documentReference);
+      bidKeys.addKey(b.documentReference);
     });
     prettyPrint(bidKeys.toJson(), '\n########## InvoiceBidKeys to write');
 
     try {
-      var ref = await fs.collection('invoiceBidSettlementBatches').add(bidKeys.toJson());
+      var ref = await fs
+          .collection('invoiceBidSettlementBatches')
+          .add(bidKeys.toJson());
       return ref.path.split('/').elementAt(1);
     } catch (e) {
       print(e);
@@ -86,52 +80,33 @@ class DataAPI3 {
 
   static Future<PurchaseOrder> registerPurchaseOrder(
       PurchaseOrder purchaseOrder) async {
-    purchaseOrder.purchaseOrderId = getKey();
-    purchaseOrder.date = getUTCDate();
     var bag = APIBag(
-      debug: isInDebugMode,
-      data: purchaseOrder.toJson(),
-    );
+        jsonString: purchaseOrder.toJson().toString(),
+        functionName: 'addPurchaseOrder',
+        userName: TemporaryUserName);
 
-    print(
-        'DataAPI3.registerPurchaseOrder getFunctionsURL(): ${getFunctionsURL() + REGISTER_PURCHASE_ORDER}\n\n');
-    try {
-      var mResponse =
-          await _callCloudFunction(getFunctionsURL() + REGISTER_PURCHASE_ORDER, bag);
-      if (mResponse.statusCode == 200) {
-        var map = json.decode(mResponse.body);
-        var po = PurchaseOrder.fromJson(map);
-        return po;
-      } else {
-        print(
-            '\n\nDataAPI3.registerPurchaseOrder .... we have a problem\n\n\n');
-        throw Exception('registerPurchaseOrder failed!: ${mResponse.body}');
-      }
-    } catch (e) {
-      print('DataAPI3.registerPurchaseOrder ERROR $e');
-      throw e;
-    }
+    var result = await _connectToWebAPI(bag);
+    PurchaseOrder order = PurchaseOrder.fromJson(result);
+    return order;
   }
 
-  static Future<ChatMessage> addChatMessage(
-      ChatMessage chatMessage) async {
+  static Future<ChatMessage> addChatMessage(ChatMessage chatMessage) async {
     var bag = APIBag(
       debug: isInDebugMode,
-      data: chatMessage.toJson(),
+//      data: chatMessage.toJson(),
     );
 
     print(
-        'DataAPI3.addChatMessage getFunctionsURL(): ${getFunctionsURL() + ADD_CHAT_MESSAGE}\n\n');
+        'DataAPI3.addChatMessage getFunctionsURL(): ${getWebAPIUrl() + ADD_CHAT_MESSAGE}\n\n');
     try {
       var mResponse =
-      await _callCloudFunction(getFunctionsURL() + ADD_CHAT_MESSAGE, bag);
+          await _callCloudFunction(getWebAPIUrl() + ADD_CHAT_MESSAGE, bag);
       if (mResponse.statusCode == 200) {
         var map = json.decode(mResponse.body);
         var po = ChatMessage.fromJson(map);
         return po;
       } else {
-        print(
-            '\n\nDataAPI3.addChatMessage .... we have a problem\n\n\n');
+        print('\n\nDataAPI3.addChatMessage .... we have a problem\n\n\n');
         throw Exception('addChatMessage failed!: ${mResponse.body}');
       }
     } catch (e) {
@@ -139,25 +114,24 @@ class DataAPI3 {
       throw e;
     }
   }
-  static Future<ChatResponse> addChatResponse(
-      ChatResponse chatResponse) async {
+
+  static Future<ChatResponse> addChatResponse(ChatResponse chatResponse) async {
     var bag = APIBag(
       debug: isInDebugMode,
-      data: chatResponse.toJson(),
+//      data: chatResponse.toJson(),
     );
 
     print(
-        'DataAPI3.addChatMessage getFunctionsURL(): ${getFunctionsURL() + ADD_CHAT_RESPONSE}\n\n');
+        'DataAPI3.addChatMessage getFunctionsURL(): ${getWebAPIUrl() + ADD_CHAT_RESPONSE}\n\n');
     try {
       var mResponse =
-      await _callCloudFunction(getFunctionsURL() + ADD_CHAT_RESPONSE, bag);
+          await _callCloudFunction(getWebAPIUrl() + ADD_CHAT_RESPONSE, bag);
       if (mResponse.statusCode == 200) {
         var map = json.decode(mResponse.body);
         var po = ChatResponse.fromJson(map);
         return po;
       } else {
-        print(
-            '\n\nDataAPI3.addChatResponse .... we have a problem\n\n\n');
+        print('\n\nDataAPI3.addChatResponse .... we have a problem\n\n\n');
         throw Exception('addChatResponse failed!: ${mResponse.body}');
       }
     } catch (e) {
@@ -165,6 +139,7 @@ class DataAPI3 {
       throw e;
     }
   }
+
   static const Map<String, String> headers = {
     'Content-type': 'application/json',
     'Accept': 'application/json',
@@ -192,834 +167,354 @@ class DataAPI3 {
 
   static Future<DeliveryNote> registerDeliveryNote(
       DeliveryNote deliveryNote) async {
-    deliveryNote.deliveryNoteId = getKey();
-    deliveryNote.date = getUTCDate();
     var bag = APIBag(
-      debug: isInDebugMode,
-      data: deliveryNote.toJson(),
-    );
-    print(
-        'DataAPI3.registerDeliveryNote url: ${getFunctionsURL() + REGISTER_DELIVERY_NOTE}\n\n');
+        jsonString: deliveryNote.toJson().toString(),
+        functionName: 'addDeliveryNote',
+        userName: TemporaryUserName);
 
-    try {
-      var mResponse =
-          await _callCloudFunction(getFunctionsURL() + REGISTER_DELIVERY_NOTE, bag);
-      if (mResponse.statusCode == 200) {
-        var note = DeliveryNote.fromJson(json.decode(mResponse.body));
-        return note;
-      } else {
-        print('DataAPI3.registerDeliveryNote ERROR  ${mResponse.body}');
-        throw Exception('registerDeliveryNote failed: ${mResponse.body}');
-      }
-    } catch (e) {
-      print('DataAPI3.registerDeliveryNote ERROR $e');
-      throw e;
-    }
+    var result = await _connectToWebAPI(bag);
+    return DeliveryNote.fromJson(result);
   }
 
   static Future<DeliveryAcceptance> acceptDelivery(
       DeliveryAcceptance acceptance) async {
-    acceptance.acceptanceId = getKey();
     var bag = APIBag(
-      debug: isInDebugMode,
-      data: acceptance.toJson(),
-    );
+        jsonString: acceptance.toJson().toString(),
+        functionName: 'addDeliveryAcceptance',
+        userName: TemporaryUserName);
 
-    print(
-        'DataAPI3.acceptDelivery url: ${getFunctionsURL() + ACCEPT_DELIVERY_NOTE}');
-    try {
-      var mResponse =
-          await _callCloudFunction(getFunctionsURL() + ACCEPT_DELIVERY_NOTE, bag);
-      if (mResponse.statusCode == 200) {
-        return DeliveryAcceptance.fromJson(json.decode(mResponse.body));
-      } else {
-        throw Exception('DeliveryAcceptance failed: ${mResponse.body}');
-      }
-    } catch (e) {
-      print('DataAPI3.acceptDelivery ERROR $e');
-      throw e;
-    }
+    var result = await _connectToWebAPI(bag);
+    return DeliveryAcceptance.fromJson(result);
   }
 
-  static Future<int> registerInvoice(Invoice invoice) async {
-    invoice.invoiceId = getKey();
+  static Future<Invoice> registerInvoice(Invoice invoice) async {
     invoice.isOnOffer = false;
     invoice.isSettled = false;
-    invoice.date = getUTCDate();
 
     var bag = APIBag(
-      debug: isInDebugMode,
-      data: invoice.toJson(),
-    );
+        jsonString: invoice.toJson().toString(),
+        functionName: 'addInvoice',
+        userName: TemporaryUserName);
 
-    print(
-        'DataAPI3.registerInvoice url: ${getFunctionsURL() + REGISTER_INVOICE}');
-
-    try {
-      var mResponse = await _callCloudFunction(getFunctionsURL() + REGISTER_INVOICE, bag);
-      switch (mResponse.statusCode) {
-        case 200:
-          print('DataAPI3.registerInvoice: invoice registered');
-          return DataAPI3.InvoiceRegistered;
-          break;
-        case 201: //invoice auto accepted
-          print(
-              '\n\nDataAPI3.registerInvoice: invoice auto accepted #########################################\n');
-          return DataAPI3.InvoiceRegisteredAccepted;
-          break;
-        default:
-          var e = Exception('Register Invoice failed: ${mResponse.body}');
-          throw e;
-          break;
-      }
-    } catch (e) {
-      print('DataAPI3.registerInvoice ERROR $e');
-      throw e;
-    }
-  }
-
-  static Future<Invoice> saveInvoice(Invoice invoice) async {
-    invoice.invoiceId = getKey();
-    invoice.isOnOffer = false;
-    invoice.isSettled = false;
-    invoice.date = getUTCDate();
-
-    var bag = APIBag(
-      debug: isInDebugMode,
-      data: invoice.toJson(),
-    );
-
-    print('DataAPI3.saveInvoice url: ${getFunctionsURL() + REGISTER_INVOICE}');
-
-    try {
-      var mResponse = await _callCloudFunction(getFunctionsURL() + REGISTER_INVOICE, bag);
-      print(mResponse.body);
-      switch (mResponse.statusCode) {
-        case 200:
-          print('DataAPI3.saveInvoice: invoice registered');
-          return Invoice.fromJson(json.decode(mResponse.body));
-          break;
-        case 201: //invoice auto accepted
-          print(
-              '\n\nDataAPI3.saveInvoice: invoice auto accepted #########################################\n');
-          return Invoice.fromJson(json.decode(mResponse.body));
-          break;
-        default:
-          var e = Exception('Register Invoice failed: ${mResponse.body}');
-          throw e;
-          break;
-      }
-    } catch (e) {
-      print('DataAPI3.saveInvoice ERROR $e');
-      throw e;
-    }
+    var result = await _connectToWebAPI(bag);
+    return Invoice.fromJson(result);
   }
 
   static Future<InvoiceAcceptance> acceptInvoice(
       InvoiceAcceptance acceptance) async {
-    acceptance.acceptanceId = getKey();
-//    if (USE_LOCAL_BLOCKCHAIN) {
-//      var res = await DataAPI.acceptInvoice(acceptance);
-//      return res == '0' ? DataAPI3.BlockchainError : DataAPI3.Success;
-//    }
     var bag = APIBag(
-      debug: isInDebugMode,
-      data: acceptance.toJson(),
-    );
-    print('DataAPI3.acceptInvoice url: ${getFunctionsURL() + ACCEPT_INVOICE}');
-    try {
-      var mResponse = await _callCloudFunction(getFunctionsURL() + ACCEPT_INVOICE, bag);
-      if (mResponse.statusCode == 200) {
-        return InvoiceAcceptance.fromJson(json.decode(mResponse.body));
-      } else {
-        print('DataAPI3.acceptInvoice ERROR  ${mResponse.body}');
-        throw Exception('acceptInvoice failed: ${mResponse.body}');
-      }
-    } catch (e) {
-      print('DataAPI3.acceptInvoice ERROR $e');
-      throw e;
-    }
+        jsonString: acceptance.toJson().toString(),
+        functionName: 'addInvoiceAcceptance',
+        userName: TemporaryUserName);
+    var result = await _connectToWebAPI(bag);
+    return InvoiceAcceptance.fromJson(result);
   }
 
   static Future<Offer> makeOffer(Offer offer) async {
-    offer.offerId = getKey();
-    offer.date = getUTCDate();
     offer.isOpen = true;
     offer.isCancelled = false;
 
     var bag = APIBag(
-      debug: isInDebugMode,
-      data: offer.toJson(),
-    );
-    print('DataAPI3.makeOffer  ${getFunctionsURL() + MAKE_OFFER}');
-    try {
-      var mResponse = await _callCloudFunction(getFunctionsURL() + MAKE_OFFER, bag);
-      if (mResponse.statusCode == 200) {
-        return Offer.fromJson(json.decode(mResponse.body));
-      } else {
-        print('DataAPI3.MakeOffer ERROR  ${mResponse.reasonPhrase}');
-        throw Exception('makeOffer failed: ${mResponse.body}');
-      }
-    } catch (e) {
-      print('DataAPI3.MakeOffer ERROR $e');
-      throw e;
-    }
-  }
-  static Future<Offer> updateOffer(Offer offer) async {
+        jsonString: offer.toJson().toString(),
+        functionName: 'addOffer',
+        userName: TemporaryUserName);
 
-    var bag = APIBag(
-      debug: isInDebugMode,
-      data: offer.toJson(),
-    );
-    print('DataAPI3.updateOffer  ${getFunctionsURL() + UPDATE_OFFER}');
-    try {
-      var mResponse = await _callCloudFunction(getFunctionsURL() + UPDATE_OFFER, bag);
-      if (mResponse.statusCode == 200) {
-        return Offer.fromJson(json.decode(mResponse.body));
-      } else {
-        print('DataAPI3.updateOffer ERROR  ${mResponse.reasonPhrase}');
-        throw Exception('updateOffer failed: ${mResponse.body}');
-      }
-    } catch (e) {
-      print('DataAPI3.updateOffer ERROR $e');
-      throw e;
-    }
+    var result = await _connectToWebAPI(bag);
+    return Offer.fromJson(result);
   }
 
-  static Future<int> closeOffer(String offerId) async {
-    if (USE_LOCAL_BLOCKCHAIN) {
-      var res = await DataAPI.closeOffer(offerId);
-      return res == '0' ? DataAPI3.BlockchainError : DataAPI3.Success;
-    }
-    var map = Map<String, dynamic>();
-    map['debug'] = isInDebugMode;
-    map['offerId'] = offerId;
-
-    print('DataAPI3.closeOffer ${getFunctionsURL() + CLOSE_OFFER}');
-    try {
-      var mjson = json.encode(map);
-      var httpClient = new HttpClient();
-      HttpClientRequest mRequest =
-          await httpClient.postUrl(Uri.parse(getFunctionsURL() + CLOSE_OFFER));
-      mRequest.headers.contentType = _contentType;
-      mRequest.write(mjson);
-      HttpClientResponse mResponse = await mRequest.close();
-      print(
-          'DataAPI3.closeOffer blockchain response status code:  ${mResponse.statusCode}');
-      if (mResponse.statusCode == 200) {
-        return Success;
-      } else {
-        mResponse.transform(utf8.decoder).listen((contents) {
-          print('DataAPI3.closeOffer  $contents');
-        });
-        print('DataAPI3.closeOffer ERROR  ${mResponse.reasonPhrase}');
-        return BlockchainError;
-      }
-    } catch (e) {
-      print('DataAPI3.closeOffer ERROR $e');
-      return UnknownError;
-    }
-  }
+  static Future<int> closeOffer(String offerId) async {}
 
   static Future makeInvoiceBid(InvoiceBid bid) async {
-    bid..invoiceBidId = getKey();
-    bid.date = getUTCDate();
     bid.isSettled = false;
     var bag = APIBag(
-      debug: isInDebugMode,
-      data: bid.toJson(),
-    );
-    print('DataAPI3.makeInvoiceBid ${getFunctionsURL() + MAKE_INVOICE_BID}');
-    try {
-      var mResponse = await _callCloudFunction(getFunctionsURL() + MAKE_INVOICE_BID, bag);
-      if (mResponse.statusCode == 200) {
-        return 0;
-      } else {
-        mResponse.transform(utf8.decoder).listen((contents) {
-          print('DataAPI3.makeInvoiceBid  $contents');
-        });
-        print('DataAPI3.makeInvoiceBid ERROR  ${mResponse.reasonPhrase}');
-        throw Exception('makeInvoiceBid failed: ${mResponse.body}');
-      }
-    } catch (e) {
-      print('DataAPI3.makeInvoiceBid ERROR $e');
-      throw e;
-    }
+        jsonString: bid.toJson().toString(),
+        functionName: 'addInvoiceBid',
+        userName: TemporaryUserName);
+    var result = await _connectToWebAPI(bag);
+    return InvoiceBid.fromJson(result);
   }
 
   static Future makeInvestorInvoiceSettlement(
       InvestorInvoiceSettlement settlement) async {
-    settlement.invoiceSettlementId = getKey();
     settlement.date = getUTCDate();
-    var bag = APIBag(
-      debug: isInDebugMode,
-      data: settlement.toJson(),
-    );
-    print(
-        'DataAPI3.makeInvestorInvoiceSettlement ${getFunctionsURL() + MAKE_INVESTOR_INVOICE_SETTLEMENT}');
-    try {
-      var mResponse = await _callCloudFunction(
-          getFunctionsURL() + MAKE_INVESTOR_INVOICE_SETTLEMENT, bag);
-      if (mResponse.statusCode == 200) {
-        return 0;
-      } else {
-        print(mResponse.body);
-        print(
-            'DataAPI3.makeInvestorInvoiceSettlement ERROR  ${mResponse.statusCode}');
-        throw Exception(
-            'makeInvestorInvoiceSettlement failed: ${mResponse.body}');
-      }
-    } catch (e) {
-      print('DataAPI3.makeInvestorInvoiceSettlement ERROR $e');
-      throw e;
-    }
   }
 
   //////////// ###################################### //////////
-  static Future<int> addGovtEntity(GovtEntity govtEntity, User admin) async {
-    assert(govtEntity != null);
+  static Future<Customer> addCustomer(Customer customer, User admin) async {
+    assert(customer != null);
     assert(admin != null);
 
-    print(
-        'DataAPI3.addGovtEntity ==============>>>> ........... ${govtEntity.toJson()}');
-    print(
-        'DataAPI3.addGovtEntity ))))))) URL: ${getFunctionsURL()}$ADD_PARTICIPANT');
-    govtEntity.participantId = getKey();
-    govtEntity.dateRegistered = getUTCDate();
-    admin.userId = getKey();
-    admin.dateRegistered = getUTCDate();
-    admin.govtEntity =
-        'resource:com.oneconnect.biz.GovtEntity#${govtEntity.participantId}';
-    var seed;
-    if (!isInDebugMode) {
-      seed = SignUp.privateKey;
-    }
     var bag = APIBag(
-        debug: isInDebugMode,
-        data: govtEntity.toJson(),
-        user: admin.toJson(),
-        sourceSeed: seed,
-        apiSuffix: 'GovtEntity',
-        collectionName: 'govtEntities');
-    /*
-        const result = {
-      participantPath: null,
-      userPath: null,
-      walletPath: null,
-      date: new Date().toISOString(),
-      elapsedSeconds: 0
-    };
-     */
-    try {
-      var resp = await _callCloudFunction(getFunctionsURL() + ADD_PARTICIPANT, bag);
-      print(resp.body);
-      if (resp.statusCode == 200) {
-        Map map = json.decode(resp.body);
-        govtEntity.documentReference =
-            map['participantPath'].split('/').elementAt(1);
-        await SharedPrefs.saveGovtEntity(govtEntity);
-        await SharedPrefs.saveUser(admin);
-        var qs = await fs
-            .collection('wallets')
-            .document(map['walletPath'].split('/').elementAt(1))
-            .get();
-        if (qs.exists) {
-          var wallet = Wallet.fromJson(qs.data);
-          wallet.documentReference = qs.documentID;
-          await SharedPrefs.saveWallet(wallet);
-        }
-        return Success;
-      } else {
-        print('DataAPI3.addGovtEntity ${resp.body}');
-        return BlockchainError;
-      }
-    } catch (e) {
-      print('DataAPI3.addGovtEntity ERROR $e');
-      return UnknownError;
-    }
+        jsonString: customer.toJson().toString(),
+        functionName: 'addCustomer',
+        userName: TemporaryUserName);
+
+    var result = await _connectToWebAPI(bag);
+    var cust = Customer.fromJson(result);
+    //
+    admin.customer = cust.participantId;
+    bag = APIBag(
+        jsonString: admin.toJson().toString(),
+        functionName: 'addUser',
+        userName: TemporaryUserName);
+    await _connectToWebAPI(bag);
+
+    return cust;
   }
 
-  static Future<AutoTradeStart> executeAutoTrades() async {
+  static Future testChainCode(String functionName) async {
+    var bag = APIBag(functionName: functionName, userName: TemporaryUserName);
     print(
-        '\n\n\nDataAPI3.executeAutoTrades url: ${getFunctionsURL() + EXECUTE_AUTO_TRADES}');
-
-    APIBag bag = APIBag(
-      debug: isInDebugMode,
-    );
-    try {
-      var mResponse =
-          await _callCloudFunction(getFunctionsURL() + EXECUTE_AUTO_TRADES, bag);
-      if (mResponse.statusCode == 200) {
-        var mjson = json.decode(mResponse.body);
-        var start = AutoTradeStart.fromJson(mjson);
-        prettyPrint(start.toJson(),
-            '\n\n\n######## AUTO TRADE EXECUTION COMPLETE!!!\n\n');
-        return start;
-      } else {
-        print(mResponse.body);
-        throw Exception('Auto Trade failed = ${mResponse.body}');
-      }
-    } catch (e) {
-      print(e);
-      throw e;
+        '\n😡 😡 😡 😡  😡 😡 😡 😡  -- Testing chaincode call: $functionName');
+    var replyFromWeb = await _connectToWebAPI(bag);
+    print('💦  💦  💦 💦  💦  💦 BACK FROM WEB API CALL ... $functionName');
+    var result = json.decode(replyFromWeb['result']);
+    var msg = replyFromWeb['message'];
+    print(msg);
+//    if (replyFromWeb is Map) {
+//      print('I am a map ....');
+//      var result = json.decode(replyFromWeb['result']);
+//      if (result is List) {
+//        print('I am a list ....');
+//        result.forEach((r) {
+//          prettyPrint(r, '💦  💦  💦 💦  💦  💦 OBJECT: ${r}');
+//        });
+//      }
+//    }
+    List<Customer> customers = List();
+    List<Supplier> suppliers = List();
+    List<Investor> investors = List();
+    switch (functionName) {
+      case 'getAllCustomers':
+        result.forEach((m) {
+          var mx = Customer.fromJson(m);
+          customers.add(mx);
+        });
+        print(
+            '\n\nMessage from Chaincode: $msg \n🙄  Customers: ${customers.length}');
+        break;
+      case 'getAllSuppliers':
+        result.forEach((m) {
+          var mx = Supplier.fromJson(m);
+          suppliers.add(mx);
+        });
+        print(
+            '\n\nMessage from Chaincode: $msg \n🙄  Suppliers: ${suppliers.length}');
+        break;
+      case 'getAllInvestors':
+        result.forEach((m) {
+          var mx = Investor.fromJson(m);
+          investors.add(mx);
+        });
+        print(
+            '\n\nMessage from Chaincode: $msg \n🙄  Investors: ${investors.length}');
+        break;
     }
+    customers.forEach((c) {
+      prettyPrint(c.toJson(), '\n🙄 🙄 🙄 🙄 🙄   CUSTOMER');
+    });
+    suppliers.forEach((c) {
+      prettyPrint(c.toJson(), '\n🙄 🙄 🙄 🙄 🙄   SUPPLIER');
+    });
+    investors.forEach((c) {
+      prettyPrint(c.toJson(), '\n🙄 🙄 🙄 🙄 🙄   INVESTOR');
+    });
+    return result;
+  }
+
+  static Future executeAutoTrades() async {
+    print(
+        '\n\n\nDataAPI3.executeAutoTrades url: ${getWebAPIUrl() + EXECUTE_AUTO_TRADES}');
+
+    var bag = APIBag(
+        jsonString: '',
+        functionName: 'executeAutoTrades',
+        userName: TemporaryUserName);
+
+    return await _connectToWebAPI(bag);
+  }
+
+  static Future<int> addCountries() async {
+    await addCountry(Country(name: 'South Africa', code: 'ZA', vat: 15.0));
+    await addCountry(Country(name: 'Zimbabwe', code: 'ZW', vat: 15.0));
+    await addCountry(Country(name: 'Botswana', code: 'BW', vat: 15.0));
+    await addCountry(Country(name: 'Namibia', code: 'NA', vat: 15.0));
+    await addCountry(Country(name: 'Zambia', code: 'ZB', vat: 15.0));
+    await addCountry(Country(name: 'Kenya', code: 'KE', vat: 15.0));
+    await addCountry(Country(name: 'Tanzania', code: 'TZ', vat: 15.0));
+    await addCountry(Country(name: 'Mozambique', code: 'MZ', vat: 15.0));
+    await addCountry(Country(name: 'Ghana', code: 'GH', vat: 15.0));
+    await addCountry(Country(name: 'Lesotho', code: 'LS', vat: 15.0));
+    await addCountry(Country(name: 'Malawi', code: 'MW', vat: 15.0));
+    await addCountry(Country(name: 'Nigeria', code: 'NG', vat: 15.0));
+
+    return 0;
   }
 
   static Future<int> addSectors() async {
-    await addSector(Sector(sectorId: getKey(), sectorName: 'Public Sector'));
-    await addSector(Sector(sectorId: getKey(), sectorName: 'Automotive'));
-    await addSector(Sector(sectorId: getKey(), sectorName: 'Construction'));
-    await addSector(Sector(sectorId: getKey(), sectorName: 'Engineering'));
-    await addSector(Sector(sectorId: getKey(), sectorName: 'Retail'));
-    await addSector(Sector(sectorId: getKey(), sectorName: 'Home Services'));
-    await addSector(Sector(sectorId: getKey(), sectorName: 'Transport'));
-    await addSector(Sector(sectorId: getKey(), sectorName: 'Logistics'));
-    await addSector(Sector(sectorId: getKey(), sectorName: 'Services'));
-    await addSector(Sector(sectorId: getKey(), sectorName: 'Agricultural'));
-    await addSector(Sector(sectorId: getKey(), sectorName: 'Real Estate'));
-    await addSector(Sector(sectorId: getKey(), sectorName: 'Technology'));
+    await addSector(Sector(sectorName: 'Public Sector'));
+    await addSector(Sector(sectorName: 'Automotive'));
+    await addSector(Sector(sectorName: 'Construction'));
+    await addSector(Sector(sectorName: 'Engineering'));
+    await addSector(Sector(sectorName: 'Retail'));
+    await addSector(Sector(sectorName: 'Home Services'));
+    await addSector(Sector(sectorName: 'Transport'));
+    await addSector(Sector(sectorName: 'Logistics'));
+    await addSector(Sector(sectorName: 'Services'));
+    await addSector(Sector(sectorName: 'Agricultural'));
+    await addSector(Sector(sectorName: 'Real Estate'));
+    await addSector(Sector(sectorName: 'Technology'));
+    await addSector(Sector(sectorName: 'Manufacturing'));
+    await addSector(Sector(sectorName: 'Education'));
+    await addSector(Sector(sectorName: 'Health Services'));
+    await addSector(Sector(sectorName: 'Pharmaceutical'));
     return DataAPI3.Success;
   }
 
-  static Future<int> addSector(Sector sector) async {
-    if (USE_LOCAL_BLOCKCHAIN) {
-      var res = await DataAPI.addSector(sector);
-      return res == '0' ? DataAPI3.BlockchainError : DataAPI3.Success;
-    }
-    sector.sectorId = getKey();
-    var bag = APIBag(
-        debug: isInDebugMode,
-        data: sector.toJson(),
-        apiSuffix: 'Sector',
-        collectionName: 'sectors');
-    print('DataAPI3.addSector %%%%%%%% url: ${getFunctionsURL() + ADD_DATA}');
-    prettyPrint(bag.toJson(), 'adding sector to BFN blockchain');
+  // ignore: non_constant_identifier_names
+  static final String TemporaryUserName = 'admin';
 
+  static Future<Sector> addSector(Sector sector) async {
+    var bag = APIBag(
+        jsonString: sector.toJson().toString(),
+        functionName: 'addSector',
+        userName: TemporaryUserName);
+
+    prettyPrint(bag.toJson(), '\n🔵 🔵 adding sector to BFN blockchain');
+    var result = await _connectToWebAPI(bag);
+    return Sector.fromJson(result);
+  }
+
+  static Future<Country> addCountry(Country country) async {
+    var bag = APIBag(
+        jsonString: country.toJson().toString(),
+        functionName: 'addCountry',
+        userName: TemporaryUserName);
+
+    prettyPrint(bag.toJson(), '\n🔵 🔵 adding country to BFN blockchain');
+    var result = await _connectToWebAPI(bag);
+    return Country.fromJson(result);
+  }
+
+  // ignore: missing_return
+  static Future _connectToWebAPI(APIBag bag) async {
+    print(
+        '\n\n🔵 🔵 🔵 🔵 🔵 🔵   DataAPI3._connectToWebAPI sending:  \n🔵 🔵  ${bag.toJson().toString()}');
     try {
       var httpClient = new HttpClient();
       HttpClientRequest mRequest =
-          await httpClient.postUrl(Uri.parse(getFunctionsURL() + ADD_DATA));
+          await httpClient.postUrl(Uri.parse(getWebAPIUrl()));
       mRequest.headers.contentType = _contentType;
       mRequest.write(json.encode(bag.toJson()));
       HttpClientResponse mResponse = await mRequest.close();
       print(
-          'DataAPI3.addSector blockchain response status code:  ${mResponse.statusCode}');
+          '\n\n🔵 🔵 🔵 🔵 🔵 🔵   DataAPI3._connectToWebAPI blockchain response status code:  ${mResponse.statusCode}');
       if (mResponse.statusCode == 200) {
-        return Success;
+        // transforms and prints the response
+        String reply = await mResponse.transform(utf8.decoder).join();
+        print('\n\n🔵 🔵 🔵  reply here ..............');
+        print(reply);
+        print('\n\n🔵 🔵 🔵  🔵 🔵 🔵  🔵 🔵 🔵  🔵 🔵 🔵 \n');
+
+//        await for (var contents in mResponse.transform(utf8.decoder)) {
+//          print(
+//              '\n\n😡 😡 😡 😡 DataAPI3._connectToWebAPI response data:\n\n $contents');
+//          mString = contents;
+//        }
+        return json.decode(reply);
       } else {
         mResponse.transform(utf8.decoder).listen((contents) {
-          print('DataAPI3.addSector  $contents');
+          print('\n\n😡 😡 😡 😡 DataAPI3._connectToWebAPI  $contents');
         });
-        print('DataAPI3.addSector ERROR  ${mResponse.reasonPhrase}');
-        return BlockchainError;
+        print(
+            '\n\n😡 😡 😡 😡  DataAPI3._connectToWebAPI ERROR  ${mResponse.reasonPhrase}');
+        throw Exception(mResponse.reasonPhrase);
       }
     } catch (e) {
-      print('DataAPI3.addSector ERROR $e');
-      return UnknownError;
+      print(
+          '\n\n👿 👿 👿  👿 👿 👿   DataAPI3._connectToWebAPI ERROR : \n$e \n\n👿 👿 👿 👿 👿 👿 ');
+      throw e;
     }
+    //return result;
   }
 
-  static Future<int> addAutoTradeOrder(AutoTradeOrder order) async {
-    order.autoTradeOrderId = getKey();
-    order.date = getUTCDate();
+  static Future<AutoTradeOrder> addAutoTradeOrder(AutoTradeOrder order) async {
     order.isCancelled = false;
     var bag = APIBag(
-        debug: isInDebugMode,
-        data: order.toJson(),
-        apiSuffix: 'AutoTradeOrder',
-        collectionName: 'autoTradeOrders');
-    print(
-        'DataAPI3.addAutoTradeOrder %%%%%%%% url: ${getFunctionsURL() + ADD_DATA}');
+        jsonString: order.toJson().toString(),
+        functionName: 'addAutoTradeOrder',
+        userName: TemporaryUserName);
+    print('DataAPI3.addAutoTradeOrder %%%%%%%% url: ${getWebAPIUrl()}');
     prettyPrint(bag.toJson(),
         '########################## adding addAutoTradeOrder to BFN blockchain');
-
-    try {
-      var httpClient = new HttpClient();
-      HttpClientRequest mRequest =
-          await httpClient.postUrl(Uri.parse(getFunctionsURL() + ADD_DATA));
-      mRequest.headers.contentType = _contentType;
-      mRequest.write(json.encode(bag.toJson()));
-      HttpClientResponse mResponse = await mRequest.close();
-      print(
-          'DataAPI3.addAutoTradeOrder blockchain response status code:  ${mResponse.statusCode}');
-      if (mResponse.statusCode == 200) {
-        await SharedPrefs.saveAutoTradeOrder(order);
-        return Success;
-      } else {
-        mResponse.transform(utf8.decoder).listen((contents) {
-          print('DataAPI3.addAutoTradeOrder  $contents');
-        });
-        print('DataAPI3.addAutoTradeOrder ERROR  ${mResponse.reasonPhrase}');
-        return BlockchainError;
-      }
-    } catch (e) {
-      print('DataAPI3.addAutoTradeOrder ERROR $e');
-      return UnknownError;
-    }
+    var result = await _connectToWebAPI(bag);
+    return AutoTradeOrder.fromJson(result);
   }
 
-  static Future<int> addInvestorProfile(InvestorProfile profile) async {
-    profile.profileId = getKey();
-    profile.date = getUTCDate();
-    if (USE_LOCAL_BLOCKCHAIN) {
-      var res = await DataAPI.addInvestorProfile(profile);
-      return res == '0' ? DataAPI3.BlockchainError : DataAPI3.Success;
-    }
+  static Future<InvestorProfile> addInvestorProfile(
+      InvestorProfile profile) async {
     var bag = APIBag(
-        debug: isInDebugMode,
-        data: profile.toJson(),
-        apiSuffix: 'InvestorProfile',
-        collectionName: 'investorProfiles');
+        jsonString: profile.toJson().toString(),
+        functionName: 'addInvestorProfile',
+        userName: TemporaryUserName);
     print(
-        'DataAPI3.addInvestorProfile %%%%%%%% url: ${getFunctionsURL() + ADD_DATA}');
+        'DataAPI3.addInvestorProfile %%%%%%%% url: ${getWebAPIUrl() + ADD_DATA}');
     prettyPrint(profile.toJson(),
         '########################## adding addInvestorProfile to BFN blockchain');
 
-    try {
-      var httpClient = new HttpClient();
-      HttpClientRequest mRequest =
-          await httpClient.postUrl(Uri.parse(getFunctionsURL() + ADD_DATA));
-      mRequest.headers.contentType = _contentType;
-      mRequest.write(json.encode(bag.toJson()));
-      HttpClientResponse mResponse = await mRequest.close();
-      print(
-          'DataAPI3.addInvestorProfile blockchain response status code:  ${mResponse.statusCode}');
-      if (mResponse.statusCode == 200) {
-        await SharedPrefs.saveInvestorProfile(profile);
-        return Success;
-      } else {
-        mResponse.transform(utf8.decoder).listen((contents) {
-          print('DataAPI3.addInvestorProfile  $contents');
-        });
-        print('DataAPI3.addInvestorProfile ERROR  ${mResponse.reasonPhrase}');
-        return BlockchainError;
-      }
-    } catch (e) {
-      print('DataAPI3.addInvestorProfile ERROR $e');
-      return UnknownError;
-    }
+    var result = await _connectToWebAPI(bag);
+    return InvestorProfile.fromJson(result);
   }
 
-  static Future<int> addWallet(Wallet wallet) async {
-    print('DataAPI3.addWallet %%%%%%%% url: ${getFunctionsURL() + ADD_DATA}');
-    prettyPrint(wallet.toJson(), 'adding wallet to BFN blockcahain');
-    if (USE_LOCAL_BLOCKCHAIN) {
-      var res = await DataAPI.addWallet(wallet);
-      return res == '0' ? DataAPI3.BlockchainError : DataAPI3.Success;
-    }
-
-//    wallet.encryptedSecret = null;
-    wallet.debug = null;
-    wallet.sourceSeed = null;
-    wallet.secret = null;
-    wallet.dateRegistered = getUTCDate();
+  static Future<Wallet> addWallet(Wallet wallet) async {
     var bag = APIBag(
-        debug: isInDebugMode,
-        data: wallet.toJson(),
-        apiSuffix: 'Wallet',
-        collectionName: 'wallets');
+        jsonString: wallet.toJson().toString(),
+        functionName: 'addWallet',
+        userName: TemporaryUserName);
 
-    try {
-      var httpClient = new HttpClient();
-      HttpClientRequest mRequest =
-          await httpClient.postUrl(Uri.parse(getFunctionsURL() + ADD_DATA));
-      mRequest.headers.contentType = _contentType;
-      mRequest.write(json.encode(bag.toJson()));
-      HttpClientResponse mResponse = await mRequest.close();
-      print(
-          'DataAPI3.addWallet blockchain response status code:  ${mResponse.statusCode}');
-      if (mResponse.statusCode == 200) {
-        return Success;
-      } else {
-        mResponse.transform(utf8.decoder).listen((contents) {
-          print('DataAPI3.addWallet  $contents');
-        });
-        print('DataAPI3.addWallet ERROR  ${mResponse.reasonPhrase}');
-        return BlockchainError;
-      }
-    } catch (e) {
-      print('DataAPI3.addWallet ERROR $e');
-      return UnknownError;
-    }
+    var result = await _connectToWebAPI(bag);
+    return Wallet.fromJson(result);
   }
 
-  static Future<int> addSupplier(Supplier supplier, User admin) async {
+  static Future<Supplier> addSupplier(Supplier supplier, User admin) async {
     assert(supplier != null);
     assert(admin != null);
 
-    supplier.dateRegistered = getUTCDate();
-    supplier.participantId = getKey();
-    admin.userId = getKey();
-    admin.dateRegistered = getUTCDate();
-    admin.supplier =
-        'resource:com.oneconnect.biz.Supplier#${supplier.participantId}';
-    var seed;
-    if (!isInDebugMode) {
-      seed = SignUp.privateKey;
-    }
     var bag = APIBag(
-        debug: isInDebugMode,
-        data: supplier.toJson(),
-        user: admin.toJson(),
-        sourceSeed: seed,
-        apiSuffix: 'Supplier',
-        collectionName: 'suppliers');
-    print('DataAPI3.addSupplier url: ${getFunctionsURL() + ADD_PARTICIPANT}');
-    try {
-      var mResponse = await _callCloudFunction(getFunctionsURL() + ADD_PARTICIPANT, bag);
-      if (mResponse.statusCode == 200) {
-        Map map = json.decode(mResponse.body);
-        supplier.documentReference =
-            map['participantPath'].split('/').elementAt(1);
-        await SharedPrefs.saveSupplier(supplier);
-        await SharedPrefs.saveUser(admin);
-        var qs = await fs
-            .collection('wallets')
-            .document(map['walletPath'].split('/').elementAt(1))
-            .get();
-        if (qs.exists) {
-          var wallet = Wallet.fromJson(qs.data);
-          wallet.documentReference = qs.documentID;
-          await SharedPrefs.saveWallet(wallet);
-        }
+        jsonString: supplier.toJson().toString(),
+        functionName: 'addSupplier',
+        userName: TemporaryUserName);
+    var res = await _connectToWebAPI(bag);
+    var supp = Supplier.fromJson(res);
+    //
+    admin.supplier = supp.participantId;
+    bag = APIBag(
+        jsonString: admin.toJson().toString(),
+        functionName: 'addUser',
+        userName: TemporaryUserName);
+    await _connectToWebAPI(bag);
 
-        return Success;
-      } else {
-        print('DataAPI3.addSupplier ${mResponse.body}');
-        return BlockchainError;
-      }
-    } catch (e) {
-      print('DataAPI3.addSupplier ERROR $e');
-      return UnknownError;
-    }
+    return supp;
   }
 
-  static Future<int> addBank(Bank bank) async {
-    if (USE_LOCAL_BLOCKCHAIN) {
-      var res = await DataAPI.addBank(bank);
-      return res == '0' ? DataAPI3.BlockchainError : DataAPI3.Success;
-    }
-    bank.dateRegistered = getUTCDate();
-    bank.participantId = getKey();
-    var bag = APIBag(
-        debug: isInDebugMode,
-        data: bank.toJson(),
-        apiSuffix: 'Bank',
-        collectionName: 'banks');
-    print('DataAPI3.addBank   ${getFunctionsURL() + ADD_DATA}');
-
-    try {
-      var httpClient = new HttpClient();
-      HttpClientRequest mRequest =
-          await httpClient.postUrl(Uri.parse(getFunctionsURL() + ADD_DATA));
-      mRequest.headers.contentType = _contentType;
-      mRequest.write(json.encode(bag.toJson()));
-      HttpClientResponse mResponse = await mRequest.close();
-      print(
-          'DataAPI3.addBank blockchain response status code:  ${mResponse.statusCode}');
-      if (mResponse.statusCode == 200) {
-        mResponse.transform(utf8.decoder).listen((contents) {
-          bank.documentReference = contents.split('/').elementAt(1);
-          print('DataAPI3.addBank ****************** contents: $contents');
-        });
-        await SharedPrefs.saveBank(bank);
-        return Success;
-      } else {
-        print('DataAPI3.addBank ERROR  ${mResponse.reasonPhrase}');
-        mResponse.transform(utf8.decoder).listen((contents) {
-          print('DataAPI3.addBank  $contents');
-        });
-        return BlockchainError;
-      }
-    } catch (e) {
-      print('DataAPI3.addBank ERROR $e');
-      return UnknownError;
-    }
-  }
-
-  static Future<int> addInvestor(Investor investor, User admin) async {
+  static Future<Investor> addInvestor(Investor investor, User admin) async {
     assert(investor != null);
     assert(admin != null);
 
-    investor.dateRegistered = getUTCDate();
-    investor.participantId = getKey();
-    admin.userId = getKey();
-    admin.dateRegistered = getUTCDate();
-    admin.investor =
-        'resource:com.oneconnect.biz.Investor#${investor.participantId}';
-    var seed;
-    if (!isInDebugMode) {
-      seed = SignUp.privateKey;
-    }
     var bag = APIBag(
-        debug: isInDebugMode,
-        data: investor.toJson(),
-        user: admin.toJson(),
-        sourceSeed: seed,
-        apiSuffix: 'Investor',
-        collectionName: 'investors');
-    print('DataAPI3.addInvestor   ${getFunctionsURL() + ADD_PARTICIPANT}');
-    prettyPrint(bag.toJson(), 'DataAPI3.addInvestor : ');
-
-    try {
-      var mResponse = await _callCloudFunction(getFunctionsURL() + ADD_PARTICIPANT, bag);
-      if (mResponse.statusCode == 200) {
-        Map map = json.decode(mResponse.body);
-        investor.documentReference =
-            map['participantPath'].split('/').elementAt(1);
-        await SharedPrefs.saveInvestor(investor);
-        await SharedPrefs.saveUser(admin);
-        var qs = await fs
-            .collection('wallets')
-            .document(map['walletPath'].split('/').elementAt(1))
-            .get();
-        if (qs.exists) {
-          var wallet = Wallet.fromJson(qs.data);
-          wallet.documentReference = qs.documentID;
-          await SharedPrefs.saveWallet(wallet);
-        }
-        return Success;
-      } else {
-        print('DataAPI3.addInvestor ${mResponse.body}');
-        return BlockchainError;
-      }
-    } catch (e) {
-      print('DataAPI3.addInvestor ERROR $e');
-      return UnknownError;
-    }
-  }
-
-  static Future<int> addOneConnect(OneConnect oneConnect) async {
-    if (USE_LOCAL_BLOCKCHAIN) {
-      var res = await DataAPI.addOneConnect(oneConnect);
-      return res == '0' ? DataAPI3.BlockchainError : DataAPI3.Success;
-    }
-    oneConnect.participantId = getKey();
-    oneConnect.dateRegistered = getUTCDate();
-    var bag = APIBag(
-        debug: isInDebugMode,
-        data: oneConnect.toJson(),
-        apiSuffix: 'OneConnect',
-        collectionName: 'oneConnect');
-    print('DataAPI3.addOneConnect ${getFunctionsURL() + ADD_DATA}');
-    try {
-      var httpClient = new HttpClient();
-      HttpClientRequest mRequest =
-          await httpClient.postUrl(Uri.parse(getFunctionsURL() + ADD_DATA));
-      mRequest.headers.contentType = _contentType;
-      mRequest.write(json.encode(bag.toJson()));
-      HttpClientResponse mResponse = await mRequest.close();
-      print(
-          'DataAPI3.addOneConnect blockchain response status code:  ${mResponse.statusCode}');
-      if (mResponse.statusCode == 200) {
-        mResponse.transform(utf8.decoder).listen((contents) {
-          oneConnect.documentReference = contents.split('/').elementAt(1);
-          print(
-              'DataAPI3.addOneConnect ****************** contents: $contents');
-        });
-        await SharedPrefs.saveOneConnect(oneConnect);
-        return Success;
-      } else {
-        print('DataAPI3.addOneConnect ERROR  ${mResponse.reasonPhrase}');
-        mResponse.transform(utf8.decoder).listen((contents) {
-          print('DataAPI3.addOneConnect  $contents');
-        });
-        return BlockchainError;
-      }
-    } catch (e) {
-      print('DataAPI3.addOneConnect ERROR $e');
-      return UnknownError;
-    }
-  }
-
-  static Future<int> addProcurementOffice(ProcurementOffice office) async {
-    if (USE_LOCAL_BLOCKCHAIN) {
-      var res = await DataAPI.addProcurementOffice(office);
-      return res == '0' ? DataAPI3.BlockchainError : DataAPI3.Success;
-    }
-    office.participantId = getKey();
-    office.dateRegistered = getUTCDate();
-    var bag = APIBag(
-        debug: isInDebugMode,
-        data: office.toJson(),
-        apiSuffix: 'ProcurementOffice',
-        collectionName: 'procurementOffices');
-    print('DataAPI3.addProcurementOffice ${getFunctionsURL() + ADD_DATA}');
-    try {
-      var httpClient = new HttpClient();
-      HttpClientRequest mRequest =
-          await httpClient.postUrl(Uri.parse(getFunctionsURL() + ADD_DATA));
-      mRequest.headers.contentType = _contentType;
-      mRequest.write(json.encode(bag.toJson()));
-      HttpClientResponse mResponse = await mRequest.close();
-      print(
-          'DataAPI3.addProcurementOffice blockchain response status code:  ${mResponse.statusCode}');
-      if (mResponse.statusCode == 200) {
-        mResponse.transform(utf8.decoder).listen((contents) {
-          office.documentReference = contents.split('/').elementAt(1);
-          print(
-              'DataAPI3.addProcurementOffice ****************** contents: $contents');
-        });
-        await SharedPrefs.saveProcurementOffice(office);
-        return Success;
-      } else {
-        print('DataAPI3.addProcurementOffice ERROR  ${mResponse.reasonPhrase}');
-        mResponse.transform(utf8.decoder).listen((contents) {
-          print('DataAPI3.addProcurementOffice  $contents');
-        });
-        return BlockchainError;
-      }
-    } catch (e) {
-      print('DataAPI3.addProcurementOffice ERROR $e');
-      return UnknownError;
-    }
-  }
-
-  static Future<int> addAuditor(Auditor auditor) async {
-    if (USE_LOCAL_BLOCKCHAIN) {
-      var res = await DataAPI.addAuditor(auditor);
-      return res == '0' ? DataAPI3.BlockchainError : DataAPI3.Success;
-    }
-    auditor.participantId = getKey();
-    auditor.dateRegistered = getUTCDate();
-    var bag = APIBag(
-        debug: isInDebugMode,
-        data: auditor.toJson(),
-        apiSuffix: 'Auditor',
-        collectionName: 'auditors');
-    print('DataAPI3.addAuditor ${getFunctionsURL() + ADD_DATA}');
-    try {
-      var httpClient = new HttpClient();
-      HttpClientRequest mRequest =
-          await httpClient.postUrl(Uri.parse(getFunctionsURL() + ADD_DATA));
-      mRequest.headers.contentType = _contentType;
-      mRequest.write(json.encode(bag.toJson()));
-      HttpClientResponse mResponse = await mRequest.close();
-      print(
-          'DataAPI3.addAuditor blockchain response status code:  ${mResponse.statusCode}');
-      if (mResponse.statusCode == 200) {
-        mResponse.transform(utf8.decoder).listen((contents) {
-          auditor.documentReference = contents.split('/').elementAt(1);
-          print('DataAPI3.addAuditor ****************** contents: $contents');
-        });
-        await SharedPrefs.saveAuditor(auditor);
-        return Success;
-      } else {
-        print('DataAPI3.addAuditor ERROR  ${mResponse.reasonPhrase}');
-        mResponse.transform(utf8.decoder).listen((contents) {
-          print('DataAPI3.addAuditor  $contents');
-        });
-        return BlockchainError;
-      }
-    } catch (e) {
-      print('DataAPI3.addAuditor ERROR $e');
-      return UnknownError;
-    }
-  }
-
-  static String getKey() {
-    var uuid = new Uuid();
-    String key = uuid.v1();
-    return key;
+        jsonString: investor.toJson().toString(),
+        functionName: 'addInvestor',
+        userName: TemporaryUserName);
+    var res1 = await _connectToWebAPI(bag);
+    var inv = Investor.fromJson(res1);
+    //
+    admin.investor = inv.participantId;
+    bag = APIBag(
+        jsonString: admin.toJson().toString(),
+        functionName: 'addUser',
+        userName: TemporaryUserName);
+    await _connectToWebAPI(bag);
+    return inv;
   }
 }

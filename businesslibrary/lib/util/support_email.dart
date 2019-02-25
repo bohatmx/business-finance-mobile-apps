@@ -1,7 +1,5 @@
-import 'dart:convert';
-
 import 'package:businesslibrary/api/shared_prefs.dart';
-import 'package:businesslibrary/data/govt_entity.dart';
+import 'package:businesslibrary/data/customer.dart';
 import 'package:businesslibrary/data/investor.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
@@ -26,7 +24,7 @@ class _SupportEmailState extends State<SupportEmail> {
 
   Investor investor;
   Supplier supplier;
-  GovtEntity customer;
+  Customer customer;
   User user;
   String subject, text;
 
@@ -231,7 +229,8 @@ class _SupportEmailState extends State<SupportEmail> {
         throw 'Could not launch $encoded';
       }
     } catch (e) {
-      print('\n\n_SupportEmailState._startDefaultEmailApp ERROR ERROR ERROR ERROR');
+      print(
+          '\n\n_SupportEmailState._startDefaultEmailApp ERROR ERROR ERROR ERROR');
       print(e);
     }
   }

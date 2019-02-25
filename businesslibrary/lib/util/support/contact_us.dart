@@ -1,16 +1,15 @@
 import 'dart:async';
 
 import 'package:businesslibrary/api/shared_prefs.dart';
-import 'package:businesslibrary/data/govt_entity.dart';
+import 'package:businesslibrary/data/customer.dart';
 import 'package:businesslibrary/data/investor.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
-import 'package:businesslibrary/util/support/chat_page.dart';
 import 'package:businesslibrary/util/page_util/data.dart';
 import 'package:businesslibrary/util/page_util/intro_page_view.dart';
 import 'package:businesslibrary/util/styles.dart';
+import 'package:businesslibrary/util/support/chat_page.dart';
 import 'package:businesslibrary/util/support_email.dart';
-import 'package:businesslibrary/util/theme_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -26,13 +25,14 @@ class ContactUs extends StatefulWidget {
   _ContactUsState createState() => _ContactUsState();
 }
 
-class _ContactUsState extends State<ContactUs> with SingleTickerProviderStateMixin {
+class _ContactUsState extends State<ContactUs>
+    with SingleTickerProviderStateMixin {
   GoogleMapController _mapController;
   Map<String, double> _startLocation;
   Map<String, double> _currentLocation;
   Investor investor;
   Supplier supplier;
-  GovtEntity customer;
+  Customer customer;
   User user;
   StreamSubscription<Map<String, double>> _locationSubscription;
   AnimationController _animationController;
@@ -58,11 +58,11 @@ class _ContactUsState extends State<ContactUs> with SingleTickerProviderStateMix
     getCached();
 
     _animationController = AnimationController(
-        duration: Duration(milliseconds: 1000),
-        vsync: this);
+        duration: Duration(milliseconds: 1000), vsync: this);
     _animation = Tween(begin: 0.0, end: 1.0).animate(_animationController);
     _animationController.forward();
   }
+
   @override
   void dispose() {
     _animationController.dispose();
@@ -70,7 +70,6 @@ class _ContactUsState extends State<ContactUs> with SingleTickerProviderStateMix
   }
 
   void getCached() async {
-
     user = await SharedPrefs.getUser();
     customer = await SharedPrefs.getGovEntity();
     investor = await SharedPrefs.getInvestor();
@@ -252,11 +251,12 @@ class _ContactUsState extends State<ContactUs> with SingleTickerProviderStateMix
       position: LatLng(mLat, mLng),
       icon: BitmapDescriptor.fromAsset('assets/computers.png'),
       zIndex: 4.0,
-      infoWindowText: InfoWindowText('OneConnect BFN', 'We are the FinTech People'),
+      infoWindowText:
+          InfoWindowText('OneConnect BFN', 'We are the FinTech People'),
     ));
   }
 
-  void _onPhoneTapped() async{
+  void _onPhoneTapped() async {
     print('_ContactUsState._onPhoneTapped ............');
     const url = 'tel:0710441887';
     try {
@@ -266,7 +266,6 @@ class _ContactUsState extends State<ContactUs> with SingleTickerProviderStateMix
     } catch (e) {
       print('_ContactUsState._onPhoneTapped ERROR ERROR ERROR ERROR');
       print(e);
-
     }
   }
 
@@ -284,18 +283,24 @@ class _ContactUsState extends State<ContactUs> with SingleTickerProviderStateMix
     print('_ContactUsState._onChatTapped ............');
     Navigator.push(
       context,
-      new MaterialPageRoute(builder: (context) => ChatPage(doSomething: doSomething,)),
+      new MaterialPageRoute(
+          builder: (context) => ChatPage(
+                doSomething: doSomething,
+              )),
     );
   }
 
   void doSomething() {
-    print('\n\n_ContactUsState.doSomething ......... YAY! executed by child widget');
+    print(
+        '\n\n_ContactUsState.doSomething ......... YAY! executed by child widget');
   }
+
   void _onPressed() {
     print('_ContactUsState._onPressed ...');
     Navigator.push(
       context,
-      new MaterialPageRoute(builder: (context) => IntroPageView(items: sampleItems, user: user)),
+      new MaterialPageRoute(
+          builder: (context) => IntroPageView(items: sampleItems, user: user)),
     );
   }
 

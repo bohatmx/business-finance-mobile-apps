@@ -1,16 +1,16 @@
 import 'package:businesslibrary/data/misc_data.dart';
 
-class GovtEntity extends BaseParticipant {
+class Customer extends BaseParticipant {
   String participantId;
   String name;
   String cellphone;
   String email;
   String description, documentReference;
   String address, dateRegistered;
-  String govtEntityType, country;
+  String country;
   bool allowAutoAccept;
 
-  GovtEntity(
+  Customer(
       {this.participantId,
       this.name,
       this.cellphone,
@@ -20,18 +20,16 @@ class GovtEntity extends BaseParticipant {
       this.country,
       this.allowAutoAccept,
       this.documentReference,
-      this.dateRegistered,
-      this.govtEntityType});
+      this.dateRegistered});
 
   static const National = "NATIONAL",
       Municipality = 'MUNICIPALITY',
       Provincial = 'PROVINCIAL';
 
-  GovtEntity.fromJson(Map data) {
+  Customer.fromJson(Map data) {
     this.participantId = data['participantId'];
     this.name = data['name'];
     this.description = data['description'];
-    this.govtEntityType = data['govtEntityType'];
     this.cellphone = data['cellphone'];
     this.address = data['address'];
     this.email = data['email'];
@@ -45,7 +43,6 @@ class GovtEntity extends BaseParticipant {
         'participantId': participantId,
         'name': name,
         'description': description,
-        'govtEntityType': govtEntityType,
         'cellphone': cellphone,
         'address': address,
         'email': email,

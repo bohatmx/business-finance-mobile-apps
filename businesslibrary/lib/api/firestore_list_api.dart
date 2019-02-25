@@ -1,7 +1,7 @@
 import 'dart:async';
 
+import 'package:businesslibrary/data/customer.dart';
 import 'package:businesslibrary/data/delivery_note.dart';
-import 'package:businesslibrary/data/govt_entity.dart';
 import 'package:businesslibrary/data/invoice.dart';
 import 'package:businesslibrary/data/invoice_settlement.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
@@ -72,7 +72,7 @@ class FirestoreListAPI {
   }
 
   static Future<List<PurchaseOrder>> getGovtPurchaseOrders(
-      GovtEntity govtEntity) async {
+      Customer govtEntity) async {
     List<PurchaseOrder> list = List();
     var querySnapshot = await _firestore
         .collection('govtEntities')
@@ -114,7 +114,7 @@ class FirestoreListAPI {
   }
 
   static Future<List<DeliveryNote>> getGovtDeliveryNotes(
-      GovtEntity govtEntity) async {
+      Customer govtEntity) async {
     List<DeliveryNote> list = List();
     var querySnapshot = await _firestore
         .collection('govtEntities')
@@ -175,7 +175,7 @@ class FirestoreListAPI {
   }
 
   static Future<List<GovtInvoiceSettlement>> getSupplierGovtSettlements(
-      GovtEntity supplier) async {
+      Customer supplier) async {
     List<GovtInvoiceSettlement> list = List();
     var querySnapshot = await _firestore
         .collection('suppliers')
@@ -195,7 +195,7 @@ class FirestoreListAPI {
   }
 
   static Future<List<GovtInvoiceSettlement>> getGovtSettlements(
-      GovtEntity govtEntity) async {
+      Customer govtEntity) async {
     List<GovtInvoiceSettlement> list = List();
     var querySnapshot = await _firestore
         .collection('govtEntities')

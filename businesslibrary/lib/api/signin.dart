@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/auditor.dart';
-import 'package:businesslibrary/data/govt_entity.dart';
+import 'package:businesslibrary/data/customer.dart';
 import 'package:businesslibrary/data/investor.dart';
 import 'package:businesslibrary/data/oneconnect.dart';
 import 'package:businesslibrary/data/procurement_office.dart';
@@ -73,8 +73,8 @@ class SignIn {
         'SignIn.getOwningEntity: .... .....  ${user.firstName} ${user.lastName}');
 
     prettyPrint(user.toJson(), 'User: getOwningEntity');
-    if (user.govtEntity != null) {
-      var partId = user.govtEntity.split("#").elementAt(1);
+    if (user.customer != null) {
+      var partId = user.customer.split("#").elementAt(1);
       var qSnap = await _firestore
           .collection('govtEntities')
           .where('participantId', isEqualTo: partId)
@@ -83,9 +83,9 @@ class SignIn {
           .catchError((e) {
         return ErrorNoOwningEntity;
       });
-      GovtEntity govtEntity;
+      Customer govtEntity;
       if (qSnap.documents.isNotEmpty) {
-        govtEntity = new GovtEntity.fromJson(qSnap.documents.first.data);
+        govtEntity = new Customer.fromJson(qSnap.documents.first.data);
         govtEntity.documentReference = qSnap.documents.first.documentID;
       }
       if (govtEntity == null) {

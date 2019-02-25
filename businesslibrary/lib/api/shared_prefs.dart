@@ -6,8 +6,8 @@ import 'package:businesslibrary/data/auditor.dart';
 import 'package:businesslibrary/data/auto_start_stop.dart';
 import 'package:businesslibrary/data/auto_trade_order.dart';
 import 'package:businesslibrary/data/bank.dart';
+import 'package:businesslibrary/data/customer.dart';
 import 'package:businesslibrary/data/dashboard_data.dart';
-import 'package:businesslibrary/data/govt_entity.dart';
 import 'package:businesslibrary/data/investor-unsettled-summary.dart';
 import 'package:businesslibrary/data/investor.dart';
 import 'package:businesslibrary/data/investor_profile.dart';
@@ -71,7 +71,7 @@ class SharedPrefs {
     return account;
   }
 
-  static Future saveGovtEntity(GovtEntity govtEntity) async {
+  static Future saveGovtEntity(Customer govtEntity) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
     Map jsonx = govtEntity.toJson();
@@ -82,7 +82,7 @@ class SharedPrefs {
     print("SharedPrefs.saveGovtEntity =========  data SAVED.........");
   }
 
-  static Future<GovtEntity> getGovEntity() async {
+  static Future<Customer> getGovEntity() async {
     var prefs = await SharedPreferences.getInstance();
     var string = prefs.getString('govtEntity');
     if (string == null) {
@@ -90,7 +90,7 @@ class SharedPrefs {
     }
     var jx = json.decode(string);
 //    prettyPrint(jx, 'GovtEntity from cache: ');
-    GovtEntity govtEntity = new GovtEntity.fromJson(jx);
+    Customer govtEntity = new Customer.fromJson(jx);
     return govtEntity;
   }
 
@@ -330,7 +330,8 @@ class SharedPrefs {
 
   static Future saveInvestor(Investor investor) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    prettyPrint(investor.toJson(), '\n\n####### saving investor in SharedPrefs:');
+    prettyPrint(
+        investor.toJson(), '\n\n####### saving investor in SharedPrefs:');
     Map jsonx = investor.toJson();
     var jx = json.encode(jsonx);
 

@@ -5,12 +5,11 @@ import 'package:web_socket_channel/io.dart';
 //const DEBUG_URL_HOME = 'https://bfnrestv3.eu-gb.mybluemix.net/api/'; //FIBRE
 //const DEBUG_URL_ROUTER = 'https://bfnrestv3.eu-gb.mybluemix.net/api/'; //ROUTER
 const RELEASE_URL = 'https://bfnrestv3.eu-gb.mybluemix.net/api/'; //CLOUD
-const DEBUG_URL = 'https://bfnrestv3.eu-gb.mybluemix.net/api/'; //FIBRE
+const DEBUG_URL = 'https://192.168.86.239:3000/sendTransaction'; //FIBRE
 
-const DEBUG_URL_FUNCTIONS =
-    'https://us-central1-business-finance-dev.cloudfunctions.net/';
-const RELEASE_URL_FUNCTIONS =
-    'https://us-central1-business-finance-prod.cloudfunctions.net/';
+const DEBUG_URL_WEB_API = 'http://192.168.86.239:3000/sendTransaction';
+const RELEASE_URL_WEB_API =
+    'https://bfnwebapi1.eu-gb.mybluemix.net/sendTransaction';
 
 const USE_LOCAL_BLOCKCHAIN = false;
 
@@ -24,12 +23,12 @@ String getURL() {
   return url;
 }
 
-String getFunctionsURL() {
+String getWebAPIUrl() {
   var url;
   if (isInDebugMode) {
-    url = DEBUG_URL_FUNCTIONS;
+    url = DEBUG_URL_WEB_API;
   } else {
-    url = RELEASE_URL_FUNCTIONS;
+    url = RELEASE_URL_WEB_API;
   }
   return url;
 }

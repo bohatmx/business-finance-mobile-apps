@@ -2,7 +2,7 @@ class User {
   String userId,
       firstName,
       lastName,
-      govtEntity,
+      customer,
       company,
       supplier,
       auditor,
@@ -24,7 +24,7 @@ class User {
       {this.userId,
       this.firstName,
       this.lastName,
-      this.govtEntity,
+      this.customer,
       this.company,
       this.supplier,
       this.auditor,
@@ -68,7 +68,7 @@ class User {
     this.fcmToken = data['fcmToken'];
     this.documentReference = data['documentReference'];
 
-    this.govtEntity = data['govtEntity'];
+    this.customer = data['customer'];
     this.company = data['company'];
     this.supplier = data['supplier'];
     this.auditor = data['auditor'];
@@ -90,7 +90,7 @@ class User {
         'fcmToken': fcmToken,
         'isAdministrator': isAdministrator,
         'documentReference': documentReference,
-        'govtEntity': govtEntity,
+        'customer': customer,
         'company': company,
         'supplier': supplier,
         'auditor': auditor,

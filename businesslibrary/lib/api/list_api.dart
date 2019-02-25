@@ -7,10 +7,11 @@ import 'package:businesslibrary/data/auto_trade_order.dart';
 import 'package:businesslibrary/data/chat_message.dart';
 import 'package:businesslibrary/data/chat_response.dart';
 import 'package:businesslibrary/data/company.dart';
+import 'package:businesslibrary/data/country.dart';
+import 'package:businesslibrary/data/customer.dart';
 import 'package:businesslibrary/data/dashboard_data.dart';
 import 'package:businesslibrary/data/delivery_acceptance.dart';
 import 'package:businesslibrary/data/delivery_note.dart';
-import 'package:businesslibrary/data/govt_entity.dart';
 import 'package:businesslibrary/data/investor-unsettled-summary.dart';
 import 'package:businesslibrary/data/investor.dart';
 import 'package:businesslibrary/data/investor_profile.dart';
@@ -73,11 +74,20 @@ class ListAPI {
     List<User> ulist = await getUsers();
     List<User> list = List();
     ulist.forEach((user) {
-      if (user.govtEntity != null) {
+      if (user.customer != null) {
         list.add(user);
       }
     });
     print('ListAPI.getGovtUsers found: ${list.length} ');
+    return list;
+  }
+
+  static Future<List<Country>> getCountries() async {
+    List<Country> list = List();
+    var qs = await _firestore.collection('countries').getDocuments();
+    qs.documents.forEach((docSnap) {
+      list.add(Country.fromJson(docSnap.data));
+    });
     return list;
   }
 
@@ -742,7 +752,7 @@ class ListAPI {
   }
 
   static Future<List<Offer>> getOpenOffersViaFunctions() async {
-    String mUrl = getFunctionsURL() + 'queryOffers';
+    String mUrl = getWebAPIUrl() + 'queryOffers';
     Map map = {'limit': MAXIMUM_RECORDS_FROM_FIRESTORE, 'open': true};
 
     return _queryOffers(mUrl: mUrl, parameters: map);
@@ -922,7 +932,7 @@ class ListAPI {
 
     try {
       DashboardData result =
-          await _doDashboardHTTP(getFunctionsURL() + 'supplierDashboard', data);
+          await _doDashboardHTTP(getWebAPIUrl() + 'supplierDashboard', data);
       prettyPrint(result.toJson(), '### Supplier Dashboard Data:');
       return result;
     } catch (e) {
@@ -939,7 +949,7 @@ class ListAPI {
 
     try {
       DashboardData result =
-          await _doDashboardHTTP(getFunctionsURL() + 'investorDashboard', data);
+          await _doDashboardHTTP(getWebAPIUrl() + 'investorDashboard', data);
 
       return result;
     } catch (e) {
@@ -955,7 +965,7 @@ class ListAPI {
         documentId: documentId, limit: MAXIMUM_RECORDS_FROM_FIRESTORE);
 
     DashboardData result =
-        await _doDashboardHTTP(getFunctionsURL() + 'customerDashboard', data);
+        await _doDashboardHTTP(getWebAPIUrl() + 'customerDashboard', data);
     prettyPrint(result.toJson(), '### Dashboard Data from function call:');
     return result;
   }
@@ -963,7 +973,7 @@ class ListAPI {
   static Future<OpenOfferSummary> getOpenOffersWithPaging(
       {int lastDate, int pageLimit}) async {
     OpenOfferSummary summary = await _doOpenOffersHTTP(
-        getFunctionsURL() + 'getOpenOffersWithPaging', lastDate, pageLimit);
+        getWebAPIUrl() + 'getOpenOffersWithPaging', lastDate, pageLimit);
     if (summary.offers != null) {
       print(
           'ListAPI.getOpenOffersWithPaging &&&&&&&&&&& found: ${summary.offers.length} \n\n');
@@ -974,7 +984,7 @@ class ListAPI {
   static Future<PurchaseOrderSummary> getSupplierPurchaseOrdersWithPaging(
       {int startKey, int pageLimit, String documentId}) async {
     PurchaseOrderSummary summary = await _doPurchaseOrderHTTP(
-        mUrl: getFunctionsURL() + 'getPurchaseOrdersWithPaging',
+        mUrl: getWebAPIUrl() + 'getPurchaseOrdersWithPaging',
         date: startKey,
         pageLimit: pageLimit,
         collection: 'suppliers',
@@ -986,7 +996,7 @@ class ListAPI {
   static Future<PurchaseOrderSummary> getCustomerPurchaseOrdersWithPaging(
       {int lastDate, int pageLimit, String documentId}) async {
     PurchaseOrderSummary summary = await _doPurchaseOrderHTTP(
-        mUrl: getFunctionsURL() + 'getPurchaseOrdersWithPaging',
+        mUrl: getWebAPIUrl() + 'getPurchaseOrdersWithPaging',
         date: lastDate,
         pageLimit: pageLimit,
         collection: 'govtEntities',
@@ -998,7 +1008,7 @@ class ListAPI {
   static Future<PurchaseOrderSummary> getCustomerInvoicessWithPaging(
       {int lastDate, int pageLimit, String documentId}) async {
     PurchaseOrderSummary summary = await _doPurchaseOrderHTTP(
-        mUrl: getFunctionsURL() + 'getPurchaseOrdersWithPaging',
+        mUrl: getWebAPIUrl() + 'getPurchaseOrdersWithPaging',
         date: lastDate,
         pageLimit: pageLimit,
         collection: 'govtEntities',
@@ -1119,7 +1129,7 @@ class ListAPI {
       'Accept': 'application/json',
     };
 
-    var mUrl = getFunctionsURL() + 'getOpenOffersSummary';
+    var mUrl = getWebAPIUrl() + 'getOpenOffersSummary';
     Map<String, dynamic> map;
     map = {'debug': isInDebugMode};
 
@@ -1160,7 +1170,7 @@ class ListAPI {
       'Accept': 'application/json',
     };
 
-    var mUrl = getFunctionsURL() + 'getInvestorsSummary';
+    var mUrl = getWebAPIUrl() + 'getInvestorsSummary';
     Map<String, dynamic> map;
     map = {'documentId': documentId};
 
@@ -1216,7 +1226,7 @@ class ListAPI {
         data = DashboardData.fromJson(json.decode(resp.body));
         var end = DateTime.now();
         print(
-            '\n\nListAPI.doHTTP .... ################ Query via Cloud Functions: status: ${resp.statusCode} for $mUrl - elapsed: ${end.difference(start).inSeconds} seconds');
+            '\n\n✅ ListAPI.doHTTP .... ################ Query via Cloud Functions: status: ${resp.statusCode} for $mUrl - elapsed: ${end.difference(start).inSeconds} seconds');
         return data;
       } else {
         throw Exception('Dashboard data query failed');
@@ -1251,7 +1261,7 @@ class ListAPI {
 
     if (list.isNotEmpty) {
       print(
-          'ListAPI.getInvoices ################## found: ${list.length} from ${list.elementAt(0).supplierName}');
+          'ListAPI.getInvoices ##################  ✅ found: ${list.length} from ${list.elementAt(0).supplierName}');
     }
     return list;
   }
@@ -1611,8 +1621,8 @@ class ListAPI {
     return dn;
   }
 
-  static Future<GovtEntity> getSupplierById(String participantId) async {
-    GovtEntity supplier;
+  static Future<Customer> getSupplierById(String participantId) async {
+    Customer supplier;
     var qs = await _firestore
         .collection('suppliers')
         .where('participantId', isEqualTo: participantId)
@@ -1623,7 +1633,7 @@ class ListAPI {
     });
 
     if (qs.documents.isNotEmpty) {
-      supplier = GovtEntity.fromJson(qs.documents.first.data);
+      supplier = Customer.fromJson(qs.documents.first.data);
       supplier.documentReference = qs.documents.first.documentID;
     }
 
@@ -1733,10 +1743,9 @@ class ListAPI {
     return list;
   }
 
-  static Future<List<GovtEntity>> getGovtEntitiesByCountry(
-      String country) async {
+  static Future<List<Customer>> getGovtEntitiesByCountry(String country) async {
     print('ListAPI.getGovtEntities .......  country: $country');
-    List<GovtEntity> list = List();
+    List<Customer> list = List();
     var qs = await _firestore
         .collection('govtEntities')
         .where('country', isEqualTo: country)
@@ -1748,7 +1757,7 @@ class ListAPI {
     });
 
     qs.documents.forEach((doc) {
-      var m = GovtEntity.fromJson(doc.data);
+      var m = Customer.fromJson(doc.data);
       m.documentReference = doc.documentID;
       list.add(m);
     });
@@ -1949,11 +1958,11 @@ class ListAPI {
     return list;
   }
 
-  static Future<List<PrivateSectorType>> getPrivateSectorTypes() async {
-    List<PrivateSectorType> list = List();
+  static Future<List<Sector>> getPrivateSectorTypes() async {
+    List<Sector> list = List();
     var qs = await _firestore
-        .collection('privateSectorTypes')
-        .orderBy('type')
+        .collection('sectors')
+        .orderBy('sectorName')
         .getDocuments()
         .catchError((e) {
       print('ListAPI.getPrivateSectorTypes $e');
@@ -1963,7 +1972,7 @@ class ListAPI {
     print('ListAPI.getPrivateSectorTypes found: ${qs.documents.length} ');
 
     qs.documents.forEach((doc) {
-      list.add(new PrivateSectorType.fromJson(doc.data));
+      list.add(new Sector.fromJson(doc.data));
     });
 
     return list;

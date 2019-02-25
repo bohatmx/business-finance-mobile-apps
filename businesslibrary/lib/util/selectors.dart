@@ -3,10 +3,9 @@ import 'dart:math';
 
 import 'package:businesslibrary/api/file_util.dart';
 import 'package:businesslibrary/api/list_api.dart';
-import 'package:businesslibrary/data/govt_entity.dart';
+import 'package:businesslibrary/data/country.dart';
 import 'package:businesslibrary/data/sector.dart';
 import 'package:businesslibrary/data/supplier.dart';
-import 'package:businesslibrary/util/lookups.dart';
 import 'package:flutter/material.dart';
 
 class SectorSelectorPage extends StatefulWidget {
@@ -122,11 +121,7 @@ class _CountrySelectorPageState extends State<CountrySelectorPage> {
   }
 
   _getCountries() async {
-    countries = await Lookups.getCountries();
-    if (countries.isEmpty) {
-      await Lookups.storeCountries();
-      countries = await Lookups.getCountries();
-    }
+    countries = await ListAPI.getCountries();
     print(
         'CountrySelectorPage._getCountries found:countries ${countries.length}');
     setState(() {});
