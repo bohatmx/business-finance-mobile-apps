@@ -2,18 +2,16 @@ import 'dart:math';
 
 import 'package:businesslibrary/api/data_api3.dart';
 import 'package:businesslibrary/api/list_api.dart';
+import 'package:businesslibrary/data/customer.dart';
 import 'package:businesslibrary/data/delivery_acceptance.dart';
 import 'package:businesslibrary/data/delivery_note.dart';
-import 'package:businesslibrary/data/govt_entity.dart';
 import 'package:businesslibrary/data/invoice.dart';
-import 'package:businesslibrary/data/invoice_bid.dart';
 import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/sector.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/lookups.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 
@@ -25,7 +23,7 @@ abstract class GenListener {
 }
 
 class Generator {
-  static List<GovtEntity> customers;
+  static List<Customer> customers;
   static List<Supplier> suppliers;
   static List<Unit> units = List();
   static int index = 0;
@@ -38,34 +36,6 @@ class Generator {
   static GenListener genListener;
   static BuildContext context;
   static final FirebaseMessaging _fcm = FirebaseMessaging();
-
-  static Future fixBids() async {
-    Firestore fs = Firestore.instance;
-
-    print(
-        '\n\n\n_DashboardState.fixBids ##########################################');
-    int count = 0, count2 = 0;
-    var qs = await fs
-        .collection('invoiceOffers')
-        .where('isOpen', isEqualTo: true)
-        .orderBy('date')
-        .getDocuments();
-    var qs2 = await fs
-        .collection('invoiceOffers')
-        .where('isOpen', isEqualTo: false)
-        .orderBy('date')
-        .getDocuments();
-    var qs3 =
-        await fs.collection('invoiceOffers').orderBy('date').getDocuments();
-    print(
-        '_DashboardState.fixBids ============ ${qs.documents.length} open offers found ...\n\n');
-    print(
-        '_DashboardState.fixBids ============ ${qs2.documents.length} closed offers found ...\n\n');
-    print(
-        '_DashboardState.fixBids ============ ${qs3.documents.length} ALL offers found. Summed: ${qs.documents.length + qs2.documents.length}..\n\n');
-
-    print('_DashboardState.fixBids ######################### COMPLETED!!!!');
-  }
 
   static Future generateOffers(GenListener listener, BuildContext ctx) async {
     listener.onEvent('### Starting Offer Generation ###', false);
@@ -208,7 +178,7 @@ class Generator {
   static List<Offer> offers = List();
 
   static Future _generatePurchaseOrder(
-      Supplier supplier, GovtEntity customer) async {
+      Supplier supplier, Customer customer) async {
     var user = users.elementAt(rand.nextInt(users.length - 1));
     assert(user != null);
     var po = PurchaseOrder(
@@ -227,7 +197,6 @@ class Generator {
 
     try {
       var pOrder = await DataAPI3.registerPurchaseOrder(po);
-      purchaseOrders.add(pOrder);
       genListener.onEvent(
           'Purchase order added: ${getFormattedAmount('${po.amount}', context)} : ${po.purchaserName} to ${po.supplierName} ',
           true);
@@ -322,7 +291,7 @@ class Generator {
       date: new DateTime.now().toIso8601String(),
     );
     try {
-      var i = await DataAPI3.saveInvoice(invoice);
+      var i = await DataAPI3.registerInvoice(invoice);
       invoices.add(i);
       genListener.onEvent(
           'Invoice added: ${invoice.invoiceNumber} - ${getFormattedAmount('${invoice.totalAmount}', context)} ${note.customerName} to ${note.supplierName} ',
@@ -441,7 +410,7 @@ class Generator {
 }
 
 class Unit {
-  GovtEntity customer;
+  Customer customer;
   Supplier supplier;
 
   Unit(this.customer, this.supplier);

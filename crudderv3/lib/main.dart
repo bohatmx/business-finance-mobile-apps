@@ -1,13 +1,10 @@
 import 'dart:async';
-import 'dart:io';
 import 'dart:math';
 
 import 'package:businesslibrary/api/data_api3.dart';
 import 'package:businesslibrary/api/list_api.dart';
-import 'package:businesslibrary/api/shared_prefs.dart';
-import 'package:businesslibrary/api/signup.dart';
 import 'package:businesslibrary/data/auto_trade_order.dart';
-import 'package:businesslibrary/data/govt_entity.dart';
+import 'package:businesslibrary/data/customer.dart';
 import 'package:businesslibrary/data/investor.dart';
 import 'package:businesslibrary/data/investor_profile.dart';
 import 'package:businesslibrary/data/invoice_bid.dart';
@@ -64,11 +61,33 @@ class _MyHomePageState extends State<MyHomePage>
   @override
   initState() {
     super.initState();
+  }
 
+  Future testChaincode() async {
+    setState(() {
+      msgList.add('💦  💦  💦  💦  Testing Chaincode calls ..');
+    });
+    List result0 = await DataAPI3.testChainCode('getAllCustomers');
+    setState(() {
+      msgList.add('💛 💛 💛  Found :    .. ${result0.length} customers');
+    });
+    print('\n 💦  💦  💦 $result0 \n 💦  💦  💦');
+    List result1 = await DataAPI3.testChainCode('getAllSuppliers');
+    print('\n 💦  💦  💦 $result1 \n 💦  💦  💦');
+    setState(() {
+      msgList.add('❤️  ❤️  ❤️  Found :    .. ${result1.length} suppliers');
+    });
+    List result2 = await DataAPI3.testChainCode('getAllInvestors');
+    print('\n 💦  💦  💦 $result2 \n 💦  💦  💦');
+    setState(() {
+      msgList.add(' 💚  💚  💚  Found :  .. ${result2.length} investors');
+    });
+    return 0;
   }
 
   void _generateBrandNewNetwork() async {
     Navigator.pop(context);
+
     if (!isBrandNew) {
       print(
           '_MyHomePageState._generateBrandNewNetwork - NETWORK ALREADY PAST Genesis. IGNORED. OUT.');
@@ -91,60 +110,47 @@ class _MyHomePageState extends State<MyHomePage>
     var start = DateTime.now();
 
     setState(() {
-      msgList.add('Removing authenticated users ...');
-    });
-    await _removeUsers();
-    sleep(Duration(seconds: 10));
-    setState(() {
-      msgList.add('Authenticated users removed');
-    });
-
-    setState(() {
       btnText = 'Working...Please Wait';
       phases = SIX;
       _phaseCounter++;
-      msgList.add('### GENESIS : Demo data cleanup is complete');
-      msgList.add('Adding sectors ...');
+      msgList.add('💦 💦  Demo data cleanup is complete');
+      msgList.add('💦 💦  Adding sectors ...');
     });
+
     await DataAPI3.addSectors();
-    //TODO - add countries and VAT schedules
     setState(() {
-      msgList.add('Sectors added to BFN and Firestore');
-      msgList.add('Adding customers ...');
+      msgList.add('💦 💦  Sectors added to BFN and Firestore');
+      msgList.add('💦 💦  Adding countries ...');
+      _phaseCounter++;
+    });
+    await DataAPI3.addCountries();
+    setState(() {
+      msgList.add('💦 💦  Countries added to BFN and Firestore');
+      msgList.add('💦 💦  Adding customers ...');
       _phaseCounter++;
     });
     await _addCustomers();
     setState(() {
       _phaseCounter++;
-      msgList.add('### GENESIS : Customers added to BFN and Firestore');
-      msgList.add('Adding suppliers ...');
+      msgList.add('💦 💦  Customers added to BFN and Firestore');
+      msgList.add('💦 💦  Adding suppliers ...');
     });
-    await _generateSuppliers();
+    await _addSuppliers();
     setState(() {
       _phaseCounter++;
-      msgList.add('### GENESIS : Suppliers added to BFN and Firestore');
-      msgList.add('Adding investors ...');
+      msgList.add('💦 💦  Suppliers added to BFN and Firestore');
+      msgList.add('💦 💦  Adding investors ...');
     });
     await _addInvestors();
-    setState(() {
-      _phaseCounter++;
-      msgList.add('### GENESIS : Investors added to BFN and Firestore');
-      msgList.add('Generating data ...');
-    });
-
-    //generate PurchaseOrders thru Offers
-    await Generator.generate(this, context);
-
-    setState(() {
-      _phaseCounter++;
-      msgList.add('### GENESIS : Generated POs thru Offers. Operation One');
-    });
-
-    await Generator.generate(this, context);
 
     var end = DateTime.now();
     var diffm = end.difference(start).inMinutes;
     var diffs = end.difference(start).inSeconds;
+    setState(() {
+      _phaseCounter++;
+      msgList.add('💦 💦  Investors added to BFN and Firestore');
+      msgList.add('❤️ ❤️  Done Generating data ... $diffs seconds elapsed');
+    });
 
     isBusy = false;
     isBrandNew = false;
@@ -152,14 +158,8 @@ class _MyHomePageState extends State<MyHomePage>
     phases = SIX;
     btnColor = Colors.pink.shade800;
 
-    setState(() {
-      _phaseCounter++;
-      msgList.add('### GENESIS : Generated POs thru Offers. Operation Two');
-      msgList.add(
-          '### GENESIS : Demo Data Generation complete:, $diffm minutes elapsed. ($diffs seconds)');
-    });
     print(
-        '\n\n_MyHomePageState._start  ###################### GENESIS : Demo Data COMPLETED!');
+        '\n\n_MyHomePageState._start  ❤️ ❤️ ❤️ ❤️ ❤️ ###################### GENESIS : Demo Data COMPLETED!');
   }
 
   void _generateWorkingData() async {
@@ -334,7 +334,6 @@ class _MyHomePageState extends State<MyHomePage>
         isCancelled: false,
         wallet: NameSpace + 'Wallet#${wallet.stellarPublicKey}',
         investorName: c.name);
-
     await DataAPI3.addAutoTradeOrder(autoTradeOrder);
     setState(() {
       msgList.add('AutoTradeOrder added: ${p.name}');
@@ -367,9 +366,9 @@ class _MyHomePageState extends State<MyHomePage>
     return seed;
   }
 
+  List<Customer> customers = List();
   Future _addCustomers() async {
-    var result;
-    GovtEntity e1 = new GovtEntity(
+    Customer e1 = new Customer(
       name: 'Atteridgeville MetalWorks Ltd',
       email: 'info@works.com',
       country: 'South Africa',
@@ -381,17 +380,16 @@ class _MyHomePageState extends State<MyHomePage>
         password: 'pass123',
         isAdministrator: true,
         email: 'jzondi@works.com');
-    result = await SignUp.signUpGovtEntity(e1, u1);
-    if (result > 0) {
-      print('_MyHomePageState._addCustomers .... quit...');
-      throw Exception('Bad juju. eh?');
-    }
+
+    var result1 = await DataAPI3.addCustomer(e1, u1);
+    customers.add(result1);
+
     setState(() {
-      msgList.add('Customer added: ${e1.name}');
+      msgList.add('❤️  Customer added: ${e1.name}');
       recordCounter++;
     });
 
-    GovtEntity e2 = new GovtEntity(
+    Customer e2 = new Customer(
       name: 'Joburg Catering',
       email: 'info@jhbcaterer.com',
       country: 'South Africa',
@@ -403,17 +401,14 @@ class _MyHomePageState extends State<MyHomePage>
         password: 'pass123',
         isAdministrator: true,
         email: 'orangebaboon@jhbcaterer.com');
-    result = await SignUp.signUpGovtEntity(e2, u2);
-    if (result > 0) {
-      print('_MyHomePageState._addCustomers .... quit...');
-      throw Exception('Bad juju. eh?');
-    }
+    var result2 = await DataAPI3.addCustomer(e2, u2);
+    customers.add(result2);
     setState(() {
-      msgList.add('Customer added: ${e2.name}');
+      msgList.add('❤️  Customer added: ${e2.name}');
       recordCounter++;
     });
 
-    GovtEntity e3 = new GovtEntity(
+    Customer e3 = new Customer(
       name: 'Dept of Agriculture',
       email: 'info@agric.gov.za',
       country: 'South Africa',
@@ -425,17 +420,14 @@ class _MyHomePageState extends State<MyHomePage>
         password: 'pass123',
         isAdministrator: true,
         email: 'kendonnelly@agric.gov.za');
-    result = await SignUp.signUpGovtEntity(e3, u3);
-    if (result > 0) {
-      print('_MyHomePageState._addCustomers .... quit...');
-      throw Exception('Bad juju. eh?');
-    }
+    var result3 = await DataAPI3.addCustomer(e3, u3);
+    customers.add(result3);
     setState(() {
-      msgList.add('Customer added: ${e3.name}');
+      msgList.add('❤️  Customer added: ${e3.name}');
       recordCounter++;
     });
 
-    GovtEntity e4 = new GovtEntity(
+    Customer e4 = new Customer(
       name: 'Dept of Science',
       email: 'info@mscience.gov.za',
       country: 'South Africa',
@@ -447,18 +439,15 @@ class _MyHomePageState extends State<MyHomePage>
         password: 'pass123',
         isAdministrator: true,
         email: 'petervdm@mscience.gov.za');
-    result = await SignUp.signUpGovtEntity(e4, u4);
-    if (result > 0) {
-      print('_MyHomePageState._addCustomers .... quit...');
-      throw Exception('Bad juju. eh?');
-    }
+    var result4 = await DataAPI3.addCustomer(e4, u4);
+    customers.add(result4);
     setState(() {
-      msgList.add('Customer added: ${e4.name}');
+      msgList.add('❤️  Customer added: ${e4.name}');
       recordCounter++;
     });
 
-    GovtEntity e5 = new GovtEntity(
-      name: 'Pick n Pay',
+    Customer e5 = new Customer(
+      name: 'Select n Pay',
       email: 'info@pickandpay.com',
       country: 'South Africa',
       allowAutoAccept: true,
@@ -469,22 +458,16 @@ class _MyHomePageState extends State<MyHomePage>
         password: 'pass123',
         isAdministrator: true,
         email: 'harry@pickandpay.com');
-    result = await SignUp.signUpGovtEntity(e5, u5);
-    if (result > 0) {
-      print('_MyHomePageState._addCustomers .... quit...');
-      throw Exception('Bad juju. eh?');
-    }
+    var result5 = await DataAPI3.addCustomer(e5, u5);
+    customers.add(result5);
     setState(() {
-      msgList.add('Customer added: ${e5.name}');
+      msgList.add('❤️  Customer added: ${e5.name}');
       recordCounter++;
     });
   }
 
+  List<Investor> investors = List();
   Future _addInvestors() async {
-    var result;
-    Investor investor;
-    User user;
-    Wallet wallet;
     Investor e1 = new Investor(
       name: 'Pretoria Investors Ltd',
       email: 'info@investors.com',
@@ -496,19 +479,10 @@ class _MyHomePageState extends State<MyHomePage>
         password: 'pass123',
         isAdministrator: true,
         email: 'green@investors.com');
-    result = await SignUp.signUpInvestor(e1, u1);
-    if (result > 0) {
-      print('_MyHomePageState.__addInvestors .... quit...');
-      throw Exception('Bad juju. eh?');
-    }
-    investor = await SharedPrefs.getInvestor();
-    user = await SharedPrefs.getUser();
-    wallet = await SharedPrefs.getWallet();
-    if (investor != null) {
-      await _addProfile(e1, user, wallet);
-    }
+    var result1 = await DataAPI3.addInvestor(e1, u1);
+    investors.add(result1);
     setState(() {
-      msgList.add('Investor added: ${e1.name}');
+      msgList.add(' 😍  Investor  added: ${e1.name}');
       recordCounter++;
     });
 
@@ -523,19 +497,10 @@ class _MyHomePageState extends State<MyHomePage>
         password: 'pass123',
         isAdministrator: true,
         email: 'george@invoicegurus.com');
-    result = await SignUp.signUpInvestor(e2, u2);
-    if (result > 0) {
-      print('_MyHomePageState.__addInvestors .... quit...');
-      throw Exception('Bad juju. eh?');
-    }
-    investor = await SharedPrefs.getInvestor();
-    user = await SharedPrefs.getUser();
-    wallet = await SharedPrefs.getWallet();
-    if (investor != null) {
-      await _addProfile(e2, user, wallet);
-    }
+    var result2 = await DataAPI3.addInvestor(e2, u2);
+    investors.add(result2);
     setState(() {
-      msgList.add('Investor added: ${e2.name}');
+      msgList.add(' 😍  Investor  added: ${e2.name}');
       recordCounter++;
     });
 
@@ -550,19 +515,10 @@ class _MyHomePageState extends State<MyHomePage>
         password: 'pass123',
         isAdministrator: true,
         email: 'harry@funders.com');
-    result = await SignUp.signUpInvestor(e3, u3);
-    if (result > 0) {
-      print('_MyHomePageState.__addInvestors .... quit...');
-      throw Exception('Bad juju. eh?');
-    }
-    investor = await SharedPrefs.getInvestor();
-    user = await SharedPrefs.getUser();
-    wallet = await SharedPrefs.getWallet();
-    if (investor != null) {
-      await _addProfile(e3, user, wallet);
-    }
+    var result3 = await DataAPI3.addInvestor(e3, u3);
+    investors.add(result3);
     setState(() {
-      msgList.add('Investor added: ${e3.name}');
+      msgList.add(' 😍  Investor  added: ${e3.name}');
       recordCounter++;
     });
 
@@ -577,19 +533,10 @@ class _MyHomePageState extends State<MyHomePage>
         password: 'pass123',
         isAdministrator: true,
         email: 'mike@galore.com');
-    result = await SignUp.signUpInvestor(e4, u4);
-    if (result > 0) {
-      print('_MyHomePageState.__addInvestors .... quit...');
-      throw Exception('Bad juju. eh?');
-    }
-    investor = await SharedPrefs.getInvestor();
-    user = await SharedPrefs.getUser();
-    wallet = await SharedPrefs.getWallet();
-    if (investor != null) {
-      await _addProfile(e4, user, wallet);
-    }
+    var result4 = await DataAPI3.addInvestor(e4, u4);
+    investors.add(result4);
     setState(() {
-      msgList.add('Investor added: ${e4.name}');
+      msgList.add(' 😍  Investor  added: ${e4.name}');
       recordCounter++;
     });
 
@@ -604,36 +551,12 @@ class _MyHomePageState extends State<MyHomePage>
         password: 'pass123',
         isAdministrator: true,
         email: 'danb@mcashkings.com');
-    result = await SignUp.signUpInvestor(e5, u5);
-    if (result > 0) {
-      print('_MyHomePageState.__addInvestors .... quit...');
-      throw Exception('Bad juju. eh?');
-    }
-    investor = await SharedPrefs.getInvestor();
-    user = await SharedPrefs.getUser();
-    wallet = await SharedPrefs.getWallet();
-    if (investor != null) {
-      await _addProfile(e5, user, wallet);
-    }
+    var result5 = await DataAPI3.addInvestor(e5, u5);
+    investors.add(result5);
     setState(() {
-      msgList.add('Investor added: ${e5.name}');
+      msgList.add(' 😍  Investor  added: ${e5.name}');
       recordCounter++;
     });
-  }
-
-  Future _removeUsers() async {
-    var fs = Firestore.instance;
-    var now = getUTCDate();
-    var data = {'now': now, 'desc': 'Trigger deletion of auth users'};
-    var res = await fs.collection('usersDeleteTriggers').add(data);
-    print(res);
-    setState(() {
-      msgList.add(
-          'Users being removed from Firestore, will pause 10 seconds to let the process finish');
-    });
-    print(
-        '\n\n\n_MyHomePageState.cleanUp ... sleeping for 10 seconds .......${DateTime.now().toIso8601String()}');
-    return null;
   }
 
   Color btnColor = Colors.orange.shade800;
@@ -715,7 +638,16 @@ class _MyHomePageState extends State<MyHomePage>
         appBar: AppBar(
           title: Text('BFN Demo Data Generator'),
           bottom: _getBottom(),
+          actions: <Widget>[
+            IconButton(
+              icon: Icon(Icons.search),
+              onPressed: () {
+                testChaincode();
+              },
+            )
+          ],
         ),
+        backgroundColor: Colors.brown.shade100,
         body: _getListView());
   }
 
@@ -782,7 +714,8 @@ class _MyHomePageState extends State<MyHomePage>
     );
   }
 
-  _generateSuppliers() async {
+  List<Supplier> suppliers = List();
+  _addSuppliers() async {
     print('Generator.generateSuppliers ............');
     var result;
     try {
@@ -797,14 +730,11 @@ class _MyHomePageState extends State<MyHomePage>
           password: 'pass123',
           isAdministrator: true,
           email: 'dmkhize@mkhize.com');
-      result = await SignUp.signUpSupplier(e1, u1);
-      if (result > 0) {
-        print('_MyHomePageState._generateSuppliers .... quit...');
-        throw Exception('Bad juju. eh?');
-      }
+      var result1 = await DataAPI3.addSupplier(e1, u1);
+      suppliers.add(result1);
       setState(() {
         recordCounter++;
-        msgList.add('Supplier added: ${e1.name}');
+        msgList.add('💋  Suppliaer added: ${e1.name}');
       });
 
       Supplier e2 = new Supplier(
@@ -818,13 +748,10 @@ class _MyHomePageState extends State<MyHomePage>
           password: 'pass123',
           isAdministrator: true,
           email: 'ddlam@dlamini.com');
-      result = await SignUp.signUpSupplier(e2, u2);
-      if (result > 0) {
-        print('_MyHomePageState._generateSuppliers .... quit...');
-        throw Exception('Bad juju. eh?');
-      }
+      var result2 = await DataAPI3.addSupplier(e2, u2);
+      suppliers.add(result2);
       setState(() {
-        msgList.add('Supplier added: ${e2.name}');
+        msgList.add('💋  Suppliaer added: ${e2.name}');
         recordCounter++;
       });
 
@@ -839,13 +766,10 @@ class _MyHomePageState extends State<MyHomePage>
           password: 'pass123',
           isAdministrator: true,
           email: 'danielkk@engineers.com');
-      result = await SignUp.signUpSupplier(e5, u5);
-      if (result > 0) {
-        print('_MyHomePageState._generateSuppliers .... quit...');
-        throw Exception('Bad juju. eh?');
-      }
+      var result5 = await DataAPI3.addSupplier(e5, u5);
+      suppliers.add(result5);
       setState(() {
-        msgList.add('Supplier added: ${e5.name}');
+        msgList.add('💋  Suppliaer added: ${e5.name}');
         recordCounter++;
       });
 
@@ -860,13 +784,10 @@ class _MyHomePageState extends State<MyHomePage>
           password: 'pass123',
           isAdministrator: true,
           email: 'petejohn@dhhtransport.com');
-      result = await SignUp.signUpSupplier(e6, u6);
-      if (result > 0) {
-        print('_MyHomePageState._generateSuppliers .... quit...');
-        throw Exception('Bad juju. eh?');
-      }
+      var result6 = await DataAPI3.addSupplier(e6, u6);
+      suppliers.add(result6);
       setState(() {
-        msgList.add('Supplier added: ${e6.name}');
+        msgList.add('💋  Suppliaer added: ${e6.name}');
         recordCounter++;
       });
 
@@ -881,13 +802,10 @@ class _MyHomePageState extends State<MyHomePage>
           password: 'pass123',
           isAdministrator: true,
           email: 'sam@fxtransport.com');
-      result = await SignUp.signUpSupplier(e7, u7);
-      if (result > 0) {
-        print('_MyHomePageState._generateSuppliers .... quit...');
-        throw Exception('Bad juju. eh?');
-      }
+      var result7 = await DataAPI3.addSupplier(e7, u7);
+      suppliers.add(result7);
       setState(() {
-        msgList.add('Supplier added: ${e7.name}');
+        msgList.add('💋  Suppliaer added: ${e7.name}');
         recordCounter++;
       });
 
@@ -902,13 +820,10 @@ class _MyHomePageState extends State<MyHomePage>
           password: 'pass123',
           isAdministrator: true,
           email: 'tom@rolliin.com');
-      result = await SignUp.signUpSupplier(e8, u8);
-      if (result > 0) {
-        print('_MyHomePageState._generateSuppliers .... quit...');
-        throw Exception('Bad juju. eh?');
-      }
+      var result8 = await DataAPI3.addSupplier(e8, u8);
+      suppliers.add(result8);
       setState(() {
-        msgList.add('Supplier added: ${e8.name}');
+        msgList.add('💋  Suppliaer added: ${e8.name}');
         recordCounter++;
       });
 
@@ -923,13 +838,10 @@ class _MyHomePageState extends State<MyHomePage>
           password: 'pass123',
           isAdministrator: true,
           email: 'xman@pope.com');
-      result = await SignUp.signUpSupplier(e9, u9);
-      if (result > 0) {
-        print('_MyHomePageState._generateSuppliers .... quit...');
-        throw Exception('Bad juju. eh?');
-      }
+      var result9 = await DataAPI3.addSupplier(e9, u9);
+      suppliers.add(result9);
       setState(() {
-        msgList.add('Supplier added: ${e9.name}');
+        msgList.add('💋  Suppliaer added: ${e9.name}');
         recordCounter++;
       });
 
@@ -944,13 +856,10 @@ class _MyHomePageState extends State<MyHomePage>
           password: 'pass123',
           isAdministrator: true,
           email: 'pete@naidoo.com');
-      result = await SignUp.signUpSupplier(e10, u10);
-      if (result > 0) {
-        print('_MyHomePageState._generateSuppliers .... quit...');
-        throw Exception('Bad juju. eh?');
-      }
+      var result10 = await DataAPI3.addSupplier(e10, u10);
+      suppliers.add(result10);
       setState(() {
-        msgList.add('Supplier added: ${e10.name}');
+        msgList.add('💋  Suppliaer added: ${e10.name}');
         recordCounter++;
       });
 
@@ -965,13 +874,10 @@ class _MyHomePageState extends State<MyHomePage>
           password: 'pass123',
           isAdministrator: true,
           email: 'eve@greenlogs.com');
-      result = await SignUp.signUpSupplier(e11, u11);
-      if (result > 0) {
-        print('_MyHomePageState._generateSuppliers .... quit...');
-        throw Exception('Bad juju. eh?');
-      }
+      var result11 = await DataAPI3.addSupplier(e11, u11);
+      suppliers.add(result11);
       setState(() {
-        msgList.add('Supplier added: ${e11.name}');
+        msgList.add('💋  Suppliaer added: ${e11.name}');
         recordCounter++;
       });
 
@@ -986,13 +892,10 @@ class _MyHomePageState extends State<MyHomePage>
           password: 'pass123',
           isAdministrator: true,
           email: 'mary@wendywood.com');
-      result = await SignUp.signUpSupplier(e12, u12);
-      if (result > 0) {
-        print('_MyHomePageState._generateSuppliers .... quit...');
-        throw Exception('Bad juju. eh?');
-      }
+      var result12 = await DataAPI3.addSupplier(e12, u12);
+      suppliers.add(result12);
       setState(() {
-        msgList.add('Supplier added: ${e12.name}');
+        msgList.add('💋  Suppliaer added: ${e12.name}');
         recordCounter++;
       });
       Supplier e13 = new Supplier(
@@ -1006,13 +909,10 @@ class _MyHomePageState extends State<MyHomePage>
           password: 'pass123',
           isAdministrator: true,
           email: 'xavier@xavier.com');
-      result = await SignUp.signUpSupplier(e13, u13);
-      if (result > 0) {
-        print('_MyHomePageState._generateSuppliers .... quit...');
-        throw Exception('Bad juju. eh?');
-      }
+      var result13 = await DataAPI3.addSupplier(e13, u13);
+      suppliers.add(result13);
       setState(() {
-        msgList.add('Supplier added: ${e13.name}');
+        msgList.add('💋  Suppliaer added: ${e13.name}');
         recordCounter++;
       });
 
@@ -1027,14 +927,11 @@ class _MyHomePageState extends State<MyHomePage>
           password: 'pass123',
           isAdministrator: true,
           email: 'danj@logs.com');
-      result = await SignUp.signUpSupplier(e14, u14);
-      if (result > 0) {
-        print('_MyHomePageState._generateSuppliers .... quit...');
-        throw Exception('Bad juju. eh?');
-      }
+      var result14 = await DataAPI3.addSupplier(e14, u14);
+      suppliers.add(result14);
       print('Generator.generateSuppliers COMPLETED');
       setState(() {
-        msgList.add('Supplier added: ${e14.name}');
+        msgList.add('💋  Suppliaer added: ${e14.name}');
         recordCounter++;
       });
     } catch (e) {
@@ -1089,9 +986,12 @@ class _MyHomePageState extends State<MyHomePage>
           if (msgList[position].contains('Offer added')) {
             color = Colors.red.shade900;
           }
-          return MessageCard(
-            message: msgList[position],
-            color: color,
+          return Padding(
+            padding: const EdgeInsets.only(left: 16.0, right: 16, top: 6),
+            child: MessageCard(
+              message: msgList[position],
+              color: color,
+            ),
           );
         });
   }
@@ -1226,18 +1126,20 @@ class MessageCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Card(
-        elevation: 2.0,
-        child: Padding(
-          padding: const EdgeInsets.only(
-              top: 4.0, left: 12.0, right: 12.0, bottom: 12.0),
-          child: Text(
-            message,
-            style: TextStyle(color: color, fontSize: 16.0),
+    return Card(
+      elevation: 4.0,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Text(
+              message,
+              style: TextStyle(
+                  color: color, fontSize: 16.0, fontWeight: FontWeight.w600),
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
