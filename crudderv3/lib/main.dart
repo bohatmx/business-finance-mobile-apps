@@ -2,12 +2,10 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:businesslibrary/api/data_api3.dart';
-import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/data/auto_trade_order.dart';
 import 'package:businesslibrary/data/customer.dart';
 import 'package:businesslibrary/data/investor.dart';
 import 'package:businesslibrary/data/investor_profile.dart';
-import 'package:businesslibrary/data/invoice_bid.dart';
 import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
@@ -16,7 +14,6 @@ import 'package:businesslibrary/util/FCM.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:crudderv3/generator.dart';
 import 'package:crudderv3/theme_util.dart';
 import 'package:flutter/material.dart';
@@ -31,7 +28,7 @@ class MyApp extends StatelessWidget {
       title: 'BFN Crudder',
       debugShowCheckedModeBanner: false,
       theme: getTheme(),
-      home: new MyHomePage(title: 'Business Finance Network'),
+      home: new MyHomePage(title: 'Business Finance Network 1.0'),
     );
   }
 }
@@ -82,6 +79,16 @@ class _MyHomePageState extends State<MyHomePage>
     setState(() {
       msgList.add(' 💚  💚  💚  Found :  .. ${result2.length} investors');
     });
+    List result3 = await DataAPI3.testChainCode('getAllSectors');
+    print('\n 💦  💦  💦 $result3 \n 💦  💦  💦');
+    setState(() {
+      msgList.add(' 💚  ❤️ 💚  Found :  .. ${result3.length} sectors');
+    });
+    List result4 = await DataAPI3.testChainCode('getAllCountries');
+    print('\n 💦  💦  💦 $result4 \n 💦  💦  💦');
+    setState(() {
+      msgList.add(' 💚  ❤️ 💚  Found :  .. ${result4.length} countries');
+    });
     return 0;
   }
 
@@ -108,7 +115,7 @@ class _MyHomePageState extends State<MyHomePage>
     }
     isBusy = true;
     var start = DateTime.now();
-
+    print('\n\n💦 💦  💦 💦  💦 💦  💦 💦  _generateBrandNewNetwork ... ');
     setState(() {
       btnText = 'Working...Please Wait';
       phases = SIX;
@@ -201,129 +208,6 @@ class _MyHomePageState extends State<MyHomePage>
   static const FIVE = '5', SIX = '5';
   List<String> msgList = List();
 
-  Future fixInvoiceBidDates() async {
-    var start = DateTime.now();
-    msgList.add('fixInvoiceBidDates.fix .............. started FIX');
-    setState(() {});
-    Firestore fs = Firestore.instance;
-    var qs = await fs.collection('investors').getDocuments();
-
-    setState(() {
-      msgList.add(
-          'fixInvoiceBidDates.fix investors found: ${qs.documents.length}');
-    });
-    for (var doc in qs.documents) {
-      setState(() {
-        msgList.add(('### investor started : ${doc.data['investor']}'));
-      });
-      var qs2 = await doc.reference.collection('invoiceBids').getDocuments();
-      setState(() {
-        msgList.add('investor bids found: ${qs2.documents.length}');
-      });
-      for (var doc2 in qs2.documents) {
-        var bid = InvoiceBid.fromJson(doc2.data);
-        if (bid.intDate == null) {
-          bid.intDate = DateTime.parse(bid.date).millisecondsSinceEpoch;
-          await doc2.reference.setData(bid.toJson());
-          print(
-              '_MyHomePageState.fix initDate updated ${bid.intDate} ${bid.investorName} ${bid.amount}');
-        }
-      }
-    }
-    var end1 = DateTime.now();
-    setState(() {
-      msgList.add(
-          'investors initDates fixed: ${end1.difference(start).inSeconds} seconds elapsed');
-    });
-//    var qsb = await fs.collection('invoiceOffers').getDocuments();
-//
-//    setState(() {
-//      msgList
-//          .add('fixInvoiceBidDates.fix offers found: ${qsb.documents.length}');
-//    });
-//    for (var doc in qsb.documents) {
-//      var qs2 = await doc.reference.collection('invoiceBids').getDocuments();
-//      setState(() {
-//        msgList.add(
-//            'Found ${qs2.documents.length} invoiceBids for Offer ${doc.data['offerAmount']}');
-//      });
-//      for (var doc2 in qs2.documents) {
-//        var bid = InvoiceBid.fromJson(doc2.data);
-//        if (bid.intDate == null) {
-//          bid.intDate = DateTime.parse(bid.date).millisecondsSinceEpoch;
-//          await doc2.reference.setData(bid.toJson());
-//          print(
-//              '_MyHomePageState.fix initDate updated ${bid.intDate} ${bid.investorName} ${bid.amount}');
-//        }
-//      }
-//    }
-    var end2 = DateTime.now();
-    setState(() {
-      msgList.add(
-          'offers initDates fixed: ${end2.difference(end1).inSeconds} seconds elapsed');
-    });
-    setState(() {
-      msgList.add('fixInvoiceBidDates.fix ######################## FIX ended.');
-    });
-    return null;
-  }
-
-  Future fixInvestorProfiles() async {
-    var investors = await ListAPI.getInvestors();
-    var users = await ListAPI.getUsers();
-    User user;
-    if (users.isNotEmpty) {
-      user = users.elementAt(0);
-    }
-    for (var investor in investors) {
-      var wallet = await ListAPI.getWallet(
-          'investor', NameSpace + 'Investor#${investor.participantId}');
-      var profile = await ListAPI.getInvestorProfile(investor.participantId);
-      if (profile == null) {
-        _addProfile(investor, user, wallet);
-      }
-    }
-  }
-
-  Future fixAutoTradeOrders() async {
-    var fs = Firestore.instance;
-    var qs = await fs.collection('autoTradeOrders').getDocuments();
-    print(
-        '_MyHomePageState.fixAutoTradeOrders, orders found: ${qs.documents.length}');
-    for (var doc in qs.documents) {
-      var order = AutoTradeOrder.fromJson(doc.data);
-      var wallet = await ListAPI.getWallet('investor', order.investor);
-      order.wallet = NameSpace + 'Wallet#${wallet.stellarPublicKey}';
-      await doc.reference.setData(order.toJson());
-      setState(() {
-        msgList.add('AutoTrade wallet updated to: ${wallet.stellarPublicKey}');
-      });
-      prettyPrint(order.toJson(), '\n### Updated AutoTradeOrder wallet:');
-    }
-  }
-
-  _addProfile(Investor investor, User user, Wallet wallet) async {
-    double invoiceAmount = _getRandomInvoiceAmount();
-    InvestorProfile investorProfile = InvestorProfile(
-        date: getUTCDate(),
-        cellphone: investor.cellphone,
-        email: investor.email,
-        investor: NameSpace + 'Investor#${investor.participantId}',
-        maxInvoiceAmount: invoiceAmount,
-        maxInvestableAmount: getRandomMax(invoiceAmount),
-        minimumDiscount: Generator.getRandomDisc(),
-        name: investor.name);
-
-    await DataAPI3.addInvestorProfile(investorProfile);
-    await _addAutoTradeOrder(investor, investorProfile, user, wallet);
-
-    setState(() {
-      msgList.add(
-          'Investor Profile and AutoTradeOrder added: ${investorProfile.name}');
-      recordCounter++;
-    });
-  }
-
   _addAutoTradeOrder(
       Investor c, InvestorProfile p, User user, Wallet wallet) async {
     AutoTradeOrder autoTradeOrder = AutoTradeOrder(
@@ -368,194 +252,231 @@ class _MyHomePageState extends State<MyHomePage>
 
   List<Customer> customers = List();
   Future _addCustomers() async {
-    Customer e1 = new Customer(
-      name: 'Atteridgeville MetalWorks Ltd',
-      email: 'info@works.com',
-      country: 'South Africa',
-      allowAutoAccept: true,
-    );
-    User u1 = new User(
-        firstName: 'Jonathan B.',
-        lastName: 'Zondi',
-        password: 'pass123',
-        isAdministrator: true,
-        email: 'jzondi@works.com');
+    try {
+      Customer e1 = new Customer(
+        name: 'Atteridgeville MetalWorks Ltd',
+        email: 'info@works.com',
+        country: 'South Africa',
+        allowAutoAccept: true,
+      );
+      User u1 = new User(
+          firstName: 'Jonathan B.',
+          lastName: 'Zondi',
+          password: 'pass123',
+          isAdministrator: true,
+          email: 'jzondi@works.com');
+      var result1 = await DataAPI3.addCustomer(e1, u1);
+      customers.add(result1);
+      setState(() {
+        msgList.add('❤️  Customer added: ${e1.name}');
+        recordCounter++;
+      });
+    } catch (e) {
+      print(e);
+    }
 
-    var result1 = await DataAPI3.addCustomer(e1, u1);
-    customers.add(result1);
-
+    try {
+      Customer e2 = new Customer(
+        name: 'Joburg Catering',
+        email: 'info@jhbcaterer.com',
+        country: 'South Africa',
+        allowAutoAccept: true,
+      );
+      User u2 = new User(
+          firstName: 'Donald',
+          lastName: 'Trump',
+          password: 'pass123',
+          isAdministrator: true,
+          email: 'orangebaboon@jhbcaterer.com');
+      var result2 = await DataAPI3.addCustomer(e2, u2);
+      customers.add(result2);
+      setState(() {
+        msgList.add('❤️  Customer added: ${e2.name}');
+        recordCounter++;
+      });
+    } catch (e) {
+      print(e);
+    }
+    try {
+      Customer e3 = new Customer(
+        name: 'Dept of Agriculture',
+        email: 'info@agric.gov.za',
+        country: 'South Africa',
+        allowAutoAccept: true,
+      );
+      User u3 = new User(
+          firstName: 'Kenneth',
+          lastName: 'Donnelly',
+          password: 'pass123',
+          isAdministrator: true,
+          email: 'kendonnelly@agric.gov.za');
+      var result3 = await DataAPI3.addCustomer(e3, u3);
+      customers.add(result3);
+      setState(() {
+        msgList.add('❤️  Customer added: ${e3.name}');
+        recordCounter++;
+      });
+    } catch (e) {
+      print(e);
+    }
+    try {
+      Customer e4 = new Customer(
+        name: 'Dept of Science',
+        email: 'info@mscience.gov.za',
+        country: 'South Africa',
+        allowAutoAccept: true,
+      );
+      User u4 = new User(
+          firstName: 'Peter',
+          lastName: 'van der Merwe',
+          password: 'pass123',
+          isAdministrator: true,
+          email: 'petervdm@mscience.gov.za');
+      var result4 = await DataAPI3.addCustomer(e4, u4);
+      customers.add(result4);
+      setState(() {
+        msgList.add('❤️  Customer added: ${e4.name}');
+        recordCounter++;
+      });
+    } catch (e) {
+      print(e);
+    }
+    try {
+      Customer e5 = new Customer(
+        name: 'Select n Pay',
+        email: 'info@pickandpay.com',
+        country: 'South Africa',
+        allowAutoAccept: true,
+      );
+      User u5 = new User(
+          firstName: 'Harry',
+          lastName: 'Peterson',
+          password: 'pass123',
+          isAdministrator: true,
+          email: 'harry@pickandpay.com');
+      var result5 = await DataAPI3.addCustomer(e5, u5);
+      customers.add(result5);
+      setState(() {
+        msgList.add('❤️  Customer added: ${e5.name}');
+        recordCounter++;
+      });
+    } catch (e) {
+      print(e);
+    }
     setState(() {
-      msgList.add('❤️  Customer added: ${e1.name}');
-      recordCounter++;
-    });
-
-    Customer e2 = new Customer(
-      name: 'Joburg Catering',
-      email: 'info@jhbcaterer.com',
-      country: 'South Africa',
-      allowAutoAccept: true,
-    );
-    User u2 = new User(
-        firstName: 'Donald',
-        lastName: 'Trump',
-        password: 'pass123',
-        isAdministrator: true,
-        email: 'orangebaboon@jhbcaterer.com');
-    var result2 = await DataAPI3.addCustomer(e2, u2);
-    customers.add(result2);
-    setState(() {
-      msgList.add('❤️  Customer added: ${e2.name}');
-      recordCounter++;
-    });
-
-    Customer e3 = new Customer(
-      name: 'Dept of Agriculture',
-      email: 'info@agric.gov.za',
-      country: 'South Africa',
-      allowAutoAccept: true,
-    );
-    User u3 = new User(
-        firstName: 'Kenneth',
-        lastName: 'Donnelly',
-        password: 'pass123',
-        isAdministrator: true,
-        email: 'kendonnelly@agric.gov.za');
-    var result3 = await DataAPI3.addCustomer(e3, u3);
-    customers.add(result3);
-    setState(() {
-      msgList.add('❤️  Customer added: ${e3.name}');
-      recordCounter++;
-    });
-
-    Customer e4 = new Customer(
-      name: 'Dept of Science',
-      email: 'info@mscience.gov.za',
-      country: 'South Africa',
-      allowAutoAccept: true,
-    );
-    User u4 = new User(
-        firstName: 'Peter',
-        lastName: 'van der Merwe',
-        password: 'pass123',
-        isAdministrator: true,
-        email: 'petervdm@mscience.gov.za');
-    var result4 = await DataAPI3.addCustomer(e4, u4);
-    customers.add(result4);
-    setState(() {
-      msgList.add('❤️  Customer added: ${e4.name}');
-      recordCounter++;
-    });
-
-    Customer e5 = new Customer(
-      name: 'Select n Pay',
-      email: 'info@pickandpay.com',
-      country: 'South Africa',
-      allowAutoAccept: true,
-    );
-    User u5 = new User(
-        firstName: 'Harry',
-        lastName: 'Peterson',
-        password: 'pass123',
-        isAdministrator: true,
-        email: 'harry@pickandpay.com');
-    var result5 = await DataAPI3.addCustomer(e5, u5);
-    customers.add(result5);
-    setState(() {
-      msgList.add('❤️  Customer added: ${e5.name}');
-      recordCounter++;
+      msgList.add('❤️ ❤️ ❤️ ❤️   Customers  added: ${customers.length}');
     });
   }
 
   List<Investor> investors = List();
   Future _addInvestors() async {
-    Investor e1 = new Investor(
-      name: 'Pretoria Investors Ltd',
-      email: 'info@investors.com',
-      country: 'South Africa',
-    );
-    User u1 = new User(
-        firstName: 'Frank',
-        lastName: 'Green',
-        password: 'pass123',
-        isAdministrator: true,
-        email: 'green@investors.com');
-    var result1 = await DataAPI3.addInvestor(e1, u1);
-    investors.add(result1);
+    try {
+      Investor e1 = new Investor(
+        name: 'Pretoria Investors Ltd',
+        email: 'info@investors.com',
+        country: 'South Africa',
+      );
+      User u1 = new User(
+          firstName: 'Frank',
+          lastName: 'Green',
+          password: 'pass123',
+          isAdministrator: true,
+          email: 'green@investors.com');
+      var result1 = await DataAPI3.addInvestor(e1, u1);
+      investors.add(result1);
+      setState(() {
+        msgList.add(' 😍  Investor  added: ${e1.name}');
+        recordCounter++;
+      });
+    } catch (e) {
+      print(e);
+    }
+    try {
+      Investor e2 = new Investor(
+        name: 'Invoice Gurus Ltd',
+        email: 'info@invoicegurus.com',
+        country: 'South Africa',
+      );
+      User u2 = new User(
+          firstName: 'George',
+          lastName: 'Wallace',
+          password: 'pass123',
+          isAdministrator: true,
+          email: 'george@invoicegurus.com');
+      var result2 = await DataAPI3.addInvestor(e2, u2);
+      investors.add(result2);
+      setState(() {
+        msgList.add(' 😍  Investor  added: ${e2.name}');
+        recordCounter++;
+      });
+    } catch (e) {
+      print(e);
+    }
+    try {
+      Investor e3 = new Investor(
+        name: 'Funders Inc.',
+        email: 'info@funders.com',
+        country: 'South Africa',
+      );
+      User u3 = new User(
+          firstName: 'Harrison',
+          lastName: 'Johnson',
+          password: 'pass123',
+          isAdministrator: true,
+          email: 'harry@funders.com');
+      var result3 = await DataAPI3.addInvestor(e3, u3);
+      investors.add(result3);
+      setState(() {
+        msgList.add(' 😍  Investor  added: ${e3.name}');
+        recordCounter++;
+      });
+    } catch (e) {
+      print(e);
+    }
+    try {
+      Investor e4 = new Investor(
+        name: 'InvestorsGalore LLC',
+        email: 'info@galore.com',
+        country: 'South Africa',
+      );
+      User u4 = new User(
+          firstName: 'Mike',
+          lastName: 'Michaelson',
+          password: 'pass123',
+          isAdministrator: true,
+          email: 'mike@galore.com');
+      var result4 = await DataAPI3.addInvestor(e4, u4);
+      investors.add(result4);
+      setState(() {
+        msgList.add(' 😍  Investor  added: ${e4.name}');
+        recordCounter++;
+      });
+    } catch (e) {
+      print(e);
+    }
+    try {
+      Investor e5 = new Investor(
+        name: 'CashFlow Kings',
+        email: 'info@mcashkings.com',
+        country: 'South Africa',
+      );
+      User u5 = new User(
+          firstName: 'Daniel',
+          lastName: 'Berger',
+          password: 'pass123',
+          isAdministrator: true,
+          email: 'danb@mcashkings.com');
+      var result5 = await DataAPI3.addInvestor(e5, u5);
+      investors.add(result5);
+      setState(() {
+        msgList.add(' 😍  Investor  added: ${e5.name}');
+        recordCounter++;
+      });
+    } catch (e) {
+      print(e);
+    }
     setState(() {
-      msgList.add(' 😍  Investor  added: ${e1.name}');
-      recordCounter++;
-    });
-
-    Investor e2 = new Investor(
-      name: 'Invoice Gurus Ltd',
-      email: 'info@invoicegurus.com',
-      country: 'South Africa',
-    );
-    User u2 = new User(
-        firstName: 'George',
-        lastName: 'Wallace',
-        password: 'pass123',
-        isAdministrator: true,
-        email: 'george@invoicegurus.com');
-    var result2 = await DataAPI3.addInvestor(e2, u2);
-    investors.add(result2);
-    setState(() {
-      msgList.add(' 😍  Investor  added: ${e2.name}');
-      recordCounter++;
-    });
-
-    Investor e3 = new Investor(
-      name: 'Funders Inc.',
-      email: 'info@funders.com',
-      country: 'South Africa',
-    );
-    User u3 = new User(
-        firstName: 'Harrison',
-        lastName: 'Johnson',
-        password: 'pass123',
-        isAdministrator: true,
-        email: 'harry@funders.com');
-    var result3 = await DataAPI3.addInvestor(e3, u3);
-    investors.add(result3);
-    setState(() {
-      msgList.add(' 😍  Investor  added: ${e3.name}');
-      recordCounter++;
-    });
-
-    Investor e4 = new Investor(
-      name: 'InvestorsGalore LLC',
-      email: 'info@galore.com',
-      country: 'South Africa',
-    );
-    User u4 = new User(
-        firstName: 'Mike',
-        lastName: 'Michaelson',
-        password: 'pass123',
-        isAdministrator: true,
-        email: 'mike@galore.com');
-    var result4 = await DataAPI3.addInvestor(e4, u4);
-    investors.add(result4);
-    setState(() {
-      msgList.add(' 😍  Investor  added: ${e4.name}');
-      recordCounter++;
-    });
-
-    Investor e5 = new Investor(
-      name: 'CashFlow Kings',
-      email: 'info@mcashkings.com',
-      country: 'South Africa',
-    );
-    User u5 = new User(
-        firstName: 'Daniel',
-        lastName: 'Berger',
-        password: 'pass123',
-        isAdministrator: true,
-        email: 'danb@mcashkings.com');
-    var result5 = await DataAPI3.addInvestor(e5, u5);
-    investors.add(result5);
-    setState(() {
-      msgList.add(' 😍  Investor  added: ${e5.name}');
-      recordCounter++;
+      msgList.add(' 😍 😍 😍 😍  Investors  added: ${investors.length}');
     });
   }
 
@@ -595,7 +516,7 @@ class _MyHomePageState extends State<MyHomePage>
                     children: <Widget>[
                       Text(
                         'Execution Mode',
-                        style: Styles.whiteSmall,
+                        style: Styles.whiteMedium,
                       ),
                       Padding(
                         padding: const EdgeInsets.only(left: 18.0),
@@ -620,7 +541,7 @@ class _MyHomePageState extends State<MyHomePage>
                       padding: const EdgeInsets.all(12.0),
                       child: Text(
                         btnText,
-                        style: TextStyle(color: Colors.white, fontSize: 14.0),
+                        style: Styles.whiteBoldMedium,
                       ),
                     ),
                   ),
@@ -636,7 +557,10 @@ class _MyHomePageState extends State<MyHomePage>
     return new Scaffold(
         key: _scaffoldKey,
         appBar: AppBar(
-          title: Text('BFN Demo Data Generator'),
+          title: Text(
+            'BFN Demo Data Generator',
+            style: Styles.whiteBoldMedium,
+          ),
           bottom: _getBottom(),
           actions: <Widget>[
             IconButton(
@@ -655,41 +579,34 @@ class _MyHomePageState extends State<MyHomePage>
   Widget _getPhaseMessage() {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.only(left: 30.0, top: 30.0, bottom: 20.0),
+        padding: const EdgeInsets.only(left: 20.0, top: 30.0, bottom: 20.0),
         child: Padding(
           padding: const EdgeInsets.only(left: 10.0),
           child: Row(
             children: <Widget>[
               Text(
                 'Phase Complete:',
-                style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.normal),
+                style: Styles.blackBoldSmall,
               ),
               Padding(
                 padding: const EdgeInsets.only(left: 20.0),
                 child: Text(
                   '$_phaseCounter',
-                  style: TextStyle(
-                      fontSize: 20.0,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white),
+                  style: Styles.whiteBoldLarge,
                 ),
               ),
               Padding(
                 padding: const EdgeInsets.only(left: 8.0),
                 child: Text(
                   'of',
-                  style:
-                      TextStyle(fontSize: 14.0, fontWeight: FontWeight.normal),
+                  style: Styles.blackBoldSmall,
                 ),
               ),
               Padding(
                 padding: const EdgeInsets.only(left: 10.0),
                 child: Text(
                   phases,
-                  style: TextStyle(
-                      fontSize: 20.0,
-                      fontWeight: FontWeight.w900,
-                      color: Colors.blue.shade900),
+                  style: Styles.whiteBoldLarge,
                 ),
               ),
               Padding(
@@ -701,7 +618,7 @@ class _MyHomePageState extends State<MyHomePage>
                       padding: const EdgeInsets.only(right: 12.0),
                       child: Text(
                         recordCounter == 0 ? '0000' : '$recordCounter',
-                        style: TextStyle(color: Colors.yellow, fontSize: 20.0),
+                        style: Styles.yellowBoldReallyLarge,
                       ),
                     ),
                   ],
@@ -717,7 +634,7 @@ class _MyHomePageState extends State<MyHomePage>
   List<Supplier> suppliers = List();
   _addSuppliers() async {
     print('Generator.generateSuppliers ............');
-    var result;
+
     try {
       Supplier e1 = new Supplier(
         name: 'Mkhize Electrical',
@@ -736,7 +653,10 @@ class _MyHomePageState extends State<MyHomePage>
         recordCounter++;
         msgList.add('💋  Suppliaer added: ${e1.name}');
       });
-
+    } catch (e) {
+      print(e);
+    }
+    try {
       Supplier e2 = new Supplier(
         name: 'Dlamini Contractors',
         email: 'info@dlamini.com',
@@ -754,7 +674,10 @@ class _MyHomePageState extends State<MyHomePage>
         msgList.add('💋  Suppliaer added: ${e2.name}');
         recordCounter++;
       });
-
+    } catch (e) {
+      print(e);
+    }
+    try {
       Supplier e5 = new Supplier(
         name: 'TrebleX Engineering',
         email: 'info@engineers.com',
@@ -772,7 +695,10 @@ class _MyHomePageState extends State<MyHomePage>
         msgList.add('💋  Suppliaer added: ${e5.name}');
         recordCounter++;
       });
-
+    } catch (e) {
+      print(e);
+    }
+    try {
       Supplier e6 = new Supplier(
         name: 'DHH Transport Logistics',
         email: 'info@dhhtransport.com',
@@ -790,7 +716,10 @@ class _MyHomePageState extends State<MyHomePage>
         msgList.add('💋  Suppliaer added: ${e6.name}');
         recordCounter++;
       });
-
+    } catch (e) {
+      print(e);
+    }
+    try {
       Supplier e7 = new Supplier(
         name: 'FX Super Logistics',
         email: 'info@fxtransport.com',
@@ -808,7 +737,10 @@ class _MyHomePageState extends State<MyHomePage>
         msgList.add('💋  Suppliaer added: ${e7.name}');
         recordCounter++;
       });
-
+    } catch (e) {
+      print(e);
+    }
+    try {
       Supplier e8 = new Supplier(
         name: 'Davids Rolling Logistics',
         email: 'info@rolliin.com',
@@ -826,7 +758,10 @@ class _MyHomePageState extends State<MyHomePage>
         msgList.add('💋  Suppliaer added: ${e8.name}');
         recordCounter++;
       });
-
+    } catch (e) {
+      print(e);
+    }
+    try {
       Supplier e9 = new Supplier(
         name: 'Pope Transport Logistics',
         email: 'info@pope.com',
@@ -844,7 +779,10 @@ class _MyHomePageState extends State<MyHomePage>
         msgList.add('💋  Suppliaer added: ${e9.name}');
         recordCounter++;
       });
-
+    } catch (e) {
+      print(e);
+    }
+    try {
       Supplier e10 = new Supplier(
         name: 'Naidoo Transport Logistics',
         email: 'info@naidoo.com',
@@ -862,7 +800,10 @@ class _MyHomePageState extends State<MyHomePage>
         msgList.add('💋  Suppliaer added: ${e10.name}');
         recordCounter++;
       });
-
+    } catch (e) {
+      print(e);
+    }
+    try {
       Supplier e11 = new Supplier(
         name: 'Green Logistics',
         email: 'info@greenlogs.com',
@@ -880,7 +821,10 @@ class _MyHomePageState extends State<MyHomePage>
         msgList.add('💋  Suppliaer added: ${e11.name}');
         recordCounter++;
       });
-
+    } catch (e) {
+      print(e);
+    }
+    try {
       Supplier e12 = new Supplier(
         name: 'Wendywood Transporters',
         email: 'info@wendywood.com',
@@ -898,6 +842,10 @@ class _MyHomePageState extends State<MyHomePage>
         msgList.add('💋  Suppliaer added: ${e12.name}');
         recordCounter++;
       });
+    } catch (e) {
+      print(e);
+    }
+    try {
       Supplier e13 = new Supplier(
         name: 'Xavier TTransport',
         email: 'info@xavier.com',
@@ -915,7 +863,10 @@ class _MyHomePageState extends State<MyHomePage>
         msgList.add('💋  Suppliaer added: ${e13.name}');
         recordCounter++;
       });
-
+    } catch (e) {
+      print(e);
+    }
+    try {
       Supplier e14 = new Supplier(
         name: 'Danielson Logistics',
         email: 'info@dhhtransport.com',
@@ -936,9 +887,11 @@ class _MyHomePageState extends State<MyHomePage>
       });
     } catch (e) {
       print('Generator.generateSuppliers ERROR $e');
-      throw Exception('Bad juju. eh?');
+      //throw Exception('Bad juju. eh?');
     }
-
+    setState(() {
+      msgList.add('💋 💋 💋 💋   Suppliers  added: ${suppliers.length}');
+    });
     return;
   }
 
@@ -1128,18 +1081,15 @@ class MessageCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       elevation: 4.0,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Text(
-              message,
-              style: TextStyle(
-                  color: color, fontSize: 16.0, fontWeight: FontWeight.w600),
-            ),
+      child: Padding(
+        padding: const EdgeInsets.only(left: 12.0, right: 12.0, top: 4.0),
+        child: ListTile(
+          leading: Icon(Icons.create),
+          title: Text(
+            message,
+            style: Styles.blackSmall,
           ),
-        ],
+        ),
       ),
     );
   }

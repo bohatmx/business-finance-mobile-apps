@@ -2,9 +2,9 @@ import 'dart:async';
 
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
+import 'package:businesslibrary/data/customer.dart';
 import 'package:businesslibrary/data/delivery_acceptance.dart';
 import 'package:businesslibrary/data/delivery_note.dart';
-import 'package:businesslibrary/data/govt_entity.dart';
 import 'package:businesslibrary/data/invoice.dart';
 import 'package:businesslibrary/data/invoice_acceptance.dart';
 import 'package:businesslibrary/data/invoice_bid.dart';
@@ -118,7 +118,7 @@ class CustomerApplicationModel {
   List<InvoiceBid> _settledInvoiceBids = List();
   List<InvestorInvoiceSettlement> _settlements = List();
   List<InvoiceAcceptance> _invoiceAcceptances = List();
-  GovtEntity _customer;
+  Customer _customer;
   User _user;
   CustomerBlocListener _listener;
 
@@ -131,7 +131,7 @@ class CustomerApplicationModel {
   List<InvoiceBid> get settledInvoiceBids => _settledInvoiceBids;
   List<InvestorInvoiceSettlement> get settlements => _settlements;
   List<InvoiceAcceptance> get invoiceAcceptances => _invoiceAcceptances;
-  GovtEntity get customer => _customer;
+  Customer get customer => _customer;
   User get user => _user;
   CustomerBlocListener get listener => _listener;
   int _pageLimit = 10;

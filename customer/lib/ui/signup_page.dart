@@ -5,17 +5,9 @@ import 'package:businesslibrary/api/data_api3.dart';
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/api/signup.dart';
-import 'package:businesslibrary/data/delivery_acceptance.dart';
-import 'package:businesslibrary/data/delivery_note.dart';
 import 'package:businesslibrary/data/govt_entity.dart';
-import 'package:businesslibrary/data/invoice.dart';
-import 'package:businesslibrary/data/invoice_bid.dart';
-import 'package:businesslibrary/data/invoice_settlement.dart';
-import 'package:businesslibrary/data/offer.dart';
-import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/sector.dart';
 import 'package:businesslibrary/data/user.dart';
-import 'package:businesslibrary/data/wallet.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/message.dart';
 import 'package:businesslibrary/util/selectors.dart';
@@ -27,7 +19,6 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:govt/customer_bloc.dart';
 import 'package:govt/ui/dashboard.dart';
-import 'package:govt/ui/theme_util.dart';
 
 class SignUpPage extends StatefulWidget {
   @override
@@ -107,7 +98,10 @@ class _SignUpPageState extends State<SignUpPage>
     messages.forEach((m) {
       tiles.add(ListTile(
         title: Text(m.message),
-        leading: Icon(Icons.cloud_download, color: getRandomColor(),),
+        leading: Icon(
+          Icons.cloud_download,
+          color: getRandomColor(),
+        ),
       ));
     });
     return Scaffold(
@@ -287,9 +281,11 @@ class _SignUpPageState extends State<SignUpPage>
                             ),
                           ),
                         ),
-                  tiles.isEmpty? Container() : Column(
-                    children: tiles,
-                  ),
+                  tiles.isEmpty
+                      ? Container()
+                      : Column(
+                          children: tiles,
+                        ),
                 ],
               ),
             ),
@@ -502,7 +498,6 @@ class _SignUpPageState extends State<SignUpPage>
     'Dept of Social Services',
     'Brits Mining Works',
   ];
-
 
   List<Message> messages = List();
   @override

@@ -70,26 +70,26 @@ public class MainActivity extends FlutterActivity {
     public static final String EXTRA_NOTIFICATION_ID = "oneconnect.extra";
     private void setNotification(String title, String content) {
         Log.w(TAG, "setNotification: +++++++++++++++++++++++++++++" );
-        Intent snoozeIntent = new Intent(this, TapReceiver.class);
-        snoozeIntent.setAction(Intent.ACTION_DEFAULT);
-        snoozeIntent.putExtra(EXTRA_NOTIFICATION_ID, "NotificationTapped");
-        PendingIntent snoozePendingIntent =
-                PendingIntent.getBroadcast(getApplicationContext(), 0, snoozeIntent, 0);
-        try {
-            NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this, CHANNEL_ID)
-                    .setSmallIcon(android.support.v4.R.drawable.notification_icon_background)
-                    .setContentTitle(title)
-                    .setContentText(content)
-                    .setPriority(NotificationCompat.PRIORITY_HIGH)
-                    .setContentIntent(snoozePendingIntent);
-             notificationManager = NotificationManagerCompat.from(this);
-            mBuilder.setSubText("this is a subtext");
-            notificationManager.notify(1234, mBuilder.build());
-            mResult.success("Notification has been sent, maybe? ....");
-        } catch (Exception e) {
-            mResult.error(e.getMessage(),
-                    "Notification failed", null );
-        }
+//        Intent snoozeIntent = new Intent(this, TapReceiver.class);
+//        snoozeIntent.setAction(Intent.ACTION_DEFAULT);
+//        snoozeIntent.putExtra(EXTRA_NOTIFICATION_ID, "NotificationTapped");
+//        PendingIntent snoozePendingIntent =
+//                PendingIntent.getBroadcast(getApplicationContext(), 0, snoozeIntent, 0);
+//        try {
+//            NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this, CHANNEL_ID)
+//                    .setSmallIcon(android.support.v4.R.drawable.notification_icon_background)
+//                    .setContentTitle(title)
+//                    .setContentText(content)
+//                    .setPriority(NotificationCompat.PRIORITY_HIGH)
+//                    .setContentIntent(snoozePendingIntent);
+//             notificationManager = NotificationManagerCompat.from(this);
+//            mBuilder.setSubText("this is a subtext");
+//            notificationManager.notify(1234, mBuilder.build());
+//            mResult.success("Notification has been sent, maybe? ....");
+//        } catch (Exception e) {
+//            mResult.error(e.getMessage(),
+//                    "Notification failed", null );
+//        }
     }
     private void setMessageChannel() {
 
@@ -126,9 +126,9 @@ public class MainActivity extends FlutterActivity {
             notificationManager.createNotificationChannel(channel);
         }
     }
-    private void registerReceiver() {
-        registerReceiver(new TapReceiver(), new IntentFilter("tapped"));
-    }
+//    private void registerReceiver() {
+//        registerReceiver(new TapReceiver(), new IntentFilter("tapped"));
+//    }
 
     public static final String TAG = MainActivity.class.getSimpleName();
     public static final Gson G = new GsonBuilder().setPrettyPrinting().create();

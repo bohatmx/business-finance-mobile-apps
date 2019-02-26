@@ -81,7 +81,7 @@ class DataAPI3 {
   static Future<PurchaseOrder> registerPurchaseOrder(
       PurchaseOrder purchaseOrder) async {
     var bag = APIBag(
-        jsonString: purchaseOrder.toJson().toString(),
+        jsonString: JsonEncoder().convert(purchaseOrder),
         functionName: 'addPurchaseOrder',
         userName: TemporaryUserName);
 
@@ -92,9 +92,9 @@ class DataAPI3 {
 
   static Future<ChatMessage> addChatMessage(ChatMessage chatMessage) async {
     var bag = APIBag(
-      debug: isInDebugMode,
+//      debug: isInDebugMode,
 //      data: chatMessage.toJson(),
-    );
+        );
 
     print(
         'DataAPI3.addChatMessage getFunctionsURL(): ${getWebAPIUrl() + ADD_CHAT_MESSAGE}\n\n');
@@ -117,9 +117,8 @@ class DataAPI3 {
 
   static Future<ChatResponse> addChatResponse(ChatResponse chatResponse) async {
     var bag = APIBag(
-      debug: isInDebugMode,
 //      data: chatResponse.toJson(),
-    );
+        );
 
     print(
         'DataAPI3.addChatMessage getFunctionsURL(): ${getWebAPIUrl() + ADD_CHAT_RESPONSE}\n\n');
@@ -168,7 +167,7 @@ class DataAPI3 {
   static Future<DeliveryNote> registerDeliveryNote(
       DeliveryNote deliveryNote) async {
     var bag = APIBag(
-        jsonString: deliveryNote.toJson().toString(),
+        jsonString: JsonEncoder().convert(deliveryNote),
         functionName: 'addDeliveryNote',
         userName: TemporaryUserName);
 
@@ -179,7 +178,7 @@ class DataAPI3 {
   static Future<DeliveryAcceptance> acceptDelivery(
       DeliveryAcceptance acceptance) async {
     var bag = APIBag(
-        jsonString: acceptance.toJson().toString(),
+        jsonString: JsonEncoder().convert(acceptance),
         functionName: 'addDeliveryAcceptance',
         userName: TemporaryUserName);
 
@@ -192,7 +191,7 @@ class DataAPI3 {
     invoice.isSettled = false;
 
     var bag = APIBag(
-        jsonString: invoice.toJson().toString(),
+        jsonString: JsonEncoder().convert(invoice),
         functionName: 'addInvoice',
         userName: TemporaryUserName);
 
@@ -215,7 +214,7 @@ class DataAPI3 {
     offer.isCancelled = false;
 
     var bag = APIBag(
-        jsonString: offer.toJson().toString(),
+        jsonString: JsonEncoder().convert(offer),
         functionName: 'addOffer',
         userName: TemporaryUserName);
 
@@ -228,7 +227,7 @@ class DataAPI3 {
   static Future makeInvoiceBid(InvoiceBid bid) async {
     bid.isSettled = false;
     var bag = APIBag(
-        jsonString: bid.toJson().toString(),
+        jsonString: JsonEncoder().convert(bid),
         functionName: 'addInvoiceBid',
         userName: TemporaryUserName);
     var result = await _connectToWebAPI(bag);
@@ -246,12 +245,14 @@ class DataAPI3 {
     assert(admin != null);
 
     var bag = APIBag(
-        jsonString: customer.toJson().toString(),
+        jsonString: JsonEncoder().convert(customer),
         functionName: 'addCustomer',
         userName: TemporaryUserName);
 
-    var result = await _connectToWebAPI(bag);
-    var cust = Customer.fromJson(result);
+    var replyFromWeb = await _connectToWebAPI(bag);
+    var result = json.decode(replyFromWeb['result']);
+    var cust = Customer.fromJson(result['result']);
+    print('💕 💕  💕 💕  added CUSTOMER ${cust.name}');
     //
     admin.customer = cust.participantId;
     bag = APIBag(
@@ -272,19 +273,12 @@ class DataAPI3 {
     var result = json.decode(replyFromWeb['result']);
     var msg = replyFromWeb['message'];
     print(msg);
-//    if (replyFromWeb is Map) {
-//      print('I am a map ....');
-//      var result = json.decode(replyFromWeb['result']);
-//      if (result is List) {
-//        print('I am a list ....');
-//        result.forEach((r) {
-//          prettyPrint(r, '💦  💦  💦 💦  💦  💦 OBJECT: ${r}');
-//        });
-//      }
-//    }
+
     List<Customer> customers = List();
     List<Supplier> suppliers = List();
     List<Investor> investors = List();
+    List<Sector> sectors = List();
+    List<Country> countries = List();
     switch (functionName) {
       case 'getAllCustomers':
         result.forEach((m) {
@@ -310,6 +304,22 @@ class DataAPI3 {
         print(
             '\n\nMessage from Chaincode: $msg \n🙄  Investors: ${investors.length}');
         break;
+      case 'getAllSectors':
+        result.forEach((m) {
+          var mx = Sector.fromJson(m);
+          sectors.add(mx);
+        });
+        print(
+            '\n\nMessage from Chaincode: $msg \n🙄  Sectors: ${sectors.length}');
+        break;
+      case 'getAllCountries':
+        result.forEach((m) {
+          var mx = Country.fromJson(m);
+          countries.add(mx);
+        });
+        print(
+            '\n\nMessage from Chaincode: $msg \n🙄  Countries: ${countries.length}');
+        break;
     }
     customers.forEach((c) {
       prettyPrint(c.toJson(), '\n🙄 🙄 🙄 🙄 🙄   CUSTOMER');
@@ -319,6 +329,12 @@ class DataAPI3 {
     });
     investors.forEach((c) {
       prettyPrint(c.toJson(), '\n🙄 🙄 🙄 🙄 🙄   INVESTOR');
+    });
+    sectors.forEach((c) {
+      prettyPrint(c.toJson(), '\n🙄 🙄 🙄 🙄 🙄   SECTOR');
+    });
+    countries.forEach((c) {
+      prettyPrint(c.toJson(), '\n🙄 🙄 🙄 🙄 🙄   COUNTRY');
     });
     return result;
   }
@@ -336,39 +352,150 @@ class DataAPI3 {
   }
 
   static Future<int> addCountries() async {
-    await addCountry(Country(name: 'South Africa', code: 'ZA', vat: 15.0));
-    await addCountry(Country(name: 'Zimbabwe', code: 'ZW', vat: 15.0));
-    await addCountry(Country(name: 'Botswana', code: 'BW', vat: 15.0));
-    await addCountry(Country(name: 'Namibia', code: 'NA', vat: 15.0));
-    await addCountry(Country(name: 'Zambia', code: 'ZB', vat: 15.0));
-    await addCountry(Country(name: 'Kenya', code: 'KE', vat: 15.0));
-    await addCountry(Country(name: 'Tanzania', code: 'TZ', vat: 15.0));
-    await addCountry(Country(name: 'Mozambique', code: 'MZ', vat: 15.0));
-    await addCountry(Country(name: 'Ghana', code: 'GH', vat: 15.0));
-    await addCountry(Country(name: 'Lesotho', code: 'LS', vat: 15.0));
-    await addCountry(Country(name: 'Malawi', code: 'MW', vat: 15.0));
-    await addCountry(Country(name: 'Nigeria', code: 'NG', vat: 15.0));
+    try {
+      await addCountry(Country(name: 'South Africa', code: 'ZA', vat: 15.0));
+    } catch (e) {
+      print(e);
+    }
+    try {
+      await addCountry(Country(name: 'Zimbabwe', code: 'ZW', vat: 15.0));
+    } catch (e) {
+      print(e);
+    }
+    try {
+      await addCountry(Country(name: 'Botswana', code: 'BW', vat: 15.0));
+    } catch (e) {
+      print(e);
+    }
+    try {
+      await addCountry(Country(name: 'Namibia', code: 'NA', vat: 15.0));
+    } catch (e) {
+      print(e);
+    }
+    try {
+      await addCountry(Country(name: 'Zambia', code: 'ZB', vat: 15.0));
+    } catch (e) {
+      print(e);
+    }
+    try {
+      await addCountry(Country(name: 'Kenya', code: 'KE', vat: 15.0));
+    } catch (e) {
+      print(e);
+    }
+    try {
+      await addCountry(Country(name: 'Tanzania', code: 'TZ', vat: 15.0));
+    } catch (e) {
+      print(e);
+    }
+    try {
+      await addCountry(Country(name: 'Mozambique', code: 'MZ', vat: 15.0));
+    } catch (e) {
+      print(e);
+    }
+    try {
+      await addCountry(Country(name: 'Ghana', code: 'GH', vat: 15.0));
+    } catch (e) {
+      print(e);
+    }
+    try {
+      await addCountry(Country(name: 'Lesotho', code: 'LS', vat: 15.0));
+    } catch (e) {
+      print(e);
+    }
+    try {
+      await addCountry(Country(name: 'Malawi', code: 'MW', vat: 15.0));
+    } catch (e) {
+      print(e);
+    }
+    try {
+      await addCountry(Country(name: 'Nigeria', code: 'NG', vat: 15.0));
+    } catch (e) {
+      print(e);
+    }
+
+    print('💦  💦  💦 💦  💦  💦 Countries ADDED  ...');
 
     return 0;
   }
 
   static Future<int> addSectors() async {
-    await addSector(Sector(sectorName: 'Public Sector'));
-    await addSector(Sector(sectorName: 'Automotive'));
-    await addSector(Sector(sectorName: 'Construction'));
-    await addSector(Sector(sectorName: 'Engineering'));
-    await addSector(Sector(sectorName: 'Retail'));
-    await addSector(Sector(sectorName: 'Home Services'));
-    await addSector(Sector(sectorName: 'Transport'));
-    await addSector(Sector(sectorName: 'Logistics'));
-    await addSector(Sector(sectorName: 'Services'));
-    await addSector(Sector(sectorName: 'Agricultural'));
-    await addSector(Sector(sectorName: 'Real Estate'));
-    await addSector(Sector(sectorName: 'Technology'));
-    await addSector(Sector(sectorName: 'Manufacturing'));
-    await addSector(Sector(sectorName: 'Education'));
-    await addSector(Sector(sectorName: 'Health Services'));
-    await addSector(Sector(sectorName: 'Pharmaceutical'));
+//    await addSector(Sector(sectorName: 'Public Sector'));
+    try {
+      await addSector(Sector(sectorName: 'Automotive'));
+    } catch (e) {
+      print(e);
+    }
+    try {
+      await addSector(Sector(sectorName: 'Construction'));
+    } catch (e) {
+      print(e);
+    }
+    try {
+      await addSector(Sector(sectorName: 'Engineering'));
+    } catch (e) {
+      print(e);
+    }
+    try {
+      await addSector(Sector(sectorName: 'Retail'));
+    } catch (e) {
+      print(e);
+    }
+    try {
+      await addSector(Sector(sectorName: 'Home Services'));
+    } catch (e) {
+      print(e);
+    }
+    try {
+      await addSector(Sector(sectorName: 'Transport'));
+    } catch (e) {
+      print(e);
+    }
+    try {
+      await addSector(Sector(sectorName: 'Logistics'));
+    } catch (e) {
+      print(e);
+    }
+    try {
+      await addSector(Sector(sectorName: 'Services'));
+    } catch (e) {
+      print(e);
+    }
+    try {
+      await addSector(Sector(sectorName: 'Agricultural'));
+    } catch (e) {
+      print(e);
+    }
+    try {
+      await addSector(Sector(sectorName: 'Real Estate'));
+    } catch (e) {
+      print(e);
+    }
+    try {
+      await addSector(Sector(sectorName: 'Technology'));
+    } catch (e) {
+      print(e);
+    }
+    try {
+      await addSector(Sector(sectorName: 'Manufacturing'));
+    } catch (e) {
+      print(e);
+    }
+    try {
+      await addSector(Sector(sectorName: 'Education'));
+    } catch (e) {
+      print(e);
+    }
+    try {
+      await addSector(Sector(sectorName: 'Health Services'));
+    } catch (e) {
+      print(e);
+    }
+    try {
+      await addSector(Sector(sectorName: 'Pharmaceutical'));
+    } catch (e) {
+      print(e);
+    }
+    print('💦  💦  💦 💦  💦  💦 SECTORS ADDED  ...');
     return DataAPI3.Success;
   }
 
@@ -377,30 +504,31 @@ class DataAPI3 {
 
   static Future<Sector> addSector(Sector sector) async {
     var bag = APIBag(
-        jsonString: sector.toJson().toString(),
+        jsonString: JsonEncoder().convert(sector),
         functionName: 'addSector',
         userName: TemporaryUserName);
 
-    prettyPrint(bag.toJson(), '\n🔵 🔵 adding sector to BFN blockchain');
-    var result = await _connectToWebAPI(bag);
-    return Sector.fromJson(result);
+    print('\n🔵 🔵 adding sector to BFN blockchain');
+    var replyFromWeb = await _connectToWebAPI(bag);
+    var result = json.decode(replyFromWeb['result']);
+    return Sector.fromJson(result['result']);
   }
 
   static Future<Country> addCountry(Country country) async {
     var bag = APIBag(
-        jsonString: country.toJson().toString(),
+        jsonString: JsonEncoder().convert(country),
         functionName: 'addCountry',
         userName: TemporaryUserName);
 
-    prettyPrint(bag.toJson(), '\n🔵 🔵 adding country to BFN blockchain');
-    var result = await _connectToWebAPI(bag);
-    return Country.fromJson(result);
+    var replyFromWeb = await _connectToWebAPI(bag);
+    var result = json.decode(replyFromWeb['result']);
+    return Country.fromJson(result['result']);
   }
 
   // ignore: missing_return
-  static Future _connectToWebAPI(APIBag bag) async {
+  static Future<Map> _connectToWebAPI(APIBag bag) async {
     print(
-        '\n\n🔵 🔵 🔵 🔵 🔵 🔵   DataAPI3._connectToWebAPI sending:  \n🔵 🔵  ${bag.toJson().toString()}');
+        '\n\n🔵 🔵 🔵 🔵 🔵 🔵   DataAPI3._connectToWebAPI sending:  \n🔵 🔵 🔵 🔵 🔵 🔵  ${json.encode(bag.toJson())}');
     try {
       var httpClient = new HttpClient();
       HttpClientRequest mRequest =
@@ -413,16 +541,12 @@ class DataAPI3 {
       if (mResponse.statusCode == 200) {
         // transforms and prints the response
         String reply = await mResponse.transform(utf8.decoder).join();
-        print('\n\n🔵 🔵 🔵  reply here ..............');
+        print(
+            '\n\n🔵 🔵 🔵  🔵 🔵 🔵  🔵 🔵 🔵  🔵 🔵 🔵  reply string  ..............');
         print(reply);
         print('\n\n🔵 🔵 🔵  🔵 🔵 🔵  🔵 🔵 🔵  🔵 🔵 🔵 \n');
 
-//        await for (var contents in mResponse.transform(utf8.decoder)) {
-//          print(
-//              '\n\n😡 😡 😡 😡 DataAPI3._connectToWebAPI response data:\n\n $contents');
-//          mString = contents;
-//        }
-        return json.decode(reply);
+        return JsonDecoder().convert(reply);
       } else {
         mResponse.transform(utf8.decoder).listen((contents) {
           print('\n\n😡 😡 😡 😡 DataAPI3._connectToWebAPI  $contents');
@@ -442,12 +566,10 @@ class DataAPI3 {
   static Future<AutoTradeOrder> addAutoTradeOrder(AutoTradeOrder order) async {
     order.isCancelled = false;
     var bag = APIBag(
-        jsonString: order.toJson().toString(),
+        jsonString: JsonEncoder().convert(order),
         functionName: 'addAutoTradeOrder',
         userName: TemporaryUserName);
-    print('DataAPI3.addAutoTradeOrder %%%%%%%% url: ${getWebAPIUrl()}');
-    prettyPrint(bag.toJson(),
-        '########################## adding addAutoTradeOrder to BFN blockchain');
+
     var result = await _connectToWebAPI(bag);
     return AutoTradeOrder.fromJson(result);
   }
@@ -455,7 +577,7 @@ class DataAPI3 {
   static Future<InvestorProfile> addInvestorProfile(
       InvestorProfile profile) async {
     var bag = APIBag(
-        jsonString: profile.toJson().toString(),
+        jsonString: JsonEncoder().convert(profile),
         functionName: 'addInvestorProfile',
         userName: TemporaryUserName);
     print(
@@ -463,13 +585,14 @@ class DataAPI3 {
     prettyPrint(profile.toJson(),
         '########################## adding addInvestorProfile to BFN blockchain');
 
-    var result = await _connectToWebAPI(bag);
+    var replyFromWeb = await _connectToWebAPI(bag);
+    var result = json.decode(replyFromWeb['result']);
     return InvestorProfile.fromJson(result);
   }
 
   static Future<Wallet> addWallet(Wallet wallet) async {
     var bag = APIBag(
-        jsonString: wallet.toJson().toString(),
+        jsonString: JsonEncoder().convert(wallet),
         functionName: 'addWallet',
         userName: TemporaryUserName);
 
@@ -482,17 +605,19 @@ class DataAPI3 {
     assert(admin != null);
 
     var bag = APIBag(
-        jsonString: supplier.toJson().toString(),
+        jsonString: JsonEncoder().convert(supplier),
         functionName: 'addSupplier',
         userName: TemporaryUserName);
-    var res = await _connectToWebAPI(bag);
-    var supp = Supplier.fromJson(res);
+    var replyFromWeb = await _connectToWebAPI(bag);
+    var result = json.decode(replyFromWeb['result']);
+    var supp = Supplier.fromJson(result['result']);
     //
     admin.supplier = supp.participantId;
     bag = APIBag(
         jsonString: admin.toJson().toString(),
         functionName: 'addUser',
         userName: TemporaryUserName);
+    print('💦  💦  💦 💦  💦  💦  added SUPPLIER ${supp.name}');
     await _connectToWebAPI(bag);
 
     return supp;
@@ -503,11 +628,13 @@ class DataAPI3 {
     assert(admin != null);
 
     var bag = APIBag(
-        jsonString: investor.toJson().toString(),
+        jsonString: JsonEncoder().convert(investor),
         functionName: 'addInvestor',
         userName: TemporaryUserName);
-    var res1 = await _connectToWebAPI(bag);
-    var inv = Investor.fromJson(res1);
+    var replyFromWeb = await _connectToWebAPI(bag);
+    var result = json.decode(replyFromWeb['result']);
+    var inv = Investor.fromJson(result['result']);
+    print('🙄 🙄 🙄 🙄 🙄 🙄  added INVESTOR ${inv.name}');
     //
     admin.investor = inv.participantId;
     bag = APIBag(

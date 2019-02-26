@@ -5,182 +5,16 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="80b8d4ed-f360-4af7-bada-dfcc0519f100" name="Default" comment="small tweaks, adjustments, mods etc.">
-      <change afterPath="$PROJECT_DIR$/../customer/.idea/libraries/Flutter_Plugins.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../investor/.idea/encodings.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../businesslibrary/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../businesslibrary/businesslibrary.iml" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/businesslibrary.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/util/lookups.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/util/lookups.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../crudderv3/.idea/libraries/Dart_Packages.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../crudderv3/.idea/libraries/Dart_Packages.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../crudderv3/.idea/libraries/Flutter_Plugins.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../crudderv3/.idea/libraries/Flutter_Plugins.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../crudderv3/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../crudderv3/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../crudderv3/crudderv3.iml" beforeDir="false" afterPath="$PROJECT_DIR$/../crudderv3/crudderv3.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/.idea/dictionaries/mac.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/.idea/dictionaries/mac.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/.idea/encodings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/.idea/encodings.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/.idea/libraries/Dart_SDK.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/.idea/libraries/Dart_SDK.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/.idea/libraries/Flutter_Plugins.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/.idea/libraries/Flutter_for_Android.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/.idea/libraries/Flutter_for_Android.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/.idea/modules.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/.idea/runConfigurations/main_dart.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/.idea/runConfigurations/main_dart.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/.idea/vcs.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/.metadata" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/.metadata" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/android/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/android/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/android/app/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/android/app/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/android/app/google-services-prod.json" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/android/app/google-services-prod.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/android/app/google-services.json" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/android/app/google-services.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/android/app/src/main/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/android/app/src/main/AndroidManifest.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/android/app/src/main/java/com/oneconnect/govt/MainActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/android/app/src/main/java/com/oneconnect/govt/MainActivity.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/android/app/src/main/res/drawable/launch_background.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/android/app/src/main/res/drawable/launch_background.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/android/app/src/main/res/mipmap-hdpi/ic_launcher.png" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/android/app/src/main/res/mipmap-hdpi/ic_launcher.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/android/app/src/main/res/mipmap-mdpi/ic_launcher.png" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/android/app/src/main/res/mipmap-mdpi/ic_launcher.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/android/app/src/main/res/mipmap-xhdpi/ic_launcher.png" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/android/app/src/main/res/mipmap-xhdpi/ic_launcher.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/android/app/src/main/res/mipmap-xxhdpi/ic_launcher.png" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/android/app/src/main/res/mipmap-xxhdpi/ic_launcher.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/android/app/src/main/res/values/styles.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/android/app/src/main/res/values/styles.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/android/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/android/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/android/gradle.properties" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/android/gradle.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/android/gradle/wrapper/gradle-wrapper.jar" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/android/gradle/wrapper/gradle-wrapper.jar" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/android/gradle/wrapper/gradle-wrapper.properties" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/android/gradle/wrapper/gradle-wrapper.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/android/gradlew" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/android/gradlew" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/android/gradlew.bat" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/android/gradlew.bat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/android/settings.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/android/settings.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/assets/1.png" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/assets/1.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/assets/2.png" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/assets/2.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/assets/3.png" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/assets/3.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/assets/chime.mp3" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/assets/chime.mp3" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/assets/computers.png" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/assets/computers.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/assets/fin3.jpeg" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/assets/fin3.jpeg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/assets/fincash.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/assets/fincash.jpg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/assets/glass.mp3" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/assets/glass.mp3" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/assets/pin.mp3" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/assets/pin.mp3" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/assets/sms1.mp3" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/assets/sms1.mp3" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/assets/sms2.mp3" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/assets/sms2.mp3" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/assets/sms3.mp3" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/assets/sms3.mp3" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/assets/sms4.mp3" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/assets/sms4.mp3" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/assets/ting.mp3" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/assets/ting.mp3" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/fonts/Raleway-Black.ttf" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/fonts/Raleway-Black.ttf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/fonts/Raleway-BlackItalic.ttf" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/fonts/Raleway-BlackItalic.ttf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/fonts/Raleway-Bold.ttf" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/fonts/Raleway-Bold.ttf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/fonts/Raleway-BoldItalic.ttf" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/fonts/Raleway-BoldItalic.ttf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/fonts/Raleway-ExtraBold.ttf" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/fonts/Raleway-ExtraBold.ttf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/fonts/Raleway-ExtraBoldItalic.ttf" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/fonts/Raleway-ExtraBoldItalic.ttf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/fonts/Raleway-ExtraLight.ttf" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/fonts/Raleway-ExtraLight.ttf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/fonts/Raleway-ExtraLightItalic.ttf" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/fonts/Raleway-ExtraLightItalic.ttf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/fonts/Raleway-Italic.ttf" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/fonts/Raleway-Italic.ttf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/fonts/Raleway-Light.ttf" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/fonts/Raleway-Light.ttf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/fonts/Raleway-LightItalic.ttf" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/fonts/Raleway-LightItalic.ttf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/fonts/Raleway-Medium.ttf" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/fonts/Raleway-Medium.ttf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/fonts/Raleway-MediumItalic.ttf" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/fonts/Raleway-MediumItalic.ttf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/fonts/Raleway-Regular.ttf" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/fonts/Raleway-Regular.ttf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/fonts/Raleway-SemiBold.ttf" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/fonts/Raleway-SemiBold.ttf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/fonts/Raleway-SemiBoldItalic.ttf" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/fonts/Raleway-SemiBoldItalic.ttf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/fonts/Raleway-Thin.ttf" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/fonts/Raleway-Thin.ttf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/fonts/Raleway-ThinItalic.ttf" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/fonts/Raleway-ThinItalic.ttf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/fonts/Roboto-Black.ttf" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/fonts/Roboto-Black.ttf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/fonts/Roboto-BlackItalic.ttf" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/fonts/Roboto-BlackItalic.ttf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/fonts/Roboto-Bold.ttf" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/fonts/Roboto-Bold.ttf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/fonts/Roboto-BoldItalic.ttf" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/fonts/Roboto-BoldItalic.ttf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/fonts/Roboto-Italic.ttf" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/fonts/Roboto-Italic.ttf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/fonts/Roboto-Light.ttf" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/fonts/Roboto-Light.ttf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/fonts/Roboto-LightItalic.ttf" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/fonts/Roboto-LightItalic.ttf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/fonts/Roboto-Medium.ttf" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/fonts/Roboto-Medium.ttf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/fonts/Roboto-MediumItalic.ttf" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/fonts/Roboto-MediumItalic.ttf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/fonts/Roboto-Regular.ttf" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/fonts/Roboto-Regular.ttf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/fonts/Roboto-Thin.ttf" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/fonts/Roboto-Thin.ttf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/fonts/Roboto-ThinItalic.ttf" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/fonts/Roboto-ThinItalic.ttf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/fonts/Rubik-Black.ttf" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/fonts/Rubik-Black.ttf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/fonts/Rubik-BlackItalic.ttf" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/fonts/Rubik-BlackItalic.ttf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/fonts/Rubik-Bold.ttf" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/fonts/Rubik-Bold.ttf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/fonts/Rubik-BoldItalic.ttf" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/fonts/Rubik-BoldItalic.ttf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/fonts/Rubik-Italic.ttf" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/fonts/Rubik-Italic.ttf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/fonts/Rubik-Light.ttf" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/fonts/Rubik-Light.ttf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/fonts/Rubik-LightItalic.ttf" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/fonts/Rubik-LightItalic.ttf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/fonts/Rubik-Medium.ttf" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/fonts/Rubik-Medium.ttf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/fonts/Rubik-MediumItalic.ttf" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/fonts/Rubik-MediumItalic.ttf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/fonts/Rubik-Regular.ttf" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/fonts/Rubik-Regular.ttf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/fonts/Xerox Sans Serif Narrow Bold.ttf" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/fonts/Xerox Sans Serif Narrow Bold.ttf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/govt.iml" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/customer.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/govt_android.iml" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/govt_android.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/ios/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/ios/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/ios/Flutter/AppFrameworkInfo.plist" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/ios/Flutter/AppFrameworkInfo.plist" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/ios/Flutter/Debug.xcconfig" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/ios/Flutter/Debug.xcconfig" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/ios/Flutter/Release.xcconfig" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/ios/Flutter/Release.xcconfig" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/ios/Podfile" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/ios/Podfile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/ios/Podfile.lock" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/ios/Podfile.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/ios/Runner.xcodeproj/project.pbxproj" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/ios/Runner.xcodeproj/project.pbxproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/ios/Runner.xcodeproj/project.xcworkspace/contents.xcworkspacedata" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/ios/Runner.xcodeproj/project.xcworkspace/contents.xcworkspacedata" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/ios/Runner.xcodeproj/xcshareddata/xcschemes/Runner.xcscheme" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/ios/Runner.xcodeproj/xcshareddata/xcschemes/Runner.xcscheme" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/ios/Runner.xcworkspace/contents.xcworkspacedata" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/ios/Runner.xcworkspace/contents.xcworkspacedata" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/ios/Runner/AppDelegate.swift" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/ios/Runner/AppDelegate.swift" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/ios/Runner/Assets.xcassets/AppIcon.appiconset/Contents.json" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/ios/Runner/Assets.xcassets/AppIcon.appiconset/Contents.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-1024x1024@1x.png" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-1024x1024@1x.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-20x20@1x.png" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-20x20@1x.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-20x20@2x.png" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-20x20@2x.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-20x20@3x.png" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-20x20@3x.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-29x29@1x.png" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-29x29@1x.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-29x29@2x.png" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-29x29@2x.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-29x29@3x.png" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-29x29@3x.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-40x40@1x.png" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-40x40@1x.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-40x40@2x.png" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-40x40@2x.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-40x40@3x.png" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-40x40@3x.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-60x60@2x.png" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-60x60@2x.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-60x60@3x.png" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-60x60@3x.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-76x76@1x.png" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-76x76@1x.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-76x76@2x.png" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-76x76@2x.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-83.5x83.5@2x.png" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-83.5x83.5@2x.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/ios/Runner/Assets.xcassets/LaunchImage.imageset/Contents.json" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/ios/Runner/Assets.xcassets/LaunchImage.imageset/Contents.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImage.png" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImage.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImage@2x.png" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImage@2x.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImage@3x.png" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImage@3x.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/ios/Runner/Assets.xcassets/LaunchImage.imageset/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/ios/Runner/Assets.xcassets/LaunchImage.imageset/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/ios/Runner/Base.lproj/LaunchScreen.storyboard" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/ios/Runner/Base.lproj/LaunchScreen.storyboard" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/ios/Runner/Base.lproj/Main.storyboard" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/ios/Runner/Base.lproj/Main.storyboard" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/ios/Runner/GoogleService-Info.plist" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/ios/Runner/GoogleService-Info.plist" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/ios/Runner/Info.plist" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/ios/Runner/Info.plist" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/ios/Runner/Runner-Bridging-Header.h" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/ios/Runner/Runner-Bridging-Header.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/lib/customer_bloc.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/lib/customer_bloc.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/lib/main.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/lib/ui/acceptance.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/lib/ui/acceptance.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/lib/ui/dashboard.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/lib/ui/dashboard.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/lib/ui/delivery_note_list.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/lib/ui/delivery_note_list.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/lib/ui/invoice_list.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/lib/ui/invoice_list.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/lib/ui/invoice_settlement.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/lib/ui/invoice_settlement.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/lib/ui/purchase_order_list.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/lib/ui/purchase_order_list.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/lib/ui/purchase_order_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/lib/ui/purchase_order_page.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/lib/ui/refresh.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/lib/ui/refresh.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/lib/ui/settle_invoice.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/lib/ui/settle_invoice.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/lib/ui/settlements.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/lib/ui/settlements.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/lib/ui/signin_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/lib/ui/signin_page.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/lib/ui/signup_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/lib/ui/signup_page.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/lib/ui/splash.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/lib/ui/splash.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/lib/ui/summary_card.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/lib/ui/summary_card.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/lib/ui/supplier_list_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/lib/ui/supplier_list_page.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/lib/ui/theme_util.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/lib/ui/theme_util.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/mlibrary/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/mlibrary/CHANGELOG.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/mlibrary/LICENSE" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/mlibrary/README.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/mlibrary/mlibrary.iml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/mlibrary/pubspec.yaml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/pubspec.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../govt/test/widget_test.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/test/widget_test.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../investor/.idea/libraries/Dart_Packages.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../investor/.idea/libraries/Dart_Packages.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../investor/.idea/libraries/Flutter_Plugins.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../investor/.idea/libraries/Flutter_Plugins.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/api/list_api.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/api/list_api.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../customer/lib/ui/signup_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/lib/ui/signup_page.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../investor/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../investor/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../monitor/.idea/libraries/Dart_Packages.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../monitor/.idea/libraries/Dart_Packages.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../monitor/.idea/libraries/Flutter_Plugins.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../monitor/.idea/libraries/Flutter_Plugins.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../investor/android/app/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/../investor/android/app/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../investor/android/app/src/main/java/com/oneconnect/investor/MainActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/../investor/android/app/src/main/java/com/oneconnect/investor/MainActivity.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../investor/android/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/../investor/android/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../investor/android/gradle/wrapper/gradle-wrapper.properties" beforeDir="false" afterPath="$PROJECT_DIR$/../investor/android/gradle/wrapper/gradle-wrapper.properties" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../monitor/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../monitor/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../monitor/android/app/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/../monitor/android/app/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../monitor/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../monitor/lib/main.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../monitor/monitor.iml" beforeDir="false" afterPath="$PROJECT_DIR$/../monitor/monitor.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../monitor/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/../monitor/pubspec.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Flutter_Plugins.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Flutter_Plugins.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/android/app/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/supplierv3.iml" beforeDir="false" afterPath="$PROJECT_DIR$/supplierv3.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/supplierv3_android.iml" beforeDir="false" afterPath="$PROJECT_DIR$/supplierv3_android.iml" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <ignored path="../.gradle/4.4/fileChanges/last-build.bin" />
@@ -424,7 +258,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/../businesslibrary/lib/api/data_api3.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1210">
+            <state relative-caret-position="1045">
               <caret line="160" column="13" selection-start-line="160" selection-start-column="13" selection-end-line="160" selection-end-column="13" />
               <folding>
                 <element signature="e#0#20#0" expanded="true" />
@@ -440,7 +274,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/../businesslibrary/lib/util/support/chat_response_page.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1628">
+            <state relative-caret-position="1406">
               <caret line="151" column="21" selection-start-line="151" selection-start-column="21" selection-end-line="151" selection-end-column="21" />
               <folding>
                 <element signature="e#2131#2909#0" expanded="true" />
@@ -454,8 +288,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/../businesslibrary/lib/api/signin.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1100">
-              <caret line="102" column="25" selection-start-line="102" selection-start-column="25" selection-end-line="102" selection-end-column="25" />
+            <state relative-caret-position="1140">
+              <caret line="112" column="7" selection-start-line="112" selection-start-column="7" selection-end-line="112" selection-end-column="7" />
               <folding>
                 <element signature="e#0#20#0" expanded="true" />
               </folding>
@@ -463,25 +297,16 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/lib/ui/contract_page.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="22">
+            <state relative-caret-position="171">
               <caret line="375" column="37" selection-start-line="375" selection-start-column="37" selection-end-line="375" selection-end-column="37" />
               <folding>
                 <element signature="e#8881#9329#0" expanded="true" />
                 <element signature="e#10008#10437#0" expanded="true" />
                 <element signature="e#11132#17796#0" expanded="true" />
               </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/android/app/build.gradle">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="329">
-              <caret line="28" column="21" selection-start-line="28" selection-start-column="21" selection-end-line="28" selection-end-column="21" />
             </state>
           </provider>
         </entry>
@@ -630,10 +455,10 @@
   <component name="NamedScopeManager">
     <scope name="MyScope" pattern="" />
   </component>
-  <component name="ProjectFrameBounds" extendedState="6" fullScreen="true">
+  <component name="ProjectFrameBounds">
     <option name="y" value="23" />
-    <option name="width" value="1287" />
-    <option name="height" value="786" />
+    <option name="width" value="1680" />
+    <option name="height" value="982" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true">
     <ConfirmationsSetting value="2" id="Add" />
@@ -695,9 +520,9 @@
           <select />
         </subPane>
       </pane>
-      <pane id="Scope" />
       <pane id="PackagesPane" />
       <pane id="AndroidView" />
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -1203,11 +1028,11 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="0" width="1680" height="1050" extended-state="6" />
+    <frame x="0" y="23" width="1680" height="982" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.52153844" visible="true" weight="0.20695971" />
-      <window_info id="Structure" order="1" sideWeight="0.47846153" side_tool="true" visible="true" weight="0.1892552" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.51007754" visible="true" weight="0.2008547" />
+      <window_info id="Structure" order="1" sideWeight="0.4899225" side_tool="true" visible="true" weight="0.1923077" />
       <window_info id="Designer" order="2" />
       <window_info id="Build Variants" order="3" sideWeight="0.5203956" side_tool="true" weight="0.25656688" />
       <window_info id="Image Layers" order="4" />
@@ -1217,17 +1042,17 @@
       <window_info id="UI Designer" order="8" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32772276" />
-      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.7976072" weight="0.4351585" />
+      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.7967033" weight="0.43469387" />
       <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.74125874" weight="0.5752475" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" sideWeight="0.4997151" weight="0.32964602" />
       <window_info anchor="bottom" id="Dart Analysis" order="7" sideWeight="0.4965035" weight="0.16593887" />
       <window_info anchor="bottom" id="Android Profiler" order="8" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Event Log" order="9" sideWeight="0.21184371" side_tool="true" visible="true" weight="0.2897959" />
+      <window_info anchor="bottom" id="Event Log" order="9" sideWeight="0.2032967" side_tool="true" visible="true" weight="0.28876406" />
       <window_info anchor="bottom" id="Logcat" order="10" sideWeight="0.4993895" weight="0.32918552" />
       <window_info anchor="bottom" id="Version Control" order="11" weight="0.32936978" />
-      <window_info anchor="bottom" id="Terminal" order="12" sideWeight="0.7881563" visible="true" weight="0.2897959" />
+      <window_info anchor="bottom" id="Terminal" order="12" sideWeight="0.7881563" weight="0.2897959" />
       <window_info anchor="bottom" id="Messages" order="13" sideWeight="0.49695122" weight="0.36363637" />
       <window_info anchor="bottom" id="Flutter Performance" order="14" side_tool="true" />
       <window_info anchor="right" id="Commander" order="0" weight="0.4" />
@@ -1686,9 +1511,16 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/android/app/build.gradle">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="241">
+          <caret line="24" selection-start-line="24" selection-end-line="24" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/../businesslibrary/lib/api/data_api3.dart">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1210">
+        <state relative-caret-position="1045">
           <caret line="160" column="13" selection-start-line="160" selection-start-column="13" selection-end-line="160" selection-end-column="13" />
           <folding>
             <element signature="e#0#20#0" expanded="true" />
@@ -1702,7 +1534,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/../businesslibrary/lib/util/support/chat_response_page.dart">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1628">
+        <state relative-caret-position="1406">
           <caret line="151" column="21" selection-start-line="151" selection-start-column="21" selection-end-line="151" selection-end-column="21" />
           <folding>
             <element signature="e#2131#2909#0" expanded="true" />
@@ -1714,8 +1546,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/../businesslibrary/lib/api/signin.dart">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1100">
-          <caret line="102" column="25" selection-start-line="102" selection-start-column="25" selection-end-line="102" selection-end-column="25" />
+        <state relative-caret-position="1140">
+          <caret line="112" column="7" selection-start-line="112" selection-start-column="7" selection-end-line="112" selection-end-column="7" />
           <folding>
             <element signature="e#0#20#0" expanded="true" />
           </folding>
@@ -1724,20 +1556,13 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/lib/ui/contract_page.dart">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="22">
+        <state relative-caret-position="171">
           <caret line="375" column="37" selection-start-line="375" selection-start-column="37" selection-end-line="375" selection-end-column="37" />
           <folding>
             <element signature="e#8881#9329#0" expanded="true" />
             <element signature="e#10008#10437#0" expanded="true" />
             <element signature="e#11132#17796#0" expanded="true" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/android/app/build.gradle">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="329">
-          <caret line="28" column="21" selection-start-line="28" selection-start-column="21" selection-end-line="28" selection-end-column="21" />
         </state>
       </provider>
     </entry>
