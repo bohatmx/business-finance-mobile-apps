@@ -2,21 +2,21 @@ import 'dart:async';
 
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
+import 'package:businesslibrary/blocs/investor_model_bloc.dart';
 import 'package:businesslibrary/data/dashboard_data.dart';
 import 'package:businesslibrary/data/investor.dart';
 import 'package:businesslibrary/data/invoice_bid.dart';
 import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/util/Finders.dart';
 import 'package:businesslibrary/util/lookups.dart';
+import 'package:businesslibrary/util/mypager.dart';
 import 'package:businesslibrary/util/offer_card.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:businesslibrary/util/util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:businesslibrary/blocs/investor_model_bloc.dart';
 import 'package:investor/ui/invoice_bidder.dart';
-import 'package:businesslibrary/util/mypager.dart';
 
 class OfferList extends StatefulWidget {
   static _OfferListState of(BuildContext context) =>
@@ -49,7 +49,6 @@ class _OfferListState extends State<OfferList>
     appModel = investorModelBloc.appModel;
     _buildDaysDropDownItems();
     _getCached();
-
   }
 
   void _getCached() async {
@@ -73,7 +72,7 @@ class _OfferListState extends State<OfferList>
         textColor: Colors.yellow,
         backgroundColor: Colors.black);
 
-    offerBids = await ListAPI.getInvoiceBidsByOffer(offer.documentReference);
+    offerBids = await ListAPI.getInvoiceBidsByOffer(offer.offerId);
     offerBids.forEach((bid) {
       prettyPrint(bid.toJson(), '####### bid for this offer already exist:');
     });
@@ -430,7 +429,7 @@ class _OfferListState extends State<OfferList>
               _checkBid(currentPage.elementAt(index));
             },
             child: Padding(
-              padding: const EdgeInsets.only(left:12.0, right: 12.0, top: 4.0),
+              padding: const EdgeInsets.only(left: 12.0, right: 12.0, top: 4.0),
               child: OfferCard(
                 offer: _getOffer(index),
                 number: index + 1,
@@ -458,8 +457,8 @@ class _OfferListState extends State<OfferList>
                 ),
               ),
               Padding(
-                padding:
-                    const EdgeInsets.only(left: 8.0, right: 8.0, bottom: 20.0, top:2.0),
+                padding: const EdgeInsets.only(
+                    left: 8.0, right: 8.0, bottom: 20.0, top: 2.0),
                 child: PagerControl(
                   itemName: 'Open Offers',
                   pageLimit: appModel.pageLimit,
@@ -481,11 +480,16 @@ class _OfferListState extends State<OfferList>
   }
 
   Future _onInvoiceBidRequired() async {
-    prettyPrint(offer.toJson(), '\n\n_OfferListState._onYesPressed.... OFFER to bidder:');
+    prettyPrint(offer.toJson(),
+        '\n\n_OfferListState._onYesPressed.... OFFER to bidder:');
     Navigator.pop(context);
     bool refresh = await Navigator.push(
       context,
-      new MaterialPageRoute(builder: (context) => new InvoiceBidder(offer:offer, existingBids: offerBids,)),
+      new MaterialPageRoute(
+          builder: (context) => new InvoiceBidder(
+                offer: offer,
+                existingBids: offerBids,
+              )),
     );
     if (refresh == null) {
       return;

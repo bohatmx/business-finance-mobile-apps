@@ -698,6 +698,11 @@ class DataAPI3 {
     return AutoTradeOrder.fromJson(result);
   }
 
+  static Future<AutoTradeOrder> updateAutoTradeOrder(
+      AutoTradeOrder order) async {
+    throw Exception('Not done yet');
+  }
+
   static Future<InvestorProfile> addInvestorProfile(
       InvestorProfile profile) async {
     var bag = APIBag(
@@ -713,6 +718,11 @@ class DataAPI3 {
     print(message);
     var result = json.decode(replyFromWeb['result']);
     return InvestorProfile.fromJson(result);
+  }
+
+  static Future<InvestorProfile> updateInvestorProfile(
+      InvestorProfile profile) async {
+    throw Exception('TBD');
   }
 
   static Future<Wallet> addWallet(Wallet wallet) async {

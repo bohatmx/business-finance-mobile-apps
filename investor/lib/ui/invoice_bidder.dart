@@ -1,6 +1,6 @@
 import 'package:businesslibrary/api/data_api3.dart';
-import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
+import 'package:businesslibrary/blocs/investor_model_bloc.dart';
 import 'package:businesslibrary/data/investor.dart';
 import 'package:businesslibrary/data/invoice_bid.dart';
 import 'package:businesslibrary/data/offer.dart';
@@ -13,7 +13,6 @@ import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:businesslibrary/blocs/investor_model_bloc.dart';
 import 'package:investor/ui/invoice_due_diligence.dart';
 
 class InvoiceBidder extends StatefulWidget {
@@ -62,7 +61,7 @@ class _InvoiceBidderState extends State<InvoiceBidder>
       _showBusyIndicator = true;
     });
     offerBids = widget.existingBids;
-    int cnt =0;
+    int cnt = 0;
     offerBids.forEach((b) {
       cnt++;
       prettyPrint(b.toJson(), 'InvoiceBid on the offer: #$cnt');
@@ -120,6 +119,7 @@ class _InvoiceBidderState extends State<InvoiceBidder>
     }
     setState(() {});
   }
+
   bool showFullyBid = false;
   Widget _getBottom() {
     return PreferredSize(
@@ -259,8 +259,7 @@ class _InvoiceBidderState extends State<InvoiceBidder>
               elevation: 2.0,
             ),
           ),
-          showFullyBid == true? _buildFullyBid() : _buildActions(),
-
+          showFullyBid == true ? _buildFullyBid() : _buildActions(),
         ],
       ),
     );
@@ -268,7 +267,8 @@ class _InvoiceBidderState extends State<InvoiceBidder>
 
   Widget _buildFullyBid() {
     return Padding(
-      padding: const EdgeInsets.only(bottom:24.0, left:12.0, right: 12.0, top: 4.0),
+      padding: const EdgeInsets.only(
+          bottom: 24.0, left: 12.0, right: 12.0, top: 4.0),
       child: GestureDetector(
         onTap: _closeOffer,
         child: Card(
@@ -278,7 +278,10 @@ class _InvoiceBidderState extends State<InvoiceBidder>
             padding: const EdgeInsets.all(12.0),
             child: Column(
               children: <Widget>[
-                Text('This offer is now fully bid. It is no longer possible to make a bid on this offer for anyone else.\n\nThanks!', style: Styles.whiteSmall,)
+                Text(
+                  'This offer is now fully bid. It is no longer possible to make a bid on this offer for anyone else.\n\nThanks!',
+                  style: Styles.whiteSmall,
+                )
               ],
             ),
           ),
@@ -286,6 +289,7 @@ class _InvoiceBidderState extends State<InvoiceBidder>
       ),
     );
   }
+
   Widget _buildActions() {
     return Column(
       children: <Widget>[
@@ -383,6 +387,7 @@ class _InvoiceBidderState extends State<InvoiceBidder>
       ],
     );
   }
+
   void _showConfirmDialog() {
     showDialog(
         context: context,
@@ -537,7 +542,6 @@ class _InvoiceBidderState extends State<InvoiceBidder>
       _showBusyIndicator = true;
     });
 
-
     var t = 0.00;
     offerBids.forEach((m) {
       t += m.reservePercent;
@@ -593,24 +597,18 @@ class _InvoiceBidderState extends State<InvoiceBidder>
     InvoiceBid bid = InvoiceBid(
         user: NameSpace + 'User#' + user.userId,
         reservePercent: percentage,
-        date: getUTCDate(),
-        offer: NameSpace + 'Offer#' + offer.offerId,
-        investor: NameSpace + 'Investor#' + investor.participantId,
+        offer: offer.offerId,
+        investor: investor.participantId,
         investorName: investor.name,
         amount: amount,
         discountPercent: offer.discountPercent,
         startTime: offer.startTime,
         endTime: offer.endTime,
-        wallet: NameSpace + 'Wallet#${wallet.stellarPublicKey}',
+        wallet: wallet.stellarPublicKey,
         isSettled: false,
-        supplierFCMToken: offer.supplierFCMToken,
-        investorFCMToken: token,
         supplierName: offer.supplierName,
         customerName: offer.customerName,
         customer: offer.customer,
-        investorDocRef: investor.documentReference,
-        offerDocRef: offer.documentReference,
-        supplierDocRef: offer.supplierDocumentRef,
         supplier: offer.supplier);
 
     try {
@@ -625,11 +623,13 @@ class _InvoiceBidderState extends State<InvoiceBidder>
           listener: this,
           icon: Icons.done_all,
           action: 0);
-      print('_InvoiceBidderState._onSubmitBid offerBids before: : ${offerBids.length}');
+      print(
+          '_InvoiceBidderState._onSubmitBid offerBids before: : ${offerBids.length}');
       offerBids.add(bid);
       _calculateTotal();
       _buildPercChoices();
-      print('_InvoiceBidderState._onSubmitBid offerBids after: : ${offerBids.length}');
+      print(
+          '_InvoiceBidderState._onSubmitBid offerBids after: : ${offerBids.length}');
       setState(() {
         _showBusyIndicator = false;
       });

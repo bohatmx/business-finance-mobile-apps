@@ -3,21 +3,20 @@ import 'dart:math';
 import 'package:businesslibrary/api/data_api3.dart';
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
-import 'package:businesslibrary/api/signup.dart';
-
+import 'package:businesslibrary/blocs/investor_model_bloc.dart';
+import 'package:businesslibrary/data/country.dart';
 import 'package:businesslibrary/data/investor.dart';
 import 'package:businesslibrary/data/offer.dart';
-
 import 'package:businesslibrary/data/sector.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/selectors.dart';
+import 'package:businesslibrary/util/signup_util.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/util.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:businesslibrary/blocs/investor_model_bloc.dart';
 import 'package:investor/ui/dashboard.dart';
 import 'package:investor/ui/profile.dart';
 
@@ -273,13 +272,13 @@ class _SignUpPageState extends State<SignUpPage>
         backgroundColor: Colors.black,
       );
 
-      var result = await SignUp.signUpInvestor(investor, admin);
-
-      checkResult(result, investor);
+//      var result = await SignUp.signUpInvestor(investor, admin);
+//
+//      checkResult(result, investor);
     }
   }
 
-  void checkResult(int result, Investor investor) async{
+  void checkResult(int result, Investor investor) async {
     switch (result) {
       case SignUp.Success:
         print('_SignUpPageState._onSavePressed SUCCESS!!!!!!');
@@ -345,6 +344,7 @@ class _SignUpPageState extends State<SignUpPage>
         break;
     }
   }
+
   void _checkSectors() async {
     sectors = await ListAPI.getSectors();
     if (sectors.isEmpty) {

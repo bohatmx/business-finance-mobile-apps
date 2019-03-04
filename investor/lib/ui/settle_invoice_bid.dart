@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:businesslibrary/api/data_api3.dart';
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
+import 'package:businesslibrary/blocs/investor_model_bloc.dart';
 import 'package:businesslibrary/data/investor.dart';
 import 'package:businesslibrary/data/invoice_bid.dart';
 import 'package:businesslibrary/data/invoice_settlement.dart';
@@ -14,12 +15,10 @@ import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/peach.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
-import 'package:businesslibrary/util/util.dart';
 import 'package:businesslibrary/util/webview.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:businesslibrary/blocs/investor_model_bloc.dart';
 import 'package:investor/ui/unsettled_bids.dart';
 
 class SettleInvoiceBid extends StatefulWidget {
@@ -32,8 +31,7 @@ class SettleInvoiceBid extends StatefulWidget {
 }
 
 class _SettleInvoiceBid extends State<SettleInvoiceBid>
-    implements
-        SnackBarListener {
+    implements SnackBarListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   final FirebaseMessaging fm = FirebaseMessaging();
   final Firestore fs = Firestore.instance;
@@ -60,7 +58,6 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
   void _getCache() async {
     user = await SharedPrefs.getUser();
     investor = await SharedPrefs.getInvestor();
-
   }
 
   StreamSubscription<QuerySnapshot> streamSub, streamTrans;
@@ -164,11 +161,12 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
       }
     });
     if (widget.invoiceBid != null) {
-      if (widget.invoiceBid.offerDocRef == null) {
-        prettyPrint(widget.invoiceBid.toJson(), '\n\n########## checking offerDocRef');
+      if (widget.invoiceBid.offer == null) {
+        prettyPrint(
+            widget.invoiceBid.toJson(), '\n\n########## checking offerDocRef');
         throw Exception('Missing offerDocRef in invoiceBid');
       }
-      offerBag = await ListAPI.getOfferByDocRef(widget.invoiceBid.offerDocRef);
+      offerBag = await ListAPI.getOfferById(widget.invoiceBid.offer);
       setState(() {
         isBusy = false;
       });
@@ -262,7 +260,7 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
     totAmt = 0.00;
     if (widget.invoiceBid != null) {
       totAmt = widget.invoiceBid.amount;
-      ref = widget.invoiceBid.documentReference;
+      ref = widget.invoiceBid.invoiceBidId;
     } else {
       widget.invoiceBids.forEach((b) {
         totAmt += b.amount;
@@ -273,10 +271,10 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
     var payment = PeachPayment(
       merchantReference: ref,
       amount: totAmt,
-      successURL: getFunctionsURL() + 'peachSuccess',
-      cancelUrl: getFunctionsURL() + 'peachCancel',
-      errorUrl: getFunctionsURL() + 'peachError',
-      notifyUrl: getFunctionsURL() + 'peachNotify',
+//      successURL: getFunctionsURL() + 'peachSuccess',
+//      cancelUrl: getFunctionsURL() + 'peachCancel',
+//      errorUrl: getFunctionsURL() + 'peachError',
+//      notifyUrl: getFunctionsURL() + 'peachNotify',
     );
     prettyPrint(payment.toJson(),
         '##### getPaymentKey - payment, check merchant reference');

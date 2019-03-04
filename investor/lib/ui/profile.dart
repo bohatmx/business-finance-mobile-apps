@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:businesslibrary/api/data_api.dart';
 import 'package:businesslibrary/api/data_api3.dart';
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
@@ -176,7 +175,7 @@ class _ProfilePageState extends State<ProfilePage> implements SnackBarListener {
     } catch (e) {
       print('_ProfilePageState._onSubmit $e');
     }
-    profile.investorDocRef = investor.documentReference;
+    profile.investor = investor.participantId;
     List<String> sectorStrings = List();
 
     if (selectedSectors != null) {
@@ -194,7 +193,7 @@ class _ProfilePageState extends State<ProfilePage> implements SnackBarListener {
       });
       profile.suppliers = suppStrings;
     }
-    profile.investorDocRef = investor.documentReference;
+    profile.investor = investor.participantId;
     AppSnackbar.showSnackbarWithProgressIndicator(
         scaffoldKey: _scaffoldKey,
         message: 'Saving profile ...',
@@ -204,7 +203,7 @@ class _ProfilePageState extends State<ProfilePage> implements SnackBarListener {
     if (profile.profileId == null) {
       res = await DataAPI3.addInvestorProfile(profile);
     } else {
-      res = await DataAPI.updateInvestorProfile(profile);
+      res = await DataAPI3.updateInvestorProfile(profile);
     }
     if (res == '0') {
       AppSnackbar.showErrorSnackbar(
@@ -555,7 +554,7 @@ class _ProfilePageState extends State<ProfilePage> implements SnackBarListener {
 
     var res;
     if (orderCached != null) {
-      res = await DataAPI.updateAutoTradeOrder(order);
+      res = await DataAPI3.updateAutoTradeOrder(order);
     } else {
       res = await DataAPI3.addAutoTradeOrder(order);
     }
