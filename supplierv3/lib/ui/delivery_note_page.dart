@@ -28,8 +28,7 @@ class DeliveryNotePage extends StatefulWidget {
 }
 
 class _DeliveryNotePageState extends State<DeliveryNotePage>
-    implements
-        SnackBarListener {
+    implements SnackBarListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   FirebaseMessaging _fcm = FirebaseMessaging();
   PurchaseOrder _purchaseOrder;
@@ -160,184 +159,184 @@ class _DeliveryNotePageState extends State<DeliveryNotePage>
       ),
     );
   }
+
   @override
   Widget build(BuildContext context) {
     if (widget.purchaseOrder != null) {
       _purchaseOrder = widget.purchaseOrder;
     }
 
-        return Scaffold(
-          key: _scaffoldKey,
-          appBar: AppBar(
-            title: Text(
-              'Create Delivery Note',
-              style: TextStyle(fontWeight: FontWeight.normal),
-            ),
-            bottom: _getBottom(),
-          ),
-          body: new Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Card(
-              elevation: 4.0,
-              child: Padding(
-                padding: const EdgeInsets.only(top: 8.0, bottom: 16.0, left: 20.0),
-                child: ListView(
-                  children: <Widget>[
-                    _getPOList(),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 20.0, bottom: 30.0),
-                      child: Text(
-                        _purchaseOrder == null ? '' : _purchaseOrder.purchaserName,
-                        style: styleBlack,
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 0.0, bottom: 10.0),
-                      child: Row(
-                        children: <Widget>[
-                          Padding(
-                            padding: const EdgeInsets.only(right: 8.0),
-                            child: Text(
-                              'Purchase Order:',
-                              style: styleLabels,
-                            ),
-                          ),
-                          Text(
-                            _purchaseOrder == null
-                                ? ''
-                                : _purchaseOrder.purchaseOrderNumber,
-                            style: styleBlack,
-                          ),
-                        ],
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 2.0),
-                      child: Row(
-                        children: <Widget>[
-                          Padding(
-                            padding: const EdgeInsets.only(right: 8.0),
-                            child: Text(
-                              'PO Date:',
-                              style: styleLabels,
-                            ),
-                          ),
-                          Text(
-                            _purchaseOrder == null
-                                ? ''
-                                : getFormattedDateShort(
-                                '${_purchaseOrder.date}', context),
-                            style: styleBlack,
-                          ),
-                        ],
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 8.0),
-                      child: Row(
-                        children: <Widget>[
-                          Padding(
-                            padding: const EdgeInsets.only(right: 8.0),
-                            child: Text(
-                              'PO Amt:',
-                              style: styleLabels,
-                            ),
-                          ),
-                          Text(
-                            _purchaseOrder == null ? '0.00' : _getFormattedAmount(),
-                            style: styleTeal,
-                          ),
-                        ],
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 8.0),
-                      child: Row(
-                        children: <Widget>[
-                          Padding(
-                            padding: const EdgeInsets.only(right: 8.0),
-                            child: Text(
-                              'Total Invoiced:',
-                              style: styleLabels,
-                            ),
-                          ),
-                          Text(
-                            totalPOInvoiceAmt == null ? '0.00' : totalPOInvoiceAmt,
-                            style: styleBlue,
-                          ),
-                        ],
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(right: 18.0),
-                      child: TextField(
-                        onChanged: _onAmountChanged,
-                        maxLength: 20,
-                        style: TextStyle(
-                            fontSize: 28.0,
-                            fontWeight: FontWeight.w900,
-                            color: Colors.black),
-                        keyboardType:
-                        TextInputType.numberWithOptions(decimal: true),
-                        decoration: InputDecoration(
-                            labelText: 'Delivery Note Amount',
-                            labelStyle: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.purple,
-                                fontSize: 20.0)),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 28.0),
-                      child: Row(
-                        children: <Widget>[
-                          Padding(
-                            padding: const EdgeInsets.only(right: 8.0),
-                            child: Text(
-                              'Delivery Note VAT',
-                              style: TextStyle(color: Colors.grey),
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(right: 8.0),
-                            child: Text(
-                              vat == null
-                                  ? '0.00'
-                                  : getFormattedAmount(vat, context),
-                              style: TextStyle(
-                                  fontSize: 20.0,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.purple),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(
-                        top: 20.0,
-                        right: 20.0,
-                      ),
-                      child: RaisedButton(
-                        elevation: 8.0,
-                        color: Colors.indigo.shade300,
-                        onPressed: _onSubmit,
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Text(
-                            'Submit Delivery Note',
-                            style: TextStyle(color: Colors.white),
-                          ),
+    return Scaffold(
+      key: _scaffoldKey,
+      appBar: AppBar(
+        title: Text(
+          'Create Delivery Note',
+          style: TextStyle(fontWeight: FontWeight.normal),
+        ),
+        bottom: _getBottom(),
+      ),
+      body: new Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Card(
+          elevation: 4.0,
+          child: Padding(
+            padding: const EdgeInsets.only(top: 8.0, bottom: 16.0, left: 20.0),
+            child: ListView(
+              children: <Widget>[
+                _getPOList(),
+                Padding(
+                  padding: const EdgeInsets.only(top: 20.0, bottom: 30.0),
+                  child: Text(
+                    _purchaseOrder == null ? '' : _purchaseOrder.purchaserName,
+                    style: styleBlack,
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 0.0, bottom: 10.0),
+                  child: Row(
+                    children: <Widget>[
+                      Padding(
+                        padding: const EdgeInsets.only(right: 8.0),
+                        child: Text(
+                          'Purchase Order:',
+                          style: styleLabels,
                         ),
                       ),
-                    ),
-                  ],
+                      Text(
+                        _purchaseOrder == null
+                            ? ''
+                            : _purchaseOrder.purchaseOrderNumber,
+                        style: styleBlack,
+                      ),
+                    ],
+                  ),
                 ),
-              ),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 2.0),
+                  child: Row(
+                    children: <Widget>[
+                      Padding(
+                        padding: const EdgeInsets.only(right: 8.0),
+                        child: Text(
+                          'PO Date:',
+                          style: styleLabels,
+                        ),
+                      ),
+                      Text(
+                        _purchaseOrder == null
+                            ? ''
+                            : getFormattedDateShort(
+                                '${_purchaseOrder.date}', context),
+                        style: styleBlack,
+                      ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: Row(
+                    children: <Widget>[
+                      Padding(
+                        padding: const EdgeInsets.only(right: 8.0),
+                        child: Text(
+                          'PO Amt:',
+                          style: styleLabels,
+                        ),
+                      ),
+                      Text(
+                        _purchaseOrder == null ? '0.00' : _getFormattedAmount(),
+                        style: styleTeal,
+                      ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: Row(
+                    children: <Widget>[
+                      Padding(
+                        padding: const EdgeInsets.only(right: 8.0),
+                        child: Text(
+                          'Total Invoiced:',
+                          style: styleLabels,
+                        ),
+                      ),
+                      Text(
+                        totalPOInvoiceAmt == null ? '0.00' : totalPOInvoiceAmt,
+                        style: styleBlue,
+                      ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(right: 18.0),
+                  child: TextField(
+                    onChanged: _onAmountChanged,
+                    maxLength: 20,
+                    style: TextStyle(
+                        fontSize: 28.0,
+                        fontWeight: FontWeight.w900,
+                        color: Colors.black),
+                    keyboardType:
+                        TextInputType.numberWithOptions(decimal: true),
+                    decoration: InputDecoration(
+                        labelText: 'Delivery Note Amount',
+                        labelStyle: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.purple,
+                            fontSize: 20.0)),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 28.0),
+                  child: Row(
+                    children: <Widget>[
+                      Padding(
+                        padding: const EdgeInsets.only(right: 8.0),
+                        child: Text(
+                          'Delivery Note VAT',
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(right: 8.0),
+                        child: Text(
+                          vat == null
+                              ? '0.00'
+                              : getFormattedAmount(vat, context),
+                          style: TextStyle(
+                              fontSize: 20.0,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.purple),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(
+                    top: 20.0,
+                    right: 20.0,
+                  ),
+                  child: RaisedButton(
+                    elevation: 8.0,
+                    color: Colors.indigo.shade300,
+                    onPressed: _onSubmit,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Text(
+                        'Submit Delivery Note',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
-        );
-
+        ),
+      ),
+    );
   }
 
   String _getFormattedAmount() {
@@ -384,8 +383,6 @@ class _DeliveryNotePageState extends State<DeliveryNotePage>
       purchaseOrder: NameSpacePO + _purchaseOrder.purchaseOrderId,
       supplier: _purchaseOrder.supplier,
       supplierName: _purchaseOrder.supplierName,
-      supplierDocumentRef: _purchaseOrder.supplierDocumentRef,
-      govtDocumentRef: _purchaseOrder.govtDocumentRef,
       user: NameSpaceUser + _user.userId,
       date: DateTime.now().toIso8601String(),
       purchaseOrderNumber: _purchaseOrder.purchaseOrderNumber,
@@ -394,19 +391,17 @@ class _DeliveryNotePageState extends State<DeliveryNotePage>
       vat: double.parse(vat),
       totalAmount: double.parse(totalAmount),
     );
-    if (_purchaseOrder.govtEntity != null) {
-      note.govtEntity = _purchaseOrder.govtEntity;
+    if (_purchaseOrder.customer != null) {
+      note.customer = _purchaseOrder.customer;
     }
-    if (_purchaseOrder.company != null) {
-      note.company = _purchaseOrder.company;
-    }
+
     AppSnackbar.showSnackbarWithProgressIndicator(
         scaffoldKey: _scaffoldKey,
         message: 'Submitting Delivery Note ...',
         textColor: Colors.white,
         backgroundColor: Colors.black);
     try {
-      var resultNote = await DataAPI3.registerDeliveryNote(note);
+      var resultNote = await DataAPI3.addDeliveryNote(note);
       _scaffoldKey.currentState.hideCurrentSnackBar();
       print('_DeliveryNotePageState._onSubmit ........ back. key: $resultNote');
 

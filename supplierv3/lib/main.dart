@@ -2,15 +2,13 @@ import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
-import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/page_util/data.dart';
 import 'package:businesslibrary/util/page_util/intro_page_view.dart';
+import 'package:businesslibrary/util/theme_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:supplierv3/ui/dashboard.dart';
 import 'package:supplierv3/ui/signin_page.dart';
 import 'package:supplierv3/ui/signup_page.dart';
-import 'package:businesslibrary/util/theme_bloc.dart';
-
 
 void main() => runApp(new SupplierApp2());
 
@@ -26,22 +24,24 @@ class _SupplierApp2State extends State<SupplierApp2> {
     super.initState();
     _getTheme();
   }
+
   void _getTheme() async {
     themeIndex = await SharedPrefs.getThemeIndex();
   }
+
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<int>(
-      initialData: themeIndex == null? 0: themeIndex,
+      initialData: themeIndex == null ? 0 : themeIndex,
       stream: themeBloc.newThemeStream,
       builder: (context, snapShot) => MaterialApp(
-        title: 'BFNSupplier',
-        debugShowCheckedModeBanner: false,
-        theme: snapShot.data == null
-            ? ThemeUtil.getTheme(themeIndex: themeIndex)
-            : ThemeUtil.getTheme(themeIndex: snapShot.data),
-        home: new StartPage(),
-      ),
+            title: 'BFNSupplier',
+            debugShowCheckedModeBanner: false,
+            theme: snapShot.data == null
+                ? ThemeUtil.getTheme(themeIndex: themeIndex)
+                : ThemeUtil.getTheme(themeIndex: snapShot.data),
+            home: new StartPage(),
+          ),
     );
   }
 }
@@ -63,9 +63,9 @@ class _StartPageState extends State<StartPage> {
   initState() {
     super.initState();
     _getCache();
-
   }
- void _getCache() async {
+
+  void _getCache() async {
     supplier = await SharedPrefs.getSupplier();
     if (supplier != null) {
       Navigator.pop(context);
@@ -75,7 +75,8 @@ class _StartPageState extends State<StartPage> {
       );
       return;
     }
- }
+  }
+
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
@@ -171,19 +172,24 @@ class _StartPageState extends State<StartPage> {
       ),
     );
   }
+
   void _startOnboarding() {
     Navigator.push(
       context,
-      new MaterialPageRoute(builder: (context) => new IntroPageView(items: sampleItems, user: null,)),
+      new MaterialPageRoute(
+          builder: (context) => new IntroPageView(
+                items: sampleItems,
+                user: null,
+              )),
     );
   }
+
   void _startSignUpPage() async {
     print('_MyHomePageState._btnPressed ................');
-    PrivateSectorType type = await Navigator.push(
+    await Navigator.push(
       context,
       new MaterialPageRoute(builder: (context) => new SignUpPage()),
     );
-    print('_StartPageState._startSignUpPage  ${type.type}');
   }
 
   void _startSignInPage() async {

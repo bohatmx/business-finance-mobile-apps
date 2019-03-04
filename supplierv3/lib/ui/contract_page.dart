@@ -2,14 +2,13 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
-import 'package:businesslibrary/api/data_api.dart';
+import 'package:businesslibrary/api/data_api3.dart';
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/api/storage_api.dart';
-import 'package:businesslibrary/data/govt_entity.dart';
-import 'package:businesslibrary/data/supplier_contract.dart';
+import 'package:businesslibrary/data/customer.dart';
 import 'package:businesslibrary/data/supplier.dart';
-
+import 'package:businesslibrary/data/supplier_contract.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
@@ -34,11 +33,11 @@ class _ContractPageState extends State<ContractPage>
   static const platform = const MethodChannel('com.oneconnect.files/pdf');
   SupplierContract contract;
   List<SupplierContract> contracts;
-  List<GovtEntity> entities;
+  List<Customer> entities;
   Supplier supplier;
   User user;
   String title;
-  GovtEntity entity;
+  Customer entity;
   List<DropdownMenuItem<String>> items = List();
   List<DropdownMenuItem<String>> fileItems = List();
   DateTime startTime, endTime;
@@ -62,7 +61,7 @@ class _ContractPageState extends State<ContractPage>
   }
 
   _getEntities() async {
-    entities = await ListAPI.getGovtEntitiesByCountry(supplier.country);
+    entities = await ListAPI.getCustomersByCountry(country: 'ZA');
     if (entities.length < 70) {
       _buildDropDownItems();
     }
@@ -171,7 +170,7 @@ class _ContractPageState extends State<ContractPage>
     });
   }
 
-  Future _uploadDummyContract(GovtEntity entity) async {
+  Future _uploadDummyContract(Customer entity) async {
     print('_ContractPageState._uploadContract ############### '
         '.........  url: $url');
     SupplierContract c = SupplierContract(
@@ -182,7 +181,7 @@ class _ContractPageState extends State<ContractPage>
       supplierName: supplier.name,
       supplierDocumentRef: supplier.documentReference,
       govtEntity:
-          'resource:com.oneconnect.biz.GovtEntity#' + entity.participantId,
+          'resource:com.oneconnect.biz.Customer#' + entity.participantId,
       contractURL:
           'https://firebasestorage.googleapis.com/v0/b/business-finance-dev.appspot.com/o/contracts%2FBFN2018-06-24T17%3A29%3A56.708034_42%20%2B.pdf?alt=media&token=ce591d07-3bd7-45b8-a961-499289ac141e',
       user: 'resource:com.oneconnect.biz.User#' + user.userId,
@@ -197,7 +196,8 @@ class _ContractPageState extends State<ContractPage>
         message: 'Uploading dummy cooontract',
         textColor: Colors.white,
         backgroundColor: Colors.black);
-    var res = await DataAPI.addSupplierContract(c);
+    //todo - add addSupplierContract to DataAPI3
+    var res = await DataAPI3.addSupplierContract(c);
     isBusy = false;
     if (res == '0') {
       isDone = false;
@@ -238,7 +238,7 @@ class _ContractPageState extends State<ContractPage>
       supplierName: supplier.name,
       supplierDocumentRef: supplier.documentReference,
       govtEntity:
-          'resource:com.oneconnect.biz.GovtEntity#' + entity.participantId,
+          'resource:com.oneconnect.biz.Customer#' + entity.participantId,
       contractURL: url,
       user: 'resource:com.oneconnect.biz.User#' + user.userId,
       date: new DateTime.now().toIso8601String(),
@@ -246,7 +246,7 @@ class _ContractPageState extends State<ContractPage>
           'resource:com.oneconnect.biz.Supplier#' + supplier.participantId,
     );
 
-    var res = await DataAPI.addSupplierContract(c);
+    var res = await DataAPI3.addSupplierContract(c);
     isBusy = false;
     if (res == '0') {
       isDone = false;

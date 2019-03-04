@@ -19,8 +19,7 @@ class DeliveryAcceptanceList extends StatefulWidget {
 }
 
 class _DeliveryAcceptanceListState extends State<DeliveryAcceptanceList>
-    implements
-        SnackBarListener {
+    implements SnackBarListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   FirebaseMessaging _fcm = FirebaseMessaging();
 
@@ -50,7 +49,7 @@ class _DeliveryAcceptanceListState extends State<DeliveryAcceptanceList>
         backgroundColor: Colors.black);
     print('_DeliveryAcceptanceListState._getAcceptances ... calling api');
     acceptances = await ListAPI.getDeliveryAcceptances(
-        supplier.documentReference, 'suppliers');
+        participantId: supplier.participantId, participantType: 'supplier');
     _scaffoldKey.currentState.hideCurrentSnackBar();
     setState(() {});
     if (acceptances.isEmpty) {

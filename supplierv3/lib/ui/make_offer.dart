@@ -111,7 +111,6 @@ class _MakeOfferPageState extends State<MakeOfferPage>
     supplier = await SharedPrefs.getSupplier();
     user = await SharedPrefs.getUser();
 
-
     var offers = await ListAPI.getOpenOffersBySupplier(supplier.participantId);
     offers.forEach((o) {
       _fcm.subscribeToTopic(FCM.TOPIC_INVOICE_BIDS + o.offerId);
@@ -227,25 +226,21 @@ class _MakeOfferPageState extends State<MakeOfferPage>
 
     var token = await _fcm.getToken();
     Offer offer = new Offer(
-        supplier: NameSpace + 'Supplier#' + supplier.participantId,
-        invoice: NameSpace + 'Invoice#' + invoice.invoiceId,
-        user: NameSpace + 'User#' + user.userId,
+        supplier: supplier.participantId,
+        invoice: invoice.invoiceId,
+        user: user.userId,
         purchaseOrder: invoice.purchaseOrder,
         offerAmount: offerAmt,
         invoiceAmount: invoice.totalAmount,
         discountPercent: disc,
         startTime: getUTCDate(),
         endTime: endTime,
-        date: getUTCDate(),
-        supplierFCMToken: token,
         participantId: supplier.participantId,
         customerName: invoice.customerName,
-        customer: invoice.govtEntity,
-        wallet: NameSpace + 'Wallet#${wallet.stellarPublicKey}',
-        supplierDocumentRef: supplier.documentReference,
+        customer: invoice.customer,
+        wallet: wallet.stellarPublicKey,
         supplierName: supplier.name,
-        invoiceDocumentRef: invoice.documentReference,
-        sector: NameSpace + 'Sector#${sector.sectorId}',
+        sector: sector.sectorId,
         sectorName: sector.sectorName);
 
     print(

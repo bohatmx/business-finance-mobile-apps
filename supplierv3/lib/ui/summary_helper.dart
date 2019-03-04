@@ -25,11 +25,11 @@ class Refresh {
     var m = await ListAPI.getSupplierPurchaseOrders(supplier.documentReference);
     await Database.savePurchaseOrders(PurchaseOrders(m));
 
-    var n =
-        await ListAPI.getDeliveryNotes(supplier.documentReference, 'suppliers');
+    var n = await ListAPI.getDeliveryNotes(
+        participantId: supplier.participantId, participantType: 'suppliers');
     await Database.saveDeliveryNotes(DeliveryNotes(n));
 
-    var p = await ListAPI.getInvoices(supplier.documentReference, 'suppliers');
+    var p = await ListAPI.getInvoicesBySupplier(supplier.participantId);
     await Database.saveInvoices(Invoices(p));
 
     var o = await ListAPI.getOffersBySupplier(supplier.participantId);

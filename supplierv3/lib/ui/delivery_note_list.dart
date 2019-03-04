@@ -30,8 +30,8 @@ class DeliveryNoteList extends StatefulWidget {
 class _DeliveryNoteListState extends State<DeliveryNoteList>
     implements
         SnackBarListener,
-        DeliveryNoteCardListener, PagerControlListener
-        {
+        DeliveryNoteCardListener,
+        PagerControlListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   List<DeliveryNote> currentPage = List(), baseList;
   FirebaseMessaging _fcm = FirebaseMessaging();
@@ -178,8 +178,8 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
         textColor: Colors.yellow,
         backgroundColor: Colors.black);
     //todo - find acceptance and invoice for this note
-    deliveryAcceptance = await ListAPI.getDeliveryAcceptanceForNote(
-        note.deliveryNoteId, supplier.documentReference, 'suppliers');
+    deliveryAcceptance =
+        await ListAPI.getDeliveryAcceptanceForNote(note.deliveryNoteId);
     if (_scaffoldKey.currentState != null) {
       _scaffoldKey.currentState.removeCurrentSnackBar();
     }

@@ -1,7 +1,7 @@
 import 'dart:math';
 
 import 'package:businesslibrary/api/shared_prefs.dart';
-import 'package:businesslibrary/api/signup.dart';
+import 'package:businesslibrary/data/country.dart';
 import 'package:businesslibrary/data/delivery_acceptance.dart';
 import 'package:businesslibrary/data/delivery_note.dart';
 import 'package:businesslibrary/data/invalid_trade.dart';
@@ -16,6 +16,7 @@ import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/data/wallet.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/selectors.dart';
+import 'package:businesslibrary/util/signup_util.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/util.dart';
 import 'package:email_validator/email_validator.dart';
@@ -307,7 +308,7 @@ class _SignUpPageState extends State<SignUpPage>
 
   void checkResult(int result, Supplier supplier) async {
     switch (result) {
-      case SignUp.Success:
+      case 0:
         print('_SignUpPageState.checkResult SUCCESS!!!!!!');
         var wallet = await SharedPrefs.getWallet();
         if (wallet != null) {

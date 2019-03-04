@@ -2,7 +2,6 @@ import 'package:businesslibrary/api/data_api3.dart';
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/data/invoice_bid.dart';
 import 'package:businesslibrary/data/offer.dart';
-import 'package:businesslibrary/util/FCM.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
@@ -20,7 +19,7 @@ class OfferDetails extends StatefulWidget {
 }
 
 class _OfferDetailsState extends State<OfferDetails>
-    implements  DiscountListener, SnackBarListener {
+    implements DiscountListener, SnackBarListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   List<InvoiceBid> bids = List();
   OfferBag bag;
@@ -40,7 +39,7 @@ class _OfferDetailsState extends State<OfferDetails>
         textColor: Styles.white,
         backgroundColor: Styles.black);
 
-    bag = await ListAPI.getOfferWithBids(widget.mOffer.documentReference);
+    bag = await ListAPI.getOfferWithBids(widget.mOffer.offerId);
     bids = bag.invoiceBids;
     offer = bag.offer;
     _scaffoldKey.currentState.removeCurrentSnackBar();
@@ -223,6 +222,7 @@ class _OfferDetailsState extends State<OfferDetails>
 
     try {
       offer.isCancelled = true;
+
       var mOffer = await DataAPI3.updateOffer(offer);
       prettyPrint(mOffer.toJson(), '############ Cancelled Offer:');
       AppSnackbar.showSnackbarWithAction(
@@ -245,6 +245,7 @@ class _OfferDetailsState extends State<OfferDetails>
           actionLabel: 'Close');
     }
   }
+
   Future _updateOffer() async {
     print('_OfferDetailsState._updateOffer  ..... $discountPercentage %');
     if (discountPercentage == null) {
@@ -298,6 +299,7 @@ class _OfferDetailsState extends State<OfferDetails>
     var offerAmt = (offer.invoiceAmount * (100.0 - discountPercentage)) / 100.0;
     return offerAmt;
   }
+
   double discountPercentage;
   @override
   onDiscount(String discount) {
@@ -365,10 +367,14 @@ class _OfferDetailsState extends State<OfferDetails>
                     children: <Widget>[
                       FlatButton(
                         onPressed: _cancelOffer,
-                        child: Text('Cancel Offer', style: Styles.blueSmall,),
+                        child: Text(
+                          'Cancel Offer',
+                          style: Styles.blueSmall,
+                        ),
                       ),
                       Padding(
-                        padding: const EdgeInsets.only(left: 12.0,top: 32.0, bottom: 20.0),
+                        padding: const EdgeInsets.only(
+                            left: 12.0, top: 32.0, bottom: 20.0),
                         child: RaisedButton(
                           elevation: 6.0,
                           onPressed: _updateOffer,
@@ -448,7 +454,7 @@ class _OfferDetailsState extends State<OfferDetails>
 
   @override
   onActionPressed(int action) {
-    switch(action) {
+    switch (action) {
       case 3:
         Navigator.pop(context);
         break;

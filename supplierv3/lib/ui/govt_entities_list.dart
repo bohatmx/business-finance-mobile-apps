@@ -1,6 +1,5 @@
-import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
-import 'package:businesslibrary/data/govt_entity.dart';
+import 'package:businesslibrary/data/customer.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
@@ -14,7 +13,7 @@ class GovtEntitiesList extends StatefulWidget {
 class _GovtEntitiesListState extends State<GovtEntitiesList>
     implements SnackBarListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
-  List<GovtEntity> entities;
+  List<Customer> entities;
   User user;
   Supplier supplier;
 
@@ -79,13 +78,13 @@ class _GovtEntitiesListState extends State<GovtEntitiesList>
         textColor: Colors.white,
         backgroundColor: Colors.black);
 
-    entities = await ListAPI.getGovtEntitiesByCountry(supplier.country);
+//    entities = await ListAPI.getGovtEntitiesByCountry(supplier.country);
     setState(() {});
   }
 }
 
 class GovtEntityCard extends StatelessWidget {
-  final GovtEntity entity;
+  final Customer entity;
 
   GovtEntityCard(this.entity);
 

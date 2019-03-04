@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:businesslibrary/api/data_api.dart';
+import 'package:businesslibrary/api/data_api3.dart';
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/dashboard_data.dart';
@@ -11,7 +11,6 @@ import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/data/offerCancellation.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
-import 'package:businesslibrary/util/FCM.dart';
 import 'package:businesslibrary/util/database.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
@@ -26,9 +25,7 @@ class InvoiceList extends StatefulWidget {
 }
 
 class _InvoiceListState extends State<InvoiceList>
-    implements
-        SnackBarListener,
-        CardListener {
+    implements SnackBarListener, CardListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   static const MakeOffer = '1', CancelOffer = '2', EditInvoice = '3';
   List<Invoice> invoicesOpen = List(),
@@ -339,7 +336,7 @@ class _InvoiceListState extends State<InvoiceList>
         message: 'Checking offer ...',
         textColor: Colors.yellow,
         backgroundColor: Colors.black);
-    var m = await ListAPI.getOfferByDocRef(offer.documentReference);
+    var m = await ListAPI.getOfferById(offer.offerId);
 
     if (m.invoiceBids != null && m.invoiceBids.isNotEmpty) {
       AppSnackbar.showErrorSnackbar(
@@ -355,7 +352,7 @@ class _InvoiceListState extends State<InvoiceList>
         offer: 'resource:com.oneconnect.biz.Offer#${offer.offerId}',
         user: 'resource:com.oneconnect.biz.User#${user.userId}');
 
-    var result = await DataAPI.cancelOffer(cancellation);
+    var result = await DataAPI3.cancelOffer(cancellation);
     _scaffoldKey.currentState.hideCurrentSnackBar();
     if (result == '0') {
       AppSnackbar.showErrorSnackbar(
@@ -408,9 +405,8 @@ class _InvoiceListState extends State<InvoiceList>
         textColor: Styles.white,
         backgroundColor: Styles.black);
 
-    var acceptance = await ListAPI.getInvoiceAcceptanceByInvoice(
-        supplier.documentReference,
-        'resource:com.oneconnect.biz.Invoice#${invoice.invoiceId}');
+    var acceptance =
+        await ListAPI.getInvoiceAcceptanceByInvoice(invoice.invoiceId);
     if (acceptance == null) {
       AppSnackbar.showSnackbar(
           scaffoldKey: _scaffoldKey,
@@ -446,25 +442,25 @@ class _InvoiceListState extends State<InvoiceList>
         textColor: Colors.white,
         backgroundColor: Colors.black);
 
-    var bag = await ListAPI.getOfferByOfferId(invoice.offer.split('#').elementAt(1));
-    _scaffoldKey.currentState.hideCurrentSnackBar();
-    prettyPrint(bag.offer.toJson(), '_InvoiceListState._viewOffer .......');
-    var now = DateTime.now();
-    var start = DateTime.parse(bag.offer.startTime);
-    var end = DateTime.parse(bag.offer.endTime);
-    print(
-        'ListAPI.getInvoicesOnOffer start: ${start.toIso8601String()} end: ${end.toIso8601String()} now: ${now.toIso8601String()}');
-    if (now.isAfter(start) && now.isBefore(end)) {
-      print(
-          '_InvoiceListState._viewOffer ======= this is valid. between  start and end times');
-      _showCancelDialog(bag.offer);
-    } else {
-      AppSnackbar.showErrorSnackbar(
-          scaffoldKey: _scaffoldKey,
-          message: 'Offer has expired or settled',
-          listener: this,
-          actionLabel: 'CLOSE');
-    }
+//    var bag = await ListAPI.getOfferByOfferId(invoice.);
+//    _scaffoldKey.currentState.hideCurrentSnackBar();
+//    prettyPrint(bag.offer.toJson(), '_InvoiceListState._viewOffer .......');
+//    var now = DateTime.now();
+//    var start = DateTime.parse(bag.offer.startTime);
+//    var end = DateTime.parse(bag.offer.endTime);
+//    print(
+//        'ListAPI.getInvoicesOnOffer start: ${start.toIso8601String()} end: ${end.toIso8601String()} now: ${now.toIso8601String()}');
+//    if (now.isAfter(start) && now.isBefore(end)) {
+//      print(
+//          '_InvoiceListState._viewOffer ======= this is valid. between  start and end times');
+//      _showCancelDialog(bag.offer);
+//    } else {
+//      AppSnackbar.showErrorSnackbar(
+//          scaffoldKey: _scaffoldKey,
+//          message: 'Offer has expired or settled',
+//          listener: this,
+//          actionLabel: 'CLOSE');
+//    }
   }
 
   Offer offer;
@@ -758,7 +754,7 @@ class InvoiceCard extends StatelessWidget {
   }
 
   bool isOffered() {
-    if (invoice.offer == null) {
+    if (invoice == null) {
       return false;
     } else {
       return true;

@@ -12,12 +12,12 @@ import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
-import 'package:businesslibrary/util/database.dart';
 import 'package:businesslibrary/util/Finders.dart';
+import 'package:businesslibrary/util/database.dart';
 
 class SupplierModelBloc implements SupplierBlocListener {
   final StreamController<SupplierApplicationModel> _appModelController =
-  StreamController<SupplierApplicationModel>();
+      StreamController<SupplierApplicationModel>();
   final StreamController<String> _errorController = StreamController<String>();
   final SupplierApplicationModel _appModel = SupplierApplicationModel();
 
@@ -66,7 +66,7 @@ abstract class SupplierBlocListener {
   onError(String message);
 }
 
-class SupplierApplicationModel  {
+class SupplierApplicationModel {
   List<DeliveryNote> _deliveryNotes = List();
   List<PurchaseOrder> _purchaseOrders = List();
   List<Invoice> _invoices = List();
@@ -93,14 +93,15 @@ class SupplierApplicationModel  {
   User get user => _user;
   SupplierBlocListener get listener => _listener;
   int _pageLimit = 10;
-  int get pageLimit  => _pageLimit;
-
+  int get pageLimit => _pageLimit;
 
   void setListener(SupplierBlocListener sbListener) {
     _listener = sbListener;
   }
+
   void initialize() async {
-    print('\n\n\nSupplierAppModel.initialize - ############### load model data from cache');
+    print(
+        '\n\n\nSupplierAppModel.initialize - ############### load model data from cache');
     var start = DateTime.now();
     _supplier = await SharedPrefs.getSupplier();
     _user = await SharedPrefs.getUser();
@@ -117,8 +118,10 @@ class SupplierApplicationModel  {
       return;
     }
 
-    print('SupplierAppModel.initialize, _purchaseOrders found in database: ${_purchaseOrders.length}');
-    print('\n\nSupplierAppModel.initialize - ############### loading Model from cache ...');
+    print(
+        'SupplierAppModel.initialize, _purchaseOrders found in database: ${_purchaseOrders.length}');
+    print(
+        '\n\nSupplierAppModel.initialize - ############### loading Model from cache ...');
     _deliveryNotes = await Database.getDeliveryNotes();
     _setItemNumbers(_deliveryNotes);
 
@@ -141,8 +144,8 @@ class SupplierApplicationModel  {
     _setItemNumbers(_settlements);
 
     var end = DateTime.now();
-    print('\n\nSupplierAppModel.initialize ######### model refreshed: elapsed time: ${end.difference(start).inMilliseconds} milliseconds. calling notifyListeners');
-
+    print(
+        '\n\nSupplierAppModel.initialize ######### model refreshed: elapsed time: ${end.difference(start).inMilliseconds} milliseconds. calling notifyListeners');
   }
 
   void _setItemNumbers(List<Findable> list) {
@@ -154,39 +157,50 @@ class SupplierApplicationModel  {
     });
     _listener.onComplete();
   }
+
   Future addPurchaseOrder(PurchaseOrder order) async {
     _purchaseOrders.insert(0, order);
     await Database.savePurchaseOrders(PurchaseOrders(_purchaseOrders));
     _setItemNumbers(_purchaseOrders);
   }
+
   Future addDeliveryNote(DeliveryNote note) async {
     _deliveryNotes.insert(0, note);
     await Database.saveDeliveryNotes(DeliveryNotes(_deliveryNotes));
     _setItemNumbers(_deliveryNotes);
   }
+
   Future addInvoice(Invoice invoice) async {
     _invoices.insert(0, invoice);
     await Database.saveInvoices(Invoices(_invoices));
     _setItemNumbers(_invoices);
   }
+
   Future addDeliveryAcceptance(DeliveryAcceptance acceptance) async {
     _deliveryAcceptances.insert(0, acceptance);
-    await Database.saveDeliveryAcceptances(DeliveryAcceptances(_deliveryAcceptances));
+    await Database.saveDeliveryAcceptances(
+        DeliveryAcceptances(_deliveryAcceptances));
     _setItemNumbers(_deliveryAcceptances);
   }
+
   Future addInvoiceAcceptance(InvoiceAcceptance acceptance) async {
     _invoiceAcceptances.insert(0, acceptance);
-    await Database.saveInvoiceAcceptances(InvoiceAcceptances(_invoiceAcceptances));
+    await Database.saveInvoiceAcceptances(
+        InvoiceAcceptances(_invoiceAcceptances));
     _setItemNumbers(_invoiceAcceptances);
   }
+
   Future addOffer(Offer offer) async {
     _offers.insert(0, offer);
     await Database.saveOffers(Offers(_offers));
     _setItemNumbers(_offers);
   }
-  Future addInvestorInvoiceSettlement(InvestorInvoiceSettlement settlement) async {
+
+  Future addInvestorInvoiceSettlement(
+      InvestorInvoiceSettlement settlement) async {
     _settlements.insert(0, settlement);
-    await Database.saveInvestorInvoiceSettlements(InvestorInvoiceSettlements(_settlements));
+    await Database.saveInvestorInvoiceSettlements(
+        InvestorInvoiceSettlements(_settlements));
     _setItemNumbers(_settlements);
   }
 
@@ -195,6 +209,7 @@ class SupplierApplicationModel  {
     await Database.saveUnsettledInvoiceBids(InvoiceBids(_unsettledInvoiceBids));
     _setItemNumbers(_unsettledInvoiceBids);
   }
+
   int getTotalOpenOffers() {
     var tot = 0;
     _offers.forEach((o) {
@@ -214,14 +229,15 @@ class SupplierApplicationModel  {
     });
     return tot;
   }
+
   double getTotalDeliveryNoteAmount() {
     var tot = 0.0;
     _deliveryNotes.forEach((o) {
       tot += o.amount;
-
     });
     return tot;
   }
+
   int getTotalClosedOffers() {
     var tot = 0;
     _offers.forEach((o) {
@@ -251,6 +267,7 @@ class SupplierApplicationModel  {
     });
     return tot;
   }
+
   double getTotalSettlementValue() {
     var tot = 0.00;
     _settlements.forEach((o) {
@@ -312,24 +329,23 @@ class SupplierApplicationModel  {
     return null;
   }
 
-
+  static const SUPPLIER_TYPE = 'supplier';
   Future refreshModel() async {
     if (_supplier == null) return null;
     print('SupplierAppModel.refreshModel - get fresh data from Firestore');
     var start = DateTime.now();
     _purchaseOrders =
-    await ListAPI.getSupplierPurchaseOrders(_supplier.documentReference);
+        await ListAPI.getSupplierPurchaseOrders(_supplier.documentReference);
     await Database.savePurchaseOrders(PurchaseOrders(_purchaseOrders));
     _setItemNumbers(_purchaseOrders);
 
     _deliveryNotes = await ListAPI.getDeliveryNotes(
-        _supplier.documentReference, 'suppliers');
+        participantId: _supplier.participantId, participantType: SUPPLIER_TYPE);
     await Database.saveDeliveryNotes(DeliveryNotes(_deliveryNotes));
     _setItemNumbers(_deliveryNotes);
     print('\n\n');
 
-    _invoices =
-    await ListAPI.getInvoices(_supplier.documentReference, 'suppliers');
+    _invoices = await ListAPI.getInvoicesBySupplier(_supplier.participantId);
     await Database.saveInvoices(Invoices(_invoices));
     _setItemNumbers(_invoices);
     print('\n\n');
@@ -340,22 +356,21 @@ class SupplierApplicationModel  {
     print('\n\n');
 
     _deliveryAcceptances = await ListAPI.getDeliveryAcceptances(
-        _supplier.documentReference, 'suppliers');
+        participantId: _supplier.participantId, participantType: SUPPLIER_TYPE);
     await Database.saveDeliveryAcceptances(
         DeliveryAcceptances(_deliveryAcceptances));
     _setItemNumbers(_deliveryAcceptances);
     print('\n\n');
 
-
     _invoiceAcceptances = await ListAPI.getInvoiceAcceptances(
-        _supplier.documentReference, 'suppliers');
+        participantId: _supplier.participantId, participantType: SUPPLIER_TYPE);
     await Database.saveInvoiceAcceptances(
         InvoiceAcceptances(_invoiceAcceptances));
     _setItemNumbers(_invoiceAcceptances);
     print('\n\n');
 
     _settlements =
-    await ListAPI.getSupplierInvestorSettlements(_supplier.participantId);
+        await ListAPI.getSupplierInvestorSettlements(_supplier.participantId);
     await Database.saveInvestorInvoiceSettlements(
         InvestorInvoiceSettlements(_settlements));
     _setItemNumbers(_settlements);
@@ -368,15 +383,17 @@ class SupplierApplicationModel  {
     }
     return 0;
   }
-  Future refreshOffers() async{
+
+  Future refreshOffers() async {
     _offers = await ListAPI.getOffersBySupplier(_supplier.participantId);
     _setItemNumbers(_offers);
     await Database.saveOffers(Offers(_offers));
   }
-  Future refreshDeliveryNotes() async{
-    _deliveryNotes = await ListAPI.getDeliveryNotes(supplier.documentReference, 'suppliers');
+
+  Future refreshDeliveryNotes() async {
+    _deliveryNotes = await ListAPI.getDeliveryNotes(
+        participantId: _supplier.participantId, participantType: SUPPLIER_TYPE);
     _setItemNumbers(_deliveryNotes);
     await Database.saveDeliveryNotes(DeliveryNotes(_deliveryNotes));
   }
 }
-

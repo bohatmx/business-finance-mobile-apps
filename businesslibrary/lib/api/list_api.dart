@@ -26,6 +26,7 @@ import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/supplier_contract.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/data/wallet.dart';
+import 'package:businesslibrary/util/constants.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/util.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -132,31 +133,31 @@ class ListAPI {
     return list;
   }
 
-  static Future<OfferBag> getOfferWithBids(String offerDocRef) async {
+  static Future<OfferBag> getOfferWithBids(String offerId) async {
     List<InvoiceBid> list = List();
     OfferBag bag;
-    var docSnapshot = await _firestore
-        .collection('offers')
-        .document(offerDocRef)
-        .get()
-        .catchError((e) {
-      print('ListAPI.getOfferInvoiceBids $e');
-      return list;
-    });
-    if (docSnapshot.exists) {
-      var offer = Offer.fromJson(docSnapshot.data);
-      var snap = await _firestore
-          .collection('invoiceBids')
-          .where('offerDocRef', isEqualTo: docSnapshot.documentID)
-          .getDocuments();
 
-      snap.documents.forEach((doc) {
-        var bid = InvoiceBid.fromJson(doc.data);
-        list.add(bid);
-      });
-      print('ListAPI.getInvoiceBidsByOffer found ${list.length} invoice bids');
-      bag = OfferBag(offer: offer, invoiceBids: list);
+    var qs = await _firestore
+        .collection(FS_OFFERS)
+        .where('offerId', isEqualTo: offerId)
+        .getDocuments();
+    Offer offer;
+    if (qs.documents.isNotEmpty) {
+      offer = Offer.fromJson(qs.documents.elementAt(0).data);
     }
+
+    var snap = await _firestore
+        .collection('invoiceBids')
+        .where('offer', isEqualTo: offerId)
+        .getDocuments();
+
+    snap.documents.forEach((doc) {
+      var bid = InvoiceBid.fromJson(doc.data);
+      list.add(bid);
+    });
+
+    print('ListAPI.getInvoiceBidsByOffer found ${list.length} invoice bids');
+    bag = OfferBag(offer: offer, invoiceBids: list);
 
     return bag;
   }
@@ -1408,13 +1409,11 @@ class ListAPI {
   }
 
   static Future<Invoice> getInvoice(
-      String poNumber, String invoiceNumber, String supplierDocumentRef) async {
+      {String poNumber, String invoiceNumber}) async {
     print(
         'ListAPI.getInvoice ............. poNumber: $poNumber invoiceNumber: $invoiceNumber ');
     Invoice invoice;
     var qs = await _firestore
-        .collection('suppliers')
-        .document(supplierDocumentRef)
         .collection('invoices')
         .where('purchaseOrderNumber', isEqualTo: poNumber)
         .where('invoiceNumber', isEqualTo: invoiceNumber)

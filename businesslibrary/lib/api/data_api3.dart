@@ -19,9 +19,11 @@ import 'package:businesslibrary/data/invoice_bid.dart';
 import 'package:businesslibrary/data/invoice_bid_keys.dart';
 import 'package:businesslibrary/data/invoice_settlement.dart';
 import 'package:businesslibrary/data/offer.dart';
+import 'package:businesslibrary/data/offerCancellation.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/sector.dart';
 import 'package:businesslibrary/data/supplier.dart';
+import 'package:businesslibrary/data/supplier_contract.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/data/wallet.dart';
 import 'package:businesslibrary/util/constants.dart';
@@ -80,6 +82,14 @@ class DataAPI3 {
       print(e);
       throw e;
     }
+  }
+
+  static Future updateOffer(Offer offer) async {
+    throw Exception('not coded yet');
+  }
+
+  static Future cancelOffer(OfferCancellation c) async {
+    throw Exception('not quite there');
   }
 
   static Future<PurchaseOrder> addPurchaseOrder(
@@ -149,6 +159,10 @@ class DataAPI3 {
     'Content-type': 'application/json',
     'Accept': 'application/json',
   };
+
+  static Future addSupplierContract(SupplierContract c) async {
+    throw Exception('Not done yet!');
+  }
 
   static Future _callCloudFunction(String mUrl, APIBag bag) async {
     var start = DateTime.now();

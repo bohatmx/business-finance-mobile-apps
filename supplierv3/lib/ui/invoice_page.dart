@@ -8,7 +8,6 @@ import 'package:businesslibrary/data/invoice_acceptance.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/supplier_contract.dart';
 import 'package:businesslibrary/data/user.dart';
-import 'package:businesslibrary/util/FCM.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
@@ -27,8 +26,7 @@ class NewInvoicePage extends StatefulWidget {
 
 ///
 class _NewInvoicePageState extends State<NewInvoicePage>
-    implements
-        SnackBarListener {
+    implements SnackBarListener {
   final GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
@@ -51,7 +49,7 @@ class _NewInvoicePageState extends State<NewInvoicePage>
 
   _getDeliveryAcceptances() async {
     deliveryAcceptances = await ListAPI.getDeliveryAcceptances(
-        supplier.documentReference, 'suppliers');
+        participantId: supplier.participantId, participantType: 'supplier');
     print(
         '_NewInvoicePageState._getDeliveryAcceptances deliveryAcceptances: ${deliveryAcceptances.length}');
   }
@@ -97,13 +95,9 @@ class _NewInvoicePageState extends State<NewInvoicePage>
       totalAmount = deliveryNote.amount + tax;
       invoice = Invoice(
         invoiceNumber: invoiceNumber,
-        user: NameSpace + 'User#' + _user.userId,
-        govtEntity: deliveryAcceptance.govtEntity,
-        company: deliveryAcceptance.company,
+        user: _user.userId,
+        customer: deliveryAcceptance.customer,
         supplier: deliveryAcceptance.supplier,
-        govtDocumentRef: deliveryAcceptance.govtDocumentRef,
-        companyDocumentRef: deliveryAcceptance.companyDocumentRef,
-        supplierDocumentRef: deliveryAcceptance.supplierDocumentRef,
         purchaseOrder: deliveryAcceptance.purchaseOrder,
         deliveryNote: deliveryAcceptance.deliveryNote,
         supplierName: supplier.name,
@@ -133,9 +127,8 @@ class _NewInvoicePageState extends State<NewInvoicePage>
 
       //check for possible duplicate
       var existingInvoice = await ListAPI.getInvoice(
-          invoice.purchaseOrderNumber,
-          invoice.invoiceNumber,
-          invoice.supplierDocumentRef);
+          invoiceNumber: invoice.invoiceNumber,
+          poNumber: invoice.purchaseOrderNumber);
       if (existingInvoice != null) {
         print('DataAPI.registerInvoice - possible DUPLICATE invoice');
         AppSnackbar.showErrorSnackbar(
@@ -147,34 +140,34 @@ class _NewInvoicePageState extends State<NewInvoicePage>
       }
 
       var result = await DataAPI3.registerInvoice(invoice);
-      switch (result) {
-        case DataAPI3.InvoiceRegistered:
-          isSuccess = true;
-          setState(() {
-            _opacity = 0.0;
-          });
-          _showRegistered();
-          break;
-        case DataAPI3.InvoiceRegisteredAccepted:
-          isSuccess = true;
-          setState(() {
-            _opacity = 0.0;
-          });
-
-          invoiceAcceptance = await ListAPI.getLastInvoiceAcceptance(
-              supplier.documentReference);
-          _showRegisteredAccepted();
-
-          break;
-        default:
-          isSuccess = false;
-          AppSnackbar.showErrorSnackbar(
-              scaffoldKey: _scaffoldKey,
-              message: 'Invoice registration failed',
-              listener: this,
-              actionLabel: "ERROR ");
-          break;
-      }
+//      switch (result) {
+//        case DataAPI3.InvoiceRegistered:
+//          isSuccess = true;
+//          setState(() {
+//            _opacity = 0.0;
+//          });
+//          _showRegistered();
+//          break;
+//        case DataAPI3.InvoiceRegisteredAccepted:
+//          isSuccess = true;
+//          setState(() {
+//            _opacity = 0.0;
+//          });
+//
+//          invoiceAcceptance = await ListAPI.getLastInvoiceAcceptance(
+//              supplier.documentReference);
+//          _showRegisteredAccepted();
+//
+//          break;
+//        default:
+//          isSuccess = false;
+//          AppSnackbar.showErrorSnackbar(
+//              scaffoldKey: _scaffoldKey,
+//              message: 'Invoice registration failed',
+//              listener: this,
+//              actionLabel: "ERROR ");
+//          break;
+//      }
     }
   }
 
@@ -208,17 +201,14 @@ class _NewInvoicePageState extends State<NewInvoicePage>
     print('_NewInvoicePageState._getContracts ..........');
     prettyPrint(
         deliveryAcceptance.toJson(), '_getContracts: deliveryAcceptance:');
-    if (!deliveryAcceptance.govtEntity.contains('resource')) {
-      deliveryAcceptance.govtEntity =
-          'resource:${deliveryAcceptance.govtEntity}';
-    }
-    if (deliveryAcceptance.govtEntity != null) {
-      contracts = await ListAPI.getSupplierGovtContracts(
-          supplier.documentReference, deliveryAcceptance.govtEntity);
-    } else {
-      contracts = await ListAPI.getSupplierCompanyContracts(
-          supplier.documentReference, deliveryAcceptance.company);
-    }
+
+//    if (deliveryAcceptance.customer != null) {
+//      contracts = await ListAPI.getSupplierGovtContracts(
+//          supplier.documentReference, deliveryAcceptance.govtEntity);
+//    } else {
+//      contracts = await ListAPI.getSupplierCompanyContracts(
+//          supplier.documentReference, deliveryAcceptance.company);
+//    }
     if (contracts.isEmpty) {
       AppSnackbar.showErrorSnackbar(
           scaffoldKey: _scaffoldKey,
