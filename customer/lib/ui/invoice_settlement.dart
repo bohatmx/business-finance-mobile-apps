@@ -1,5 +1,5 @@
 import 'package:businesslibrary/api/shared_prefs.dart';
-import 'package:businesslibrary/data/govt_entity.dart';
+import 'package:businesslibrary/data/customer.dart';
 import 'package:businesslibrary/data/invoice.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
@@ -18,7 +18,7 @@ class _InvoiceSettlementState extends State<InvoiceSettlementPage>
     implements SnackBarListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   Invoice invoice;
-  GovtEntity entity;
+  Customer entity;
 
   @override
   void initState() {
@@ -28,7 +28,7 @@ class _InvoiceSettlementState extends State<InvoiceSettlementPage>
 
   _getCache() async {
     print('_InvoiceSettlementState._getCache ... get cached entity');
-    entity = await SharedPrefs.getGovEntity();
+    entity = await SharedPrefs.getCustomer();
     setState(() {});
   }
 

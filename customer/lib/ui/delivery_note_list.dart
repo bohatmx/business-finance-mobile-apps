@@ -1,24 +1,19 @@
 import 'package:businesslibrary/api/data_api3.dart';
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
-import 'package:businesslibrary/data/dashboard_data.dart';
+import 'package:businesslibrary/data/customer.dart';
 import 'package:businesslibrary/data/delivery_acceptance.dart';
 import 'package:businesslibrary/data/delivery_note.dart';
-import 'package:businesslibrary/data/govt_entity.dart';
-import 'package:businesslibrary/data/invoice.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
-import 'package:businesslibrary/util/Finders.dart';
-import 'package:businesslibrary/util/database.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/mypager.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
+import 'package:customer/customer_bloc.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:govt/customer_bloc.dart';
-import 'package:govt/ui/refresh.dart';
 
 class DeliveryNoteList extends StatefulWidget {
   @override
@@ -28,14 +23,13 @@ class DeliveryNoteList extends StatefulWidget {
 class _DeliveryNoteListState extends State<DeliveryNoteList>
     implements
         SnackBarListener,
-
         PagerControlListener,
         DeliveryNoteCardListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   final FirebaseMessaging _fcm = FirebaseMessaging();
   List<Supplier> suppliers;
   User user;
-  GovtEntity govtEntity;
+  Customer customer;
   CustomerApplicationModel appModel;
   @override
   void initState() {
@@ -45,12 +39,12 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
 
   _getCachedPrefs() async {
     user = await SharedPrefs.getUser();
-    govtEntity = await SharedPrefs.getGovEntity();
+    customer = await SharedPrefs.getCustomer();
     appModel = customerModelBloc.appModel;
     setBasePager();
   }
 
-  void _onRefreshPressed() async{
+  void _onRefreshPressed() async {
     AppSnackbar.showSnackbarWithProgressIndicator(
         scaffoldKey: _scaffoldKey,
         message: 'Refreshing data ...',
@@ -88,7 +82,6 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
     );
   }
 
-
   Widget _getBottom() {
     return PreferredSize(
       preferredSize: new Size.fromHeight(200.0),
@@ -98,32 +91,32 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
           appModel == null
               ? Container()
               : Column(
-            children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.only(bottom: 10.0),
-                child: PagingTotalsView(
-                  pageValue: _getPageValue(),
-                  totalValue: _getTotalValue(),
-                  labelStyle: Styles.blackSmall,
-                  pageValueStyle: Styles.blackBoldLarge,
-                  totalValueStyle: Styles.brownBoldMedium,
+                  children: <Widget>[
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 10.0),
+                      child: PagingTotalsView(
+                        pageValue: _getPageValue(),
+                        totalValue: _getTotalValue(),
+                        labelStyle: Styles.blackSmall,
+                        pageValueStyle: Styles.blackBoldLarge,
+                        totalValueStyle: Styles.brownBoldMedium,
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(
+                          bottom: 12.0, left: 12.0, right: 12),
+                      child: PagerControl(
+                        itemName: 'Delivery Notes',
+                        pageLimit: appModel.pageLimit,
+                        elevation: 8.0,
+                        items: appModel.deliveryNotes.length,
+                        listener: this,
+                        color: Colors.purple.shade50,
+                        pageNumber: _pageNumber,
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(
-                    bottom: 12.0, left: 12.0, right: 12),
-                child: PagerControl(
-                  itemName: 'Delivery Notes',
-                  pageLimit: appModel.pageLimit,
-                  elevation: 8.0,
-                  items: appModel.deliveryNotes.length,
-                  listener: this,
-                  color: Colors.purple.shade50,
-                  pageNumber: _pageNumber,
-                ),
-              ),
-            ],
-          ),
         ],
       ),
     );
@@ -150,6 +143,7 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
               deliveryNote: currentPage.elementAt(index), listener: this);
         });
   }
+
   //paging constructs
   BasePager basePager;
   void setBasePager() {
@@ -168,9 +162,7 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
     page.forEach((f) {
       currentPage.add(f);
     });
-    setState(() {
-
-    });
+    setState(() {});
   }
 
   double _getPageValue() {
@@ -268,14 +260,10 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
     DeliveryAcceptance acceptance = DeliveryAcceptance(
       date: getUTCDate(),
       supplier: deliveryNote.supplier,
-      supplierDocumentRef: deliveryNote.supplierDocumentRef,
-      companyDocumentRef: deliveryNote.companyDocumentRef,
-      govtDocumentRef: deliveryNote.govtDocumentRef,
       purchaseOrder: deliveryNote.purchaseOrder,
-      company: deliveryNote.company,
-      govtEntity: deliveryNote.govtEntity,
-      user: Namespace + 'User#' + user.userId,
-      deliveryNote: Namespace + "DeliveryNote#" + deliveryNote.deliveryNoteId,
+      customer: deliveryNote.customer,
+      user: user.userId,
+      deliveryNote: deliveryNote.deliveryNoteId,
       customerName: deliveryNote.customerName,
       purchaseOrderNumber: deliveryNote.purchaseOrderNumber,
     );
@@ -401,10 +389,8 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
         message: 'Checking Delivery Note ...',
         textColor: Colors.yellow,
         backgroundColor: Colors.black);
-    var noteAcceptance = await ListAPI.getDeliveryAcceptanceForNote(
-        deliveryNote.deliveryNoteId,
-        deliveryNote.supplierDocumentRef,
-        'suppliers');
+    var noteAcceptance =
+        await ListAPI.getDeliveryAcceptanceForNote(deliveryNote.deliveryNoteId);
     _scaffoldKey.currentState.hideCurrentSnackBar();
     if (noteAcceptance != null) {
       AppSnackbar.showSnackbar(
@@ -418,8 +404,6 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
   }
 
   int pageLimit;
-
-
 }
 
 class DeliveryNoteCard extends StatelessWidget {

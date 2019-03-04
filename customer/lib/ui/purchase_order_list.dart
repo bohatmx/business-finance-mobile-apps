@@ -1,6 +1,6 @@
 import 'package:businesslibrary/api/list_api.dart';
+import 'package:businesslibrary/data/customer.dart';
 import 'package:businesslibrary/data/delivery_note.dart';
-import 'package:businesslibrary/data/govt_entity.dart';
 import 'package:businesslibrary/data/invoice.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/supplier.dart';
@@ -10,11 +10,11 @@ import 'package:businesslibrary/util/selectors.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:businesslibrary/util/util.dart';
+import 'package:customer/customer_bloc.dart';
+import 'package:customer/ui/purchase_order_page.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:govt/customer_bloc.dart';
-import 'package:govt/ui/purchase_order_page.dart';
 
 class PurchaseOrderListPage extends StatefulWidget {
   @override
@@ -28,7 +28,7 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
   PurchaseOrder purchaseOrder;
   List<Supplier> suppliers;
   List<PurchaseOrder> currentPage;
-  GovtEntity entity;
+  Customer entity;
   PurchaseOrderSummary poSummary;
   CustomerApplicationModel appModel;
 
@@ -136,6 +136,7 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
       _pageNumber = basePager.pageNumber;
     });
   }
+
   int _pageNumber = 1;
 //end of paging constructs
   Widget _getBottom() {
@@ -148,26 +149,28 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
             child: appModel == null
                 ? Container()
                 : Column(
-              children: <Widget>[
-                PagingTotalsView(
-                  pageValue: _getPageValue(),
-                  totalValue: _getTotalValue(),
-                  labelStyle: Styles.blackSmall,
-                  pageValueStyle: Styles.blackBoldLarge,
-                  totalValueStyle: Styles.brownBoldMedium,
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top:8.0, bottom: 12),
-                  child: PagerControl(
-                    listener: this,
-                    itemName: 'Purchase Orders',
-                    pageLimit: appModel.pageLimit == null ? 4 : appModel.pageLimit,
-                    items: appModel.purchaseOrders.length,
-                    pageNumber: _pageNumber,
+                    children: <Widget>[
+                      PagingTotalsView(
+                        pageValue: _getPageValue(),
+                        totalValue: _getTotalValue(),
+                        labelStyle: Styles.blackSmall,
+                        pageValueStyle: Styles.blackBoldLarge,
+                        totalValueStyle: Styles.brownBoldMedium,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8.0, bottom: 12),
+                        child: PagerControl(
+                          listener: this,
+                          itemName: 'Purchase Orders',
+                          pageLimit: appModel.pageLimit == null
+                              ? 4
+                              : appModel.pageLimit,
+                          items: appModel.purchaseOrders.length,
+                          pageNumber: _pageNumber,
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-              ],
-            ),
           ),
         ],
       ),
@@ -236,7 +239,7 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
     purchaseOrder = await Navigator.push(
       context,
       new MaterialPageRoute(
-          builder: (context) => new PurchaseOrderPageGovt(getURL())),
+          builder: (context) => new PurchaseOrderPage(getURL())),
     );
     if (purchaseOrder != null) {
       AppSnackbar.showSnackbar(
@@ -268,9 +271,6 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
         textColor: Styles.lightGreen,
         backgroundColor: Styles.black);
   }
-
-
-
 }
 
 class PurchaseOrderCard extends StatelessWidget {

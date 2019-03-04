@@ -12,9 +12,9 @@ class OfferCancellation {
   }
 
   Map<String, dynamic> toJson() => <String, dynamic>{
-        'cancellationId': cancellationId,
+        'cancellationId': cancellationId == null ? ' n/a ' : cancellationId,
         'offer': offer,
-        'user': user,
-        'date': date,
+        'user': user == null ? ' n/a ' : user,
+        'date': date == null ? ' n/a ' : date,
       };
 }

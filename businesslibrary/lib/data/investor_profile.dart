@@ -5,7 +5,7 @@ class InvestorProfile {
   String email, date;
   double maxInvestableAmount, maxInvoiceAmount;
   double minimumDiscount;
-  String investor, investorDocRef;
+  String investor;
   List<String> sectors, suppliers;
 
   InvestorProfile(
@@ -16,7 +16,6 @@ class InvestorProfile {
       this.date,
       this.sectors,
       this.suppliers,
-      this.investorDocRef,
       this.minimumDiscount,
       this.maxInvestableAmount,
       this.maxInvoiceAmount,
@@ -31,7 +30,6 @@ class InvestorProfile {
     this.investor = data['investor'];
     this.email = data['email'];
     this.investor = data['investor'];
-    this.investorDocRef = data['investorDocRef'];
     this.minimumDiscount = data['minimumDiscount'] * 1.0;
 
     this.date = data['date'];
@@ -52,17 +50,17 @@ class InvestorProfile {
     }
   }
   Map<String, dynamic> toJson() => <String, dynamic>{
-        'profileId': profileId,
+        'profileId': profileId == null ? 'n/a' : profileId,
         'name': name,
-        'date': date,
-        'investorDocRef': investorDocRef,
-        'maxInvestableAmount': maxInvestableAmount,
-        'cellphone': cellphone,
-        'maxInvoiceAmount': maxInvoiceAmount,
-        'email': email,
+        'date': date == null ? 'n/a' : date,
+        'maxInvestableAmount':
+            maxInvestableAmount == null ? 0.0 : maxInvestableAmount,
+        'cellphone': cellphone == null ? 'n/a' : cellphone,
+        'maxInvoiceAmount': maxInvoiceAmount == null ? 0.0 : maxInvoiceAmount,
+        'email': email == null ? 'n/a' : email,
         'investor': investor,
-        'sectors': sectors,
-        'suppliers': suppliers,
-        'minimumDiscount': minimumDiscount,
+        'sectors': sectors == null ? List() : sectors,
+        'suppliers': suppliers == null ? List() : suppliers,
+        'minimumDiscount': minimumDiscount == null ? 0.0 : minimumDiscount,
       };
 }

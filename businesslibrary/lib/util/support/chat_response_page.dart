@@ -1,19 +1,13 @@
-import 'dart:convert';
-
-import 'package:businesslibrary/api/data_api3.dart';
 import 'package:businesslibrary/blocs/chat_bloc.dart';
 import 'package:businesslibrary/data/chat_message.dart';
 import 'package:businesslibrary/data/chat_response.dart';
-import 'package:businesslibrary/util/FCM.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/selectors.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:businesslibrary/api/shared_prefs.dart';
 
 class ChatResponsePage extends StatefulWidget {
   final ChatMessage chatMessage;
@@ -46,7 +40,6 @@ class ChatResponseWindow extends State<ChatResponsePage>
       addChatMessageToView();
     }
   }
-
 
   void _getMessages() async {
     print('ChatResponseWindow._getMessages Pending %%%%%%%%%% start ......');
@@ -188,7 +181,8 @@ class ChatResponseWindow extends State<ChatResponsePage>
       stream: chatBloc.chatMessageStream,
       builder: (context, snapshot) {
         if (snapshot.hasError) {
-          print('\n\nChatResponseWindow.build ---------- snapshot.hasError ---------');
+          print(
+              '\n\nChatResponseWindow.build ---------- snapshot.hasError ---------');
         }
         processChatMessage(snapshot);
         return Scaffold(
@@ -214,19 +208,18 @@ class ChatResponseWindow extends State<ChatResponsePage>
   }
 
   void processChatMessage(AsyncSnapshot<ChatMessage> snapshot) {
-     if (snapshot.hasData) {
-       if (selectedMessage != null) {
-         if (selectedMessage.path == snapshot.data.path) {
-           //ignore
-         } else {
-           selectedMessage = snapshot.data;
-           addChatMessageToView();
-         }
-       } else {
-         selectedMessage = snapshot.data;
-         addChatMessageToView();
-       }
-      
+    if (snapshot.hasData) {
+      if (selectedMessage != null) {
+        if (selectedMessage.path == snapshot.data.path) {
+          //ignore
+        } else {
+          selectedMessage = snapshot.data;
+          addChatMessageToView();
+        }
+      } else {
+        selectedMessage = snapshot.data;
+        addChatMessageToView();
+      }
     }
   }
 

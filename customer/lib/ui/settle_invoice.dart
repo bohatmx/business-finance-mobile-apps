@@ -1,7 +1,8 @@
 import 'dart:async';
+
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
-import 'package:businesslibrary/data/govt_entity.dart';
+import 'package:businesslibrary/data/customer.dart';
 import 'package:businesslibrary/data/invoice.dart';
 import 'package:businesslibrary/data/invoice_settlement.dart';
 import 'package:businesslibrary/data/offer.dart';
@@ -10,13 +11,12 @@ import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/peach.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
-import 'package:businesslibrary/util/util.dart';
 import 'package:businesslibrary/util/webview.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:customer/customer_bloc.dart';
+import 'package:customer/ui/settlements.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:govt/customer_bloc.dart';
-import 'package:govt/ui/settlements.dart';
 
 class SettleInvoice extends StatefulWidget {
   final Invoice invoice;
@@ -39,7 +39,7 @@ class _SettleInvoice extends State<SettleInvoice> implements SnackBarListener {
   double bottomHeight = 20.0;
   bool isBusy = false;
   User user;
-  GovtEntity customer;
+  Customer customer;
   double totalBidAmount = 0.00;
   double avgDiscount = 0.0;
 
@@ -52,7 +52,7 @@ class _SettleInvoice extends State<SettleInvoice> implements SnackBarListener {
 
   void _getCache() async {
     user = await SharedPrefs.getUser();
-    customer = await SharedPrefs.getGovEntity();
+    customer = await SharedPrefs.getCustomer();
   }
 
   StreamSubscription<QuerySnapshot> streamSub, streamTrans;
@@ -205,16 +205,16 @@ class _SettleInvoice extends State<SettleInvoice> implements SnackBarListener {
     totAmt = 0.00;
     if (widget.invoice != null) {
       totAmt = widget.invoice.totalAmount;
-      ref = widget.invoice.documentReference;
+      ref = widget.invoice.invoiceId;
     }
 
     var payment = PeachPayment(
       merchantReference: ref,
       amount: totAmt,
-      successURL: getFunctionsURL() + 'peachSuccess',
-      cancelUrl: getFunctionsURL() + 'peachCancel',
-      errorUrl: getFunctionsURL() + 'peachError',
-      notifyUrl: getFunctionsURL() + 'peachNotify',
+//      successURL: getFunctionsURL() + 'peachSuccess',
+//      cancelUrl: getFunctionsURL() + 'peachCancel',
+//      errorUrl: getFunctionsURL() + 'peachError',
+//      notifyUrl: getFunctionsURL() + 'peachNotify',
     );
     prettyPrint(payment.toJson(),
         '##### getPaymentKey - payment, check merchant reference');
@@ -291,7 +291,7 @@ class _SettleInvoice extends State<SettleInvoice> implements SnackBarListener {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.only(bottom: 8.0, top:16.0),
+              padding: const EdgeInsets.only(bottom: 8.0, top: 16.0),
               child: Row(
                 children: <Widget>[
                   SizedBox(
@@ -318,7 +318,8 @@ class _SettleInvoice extends State<SettleInvoice> implements SnackBarListener {
                         'Discount',
                         style: Styles.whiteSmall,
                       )),
-                  Text('${widget.offerBag.offer.discountPercent.toStringAsFixed(2)} %',
+                  Text(
+                    '${widget.offerBag.offer.discountPercent.toStringAsFixed(2)} %',
                     style: Styles.whiteBoldSmall,
                   ),
                 ],

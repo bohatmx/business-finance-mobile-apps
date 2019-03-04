@@ -9,20 +9,15 @@ class PurchaseOrder extends Findable {
 
   String description;
   String deliveryAddress;
-  String reference,
-      documentReference,
-      supplierDocumentRef,
-      supplierName,
-      govtDocumentRef,
-      companyDocumentRef;
+  String supplierName, customer;
+
   String purchaseOrderNumber, purchaserName;
   String purchaseOrderURL, contractURL;
   List<PurchaseOrderItem> items;
 
   PurchaseOrder(
       {this.supplier,
-      this.company,
-      this.govtEntity,
+      this.customer,
       this.user,
       this.purchaseOrderId,
       this.date,
@@ -30,11 +25,6 @@ class PurchaseOrder extends Findable {
       this.amount,
       this.description,
       this.deliveryAddress,
-      this.reference,
-      this.documentReference,
-      this.supplierDocumentRef,
-      this.govtDocumentRef,
-      this.companyDocumentRef,
       this.purchaseOrderNumber,
       this.supplierName,
       this.purchaserName,
@@ -44,8 +34,7 @@ class PurchaseOrder extends Findable {
 
   PurchaseOrder.fromJson(Map data) {
     this.supplier = data['supplier'];
-    this.company = data['company'];
-    this.govtEntity = data['govtEntity'];
+    this.customer = data['customer'];
     this.purchaseOrderId = data['purchaseOrderId'];
     this.user = data['user'];
     this.date = data['date'];
@@ -54,13 +43,8 @@ class PurchaseOrder extends Findable {
     this.amount = data['amount'] * 1.0;
     this.description = data['description'];
     this.deliveryAddress = data['deliveryAddress'];
-    this.reference = data['reference'];
     this.purchaseOrderNumber = data['purchaseOrderNumber'];
     this.purchaseOrderURL = data['purchaseOrderURL'];
-    this.documentReference = data['documentReference'];
-    this.supplierDocumentRef = data['supplierDocumentRef'];
-    this.govtDocumentRef = data['govtDocumentRef'];
-    this.companyDocumentRef = data['companyDocumentRef'];
     this.supplierName = data['supplierName'];
     this.purchaserName = data['purchaserName'];
     this.contractURL = data['contractURL'];
@@ -70,26 +54,21 @@ class PurchaseOrder extends Findable {
   Map<String, dynamic> toJson() {
     var map = {
       'supplier': supplier,
-      'purchaseOrderId': purchaseOrderId,
-      'company': company,
-      'govtEntity': govtEntity,
-      'user': user,
-      'date': date,
-      'intDate': intDate,
-      'deliveryDateRequired': deliveryDateRequired,
+      'purchaseOrderId': purchaseOrderId == null ? 'n/a' : purchaseOrderId,
+      'customer': customer,
+      'user': user == null ? 'n/a' : user,
+      'date': date == null ? 'n/a' : date,
+      'intDate': intDate == null ? 'n/a' : intDate,
+      'deliveryDateRequired':
+          deliveryDateRequired == null ? 'n/a' : deliveryDateRequired,
       'amount': amount,
-      'description': description,
-      'deliveryAddress': deliveryAddress,
-      'reference': reference,
+      'description': description == null ? 'n/a' : description,
+      'deliveryAddress': deliveryAddress == null ? 'n/a' : deliveryAddress,
       'purchaseOrderNumber': purchaseOrderNumber,
-      'purchaseOrderURL': purchaseOrderURL,
-      'documentReference': documentReference,
-      'supplierDocumentRef': supplierDocumentRef,
-      'govtDocumentRef': govtDocumentRef,
-      'companyDocumentRef': companyDocumentRef,
+      'purchaseOrderURL': purchaseOrderURL == null ? 'n/a' : purchaseOrderURL,
       'supplierName': supplierName,
       'purchaserName': purchaserName,
-      'itemNumber': itemNumber,
+      'contractURL': contractURL == null ? 'n/a' : contractURL,
     };
     return map;
   }

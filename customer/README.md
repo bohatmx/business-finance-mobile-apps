@@ -1,6 +1,6 @@
 # Government Entity Mobile App
 
-An app  for GovtEntity users
+An app  for Customer users
 
 ## Getting Started
 

@@ -19,7 +19,7 @@ dependencies:
     cloud_firestore: ^0.8.2+3
     shared_preferences: ^0.4.3
     path_provider: ^0.4.1
-    json_annotation: ^1.1.0
+    jaguar_serializer: ^2.2.8
     intl: ^0.15.7
     web_socket_channel: ^1.0.9
     email_validator: ^1.0.0
@@ -35,27 +35,15 @@ dependencies:
     cloud_functions: ^0.0.5
     google_maps_flutter: ^0.0.3+3
     location: ^1.4.1
+    build_runner:
+    jaguar_serializer_cli:
     url_launcher:
       git:
         url: git://github.com/flutter/plugins
         path: packages/url_launcher
 
-
-
-#    oktoast: ^1.0.1+2
-#    card_settings: ^0.1.10
-#    flutter_staggered_grid_view: ^0.2.2
-#    charts_flutter: ^0.4.0
-#    fluttertoast: ^2.0.7
-#    fancy_on_boarding: ^0.0.2
-#    date_format: ^1.0.5
-#    flutter_swiper: ^1.0.4
-#    animated_text_kit: ^1.0.3
-#    flutter_local_notifications: ^0.3.3
-
-
 dev-dependencies:
-  build_runner: ^0.8.9
-  json_serializable: ^0.5.7
-  dart_style: ^1.0.10
+  build_runner:
+  jaguar_serializer_cli:
+  dart_style: ^1.2.3
   mockito: ^3.0.0

@@ -74,7 +74,7 @@ class ChatWindow extends State<ChatPage>
     }
     if (user.customer != null) {
       uType = ChatMessage.CUSTOMER;
-      customer = await SharedPrefs.getGovEntity();
+      customer = await SharedPrefs.getCustomer();
       participantId = customer.participantId;
       org = customer.name;
     }
@@ -276,7 +276,7 @@ class ChatWindow extends State<ChatPage>
                               ? () => _submitMsg(
                                   color: Colors.indigo,
                                   txt: _textController.text,
-                                  name: user == null ? '' : user.firstName,
+                                  name: user == null ? ' n/a ' : user.firstName,
                                   addToFirestore: true)
                               : null)
                       : new IconButton(
@@ -285,7 +285,7 @@ class ChatWindow extends State<ChatPage>
                               ? () => _submitMsg(
                                   color: Colors.indigo,
                                   txt: _textController.text,
-                                  name: user == null ? '' : user.firstName,
+                                  name: user == null ? ' n/a ' : user.firstName,
                                   addToFirestore: true)
                               : null,
                         )),
@@ -372,7 +372,7 @@ class Msg extends StatelessWidget {
                       style: Theme.of(ctx).textTheme.subhead),
                   new Container(
                     margin: const EdgeInsets.only(top: 6.0),
-                    child: new Text(txt == null ? '' : txt),
+                    child: new Text(txt == null ? ' n/a ' : txt),
                   ),
                 ],
               ),

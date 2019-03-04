@@ -71,25 +71,25 @@ class SharedPrefs {
     return account;
   }
 
-  static Future saveGovtEntity(Customer govtEntity) async {
+  static Future saveCustomer(Customer govtEntity) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
     Map jsonx = govtEntity.toJson();
     var jx = json.encode(jsonx);
     print(jx);
-    prefs.setString('govtEntity', jx);
+    prefs.setString('customer', jx);
     //prefs.commit();
     print("SharedPrefs.saveGovtEntity =========  data SAVED.........");
   }
 
-  static Future<Customer> getGovEntity() async {
+  static Future<Customer> getCustomer() async {
     var prefs = await SharedPreferences.getInstance();
-    var string = prefs.getString('govtEntity');
+    var string = prefs.getString('customer');
     if (string == null) {
       return null;
     }
     var jx = json.decode(string);
-//    prettyPrint(jx, 'GovtEntity from cache: ');
+//    prettyPrint(jx, 'Customer from cache: ');
     Customer govtEntity = new Customer.fromJson(jx);
     return govtEntity;
   }

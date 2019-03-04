@@ -6,24 +6,17 @@ class Invoice extends Findable {
       invoiceId,
       deliveryNote,
       company,
-      govtEntity,
+      customer,
       wallet,
       user,
       invoiceNumber,
       description,
       reference,
-      documentReference,
-      supplierDocumentRef,
-      govtDocumentRef,
-      companyDocumentRef,
       supplierContract,
-      contractDocumentRef,
       contractURL,
-      companyInvoiceSettlement,
-      offer,
       invoiceAcceptance,
       deliveryAcceptance,
-      govtInvoiceSettlement,
+      settlement,
       supplierName;
   bool isOnOffer, isSettled;
   String date, datePaymentRequired;
@@ -37,11 +30,10 @@ class Invoice extends Findable {
       this.purchaseOrder,
       this.deliveryNote,
       this.company,
-      this.govtEntity,
+      this.customer,
       this.wallet,
       this.user,
-      this.companyInvoiceSettlement,
-      this.govtInvoiceSettlement,
+      this.settlement,
       this.investorInvoiceSettlements,
       this.isSettled,
       this.invoiceNumber,
@@ -55,15 +47,9 @@ class Invoice extends Findable {
       this.purchaseOrderNumber,
       this.customerName,
       this.supplierName,
-      this.documentReference,
-      this.supplierDocumentRef,
-      this.govtDocumentRef,
-      this.contractDocumentRef,
       this.supplierContract,
-      this.companyDocumentRef,
       this.datePaymentRequired,
       this.isOnOffer,
-      this.offer,
       this.contractURL,
       this.amount});
 
@@ -77,7 +63,7 @@ class Invoice extends Findable {
     this.deliveryNote = data['deliveryNote'];
     this.purchaseOrder = data['purchaseOrder'];
     this.company = data['company'];
-    this.govtEntity = data['govtEntity'];
+    this.customer = data['customer'];
     this.wallet = data['wallet'];
     this.user = data['user'];
     this.invoiceNumber = data['invoiceNumber'];
@@ -86,70 +72,58 @@ class Invoice extends Findable {
     this.date = data['date'];
     this.intDate = data['intDate'];
     this.datePaymentRequired = data['datePaymentRequired'];
-
-    this.documentReference = data['documentReference'];
-    this.supplierDocumentRef = data['supplierDocumentRef'];
     this.supplierName = data['supplierName'];
-    this.govtDocumentRef = data['govtDocumentRef'];
-    this.companyDocumentRef = data['companyDocumentRef'];
     this.purchaseOrderNumber = data['purchaseOrderNumber'];
     this.customerName = data['customerName'];
     this.supplierContract = data['supplierContract'];
-    this.contractDocumentRef = data['contractDocumentRef'];
     this.isOnOffer = data['isOnOffer'];
-    this.offer = data['offer'];
-
-    this.companyInvoiceSettlement = data['companyInvoiceSettlement'];
-    this.govtInvoiceSettlement = data['govtInvoiceSettlement'];
+    this.settlement = data['settlement'];
     this.isSettled = data['isSettled'];
-    this.investorInvoiceSettlements = data['investorInvoiceSettlements'];
     this.invoiceAcceptance = data['invoiceAcceptance'];
     this.deliveryAcceptance = data['deliveryAcceptance'];
     this.contractURL = data['contractURL'];
-    this.itemNumber = data['itemNumber'];
+    if (data['itemNumber'] is int) {
+      this.itemNumber = data['itemNumber'];
+    } else {
+      this.itemNumber = 0;
+    }
   }
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> map = Map();
 
     map['totalAmount'] = totalAmount;
-    map['valueAddedTax'] = valueAddedTax;
+    map['valueAddedTax'] = valueAddedTax == null ? ' n/a ' : valueAddedTax;
 
     map['supplier'] = supplier;
-    map['invoiceId'] = invoiceId;
-    map['deliveryNote'] = deliveryNote;
+    map['invoiceId'] = invoiceId == null ? ' n/a ' : invoiceId;
+    map['deliveryNote'] = deliveryNote == null ? ' n/a ' : deliveryNote;
     map['purchaseOrder'] = purchaseOrder;
-    map['company'] = company;
-    map['govtEntity'] = govtEntity;
-    map['wallet'] = wallet;
-    map['user'] = user;
+    map['customer'] = customer;
+    map['wallet'] = wallet == null ? ' n/a ' : wallet;
+    map['user'] = user == null ? ' n/a ' : user;
     map['invoiceNumber'] = invoiceNumber;
-    map['description'] = description;
-    map['reference'] = reference;
-    map['date'] = date;
-    map['intDate'] = intDate;
-    map['datePaymentRequired'] = datePaymentRequired;
+    map['description'] = description == null ? ' n/a ' : description;
+    map['reference'] = reference == null ? ' n/a ' : reference;
+    map['date'] = date == null ? ' n/a ' : date;
+    map['intDate'] = intDate == null ? 0 : intDate;
+    map['datePaymentRequired'] =
+        datePaymentRequired == null ? ' n/a ' : datePaymentRequired;
     map['amount'] = amount;
-    map['documentReference'] = documentReference;
-    map['supplierDocumentRef'] = supplierDocumentRef;
     map['supplierName'] = supplierName;
-    map['govtDocumentRef'] = govtDocumentRef;
-    map['companyDocumentRef'] = companyDocumentRef;
     map['purchaseOrderNumber'] = purchaseOrderNumber;
     map['customerName'] = customerName;
-    map['supplierContract'] = supplierContract;
-    map['contractDocumentRef'] = contractDocumentRef;
-    map['isOnOffer'] = isOnOffer;
-    map['offer'] = offer;
-
-    map['companyInvoiceSettlement'] = companyInvoiceSettlement;
-    map['govtInvoiceSettlement'] = govtInvoiceSettlement;
-    map['isSettled'] = isSettled;
-    map['investorInvoiceSettlements'] = investorInvoiceSettlements;
-    map['invoiceAcceptance'] = invoiceAcceptance;
-    map['deliveryAcceptance'] = deliveryAcceptance;
-    map['contractURL'] = contractURL;
-    map['itemNumber'] = itemNumber;
+    map['supplierContract'] =
+        supplierContract == null ? ' n/a ' : supplierContract;
+    map['isOnOffer'] = isOnOffer == null ? ' n/a ' : false;
+    map['settlement'] = settlement == null ? ' n/a ' : settlement;
+    map['isSettled'] = isSettled == null ? ' n/a ' : false;
+    map['invoiceAcceptance'] =
+        invoiceAcceptance == null ? ' n/a ' : invoiceAcceptance;
+    map['deliveryAcceptance'] =
+        deliveryAcceptance == null ? ' n/a ' : deliveryAcceptance;
+    map['contractURL'] = contractURL == null ? ' n/a ' : contractURL;
+    map['itemNumber'] = itemNumber == null ? 0 : itemNumber;
 
     return map;
   }

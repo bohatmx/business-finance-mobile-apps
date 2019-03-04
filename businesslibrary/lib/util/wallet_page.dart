@@ -51,7 +51,7 @@ class _WalletPageState extends State<WalletPage> implements SnackBarListener {
               child: Column(
                 children: <Widget>[
                   Text(
-                    wallet == null ? '' : wallet.name,
+                    wallet == null ? ' n/a ' : wallet.name,
                     style: TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.normal,

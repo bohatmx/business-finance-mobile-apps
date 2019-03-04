@@ -490,7 +490,7 @@ Future<String> _writeWalletToFirestore(
 
   switch (type) {
     case GovtEntityType:
-      wallet.govtEntity = NameSpace + 'GovtEntity#' + participantId;
+      wallet.govtEntity = NameSpace + 'Customer#' + participantId;
       break;
     case SupplierType:
       wallet.supplier = NameSpace + 'Supplier#' + participantId;

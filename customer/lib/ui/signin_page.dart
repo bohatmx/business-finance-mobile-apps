@@ -4,7 +4,7 @@ import 'package:businesslibrary/api/data_api3.dart';
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/api/signin.dart';
-import 'package:businesslibrary/data/govt_entity.dart';
+import 'package:businesslibrary/data/customer.dart';
 import 'package:businesslibrary/data/sector.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/data/wallet.dart';
@@ -12,23 +12,24 @@ import 'package:businesslibrary/util/message.dart';
 import 'package:businesslibrary/util/selectors.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/util.dart';
+import 'package:customer/customer_bloc.dart';
+import 'package:customer/ui/dashboard.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:govt/customer_bloc.dart';
-import 'package:govt/ui/dashboard.dart';
 
 class SignInPage extends StatefulWidget {
   @override
   _SignInPageState createState() => _SignInPageState();
 }
 
-class _SignInPageState extends State<SignInPage> implements SnackBarListener, CustomerModelBlocListener {
+class _SignInPageState extends State<SignInPage>
+    implements SnackBarListener, CustomerModelBlocListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   var adminEmail, password, adminCellphone, idNumber;
   final GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
   final FirebaseMessaging _firebaseMessaging = new FirebaseMessaging();
-  GovtEntity govtEntity;
+  Customer govtEntity;
 
   String participationId;
 
@@ -129,7 +130,10 @@ class _SignInPageState extends State<SignInPage> implements SnackBarListener, Cu
     messages.forEach((m) {
       tiles.add(ListTile(
         title: Text(m.message),
-        leading: Icon(Icons.cloud_download, color: getRandomColor(),),
+        leading: Icon(
+          Icons.cloud_download,
+          color: getRandomColor(),
+        ),
       ));
     });
     return Scaffold(
@@ -200,9 +204,11 @@ class _SignInPageState extends State<SignInPage> implements SnackBarListener, Cu
                       ),
                     ),
                   ),
-                  tiles.isEmpty? Container() : Column(
-                    children: tiles,
-                  ),
+                  tiles.isEmpty
+                      ? Container()
+                      : Column(
+                          children: tiles,
+                        ),
                 ],
               ),
             ),
@@ -280,7 +286,7 @@ class _SignInPageState extends State<SignInPage> implements SnackBarListener, Cu
         print(
             '_SignInPageState._onSavePressed SUCCESS!!!!!! User has signed in  ############');
 
-        govtEntity = await SharedPrefs.getGovEntity();
+        govtEntity = await SharedPrefs.getCustomer();
         if (govtEntity == null) {
           AppSnackbar.showErrorSnackbar(
               listener: this,
@@ -291,7 +297,7 @@ class _SignInPageState extends State<SignInPage> implements SnackBarListener, Cu
           //get wallet
           Wallet wallet = await ListAPI.getWallet(
               'govtEntity',
-              'resource:com.oneconnect.biz.GovtEntity#' +
+              'resource:com.oneconnect.biz.Customer#' +
                   govtEntity.participantId);
           print(
               '_SignInPageState.checkResult ------- wallet recovered ${wallet.toJson()}');

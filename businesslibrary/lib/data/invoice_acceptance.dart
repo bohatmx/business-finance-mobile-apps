@@ -1,15 +1,14 @@
 import 'package:businesslibrary/util/Finders.dart';
 
-class InvoiceAcceptance extends Findable{
+class InvoiceAcceptance extends Findable {
   String acceptanceId;
   String supplierName;
   String customerName;
   String invoiceNumber;
   String date;
   String invoice;
-  String govtEntity;
-  String company;
-  String user, supplierDocumentRef;
+  String customer, supplier;
+  String user;
 
   InvoiceAcceptance(
       {this.acceptanceId,
@@ -17,33 +16,32 @@ class InvoiceAcceptance extends Findable{
       this.customerName,
       this.invoiceNumber,
       this.date,
-      this.supplierDocumentRef,
       this.invoice,
-      this.govtEntity,
-      this.company,
+      this.supplier,
+      this.customer,
       this.user});
 
   InvoiceAcceptance.fromJson(Map data) {
     this.acceptanceId = data['acceptanceId'];
     this.invoice = data['invoice'];
-    this.govtEntity = data['govtEntity'];
-    this.company = data['company'];
+    this.customer = data['customer'];
     this.user = data['user'];
     this.date = data['date'];
+    this.invoiceNumber = data['invoiceNumber'];
+    this.supplier = data['supllier'];
     this.supplierName = data['supplierName'];
     this.customerName = data['customerName'];
-    this.supplierDocumentRef = data['supplierDocumentRef'];
   }
 
   Map<String, dynamic> toJson() => <String, dynamic>{
-        'acceptanceId': acceptanceId,
+        'acceptanceId': acceptanceId == null ? 'n/a' : acceptanceId,
         'invoice': invoice,
-        'govtEntity': govtEntity,
-        'company': company,
-        'user': user,
-        'date': date,
+        'invoiceNumber': invoiceNumber == null ? 'n/a' : invoiceNumber,
+        'customer': customer,
+        'user': user == null ? 'n/a' : user,
+        'date': date == null ? 'n/a' : date,
         'supplierName': supplierName,
+        'supplier': supplier,
         'customerName': customerName,
-        'supplierDocumentRef': supplierDocumentRef,
       };
 }

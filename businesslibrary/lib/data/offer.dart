@@ -4,28 +4,25 @@ class Offer extends Findable {
   String offerId;
   String startTime;
   String endTime, offerCancellation;
-  String invoice, documentReference;
+  String invoice;
   String purchaseOrder, participantId, wallet;
   String user, date, supplier, contractURL;
-  String invoiceDocumentRef, supplierName, customerName, customer;
-  String dateClosed;
-  String supplierDocumentRef, supplierFCMToken, customerFCMToken;
+  String supplierName, customerName, customer;
+  String dateClosed, invoiceAcceptance;
   double invoiceAmount, offerAmount, discountPercent;
   bool isCancelled, isOpen;
   String sector, sectorName;
-  List<String> invoiceBids;
   Offer(
       {this.offerId,
       this.startTime,
       this.endTime,
       this.discountPercent,
       this.invoice,
-      this.documentReference,
       this.date,
+      this.invoiceAcceptance,
       this.participantId,
       this.purchaseOrder,
       this.supplier,
-      this.invoiceBids,
       this.dateClosed,
       this.supplierName,
       this.customerName,
@@ -37,10 +34,6 @@ class Offer extends Findable {
       this.customer,
       this.isCancelled,
       this.offerCancellation,
-      this.supplierFCMToken,
-      this.customerFCMToken,
-      this.invoiceDocumentRef,
-      this.supplierDocumentRef,
       this.sector,
       this.sectorName,
       this.user});
@@ -51,6 +44,7 @@ class Offer extends Findable {
       return;
     }
     this.offerId = data['offerId'];
+    this.invoiceAcceptance = data['invoiceAcceptance'];
     this.intDate = data['intDate'];
     this.startTime = data['startTime'];
     this.endTime = data['endTime'];
@@ -60,14 +54,7 @@ class Offer extends Findable {
     this.user = data['user'];
     this.date = data['date'];
     this.participantId = data['participantId'];
-    this.documentReference = data['documentReference'];
-
-    this.invoiceDocumentRef = data['invoiceDocumentRef'];
-    this.supplierDocumentRef = data['supplierDocumentRef'];
     this.supplier = data['supplier'];
-    this.invoiceBids = data['invoiceBids'];
-    this.supplierFCMToken = data['supplierFCMToken'];
-    this.customerFCMToken = data['customerFCMToken'];
     this.dateClosed = data['dateClosed'];
     this.supplierName = data['supplierName'];
     this.customerName = data['customerName'];
@@ -87,36 +74,33 @@ class Offer extends Findable {
   }
 
   Map<String, dynamic> toJson() => <String, dynamic>{
-        'offerId': offerId,
-        'intDate': intDate,
+        'offerId': offerId == null ? 'n/a' : offerId,
+        'invoiceAcceptance':
+            invoiceAcceptance == null ? 'n/a' : invoiceAcceptance,
+        'intDate': intDate == null ? 0 : intDate,
         'startTime': startTime,
         'endTime': endTime,
         'discountPercent': discountPercent,
         'invoice': invoice,
         'purchaseOrder': purchaseOrder,
-        'user': user,
-        'date': date,
-        'documentReference': documentReference,
-        'participantId': participantId,
-        'invoiceDocumentRef': invoiceDocumentRef,
-        'supplierDocumentRef': supplierDocumentRef,
+        'user': user == null ? 'n/a' : user,
+        'date': date == null ? 'n/a' : date,
+        'participantId': participantId == null ? 'n/a' : participantId,
         'supplier': supplier,
-        'invoiceBids': invoiceBids,
-        'supplierFCMToken': supplierFCMToken,
-        'customerFCMToken': customerFCMToken,
-        'dateClosed': dateClosed,
+        'dateClosed': dateClosed == null ? 'n/a' : dateClosed,
         'supplierName': supplierName,
         'customerName': customerName,
         'customer': customer,
         'invoiceAmount': invoiceAmount,
         'offerAmount': offerAmount,
-        'contractURL': contractURL,
-        'wallet': wallet,
-        'isCancelled': isCancelled,
-        'offerCancellation': offerCancellation,
-        'sector': sector,
-        'sectorName': sectorName,
-        'isOpen': isOpen,
-        'itemNumber': itemNumber,
+        'contractURL': contractURL == null ? 'n/a' : contractURL,
+        'wallet': wallet == null ? 'n/a' : wallet,
+        'isCancelled': isCancelled == null ? false : isCancelled,
+        'offerCancellation':
+            offerCancellation == null ? 'n/a' : offerCancellation,
+        'sector': sector == null ? 'n/a' : sector,
+        'sectorName': sectorName == null ? 'n/a' : sectorName,
+        'isOpen': isOpen == null ? true : isOpen,
+        'itemNumber': itemNumber == null ? 0 : itemNumber,
       };
 }

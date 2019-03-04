@@ -1,9 +1,9 @@
 import 'dart:convert';
 
 import 'package:businesslibrary/api/shared_prefs.dart';
+import 'package:businesslibrary/data/customer.dart';
 import 'package:businesslibrary/data/delivery_acceptance.dart';
 import 'package:businesslibrary/data/delivery_note.dart';
-import 'package:businesslibrary/data/govt_entity.dart';
 import 'package:businesslibrary/data/invoice.dart';
 import 'package:businesslibrary/data/invoice_acceptance.dart';
 import 'package:businesslibrary/data/invoice_bid.dart';
@@ -13,25 +13,21 @@ import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/FCM.dart';
 import 'package:businesslibrary/util/lookups.dart';
+import 'package:businesslibrary/util/message.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
-import 'package:businesslibrary/util/message.dart';
 import 'package:businesslibrary/util/support/contact_us.dart';
 import 'package:businesslibrary/util/theme_bloc.dart';
-
-import 'package:businesslibrary/util/wallet_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:device_info/device_info.dart';
+import 'package:customer/customer_bloc.dart';
+import 'package:customer/ui/delivery_note_list.dart';
+import 'package:customer/ui/invoice_list.dart';
+import 'package:customer/ui/purchase_order_list.dart';
+import 'package:customer/ui/settlements.dart';
+import 'package:customer/ui/summary_card.dart';
+import 'package:customer/ui/theme_util.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:govt/customer_bloc.dart';
-import 'package:govt/main.dart';
-import 'package:govt/ui/delivery_note_list.dart';
-import 'package:govt/ui/invoice_list.dart';
-import 'package:govt/ui/purchase_order_list.dart';
-import 'package:govt/ui/settlements.dart';
-import 'package:govt/ui/summary_card.dart';
-import 'package:govt/ui/theme_util.dart';
 
 class Dashboard extends StatefulWidget {
   final String message;
@@ -54,7 +50,7 @@ class _DashboardState extends State<Dashboard>
   FirebaseMessaging _fcm = FirebaseMessaging();
   AnimationController animationController;
   Animation<double> animation;
-  GovtEntity govtEntity;
+  Customer govtEntity;
   User user;
   String fullName;
   int messageReceived;
@@ -84,7 +80,7 @@ class _DashboardState extends State<Dashboard>
   }
 
   _getCachedPrefs() async {
-    govtEntity = await SharedPrefs.getGovEntity();
+    govtEntity = await SharedPrefs.getCustomer();
     user = await SharedPrefs.getUser();
     fullName = user.firstName + ' ' + user.lastName;
     _configureFCM();
@@ -94,13 +90,13 @@ class _DashboardState extends State<Dashboard>
   _configureFCM() async {
     print(
         '\n\n\ ################ CONFIGURE FCM MESSAGE ###########  starting _firebaseMessaging');
-    
+
     token = await _fcm.getToken();
     if (token != null) {
       SharedPrefs.saveFCMToken(token);
     }
     bool isRunningIOs = await isDeviceIOS();
-    
+
     _fcm.configure(
       onMessage: (Map<String, dynamic> map) async {
         prettyPrint(map,
@@ -446,9 +442,7 @@ class _DashboardState extends State<Dashboard>
   void _goToContactPage() {
     print('_MainPageState._goToWalletPage .... ');
     Navigator.push(
-      context,
-      new MaterialPageRoute(
-          builder: (context) => new ContactUs()));
+        context, new MaterialPageRoute(builder: (context) => new ContactUs()));
   }
 
   void _onInvoicesTapped() {

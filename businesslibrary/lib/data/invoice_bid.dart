@@ -7,14 +7,10 @@ class InvoiceBid extends Findable {
   double reservePercent;
   double amount;
   double discountPercent;
-  String offer, supplierFCMToken, investorFCMToken, customerFCMToken, wallet;
+  String offer, wallet;
   String investor, date, autoTradeOrder;
-  String user, documentReference, supplier;
-  String invoiceBidAcceptance,
-      customer,
-      offerDocRef,
-      investorDocRef,
-      supplierDocRef;
+  String user, supplier;
+  String invoiceBidAcceptance, customer;
   String supplierName;
   String investorName;
   String customerName;
@@ -36,13 +32,6 @@ class InvoiceBid extends Findable {
       this.wallet,
       this.isSettled,
       this.supplier,
-      this.supplierDocRef,
-      this.offerDocRef,
-      this.investorDocRef,
-      this.supplierFCMToken,
-      this.investorFCMToken,
-      this.customerFCMToken,
-      this.documentReference,
       this.invoiceBidAcceptance,
       this.supplierName,
       this.customerName,
@@ -72,53 +61,39 @@ class InvoiceBid extends Findable {
       this.intDate = data['intDate'];
     }
     this.invoiceBidAcceptance = data['invoiceBidAcceptance'];
-    this.documentReference = data['documentReference'];
     this.user = data['user'];
-    this.supplierFCMToken = data['supplierFCMToken'];
-    this.investorFCMToken = data['investorFCMToken'];
-    this.customerFCMToken = data['customerFCMToken'];
     this.investorName = data['investorName'];
     this.wallet = data['wallet'];
     this.supplier = data['supplier'];
     this.date = data['date'];
     this.isSettled = data['isSettled'];
     this.autoTradeOrder = data['autoTradeOrder'];
-
     this.supplierName = data['supplierName'];
     this.customerName = data['customerName'];
     this.customer = data['customer'];
-    this.offerDocRef = data['offerDocRef'];
-    this.investorDocRef = data['investorDocRef'];
-    this.supplierDocRef = data['supplierDocRef'];
   }
   Map<String, dynamic> toJson() => <String, dynamic>{
-        'invoiceBidId': invoiceBidId,
+        'invoiceBidId': invoiceBidId == null ? ' n/a ' : invoiceBidId,
         'startTime': startTime,
         'endTime': endTime,
         'reservePercent': reservePercent,
         'amount': amount,
-        'discountPercent': discountPercent,
+        'discountPercent': discountPercent == null ? 0.0 : discountPercent,
         'offer': offer,
-        'offerDocRef': offerDocRef,
         'investor': investor,
-        'user': user,
+        'user': user == null ? ' n/a ' : user,
         'supplierName': supplierName,
         'customerName': customerName,
         'customer': customer,
-        'date': date,
-        'investorDocRef': investorDocRef,
-        'intDate': intDate,
-        'itemNumber': itemNumber,
-        'invoiceBidAcceptance': invoiceBidAcceptance,
-        'documentReference': documentReference,
-        'supplierFCMToken': supplierFCMToken,
-        'investorFCMToken': investorFCMToken,
-        'customerFCMToken': customerFCMToken,
+        'date': date == null ? ' n/a ' : date,
+        'intDate': intDate == null ? 0 : intDate,
+        'itemNumber': itemNumber == null ? ' n/a ' : itemNumber,
+        'invoiceBidAcceptance':
+            invoiceBidAcceptance == null ? ' n/a ' : invoiceBidAcceptance,
         'investorName': investorName,
-        'wallet': wallet,
+        'wallet': wallet == null ? ' n/a ' : wallet,
         'supplier': supplier,
-        'isSettled': isSettled,
-        'autoTradeOrder': autoTradeOrder,
-        'supplierDocRef': supplierDocRef,
+        'isSettled': isSettled == null ? ' n/a ' : false,
+        'autoTradeOrder': autoTradeOrder == null ? ' n/a ' : autoTradeOrder,
       };
 }

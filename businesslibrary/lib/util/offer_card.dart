@@ -14,7 +14,8 @@ class OfferCard extends StatelessWidget {
       {this.offer,
       this.number,
       this.elevation,
-      this.showCustomer, this.color,
+      this.showCustomer,
+      this.color,
       this.showSupplier});
 
   TextStyle getTextStyle() {
@@ -45,7 +46,7 @@ class OfferCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       elevation: elevation == null ? 2.0 : elevation,
-      color: color == null? Colors.white : color,
+      color: color == null ? Colors.white : color,
       child: Padding(
         padding: const EdgeInsets.all(10.0),
         child: Column(
@@ -134,7 +135,9 @@ class OfferCard extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          offer.supplierName == null ? '' : offer.supplierName,
+                          offer.supplierName == null
+                              ? '  '
+                              : offer.supplierName,
                           style: Styles.blackSmall,
                         ),
                       ],

@@ -61,7 +61,11 @@ class _MyHomePageState extends State<MyHomePage> implements SnackBarListener {
   List<AutoTradeOrder> _orders;
   List<InvestorProfile> _profiles;
   DateTime startDate;
-  OpenOfferSummary summary;
+  OpenOfferSummary summary = OpenOfferSummary(
+      offers: List(),
+      totalOfferAmount: 0.0,
+      totalOpenOffers: 0,
+      startedAfter: 0);
   String webViewTitle, webViewUrl;
   AutoTradeStart autoTradeStart = AutoTradeStart();
 
@@ -182,11 +186,6 @@ class _MyHomePageState extends State<MyHomePage> implements SnackBarListener {
     super.initState();
 
     _configureFCM();
-    _firebaseMessaging.subscribeToTopic(FCM.TOPIC_INVOICE_BIDS);
-    _firebaseMessaging.subscribeToTopic(FCM.TOPIC_OFFERS);
-    _firebaseMessaging.subscribeToTopic(FCM.TOPIC_HEARTBEATS);
-    print(
-        '_MyHomePageState.initState ############ subscribed to invoiceBids, heartbeats and offers topics');
     _getLists(true);
   }
 
@@ -226,7 +225,7 @@ class _MyHomePageState extends State<MyHomePage> implements SnackBarListener {
     _orders = await ListAPI.getAutoTradeOrders();
     setState(() {});
     _profiles = await ListAPI.getInvestorProfiles();
-    summary = await ListAPI.getOpenOffersSummary();
+    //summary = await ListAPI.getOpenOffersSummary();
 
     setState(() {});
     _scaffoldKey.currentState.hideCurrentSnackBar();
@@ -350,51 +349,41 @@ class _MyHomePageState extends State<MyHomePage> implements SnackBarListener {
     });
 
     try {
-      if (_orders.isNotEmpty &&
-          _profiles.isNotEmpty &&
-          summary.totalOpenOffers > 0) {
-        setState(() {
-          _showProgress = true;
-          autoTradeStart = AutoTradeStart(
-            totalAmount: 0.0,
-            possibleAmount: 0.0,
-            dateEnded: DateTime.now().toIso8601String(),
-            totalValidBids: 0,
-            elapsedSeconds: 0,
-          );
-          bidsArrived.clear();
-          opacity = 0.0;
-        });
-        startDate = DateTime.now();
-        autoTradeStart = await DataAPI3.executeAutoTrades();
-        await SharedPrefs.saveAutoTradeStart(autoTradeStart);
-        setState(() {
-          _showProgress = null;
-        });
-        setState(() {});
-        opacity = 1.0;
-        if (autoTradeStart == null) {
-          AppSnackbar.showErrorSnackbar(
-              scaffoldKey: _scaffoldKey,
-              message: 'Problem with Auto Trade Session',
-              listener: this,
-              actionLabel: 'close');
-        } else {
-          print('_MyHomePageState._start ++++ summary in the house!');
-          AppSnackbar.showSnackbar(
-              scaffoldKey: _scaffoldKey,
-              message: 'Auto Trade Session complete',
-              textColor: Styles.white,
-              backgroundColor: Styles.black);
-          setState(() {});
-          _getLists(false);
-        }
+      setState(() {
+        _showProgress = true;
+        autoTradeStart = AutoTradeStart(
+          totalAmount: 0.0,
+          possibleAmount: 0.0,
+          dateEnded: DateTime.now().toIso8601String(),
+          totalValidBids: 0,
+          elapsedSeconds: 0,
+        );
+        bidsArrived.clear();
+        opacity = 0.0;
+      });
+      startDate = DateTime.now();
+      autoTradeStart = await DataAPI3.executeAutoTrades();
+      await SharedPrefs.saveAutoTradeStart(autoTradeStart);
+      setState(() {
+        _showProgress = null;
+      });
+      setState(() {});
+      opacity = 1.0;
+      if (autoTradeStart == null) {
+        AppSnackbar.showErrorSnackbar(
+            scaffoldKey: _scaffoldKey,
+            message: 'Problem with Auto Trade Session',
+            listener: this,
+            actionLabel: 'close');
       } else {
+        print('_MyHomePageState._start ++++ summary in the house!');
         AppSnackbar.showSnackbar(
             scaffoldKey: _scaffoldKey,
-            message: 'No open offers in network',
-            textColor: Styles.lightBlue,
+            message: 'Auto Trade Session complete',
+            textColor: Styles.white,
             backgroundColor: Styles.black);
+        setState(() {});
+        _getLists(false);
       }
     } catch (e) {
       setState(() {
@@ -466,9 +455,6 @@ class _MyHomePageState extends State<MyHomePage> implements SnackBarListener {
 
   @override
   Widget build(BuildContext context) {
-    print(
-        '\n\n🔵  🔵 MyHomePageState.build ##############REBUILD OF MAIN WIDGET - doing FCM config AGAIN - is this cool?');
-    _configureFCM();
     return new Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
@@ -664,7 +650,6 @@ class _MyHomePageState extends State<MyHomePage> implements SnackBarListener {
         );
       }
       var tile = ListTile(
-        leading: icon,
         title: Text(
           message,
           style: style,

@@ -1,52 +1,50 @@
 import 'package:businesslibrary/api/shared_prefs.dart';
-import 'package:businesslibrary/data/govt_entity.dart';
+import 'package:businesslibrary/data/customer.dart';
 import 'package:businesslibrary/util/page_util/data.dart';
 import 'package:businesslibrary/util/page_util/intro_page_view.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/theme_bloc.dart';
+import 'package:customer/ui/dashboard.dart';
+import 'package:customer/ui/signin_page.dart';
+import 'package:customer/ui/signup_page.dart';
 import 'package:flutter/material.dart';
-import 'package:govt/ui/dashboard.dart';
-import 'package:govt/ui/signin_page.dart';
-import 'package:govt/ui/signup_page.dart';
 
-void main() => runApp(new GovtApp2());
+void main() => runApp(new CustomerApp());
 
-class GovtApp2 extends StatefulWidget {
+class CustomerApp extends StatefulWidget {
   @override
-  _GovtApp2State createState() => _GovtApp2State();
+  _CustomerAppState createState() => _CustomerAppState();
 }
 
-class _GovtApp2State extends State<GovtApp2> {
+class _CustomerAppState extends State<CustomerApp> {
   int themeIndex;
 
   @override
   void initState() {
     super.initState();
-
   }
+
   void getCached() async {
     themeIndex = await SharedPrefs.getThemeIndex();
-    setState(() {
-
-    });
+    setState(() {});
   }
+
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<int>(
-      initialData: themeIndex == null? 0: themeIndex,
+      initialData: themeIndex == null ? 0 : themeIndex,
       stream: themeBloc.newThemeStream,
       builder: (context, snapShot) => MaterialApp(
-        title: 'BFNCustomer',
-        debugShowCheckedModeBanner: false,
-        theme: snapShot.data == null
-            ? ThemeUtil.getTheme(themeIndex: themeIndex)
-            : ThemeUtil.getTheme(themeIndex: snapShot.data),
-        home: new StartPage(),
-      ),
+            title: 'BFNCustomer',
+            debugShowCheckedModeBanner: false,
+            theme: snapShot.data == null
+                ? ThemeUtil.getTheme(themeIndex: themeIndex)
+                : ThemeUtil.getTheme(themeIndex: snapShot.data),
+            home: new StartPage(),
+          ),
     );
   }
 }
-
 
 class StartPage extends StatefulWidget {
   StartPage({Key key, this.title}) : super(key: key);
@@ -60,7 +58,7 @@ class StartPage extends StatefulWidget {
 class _StartPageState extends State<StartPage> implements SnackBarListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   double fabOpacity = 0.3;
-  GovtEntity customer;
+  Customer customer;
   @override
   initState() {
     super.initState();
@@ -68,7 +66,7 @@ class _StartPageState extends State<StartPage> implements SnackBarListener {
   }
 
   void _check() async {
-    customer = await SharedPrefs.getGovEntity();
+    customer = await SharedPrefs.getCustomer();
     if (customer != null) {
       Navigator.pop(context);
       Navigator.push(
@@ -78,7 +76,7 @@ class _StartPageState extends State<StartPage> implements SnackBarListener {
       return;
     }
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
@@ -175,12 +173,18 @@ class _StartPageState extends State<StartPage> implements SnackBarListener {
       ),
     );
   }
+
   void _startOnboarding() {
     Navigator.push(
       context,
-      new MaterialPageRoute(builder: (context) => new IntroPageView(items: sampleItems, user: null,)),
+      new MaterialPageRoute(
+          builder: (context) => new IntroPageView(
+                items: sampleItems,
+                user: null,
+              )),
     );
   }
+
   void _startSignUpPage() async {
     print('_MyHomePageState._btnPressed ................');
     await Navigator.push(

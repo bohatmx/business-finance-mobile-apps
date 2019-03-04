@@ -6,7 +6,11 @@ class Country {
   Country.fromJson(Map data) {
     this.name = data['name'];
     this.code = data['code'];
-    this.vat = data['vat'];
+    if (data['vat'] is int) {
+      this.vat = data['vat'] * 1.0;
+    } else {
+      this.vat = data['vat'];
+    }
     this.countryId = data['countryId'];
   }
   Map<String, dynamic> toJson() => <String, dynamic>{

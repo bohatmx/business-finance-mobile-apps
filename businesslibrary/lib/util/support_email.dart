@@ -38,7 +38,7 @@ class _SupportEmailState extends State<SupportEmail> {
     user = await SharedPrefs.getUser();
     switch (widget.userType) {
       case USER_CUSTOMER:
-        customer = await SharedPrefs.getGovEntity();
+        customer = await SharedPrefs.getCustomer();
         break;
       case USER_INVESTOR:
         investor = await SharedPrefs.getInvestor();

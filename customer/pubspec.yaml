@@ -1,5 +1,5 @@
-name: govt
-description: An app  for GovtEntity users
+name: customer
+description: An app  for Customer users
 
 dependencies:
   flutter:

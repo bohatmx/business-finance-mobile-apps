@@ -71,7 +71,7 @@ class _ContactUsState extends State<ContactUs>
 
   void getCached() async {
     user = await SharedPrefs.getUser();
-    customer = await SharedPrefs.getGovEntity();
+    customer = await SharedPrefs.getCustomer();
     investor = await SharedPrefs.getInvestor();
     supplier = await SharedPrefs.getSupplier();
 

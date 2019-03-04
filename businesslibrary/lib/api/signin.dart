@@ -92,7 +92,7 @@ class SignIn {
         print('SignIn.signIn ERROR  customer not found in Firestore');
         return ErrorSignIn;
       }
-      await SharedPrefs.saveGovtEntity(govtEntity);
+      await SharedPrefs.saveCustomer(govtEntity);
       return Success;
     }
 

@@ -2,13 +2,12 @@ import 'package:businesslibrary/api/data_api3.dart';
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/company.dart';
+import 'package:businesslibrary/data/customer.dart';
 import 'package:businesslibrary/data/delivery_note.dart';
-import 'package:businesslibrary/data/govt_entity.dart';
 import 'package:businesslibrary/data/invoice.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
-import 'package:businesslibrary/util/FCM.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/selectors.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
@@ -16,16 +15,16 @@ import 'package:businesslibrary/util/styles.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 
-class PurchaseOrderPageGovt extends StatefulWidget {
+class PurchaseOrderPage extends StatefulWidget {
   final String url;
 
-  PurchaseOrderPageGovt(this.url);
+  PurchaseOrderPage(this.url);
 
   @override
   _PurchaseOrderPageState createState() => _PurchaseOrderPageState();
 }
 
-class _PurchaseOrderPageState extends State<PurchaseOrderPageGovt>
+class _PurchaseOrderPageState extends State<PurchaseOrderPage>
     implements SnackBarListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   final GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
@@ -33,9 +32,9 @@ class _PurchaseOrderPageState extends State<PurchaseOrderPageGovt>
 
   PurchaseOrder purchaseOrder = PurchaseOrder();
   User user;
-  GovtEntity govtEntity;
+  Customer customer;
   Company company;
-  GovtEntity supplier;
+  Supplier supplier;
   String poNumber, amount;
 
   @override
@@ -65,10 +64,10 @@ class _PurchaseOrderPageState extends State<PurchaseOrderPageGovt>
     if (user != null) {
       userName = user.firstName + ' ' + user.lastName;
     }
-    govtEntity = await SharedPrefs.getGovEntity();
-    assert(govtEntity != null);
+    customer = await SharedPrefs.getCustomer();
+    assert(customer != null);
 
-    name = govtEntity.name;
+    name = customer.name;
 
     setState(() {});
   }
@@ -79,36 +78,25 @@ class _PurchaseOrderPageState extends State<PurchaseOrderPageGovt>
     final form = _formKey.currentState;
     if (form.validate()) {
       form.save();
-      if (govtEntity != null) {
-        purchaseOrder.govtEntity = 'resource:com.oneconnect.biz.GovtEntity#' +
-            govtEntity.participantId;
-        purchaseOrder.govtDocumentRef = govtEntity.documentReference;
-        purchaseOrder.purchaserName = govtEntity.name;
+      if (customer != null) {
+        purchaseOrder.customer = customer.participantId;
+        purchaseOrder.purchaserName = customer.name;
         label = 'Govt';
       }
-      if (company != null) {
-        purchaseOrder.company =
-            'resource:com.oneconnect.biz.Company#' + company.participantId;
-        purchaseOrder.companyDocumentRef = company.documentReference;
-        purchaseOrder.purchaserName = company.name;
-        label = 'Company';
-      }
+
       if (supplier != null) {
-        purchaseOrder.supplierDocumentRef = supplier.documentReference;
-        purchaseOrder.supplier =
-            'resource:com.oneconnect.biz.Supplier#' + supplier.participantId;
+        purchaseOrder.supplier = supplier.participantId;
         purchaseOrder.supplierName = supplier.name;
         if (supplier.documentReference == null) {
           var supp = await ListAPI.getSupplierById(supplier.participantId);
           if (supp != null) {
-            purchaseOrder.supplierDocumentRef = supp.documentReference;
+            purchaseOrder.supplier = supp.participantId;
           }
         }
       }
       if (user != null) {
         if (user.userId != null) {
-          purchaseOrder.user =
-              'resource:com.oneconnect.biz.User#' + user.userId;
+          purchaseOrder.user = user.userId;
         }
       }
       print(
@@ -123,7 +111,7 @@ class _PurchaseOrderPageState extends State<PurchaseOrderPageGovt>
           textColor: Colors.white,
           backgroundColor: Colors.deepPurple.shade700);
       //todo - check if this PO exists
-      var po = await DataAPI3.registerPurchaseOrder(purchaseOrder);
+      var po = await DataAPI3.addPurchaseOrder(purchaseOrder);
       print('_PurchaseOrderPageState._submitPurchaseOrder $po');
       _scaffoldKey.currentState.hideCurrentSnackBar();
       if (po == null) {

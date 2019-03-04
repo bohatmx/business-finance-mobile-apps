@@ -7,10 +7,10 @@ import 'package:businesslibrary/util/mypager.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:customer/customer_bloc.dart';
+import 'package:customer/ui/settle_invoice.dart';
 import 'package:flutter/material.dart';
-import 'package:govt/customer_bloc.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:govt/ui/settle_invoice.dart';
 
 class SettlementList extends StatefulWidget {
   @override
@@ -46,7 +46,7 @@ class _SettlementListState extends State<SettlementList>
     for (var doc in qs.documents) {
       var stlmnt = InvestorInvoiceSettlement.fromJson(doc.data);
       var qs2 = await fs
-          .collection('invoiceOffers')
+          .collection('offers')
           .where('offerId', isEqualTo: stlmnt.offer.split('#').elementAt(1))
           .getDocuments();
       for (var doc2 in qs2.documents) {
@@ -294,7 +294,7 @@ class _SettlementListState extends State<SettlementList>
     try {
       var bid = await ListAPI.getInvoiceBidByDocRef(
           invoiceBidDocRef: settlement.invoiceBidDocRef);
-      offerBag = await ListAPI.getOfferByDocRef(bid.offerDocRef);
+      offerBag = await ListAPI.getOfferById(bid.offer);
       invoice = await ListAPI.getCustomerInvoiceById(
           documentRef: appModel.customer.documentReference,
           invoiceId: offerBag.offer.invoice.split('#').elementAt(1));
@@ -307,102 +307,107 @@ class _SettlementListState extends State<SettlementList>
     } catch (e) {
       print(e);
     }
-
   }
+
   void _showInvoiceSettlementDialog() {
     showDialog(
         context: context,
         builder: (_) => new AlertDialog(
-          title: new Text(
-            "Invoice Settlement",
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          content: Container(
-            height: 120.0,
-            child: Column(
-              children: <Widget>[
-                new Text("Do you want to settle this Invoice?\n\ "),
+              title: new Text(
+                "Invoice Settlement",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              content: Container(
+                height: 120.0,
+                child: Column(
+                  children: <Widget>[
+                    new Text("Do you want to settle this Invoice?\n\ "),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: Row(
+                        children: <Widget>[
+                          Text(
+                            'Invoice Number:',
+                            style: TextStyle(fontSize: 12.0),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 10.0),
+                            child: Text(
+                              '${invoice.invoiceNumber}',
+                              style: Styles.blackBoldMedium,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: Row(
+                        children: <Widget>[
+                          Text(
+                            'Invoice Amount:',
+                            style: TextStyle(fontSize: 12.0),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 10.0),
+                            child: Text(
+                              '${getFormattedAmount('${invoice.totalAmount}', context)}',
+                              style: Styles.tealBoldMedium,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              actions: <Widget>[
                 Padding(
-                  padding: const EdgeInsets.only(top: 8.0),
-                  child: Row(
-                    children: <Widget>[
-                      Text(
-                        'Invoice Number:',
-                        style: TextStyle(fontSize: 12.0),
+                  padding: const EdgeInsets.only(bottom: 18.0),
+                  child: FlatButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: Text(
+                      'NO',
+                      style: TextStyle(
+                        fontSize: 16.0,
+                        color: Colors.grey,
                       ),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 10.0),
-                        child: Text(
-                          '${invoice.invoiceNumber}',
-                          style: Styles.blackBoldMedium,
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 8.0),
-                  child: Row(
-                    children: <Widget>[
-                      Text(
-                        'Invoice Amount:',
-                        style: TextStyle(fontSize: 12.0),
+                new Padding(
+                  padding: const EdgeInsets.only(
+                      left: 28.0, right: 16.0, bottom: 10.0),
+                  child: RaisedButton(
+                    elevation: 4.0,
+                    onPressed: _startSettlement,
+                    color: Colors.teal,
+                    child: Text(
+                      'YES',
+                      style: TextStyle(
+                        fontSize: 16.0,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
                       ),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 10.0),
-                        child: Text(
-                          '${getFormattedAmount('${invoice.totalAmount}', context)}',
-                          style: Styles.tealBoldMedium,
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
                 ),
               ],
-            ),
-          ),
-          actions: <Widget>[
-            Padding(
-              padding: const EdgeInsets.only(bottom: 18.0),
-              child: FlatButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text(
-                  'NO',
-                  style: TextStyle(
-                    fontSize: 16.0,
-                    color: Colors.grey,
-                  ),
-                ),
-              ),
-            ),
-            new Padding(
-              padding: const EdgeInsets.only(
-                  left: 28.0, right: 16.0, bottom: 10.0),
-              child: RaisedButton(
-                elevation: 4.0,
-                onPressed: _startSettlement,
-                color: Colors.teal,
-                child: Text(
-                  'YES',
-                  style: TextStyle(
-                    fontSize: 16.0,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ));
+            ));
   }
+
   OfferBag offerBag;
   void _startSettlement() {
     print('_SettlementListState._startSettlement .....................');
     Navigator.push(
       context,
-      new MaterialPageRoute(builder: (context) =>  SettleInvoice(invoice: invoice, offerBag: offerBag,)),
+      new MaterialPageRoute(
+          builder: (context) => SettleInvoice(
+                invoice: invoice,
+                offerBag: offerBag,
+              )),
     );
   }
 }

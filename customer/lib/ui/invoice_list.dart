@@ -1,21 +1,19 @@
 import 'package:businesslibrary/api/data_api3.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
-import 'package:businesslibrary/data/dashboard_data.dart';
-import 'package:businesslibrary/data/govt_entity.dart';
+import 'package:businesslibrary/data/customer.dart';
 import 'package:businesslibrary/data/invoice.dart';
 import 'package:businesslibrary/data/invoice_acceptance.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/Finders.dart';
 import 'package:businesslibrary/util/lookups.dart';
+import 'package:businesslibrary/util/mypager.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
+import 'package:customer/customer_bloc.dart';
+import 'package:customer/ui/invoice_settlement.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:govt/customer_bloc.dart';
-import 'package:govt/ui/invoice_settlement.dart';
-import 'package:businesslibrary/util/mypager.dart';
-
 
 class InvoiceList extends StatefulWidget {
   @override
@@ -27,7 +25,7 @@ class _InvoiceListState extends State<InvoiceList>
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   FirebaseMessaging _fcm = FirebaseMessaging();
 
-  GovtEntity entity;
+  Customer entity;
   List<Invoice> currentPage = List();
   Invoice invoice;
   User user;
@@ -38,11 +36,10 @@ class _InvoiceListState extends State<InvoiceList>
   initState() {
     super.initState();
     _getCached();
-
   }
 
   _getCached() async {
-    entity = await SharedPrefs.getGovEntity();
+    entity = await SharedPrefs.getCustomer();
     user = await SharedPrefs.getUser();
     appModel = customerModelBloc.appModel;
     pageLimit = appModel.pageLimit;
@@ -62,13 +59,12 @@ class _InvoiceListState extends State<InvoiceList>
     var acceptance = new InvoiceAcceptance(
         supplierName: invoice.supplierName,
         customerName: entity.name,
-        supplierDocumentRef: invoice.supplierDocumentRef,
+        supplier: invoice.supplier,
         date: getUTCDate(),
-        invoice: 'resource:com.oneconnect.biz.Invoice#${invoice.invoiceId}',
-        govtEntity:
-            'resource:com.oneconnect.biz.GovtEntity#${entity.participantId}',
+        invoice: invoice.invoiceId,
+        customer: entity.participantId,
         invoiceNumber: invoice.invoiceNumber,
-        user: 'resource:com.oneconnect.biz.User#${user.userId}');
+        user: user.userId);
 
     try {
       var result = await DataAPI3.acceptInvoice(acceptance);
@@ -109,33 +105,35 @@ class _InvoiceListState extends State<InvoiceList>
   Widget _getBottom() {
     return PreferredSize(
       preferredSize: Size.fromHeight(200.0),
-      child:  appModel == null? Container() : Column(
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.only(bottom: 10.0),
-            child: PagingTotalsView(
-              pageValue: _getPageValue(),
-              totalValue: _getTotalValue(),
-              labelStyle: Styles.blackSmall,
-              pageValueStyle: Styles.blackBoldLarge,
-              totalValueStyle: Styles.brownBoldMedium,
+      child: appModel == null
+          ? Container()
+          : Column(
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 10.0),
+                  child: PagingTotalsView(
+                    pageValue: _getPageValue(),
+                    totalValue: _getTotalValue(),
+                    labelStyle: Styles.blackSmall,
+                    pageValueStyle: Styles.blackBoldLarge,
+                    totalValueStyle: Styles.brownBoldMedium,
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(
+                      left: 8.0, right: 8.0, bottom: 12.0),
+                  child: PagerControl(
+                    itemName: 'Invoice Bids to Settle',
+                    pageLimit: pageLimit,
+                    elevation: 16.0,
+                    items: appModel.invoices.length,
+                    listener: this,
+                    color: Colors.purple.shade50,
+                    pageNumber: _pageNumber,
+                  ),
+                ),
+              ],
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(
-                left: 8.0, right: 8.0, bottom: 12.0),
-            child: PagerControl(
-              itemName: 'Invoice Bids to Settle',
-              pageLimit: pageLimit,
-              elevation: 16.0,
-              items: appModel.invoices.length,
-              listener: this,
-              color: Colors.purple.shade50,
-              pageNumber: _pageNumber,
-            ),
-          ),
-        ],
-      ),
     );
   }
 
@@ -437,7 +435,7 @@ class _InvoiceListState extends State<InvoiceList>
   }
 
   double _getTotalValue() {
-    if (appModel.invoices  == null) return 0.00;
+    if (appModel.invoices == null) return 0.00;
     var t = 0.0;
     appModel.invoices.forEach((po) {
       t += po.amount;
@@ -538,7 +536,7 @@ class InvoiceCard extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(left: 12.0, right: 12.0, bottom: 4.0),
       child: Card(
-        elevation: elevation == null? 1.0 : elevation,
+        elevation: elevation == null ? 1.0 : elevation,
         child: Padding(
           padding: const EdgeInsets.only(left: 12.0),
           child: Column(

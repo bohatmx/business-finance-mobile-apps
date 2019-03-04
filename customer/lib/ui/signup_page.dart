@@ -4,8 +4,8 @@ import 'dart:math';
 import 'package:businesslibrary/api/data_api3.dart';
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
-import 'package:businesslibrary/api/signup.dart';
-import 'package:businesslibrary/data/govt_entity.dart';
+import 'package:businesslibrary/data/country.dart';
+import 'package:businesslibrary/data/customer.dart';
 import 'package:businesslibrary/data/sector.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/lookups.dart';
@@ -14,11 +14,11 @@ import 'package:businesslibrary/util/selectors.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:businesslibrary/util/util.dart';
+import 'package:customer/customer_bloc.dart';
+import 'package:customer/ui/dashboard.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:govt/customer_bloc.dart';
-import 'package:govt/ui/dashboard.dart';
 
 class SignUpPage extends StatefulWidget {
   @override
@@ -304,7 +304,7 @@ class _SignUpPageState extends State<SignUpPage>
     final form = _formKey.currentState;
     if (form.validate()) {
       form.save();
-      GovtEntity govtEntity = GovtEntity(
+      Customer customer = Customer(
         name: name,
         email: email,
         country: country.name,
@@ -319,7 +319,7 @@ class _SignUpPageState extends State<SignUpPage>
             actionLabel: 'Close');
         return;
       }
-      print('_SignUpPageState._onSavePressed ${govtEntity.toJson()}');
+      print('_SignUpPageState._onSavePressed ${customer.toJson()}');
       User admin = User(
           firstName: firstName,
           lastName: lastName,
@@ -336,66 +336,66 @@ class _SignUpPageState extends State<SignUpPage>
       setState(() {
         btnOpacity = 0.0;
       });
-      var result = await SignUp.signUpGovtEntity(govtEntity, admin);
-      await _checkResult(result);
+//      var result = await SignUp.signUpGovtEntity(customer, admin);
+//      await _checkResult(result);
     }
   }
 
-  Future _checkResult(int result) async {
-    if (result == SignUp.Success) {
-      print('_SignUpPageState._onSavePressed SUCCESS!!!!!!');
-      await _subscribeToFCM();
-      var wallet = await SharedPrefs.getWallet();
-      if (wallet != null) {
-        AppSnackbar.showSnackbarWithAction(
-            scaffoldKey: _scaffoldKey,
-            message: 'Sign up and wallet OK',
-            textColor: Colors.white,
-            backgroundColor: Colors.teal.shade800,
-            actionLabel: 'DONE',
-            listener: this,
-            action: 0,
-            icon: Icons.done_all);
-      } else {
-        //TODO - deal with error - wallet NOT on blockchain
-        throw Exception('Wallet not found');
-      }
-      await customerModelBloc.refreshModelWithListener(this);
-      Navigator.pop(context);
-      Navigator.push(
-        context,
-        new MaterialPageRoute(builder: (context) => new Dashboard(null)),
-      );
-      return SignUp.Success;
-    }
-    setState(() {
-      btnOpacity = 1.0;
-      isBusy = false;
-    });
-    switch (result) {
-      case SignUp.ErrorBlockchain:
-        print('_SignUpPageState._onSavePressed  ErrorBlockchain');
-        _showSignUpError('Blockchain error');
-        btnOpacity = 1.0;
-        break;
-      case SignUp.ErrorMissingOrInvalidData:
-        print('_SignUpPageState._onSavePressed  ErrorMissingOrInvalidData');
-        _showSignUpError('Missing sign up data');
-        break;
-      case SignUp.ErrorFirebaseUserExists:
-        print('_SignUpPageState._onSavePressed  ErrorFirebaseUserExists');
-        _showSignUpError('User already exists');
-        break;
-      case SignUp.ErrorFireStore:
-        print('_SignUpPageState._onSavePressed  ErrorFireStore');
-        _showSignUpError('Database error');
-        break;
-      case SignUp.ErrorCreatingFirebaseUser:
-        print('_SignUpPageState._onSavePressed  ErrorCreatingFirebaseUser');
-        _showSignUpError('Authentication error');
-        break;
-    }
-  }
+//  Future _checkResult(int result) async {
+//    if (result == SignUp.Success) {
+//      print('_SignUpPageState._onSavePressed SUCCESS!!!!!!');
+//      await _subscribeToFCM();
+//      var wallet = await SharedPrefs.getWallet();
+//      if (wallet != null) {
+//        AppSnackbar.showSnackbarWithAction(
+//            scaffoldKey: _scaffoldKey,
+//            message: 'Sign up and wallet OK',
+//            textColor: Colors.white,
+//            backgroundColor: Colors.teal.shade800,
+//            actionLabel: 'DONE',
+//            listener: this,
+//            action: 0,
+//            icon: Icons.done_all);
+//      } else {
+//        //TODO - deal with error - wallet NOT on blockchain
+//        throw Exception('Wallet not found');
+//      }
+//      await customerModelBloc.refreshModelWithListener(this);
+//      Navigator.pop(context);
+//      Navigator.push(
+//        context,
+//        new MaterialPageRoute(builder: (context) => new Dashboard(null)),
+//      );
+//      return SignUp.Success;
+//    }
+//    setState(() {
+//      btnOpacity = 1.0;
+//      isBusy = false;
+//    });
+//    switch (result) {
+//      case SignUp.ErrorBlockchain:
+//        print('_SignUpPageState._onSavePressed  ErrorBlockchain');
+//        _showSignUpError('Blockchain error');
+//        btnOpacity = 1.0;
+//        break;
+//      case SignUp.ErrorMissingOrInvalidData:
+//        print('_SignUpPageState._onSavePressed  ErrorMissingOrInvalidData');
+//        _showSignUpError('Missing sign up data');
+//        break;
+//      case SignUp.ErrorFirebaseUserExists:
+//        print('_SignUpPageState._onSavePressed  ErrorFirebaseUserExists');
+//        _showSignUpError('User already exists');
+//        break;
+//      case SignUp.ErrorFireStore:
+//        print('_SignUpPageState._onSavePressed  ErrorFireStore');
+//        _showSignUpError('Database error');
+//        break;
+//      case SignUp.ErrorCreatingFirebaseUser:
+//        print('_SignUpPageState._onSavePressed  ErrorCreatingFirebaseUser');
+//        _showSignUpError('Authentication error');
+//        break;
+//    }
+//  }
 
   void _showSignUpError(String message) {
     AppSnackbar.showErrorSnackbar(
@@ -414,7 +414,7 @@ class _SignUpPageState extends State<SignUpPage>
   }
 
   Future _subscribeToFCM() async {
-    var govtEntity = await SharedPrefs.getGovEntity();
+    var govtEntity = await SharedPrefs.getCustomer();
     var topic = 'invoices' + govtEntity.documentReference;
     _firebaseMessaging.subscribeToTopic(topic);
     var topic2 = 'general';

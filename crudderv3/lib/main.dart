@@ -2,16 +2,12 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:businesslibrary/api/data_api3.dart';
-import 'package:businesslibrary/data/auto_trade_order.dart';
 import 'package:businesslibrary/data/customer.dart';
 import 'package:businesslibrary/data/investor.dart';
-import 'package:businesslibrary/data/investor_profile.dart';
 import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
-import 'package:businesslibrary/data/wallet.dart';
 import 'package:businesslibrary/util/FCM.dart';
-import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:crudderv3/generator.dart';
@@ -62,33 +58,48 @@ class _MyHomePageState extends State<MyHomePage>
 
   Future testChaincode() async {
     setState(() {
-      msgList.add('💦  💦  💦  💦  Testing Chaincode calls ..');
+      msgList.add('💦  💦  💦  💦  CHAINCODE CALLS ..');
     });
+    List offers = await DataAPI3.testChainCode('getAllOffers');
+    setState(() {
+      msgList.add('😍 😍 😍  Found  ${offers.length} offers');
+    });
+
+    List invoices = await DataAPI3.testChainCode('getAllInvoices');
+    setState(() {
+      msgList.add('😍 😍 😍  Found  ${invoices.length} invoices');
+    });
+    List notes = await DataAPI3.testChainCode('getAllDeliveryNotes');
+    setState(() {
+      msgList.add('😍 😍 😍  Found  ${notes.length} deliveryNotes');
+    });
+
     List result0 = await DataAPI3.testChainCode('getAllCustomers');
     setState(() {
-      msgList.add('💛 💛 💛  Found :    .. ${result0.length} customers');
+      msgList.add('💛 💛 💛  Found  ${result0.length} customers');
     });
     print('\n 💦  💦  💦 $result0 \n 💦  💦  💦');
     List result1 = await DataAPI3.testChainCode('getAllSuppliers');
     print('\n 💦  💦  💦 $result1 \n 💦  💦  💦');
     setState(() {
-      msgList.add('❤️  ❤️  ❤️  Found :    .. ${result1.length} suppliers');
+      msgList.add('❤️  ❤️  ❤️  Found  ${result1.length} suppliers');
     });
     List result2 = await DataAPI3.testChainCode('getAllInvestors');
     print('\n 💦  💦  💦 $result2 \n 💦  💦  💦');
     setState(() {
-      msgList.add(' 💚  💚  💚  Found :  .. ${result2.length} investors');
+      msgList.add('💚  💚  💚  Found  ${result2.length} investors');
     });
     List result3 = await DataAPI3.testChainCode('getAllSectors');
     print('\n 💦  💦  💦 $result3 \n 💦  💦  💦');
     setState(() {
-      msgList.add(' 💚  ❤️ 💚  Found :  .. ${result3.length} sectors');
+      msgList.add('🙄 🙄 🙄  Found  ${result3.length} sectors');
     });
     List result4 = await DataAPI3.testChainCode('getAllCountries');
     print('\n 💦  💦  💦 $result4 \n 💦  💦  💦');
     setState(() {
-      msgList.add(' 💚  ❤️ 💚  Found :  .. ${result4.length} countries');
+      msgList.add('🔵 🔵 🔵  Found  ${result4.length} countries');
     });
+
     return 0;
   }
 
@@ -187,9 +198,13 @@ class _MyHomePageState extends State<MyHomePage>
     });
 
     var start = DateTime.now();
-    await Generator.generateOffers(this, context);
-    await Generator.generate(this, context);
-//    await Generator.fixBids();
+//    await Generator.generateOffers(this, context);
+//    await Generator.generate(this, context);
+//    await Generator.doTheRest(this, context);
+//    await Generator.finishItOff(this, context);
+//    await Generator.reallyFinishItOff(this, context);
+//    await Generator.generateProfilesAndOrders(this, context);
+    await Generator.generateTemporaryProfiles(this, context);
 
     isBusy = false;
     var end = DateTime.now();
@@ -199,7 +214,7 @@ class _MyHomePageState extends State<MyHomePage>
     setState(() {
       phases = FIVE;
       msgList.add(
-          '### Demo Data Generation complete:, $diffm minutes elapsed. ($diffs seconds)');
+          ' 🔵 🔵 🔵 Generation complete:, $diffm minutes elapsed. ($diffs seconds)');
     });
     print(
         '\n\n_MyHomePageState._start  #####################################  Demo Data COMPLETED!');
@@ -207,23 +222,6 @@ class _MyHomePageState extends State<MyHomePage>
 
   static const FIVE = '5', SIX = '5';
   List<String> msgList = List();
-
-  _addAutoTradeOrder(
-      Investor c, InvestorProfile p, User user, Wallet wallet) async {
-    AutoTradeOrder autoTradeOrder = AutoTradeOrder(
-        investor: NameSpace + 'Investor#${c.participantId}',
-        date: getUTCDate(),
-        investorProfile: NameSpace + 'InvestorProfile#${p.profileId}',
-        user: NameSpace + 'User#${user.userId}',
-        isCancelled: false,
-        wallet: NameSpace + 'Wallet#${wallet.stellarPublicKey}',
-        investorName: c.name);
-    await DataAPI3.addAutoTradeOrder(autoTradeOrder);
-    setState(() {
-      msgList.add('AutoTradeOrder added: ${p.name}');
-      recordCounter++;
-    });
-  }
 
   double getRandomMax(double invoiceAmount) {
     int m = rand.nextInt(1000);
@@ -558,7 +556,7 @@ class _MyHomePageState extends State<MyHomePage>
         key: _scaffoldKey,
         appBar: AppBar(
           title: Text(
-            'BFN Demo Data Generator',
+            'BFN Data Generator',
             style: Styles.whiteBoldMedium,
           ),
           bottom: _getBottom(),
@@ -596,28 +594,14 @@ class _MyHomePageState extends State<MyHomePage>
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.only(left: 8.0),
-                child: Text(
-                  'of',
-                  style: Styles.blackBoldSmall,
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(left: 10.0),
-                child: Text(
-                  phases,
-                  style: Styles.whiteBoldLarge,
-                ),
-              ),
-              Padding(
                 padding: const EdgeInsets.only(left: 30.0),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: <Widget>[
                     Padding(
-                      padding: const EdgeInsets.only(right: 12.0),
+                      padding: const EdgeInsets.only(left: 40, right: 12.0),
                       child: Text(
-                        recordCounter == 0 ? '0000' : '$recordCounter',
+                        recordCounter == 0 ? '000' : '$recordCounter',
                         style: Styles.yellowBoldReallyLarge,
                       ),
                     ),
