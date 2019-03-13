@@ -56,6 +56,35 @@ class _MyHomePageState extends State<MyHomePage>
     super.initState();
   }
 
+  Future testCustomer() async {
+    setState(() {
+      msgList.add('💦  💦  💦  💦   Testing Customer, User and Wallet');
+    });
+    try {
+      Customer e1 = new Customer(
+        name: 'Electronics Pty Ltd',
+        email: 'info@elecs.com',
+        country: 'ZA',
+        allowAutoAccept: true,
+      );
+      User u1 = new User(
+          firstName: 'Joanne',
+          lastName: 'Smith',
+          password: 'pass123',
+          isAdministrator: true,
+          email: 'joanne@elecs.com');
+
+      var result1 = await DataAPI3.addCustomer(e1, u1);
+      customers.add(result1);
+      setState(() {
+        msgList.add('❤️ ❤️ ❤️  Customer added: ${e1.name}');
+        recordCounter++;
+      });
+    } catch (e) {
+      print(e);
+    }
+  }
+
   Future testChaincode() async {
     setState(() {
       msgList.add('💦  💦  💦  💦  CHAINCODE CALLS ..');
@@ -119,7 +148,7 @@ class _MyHomePageState extends State<MyHomePage>
     if (isBusy) {
       AppSnackbar.showSnackbar(
           scaffoldKey: _scaffoldKey,
-          message: 'Process busy or finished. May not be run twice',
+          message: '💦 💦  💦  Process busy or finished. May not be run twice',
           textColor: Styles.white,
           backgroundColor: Styles.black);
       return;
@@ -135,18 +164,18 @@ class _MyHomePageState extends State<MyHomePage>
       msgList.add('💦 💦  Adding sectors ...');
     });
 
-    await DataAPI3.addSectors();
-    setState(() {
-      msgList.add('💦 💦  Sectors added to BFN and Firestore');
-      msgList.add('💦 💦  Adding countries ...');
-      _phaseCounter++;
-    });
-    await DataAPI3.addCountries();
-    setState(() {
-      msgList.add('💦 💦  Countries added to BFN and Firestore');
-      msgList.add('💦 💦  Adding customers ...');
-      _phaseCounter++;
-    });
+//    await DataAPI3.addSectors();
+//    setState(() {
+//      msgList.add('💦 💦  Sectors added to BFN and Firestore');
+//      msgList.add('💦 💦  Adding countries ...');
+//      _phaseCounter++;
+//    });
+//    await DataAPI3.addCountries();
+//    setState(() {
+//      msgList.add('💦 💦  Countries added to BFN and Firestore');
+//      msgList.add('💦 💦  Adding customers ...');
+//      _phaseCounter++;
+//    });
     await _addCustomers();
     setState(() {
       _phaseCounter++;
@@ -167,7 +196,8 @@ class _MyHomePageState extends State<MyHomePage>
     setState(() {
       _phaseCounter++;
       msgList.add('💦 💦  Investors added to BFN and Firestore');
-      msgList.add('❤️ ❤️  Done Generating data ... $diffs seconds elapsed');
+      msgList
+          .add('❤️ ❤️  Done Generating base data ... $diffs seconds elapsed');
     });
 
     isBusy = false;
@@ -252,17 +282,17 @@ class _MyHomePageState extends State<MyHomePage>
   Future _addCustomers() async {
     try {
       Customer e1 = new Customer(
-        name: 'Atteridgeville MetalWorks Ltd',
-        email: 'info@works.com',
-        country: 'South Africa',
+        name: 'Soweto MetalWorks Ltd',
+        email: 'info@sowetoworks.com',
+        country: 'ZA',
         allowAutoAccept: true,
       );
       User u1 = new User(
-          firstName: 'Jonathan B.',
-          lastName: 'Zondi',
+          firstName: 'John B.',
+          lastName: 'Nkosi',
           password: 'pass123',
           isAdministrator: true,
-          email: 'jzondi@works.com');
+          email: 'jzondi@sowetoworks.com');
       var result1 = await DataAPI3.addCustomer(e1, u1);
       customers.add(result1);
       setState(() {
@@ -275,17 +305,17 @@ class _MyHomePageState extends State<MyHomePage>
 
     try {
       Customer e2 = new Customer(
-        name: 'Joburg Catering',
-        email: 'info@jhbcaterer.com',
-        country: 'South Africa',
+        name: 'Joburg Manufacturing',
+        email: 'info@jhbmanuf.com',
+        country: 'ZA',
         allowAutoAccept: true,
       );
       User u2 = new User(
           firstName: 'Donald',
-          lastName: 'Trump',
+          lastName: 'Oragnge',
           password: 'pass123',
           isAdministrator: true,
-          email: 'orangebaboon@jhbcaterer.com');
+          email: 'orangebaboon@jhbmanuf.com');
       var result2 = await DataAPI3.addCustomer(e2, u2);
       customers.add(result2);
       setState(() {
@@ -297,17 +327,17 @@ class _MyHomePageState extends State<MyHomePage>
     }
     try {
       Customer e3 = new Customer(
-        name: 'Dept of Agriculture',
-        email: 'info@agric.gov.za',
-        country: 'South Africa',
+        name: 'Dept of Water & Sanitation',
+        email: 'info@water.gov.za',
+        country: 'ZA',
         allowAutoAccept: true,
       );
       User u3 = new User(
           firstName: 'Kenneth',
-          lastName: 'Donnelly',
+          lastName: 'Dlamini',
           password: 'pass123',
           isAdministrator: true,
-          email: 'kendonnelly@agric.gov.za');
+          email: 'kendonnelly@water.gov.za');
       var result3 = await DataAPI3.addCustomer(e3, u3);
       customers.add(result3);
       setState(() {
@@ -319,17 +349,17 @@ class _MyHomePageState extends State<MyHomePage>
     }
     try {
       Customer e4 = new Customer(
-        name: 'Dept of Science',
-        email: 'info@mscience.gov.za',
-        country: 'South Africa',
+        name: 'Tshwane Municipality',
+        email: 'info@tmuni.gov.za',
+        country: 'ZA',
         allowAutoAccept: true,
       );
       User u4 = new User(
           firstName: 'Peter',
-          lastName: 'van der Merwe',
+          lastName: 'Makhubela',
           password: 'pass123',
           isAdministrator: true,
-          email: 'petervdm@mscience.gov.za');
+          email: 'peterm@tmuni.gov.za');
       var result4 = await DataAPI3.addCustomer(e4, u4);
       customers.add(result4);
       setState(() {
@@ -341,17 +371,17 @@ class _MyHomePageState extends State<MyHomePage>
     }
     try {
       Customer e5 = new Customer(
-        name: 'Select n Pay',
-        email: 'info@pickandpay.com',
-        country: 'South Africa',
+        name: 'Makro',
+        email: 'info@makro.com',
+        country: 'ZA',
         allowAutoAccept: true,
       );
       User u5 = new User(
           firstName: 'Harry',
-          lastName: 'Peterson',
+          lastName: 'Jones',
           password: 'pass123',
           isAdministrator: true,
-          email: 'harry@pickandpay.com');
+          email: 'harry@makro.com');
       var result5 = await DataAPI3.addCustomer(e5, u5);
       customers.add(result5);
       setState(() {
@@ -370,16 +400,16 @@ class _MyHomePageState extends State<MyHomePage>
   Future _addInvestors() async {
     try {
       Investor e1 = new Investor(
-        name: 'Pretoria Investors Ltd',
-        email: 'info@investors.com',
-        country: 'South Africa',
+        name: 'BlackBull Investors Ltd',
+        email: 'info@bullinvestors.com',
+        country: 'ZA',
       );
       User u1 = new User(
           firstName: 'Frank',
-          lastName: 'Green',
+          lastName: 'Greenburg',
           password: 'pass123',
           isAdministrator: true,
-          email: 'green@investors.com');
+          email: 'green@bullinvestors.com');
       var result1 = await DataAPI3.addInvestor(e1, u1);
       investors.add(result1);
       setState(() {
@@ -391,16 +421,16 @@ class _MyHomePageState extends State<MyHomePage>
     }
     try {
       Investor e2 = new Investor(
-        name: 'Invoice Gurus Ltd',
-        email: 'info@invoicegurus.com',
-        country: 'South Africa',
+        name: 'Invoice Funders Ltd',
+        email: 'info@invoicefunders.com',
+        country: 'ZA',
       );
       User u2 = new User(
-          firstName: 'George',
+          firstName: 'Samuel',
           lastName: 'Wallace',
           password: 'pass123',
           isAdministrator: true,
-          email: 'george@invoicegurus.com');
+          email: 'george@invoicefunders.com');
       var result2 = await DataAPI3.addInvestor(e2, u2);
       investors.add(result2);
       setState(() {
@@ -412,16 +442,16 @@ class _MyHomePageState extends State<MyHomePage>
     }
     try {
       Investor e3 = new Investor(
-        name: 'Funders Inc.',
-        email: 'info@funders.com',
-        country: 'South Africa',
+        name: 'Blue Finaciers Inc.',
+        email: 'info@bluefunders.com',
+        country: 'ZA',
       );
       User u3 = new User(
           firstName: 'Harrison',
-          lastName: 'Johnson',
+          lastName: 'Nkuna',
           password: 'pass123',
           isAdministrator: true,
-          email: 'harry@funders.com');
+          email: 'harry@bluefunders.com');
       var result3 = await DataAPI3.addInvestor(e3, u3);
       investors.add(result3);
       setState(() {
@@ -433,16 +463,16 @@ class _MyHomePageState extends State<MyHomePage>
     }
     try {
       Investor e4 = new Investor(
-        name: 'InvestorsGalore LLC',
-        email: 'info@galore.com',
-        country: 'South Africa',
+        name: 'InvoiceInvestors LLC',
+        email: 'info@iicom.com',
+        country: 'ZA',
       );
       User u4 = new User(
           firstName: 'Mike',
-          lastName: 'Michaelson',
+          lastName: 'Harris',
           password: 'pass123',
           isAdministrator: true,
-          email: 'mike@galore.com');
+          email: 'mikeh@iicom.com');
       var result4 = await DataAPI3.addInvestor(e4, u4);
       investors.add(result4);
       setState(() {
@@ -454,16 +484,16 @@ class _MyHomePageState extends State<MyHomePage>
     }
     try {
       Investor e5 = new Investor(
-        name: 'CashFlow Kings',
-        email: 'info@mcashkings.com',
-        country: 'South Africa',
+        name: 'Cash Machine',
+        email: 'info@mcashmachine.com',
+        country: 'ZA',
       );
       User u5 = new User(
-          firstName: 'Daniel',
+          firstName: 'David',
           lastName: 'Berger',
           password: 'pass123',
           isAdministrator: true,
-          email: 'danb@mcashkings.com');
+          email: 'danb@mcashmachine.com');
       var result5 = await DataAPI3.addInvestor(e5, u5);
       investors.add(result5);
       setState(() {
@@ -562,6 +592,12 @@ class _MyHomePageState extends State<MyHomePage>
           bottom: _getBottom(),
           actions: <Widget>[
             IconButton(
+              icon: Icon(Icons.person),
+              onPressed: () {
+                testCustomer();
+              },
+            ),
+            IconButton(
               icon: Icon(Icons.search),
               onPressed: () {
                 testChaincode();
@@ -623,7 +659,7 @@ class _MyHomePageState extends State<MyHomePage>
       Supplier e1 = new Supplier(
         name: 'Mkhize Electrical',
         email: 'info@mkhize.com',
-        country: 'South Africa',
+        country: 'ZA',
       );
       User u1 = new User(
           firstName: 'David',
@@ -644,7 +680,7 @@ class _MyHomePageState extends State<MyHomePage>
       Supplier e2 = new Supplier(
         name: 'Dlamini Contractors',
         email: 'info@dlamini.com',
-        country: 'South Africa',
+        country: 'ZA',
       );
       User u2 = new User(
           firstName: 'Moses',
@@ -665,7 +701,7 @@ class _MyHomePageState extends State<MyHomePage>
       Supplier e5 = new Supplier(
         name: 'TrebleX Engineering',
         email: 'info@engineers.com',
-        country: 'South Africa',
+        country: 'ZA',
       );
       User u5 = new User(
           firstName: 'Daniel',
@@ -686,7 +722,7 @@ class _MyHomePageState extends State<MyHomePage>
       Supplier e6 = new Supplier(
         name: 'DHH Transport Logistics',
         email: 'info@dhhtransport.com',
-        country: 'South Africa',
+        country: 'ZA',
       );
       User u6 = new User(
           firstName: 'Peter',
@@ -707,7 +743,7 @@ class _MyHomePageState extends State<MyHomePage>
       Supplier e7 = new Supplier(
         name: 'FX Super Logistics',
         email: 'info@fxtransport.com',
-        country: 'South Africa',
+        country: 'ZA',
       );
       User u7 = new User(
           firstName: 'Samuel',
@@ -728,7 +764,7 @@ class _MyHomePageState extends State<MyHomePage>
       Supplier e8 = new Supplier(
         name: 'Davids Rolling Logistics',
         email: 'info@rolliin.com',
-        country: 'South Africa',
+        country: 'ZA',
       );
       User u8 = new User(
           firstName: 'Thomas',
@@ -749,7 +785,7 @@ class _MyHomePageState extends State<MyHomePage>
       Supplier e9 = new Supplier(
         name: 'Pope Transport Logistics',
         email: 'info@pope.com',
-        country: 'South Africa',
+        country: 'ZA',
       );
       User u9 = new User(
           firstName: 'Daniel',
@@ -770,7 +806,7 @@ class _MyHomePageState extends State<MyHomePage>
       Supplier e10 = new Supplier(
         name: 'Naidoo Transport Logistics',
         email: 'info@naidoo.com',
-        country: 'South Africa',
+        country: 'ZA',
       );
       User u10 = new User(
           firstName: 'Sithwell',
@@ -791,7 +827,7 @@ class _MyHomePageState extends State<MyHomePage>
       Supplier e11 = new Supplier(
         name: 'Green Logistics',
         email: 'info@greenlogs.com',
-        country: 'South Africa',
+        country: 'ZA',
       );
       User u11 = new User(
           firstName: 'Evelyn',
@@ -812,7 +848,7 @@ class _MyHomePageState extends State<MyHomePage>
       Supplier e12 = new Supplier(
         name: 'Wendywood Transporters',
         email: 'info@wendywood.com',
-        country: 'South Africa',
+        country: 'ZA',
       );
       User u12 = new User(
           firstName: 'Mary',
@@ -833,7 +869,7 @@ class _MyHomePageState extends State<MyHomePage>
       Supplier e13 = new Supplier(
         name: 'Xavier TTransport',
         email: 'info@xavier.com',
-        country: 'South Africa',
+        country: 'ZA',
       );
       User u13 = new User(
           firstName: 'Xavier',
@@ -854,7 +890,7 @@ class _MyHomePageState extends State<MyHomePage>
       Supplier e14 = new Supplier(
         name: 'Danielson Logistics',
         email: 'info@dhhtransport.com',
-        country: 'South Africa',
+        country: 'ZA',
       );
       User u14 = new User(
           firstName: 'dan',

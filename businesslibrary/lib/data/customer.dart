@@ -5,7 +5,7 @@ class Customer extends BaseParticipant {
   String name;
   String cellphone;
   String email;
-  String description, documentReference;
+  String description;
   String address, dateRegistered;
   String country;
   bool allowAutoAccept;
@@ -19,7 +19,6 @@ class Customer extends BaseParticipant {
       this.address,
       this.country,
       this.allowAutoAccept,
-      this.documentReference,
       this.dateRegistered});
 
   static const National = "NATIONAL",
@@ -27,6 +26,7 @@ class Customer extends BaseParticipant {
       Provincial = 'PROVINCIAL';
 
   Customer.fromJson(Map data) {
+    print(data);
     this.participantId = data['participantId'];
     this.name = data['name'];
     this.description = data['description'];
@@ -35,7 +35,6 @@ class Customer extends BaseParticipant {
     this.email = data['email'];
     this.country = data['country'];
     this.dateRegistered = data['dateRegistered'];
-    this.documentReference = data['documentReference'];
     this.allowAutoAccept = data['allowAutoAccept'];
   }
 
@@ -48,7 +47,6 @@ class Customer extends BaseParticipant {
         'email': email,
         'country': country,
         'dateRegistered': dateRegistered,
-        'documentReference': documentReference,
         'allowAutoAccept': allowAutoAccept,
       };
 }

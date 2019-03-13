@@ -60,7 +60,6 @@ class SignIn {
     User user;
     if (querySnapshot.documents.isNotEmpty) {
       user = new User.fromJson(querySnapshot.documents.first.data);
-      user.documentReference = querySnapshot.documents.first.documentID;
       await SharedPrefs.saveUser(user);
       return await getOwningEntity(user);
     } else {
@@ -86,7 +85,6 @@ class SignIn {
       Customer govtEntity;
       if (qSnap.documents.isNotEmpty) {
         govtEntity = new Customer.fromJson(qSnap.documents.first.data);
-        govtEntity.documentReference = qSnap.documents.first.documentID;
       }
       if (govtEntity == null) {
         print('SignIn.signIn ERROR  customer not found in Firestore');
@@ -109,7 +107,6 @@ class SignIn {
       Supplier supplier;
       if (qSnap.documents.isNotEmpty) {
         supplier = new Supplier.fromJson(qSnap.documents.first.data);
-        supplier.documentReference = qSnap.documents.first.documentID;
       }
       if (supplier == null) {
         print('SignIn.signIn ERROR  supplier not found in Firestore');
@@ -131,7 +128,6 @@ class SignIn {
       Auditor auditor;
       qSnap.documents.forEach((doc) {
         auditor = new Auditor.fromJson(doc.data);
-        auditor.documentReference = doc.documentID;
       });
       if (auditor == null) {
         print('SignIn.signIn ERROR  auditor not found in Firestore');
@@ -152,7 +148,6 @@ class SignIn {
       ProcurementOffice office;
       qSnap.documents.forEach((doc) {
         office = new ProcurementOffice.fromJson(doc.data);
-        office.documentReference = doc.documentID;
       });
       if (office == null) {
         print('SignIn.signIn ERROR  office not found in Firestore');
@@ -174,7 +169,6 @@ class SignIn {
       Investor investor;
       qSnap.documents.forEach((doc) {
         investor = new Investor.fromJson(doc.data);
-        investor.documentReference = doc.documentID;
       });
       if (investor == null) {
         print('SignIn.signIn ERROR  investor not found in Firestore');

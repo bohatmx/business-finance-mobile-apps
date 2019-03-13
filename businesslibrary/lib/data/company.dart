@@ -5,7 +5,7 @@ class Company extends BaseParticipant {
   String name;
   String cellphone;
   String email;
-  String description, documentReference;
+  String description;
   String address, dateRegistered;
   String sector, country;
   bool allowAutoAccept;
@@ -20,7 +20,6 @@ class Company extends BaseParticipant {
       this.country,
       this.allowAutoAccept,
       this.dateRegistered,
-      this.documentReference,
       this.sector});
 
   Company.fromJson(Map data) {
@@ -33,7 +32,6 @@ class Company extends BaseParticipant {
     this.email = data['address'];
     this.country = data['country'];
     this.dateRegistered = data['dateRegistered'];
-    this.documentReference = data['documentReference'];
     this.allowAutoAccept = data['allowAutoAccept'];
   }
   Map<String, dynamic> toJson() => <String, dynamic>{
@@ -48,6 +46,5 @@ class Company extends BaseParticipant {
         'sector': sector,
         'allowAutoAccept': allowAutoAccept,
         'dateRegistered': dateRegistered,
-        'documentReference': documentReference,
       };
 }

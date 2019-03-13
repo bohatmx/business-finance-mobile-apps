@@ -5,7 +5,7 @@ class OneConnect extends BaseParticipant {
   String participantId;
   String name;
   String cellphone;
-  String email, documentReference;
+  String email;
   String description, dateRegistered;
   String address, country;
 
@@ -17,7 +17,6 @@ class OneConnect extends BaseParticipant {
       this.dateRegistered,
       this.description,
       this.country,
-      this.documentReference,
       this.address});
 
   OneConnect.fromJson(Map data) {
@@ -28,7 +27,6 @@ class OneConnect extends BaseParticipant {
     this.address = data['address'];
     this.email = data['address'];
     this.dateRegistered = data['dateRegistered'];
-    this.documentReference = data['documentReference'];
     this.country = data['country'];
   }
   Map<String, String> toJson() => <String, String>{
@@ -39,7 +37,6 @@ class OneConnect extends BaseParticipant {
         'address': address,
         'email': email,
         'dateRegistered': dateRegistered,
-        'documentReference': documentReference,
         'country': country,
       };
 }

@@ -7,10 +7,6 @@ class SupplierContract {
   String customerName;
   String supplierName;
   String description;
-  String documentReference;
-  String govtDocumentRef;
-  String companyDocumentRef;
-  String supplierDocumentRef;
   String govtEntity;
   String company;
   String supplier;
@@ -25,10 +21,6 @@ class SupplierContract {
       this.customerName,
       this.supplierName,
       this.description,
-      this.documentReference,
-      this.govtDocumentRef,
-      this.companyDocumentRef,
-      this.supplierDocumentRef,
       this.govtEntity,
       this.company,
       this.contractURL,
@@ -46,12 +38,8 @@ class SupplierContract {
     this.date = data['date'];
     this.customerName = data['customerName'];
     this.description = data['description'];
-    this.documentReference = data['documentReference'];
     this.supplierName = data['supplierName'];
     this.supplier = data['supplier'];
-    this.govtDocumentRef = data['govtDocumentRef'];
-    this.supplierDocumentRef = data['supplierDocumentRef'];
-    this.companyDocumentRef = data['companyDocumentRef'];
     this.contractURL = data['contractURL'];
   }
 
@@ -66,12 +54,8 @@ class SupplierContract {
         'date': date,
         'customerName': customerName,
         'description': description,
-        'documentReference': documentReference,
         'supplierName': supplierName,
         'supplier': supplier,
-        'govtDocumentRef': govtDocumentRef,
-        'supplierDocumentRef': supplierDocumentRef,
-        'companyDocumentRef': companyDocumentRef,
         'contractURL': contractURL,
       };
 }

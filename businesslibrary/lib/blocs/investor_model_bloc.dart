@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/chat_response.dart';
@@ -7,18 +8,20 @@ import 'package:businesslibrary/data/investor.dart';
 import 'package:businesslibrary/data/invoice_bid.dart';
 import 'package:businesslibrary/data/invoice_settlement.dart';
 import 'package:businesslibrary/data/offer.dart';
-import 'package:businesslibrary/util/database.dart';
-import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/Finders.dart';
+import 'package:businesslibrary/util/database.dart';
 
 abstract class InvestorModelBlocListener {
   onEvent(String message);
 }
+
 class InvestorModelBloc implements Model2Listener {
   final StreamController<InvestorAppModel2> _appModelController =
       StreamController<InvestorAppModel2>.broadcast();
-  final StreamController<String> _errorController = StreamController<String>.broadcast();
-  final StreamController<ChatResponse> _chatController = StreamController<ChatResponse>.broadcast();
+  final StreamController<String> _errorController =
+      StreamController<String>.broadcast();
+  final StreamController<ChatResponse> _chatController =
+      StreamController<ChatResponse>.broadcast();
   final InvestorAppModel2 _appModel = InvestorAppModel2();
 
   InvestorModelBloc() {
@@ -34,6 +37,7 @@ class InvestorModelBloc implements Model2Listener {
     await _appModel.refreshRemoteDashboard();
     _appModelController.sink.add(_appModel);
   }
+
   refreshDashboardWithListener(InvestorModelBlocListener listener) async {
     await _appModel.refreshRemoteDashboardWithListener(listener);
     _appModelController.sink.add(_appModel);
@@ -51,6 +55,7 @@ class InvestorModelBloc implements Model2Listener {
   receiveChatResponse(ChatResponse chatResponse) {
     _chatController.sink.add(chatResponse);
   }
+
   @override
   onComplete() {
     print(
@@ -141,11 +146,7 @@ class InvestorAppModel2 {
       _dashboardData.totalOfferAmount -= invoiceBid.amount;
       _dashboardData.totalOpenOfferAmount -= invoiceBid.amount;
 
-      String m = NameSpace + 'Investor#${investor.participantId}';
-      print(
-          '\n\nInvestorAppModel.invoiceBidArrived \n${invoiceBid.investorName} ${invoiceBid.investor}  - #### LOCAL:  ${investor.name} $m');
-
-      if (invoiceBid.investor == m) {
+      if (invoiceBid.investor == investor.participantId) {
         _dashboardData.totalUnsettledBids++;
         _dashboardData.totalUnsettledAmount += invoiceBid.amount;
         _dashboardData.unsettledBids.insert(0, invoiceBid);
@@ -212,39 +213,44 @@ class InvestorAppModel2 {
     print(
         'InvestorAppModel2.refreshDashboard ----- REFRESH from functions ...............');
     try {
-      _dashboardData = await ListAPI.getInvestorDashboardData(
-          _investor.participantId, _investor.documentReference);
+      _dashboardData =
+          await ListAPI.getInvestorDashboardData(_investor.participantId);
       await Database.saveDashboard(_dashboardData);
       setLists();
     } catch (e) {
       _modelListener.onError(e.toString());
     }
   }
-  Future refreshRemoteDashboardWithListener(InvestorModelBlocListener listener) async {
+
+  Future refreshRemoteDashboardWithListener(
+      InvestorModelBlocListener listener) async {
     if (_investor == null) {
       _investor = await SharedPrefs.getInvestor();
     }
     print(
         'InvestorAppModel2.refreshDashboard ----- REFRESH from functions ...............');
     try {
-      _dashboardData = await ListAPI.getInvestorDashboardData(
-          _investor.participantId, _investor.documentReference);
+      _dashboardData =
+          await ListAPI.getInvestorDashboardData(_investor.participantId);
       await Database.saveDashboard(_dashboardData);
       setLists(mListener: listener);
     } catch (e) {
       _modelListener.onError(e.toString());
     }
   }
+
   void setLists({InvestorModelBlocListener mListener}) {
     _settledInvoiceBids = _dashboardData.settledBids;
     _setItemNumbers(_settledInvoiceBids);
     if (mListener != null) {
-      mListener.onEvent('Settled Invoice Bids loaded: ${_settledInvoiceBids.length}');
+      mListener.onEvent(
+          'Settled Invoice Bids loaded: ${_settledInvoiceBids.length}');
     }
     _unsettledInvoiceBids = _dashboardData.unsettledBids;
     _setItemNumbers(_unsettledInvoiceBids);
     if (mListener != null) {
-      mListener.onEvent('Unsettled Invoice Bids loaded: ${_unsettledInvoiceBids.length}');
+      mListener.onEvent(
+          'Unsettled Invoice Bids loaded: ${_unsettledInvoiceBids.length}');
     }
     _offers = _dashboardData.openOffers;
     _setItemNumbers(_offers);

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/api_bag.dart';
 import 'package:businesslibrary/data/auto_start_stop.dart';
 import 'package:businesslibrary/data/auto_trade_order.dart';
@@ -276,7 +277,6 @@ class DataAPI3 {
     settlement.date = getUTCDate();
   }
 
-  //////////// ###################################### //////////
   static Future<Customer> addCustomer(Customer customer, User admin) async {
     assert(customer != null);
     assert(admin != null);
@@ -288,16 +288,14 @@ class DataAPI3 {
 
     var replyFromWeb = await _sendChaincodeTransaction(bag);
     var result = json.decode(replyFromWeb['result']);
-    var cust = Customer.fromJson(result['result']);
+    var cust = Customer.fromJson(result);
     print('💕 💕  💕 💕  added CUSTOMER ${cust.name}');
     //
     admin.customer = cust.participantId;
-    bag = APIBag(
-        jsonString: admin.toJson().toString(),
-        functionName: 'addUser',
-        userName: TemporaryUserName);
-    await _sendChaincodeTransaction(bag);
-
+    User user = await addUser(admin);
+    print('💕 💕  💕 💕  added CUSTOMER user: ${user.email}');
+    await SharedPrefs.saveCustomer(cust);
+    await SharedPrefs.saveUser(user);
     return cust;
   }
 
@@ -572,7 +570,7 @@ class DataAPI3 {
   }
 
   // ignore: non_constant_identifier_names
-  static final String TemporaryUserName = 'admin';
+  static final String TemporaryUserName = 'org1admin';
 
   static Future<Sector> addSector(Sector sector) async {
     var bag = APIBag(
@@ -745,15 +743,13 @@ class DataAPI3 {
         userName: TemporaryUserName);
     var replyFromWeb = await _sendChaincodeTransaction(bag);
     var result = json.decode(replyFromWeb['result']);
-    var supp = Supplier.fromJson(result['result']);
+    var supp = Supplier.fromJson(result);
     //
     admin.supplier = supp.participantId;
-    bag = APIBag(
-        jsonString: admin.toJson().toString(),
-        functionName: 'addUser',
-        userName: TemporaryUserName);
-    print('💦  💦  💦 💦  💦  💦  added SUPPLIER ${supp.name}');
-    await _sendChaincodeTransaction(bag);
+    User user = await addUser(admin);
+
+    await SharedPrefs.saveSupplier(supp);
+    await SharedPrefs.saveUser(user);
 
     return supp;
   }
@@ -768,15 +764,31 @@ class DataAPI3 {
         userName: TemporaryUserName);
     var replyFromWeb = await _sendChaincodeTransaction(bag);
     var result = json.decode(replyFromWeb['result']);
-    var inv = Investor.fromJson(result['result']);
+    var inv = Investor.fromJson(result);
     print('🙄 🙄 🙄 🙄 🙄 🙄  added INVESTOR ${inv.name}');
     //
     admin.investor = inv.participantId;
-    bag = APIBag(
-        jsonString: admin.toJson().toString(),
+    User user = await addUser(admin);
+    await SharedPrefs.saveInvestor(inv);
+    await SharedPrefs.saveUser(user);
+    return inv;
+  }
+
+  static Future<User> addUser(User user) async {
+    assert(user != null);
+    print('\n💦  💦  💦 💦  💦  💦  🙄  🙄  🙄   adding user ...');
+    var bag = APIBag(
+        jsonString: JsonEncoder().convert(user.toJson()),
         functionName: 'addUser',
         userName: TemporaryUserName);
-    await _sendChaincodeTransaction(bag);
-    return inv;
+
+    var replyFromWeb = await _sendChaincodeTransaction(bag);
+    var result = json.decode(replyFromWeb['result']);
+
+    print(replyFromWeb['message']);
+    User realUser = User.fromJson(result);
+    print(
+        '\n💦  💦  💦 💦  💦  💦  🙄  🙄  🙄   added user:  ${realUser.userId} email: ${user.email}   🙄  🙄  🙄 ');
+    return realUser;
   }
 }

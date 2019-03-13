@@ -363,7 +363,6 @@ _updateToken(String token) async {
       .where('userId', isEqualTo: user.userId)
       .getDocuments();
   User mUser = User.fromJson(qs.documents.first.data);
-  mUser.fcmToken = token;
   await _firestore
       .collection('users')
       .document(qs.documents.first.documentID)
@@ -463,8 +462,7 @@ Future<String> createWallet(
       return walletDocId;
     }
 
-    wallet.documentReference = walletDocId;
-//    if (USE_LOCAL_BLOCKCHAIN) {
+    //    if (USE_LOCAL_BLOCKCHAIN) {
 //      var res = await DataAPI.addWallet(wallet);
 //      if (res != '0') {
 //        print(
@@ -525,7 +523,6 @@ Future<String> _writeWalletToFirestore(
       throw Exception('Failed to write wallet to firestore $e');
     });
     print('createWallet added to Firestore, documentRef: ${ref.documentID}');
-    wallet.documentReference = ref.documentID;
     await SharedPrefs.saveWallet(wallet);
     return ref.documentID;
   } catch (e) {

@@ -9,7 +9,7 @@ class Wallet {
   String oneConnect;
   String auditor, sourceSeed;
   String bank, secret, fcmToken, encryptedSecret;
-  String investor, documentReference;
+  String investor;
   bool debug;
 
   Wallet(
@@ -28,7 +28,6 @@ class Wallet {
       this.sourceSeed,
       this.fcmToken,
       this.encryptedSecret,
-      this.documentReference,
       this.investor});
 
   Wallet.fromJson(Map data) {
@@ -42,7 +41,6 @@ class Wallet {
     this.auditor = data['auditor'];
     this.bank = data['bank'];
     this.investor = data['investor'];
-    this.documentReference = data['documentReference'];
     this.secret = data['secret'];
     this.fcmToken = data['fcmToken'];
     this.sourceSeed = data['sourceSeed'];
@@ -61,7 +59,6 @@ class Wallet {
         'auditor': auditor,
         'bank': bank,
         'investor': investor,
-        'documentReference': documentReference,
         'secret': secret,
         'fcmToken': fcmToken,
         'sourceSeed': sourceSeed,

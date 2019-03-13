@@ -3,7 +3,6 @@ class User {
       firstName,
       lastName,
       customer,
-      company,
       supplier,
       auditor,
       oneConnect,
@@ -13,10 +12,7 @@ class User {
       email,
       password,
       cellphone,
-      address,
-      uid,
-      fcmToken,
-      documentReference;
+      uid;
   String dateRegistered;
   bool isAdministrator;
 
@@ -25,7 +21,6 @@ class User {
       this.firstName,
       this.lastName,
       this.customer,
-      this.company,
       this.supplier,
       this.auditor,
       this.oneConnect,
@@ -35,10 +30,7 @@ class User {
       this.email,
       this.password,
       this.cellphone,
-      this.address,
-      this.fcmToken,
       this.uid,
-      this.documentReference,
       this.dateRegistered,
       this.isAdministrator});
 
@@ -59,17 +51,12 @@ class User {
     this.email = data['email'];
     this.password = data['password'];
     this.cellphone = data['cellphone'];
-    this.address = data['address'];
     if (data['isAdministrator'] == 'true') {
       this.isAdministrator = true;
     } else {
       this.isAdministrator = false;
     }
-    this.fcmToken = data['fcmToken'];
-    this.documentReference = data['documentReference'];
-
     this.customer = data['customer'];
-    this.company = data['company'];
     this.supplier = data['supplier'];
     this.auditor = data['auditor'];
     this.oneConnect = data['oneConnect'];
@@ -78,26 +65,50 @@ class User {
     this.bank = data['bank'];
     this.uid = data['uid'];
   }
-  Map<String, dynamic> toJson() => <String, dynamic>{
-        'userId': userId,
-        'dateRegistered': dateRegistered,
-        'firstName': firstName,
-        'lastName': lastName,
-        'email': email,
-        'password': password,
-        'cellphone': cellphone,
-        'address': address,
-        'fcmToken': fcmToken,
-        'isAdministrator': isAdministrator,
-        'documentReference': documentReference,
-        'customer': customer,
-        'company': company,
-        'supplier': supplier,
-        'auditor': auditor,
-        'oneConnect': oneConnect,
-        'procurementOffice': procurementOffice,
-        'investor': investor,
-        'uid': uid,
-        'bank': bank,
-      };
+
+  Map<String, dynamic> toJson() {
+    Map<String, dynamic> map = Map();
+    map['userId'] = userId;
+    map['dateRegistered'] = dateRegistered;
+    map['firstName'] = firstName;
+    map['lastName'] = lastName;
+    map['email'] = email;
+    map['password'] = password;
+    if (cellphone != null) {
+      map['cellphone'] = cellphone;
+    }
+    if (cellphone != null) {
+      map['cellphone'] = cellphone;
+    }
+    if (isAdministrator == null) {
+      map['isAdministrator'] = false;
+    } else {
+      map['isAdministrator'] = isAdministrator;
+    }
+    if (customer != null) {
+      map['customer'] = customer;
+    }
+    if (supplier != null) {
+      map['supplier'] = supplier;
+    }
+    if (investor != null) {
+      map['investor'] = investor;
+    }
+    if (bank != null) {
+      map['bank'] = bank;
+    }
+    if (auditor != null) {
+      map['auditor'] = auditor;
+    }
+    if (procurementOffice != null) {
+      map['procurementOffice'] = procurementOffice;
+    }
+    if (oneConnect != null) {
+      map['oneConnect'] = oneConnect;
+    }
+    if (uid != null) {
+      map['uid'] = uid;
+    }
+    return map;
+  }
 }

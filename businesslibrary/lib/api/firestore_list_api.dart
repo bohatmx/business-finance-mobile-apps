@@ -24,7 +24,6 @@ class FirestoreListAPI {
     });
     qs.documents.forEach((doc) {
       Supplier s = new Supplier.fromJson(doc.data);
-      s.documentReference = doc.documentID;
       list.add(s);
     });
     print('FirestoreListAPI.getSuppliersBySector .. found: ${list.length}');
@@ -43,7 +42,6 @@ class FirestoreListAPI {
     });
     qs.documents.forEach((doc) {
       var s = new Supplier.fromJson(doc.data);
-      s.documentReference = doc.documentID;
       list.add(s);
     });
     print('FirestoreListAPI.getSuppliers .. found: ${list.length}');
@@ -55,7 +53,7 @@ class FirestoreListAPI {
     List<PurchaseOrder> list = List();
     var querySnapshot = await _firestore
         .collection('suppliers')
-        .document(supplier.documentReference)
+        .document(supplier.participantId)
         .collection('purchaseOrders')
         .orderBy('date')
         .getDocuments()
@@ -76,7 +74,7 @@ class FirestoreListAPI {
     List<PurchaseOrder> list = List();
     var querySnapshot = await _firestore
         .collection('govtEntities')
-        .document(govtEntity.documentReference)
+        .document(govtEntity.participantId)
         .collection('purchaseOrders')
         .orderBy('date')
         .getDocuments()
@@ -97,7 +95,7 @@ class FirestoreListAPI {
     List<DeliveryNote> list = List();
     var querySnapshot = await _firestore
         .collection('suppliers')
-        .document(supplier.documentReference)
+        .document(supplier.participantId)
         .collection('deliveryNotes')
         .orderBy('date')
         .getDocuments()
@@ -118,7 +116,7 @@ class FirestoreListAPI {
     List<DeliveryNote> list = List();
     var querySnapshot = await _firestore
         .collection('govtEntities')
-        .document(govtEntity.documentReference)
+        .document(govtEntity.participantId)
         .collection('deliveryNotes')
         .orderBy('date')
         .getDocuments()
@@ -138,7 +136,7 @@ class FirestoreListAPI {
     List<Invoice> list = List();
     var querySnapshot = await _firestore
         .collection('suppliers')
-        .document(supplier.documentReference)
+        .document(supplier.participantId)
         .collection('invoices')
         .orderBy('date')
         .getDocuments()
@@ -157,8 +155,8 @@ class FirestoreListAPI {
   static Future<List<Invoice>> getGovtInvoices(Supplier govtEntity) async {
     List<Invoice> list = List();
     var querySnapshot = await _firestore
-        .collection('govtEntities')
-        .document(govtEntity.documentReference)
+        .collection('invoices')
+        .document(govtEntity.participantId)
         .collection('invoices')
         .orderBy('date')
         .getDocuments()
@@ -179,7 +177,7 @@ class FirestoreListAPI {
     List<GovtInvoiceSettlement> list = List();
     var querySnapshot = await _firestore
         .collection('suppliers')
-        .document(supplier.documentReference)
+        .document(supplier.participantId)
         .collection('govtInvoiceSettlements')
         .getDocuments()
         .catchError((e) {
@@ -199,7 +197,7 @@ class FirestoreListAPI {
     List<GovtInvoiceSettlement> list = List();
     var querySnapshot = await _firestore
         .collection('govtEntities')
-        .document(govtEntity.documentReference)
+        .document(govtEntity.participantId)
         .collection('govtInvoiceSettlements')
         .getDocuments()
         .catchError((e) {
@@ -219,7 +217,7 @@ class FirestoreListAPI {
     List<CompanyInvoiceSettlement> list = List();
     var querySnapshot = await _firestore
         .collection('suppliers')
-        .document(supplier.documentReference)
+        .document(supplier.participantId)
         .collection('companyInvoiceSettlements')
         .getDocuments()
         .catchError((e) {
@@ -240,7 +238,7 @@ class FirestoreListAPI {
     List<InvestorInvoiceSettlement> list = List();
     var querySnapshot = await _firestore
         .collection('suppliers')
-        .document(supplier.documentReference)
+        .document(supplier.participantId)
         .collection('investorInvoiceSettlements')
         .getDocuments()
         .catchError((e) {

@@ -4,7 +4,7 @@ class Investor extends BaseParticipant {
   String participantId;
   String name;
   String cellphone;
-  String email, documentReference;
+  String email;
   String description, dateRegistered;
   String address, country;
 
@@ -15,7 +15,6 @@ class Investor extends BaseParticipant {
     this.email,
     this.description,
     this.address,
-    this.documentReference,
     this.dateRegistered,
     this.country,
   });
@@ -29,7 +28,6 @@ class Investor extends BaseParticipant {
     this.email = data['address'];
     this.country = data['country'];
     this.dateRegistered = data['dateRegistered'];
-    this.documentReference = data['documentReference'];
   }
   Map<String, String> toJson() => <String, String>{
         'participantId': participantId,
@@ -40,6 +38,5 @@ class Investor extends BaseParticipant {
         'email': email,
         'country': country,
         'dateRegistered': dateRegistered,
-        'documentReference': documentReference,
       };
 }

@@ -10,7 +10,7 @@ class InvestorInvoiceSettlement extends Findable {
   String customerName;
   String invoiceBid;
   String investor, supplier, offer, customer;
-  String user, documentReference;
+  String user;
   String wallet, supplierFCMToken, invoiceBidDocRef;
 
   InvestorInvoiceSettlement(
@@ -20,7 +20,6 @@ class InvestorInvoiceSettlement extends Findable {
       this.invoiceBid,
       this.investor,
       this.supplierFCMToken,
-      this.documentReference,
       this.user,
       this.invoiceBidDocRef,
       this.peachTransactionId,
@@ -48,7 +47,6 @@ class InvestorInvoiceSettlement extends Findable {
     this.investor = data['investor'];
     this.user = data['user'];
     this.wallet = data['wallet'];
-    this.documentReference = data['documentReference'];
     this.supplierFCMToken = data['supplierFCMToken'];
 
     this.supplier = data['supplier'];
@@ -72,7 +70,6 @@ class InvestorInvoiceSettlement extends Findable {
         'investor': investor,
         'user': user,
         'wallet': wallet,
-        'documentReference': documentReference,
         'supplierFCMToken': supplierFCMToken,
         'supplier': supplier,
         'offer': offer,
@@ -88,7 +85,7 @@ class CompanyInvoiceSettlement {
   String date;
   String settlementPercent;
   String amount;
-  String discountPercent, documentReference;
+  String discountPercent;
   String invoice;
   String company;
   String user, supplierFCMToken, supplier;
@@ -105,7 +102,6 @@ class CompanyInvoiceSettlement {
       this.user,
       this.supplier,
       this.supplierFCMToken,
-      this.documentReference,
       this.wallet});
 
   CompanyInvoiceSettlement.fromJson(Map data) {
@@ -118,7 +114,6 @@ class CompanyInvoiceSettlement {
     this.company = data['company'];
     this.user = data['user'];
     this.wallet = data['wallet'];
-    this.documentReference = data['documentReference'];
     this.supplierFCMToken = data['supplierFCMToken'];
 
     this.supplier = data['supplier'];
@@ -133,7 +128,6 @@ class CompanyInvoiceSettlement {
         'company': company,
         'user': user,
         'wallet': wallet,
-        'documentReference': documentReference,
         'supplierFCMToken': supplierFCMToken,
         'supplier': supplier,
       };

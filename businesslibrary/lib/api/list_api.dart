@@ -211,7 +211,7 @@ class ListAPI {
   static Future<List<InvoiceBid>> getInvoiceBidsByOffer(String offerId) async {
     List<InvoiceBid> list = List();
     print(
-        '\n\n\nListAPI.getInvoiceBidsByOffer ....................... start query, documentReference: $offerId');
+        '\n\n\nListAPI.getInvoiceBidsByOffer ....................... start query: $offerId');
     var start = DateTime.now();
     var qs = await _firestore
         .collection('invoiceBids')
@@ -267,13 +267,13 @@ class ListAPI {
   }
 
   static Future<List<InvoiceBid>> getSettledInvoiceBidsByInvestor(
-      String documentReference) async {
+      String participantId) async {
     var start = DateTime.now();
     List<InvoiceBid> list = List();
     var qs = await _firestore
         .collection('invoiceBids')
         .where('isSettled', isEqualTo: true)
-        .where('investor', isEqualTo: NameSpace + 'Investor#$documentReference')
+        .where('investor', isEqualTo: participantId)
         .orderBy('date', descending: true)
         .getDocuments()
         .catchError((e) {
@@ -326,7 +326,7 @@ class ListAPI {
   static Future<List<InvoiceBid>> getInvoiceBidByInvestorOffer(
       {Offer offer, Investor investor}) async {
     print(
-        'ListAPI.getInvoiceBidByInvestorOffer =======> offer.documentReference: ${offer.offerId} '
+        'ListAPI.getInvoiceBidByInvestorOffer =======> offer: ${offer.offerId} '
         'offer.offerId: ${offer.offerId} participantId: ${investor.participantId}');
     List<InvoiceBid> list = List();
     var qs = await _firestore
@@ -358,14 +358,12 @@ class ListAPI {
     return list;
   }
 
-  static Future<InvoiceBid> getInvoiceBidByDocRef(
-      {String invoiceBidDocRef}) async {
-    assert(invoiceBidDocRef != null);
-    print(
-        'ListAPI.getInvoiceBidByDocRef =======> offer.documentReference: $invoiceBidDocRef');
+  static Future<InvoiceBid> getInvoiceBidByDocRef({String invoiceBidId}) async {
+    assert(invoiceBidId != null);
+    print('ListAPI.getInvoiceBidByDocRef =======> offer: $invoiceBidId');
     var docSnapshot = await _firestore
         .collection('invoiceBids')
-        .document(invoiceBidDocRef)
+        .document(invoiceBidId)
         .get()
         .catchError((e) {
       print('ListAPI.getInvoiceBidByDocRef $e');
@@ -618,7 +616,6 @@ class ListAPI {
 
     for (var doc in qs.documents) {
       var s = InvestorInvoiceSettlement.fromJson(doc.data);
-      s.documentReference = doc.documentID;
       list.add(s);
     }
 
@@ -645,7 +642,6 @@ class ListAPI {
 
     for (var doc in qs.documents) {
       var s = InvestorInvoiceSettlement.fromJson(doc.data);
-      s.documentReference = doc.documentID;
       list.add(s);
     }
 
@@ -934,10 +930,10 @@ class ListAPI {
   }
 
   static Future<DashboardData> getInvestorDashboardData(
-      String investorId, String documentId) async {
+      String investorId) async {
     var data = DashboardParms(
         id: investorId,
-        documentId: documentId,
+        documentId: investorId,
         limit: MAXIMUM_RECORDS_FROM_FIRESTORE);
 
     try {
@@ -1689,7 +1685,6 @@ class ListAPI {
 
     if (qs.documents.isNotEmpty) {
       supplier = Customer.fromJson(qs.documents.first.data);
-      supplier.documentReference = qs.documents.first.documentID;
     }
 
     print(
@@ -1817,7 +1812,6 @@ class ListAPI {
 
     qs.documents.forEach((doc) {
       var m = Customer.fromJson(doc.data);
-      m.documentReference = doc.documentID;
       list.add(m);
     });
 
@@ -1931,7 +1925,6 @@ class ListAPI {
 
     qs.documents.forEach((doc) {
       var m = Supplier.fromJson(doc.data);
-      m.documentReference = doc.documentID;
       list.add(m);
     });
 

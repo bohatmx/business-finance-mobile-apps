@@ -57,8 +57,8 @@ class Generator {
         '\n\n\n😡 😡 😡 😡 😡 😡 😡 😡 Generator.generateOffers ++++++++++++ execute for ${suppliers.length} suppliers');
     for (var supplier in suppliers) {
       invoices = await ListAPI.getInvoicesBySupplier(supplier.participantId);
-      invoiceAcceptances =
-          await ListAPI.getInvoiceAcceptancesBySupplier(supplier.participantId);
+      invoiceAcceptances = await ListAPI.getInvoiceAcceptances(
+          participantId: supplier.participantId, participantType: 'supplier');
       print(
           '\n\n😡 😡 😡 😡  Generator.generateOffers: supplier: ${supplier.name} has ${invoices.length} invoices');
       listener.onEvent(
