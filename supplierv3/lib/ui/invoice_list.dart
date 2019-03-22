@@ -70,7 +70,7 @@ class _InvoiceListState extends State<InvoiceList>
     totalOpen = '0.00';
     totalSettled = '0.00';
     invoicesOpen = await ListAPI.getInvoicesOpenForOffers(
-        supplier.documentReference, 'suppliers');
+        supplier.participantId, 'suppliers');
 
     invoicesOpen.clear();
     invoicesOnOffer.clear();

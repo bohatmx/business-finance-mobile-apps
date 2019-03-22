@@ -61,7 +61,7 @@ class _DeliveryNotePageState extends State<DeliveryNotePage>
         textColor: Colors.lightBlue,
         backgroundColor: Colors.black);
     _purchaseOrders =
-        await ListAPI.getSupplierPurchaseOrders(supplier.documentReference);
+        await ListAPI.getSupplierPurchaseOrders(supplier.participantId);
     if (_scaffoldKey.currentState != null) {
       _scaffoldKey.currentState.hideCurrentSnackBar();
     }
@@ -465,7 +465,7 @@ class _DeliveryNotePageState extends State<DeliveryNotePage>
         textColor: Styles.lightBlue,
         backgroundColor: Styles.black);
     invoices = await ListAPI.getInvoicesByPurchaseOrder(
-        _purchaseOrder.purchaseOrderId, supplier.documentReference);
+        _purchaseOrder.purchaseOrderId, supplier.participantId);
     _scaffoldKey.currentState.removeCurrentSnackBar();
     double total = 0.00;
     invoices.forEach((m) {

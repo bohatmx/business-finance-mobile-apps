@@ -34,7 +34,6 @@ import 'package:http/http.dart' as http;
 
 class ListAPI {
   static final Firestore _firestore = Firestore.instance;
-
   static Future<AutoTradeStart> getAutoTradeStart() async {
     AutoTradeStart start;
     var qs = await _firestore
@@ -302,7 +301,7 @@ class ListAPI {
     List<InvestorInvoiceSettlement> list = List();
     var qs = await _firestore
         .collection('settlements')
-        .where('investor', isEqualTo: NameSpace + 'Investor#$participantId')
+        .where('investor', isEqualTo: participantId)
         .orderBy('date', descending: true)
         .getDocuments()
         .catchError((e) {
@@ -358,20 +357,20 @@ class ListAPI {
     return list;
   }
 
-  static Future<InvoiceBid> getInvoiceBidByDocRef({String invoiceBidId}) async {
+  static Future<InvoiceBid> getInvoiceBidById({String invoiceBidId}) async {
     assert(invoiceBidId != null);
-    print('ListAPI.getInvoiceBidByDocRef =======> offer: $invoiceBidId');
+    print('ListAPI.getInvoiceBidById =======> id: $invoiceBidId');
     var docSnapshot = await _firestore
         .collection('invoiceBids')
         .document(invoiceBidId)
         .get()
         .catchError((e) {
-      print('ListAPI.getInvoiceBidByDocRef $e');
+      print('ListAPI.getInvoiceBidById $e');
       throw e;
     });
 
     if (docSnapshot.exists) {
-      print('ListAPI.getInvoiceBidByDocRef ######## found: 1');
+      print('ListAPI.getInvoiceBidById ######## found: 1');
       var bid = InvoiceBid.fromJson(docSnapshot.data);
       return bid;
     } else {
@@ -443,7 +442,7 @@ class ListAPI {
     prettyPrint(offer.toJson(), '############# OFFER: ... getting bids ...');
     var qs1 = await _firestore
         .collection('invoiceBids')
-        .where('offer', isEqualTo: NameSpace + 'Offer#$offerId')
+        .where('offer', isEqualTo: offerId)
         .getDocuments()
         .catchError((e) {
       print('ListAPI.getOfferById $e');
@@ -606,7 +605,7 @@ class ListAPI {
     List<InvestorInvoiceSettlement> list = List();
     var qs = await _firestore
         .collection('settlements')
-        .where('supplier', isEqualTo: NameSpace + 'Supplier#$supplierId')
+        .where('supplier', isEqualTo: supplierId)
         .orderBy('date', descending: true)
         .getDocuments()
         .catchError((e) {
@@ -744,26 +743,25 @@ class ListAPI {
 
     var start = DateTime.now();
     try {
-      var client = new http.Client();
-      var resp = await client
-          .post(
-        mUrl,
-        body: json.encode(parameters),
-        headers: headers,
-      )
-          .whenComplete(() {
-        client.close();
+      http
+          .post(mUrl, body: json.encode(parameters))
+          .then((http.Response response) {
+        final int statusCode = response.statusCode;
+
+        if (statusCode < 200 || statusCode > 400 || json == null) {
+          throw new Exception("Error while fetching data");
+        }
+        var end = DateTime.now();
+        print(
+            '\n\nListAPI._doOffersHTTP .... ################ Query via Cloud Functions: status: ${statusCode} '
+            'for $mUrl - elapsed: ${end.difference(start).inSeconds} seconds');
+        if (statusCode == 200) {
+          Map<String, dynamic> m = json.decode(response.body);
+          return _parseOffers(m);
+        } else {
+          throw Exception('_doOffersHTTP data query failed');
+        }
       });
-      var end = DateTime.now();
-      print(
-          '\n\nListAPI._doOffersHTTP .... ################ Query via Cloud Functions: status: ${resp.statusCode} '
-          'for $mUrl - elapsed: ${end.difference(start).inSeconds} seconds');
-      if (resp.statusCode == 200) {
-        Map<String, dynamic> m = json.decode(resp.body);
-        return _parseOffers(m);
-      } else {
-        throw Exception('_doOffersHTTP data query failed');
-      }
     } catch (e) {
       print('ListAPI._queryOffers ........ fell down, why?');
       print('ListAPI._doOffersHTTP $e');
@@ -890,12 +888,11 @@ class ListAPI {
   }
 
   static Future<List<PurchaseOrder>> getSupplierPurchaseOrders(
-      String documentId) async {
+      String participantId) async {
     List<PurchaseOrder> list = List();
     var querySnapshot = await _firestore
-        .collection('suppliers')
-        .document(documentId)
         .collection('purchaseOrders')
+        .where('supplier', isEqualTo: participantId)
         .orderBy('date', descending: true)
         .getDocuments()
         .catchError((e) {
@@ -1023,25 +1020,22 @@ class ListAPI {
     print('ListAPI._doOpenOffersHTTP ------- parameters: $map');
     var start = DateTime.now();
     try {
-      var client = new http.Client();
-      var resp = await client
-          .post(
-        mUrl,
-        body: json.encode(map),
-        headers: headers,
-      )
-          .whenComplete(() {
-        client.close();
-      });
-      print(
-          'ListAPI._doOpenOffersHTTP .... ## Query via Cloud Functions: status: ${resp.statusCode}');
-      if (resp.statusCode == 200) {
-        summary = OpenOfferSummary.fromJson(json.decode(resp.body));
+      http.post(mUrl, body: json.encode(map)).then((http.Response response) {
+        final int statusCode = response.statusCode;
+
+        if (statusCode < 200 || statusCode > 400 || json == null) {
+          throw new Exception("Error while fetching data");
+        }
         print(
-            'ListAPI._doOpenOffersHTTP summary, offers: ${summary.offers.length}');
-      } else {
-        print(resp.body);
-      }
+            'ListAPI._doOpenOffersHTTP .... ## Query via Cloud Functions: status: $statusCode');
+        if (statusCode == 200) {
+          summary = OpenOfferSummary.fromJson(json.decode(response.body));
+          print(
+              'ListAPI._doOpenOffersHTTP summary, offers: ${summary.offers.length}');
+        } else {
+          print(response.body);
+        }
+      });
     } catch (e) {
       print('ListAPI._doOpenOffersHTTP $e');
     }
@@ -1082,26 +1076,23 @@ class ListAPI {
     print('ListAPI._doPurchaseOrderHTTP ------- parameters: $map');
     var start = DateTime.now();
     try {
-      var client = new http.Client();
-      var resp = await client
-          .post(
-        mUrl,
-        body: json.encode(map),
-        headers: headers,
-      )
-          .whenComplete(() {
-        client.close();
-      });
-      print(
-          'ListAPI._doPurchaseOrderHTTP .... ## Query via Cloud Functions: status: ${resp.statusCode}');
-      if (resp.statusCode == 200) {
-        //print(resp.body);
-        summary = PurchaseOrderSummary.fromJson(json.decode(resp.body));
+      http.post(mUrl, body: json.encode(map)).then((http.Response response) {
+        final int statusCode = response.statusCode;
+
+        if (statusCode < 200 || statusCode > 400 || json == null) {
+          throw new Exception("Error while fetching data");
+        }
         print(
-            'ListAPI._doPurchaseOrderHTTP summary,: ${summary.purchaseOrders.length} purchase orders found');
-      } else {
-        print(resp.body);
-      }
+            'ListAPI._doOpenOffersHTTP .... ## Query via Cloud Functions: status: $statusCode');
+        if (response.statusCode == 200) {
+          //print(resp.body);
+          summary = PurchaseOrderSummary.fromJson(json.decode(response.body));
+          print(
+              'ListAPI._doPurchaseOrderHTTP summary,: ${summary.purchaseOrders.length} purchase orders found');
+        } else {
+          print(response.body);
+        }
+      });
     } catch (e) {
       print('ListAPI._doPurchaseOrderHTTP $e');
     }
@@ -1124,25 +1115,22 @@ class ListAPI {
 
     var start = DateTime.now();
     try {
-      var client = new http.Client();
-      var resp = await client
-          .post(
-        mUrl,
-        body: json.encode(map),
-        headers: headers,
-      )
-          .whenComplete(() {
-        client.close();
+      http.post(mUrl, body: json.encode(map)).then((http.Response response) {
+        final int statusCode = response.statusCode;
+
+        if (statusCode < 200 || statusCode > 400 || json == null) {
+          throw new Exception("Error while fetching data");
+        }
+        print(
+            'ListAPI.getOpenOffersSummary .... ## Query via Cloud Functions: status: ${response.statusCode}');
+        if (response.statusCode == 200) {
+          summary = OpenOfferSummary.fromJson(json.decode(response.body));
+          print('ListAPI.getOpenOffersSummary summary: ${summary.toJson()}');
+        } else {
+          print(response.body);
+          return summary;
+        }
       });
-      print(
-          'ListAPI.getOpenOffersSummary .... ## Query via Cloud Functions: status: ${resp.statusCode}');
-      if (resp.statusCode == 200) {
-        summary = OpenOfferSummary.fromJson(json.decode(resp.body));
-        print('ListAPI.getOpenOffersSummary summary: ${summary.toJson()}');
-      } else {
-        print(resp.body);
-        return summary;
-      }
     } catch (e) {
       print('ListAPI.getOpenOffersSummary $e');
     }
@@ -1166,23 +1154,20 @@ class ListAPI {
 
     var start = DateTime.now();
     try {
-      var client = new http.Client();
-      var resp = await client
-          .post(
-        mUrl,
-        body: json.encode(map),
-        headers: headers,
-      )
-          .whenComplete(() {
-        client.close();
+      http.post(mUrl, body: json.encode(map)).then((http.Response response) {
+        final int statusCode = response.statusCode;
+
+        if (statusCode < 200 || statusCode > 400 || json == null) {
+          throw new Exception("Error while fetching data");
+        }
+        print(
+            '\n\nListAPI.getInvestorBidSummary .... ## Query via Cloud Functions: status: ${response.statusCode} for $mUrl');
+        if (response.statusCode == 200) {
+          summary = InvestorBidSummary.fromJson(json.decode(response.body));
+        } else {
+          print(response.body);
+        }
       });
-      print(
-          '\n\nListAPI.getInvestorBidSummary .... ## Query via Cloud Functions: status: ${resp.statusCode} for $mUrl');
-      if (resp.statusCode == 200) {
-        summary = InvestorBidSummary.fromJson(json.decode(resp.body));
-      } else {
-        print(resp.body);
-      }
     } catch (e) {
       print('ListAPI.getInvestorBidSummary $e');
     }
@@ -1201,26 +1186,25 @@ class ListAPI {
     };
     var start = DateTime.now();
     try {
-      var client = new http.Client();
-      var resp = await client
-          .post(
-        mUrl,
-        body: json.encode(dashParms.toJson()),
-        headers: headers,
-      )
-          .whenComplete(() {
-        client.close();
-      });
+      http
+          .post(mUrl, body: json.encode(dashParms))
+          .then((http.Response response) {
+        final int statusCode = response.statusCode;
 
-      if (resp.statusCode == 200) {
-        data = DashboardData.fromJson(json.decode(resp.body));
-        var end = DateTime.now();
-        print(
-            '\n\n✅ ListAPI.doHTTP .... ################ Query via Cloud Functions: status: ${resp.statusCode} for $mUrl - elapsed: ${end.difference(start).inSeconds} seconds');
-        return data;
-      } else {
-        throw Exception('Dashboard data query failed');
-      }
+        if (statusCode < 200 || statusCode > 400 || json == null) {
+          throw new Exception("Error while fetching data");
+        }
+
+        if (response.statusCode == 200) {
+          data = DashboardData.fromJson(json.decode(response.body));
+          var end = DateTime.now();
+          print(
+              '\n\n✅ ListAPI.doHTTP .... ################ Query via Cloud Functions: status: ${response.statusCode} for $mUrl - elapsed: ${end.difference(start).inSeconds} seconds');
+          return data;
+        } else {
+          throw Exception('Dashboard data query failed');
+        }
+      });
     } catch (e) {
       print('ListAPI._doHTTP $e');
       throw e;
@@ -1304,14 +1288,13 @@ class ListAPI {
   }
 
   static Future<List<Invoice>> getInvoicesOpenForOffers(
-      String documentId, String collection) async {
+      String participantId, String collection) async {
     print(
-        'ListAPI.getInvoicesOpenForOffers ............. documentId: $documentId in $collection');
+        'ListAPI.getInvoicesOpenForOffers ............. documentId: $participantId in $collection');
     List<Invoice> list = List();
     var qs = await _firestore
-        .collection(collection)
-        .document(documentId)
         .collection('invoices')
+        .where('supplier', isEqualTo: participantId)
         .where('isOnOffer', isEqualTo: false)
         .orderBy('date', descending: true)
         .limit(1000)
@@ -1426,13 +1409,10 @@ class ListAPI {
     return invoice;
   }
 
-  static Future<Invoice> getCustomerInvoiceById(
-      {String documentRef, String invoiceId}) async {
+  static Future<Invoice> getCustomerInvoiceById({String invoiceId}) async {
     print('ListAPI.getInvoiceById ............. invoiceId: $invoiceId ');
     Invoice invoice;
     var qs = await _firestore
-        .collection('govtEntities')
-        .document(documentRef)
         .collection('invoices')
         .where('invoiceId', isEqualTo: invoiceId)
         .getDocuments()
@@ -1440,7 +1420,7 @@ class ListAPI {
       print('ListAPI.getInvoiceById $e');
       throw e;
     });
-    print('ListAPI.getInvoice ............. fouund: ${qs.documents.length}');
+    print('ListAPI.getInvoice ............. found: ${qs.documents.length}');
     if (qs.documents.isNotEmpty) {
       invoice = Invoice.fromJson(qs.documents.first.data);
     }
@@ -1454,10 +1434,9 @@ class ListAPI {
         'ListAPI.getInvoicesByPurchaseOrder ............. deliveryNoteId: $purchaseOrderId  ');
     List<Invoice> invoices = List();
     var qs = await _firestore
-        .collection('suppliers')
-        .document(supplier)
         .collection('invoices')
         .where('purchaseOrder', isEqualTo: purchaseOrderId)
+        .where('supplier', isEqualTo: supplier)
         .getDocuments()
         .catchError((e) {
       print('ListAPI.getInvoicesByPurchaseOrder $e');
@@ -1476,15 +1455,14 @@ class ListAPI {
   }
 
   static Future<Invoice> getInvoiceByDeliveryNote(
-      String deliveryNoteId, String supplierDocumentRef) async {
+      String deliveryNoteId, String participantId) async {
     print(
         'ListAPI.getInvoiceByDeliveryNote ............. deliveryNoteId: $deliveryNoteId  ');
     Invoice invoice;
     var qs = await _firestore
-        .collection('suppliers')
-        .document(supplierDocumentRef)
         .collection('invoices')
         .where('deliveryNote', isEqualTo: deliveryNoteId)
+        .where('supplier', isEqualTo: participantId)
         .getDocuments()
         .catchError((e) {
       print('ListAPI.getInvoiceByDeliveryNote $e');
@@ -1505,10 +1483,9 @@ class ListAPI {
         'ListAPI.getSupplierInvoiceByNumber .............  invoiceNumber: $invoiceNumber ');
     Invoice invoice;
     var qs = await _firestore
-        .collection('suppliers')
-        .document(supplier)
         .collection('invoices')
         .where('invoiceNumber', isEqualTo: invoiceNumber)
+        .where('supplier', isEqualTo: supplier)
         .getDocuments()
         .catchError((e) {
       print('ListAPI.getSupplierInvoiceByNumber $e');
@@ -1550,8 +1527,7 @@ class ListAPI {
   static Future<Offer> findOfferByInvoice(String invoice) async {
     var qs = await _firestore
         .collection('offers')
-        .where('invoice',
-            isEqualTo: 'resource:com.oneconnect.biz.Invoice#$invoice')
+        .where('invoice', isEqualTo: invoice)
         .getDocuments()
         .catchError((e) {
       print('ListAPI.getGovtInvoiceByNumber $e');
@@ -1586,44 +1562,46 @@ class ListAPI {
     return list;
   }
 
-  static const DELIVERY_NOTES = 'deliveryNotes';
   static Future<List<DeliveryNote>> getAllDeliveryNotes() async {
-    print('\n🔵 🔵 🔵  ListAPI.getAllDeliveryNotes .......');
+    print('\n🔵 🔵 🔵  ListAPI.getAllDeliveryNotes .......\n');
     List<DeliveryNote> list = List();
     var qs = await _firestore
-        .collection(DELIVERY_NOTES)
+        .collection(FS_DELIVERY_NOTES)
         .getDocuments()
         .catchError((e) {
       print('ListAPI.getAllDeliveryNotes $e');
       return list;
     });
 
-    print('############ raw snapshot: ${qs.documents.length}');
+    print(
+        '\n💦  💦  💦  ############ getAllDeliveryNotes snapshot: ${qs.documents.length}');
     qs.documents.forEach((doc) {
       list.add(new DeliveryNote.fromJson(doc.data));
     });
 
-    print('😡 😡 😡  ListAPI.getAllDeliveryNotes : found: ${list.length}');
+    print('\n😡 😡 😡  ListAPI.getAllDeliveryNotes : found: ${list.length}');
     return list;
   }
 
   static Future<List<DeliveryAcceptance>> getAllDeliveryAcceptances() async {
-    print(' 🔵 🔵 🔵  ListAPI.getAllDeliveryAcceptances .......');
+    print('\n🏮 🏮 🏮   ListAPI.getAllDeliveryAcceptances .......');
     List<DeliveryAcceptance> list = List();
     var qs = await _firestore
-        .collection('deliveryAcceptances')
+        .collection(FS_DELIVERY_ACCEPTANCES)
         .getDocuments()
         .catchError((e) {
       print('ListAPI.getDeliveryAcceptances  $e');
       return list;
     });
 
+    print(
+        '\n💦  💦  💦  ############ getAllDeliveryAcceptances snapshot: ${qs.documents.length}');
     qs.documents.forEach((doc) {
       list.add(new DeliveryAcceptance.fromJson(doc.data));
     });
 
     print(
-        ' 🔵 🔵 🔵  ListAPI.getAllDeliveryAcceptances ############ found: ${list.length}');
+        '\n🏮 🏮 🏮   ListAPI.getAllDeliveryAcceptances ############ found: ${list.length}');
     return list;
   }
 
@@ -1648,13 +1626,11 @@ class ListAPI {
   }
 
   static Future<DeliveryNote> getDeliveryNoteById(
-      String deliveryNoteId, String documentId, String collection) async {
+      {String deliveryNoteId}) async {
     print(
-        'ListAPI.getDeliveryNoteById .......  documentId: $documentId deliveryNoteId: $deliveryNoteId');
+        'ListAPI.getDeliveryNoteById .......  deliveryNoteId: $deliveryNoteId');
     DeliveryNote dn;
     var qs = await _firestore
-        .collection(collection)
-        .document(documentId)
         .collection('deliveryNotes')
         .where('deliveryNoteId', isEqualTo: deliveryNoteId)
         .getDocuments()
@@ -1693,13 +1669,12 @@ class ListAPI {
   }
 
   static Future<List<SupplierContract>> getSupplierContracts(
-      String supplierDocumentRef) async {
-    print(
-        'ListAPI.getSupplierContracts .......  documentId: $supplierDocumentRef');
+      String participantId) async {
+    print('ListAPI.getSupplierContracts .......  documentId: $participantId');
     List<SupplierContract> list = List();
     var qs = await _firestore
         .collection('suppliers')
-        .document(supplierDocumentRef)
+        .document(participantId)
         .collection('supplierContracts')
         .orderBy('date', descending: true)
         .getDocuments()
@@ -1766,39 +1741,12 @@ class ListAPI {
     return chatMessages;
   }
 
-  static Future<List<SupplierContract>> getSupplierCompanyContracts(
-      String supplierDocumentRef, String participantId) async {
-    print(
-        'ListAPI.getSupplierCompanyContracts .......  documentId: $supplierDocumentRef');
-    List<SupplierContract> list = List();
-    var qs = await _firestore
-        .collection('suppliers')
-        .document(supplierDocumentRef)
-        .collection('supplierContracts')
-        .where('company',
-            isEqualTo: 'resource:com.oneconnect.biz.Company#$participantId}')
-        .orderBy('date', descending: true)
-        .getDocuments()
-        .catchError((e) {
-      print('ListAPI.getSupplierCompanyContracts $e');
-      return list;
-    });
-
-    qs.documents.forEach((doc) {
-      list.add(new SupplierContract.fromJson(doc.data));
-    });
-
-    print(
-        'ListAPI.getSupplierCompanyContracts ############ found: ${list.length}');
-    return list;
-  }
-
   static Future<List<Customer>> getCustomersByCountry({String country}) async {
     if (country == null) {
       country = 'ZA';
     }
     print(
-        '\n 🔵   🔵   🔵  ListAPI.getCustomersByCountry .......  country: $country');
+        '\n 🔵 🔵 🔵  ListAPI.getCustomersByCountry .......  country: $country');
     List<Customer> list = List();
     var qs = await _firestore
         .collection('customers')
@@ -1956,8 +1904,7 @@ class ListAPI {
     InvestorProfile profile;
     var qs = await _firestore
         .collection('investorProfiles')
-        .where('investor',
-            isEqualTo: 'resource:com.oneconnect.biz.Investor#$investorId')
+        .where('investor', isEqualTo: investorId)
         .getDocuments()
         .catchError((e) {
       print('ListAPI.getInvestorProfiles $e');
@@ -1976,8 +1923,7 @@ class ListAPI {
     AutoTradeOrder order;
     var qs = await _firestore
         .collection('autoTradeOrders')
-        .where('participantId',
-            isEqualTo: 'resource:com.oneconnect.biz.Investor#$participantId')
+        .where('participantId', isEqualTo: participantId)
         .getDocuments()
         .catchError((e) {
       print('ListAPI.getAutoTradeOrder $e');
@@ -2034,8 +1980,7 @@ class ListAPI {
     List<InvestorProfile> list = List();
     var qs = await _firestore
         .collection('investorProfiles')
-        .where('investor',
-            isEqualTo: 'resource:com.oneconnect.biz.Investor#$participantId')
+        .where('investor', isEqualTo: participantId)
         .getDocuments()
         .catchError((e) {
       print('ListAPI.getProfile $e');

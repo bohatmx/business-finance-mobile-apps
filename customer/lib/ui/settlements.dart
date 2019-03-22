@@ -47,7 +47,7 @@ class _SettlementListState extends State<SettlementList>
       var stlmnt = InvestorInvoiceSettlement.fromJson(doc.data);
       var qs2 = await fs
           .collection('offers')
-          .where('offerId', isEqualTo: stlmnt.offer.split('#').elementAt(1))
+          .where('offerId', isEqualTo: stlmnt.offer)
           .getDocuments();
       for (var doc2 in qs2.documents) {
         var offer = Offer.fromJson(doc2.data);
@@ -292,12 +292,11 @@ class _SettlementListState extends State<SettlementList>
   Invoice invoice;
   void _checkSettlement(InvestorInvoiceSettlement settlement) async {
     try {
-      var bid = await ListAPI.getInvoiceBidByDocRef(
-          invoiceBidDocRef: settlement.invoiceBidDocRef);
+      var bid =
+          await ListAPI.getInvoiceBidById(invoiceBidId: settlement.invoiceBid);
       offerBag = await ListAPI.getOfferById(bid.offer);
       invoice = await ListAPI.getCustomerInvoiceById(
-          documentRef: appModel.customer.documentReference,
-          invoiceId: offerBag.offer.invoice.split('#').elementAt(1));
+          invoiceId: offerBag.offer.invoice);
 
       prettyPrint(bid.toJson(), '+++++++++++++++ Bid:');
       offerBag.doPrint();

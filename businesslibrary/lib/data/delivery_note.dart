@@ -51,7 +51,6 @@ class DeliveryNote extends Findable {
     this.acceptedBy = data['acceptedBy'];
     this.supplierName = data['supplierName'];
     this.supplier = data['supplier'];
-
     this.purchaseOrderNumber = data['purchaseOrderNumber'];
     this.customerName = data['customerName'];
 
@@ -71,6 +70,7 @@ class DeliveryNote extends Findable {
       this.totalAmount = data['totalAmount'];
     }
   }
+
   Map<String, dynamic> toJson() {
     var map = {
       'deliveryNoteId': deliveryNoteId == null ? 'n/a' : deliveryNoteId,

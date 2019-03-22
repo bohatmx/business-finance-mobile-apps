@@ -10,9 +10,10 @@ environment:
 dependencies:
     cupertino_icons: ^0.1.2
     uuid: ^1.0.3
+#    cloud_functions: ^0.1.2
     font_awesome_flutter: ^8.2.0
     google_sign_in: ^3.2.4
-    firebase_auth: ^0.6.6
+    firebase_auth: ^0.7.0
     firebase_messaging: ^2.1.0
     firebase_storage: ^1.0.4
     firebase_remote_config: ^0.0.6+1
@@ -24,7 +25,6 @@ dependencies:
     web_socket_channel: ^1.0.9
     email_validator: ^1.0.0
     colorize: ^2.0.0
-    http: ^0.12.0
     swipedetector: ^1.2.0
     charts_flutter: ^0.5.0
     crypto: ^2.0.6
@@ -32,7 +32,6 @@ dependencies:
     flutter_webview_plugin: ^0.3.0+2
     device_info: ^0.3.0
     intro_views_flutter: ^2.4.0
-    cloud_functions: ^0.0.5
     google_maps_flutter: ^0.0.3+3
     location: ^1.4.1
     build_runner:

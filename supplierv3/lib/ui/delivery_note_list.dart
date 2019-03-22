@@ -200,8 +200,7 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
           textColor: Colors.yellow,
           backgroundColor: Colors.black);
       inv = await ListAPI.getInvoiceByDeliveryNote(
-          deliveryAcceptance.deliveryNote.split('#').elementAt(1),
-          supplier.documentReference);
+          deliveryAcceptance.deliveryNote, supplier.participantId);
       if (_scaffoldKey.currentState != null) {
         _scaffoldKey.currentState.removeCurrentSnackBar();
       }

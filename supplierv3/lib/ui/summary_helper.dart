@@ -8,7 +8,7 @@ class Refresh {
   static Future refresh(Supplier supplier) async {
     try {
       var dashboardData = await ListAPI.getSupplierDashboardData(
-          supplier.participantId, supplier.documentReference);
+          supplier.participantId, supplier.participantId);
       await SharedPrefs.saveDashboardData(dashboardData);
       prettyPrint(dashboardData.toJson(),
           '\n\nRefresh.refresh @@@@@@@@@@@ RETURNED dash data:');
@@ -22,7 +22,7 @@ class Refresh {
 
   static Future _getDetailData(Supplier supplier) async {
     print('\n\n_DashboardState._getDetailData ############ get Supplier data');
-    var m = await ListAPI.getSupplierPurchaseOrders(supplier.documentReference);
+    var m = await ListAPI.getSupplierPurchaseOrders(supplier.participantId);
     await Database.savePurchaseOrders(PurchaseOrders(m));
 
     var n = await ListAPI.getDeliveryNotes(

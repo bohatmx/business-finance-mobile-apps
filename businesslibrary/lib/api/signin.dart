@@ -73,7 +73,7 @@ class SignIn {
 
     prettyPrint(user.toJson(), 'User: getOwningEntity');
     if (user.customer != null) {
-      var partId = user.customer.split("#").elementAt(1);
+      var partId = user.customer;
       var qSnap = await _firestore
           .collection('govtEntities')
           .where('participantId', isEqualTo: partId)
@@ -95,7 +95,7 @@ class SignIn {
     }
 
     if (user.supplier != null) {
-      var partId = user.supplier.split("#").elementAt(1);
+      var partId = user.supplier;
       var qSnap = await _firestore
           .collection('suppliers')
           .where('participantId', isEqualTo: partId)
@@ -117,7 +117,7 @@ class SignIn {
     }
 
     if (user.auditor != null) {
-      var partId = user.auditor.split("#").elementAt(1);
+      var partId = user.auditor;
       var qSnap = await _firestore
           .collection('auditors')
           .where('participantId', isEqualTo: partId)
@@ -137,7 +137,7 @@ class SignIn {
       return Success;
     }
     if (user.procurementOffice != null) {
-      var partId = user.procurementOffice.split("#").elementAt(1);
+      var partId = user.procurementOffice;
       var qSnap = await _firestore
           .collection('procurementOffices')
           .where('participantId', isEqualTo: partId)
@@ -157,7 +157,7 @@ class SignIn {
       return Success;
     }
     if (user.investor != null) {
-      var partId = user.investor.split("#").elementAt(1);
+      var partId = user.investor;
       var qSnap = await _firestore
           .collection('investors')
           .where('participantId', isEqualTo: partId)
@@ -178,7 +178,7 @@ class SignIn {
       return Success;
     }
     if (user.oneConnect != null) {
-      var partId = user.oneConnect.split("#").elementAt(1);
+      var partId = user.oneConnect;
       var qSnap = await _firestore
           .collection('oneConnect')
           .where('participantId', isEqualTo: partId)

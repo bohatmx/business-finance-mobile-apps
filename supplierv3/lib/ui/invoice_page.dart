@@ -56,9 +56,7 @@ class _NewInvoicePageState extends State<NewInvoicePage>
 
   _getDeliveryNote() async {
     deliveryNote = await ListAPI.getDeliveryNoteById(
-        deliveryAcceptance.deliveryNote.split('#').elementAt(1),
-        supplier.documentReference,
-        'suppliers');
+        deliveryNoteId: deliveryAcceptance.deliveryNote);
 //todo - calc vat using country table #####################
     tax = deliveryNote.amount * 0.15;
     totalAmount = deliveryNote.amount + tax;

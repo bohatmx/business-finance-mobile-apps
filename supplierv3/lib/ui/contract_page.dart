@@ -170,18 +170,17 @@ class _ContractPageState extends State<ContractPage>
     });
   }
 
-  Future _uploadDummyContract(Customer entity) async {
+  Future _uploadDummyContract(Customer customer) async {
     print('_ContractPageState._uploadContract ############### '
         '.........  url: $url');
     SupplierContract c = SupplierContract(
       estimatedValue: '10000000.00',
       startDate: DateTime.now().toIso8601String(),
       endDate: DateTime.now().add(Duration(days: 365)).toIso8601String(),
-      customerName: entity.name,
+      customerName: customer.name,
       supplierName: supplier.name,
-      supplierDocumentRef: supplier.documentReference,
-      govtEntity:
-          'resource:com.oneconnect.biz.Customer#' + entity.participantId,
+      customer:
+          'resource:com.oneconnect.biz.Customer#' + customer.participantId,
       contractURL:
           'https://firebasestorage.googleapis.com/v0/b/business-finance-dev.appspot.com/o/contracts%2FBFN2018-06-24T17%3A29%3A56.708034_42%20%2B.pdf?alt=media&token=ce591d07-3bd7-45b8-a961-499289ac141e',
       user: 'resource:com.oneconnect.biz.User#' + user.userId,
@@ -219,7 +218,7 @@ class _ContractPageState extends State<ContractPage>
           icon: Icons.done);
       setState(() {
         fileName = null;
-        entity = null;
+        customer = null;
         contractValue = null;
         startTime = null;
         endTime = null;
@@ -236,14 +235,11 @@ class _ContractPageState extends State<ContractPage>
       endDate: endTime.toIso8601String(),
       customerName: entity.name,
       supplierName: supplier.name,
-      supplierDocumentRef: supplier.documentReference,
-      govtEntity:
-          'resource:com.oneconnect.biz.Customer#' + entity.participantId,
+      supplier: supplier.participantId,
+      customer: entity.participantId,
       contractURL: url,
-      user: 'resource:com.oneconnect.biz.User#' + user.userId,
+      user: user.userId,
       date: new DateTime.now().toIso8601String(),
-      supplier:
-          'resource:com.oneconnect.biz.Supplier#' + supplier.participantId,
     );
 
     var res = await DataAPI3.addSupplierContract(c);

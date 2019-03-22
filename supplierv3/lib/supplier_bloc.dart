@@ -335,7 +335,7 @@ class SupplierApplicationModel {
     print('SupplierAppModel.refreshModel - get fresh data from Firestore');
     var start = DateTime.now();
     _purchaseOrders =
-        await ListAPI.getSupplierPurchaseOrders(_supplier.documentReference);
+        await ListAPI.getSupplierPurchaseOrders(_supplier.participantId);
     await Database.savePurchaseOrders(PurchaseOrders(_purchaseOrders));
     _setItemNumbers(_purchaseOrders);
 

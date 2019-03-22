@@ -74,7 +74,6 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
         if (change.type == DocumentChangeType.added) {
           var settlement =
               InvestorInvoiceSettlement.fromJson(change.document.data);
-          settlement.documentReference = change.document.documentID;
           if (settlement.peachPaymentKey == paymentKey.key) {
             prettyPrint(settlement.toJson(),
                 '\n\n_SettleInvoiceBid._listenForSettlement- ############### DocumentChangeType = added, settlement received:\n');

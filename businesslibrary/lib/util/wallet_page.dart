@@ -103,33 +103,7 @@ class _WalletPageState extends State<WalletPage> implements SnackBarListener {
     }
   }
 
-  Future _createWallet() async {
-    var result = await createWallet(
-        name: name, participantId: participantId, type: type);
-    if (result == '0') {
-      AppSnackbar.showErrorSnackbar(
-          scaffoldKey: _scaffoldKey,
-          message: 'Wallet failed',
-          listener: this,
-          actionLabel: 'CLOSE');
-    } else {
-      wallet = await SharedPrefs.getWallet();
-      if (wallet != null) {
-        AppSnackbar.showSnackbar(
-            scaffoldKey: _scaffoldKey,
-            message: 'Wallet created OK',
-            textColor: Colors.white,
-            backgroundColor: Colors.teal.shade800);
-        setState(() {});
-      } else {
-        AppSnackbar.showErrorSnackbar(
-            scaffoldKey: _scaffoldKey,
-            message: 'Wallet failed',
-            listener: this,
-            actionLabel: 'CLOSE');
-      }
-    }
-  }
+  Future _createWallet() async {}
 
   @override
   onActionPressed(int action) {

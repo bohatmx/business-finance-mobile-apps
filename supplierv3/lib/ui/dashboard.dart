@@ -215,7 +215,7 @@ class _DashboardState extends State<Dashboard>
     _fcm.subscribeToTopic(
         FCM.TOPIC_DELIVERY_ACCEPTANCES + supplier.participantId);
     _fcm.subscribeToTopic(
-        FCM.TOPIC_INVOICE_ACCEPTANCES + supplier.documentReference);
+        FCM.TOPIC_INVOICE_ACCEPTANCES + supplier.participantId);
     _fcm.subscribeToTopic(FCM.TOPIC_GENERAL_MESSAGE);
     _fcm.subscribeToTopic(FCM.TOPIC_INVOICE_BIDS + supplier.participantId);
     _fcm.subscribeToTopic(FCM.TOPIC_OFFERS + supplier.participantId);
@@ -597,7 +597,7 @@ class _DashboardState extends State<Dashboard>
         textColor: Colors.white,
         backgroundColor: Colors.black);
     var inv = await ListAPI.getSupplierInvoiceByNumber(
-        invoiceAcceptance.invoiceNumber, supplier.documentReference);
+        invoiceAcceptance.invoiceNumber, supplier.participantId);
     _scaffoldKey.currentState.hideCurrentSnackBar();
     Navigator.push(
       context,

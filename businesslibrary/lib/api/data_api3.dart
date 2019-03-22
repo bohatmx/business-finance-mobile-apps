@@ -35,7 +35,7 @@ import 'package:http/http.dart' as http;
 import 'package:meta/meta.dart';
 
 class DataAPI3 {
-  static ContentType _contentType =
+  static ContentType contentType =
       new ContentType("application", "json", charset: "utf-8");
 
   static const ADD_DATA = 'addData',
@@ -100,8 +100,8 @@ class DataAPI3 {
         functionName: ADD_PURCHASE_ORDER,
         userName: TemporaryUserName);
 
-    var replyFromWeb = await _sendChaincodeTransaction(bag);
-    var result = json.decode(replyFromWeb['result']);
+    var replyFromWeb = await sendChaincodeTransaction(bag);
+    var result = replyFromWeb['result'];
     print(replyFromWeb['message']);
     PurchaseOrder order = PurchaseOrder.fromJson(result);
     return order;
@@ -191,8 +191,8 @@ class DataAPI3 {
         functionName: ADD_DELIVERY_NOTE,
         userName: TemporaryUserName);
 
-    var replyFromWeb = await _sendChaincodeTransaction(bag);
-    var result = json.decode(replyFromWeb['result']);
+    var replyFromWeb = await sendChaincodeTransaction(bag);
+    var result = replyFromWeb['result'];
     print(replyFromWeb['message']);
     return DeliveryNote.fromJson(result);
   }
@@ -204,8 +204,8 @@ class DataAPI3 {
         functionName: ACCEPT_DELIVERY_NOTE,
         userName: TemporaryUserName);
 
-    var replyFromWeb = await _sendChaincodeTransaction(bag);
-    var result = json.decode(replyFromWeb['result']);
+    var replyFromWeb = await sendChaincodeTransaction(bag);
+    var result = replyFromWeb['result'];
     print(replyFromWeb['message']);
     return DeliveryAcceptance.fromJson(result);
   }
@@ -219,8 +219,8 @@ class DataAPI3 {
         functionName: CHAIN_ADD_INVOICE,
         userName: TemporaryUserName);
 
-    var replyFromWeb = await _sendChaincodeTransaction(bag);
-    var result = json.decode(replyFromWeb['result']);
+    var replyFromWeb = await sendChaincodeTransaction(bag);
+    var result = replyFromWeb['result'];
     print(replyFromWeb['message']);
     return Invoice.fromJson(result);
   }
@@ -232,8 +232,8 @@ class DataAPI3 {
         functionName: CHAIN_ADD_INVOICE_ACCEPTANCE,
         userName: TemporaryUserName);
 
-    var replyFromWeb = await _sendChaincodeTransaction(bag);
-    var result = json.decode(replyFromWeb['result']);
+    var replyFromWeb = await sendChaincodeTransaction(bag);
+    var result = replyFromWeb['result'];
     print(replyFromWeb['message']);
 
     return InvoiceAcceptance.fromJson(result);
@@ -248,8 +248,8 @@ class DataAPI3 {
         functionName: CHAIN_ADD_OFFER,
         userName: TemporaryUserName);
 
-    var replyFromWeb = await _sendChaincodeTransaction(bag);
-    var result = json.decode(replyFromWeb['result']);
+    var replyFromWeb = await sendChaincodeTransaction(bag);
+    var result = replyFromWeb['result'];
     print(replyFromWeb['message']);
     return Offer.fromJson(result);
   }
@@ -265,8 +265,8 @@ class DataAPI3 {
         functionName: ADD_INVOICE_BID,
         userName: TemporaryUserName);
 
-    var replyFromWeb = await _sendChaincodeTransaction(bag);
-    var result = json.decode(replyFromWeb['result']);
+    var replyFromWeb = await sendChaincodeTransaction(bag);
+    var result = replyFromWeb['result'];
     print(replyFromWeb['message']);
 
     return InvoiceBid.fromJson(result);
@@ -286,8 +286,9 @@ class DataAPI3 {
         functionName: 'addCustomer',
         userName: TemporaryUserName);
 
-    var replyFromWeb = await _sendChaincodeTransaction(bag);
-    var result = json.decode(replyFromWeb['result']);
+    var replyFromWeb = await sendChaincodeTransaction(bag);
+    print(replyFromWeb['message']);
+    var result = replyFromWeb['result'];
     var cust = Customer.fromJson(result);
     print('💕 💕  💕 💕  added CUSTOMER ${cust.name}');
     //
@@ -301,10 +302,10 @@ class DataAPI3 {
 
   static Future testChainCode(String functionName) async {
     var bag = APIBag(functionName: functionName, userName: TemporaryUserName);
-    print('\n😡 😡 😡 😡  😡 😡 😡 😡  -- Chaincode call: $functionName');
-    var replyFromWeb = await _sendChaincodeTransaction(bag);
+    print('\n😡 😡 😡 😡 😡 😡 😡 😡  -- Chaincode call: $functionName');
+    var replyFromWeb = await sendChaincodeTransaction(bag);
     print('💦  💦  💦 💦  💦  💦 BACK FROM WEB API CALL ... $functionName');
-    var result = json.decode(replyFromWeb['result']);
+    var result = replyFromWeb['result'];
     var msg = replyFromWeb['message'];
     print(msg);
 
@@ -579,8 +580,8 @@ class DataAPI3 {
         userName: TemporaryUserName);
 
     print('\n🔵 🔵 adding sector to BFN blockchain');
-    var replyFromWeb = await _sendChaincodeTransaction(bag);
-    var result = json.decode(replyFromWeb['result']);
+    var replyFromWeb = await sendChaincodeTransaction(bag);
+    var result = replyFromWeb['result'];
     return Sector.fromJson(result['result']);
   }
 
@@ -590,8 +591,8 @@ class DataAPI3 {
         functionName: 'addCountry',
         userName: TemporaryUserName);
 
-    var replyFromWeb = await _sendChaincodeTransaction(bag);
-    var result = json.decode(replyFromWeb['result']);
+    var replyFromWeb = await sendChaincodeTransaction(bag);
+    var result = replyFromWeb['result'];
     return Country.fromJson(result['result']);
   }
 
@@ -605,7 +606,7 @@ class DataAPI3 {
       var httpClient = new HttpClient();
       HttpClientRequest mRequest =
           await httpClient.postUrl(Uri.parse(getWebUrl() + apiSuffix));
-      mRequest.headers.contentType = _contentType;
+      mRequest.headers.contentType = contentType;
       if (jsonString != null) {
         mRequest.write(json.encode(jsonString));
       }
@@ -642,34 +643,39 @@ class DataAPI3 {
   }
 
   // ignore: missing_return
-  static Future<Map> _sendChaincodeTransaction(APIBag bag) async {
+  static Future<Map> sendChaincodeTransaction(APIBag bag) async {
     print(
-        '\n\n🔵 🔵 🔵 🔵 🔵 🔵   DataAPI3._connectToWebAPI sending:  \n🔵 🔵 🔵 🔵 🔵 🔵  '
+        '\n\n🔵 🔵 🔵 🔵 🔵 🔵   DataAPI3._sendChaincodeTransaction; sending:  \n🔵 🔵 🔵 🔵 🔵 🔵  '
         '${json.encode(bag.toJson())}');
     try {
       var httpClient = new HttpClient();
       HttpClientRequest mRequest =
           await httpClient.postUrl(Uri.parse(getChaincodeUrl()));
-      mRequest.headers.contentType = _contentType;
+      mRequest.headers.contentType = contentType;
       mRequest.write(json.encode(bag.toJson()));
       HttpClientResponse mResponse = await mRequest.close();
       print(
-          '\n\n🔵 🔵 🔵 🔵 🔵 🔵   DataAPI3._connectToWebAPI blockchain response status code:  ${mResponse.statusCode}');
+          '\n\n🔵 🔵 🔵 🔵 🔵 🔵   DataAPI3._sendChaincodeTransaction blockchain response status code:  ${mResponse.statusCode}');
       if (mResponse.statusCode == 200) {
         // transforms and prints the response
         String reply = await mResponse.transform(utf8.decoder).join();
+        print('🔵 🔵 🔵  🔵 🔵 🔵  🔵 🔵 🔵  🔵 🔵 🔵  reply  ..............');
+        Map map = JsonDecoder().convert(reply);
+        print(map);
         print(
-            '\n\n🔵 🔵 🔵  🔵 🔵 🔵  🔵 🔵 🔵  🔵 🔵 🔵  reply string  ..............');
-        print(reply);
-        print('\n\n🔵 🔵 🔵  🔵 🔵 🔵  🔵 🔵 🔵  🔵 🔵 🔵 \n');
-
-        return JsonDecoder().convert(reply);
+            '\n🔵 🔵 🔵  🔵 🔵 🔵  end of result object, is a Map? : ${map['result'] is Map}  🔵 🔵 🔵  🔵 🔵 🔵 \n');
+        if (map['statusCode'] == 200) {
+          return map;
+        } else {
+          throw Exception(map['message']);
+        }
       } else {
         mResponse.transform(utf8.decoder).listen((contents) {
-          print('\n\n😡 😡 😡 😡 DataAPI3._connectToWebAPI  $contents');
+          print(
+              '\n\n😡 😡 😡 😡 DataAPI3._sendChaincodeTransaction  $contents');
         });
         print(
-            '\n\n😡 😡 😡 😡  DataAPI3._connectToWebAPI ERROR  ${mResponse.reasonPhrase}');
+            '\n\n😡 😡 😡 😡  DataAPI3._sendChaincodeTransaction ERROR  ${mResponse.reasonPhrase}');
         throw Exception(mResponse.reasonPhrase);
       }
     } catch (e) {
@@ -686,13 +692,11 @@ class DataAPI3 {
         jsonString: JsonEncoder().convert(order.toJson()),
         functionName: CHAIN_ADD_AUTOTRADE_ORDER,
         userName: TemporaryUserName);
-    prettyPrint(
-        order.toJson(), '🙄 🙄 🙄 🙄  addAutoTradeOrder to BFN blockchain');
 
-    var replyFromWeb = await _sendChaincodeTransaction(bag);
+    var replyFromWeb = await sendChaincodeTransaction(bag);
     var message = replyFromWeb['message'];
     print(message);
-    var result = json.decode(replyFromWeb['result']);
+    var result = replyFromWeb['result'];
     return AutoTradeOrder.fromJson(result);
   }
 
@@ -708,13 +712,10 @@ class DataAPI3 {
         functionName: CHAIN_ADD_INVESTOR_PROFILE,
         userName: TemporaryUserName);
 
-    prettyPrint(profile.toJson(),
-        '🙄 🙄 🙄 🙄  adding addInvestorProfile to BFN blockchain');
-
-    var replyFromWeb = await _sendChaincodeTransaction(bag);
+    var replyFromWeb = await sendChaincodeTransaction(bag);
     var message = replyFromWeb['message'];
     print(message);
-    var result = json.decode(replyFromWeb['result']);
+    var result = replyFromWeb['result'];
     return InvestorProfile.fromJson(result);
   }
 
@@ -729,7 +730,7 @@ class DataAPI3 {
         functionName: 'addWallet',
         userName: TemporaryUserName);
 
-    var result = await _sendChaincodeTransaction(bag);
+    var result = await sendChaincodeTransaction(bag);
     return Wallet.fromJson(result);
   }
 
@@ -741,8 +742,9 @@ class DataAPI3 {
         jsonString: JsonEncoder().convert(supplier),
         functionName: 'addSupplier',
         userName: TemporaryUserName);
-    var replyFromWeb = await _sendChaincodeTransaction(bag);
-    var result = json.decode(replyFromWeb['result']);
+    var replyFromWeb = await sendChaincodeTransaction(bag);
+    print(replyFromWeb['message']);
+    var result = replyFromWeb['result'];
     var supp = Supplier.fromJson(result);
     //
     admin.supplier = supp.participantId;
@@ -762,8 +764,9 @@ class DataAPI3 {
         jsonString: JsonEncoder().convert(investor.toJson()),
         functionName: 'addInvestor',
         userName: TemporaryUserName);
-    var replyFromWeb = await _sendChaincodeTransaction(bag);
-    var result = json.decode(replyFromWeb['result']);
+    var replyFromWeb = await sendChaincodeTransaction(bag);
+    print(replyFromWeb['message']);
+    var result = replyFromWeb['result'];
     var inv = Investor.fromJson(result);
     print('🙄 🙄 🙄 🙄 🙄 🙄  added INVESTOR ${inv.name}');
     //
@@ -782,9 +785,8 @@ class DataAPI3 {
         functionName: 'addUser',
         userName: TemporaryUserName);
 
-    var replyFromWeb = await _sendChaincodeTransaction(bag);
-    var result = json.decode(replyFromWeb['result']);
-
+    var replyFromWeb = await sendChaincodeTransaction(bag);
+    var result = replyFromWeb['result'];
     print(replyFromWeb['message']);
     User realUser = User.fromJson(result);
     print(

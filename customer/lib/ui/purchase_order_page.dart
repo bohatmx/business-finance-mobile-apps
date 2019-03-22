@@ -1,5 +1,4 @@
 import 'package:businesslibrary/api/data_api3.dart';
-import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/company.dart';
 import 'package:businesslibrary/data/customer.dart';
@@ -87,12 +86,6 @@ class _PurchaseOrderPageState extends State<PurchaseOrderPage>
       if (supplier != null) {
         purchaseOrder.supplier = supplier.participantId;
         purchaseOrder.supplierName = supplier.name;
-        if (supplier.documentReference == null) {
-          var supp = await ListAPI.getSupplierById(supplier.participantId);
-          if (supp != null) {
-            purchaseOrder.supplier = supp.participantId;
-          }
-        }
       }
       if (user != null) {
         if (user.userId != null) {

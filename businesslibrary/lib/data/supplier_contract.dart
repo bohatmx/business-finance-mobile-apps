@@ -7,8 +7,7 @@ class SupplierContract {
   String customerName;
   String supplierName;
   String description;
-  String govtEntity;
-  String company;
+  String customer;
   String supplier;
   String user, contractURL;
 
@@ -21,8 +20,7 @@ class SupplierContract {
       this.customerName,
       this.supplierName,
       this.description,
-      this.govtEntity,
-      this.company,
+      this.customer,
       this.contractURL,
       this.supplier,
       this.user});
@@ -30,8 +28,7 @@ class SupplierContract {
   SupplierContract.fromJson(Map data) {
     this.contractId = data['contractId'];
     this.startDate = data['startDate'];
-    this.company = data['company'];
-    this.govtEntity = data['govtEntity'];
+    this.customer = data['customer'];
     this.user = data['user'];
     this.endDate = data['endDate'];
     this.estimatedValue = data['estimatedValue'];
@@ -46,8 +43,7 @@ class SupplierContract {
   Map<String, String> toJson() => <String, String>{
         'contractId': contractId,
         'startDate': startDate,
-        'company': company,
-        'govtEntity': govtEntity,
+        'customer': customer,
         'user': user,
         'endDate': endDate,
         'estimatedValue': estimatedValue,

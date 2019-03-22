@@ -1,13 +1,9 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:businesslibrary/api/shared_prefs.dart';
-import 'package:businesslibrary/data/country.dart';
 import 'package:businesslibrary/data/invoice_bid.dart';
 import 'package:businesslibrary/data/offer.dart';
-import 'package:businesslibrary/data/sector.dart';
 import 'package:businesslibrary/data/user.dart';
-import 'package:businesslibrary/data/wallet.dart';
 import 'package:businesslibrary/util/util.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:device_info/device_info.dart';
@@ -15,47 +11,6 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
-import 'package:meta/meta.dart';
-
-class Lookups {
-  static Firestore _firestore = Firestore.instance;
-
-  static Future<List<Sector>> getTypes() async {
-    List<Sector> list = List();
-
-    var qs = await _firestore
-        .collection('sectors')
-        .orderBy('sectorName')
-        .getDocuments()
-        .catchError((e) {
-      return list;
-    });
-    qs.documents.forEach((doc) {
-      var type = Sector.fromJson(doc.data);
-      list.add(type);
-    });
-
-    return list;
-  }
-
-  static Future<List<Country>> getCountries() async {
-    print('Lookups.getCountries ................................');
-    List<Country> list = List();
-
-    var qs =
-        await _firestore.collection('countries').getDocuments().catchError((e) {
-      print('Lookups.getCountries ERROR $e');
-      return list;
-    });
-    qs.documents.forEach((doc) {
-      var country = new Country.fromJson(doc.data);
-      list.add(country);
-    });
-
-    print('Lookups.getCountries ########## found ${list.length}');
-    return list;
-  }
-}
 
 String getFormattedDateLongWithTime(String date, BuildContext context) {
   Locale myLocale = Localizations.localeOf(context);
@@ -422,114 +377,6 @@ Future<String> decrypt(String accountId, String encrypted) async {
   return result.body;
 }
 
-Future<String> createWallet(
-    {@required String name,
-    @required String participantId,
-    @required int type,
-    String seed}) async {
-  var debugData = {
-    'debug': 'true',
-  };
-  var prodData = {'debug': 'false', 'sourceSeed': seed};
-  String url;
-  var body;
-  if (isInDebugMode) {
-    url = DEBUG_URL;
-    body = debugData;
-  } else {
-    url = PROD_URL;
-    body = prodData;
-//    seed = SignUp.privateKey;
-  }
-  url += 'directWallet';
-  http.Response result;
-  Wallet wallet;
-  print('createWallet ------- making the http.post call -----\n $url');
-  try {
-    result = await http.post(url, body: body).catchError((e) {
-      print('createWallet ----- ERROR $e');
-      return '0';
-    });
-    print('createWallet - done calling http post');
-    Map map = json.decode(result.body);
-    wallet = Wallet.fromJson(map);
-    wallet.name = name;
-    print(
-        'createWallet ###>> Status Code: ${result.statusCode} \n\nBody: ${result.body}\n\n');
-    var walletDocId =
-        await _writeWalletToFirestore(type, wallet, participantId);
-    if (walletDocId == '0') {
-      return walletDocId;
-    }
-
-    //    if (USE_LOCAL_BLOCKCHAIN) {
-//      var res = await DataAPI.addWallet(wallet);
-//      if (res != '0') {
-//        print(
-//            'Wallet created and ready for use: #######################))))))))');
-//        return wallet.stellarPublicKey;
-//      } else {
-//        print('createWallet ERROR  writing wallet to BFN blockchain');
-//        throw Exception('createWallet ERROR  writing wallet to BFN blockchain');
-//      }
-//    }
-  } catch (e) {
-    print('createWallet ERROR - WALLET failed $e');
-    throw Exception('createWallet ERROR - WALLET failed $e');
-  }
-
-  return '0';
-}
-
-Future<String> _writeWalletToFirestore(
-    int type, Wallet wallet, String participantId) async {
-  print(
-      '\n\n_writeWalletToFirestore  ######## type: $type participantId: $participantId\n\n');
-
-  switch (type) {
-    case GovtEntityType:
-      wallet.govtEntity = NameSpace + 'Customer#' + participantId;
-      break;
-    case SupplierType:
-      wallet.supplier = NameSpace + 'Supplier#' + participantId;
-      break;
-    case InvestorType:
-      wallet.investor = NameSpace + 'Investor#' + participantId;
-      break;
-    case ProcurementOfficeType:
-      wallet.procurementOffice =
-          NameSpace + 'ProcurementOffice#' + participantId;
-      break;
-    case AuditorType:
-      wallet.auditor = NameSpace + 'Auditor#' + participantId;
-      break;
-    case BankType:
-      wallet.bank = NameSpace + 'Bank#' + participantId;
-      break;
-    case OneConnectType:
-      wallet.oneConnect = NameSpace + 'OneConnect#' + participantId;
-      break;
-    case CompanyType:
-      wallet.company = NameSpace + 'Company#' + participantId;
-      break;
-  }
-  try {
-    print('_writeWalletToFirestore: about to write wallet to FS....');
-    var ref = await _firestore
-        .collection('wallets')
-        .add(wallet.toJson())
-        .catchError((e) {
-      print('createWallet FAILED to write wallet to Firestore: $e');
-      throw Exception('Failed to write wallet to firestore $e');
-    });
-    print('createWallet added to Firestore, documentRef: ${ref.documentID}');
-    await SharedPrefs.saveWallet(wallet);
-    return ref.documentID;
-  } catch (e) {
-    throw Exception('Failed to write wallet to firestore $e');
-  }
-}
-
 const GovtEntityType = 1,
     SupplierType = 2,
     InvestorType = 3,
@@ -538,5 +385,3 @@ const GovtEntityType = 1,
     ProcurementOfficeType = 6,
     BankType = 7,
     OneConnectType = 8;
-
-const NameSpace = 'resource:com.oneconnect.biz.';

@@ -33,7 +33,7 @@ class _ContractListState extends State<ContractList> {
     setState(() {});
     user = await SharedPrefs.getUser();
     supplier = await SharedPrefs.getSupplier();
-    contracts = await ListAPI.getSupplierContracts(supplier.documentReference);
+    contracts = await ListAPI.getSupplierContracts(supplier.participantId);
     if (contracts == null || contracts.isEmpty) {
       _showNoContractsDialog();
     } else {
