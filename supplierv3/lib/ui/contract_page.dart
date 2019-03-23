@@ -179,14 +179,12 @@ class _ContractPageState extends State<ContractPage>
       endDate: DateTime.now().add(Duration(days: 365)).toIso8601String(),
       customerName: customer.name,
       supplierName: supplier.name,
-      customer:
-          'resource:com.oneconnect.biz.Customer#' + customer.participantId,
+      customer: customer.participantId,
       contractURL:
           'https://firebasestorage.googleapis.com/v0/b/business-finance-dev.appspot.com/o/contracts%2FBFN2018-06-24T17%3A29%3A56.708034_42%20%2B.pdf?alt=media&token=ce591d07-3bd7-45b8-a961-499289ac141e',
-      user: 'resource:com.oneconnect.biz.User#' + user.userId,
+      user: user.userId,
       date: DateTime.now().toIso8601String(),
-      supplier:
-          'resource:com.oneconnect.biz.Supplier#' + supplier.participantId,
+      supplier: supplier.participantId,
       description: 'Dummy contract for development',
     );
 

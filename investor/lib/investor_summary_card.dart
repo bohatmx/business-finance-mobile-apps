@@ -1,20 +1,17 @@
+import 'package:businesslibrary/data/dashboard_data.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:flutter/material.dart';
-import 'package:businesslibrary/blocs/investor_model_bloc.dart';
 
 class InvestorSummaryCard extends StatelessWidget {
-  final InvestorAppModel2 appModel;
+  final DashboardData data;
   final BuildContext context;
   final InvestorCardListener listener;
   final double elevation;
 
-  InvestorSummaryCard({this.appModel, this.context, this.listener, this.elevation});
+  InvestorSummaryCard({this.data, this.context, this.listener, this.elevation});
 
   Widget _getTotalBids() {
-    if ( appModel == null || appModel.dashboardData == null) {
-      return Container();
-    }
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -29,7 +26,7 @@ class InvestorSummaryCard extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.only(left: 10.0),
           child: Text(
-            appModel == null || appModel.dashboardData.totalBids == null? '0' : '${appModel.dashboardData.totalBids}',
+            data == null ? '0' : '${getTotalBids()}',
             style: Styles.blackBoldMedium,
           ),
         ),
@@ -37,11 +34,18 @@ class InvestorSummaryCard extends StatelessWidget {
     );
   }
 
+  String getTotalBids() {
+    var total = 0;
+    if (data != null) {
+      total = data.unsettledBids.length;
+    }
+    if (data != null) {
+      total += data.settledBids.length;
+    }
+    return getFormattedNumber(total, context);
+  }
 
   Widget _getTotalBidValue() {
-    if ( appModel == null || appModel.dashboardData.totalBidAmount== null) {
-      return Container();
-    }
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -56,9 +60,9 @@ class InvestorSummaryCard extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.only(left: 10.0, right: 10.0),
           child: Text(
-            appModel == null
+            data == null
                 ? '0.00'
-                : '${getFormattedAmount('${appModel.dashboardData.totalBidAmount}', context)}',
+                : '${getFormattedAmount('${getTotalBidAmount()}', context)}',
             style: Styles.blackBoldLarge,
           ),
         ),
@@ -66,10 +70,14 @@ class InvestorSummaryCard extends StatelessWidget {
     );
   }
 
-  Widget _getAverageDiscount() {
-    if ( appModel == null || appModel.dashboardData.averageDiscountPerc == null) {
-      return Container();
+  String getTotalBidAmount() {
+    if (data == null) {
+      return '';
     }
+    return getFormattedAmount('${data.totalBidAmount}', context);
+  }
+
+  Widget _getAverageDiscount() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -84,7 +92,7 @@ class InvestorSummaryCard extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.only(left: 10.0, right: 10.0),
           child: Text(
-            appModel == null ? '0.0%' : '${appModel.dashboardData.averageDiscountPerc.toStringAsFixed(2)} %',
+            data == null ? '0.0%' : '${getAverageDiscountPerc()}',
             style: Styles.purpleBoldSmall,
           ),
         ),
@@ -92,23 +100,15 @@ class InvestorSummaryCard extends StatelessWidget {
     );
   }
 
-
-  double _getAvg() {
-    if (appModel == null) {
-      return 0.0;
+  String getAverageDiscountPerc() {
+    if (data == null) {
+      return '';
     }
-    if (appModel.unsettledInvoiceBids == null) {
-      return 0.0;
-    }
-    var t = 0.0;
-    appModel.unsettledInvoiceBids.forEach((b) {
-      t += b.amount;
-    });
-    var avg = t / appModel.unsettledInvoiceBids.length;
-    return avg;
+    return data.averageDiscountPerc.toStringAsFixed(2) + ' %';
   }
+
   Widget _getAverageBidAmount() {
-    if ( appModel == null || appModel.dashboardData.averageBidAmount == null) {
+    if (data == null || data == null) {
       return Container();
     }
     return Row(
@@ -125,9 +125,7 @@ class InvestorSummaryCard extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.only(left: 10.0, right: 10.0),
           child: Text(
-            appModel == null
-                ? '0'
-                : '${getFormattedAmount('${appModel.dashboardData.averageBidAmount}', context)}',
+            data == null ? '0' : '${getFormattedAmount('${data}', context)}',
             style: Styles.blackSmall,
           ),
         ),
@@ -137,38 +135,37 @@ class InvestorSummaryCard extends StatelessWidget {
 
   double totalUnsettledBids() {
     var t = 0.00;
-    if (appModel == null) {
+    if (data == null) {
       return 0.0;
     }
-    if (appModel.unsettledInvoiceBids == null) {
-      return 0.0;
-    }
-    appModel.unsettledInvoiceBids.forEach((b) {
+
+    data.unsettledBids.forEach((b) {
       t += b.amount;
     });
-    return appModel.dashboardData.totalUnsettledAmount;
+    return data.totalUnsettledAmount;
   }
+
   @override
   Widget build(BuildContext context) {
-//    print('\n\nInvestorSummaryCard.build build ...........##############..........');
-//    if (appModel.dashboardData != null) {
-//      appModel.doPrint();
-//      print('InvestorSummaryCard.build ============= appModel.dashboardData is not null');
-//    } else {
-//      print('InvestorSummaryCard.build ============= appModel.dashboardData is null ========= wtf?');
-//    }
+    if (data == null) {
+      print(' ♻️  ♻️  ♻️  build - dashboardData is null  ♻️  ♻️  ♻️ ');
+      return Container();
+    } else {
+      print(' ♻️  ♻️  ♻️  ♻️  ♻️  ♻️  ♻️  ♻️  ♻️  ♻️  ♻️  ♻️  ♻️  ♻️  ♻️ ');
+    }
+
     return Card(
-      elevation: elevation == null? 2.0: elevation,
+      elevation: elevation == null ? 2.0 : elevation,
       color: Colors.brown.shade50,
       child: Column(
         children: <Widget>[
           Padding(
             padding: const EdgeInsets.only(top: 10.0, left: 20.0),
-            child: appModel == null? Container() : _getTotalBids(),
+            child: data == null ? Container() : _getTotalBids(),
           ),
           Padding(
             padding: const EdgeInsets.only(top: 10.0, left: 20.0, bottom: 20.0),
-            child: appModel == null? Container() : _getTotalBidValue(),
+            child: data == null ? Container() : _getTotalBidValue(),
           ),
           Padding(
             padding: const EdgeInsets.only(left: 30.0, right: 30.0),
@@ -178,11 +175,11 @@ class InvestorSummaryCard extends StatelessWidget {
           ),
           Padding(
             padding: const EdgeInsets.only(top: 10.0, left: 20.0),
-            child: appModel == null? Container() : _getAverageBidAmount(),
+            child: data == null ? Container() : _getAverageBidAmount(),
           ),
           Padding(
             padding: const EdgeInsets.only(top: 10.0, left: 20.0),
-            child: appModel == null? Container() : _getAverageDiscount(),
+            child: data == null ? Container() : _getAverageDiscount(),
           ),
           Padding(
             padding: const EdgeInsets.only(left: 30.0, right: 30.0, top: 5.0),
@@ -202,9 +199,9 @@ class InvestorSummaryCard extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  appModel == null || appModel.dashboardData.totalUnsettledBids == null
+                  data == null || data == null
                       ? '0'
-                      : '${getFormattedNumber(appModel.dashboardData.totalUnsettledBids, context)}',
+                      : '${getFormattedNumber(data.totalUnsettledBids, context)}',
                   style: Styles.blackSmall,
                 ),
               ],
@@ -222,9 +219,9 @@ class InvestorSummaryCard extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  appModel == null || appModel.dashboardData.totalUnsettledAmount == null
+                  data == null || data.totalUnsettledAmount == null
                       ? '0.00'
-                      : '${getFormattedAmount('${appModel.dashboardData.totalUnsettledAmount}', context)}',
+                      : '${getFormattedAmount('${data.totalUnsettledAmount}', context)}',
                   style: Styles.pinkBoldSmall,
                 ),
               ],
@@ -246,9 +243,7 @@ class InvestorSummaryCard extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  appModel == null || appModel.dashboardData.totalSettledBids == null
-                      ? '0'
-                      : '${getFormattedNumber(appModel.dashboardData.totalSettledBids, context)}',
+                  data == null ? '0' : '${getTotalSettledBids()}',
                   style: Styles.blackBoldSmall,
                 ),
               ],
@@ -266,9 +261,9 @@ class InvestorSummaryCard extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  appModel == null
+                  data == null
                       ? '0.00'
-                      : '${getFormattedAmount('${appModel.dashboardData.totalSettledAmount}', context)}',
+                      : '${getFormattedAmount('${data.totalSettledAmount}', context)}',
                   style: Styles.blackBoldSmall,
                 ),
               ],
@@ -294,12 +289,25 @@ class InvestorSummaryCard extends StatelessWidget {
     );
   }
 
+  String getTotalUnsettledBids() {
+    if (data == null) {
+      return '0';
+    }
+    return getFormattedNumber(data.unsettledBids.length, context);
+  }
+
+  String getTotalSettledBids() {
+    if (data == null) {
+      return '0';
+    }
+    return getFormattedNumber(data.settledBids.length, context);
+  }
+
   void _onStartCharts() {
     if (listener != null) {
       listener.onCharts();
     }
   }
-
 }
 
 abstract class InvestorCardListener {

@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'package:businesslibrary/api/shared_prefs.dart';
+import 'package:businesslibrary/api/data_api3.dart';
 import 'package:businesslibrary/data/country.dart';
 import 'package:businesslibrary/data/delivery_acceptance.dart';
 import 'package:businesslibrary/data/delivery_note.dart';
@@ -16,7 +16,6 @@ import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/data/wallet.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/selectors.dart';
-import 'package:businesslibrary/util/signup_util.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/util.dart';
 import 'package:email_validator/email_validator.dart';
@@ -282,8 +281,7 @@ class _SignUpPageState extends State<SignUpPage>
         dateRegistered: getUTCDate(),
       );
       if (sector != null) {
-        supplier.sector =
-            'resource:com.oneconnect.biz.Sector#${sector.sectorId}';
+        supplier.sector = sector.sectorId;
         supplier.sectorName = sector.sectorName;
       }
       print('_SignUpPageState._onSavePressed ${supplier.toJson()}');
@@ -301,73 +299,27 @@ class _SignUpPageState extends State<SignUpPage>
         backgroundColor: Colors.black,
       );
 
-      var result = await SignUp.signUpSupplier(supplier, admin);
-      checkResult(result, supplier);
-    }
-  }
+      try {
+        supplier = await DataAPI3.addSupplier(supplier, admin);
+        AppSnackbar.showSnackbarWithAction(
+            listener: this,
+            scaffoldKey: _scaffoldKey,
+            message: 'Sign Up and Wallet OK',
+            textColor: Colors.white,
+            backgroundColor: Colors.teal,
+            actionLabel: 'Start',
+            action: 0,
+            icon: Icons.done_all);
 
-  void checkResult(int result, Supplier supplier) async {
-    switch (result) {
-      case 0:
-        print('_SignUpPageState.checkResult SUCCESS!!!!!!');
-        var wallet = await SharedPrefs.getWallet();
-        if (wallet != null) {
-          AppSnackbar.showSnackbarWithAction(
-              listener: this,
-              scaffoldKey: _scaffoldKey,
-              message: 'Sign Up and Wallet OK',
-              textColor: Colors.white,
-              backgroundColor: Colors.teal,
-              actionLabel: 'Start',
-              action: 0,
-              icon: Icons.done_all);
-
-          await supplierModelBloc.refreshModel();
-        } else {
-          exit();
-        }
-
-        break;
-      case SignUp.ErrorBlockchain:
-        print('_SignUpPageState._onSavePressed  ErrorBlockchain');
+        await supplierModelBloc.refreshModel();
+        exit();
+      } catch (e) {
         AppSnackbar.showErrorSnackbar(
             listener: this,
             scaffoldKey: _scaffoldKey,
-            message: 'Blockchain failed to process Sign Up',
+            message: e.message,
             actionLabel: "Support");
-        break;
-      case SignUp.ErrorMissingOrInvalidData:
-        print('_SignUpPageState._onSavePressed  ErrorMissingOrInvalidData');
-        AppSnackbar.showErrorSnackbar(
-            listener: this,
-            scaffoldKey: _scaffoldKey,
-            message: 'Missing or Invalid data in the form',
-            actionLabel: "Support");
-        break;
-      case SignUp.ErrorFirebaseUserExists:
-        print('_SignUpPageState._onSavePressed  ErrorFirebaseUserExists');
-        AppSnackbar.showErrorSnackbar(
-            listener: this,
-            scaffoldKey: _scaffoldKey,
-            message: 'This user already  exists',
-            actionLabel: "Close");
-        break;
-      case SignUp.ErrorFireStore:
-        print('_SignUpPageState._onSavePressed  ErrorFireStore');
-        AppSnackbar.showErrorSnackbar(
-            listener: this,
-            scaffoldKey: _scaffoldKey,
-            message: 'Database Error',
-            actionLabel: "Support");
-        break;
-      case SignUp.ErrorCreatingFirebaseUser:
-        print('_SignUpPageState._onSavePressed  ErrorCreatingFirebaseUser');
-        AppSnackbar.showErrorSnackbar(
-            listener: this,
-            scaffoldKey: _scaffoldKey,
-            message: 'Database Error',
-            actionLabel: "Support");
-        break;
+      }
     }
   }
 

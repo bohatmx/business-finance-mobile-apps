@@ -6,7 +6,6 @@ import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
-import 'package:businesslibrary/util/FCM.dart';
 import 'package:businesslibrary/util/invoice_bid_card.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
@@ -23,10 +22,7 @@ class InvoiceBids extends StatefulWidget {
   _InvoiceBidsState createState() => _InvoiceBidsState();
 }
 
-class _InvoiceBidsState extends State<InvoiceBids>
-    implements
-        SnackBarListener
-        {
+class _InvoiceBidsState extends State<InvoiceBids> implements SnackBarListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   final FirebaseMessaging _fcm = FirebaseMessaging();
 
@@ -272,7 +268,6 @@ class _InvoiceBidsState extends State<InvoiceBids>
     print('_InvoiceBidsState.onActionPressed');
   }
 
-  static const NameSpace = 'resource:com.oneconnect.biz.';
   void _onOffer() {
     print('_InvoiceBidsState._onOffer');
     Navigator.pop(context);

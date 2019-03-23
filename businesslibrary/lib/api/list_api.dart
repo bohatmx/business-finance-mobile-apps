@@ -54,13 +54,13 @@ class ListAPI {
     return start;
   }
 
-  static Future<Wallet> getWallet(String ownerType, String name) async {
-    print('ListAPI.getWallet ownerType: $ownerType name: $name');
+  static Future<Wallet> getWallet({String participantId}) async {
     var qs = await _firestore
         .collection('wallets')
-        .where(ownerType, isEqualTo: name)
+        .where('participantId', isEqualTo: participantId)
         .getDocuments();
     Wallet wallet = Wallet.fromJson(qs.documents.first.data);
+
     if (wallet.secret == null) {
       var decrypted =
           await decrypt(wallet.stellarPublicKey, wallet.encryptedSecret);
@@ -911,14 +911,11 @@ class ListAPI {
   static Future<DashboardData> getSupplierDashboardData(
       String supplierId, String documentId) async {
     print('ListAPI.getSupplierDashboardData ..........');
-    var data = DashboardParms(
-        id: supplierId,
-        documentId: documentId,
-        limit: MAXIMUM_RECORDS_FROM_FIRESTORE);
 
     try {
-      DashboardData result =
-          await _doDashboardHTTP(getChaincodeUrl() + 'supplierDashboard', data);
+      DashboardData result = await _doDashboardHTTP(
+          mUrl: getWebUrl() + 'getSupplierDashboard',
+          participantId: supplierId);
       prettyPrint(result.toJson(), '### Supplier Dashboard Data:');
       return result;
     } catch (e) {
@@ -927,16 +924,13 @@ class ListAPI {
   }
 
   static Future<DashboardData> getInvestorDashboardData(
-      String investorId) async {
-    var data = DashboardParms(
-        id: investorId,
-        documentId: investorId,
-        limit: MAXIMUM_RECORDS_FROM_FIRESTORE);
-
+      String participantId) async {
     try {
-      DashboardData result =
-          await _doDashboardHTTP(getChaincodeUrl() + 'investorDashboard', data);
+      DashboardData result = await _doDashboardHTTP(
+          mUrl: getWebUrl() + 'getInvestorDashboard',
+          participantId: participantId);
 
+      prettyPrint(result.toJson(), '\n\n🔆 🔆 🔆 🔆 🔆 returned dash ...');
       return result;
     } catch (e) {
       print(e);
@@ -945,13 +939,10 @@ class ListAPI {
   }
 
   static Future<DashboardData> getCustomerDashboardData(
-      String documentId) async {
-    print('ListAPI.getCustomerDashboardData ..........');
-    var data = DashboardParms(
-        documentId: documentId, limit: MAXIMUM_RECORDS_FROM_FIRESTORE);
-
-    DashboardData result =
-        await _doDashboardHTTP(getChaincodeUrl() + 'customerDashboard', data);
+      String participantId) async {
+    DashboardData result = await _doDashboardHTTP(
+        mUrl: getWebUrl() + 'getCustomerDashboard',
+        participantId: participantId);
     prettyPrint(result.toJson(), '### Dashboard Data from function call:');
     return result;
   }
@@ -1178,35 +1169,35 @@ class ListAPI {
   }
 
   static Future<DashboardData> _doDashboardHTTP(
-      String mUrl, DashboardParms dashParms) async {
-    DashboardData data;
-    Map<String, String> headers = {
-      'Content-type': 'application/json',
-      'Accept': 'application/json',
-    };
+      {String mUrl, String participantId}) async {
+    DashboardData dashboardData;
+    var body = {'participantId': participantId};
+    print(
+        '🚗  🚗  🚗  _doDashboardHTTP: Sending $mUrl participantId: $participantId');
     var start = DateTime.now();
+
     try {
-      http
-          .post(mUrl, body: json.encode(dashParms))
-          .then((http.Response response) {
-        final int statusCode = response.statusCode;
+      http.Response response = await http.post(mUrl, body: body);
+      final int statusCode = response.statusCode;
+      var end = DateTime.now();
+      print(
+          '\n\n🍉  🍉  🍉   ListAPI._doDashboardHTTP .... ################ Query via Web Api: status: 🍀 '
+          '${response.statusCode} for $mUrl - elapsed: ⌛ ⌛ ${end.difference(start).inSeconds} seconds');
+      print('\n🍀 🍀 🍀 \n${response.body} \n🍀  🍀  🍀 ');
+      if (statusCode < 200 || statusCode > 400 || json == null) {
+        throw new Exception("Error while fetching data");
+      }
 
-        if (statusCode < 200 || statusCode > 400 || json == null) {
-          throw new Exception("Error while fetching data");
-        }
-
-        if (response.statusCode == 200) {
-          data = DashboardData.fromJson(json.decode(response.body));
-          var end = DateTime.now();
-          print(
-              '\n\n✅ ListAPI.doHTTP .... ################ Query via Cloud Functions: status: ${response.statusCode} for $mUrl - elapsed: ${end.difference(start).inSeconds} seconds');
-          return data;
-        } else {
-          throw Exception('Dashboard data query failed');
-        }
-      });
+      if (response.statusCode == 200) {
+        dashboardData = DashboardData.fromJson(json.decode(response.body));
+        prettyPrint(dashboardData.toJson(),
+            '\n\n💊💊💊💊 -->   🍀  🍀 - RETURNING DATA: ..................');
+        return dashboardData;
+      } else {
+        throw Exception('Dashboard data query failed');
+      }
     } catch (e) {
-      print('ListAPI._doHTTP $e');
+      print('ListAPI._doDashboardHTTP $e');
       throw e;
     }
   }

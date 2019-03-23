@@ -199,19 +199,8 @@ class _ProfilePageState extends State<ProfilePage> implements SnackBarListener {
         message: 'Saving profile ...',
         textColor: Styles.white,
         backgroundColor: Styles.black);
-    var res;
-    if (profile.profileId == null) {
-      res = await DataAPI3.addInvestorProfile(profile);
-    } else {
-      res = await DataAPI3.updateInvestorProfile(profile);
-    }
-    if (res == '0') {
-      AppSnackbar.showErrorSnackbar(
-          scaffoldKey: _scaffoldKey,
-          message: 'Profile failed',
-          listener: this,
-          actionLabel: 'CLOSE');
-    } else {
+    try {
+      profile = await DataAPI3.addInvestorProfile(profile);
       AppSnackbar.showSnackbarWithAction(
           scaffoldKey: _scaffoldKey,
           message: 'Profile saved',
@@ -221,6 +210,12 @@ class _ProfilePageState extends State<ProfilePage> implements SnackBarListener {
           listener: this,
           icon: Icons.done_all,
           action: 3);
+    } catch (e) {
+      AppSnackbar.showErrorSnackbar(
+          scaffoldKey: _scaffoldKey,
+          message: 'Profile failed',
+          listener: this,
+          actionLabel: 'CLOSE');
     }
   }
 
@@ -527,24 +522,27 @@ class _ProfilePageState extends State<ProfilePage> implements SnackBarListener {
     Navigator.pop(context);
   }
 
-  static const Namespace = 'resource:com.oneconnect.biz.';
   void _onAutoTrade() async {
     Navigator.pop(context);
     var user = await SharedPrefs.getUser();
     var wallet = await SharedPrefs.getWallet();
+    if (wallet == null) {
+      wallet = await ListAPI.getWallet(participantId: investor.participantId);
+      await SharedPrefs.saveWallet(wallet);
+    }
     var orderCached = await SharedPrefs.getAutoTradeOrder();
     AutoTradeOrder order;
     if (orderCached != null) {
       order = orderCached;
-      order.wallet = Namespace + 'Wallet#${wallet.stellarPublicKey}';
+      order.wallet = wallet.stellarPublicKey;
     } else {
       order = AutoTradeOrder(
           date: getUTCDate(),
           investorName: investor.name,
-          investorProfile: Namespace + 'InvestorProfile#${profile.profileId}',
-          investor: Namespace + 'Investor#${investor.participantId}',
-          user: Namespace + 'User#${user.userId}',
-          wallet: Namespace + 'Wallet#${wallet.stellarPublicKey}');
+          investorProfile: profile.profileId,
+          investor: investor.participantId,
+          user: user.userId,
+          wallet: wallet.stellarPublicKey);
     }
     AppSnackbar.showSnackbarWithProgressIndicator(
         scaffoldKey: _scaffoldKey,

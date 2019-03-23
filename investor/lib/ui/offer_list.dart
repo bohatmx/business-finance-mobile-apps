@@ -366,7 +366,7 @@ class _OfferListState extends State<OfferList>
     return items;
   }
 
-  InvestorAppModel2 appModel;
+  InvestorAppModel appModel;
   int mCount = 0;
   @override
   Widget build(BuildContext context) {

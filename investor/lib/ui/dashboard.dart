@@ -7,6 +7,7 @@ import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/blocs/chat_bloc.dart';
 import 'package:businesslibrary/data/auto_trade_order.dart';
 import 'package:businesslibrary/data/chat_response.dart';
+import 'package:businesslibrary/data/dashboard_data.dart';
 import 'package:businesslibrary/data/delivery_acceptance.dart';
 import 'package:businesslibrary/data/delivery_note.dart';
 import 'package:businesslibrary/data/investor.dart';
@@ -21,21 +22,21 @@ import 'package:businesslibrary/util/FCM.dart';
 import 'package:businesslibrary/util/invoice_bid_card.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/message.dart';
-import 'package:businesslibrary/util/support/chat_page.dart';
-import 'package:businesslibrary/util/support/contact_us.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:businesslibrary/util/summary_card.dart';
+import 'package:businesslibrary/util/support/chat_page.dart';
+import 'package:businesslibrary/util/support/contact_us.dart';
 import 'package:businesslibrary/util/theme_bloc.dart';
 import 'package:businesslibrary/util/util.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:businesslibrary/blocs/investor_model_bloc.dart';
-import 'package:investor/investor_summary_card.dart';
+import 'package:investor/bloc/bloc.dart';
 import 'package:investor/ui/charts.dart';
 import 'package:investor/ui/offer_list.dart';
 import 'package:investor/ui/profile.dart';
+import 'package:investor/ui/summary_card.dart';
 import 'package:investor/ui/unsettled_bids.dart';
 
 class Dashboard extends StatefulWidget {
@@ -51,7 +52,7 @@ class Dashboard extends StatefulWidget {
 
 class _DashboardState extends State<Dashboard>
     with TickerProviderStateMixin, WidgetsBindingObserver
-    implements SnackBarListener, InvestorCardListener {
+    implements SnackBarListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   static const platform = const MethodChannel('com.oneconnect.biz.CHANNEL');
 
@@ -66,7 +67,7 @@ class _DashboardState extends State<Dashboard>
   DeliveryAcceptance acceptance;
   BasicMessageChannel<String> basicMessageChannel;
   AppLifecycleState lifecycleState;
-  InvestorAppModel2 appModel;
+  Bloc bloc = Bloc();
 
   @override
   initState() {
@@ -83,7 +84,6 @@ class _DashboardState extends State<Dashboard>
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
     ]);
-    appModel = investorModelBloc.appModel;
   }
 
   List<Offer> mOfferList = List();
@@ -105,7 +105,7 @@ class _DashboardState extends State<Dashboard>
   //FCM methods #############################
   _configureFCM() async {
     print(
-        '\n\n\ _DashboardState################ CONFIGURE FCM MESSAGE ###########  starting _firebaseMessaging');
+        '\n\n\📭 📭 📭 _DashboardState CONFIGURE FCM MESSAGE ###########  📭 📭 📭 ');
     bool isRunningIOs = await isDeviceIOS();
     var token = await _firebaseMessaging.getToken();
     if (token != null) {
@@ -114,7 +114,7 @@ class _DashboardState extends State<Dashboard>
     _firebaseMessaging.configure(
       onMessage: (Map<String, dynamic> map) async {
         prettyPrint(map,
-            '\n\n_DashboardState ################ Message from FCM ################# ${DateTime.now().toIso8601String()}');
+            '\n\n_DashboardState 📭 📭 📭  Message from FCM ################# ${DateTime.now().toIso8601String()}');
 
         String messageType = 'unknown';
         String mJSON;
@@ -122,12 +122,13 @@ class _DashboardState extends State<Dashboard>
           if (isRunningIOs == true) {
             messageType = map["messageType"];
             mJSON = map['json'];
-            print('FCM.configureFCM platform is iOS');
+            print('🍏 🍏 🍏 FCM.configureFCM platform is iOS');
           } else {
             var data = map['data'];
             messageType = data["messageType"];
             mJSON = data["json"];
-            print('_DashboardState.configureFCM platform is Android');
+            print(
+                '_DashboardState.configureFCM 🌽  🌽  🌽  platform is Android');
           }
         } catch (e) {
           print(e);
@@ -136,7 +137,7 @@ class _DashboardState extends State<Dashboard>
         }
 
         print(
-            '_DashboardState.configureFCM ************************** messageType: $messageType');
+            '_DashboardState.configureFCM 📭 📭 📭  ************************** messageType: $messageType');
 
         try {
           switch (messageType) {
@@ -168,7 +169,7 @@ class _DashboardState extends State<Dashboard>
           }
         } catch (e) {
           print(
-              '_DashboardState.configureFCM - Houston, we have a problem with null listener somewhere. error below\n\n');
+              '_DashboardState.configureFCM 👿 👿 👿 👿 👿 - Houston, we have a problem with null listener somewhere. error below\n\n');
           print(e);
         }
       },
@@ -199,7 +200,7 @@ class _DashboardState extends State<Dashboard>
     _firebaseMessaging.subscribeToTopic(
         FCM.TOPIC_INVESTOR_INVOICE_SETTLEMENTS + investor.participantId);
     print(
-        '\n\n_DashboardState._subscribeToFCMTopics SUBSCRIBED to topis - Bids, Offers, Settlements and General');
+        '\n\n📡 📡 📡  _DashboardState._subscribeToFCMTopics SUBSCRIBED to topis - 🍺 Bids, 🍺 Offers, 🍺 Settlements and 🍺 General\n');
   }
   //end of FCM methods ######################
 
@@ -228,7 +229,7 @@ class _DashboardState extends State<Dashboard>
         message: 'Refreshing data',
         textColor: Styles.white,
         backgroundColor: Styles.black);
-    await investorModelBloc.refreshDashboard();
+    await bloc.refreshRemoteDashboard();
     _scaffoldKey.currentState.removeCurrentSnackBar();
     setState(() {
       count = 0;
@@ -246,7 +247,6 @@ class _DashboardState extends State<Dashboard>
     _configureFCM();
     _checkSectors();
     user = await SharedPrefs.getUser();
-    appModel = investorModelBloc.appModel;
     setState(() {
       count = 0;
     });
@@ -255,25 +255,34 @@ class _DashboardState extends State<Dashboard>
   InvoiceBid lastInvoiceBid;
   PurchaseOrder lastPO;
   DeliveryNote lastNote;
-
+  DashboardData data;
   @override
   Widget build(BuildContext context) {
-    if (appModel == null || appModel.investor == null) {
-      return Scaffold(
-        appBar: AppBar(
-          title: Text('Dashboard loading'),
-        ),
-      );
-    }
     print(
-        '\n\n\n_DashboardState.build ********** DASHBOARD RE_BUILD *********** calling _configureFCM');
-    _configureFCM();
-    return StreamBuilder<InvestorAppModel2>(
-        initialData: investorModelBloc.appModel,
-        stream: investorModelBloc.appModelStream,
+        '\n♻️♻️ _DashboardState.build ********** DASHBOARD RE_BUILD *********** calling _configureFCM');
+    //_configureFCM();
+    return StreamBuilder<DashboardData>(
+        initialData: bloc.dashboardData,
+        stream: bloc.dashboardStream,
         builder: (context, snapshot) {
-          appModel = snapshot.data;
-          investor = appModel.investor;
+          print(
+              '\n♻️ ♻️ ♻️ ♻️ ♻️ stream️ snapshot ... ${snapshot.connectionState} data: ${snapshot.data}');
+          investor = bloc.investor;
+          switch (snapshot.connectionState) {
+            case ConnectionState.active:
+              data = snapshot.data;
+              break;
+            case ConnectionState.done:
+              break;
+            case ConnectionState.waiting:
+              break;
+            case ConnectionState.none:
+              break;
+          }
+
+          if (data == null) {
+            return Container();
+          }
           return WillPopScope(
             onWillPop: () async => false,
             child: Scaffold(
@@ -355,18 +364,18 @@ class _DashboardState extends State<Dashboard>
       tiles.add(tile);
     });
 
-    return appModel == null
-        ? Container()
+    return data == null
+        ? Container(
+            child: Text('Empty Container'),
+          )
         : ListView(
             children: <Widget>[
               new InkWell(
                 onTap: _onInvoiceBidsTapped,
                 child: Padding(
                   padding: const EdgeInsets.only(bottom: 0.0),
-                  child: InvestorSummaryCard(
-                    context: context,
-                    listener: this,
-                    appModel: appModel,
+                  child: DashboardCard(
+                    bloc: bloc,
                     elevation: 8.0,
                   ),
                 ),
@@ -376,16 +385,12 @@ class _DashboardState extends State<Dashboard>
                 child: Padding(
                   padding: const EdgeInsets.only(bottom: 10.0),
                   child: SummaryCard(
-                    total: appModel.dashboardData == null
-                        ? 0
-                        : appModel.dashboardData.totalOpenOffers,
+                    total: data == null ? 0 : data.totalOpenOffers,
                     label: 'Offers Open for Bids',
                     totalStyle: Styles.pinkBoldMedium,
-                    totalValue: appModel.dashboardData == null
-                        ? 0.00
-                        : appModel.dashboardData.totalOpenOfferAmount,
+                    totalValue: data == null ? 0.00 : data.totalOpenOfferAmount,
                     totalValueStyle: Styles.tealBoldMedium,
-                    elevation: 2.0,
+                    elevation: 8.0,
                   ),
                 ),
               ),
@@ -425,13 +430,13 @@ class _DashboardState extends State<Dashboard>
   void _onInvoiceBidsTapped() async {
     print('_DashboardState._onInvoiceTapped ...............');
 
-    if (appModel.unsettledInvoiceBids.isEmpty) {
+    if (data.unsettledBids.isEmpty) {
       AppSnackbar.showSnackbar(
           scaffoldKey: _scaffoldKey,
           message: 'No outstanding invoice bids\nRefresh data ...',
           textColor: Styles.white,
           backgroundColor: Styles.black);
-      await investorModelBloc.refreshDashboard();
+//      await investorModelBloc.refreshDashboard();
       return;
     }
     Navigator.push(
@@ -447,12 +452,12 @@ class _DashboardState extends State<Dashboard>
       preferredSize: const Size.fromHeight(60.0),
       child: Padding(
         padding: const EdgeInsets.only(bottom: 20.0),
-        child: appModel == null
+        child: data == null
             ? Container()
             : Column(
                 children: <Widget>[
                   Text(
-                    appModel.investor == null ? '' : appModel.investor.name,
+                    bloc.investor == null ? '' : bloc.investor.name,
                     style: Styles.yellowBoldMedium,
                   ),
                 ],
@@ -556,7 +561,7 @@ class _DashboardState extends State<Dashboard>
     if (id == investor.participantId) {
       _showBottomSheet(bid);
     }
-    await investorModelBloc.refreshDashboard();
+    await bloc.refreshRemoteDashboard();
   }
 
   double opacity = 1.0;
@@ -574,7 +579,7 @@ class _DashboardState extends State<Dashboard>
               'Offer arrived: ${getFormattedDateShortWithTime('${offer.date}', context)} ',
           subTitle: offer.supplierName));
     });
-    await investorModelBloc.refreshDashboard();
+    await bloc.refreshRemoteDashboard();
     _showSnack(
         'Offer arrived ${getFormattedAmount('${offer.offerAmount}', context)}');
   }
@@ -588,7 +593,7 @@ class _DashboardState extends State<Dashboard>
               'Settlement arrived: ${getFormattedDateShortWithTime('${s.date}', context)} ',
           subTitle: s.supplierName));
     });
-    await investorModelBloc.refreshDashboard();
+    await bloc.refreshRemoteDashboard();
   }
 
   void _showSnack(String message) {
@@ -600,21 +605,14 @@ class _DashboardState extends State<Dashboard>
   }
 
   @override
-  onCharts() {
+  onCharts() async {
     print('_DashboardState.onCharts ..................');
-    investorModelBloc.refreshDashboard();
+    await bloc.refreshRemoteDashboard();
 
     Navigator.push(
       context,
       new MaterialPageRoute(builder: (context) => new Charts()),
     );
-    return null;
-  }
-
-  @override
-  onRefresh() {
-    print('_DashboardState.onRefresh call: appModel.refreshInvoiceBids(); ');
-    investorModelBloc.refreshDashboard();
     return null;
   }
 

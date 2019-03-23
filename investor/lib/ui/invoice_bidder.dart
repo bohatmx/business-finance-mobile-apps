@@ -36,7 +36,7 @@ class _InvoiceBidderState extends State<InvoiceBidder>
   User user;
   Wallet wallet;
   bool _showBusyIndicator = false;
-  InvestorAppModel2 appModel;
+  InvestorAppModel appModel;
   @override
   void initState() {
     super.initState();

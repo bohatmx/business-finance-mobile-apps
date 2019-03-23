@@ -1,6 +1,5 @@
 import 'package:businesslibrary/api/data_api3.dart';
 import 'package:businesslibrary/api/list_api.dart';
-
 import 'package:businesslibrary/data/invoice.dart';
 import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/data/offerCancellation.dart';
@@ -42,7 +41,8 @@ class _InvoicesOnOfferState extends State<InvoicesOnOffer>
         textColor: Styles.white,
         backgroundColor: Styles.black);
 
-    var acceptance = await ListAPI.getInvoiceAcceptanceByInvoice(invoice.invoiceId);
+    var acceptance =
+        await ListAPI.getInvoiceAcceptanceByInvoice(invoice.invoiceId);
 
     if (acceptance == null) {
       AppSnackbar.showSnackbar(
@@ -193,9 +193,8 @@ class _InvoicesOnOfferState extends State<InvoicesOnOffer>
       return;
     }
 
-    var cancellation = OfferCancellation(
-        offer: 'resource:com.oneconnect.biz.Offer#${offer.offerId}',
-        user: 'resource:com.oneconnect.biz.User#${appModel.user.userId}');
+    var cancellation =
+        OfferCancellation(offer: offer.offerId, user: appModel.user.userId);
 
     var result = await DataAPI3.cancelOffer(cancellation);
     _scaffoldKey.currentState.hideCurrentSnackBar();

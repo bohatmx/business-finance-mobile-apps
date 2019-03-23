@@ -15,18 +15,18 @@ abstract class InvestorModelBlocListener {
   onEvent(String message);
 }
 
-class InvestorModelBloc implements Model2Listener {
-  final StreamController<InvestorAppModel2> _appModelController =
-      StreamController<InvestorAppModel2>.broadcast();
+class InvestorModelBloc implements AppModelListener {
+  final StreamController<InvestorAppModel> _appModelController =
+      StreamController<InvestorAppModel>.broadcast();
   final StreamController<String> _errorController =
       StreamController<String>.broadcast();
   final StreamController<ChatResponse> _chatController =
       StreamController<ChatResponse>.broadcast();
-  final InvestorAppModel2 _appModel = InvestorAppModel2();
+  final InvestorAppModel _appModel = InvestorAppModel();
 
   InvestorModelBloc() {
     print(
-        '\n\nInvestorModelBloc.InvestorModelBloc - CONSTRUCTOR - set listener and initialize app model');
+        '\n\n🌼 🌼 InvestorModelBloc - CONSTRUCTOR - 🌼 set listener and initialize app model');
     _appModel.setModelListener(this);
     _appModel.initialize();
   }
@@ -72,12 +72,12 @@ class InvestorModelBloc implements Model2Listener {
 
 final investorModelBloc = InvestorModelBloc();
 
-abstract class Model2Listener {
+abstract class AppModelListener {
   onComplete();
   onError(String message);
 }
 
-class InvestorAppModel2 {
+class InvestorAppModel {
   String _title = 'BFN State Test';
   int _pageLimit = 10;
   DashboardData _dashboardData = DashboardData();
@@ -85,7 +85,7 @@ class InvestorAppModel2 {
   List<InvestorInvoiceSettlement> _settlements;
   List<Offer> _offers;
   Investor _investor;
-  Model2Listener _modelListener;
+  AppModelListener _modelListener;
 
   int get pageLimit => _pageLimit;
   List<InvoiceBid> get unsettledInvoiceBids => _unsettledInvoiceBids;
@@ -113,7 +113,7 @@ class InvestorAppModel2 {
     return t;
   }
 
-  void setModelListener(Model2Listener listener) {
+  void setModelListener(AppModelListener listener) {
     _modelListener = listener;
     print('InvestorAppModel.setModelListener listener has been set.');
   }
@@ -170,7 +170,8 @@ class InvestorAppModel2 {
   }
 
   void initialize() async {
-    print('\n\nInvestorAppModel2.initialize ################################ ');
+    print(
+        '\n\n🔥 🔥 🔥 InvestorAppModel2.initialize ################################ ');
     _investor = await SharedPrefs.getInvestor();
     if (_investor == null) return;
     _pageLimit = await SharedPrefs.getPageLimit();
@@ -179,20 +180,22 @@ class InvestorAppModel2 {
     }
     await refreshDashboard();
     print(
-        '\n\nInvestorAppModel2.initialize - REFRESH MODEL COMPLETE - refreshDashboard *************');
+        '\n\n🔥 🔥 🔥 InvestorAppModel2.initialize - REFRESH MODEL COMPLETE - refreshDashboard *************');
   }
 
   Future refreshDashboard() async {
-    print('InvestorAppModel2.refreshDashboard ............................');
+    print(
+        '🐸 🐸 InvestorAppModel2.refreshDashboard ............................');
     try {
       _dashboardData = await Database.getDashboard();
       if (_dashboardData != null) {
         print(
-            '\n\nInvestorAppModel2.refreshDashboard - _dashboardData != null calling  _modelListener.onComplete();\n');
+            '\n\n🐸 🐸 🐸 🐸 InvestorAppModel2.refreshDashboard - _dashboardData != null calling  _modelListener.onComplete();\n');
         setLists();
         _modelListener.onComplete();
       } else {
-        print('InvestorAppModel2.refreshDashboard ...... dashboard is null.');
+        print(
+            '🐸 InvestorAppModel2.refreshDashboard ...... dashboard is null.');
       }
       await refreshRemoteDashboard();
       doPrint();
@@ -211,7 +214,7 @@ class InvestorAppModel2 {
   Future refreshRemoteDashboard() async {
     if (_investor == null) return null;
     print(
-        'InvestorAppModel2.refreshDashboard ----- REFRESH from functions ...............');
+        '💦  💦  💦  InvestorAppModel2.refreshDashboard ----- 💦  REFRESH from web api ...............');
     try {
       _dashboardData =
           await ListAPI.getInvestorDashboardData(_investor.participantId);

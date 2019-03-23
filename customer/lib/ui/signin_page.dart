@@ -29,7 +29,7 @@ class _SignInPageState extends State<SignInPage>
   var adminEmail, password, adminCellphone, idNumber;
   final GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
   final FirebaseMessaging _firebaseMessaging = new FirebaseMessaging();
-  Customer govtEntity;
+  Customer customer;
 
   String participationId;
 
@@ -286,8 +286,8 @@ class _SignInPageState extends State<SignInPage>
         print(
             '_SignInPageState._onSavePressed SUCCESS!!!!!! User has signed in  ############');
 
-        govtEntity = await SharedPrefs.getCustomer();
-        if (govtEntity == null) {
+        customer = await SharedPrefs.getCustomer();
+        if (customer == null) {
           AppSnackbar.showErrorSnackbar(
               listener: this,
               scaffoldKey: _scaffoldKey,
@@ -296,9 +296,7 @@ class _SignInPageState extends State<SignInPage>
         } else {
           //get wallet
           Wallet wallet = await ListAPI.getWallet(
-              'govtEntity',
-              'resource:com.oneconnect.biz.Customer#' +
-                  govtEntity.participantId);
+              ownerType: 'customer', participantId: customer.participantId);
           print(
               '_SignInPageState.checkResult ------- wallet recovered ${wallet.toJson()}');
           String msg;

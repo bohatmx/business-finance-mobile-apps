@@ -32,7 +32,6 @@ class MakeOfferPage extends StatefulWidget {
 
 class _MakeOfferPageState extends State<MakeOfferPage>
     implements SnackBarListener {
-  static const NameSpace = 'resource:com.oneconnect.biz.';
   static GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   FirebaseMessaging _fcm = FirebaseMessaging();
 

@@ -1,4 +1,5 @@
 import 'package:businesslibrary/api/shared_prefs.dart';
+import 'package:businesslibrary/blocs/investor_model_bloc.dart';
 import 'package:businesslibrary/data/investor.dart';
 import 'package:businesslibrary/data/invoice_bid.dart';
 import 'package:businesslibrary/util/FCM.dart';
@@ -11,9 +12,8 @@ import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:businesslibrary/blocs/investor_model_bloc.dart';
-import 'package:investor/ui/settle_invoice_bid.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:investor/ui/settle_invoice_bid.dart';
 
 class UnsettledBids extends StatefulWidget {
   @override
@@ -21,11 +21,11 @@ class UnsettledBids extends StatefulWidget {
 }
 
 class _UnsettledBidsState extends State<UnsettledBids>
-    implements PagerControlListener{
+    implements PagerControlListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   Investor investor;
   List<InvoiceBid> currentPage = List();
-  InvestorAppModel2 appModel;
+  InvestorAppModel appModel;
   bool isBusy, forceRefresh = false;
   FirebaseMessaging _fm = FirebaseMessaging();
   double totalBidAmount = 0.00;
@@ -41,10 +41,8 @@ class _UnsettledBidsState extends State<UnsettledBids>
   _getCache() async {
     investor = await SharedPrefs.getInvestor();
     _setBasePager();
-    setState(() {
-    });
+    setState(() {});
   }
-
 
   double _getHeight() {
     if (appModel.unsettledInvoiceBids == null) return 200.0;
@@ -256,7 +254,8 @@ class _UnsettledBidsState extends State<UnsettledBids>
   }
 
   _startSettlement(InvoiceBid invoiceBid) async {
-    prettyPrint(invoiceBid.toJson(), "Start settlement for this bid. check offer");
+    prettyPrint(
+        invoiceBid.toJson(), "Start settlement for this bid. check offer");
     Navigator.pop(context);
     Navigator.pop(context);
     Navigator.push(

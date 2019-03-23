@@ -287,7 +287,7 @@ Future<bool> isDeviceIOS() async {
   try {
     androidInfo = await deviceInfo.androidInfo;
     print(
-        '\n\n\n################ isDeviceIOS: Running on ${androidInfo.model} ################\n\n');
+        '\n🌽 🌽 🌽 Device Running on ${androidInfo.model} ################ 🌽 🌽 🌽 \n');
     return isRunningIOs;
   } catch (e) {
     print('isDeviceIOS - error doing Android - this is NOT an Android phone!!');
@@ -296,7 +296,7 @@ Future<bool> isDeviceIOS() async {
   try {
     iosInfo = await deviceInfo.iosInfo;
     print(
-        '\n\n\n################ isDeviceIOS: Running on ${iosInfo.utsname.machine} ################\n\n');
+        '\n🍏 🍏 🍏 Device Running on ${iosInfo.utsname.machine} ################ 🍏 🍏 🍏\n');
     isRunningIOs = true;
   } catch (e) {
     print('isDeviceIOSerror doing iOS - this is NOT an iPhone!!');

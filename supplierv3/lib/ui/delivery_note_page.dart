@@ -345,9 +345,6 @@ class _DeliveryNotePageState extends State<DeliveryNotePage>
     return oCcy.format(m);
   }
 
-  static const NameSpaceDelNote = 'resource:com.oneconnect.biz.DeliveryNote#';
-  static const NameSpaceUser = 'resource:com.oneconnect.biz.User#';
-  static const NameSpacePO = 'resource:com.oneconnect.biz.PurchaseOrder#';
   void _onSubmit() async {
     print('_DeliveryNotePageState._onSubmit');
     if (amount == null) {
@@ -380,10 +377,10 @@ class _DeliveryNotePageState extends State<DeliveryNotePage>
       return;
     }
     var note = DeliveryNote(
-      purchaseOrder: NameSpacePO + _purchaseOrder.purchaseOrderId,
+      purchaseOrder: _purchaseOrder.purchaseOrderId,
       supplier: _purchaseOrder.supplier,
       supplierName: _purchaseOrder.supplierName,
-      user: NameSpaceUser + _user.userId,
+      user: _user.userId,
       date: DateTime.now().toIso8601String(),
       purchaseOrderNumber: _purchaseOrder.purchaseOrderNumber,
       customerName: _purchaseOrder.purchaserName,

@@ -35,7 +35,7 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   final FirebaseMessaging fm = FirebaseMessaging();
   final Firestore fs = Firestore.instance;
-  InvestorAppModel2 appModel;
+  InvestorAppModel appModel;
   String webViewTitle, webViewUrl;
   Offer offer;
   OfferBag offerBag;

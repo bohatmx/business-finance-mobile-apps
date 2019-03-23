@@ -270,9 +270,25 @@ class _SignUpPageState extends State<SignUpPage>
         backgroundColor: Colors.black,
       );
 
-//      var result = await SignUp.signUpInvestor(investor, admin);
-//
-//      checkResult(result, investor);
+      try {
+        investor = await DataAPI3.addInvestor(investor, admin);
+        AppSnackbar.showSnackbarWithAction(
+            listener: this,
+            scaffoldKey: _scaffoldKey,
+            message: 'Sign Up and Wallet OK',
+            textColor: Colors.white,
+            backgroundColor: Colors.teal,
+            actionLabel: 'Start',
+            action: 0,
+            icon: Icons.done_all);
+        exit();
+      } catch (e) {
+        AppSnackbar.showErrorSnackbar(
+            listener: this,
+            scaffoldKey: _scaffoldKey,
+            message: e.message,
+            actionLabel: "Support");
+      }
     }
   }
 

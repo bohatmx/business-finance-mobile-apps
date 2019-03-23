@@ -239,8 +239,8 @@ class _SignInPageState extends State<SignInPage> implements SnackBarListener {
               actionLabel: "close");
         } else {
           //get wallet
-          Wallet wallet = await ListAPI.getWallet('supplier',
-              'resource:com.oneconnect.biz.Supplier#' + supplier.participantId);
+          Wallet wallet = await ListAPI.getWallet(
+              ownerType: 'supplier', participantId: supplier.participantId);
           prettyPrint(wallet.toJson(),
               '_SignInPageState.checkResult wallet recovered: check secret..');
 

@@ -348,9 +348,8 @@ class _InvoiceListState extends State<InvoiceList>
       return;
     }
 
-    var cancellation = OfferCancellation(
-        offer: 'resource:com.oneconnect.biz.Offer#${offer.offerId}',
-        user: 'resource:com.oneconnect.biz.User#${user.userId}');
+    var cancellation =
+        OfferCancellation(offer: offer.offerId, user: user.userId);
 
     var result = await DataAPI3.cancelOffer(cancellation);
     _scaffoldKey.currentState.hideCurrentSnackBar();

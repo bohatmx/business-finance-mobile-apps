@@ -71,7 +71,6 @@ class _NewInvoicePageState extends State<NewInvoicePage>
     _getDeliveryAcceptances();
   }
 
-  static const NameSpace = 'resource:com.oneconnect.biz.';
   void _onSubmit() async {
     if (contracts.isNotEmpty) {
       if (contract == null) {
@@ -106,14 +105,12 @@ class _NewInvoicePageState extends State<NewInvoicePage>
         totalAmount: totalAmount,
         isOnOffer: false,
         isSettled: false,
-        deliveryAcceptance:
-            NameSpace + 'DeliveryAcceptance#${deliveryAcceptance.acceptanceId}',
+        deliveryAcceptance: deliveryAcceptance.acceptanceId,
         date: new DateTime.now().toIso8601String(),
       );
 
       if (contract != null) {
-        invoice.supplierContract =
-            NameSpace + 'SupplierContract#${contract.contractId}';
+        invoice.supplierContract = contract.contractId;
         invoice.contractURL = contract.contractURL;
       }
       isSubmit = true;

@@ -4,11 +4,11 @@ import 'package:businesslibrary/api/data_api3.dart';
 import 'package:businesslibrary/api/list_api.dart';
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/api/signin.dart';
+import 'package:businesslibrary/blocs/investor_model_bloc.dart';
 import 'package:businesslibrary/data/investor.dart';
 import 'package:businesslibrary/data/sector.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/data/wallet.dart';
-import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/message.dart';
 import 'package:businesslibrary/util/selectors.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
@@ -16,16 +16,15 @@ import 'package:businesslibrary/util/util.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:businesslibrary/blocs/investor_model_bloc.dart';
 import 'package:investor/ui/dashboard.dart';
-
 
 class SignInPage extends StatefulWidget {
   @override
   _SignInPageState createState() => _SignInPageState();
 }
 
-class _SignInPageState extends State<SignInPage> implements SnackBarListener, InvestorModelBlocListener {
+class _SignInPageState extends State<SignInPage>
+    implements SnackBarListener, InvestorModelBlocListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   var adminEmail, password, adminCellphone, idNumber;
   final GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
@@ -91,25 +90,25 @@ class _SignInPageState extends State<SignInPage> implements SnackBarListener, In
                 child: items.length == 0
                     ? Container()
                     : DropdownButton<User>(
-                  items: items,
-                  hint: Text(
-                    'Select User',
-                    style: TextStyle(color: Colors.white, fontSize: 24.0),
-                  ),
-                  onChanged: (val) {
-                    print(
-                        '_SignInPageState._getDropdown ################# val: $val');
-                    setState(() {
-                      user = val;
-                      adminEmail = user.email;
-                      password = user.password;
-                    });
-                  },
-                ),
+                        items: items,
+                        hint: Text(
+                          'Select User',
+                          style: TextStyle(color: Colors.white, fontSize: 24.0),
+                        ),
+                        onChanged: (val) {
+                          print(
+                              '_SignInPageState._getDropdown ################# val: $val');
+                          setState(() {
+                            user = val;
+                            adminEmail = user.email;
+                            password = user.password;
+                          });
+                        },
+                      ),
               ),
               new Padding(
                 padding:
-                const EdgeInsets.only(left: 16.0, bottom: 20.0, top: 20.0),
+                    const EdgeInsets.only(left: 16.0, bottom: 20.0, top: 20.0),
                 child: Text(
                   adminEmail == null ? '' : adminEmail,
                   style: TextStyle(
@@ -131,7 +130,10 @@ class _SignInPageState extends State<SignInPage> implements SnackBarListener, In
     messages.forEach((m) {
       tiles.add(ListTile(
         title: Text(m.message),
-        leading: Icon(Icons.cloud_download, color: getRandomColor(),),
+        leading: Icon(
+          Icons.cloud_download,
+          color: getRandomColor(),
+        ),
       ));
     });
     return Scaffold(
@@ -202,9 +204,11 @@ class _SignInPageState extends State<SignInPage> implements SnackBarListener, In
                       ),
                     ),
                   ),
-                  tiles.isEmpty? Container() : Column(
-                    children: tiles,
-                  ),
+                  tiles.isEmpty
+                      ? Container()
+                      : Column(
+                          children: tiles,
+                        ),
                 ],
               ),
             ),
@@ -291,15 +295,14 @@ class _SignInPageState extends State<SignInPage> implements SnackBarListener, In
               actionLabel: "close");
         } else {
           //get wallet
-          Wallet wallet = await ListAPI.getWallet(
-              'investor', NameSpace +
-              'Investor#' +
-                  investor.participantId);
+          Wallet wallet =
+              await ListAPI.getWallet(participantId: investor.participantId);
           print(
               '_SignInPageState.checkResult ------- wallet recovered ${wallet.toJson()}');
           String msg;
           if (wallet != null) {
             msg = 'Wallet recovered';
+            await SharedPrefs.saveWallet(wallet);
           }
           await investorModelBloc.refreshDashboardWithListener(this);
           Navigator.push(

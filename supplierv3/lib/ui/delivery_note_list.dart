@@ -623,5 +623,3 @@ class DeliveryNoteCard extends StatelessWidget {
 abstract class DeliveryNoteCardListener {
   onNoteTapped(DeliveryNote note);
 }
-//resource:com.oneconnect.biz.InvoiceAcceptance#0eeb2f40-9620-11e8-d32e-ad5f0634b32e
-//resource:com.oneconnect.biz.InvoiceAcceptance#1077f9f0-9620-11e8-bee8-59eeeaadb5be
