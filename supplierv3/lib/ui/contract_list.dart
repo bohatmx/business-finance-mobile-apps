@@ -6,6 +6,7 @@ import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:flutter/material.dart';
+import 'package:supplierv3/supplier_bloc.dart';
 import 'package:supplierv3/ui/contract_page.dart';
 
 class ContractList extends StatefulWidget {
@@ -156,6 +157,23 @@ class _ContractListState extends State<ContractList> {
                         ),
                       ],
                     ),
+                  ),
+                  StreamBuilder<String>(
+                    stream: supplierBloc.fcmStream,
+                    builder: (context, snapshot) {
+                      if (snapshot.data == null) return Container();
+                      return Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
+                          children: <Widget>[
+                            Text(
+                              snapshot.data,
+                              style: Styles.whiteSmall,
+                            ),
+                          ],
+                        ),
+                      );
+                    },
                   ),
                 ],
               ),

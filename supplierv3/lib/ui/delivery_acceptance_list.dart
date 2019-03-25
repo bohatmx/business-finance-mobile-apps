@@ -11,6 +11,7 @@ import 'package:businesslibrary/util/styles.dart';
 import 'package:businesslibrary/util/util.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:supplierv3/supplier_bloc.dart';
 import 'package:supplierv3/ui/invoice_page.dart';
 
 class DeliveryAcceptanceList extends StatefulWidget {
@@ -145,10 +146,27 @@ class _DeliveryAcceptanceListState extends State<DeliveryAcceptanceList>
                     supplier == null ? '' : supplier.name,
                     style: getTitleTextWhite(),
                   ),
-                )
+                ),
+                StreamBuilder<String>(
+                  stream: supplierBloc.fcmStream,
+                  builder: (context, snapshot) {
+                    if (snapshot.data == null) return Container();
+                    return Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        children: <Widget>[
+                          Text(
+                            snapshot.data,
+                            style: Styles.whiteSmall,
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
               ],
             ),
-            preferredSize: Size.fromHeight(40.0)),
+            preferredSize: Size.fromHeight(60.0)),
       ),
       body: Card(
         elevation: 4.0,

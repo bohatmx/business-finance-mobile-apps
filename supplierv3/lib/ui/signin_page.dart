@@ -239,12 +239,12 @@ class _SignInPageState extends State<SignInPage> implements SnackBarListener {
               actionLabel: "close");
         } else {
           //get wallet
-          Wallet wallet = await ListAPI.getWallet(
-              ownerType: 'supplier', participantId: supplier.participantId);
+          Wallet wallet =
+              await ListAPI.getWallet(participantId: supplier.participantId);
           prettyPrint(wallet.toJson(),
               '_SignInPageState.checkResult wallet recovered: check secret..');
 
-          await supplierModelBloc.refreshModel();
+          await supplierBloc.refreshModel();
           Navigator.push(
             context,
             new MaterialPageRoute(

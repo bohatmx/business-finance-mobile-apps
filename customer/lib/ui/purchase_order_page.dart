@@ -11,6 +11,7 @@ import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/selectors.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
+import 'package:customer/customer_bloc.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 
@@ -178,7 +179,7 @@ class _PurchaseOrderPageState extends State<PurchaseOrderPage>
       appBar: AppBar(
         title: Text('$label Purchase Order'),
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(60.0),
+          preferredSize: const Size.fromHeight(80.0),
           child: Column(
             children: <Widget>[
               Text(
@@ -191,6 +192,23 @@ class _PurchaseOrderPageState extends State<PurchaseOrderPage>
                   userName == null ? '' : userName,
                   style: style3,
                 ),
+              ),
+              StreamBuilder<String>(
+                stream: customerBloc.fcmStream,
+                builder: (context, snapshot) {
+                  if (snapshot.data == null) return Container();
+                  return Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      children: <Widget>[
+                        Text(
+                          snapshot.data,
+                          style: Styles.whiteSmall,
+                        ),
+                      ],
+                    ),
+                  );
+                },
               ),
             ],
           ),

@@ -13,6 +13,7 @@ import 'package:businesslibrary/util/styles.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:investor/bloc/bloc.dart';
 import 'package:investor/ui/settle_invoice_bid.dart';
 
 class UnsettledBids extends StatefulWidget {
@@ -45,11 +46,11 @@ class _UnsettledBidsState extends State<UnsettledBids>
   }
 
   double _getHeight() {
-    if (appModel.unsettledInvoiceBids == null) return 200.0;
+    if (appModel.unsettledInvoiceBids == null) return 220.0;
     if (appModel.unsettledInvoiceBids.length < 2) {
-      return 200.0;
+      return 220.0;
     } else {
-      return 240.0;
+      return 260.0;
     }
   }
 
@@ -90,6 +91,23 @@ class _UnsettledBidsState extends State<UnsettledBids>
                             left: 12.0, right: 8.0, bottom: 12.0),
                         child: _getButton(),
                       ),
+                StreamBuilder<String>(
+                  stream: investorBloc.fcmStream,
+                  builder: (context, snapshot) {
+                    if (snapshot.data == null) return Container();
+                    return Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        children: <Widget>[
+                          Text(
+                            snapshot.data,
+                            style: Styles.whiteSmall,
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
               ],
             ),
     );

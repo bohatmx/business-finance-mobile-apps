@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/invoice_bid.dart';
@@ -8,10 +7,8 @@ import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/util/FCM.dart';
 import 'package:businesslibrary/util/lookups.dart';
-
 import 'package:businesslibrary/util/mypager.dart';
 import 'package:businesslibrary/util/offer_card.dart';
-
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:device_info/device_info.dart';
@@ -52,10 +49,12 @@ class _OfferListState extends State<OfferList>
   void _getCached() async {
     supplier = await SharedPrefs.getSupplier();
     _fcm.subscribeToTopic(FCM.TOPIC_INVOICE_BIDS + supplier.participantId);
-    _fcm.subscribeToTopic(FCM.TOPIC_INVESTOR_INVOICE_SETTLEMENTS + supplier.participantId);
+    _fcm.subscribeToTopic(
+        FCM.TOPIC_INVESTOR_INVOICE_SETTLEMENTS + supplier.participantId);
     _configureFCM();
     setBasePager();
   }
+
   _configureFCM() async {
     print(
         '\n\n\ ################ CONFIGURE FCM MESSAGE ###########  starting _firebaseMessaging');
@@ -111,7 +110,6 @@ class _OfferListState extends State<OfferList>
 
         try {
           switch (messageType) {
-
             case 'INVOICE_BID':
               var m = InvoiceBid.fromJson(json.decode(mJSON));
               prettyPrint(
@@ -146,9 +144,9 @@ class _OfferListState extends State<OfferList>
     _fcm.requestNotificationPermissions(
         const IosNotificationSettings(sound: true, badge: true, alert: true));
 
-    _fcm.onIosSettingsRegistered
-        .listen((IosNotificationSettings settings) {});
+    _fcm.onIosSettingsRegistered.listen((IosNotificationSettings settings) {});
   }
+
   _checkBids(Offer offer) async {
     this.offer = offer;
 
@@ -263,7 +261,7 @@ class _OfferListState extends State<OfferList>
   }
 
   @override
-  onInvoiceBidMessage(InvoiceBid invoiceBid) async{
+  onInvoiceBidMessage(InvoiceBid invoiceBid) async {
     print(
         '\n\n_OfferListState.onInvoiceBidMessage, ${invoiceBid.investorName} amount: ${invoiceBid.amount}');
     AppSnackbar.showSnackbar(
@@ -272,7 +270,7 @@ class _OfferListState extends State<OfferList>
         textColor: Styles.white,
         backgroundColor: Styles.black);
 
-    await supplierModelBloc.refreshModel();
+    await supplierBloc.refreshModel();
   }
 
   //paging constructs
@@ -371,7 +369,8 @@ class _OfferListState extends State<OfferList>
     });
   }
 
-  void onInvestorInvoiceSettlement(InvestorInvoiceSettlement investorInvoiceSettlement) async{
+  void onInvestorInvoiceSettlement(
+      InvestorInvoiceSettlement investorInvoiceSettlement) async {
     print('_OfferListState.onInvestorInvoiceSettlement');
     AppSnackbar.showSnackbar(
         scaffoldKey: _scaffoldKey,
@@ -379,7 +378,7 @@ class _OfferListState extends State<OfferList>
         textColor: Styles.white,
         backgroundColor: Styles.black);
 
-    await supplierModelBloc.refreshModel();
+    await supplierBloc.refreshModel();
   }
 
   //end of paging constructs

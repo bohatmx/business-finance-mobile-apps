@@ -14,21 +14,98 @@ import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/Finders.dart';
 import 'package:businesslibrary/util/database.dart';
+import 'package:businesslibrary/util/lookups.dart';
+import 'package:flutter/material.dart';
 
-class SupplierModelBloc implements SupplierBlocListener {
+class SupplierBloc implements SupplierBlocListener {
   final StreamController<SupplierApplicationModel> _appModelController =
-      StreamController<SupplierApplicationModel>();
-  final StreamController<String> _errorController = StreamController<String>();
+      StreamController.broadcast();
+  final StreamController<String> _errorController =
+      StreamController.broadcast();
   final SupplierApplicationModel _appModel = SupplierApplicationModel();
 
-  SupplierModelBloc() {
+  final StreamController<PurchaseOrder> _poController =
+      StreamController.broadcast();
+
+  final StreamController<DeliveryNote> _dnController =
+      StreamController.broadcast();
+
+  final StreamController<DeliveryAcceptance> _delAccController =
+      StreamController.broadcast();
+
+  final StreamController<Invoice> _invController = StreamController.broadcast();
+
+  final StreamController<InvoiceAcceptance> _invAccController =
+      StreamController.broadcast();
+
+  final StreamController<InvoiceBid> _bidController =
+      StreamController.broadcast();
+
+  final StreamController<Offer> _offController = StreamController.broadcast();
+
+  final StreamController<String> _fcmMessageController =
+      StreamController.broadcast();
+
+  SupplierBloc() {
     print(
-        '\n\nSupplierModelBloc - CONSTRUCTOR - set listener and initialize app model');
+        '\n\n📌 📌 📌 SupplierModelBloc - CONSTRUCTOR - 📌 set listener and initialize app model');
     _appModel.setListener(this);
     _appModel.initialize();
   }
 
   get appModel => _appModel;
+  get purchaseOrderMessageStream => _poController.stream;
+  get deliveryAcceptanceStream => _delAccController.stream;
+  get invoiceAcceptanceStream => _invAccController.stream;
+  get deliveryNoteStream => _dnController.stream;
+  get invoiceBidStream => _bidController.stream;
+  get offerStream => _offController.stream;
+  get fcmStream => _fcmMessageController.stream;
+
+  receivePurchaseOrderMessage(PurchaseOrder order, BuildContext ctx) {
+    print('☘ ☘ ☘ po arrived at Bloc receivePurchaseOrderMessage  ☘');
+    var msg =
+        '🔆 Purchase Order arrived:  ${getFormattedAmount('${order.amount}', ctx)} ${getFormattedDateHour('${DateTime.now().toString()}')}';
+    _fcmMessageController.sink.add(msg);
+  }
+
+  receiveDeliveryNoteMessage(DeliveryNote note, BuildContext ctx) {
+    var msg =
+        '☘  Delivery Note arrived:  ${getFormattedAmount('${note.totalAmount}', ctx)} ${getFormattedDateHour('${DateTime.now().toString()}')}';
+    _fcmMessageController.sink.add(msg);
+  }
+
+  receiveDeliveryAcceptanceMessage(
+      DeliveryAcceptance acceptance, BuildContext ctx) {
+    var msg =
+        '🔆 Delivery Acceptance arrived:  ${acceptance.customerName} ${getFormattedDateHour('${DateTime.now().toString()}')}';
+    _fcmMessageController.sink.add(msg);
+  }
+
+  receiveInvoiceMessage(Invoice invoice, BuildContext ctx) {
+    var msg =
+        '🔆 Invoice arrived:  ${getFormattedAmount('${invoice.amount}', ctx)} ${getFormattedDateHour('${DateTime.now().toString()}')}';
+    _fcmMessageController.sink.add(msg);
+  }
+
+  receiveInvoiceAcceptanceMessage(
+      InvoiceAcceptance acceptance, BuildContext ctx) {
+    var msg =
+        '🔆 Invoice Acceptance arrived:  ${acceptance.invoiceNumber} ${getFormattedDateHour('${DateTime.now().toString()}')}';
+    _fcmMessageController.sink.add(msg);
+  }
+
+  receiveOfferMessage(Offer offer, BuildContext ctx) {
+    var msg =
+        '🔆 Offer arrived:  ${getFormattedAmount('${offer.offerAmount}', ctx)} ${getFormattedDateHour('${DateTime.now().toString()}')}';
+    _fcmMessageController.sink.add(msg);
+  }
+
+  receiveInvoiceBidMessage(InvoiceBid invoiceBid, BuildContext ctx) {
+    var msg =
+        '🔆 Invoice Bid arrived:  ${getFormattedAmount('${invoiceBid.amount}', ctx)} ${getFormattedDateHour('${DateTime.now().toString()}')}';
+    _fcmMessageController.sink.add(msg);
+  }
 
   refreshModel() async {
     try {
@@ -42,6 +119,14 @@ class SupplierModelBloc implements SupplierBlocListener {
   closeStream() {
     _appModelController.close();
     _errorController.close();
+    _poController.close();
+    _dnController.close();
+    _delAccController.close();
+    _invAccController.close();
+    _invController.close();
+    _bidController.close();
+    _offController.close();
+    _fcmMessageController.close();
   }
 
   get appModelStream => _appModelController.stream;
@@ -49,7 +134,7 @@ class SupplierModelBloc implements SupplierBlocListener {
   @override
   onComplete() {
     print(
-        '\n\nSupplierModelBloc.onComplete ########## adding model to stream sink ......... ');
+        '\n\n☕️ ☕️ ☕️ SupplierModelBloc.onComplete ########## adding model to stream sink ......... ');
     _appModelController.sink.add(_appModel);
   }
 
@@ -59,7 +144,7 @@ class SupplierModelBloc implements SupplierBlocListener {
   }
 }
 
-final supplierModelBloc = SupplierModelBloc();
+final supplierBloc = SupplierBloc();
 
 abstract class SupplierBlocListener {
   onComplete();
@@ -101,7 +186,7 @@ class SupplierApplicationModel {
 
   void initialize() async {
     print(
-        '\n\n\nSupplierAppModel.initialize - ############### load model data from cache');
+        '\n\n\n📌 📌 📌 SupplierAppModel.initialize - 🔆 ############### load model data from cache 🌸 🌸');
     var start = DateTime.now();
     _supplier = await SharedPrefs.getSupplier();
     _user = await SharedPrefs.getUser();
@@ -119,9 +204,9 @@ class SupplierApplicationModel {
     }
 
     print(
-        'SupplierAppModel.initialize, _purchaseOrders found in database: ${_purchaseOrders.length}');
+        '🥦 🥦 🥦 SupplierAppModel.initialize, _purchaseOrders found in database: ${_purchaseOrders.length}');
     print(
-        '\n\nSupplierAppModel.initialize - ############### loading Model from cache ...');
+        '\n\n🥦 🥦 🥦 SupplierAppModel.initialize - ############### loading Model from cache ...');
     _deliveryNotes = await Database.getDeliveryNotes();
     _setItemNumbers(_deliveryNotes);
 
@@ -145,7 +230,7 @@ class SupplierApplicationModel {
 
     var end = DateTime.now();
     print(
-        '\n\nSupplierAppModel.initialize ######### model refreshed: elapsed time: ${end.difference(start).inMilliseconds} milliseconds. calling notifyListeners');
+        '\n\n🥦 🥦 🥦  SupplierAppModel.initialize ######### 🌸 🌸 model refreshed: elapsed time: ${end.difference(start).inMilliseconds} milliseconds. calling notifyListeners');
   }
 
   void _setItemNumbers(List<Findable> list) {
@@ -377,7 +462,7 @@ class SupplierApplicationModel {
 
     var end = DateTime.now();
     print(
-        '\n\nSupplierAppModel.refreshModel ############ Refresh Complete, elapsed: ${end.difference(start).inSeconds} seconds');
+        '\n\n🌸 🌸 🌸 SupplierAppModel.refreshModel ############ Refresh Complete, elapsed: ${end.difference(start).inSeconds} seconds');
     if (_listener != null) {
       _listener.onComplete();
     }

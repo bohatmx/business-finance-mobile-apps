@@ -457,13 +457,13 @@ class SharedPrefs {
   static void saveThemeIndex(int index) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setInt("themeIndex", index);
-    //prefs.commit();
+    print("🚹 🚹 🚹 === SharedPrefs theme index; SAVED: 🔆 $index");
   }
 
   static Future<int> getThemeIndex() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     int index = prefs.getInt("themeIndex");
-    print("=================== SharedPrefs theme index: $index");
+    print("💊 💊 💊 === SharedPrefs theme index retrieved: 🔆 $index");
     return index;
   }
 

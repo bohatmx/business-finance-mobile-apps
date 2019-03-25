@@ -12,6 +12,7 @@ import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/FCM.dart';
+import 'package:businesslibrary/util/constants.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/message.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
@@ -50,7 +51,7 @@ class _DashboardState extends State<Dashboard>
   FirebaseMessaging _fcm = FirebaseMessaging();
   AnimationController animationController;
   Animation<double> animation;
-  Customer govtEntity;
+  Customer customer;
   User user;
   String fullName;
   int messageReceived;
@@ -70,7 +71,7 @@ class _DashboardState extends State<Dashboard>
     animation = new Tween(begin: 0.0, end: 1.0).animate(animationController);
 
     _getCachedPrefs();
-    appModel = customerModelBloc.appModel;
+    appModel = customerBloc.appModel;
   }
 
   @override
@@ -80,7 +81,7 @@ class _DashboardState extends State<Dashboard>
   }
 
   _getCachedPrefs() async {
-    govtEntity = await SharedPrefs.getCustomer();
+    customer = await SharedPrefs.getCustomer();
     user = await SharedPrefs.getUser();
     fullName = user.firstName + ' ' + user.lastName;
     _configureFCM();
@@ -89,7 +90,7 @@ class _DashboardState extends State<Dashboard>
   //FCM methods #############################
   _configureFCM() async {
     print(
-        '\n\n\ ################ CONFIGURE FCM MESSAGE ###########  starting _firebaseMessaging');
+        '\n\n\🌺 🌺 🌺  ################ CONFIGURE FCM MESSAGE ###########  🌺 🌺 🌺 ');
 
     token = await _fcm.getToken();
     if (token != null) {
@@ -100,7 +101,7 @@ class _DashboardState extends State<Dashboard>
     _fcm.configure(
       onMessage: (Map<String, dynamic> map) async {
         prettyPrint(map,
-            '\n\n################ Message from FCM ################# ${DateTime.now().toIso8601String()}');
+            '\n\n🌺 🌺 🌺 ################ Message from FCM ################# 💙 ${DateTime.now().toIso8601String()}');
 
         String messageType = 'unknown';
         String mJSON;
@@ -108,12 +109,12 @@ class _DashboardState extends State<Dashboard>
           if (isRunningIOs == true) {
             messageType = map["messageType"];
             mJSON = map['json'];
-            print('FCM.configureFCM platform is iOS');
+            print('FCM.configureFCM 🌽 🌽 🌽 platform is iOS');
           } else {
             var data = map['data'];
             messageType = data["messageType"];
             mJSON = data["json"];
-            print('FCM.configureFCM platform is Android');
+            print('FCM.configureFCM 🌽 🌽 🌽  platform is Android');
           }
         } catch (e) {
           print(e);
@@ -122,52 +123,45 @@ class _DashboardState extends State<Dashboard>
         }
 
         print(
-            'FCM.configureFCM ************************** messageType: $messageType');
+            '📭 📭 📭 📭  FCM.configureFCM ************************** messageType: $messageType');
 
         try {
           switch (messageType) {
-            case 'PURCHASE_ORDER':
+            case FS_PURCHASE_ORDERS:
               var m = PurchaseOrder.fromJson(json.decode(mJSON));
               prettyPrint(
                   m.toJson(), '\n\n########## FCM PURCHASE_ORDER MESSAGE :');
+              customerBloc.receivePurchaseOrderMessage(m, context);
               onPurchaseOrderMessage(m);
               break;
-            case 'DELIVERY_NOTE':
+            case FS_DELIVERY_NOTES:
               var m = DeliveryNote.fromJson(json.decode(mJSON));
               prettyPrint(
                   m.toJson(), '\n\n########## FCM DELIVERY_NOTE MESSAGE :');
+              customerBloc.receiveDeliveryNoteMessage(m, context);
               onDeliveryNoteMessage(m);
               break;
-            case 'DELIVERY_ACCEPTANCE':
+            case FS_DELIVERY_ACCEPTANCES:
               var m = DeliveryAcceptance.fromJson(json.decode(mJSON));
               prettyPrint(m.toJson(),
                   '\n\n########## FCM DELIVERY_ACCEPTANCE MESSAGE :');
+              customerBloc.receiveDeliveryAcceptanceMessage(m, context);
               onDeliveryAcceptanceMessage(m);
               break;
-            case 'INVOICE':
+            case FS_INVOICES:
               var m = Invoice.fromJson(json.decode(mJSON));
               prettyPrint(m.toJson(), '\n\n########## FCM MINVOICE ESSAGE :');
+              customerBloc.receiveInvoiceMessage(m, context);
               onInvoiceMessage(m);
               break;
-            case 'INVOICE_ACCEPTANCE':
+            case FS_INVOICE_ACCEPTANCES:
               var m = InvoiceAcceptance.fromJson(json.decode(mJSON));
               prettyPrint(m.toJson(), ' FCM INVOICE_ACCEPTANCE MESSAGE :');
+              customerBloc.receiveInvoiceAcceptanceMessage(m, context);
               onInvoiceAcceptanceMessage(m);
               break;
-            case 'OFFER':
-              var m = Offer.fromJson(json.decode(mJSON));
-              prettyPrint(m.toJson(), '\n\n########## FCM OFFER MESSAGE :');
-              onOfferMessage(m);
-              break;
-            case 'INVOICE_BID':
-              var m = InvoiceBid.fromJson(json.decode(mJSON));
-              prettyPrint(
-                  m.toJson(), '\n\n########## FCM INVOICE_BID MESSAGE :');
 
-              onInvoiceBidMessage(m);
-              break;
-
-            case 'INVESTOR_INVOICE_SETTLEMENT':
+            case FS_SETTLEMENTS:
               Map map = json.decode(mJSON);
               prettyPrint(
                   map, '\n\n########## FCM INVESTOR_INVOICE_SETTLEMENT :');
@@ -177,16 +171,16 @@ class _DashboardState extends State<Dashboard>
           }
         } catch (e) {
           print(
-              'FCM.configureFCM - Houston, we have a problem with null listener somewhere');
+              'FCM.configureFCM - 👿 👿 👿Houston, we have a problem with null listener 👿 somewhere');
           print(e);
         }
       },
       onLaunch: (Map<String, dynamic> message) {
-        print('configureMessaging onLaunch *********** ');
+        print('📭 📭 configureMessaging onLaunch *********** ');
         prettyPrint(message, 'message delivered on LAUNCH!');
       },
       onResume: (Map<String, dynamic> message) {
-        print('configureMessaging onResume *********** ');
+        print('📭 📭 configureMessaging onResume *********** ');
         prettyPrint(message, 'message delivered on RESUME!');
       },
     );
@@ -199,20 +193,21 @@ class _DashboardState extends State<Dashboard>
   }
 
   _subscribeToFCMTopics() async {
-    _fcm.subscribeToTopic(FCM.TOPIC_PURCHASE_ORDERS + govtEntity.participantId);
+    _fcm.subscribeToTopic(FCM.TOPIC_PURCHASE_ORDERS + customer.participantId);
     _fcm.subscribeToTopic(
-        FCM.TOPIC_DELIVERY_ACCEPTANCES + govtEntity.participantId);
+        FCM.TOPIC_DELIVERY_ACCEPTANCES + customer.participantId);
     _fcm.subscribeToTopic(
-        FCM.TOPIC_INVOICE_ACCEPTANCES + govtEntity.participantId);
+        FCM.TOPIC_INVOICE_ACCEPTANCES + customer.participantId);
     _fcm.subscribeToTopic(FCM.TOPIC_GENERAL_MESSAGE);
-    _fcm.subscribeToTopic(FCM.TOPIC_INVOICE_BIDS + govtEntity.participantId);
-    _fcm.subscribeToTopic(FCM.TOPIC_OFFERS + govtEntity.participantId);
-    _fcm.subscribeToTopic(FCM.TOPIC_INVOICES + govtEntity.participantId);
-    _fcm.subscribeToTopic(FCM.TOPIC_DELIVERY_NOTES + govtEntity.participantId);
+
+//    _fcm.subscribeToTopic(FCM.TOPIC_INVOICE_BIDS + govtEntity.participantId);
+//    _fcm.subscribeToTopic(FCM.TOPIC_OFFERS + govtEntity.participantId);
+    _fcm.subscribeToTopic(FCM.TOPIC_INVOICES + customer.participantId);
+    _fcm.subscribeToTopic(FCM.TOPIC_DELIVERY_NOTES + customer.participantId);
     _fcm.subscribeToTopic(
-        FCM.TOPIC_INVESTOR_INVOICE_SETTLEMENTS + govtEntity.participantId);
+        FCM.TOPIC_INVESTOR_INVOICE_SETTLEMENTS + customer.participantId);
     print(
-        '\n\n_DashboardState._subscribeToFCMTopics SUBSCRIBED to topis - POs, Delivery acceptance, Invoice acceptance');
+        '\n\n📭 📭 📭 _DashboardState._subscribeToFCMTopics SUBSCRIBED to topis - 🔆 Offers, 🔆  Invoicesn 🔆 POs, 🔆 Delivery acceptance, 🔆 Invoice acceptance');
   }
   //end of FCM methods ######################
 
@@ -220,7 +215,7 @@ class _DashboardState extends State<Dashboard>
 
   Widget _getBottom() {
     return PreferredSize(
-      preferredSize: const Size.fromHeight(40.0),
+      preferredSize: const Size.fromHeight(80.0),
       child: new Column(
         children: <Widget>[
           Row(
@@ -229,11 +224,28 @@ class _DashboardState extends State<Dashboard>
               new Padding(
                 padding: const EdgeInsets.only(bottom: 20.0),
                 child: Text(
-                  govtEntity == null ? 'Customer Name' : govtEntity.name,
-                  style: Styles.whiteBoldSmall,
+                  customer == null ? 'Customer Name' : customer.name,
+                  style: Styles.whiteBoldMedium,
                 ),
               )
             ],
+          ),
+          StreamBuilder<String>(
+            stream: customerBloc.fcmStream,
+            builder: (context, snapshot) {
+              if (snapshot.data == null) return Container();
+              return Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  children: <Widget>[
+                    Text(
+                      snapshot.data,
+                      style: Styles.whiteSmall,
+                    ),
+                  ],
+                ),
+              );
+            },
           ),
         ],
       ),
@@ -252,7 +264,7 @@ class _DashboardState extends State<Dashboard>
         textColor: Styles.white,
         backgroundColor: Styles.black);
 
-    await customerModelBloc.refreshModel();
+    await customerBloc.refreshModel();
     _scaffoldKey.currentState.removeCurrentSnackBar();
   }
 
@@ -262,11 +274,11 @@ class _DashboardState extends State<Dashboard>
     print('_DashboardState.build ######');
     _configureFCM();
     return StreamBuilder<CustomerApplicationModel>(
-      initialData: customerModelBloc.appModel,
-      stream: customerModelBloc.appModelStream,
+      initialData: customerBloc.appModel,
+      stream: customerBloc.appModelStream,
       builder: (context, snapshot) {
         appModel = snapshot.data;
-        govtEntity = appModel.customer;
+        customer = appModel.customer;
         if (snapshot.hasError) {
           return Center(
             child: Text(
@@ -298,11 +310,11 @@ class _DashboardState extends State<Dashboard>
           child: Scaffold(
             key: _scaffoldKey,
             appBar: AppBar(
-              elevation: 0.0,
+              elevation: 8.0,
 //              backgroundColor: Colors.brown.shade200,
               title: Text(
-                'BFN - Dashboard',
-                style: TextStyle(fontWeight: FontWeight.w900),
+                'BFN - Customer',
+                style: TextStyle(fontWeight: FontWeight.w100),
               ),
               leading:
                   IconButton(icon: Icon(Icons.apps), onPressed: _onChangeTheme),
@@ -358,7 +370,7 @@ class _DashboardState extends State<Dashboard>
       });
     }
     return Padding(
-      padding: const EdgeInsets.only(top: 20.0),
+      padding: const EdgeInsets.only(top: 8.0),
       child: appModel == null
           ? Container(
               child: Center(
@@ -373,17 +385,17 @@ class _DashboardState extends State<Dashboard>
                 new InkWell(
                   onTap: _onInvoicesTapped,
                   child: SummaryCard(
-                    total: appModel.invoices == null
-                        ? 0
-                        : appModel.invoices.length,
-                    label: 'Invoices',
-                    totalStyle: Styles.pinkBoldLarge,
-                    totalValue: appModel.invoices == null
-                        ? 0.0
-                        : appModel.getTotalInvoiceAmount(),
-                    totalValueStyle: Styles.blackBoldMedium,
-                    elevation: 16.0,
-                  ),
+                      total: appModel.invoices == null
+                          ? 0
+                          : appModel.invoices.length,
+                      label: 'Invoices',
+                      totalStyle: Styles.pinkBoldLarge,
+                      totalValue: appModel.invoices == null
+                          ? 0.0
+                          : appModel.getTotalInvoiceAmount(),
+                      totalValueStyle: Styles.blackBoldMedium,
+                      elevation: 16.0,
+                      color: Colors.orange.shade100),
                 ),
                 new InkWell(
                   onTap: _onPurchaseOrdersTapped,
@@ -501,7 +513,7 @@ class _DashboardState extends State<Dashboard>
           subTitle: deliveryNote.supplierName));
     });
     _showSnack(message: messages.last.message);
-    customerModelBloc.refreshDeliveryNotes();
+    customerBloc.refreshDeliveryNotes();
   }
 
   onInvoiceMessage(Invoice invoice) async {
@@ -513,7 +525,7 @@ class _DashboardState extends State<Dashboard>
           subTitle: invoice.supplierName));
     });
     _showSnack(message: messages.last.message);
-    customerModelBloc.refreshInvoices();
+    customerBloc.refreshInvoices();
   }
 
   onGeneralMessage(Map map) {
@@ -537,7 +549,7 @@ class _DashboardState extends State<Dashboard>
               settlement.supplierName + " from ${settlement.investorName}"));
     });
     _showSnack(message: messages.last.message);
-    await customerModelBloc.refreshSettlements();
+    await customerBloc.refreshSettlements();
     setState(() {});
   }
 
@@ -564,7 +576,7 @@ class _DashboardState extends State<Dashboard>
               ' ${getFormattedAmount('${o.offerAmount}', context)}'));
     });
     _showSnack(message: messages.last.message);
-    await customerModelBloc.refreshOffers();
+    await customerBloc.refreshOffers();
     setState(() {});
   }
 
@@ -577,7 +589,7 @@ class _DashboardState extends State<Dashboard>
           subTitle: acc.customerName));
     });
     _showSnack(message: messages.last.message);
-    await customerModelBloc.refreshInvoiceAcceptances();
+    await customerBloc.refreshInvoiceAcceptances();
     setState(() {});
   }
 
@@ -590,7 +602,7 @@ class _DashboardState extends State<Dashboard>
           subTitle: acc.customerName));
     });
     _showSnack(message: messages.last.message);
-    await customerModelBloc.refreshDeliveryAcceptances();
+    await customerBloc.refreshDeliveryAcceptances();
     setState(() {});
   }
 
@@ -603,7 +615,7 @@ class _DashboardState extends State<Dashboard>
           subTitle: po.supplierName));
     });
     _showSnack(message: messages.last.message);
-    customerModelBloc.refreshPurchaseOrders();
+    customerBloc.refreshPurchaseOrders();
     setState(() {});
   }
 

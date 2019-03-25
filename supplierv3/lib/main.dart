@@ -10,15 +10,16 @@ import 'package:supplierv3/ui/dashboard.dart';
 import 'package:supplierv3/ui/signin_page.dart';
 import 'package:supplierv3/ui/signup_page.dart';
 
-void main() => runApp(new SupplierApp2());
+void main() => runApp(new SupplierApp());
 
-class SupplierApp2 extends StatefulWidget {
+class SupplierApp extends StatefulWidget {
   @override
-  _SupplierApp2State createState() => _SupplierApp2State();
+  _SupplierAppState createState() => _SupplierAppState();
 }
 
-class _SupplierApp2State extends State<SupplierApp2> {
-  int themeIndex;
+class _SupplierAppState extends State<SupplierApp> {
+  int themeIndex = 0;
+
   @override
   void initState() {
     super.initState();
@@ -27,22 +28,26 @@ class _SupplierApp2State extends State<SupplierApp2> {
 
   void _getTheme() async {
     themeIndex = await SharedPrefs.getThemeIndex();
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<int>(
-      initialData: themeIndex == null ? 0 : themeIndex,
-      stream: themeBloc.newThemeStream,
-      builder: (context, snapShot) => MaterialApp(
+        initialData: themeIndex == null ? 0 : themeIndex,
+        stream: themeBloc.newThemeStream,
+        builder: (context, snapShot) {
+          print(
+              ' 🛎  🛎  🛎  🛎  🛎 StreamBuilder ::: 🌈 🌈 🌈 Setting theme; themeIndex: 🌈 : ${snapShot.data}');
+          return MaterialApp(
             title: 'BFNSupplier',
             debugShowCheckedModeBanner: false,
             theme: snapShot.data == null
                 ? ThemeUtil.getTheme(themeIndex: themeIndex)
                 : ThemeUtil.getTheme(themeIndex: snapShot.data),
             home: new StartPage(),
-          ),
-    );
+          );
+        });
   }
 }
 

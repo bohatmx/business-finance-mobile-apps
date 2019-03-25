@@ -40,7 +40,7 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
   _getCachedPrefs() async {
     user = await SharedPrefs.getUser();
     customer = await SharedPrefs.getCustomer();
-    appModel = customerModelBloc.appModel;
+    appModel = customerBloc.appModel;
     setBasePager();
   }
 
@@ -50,7 +50,7 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
         message: 'Refreshing data ...',
         textColor: Styles.white,
         backgroundColor: Styles.black);
-    await customerModelBloc.refreshModel();
+    await customerBloc.refreshModel();
     _scaffoldKey.currentState.removeCurrentSnackBar();
   }
 
@@ -84,7 +84,7 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
 
   Widget _getBottom() {
     return PreferredSize(
-      preferredSize: new Size.fromHeight(200.0),
+      preferredSize: new Size.fromHeight(220.0),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.end,
         children: <Widget>[
@@ -117,6 +117,23 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
                     ),
                   ],
                 ),
+          StreamBuilder<String>(
+            stream: customerBloc.fcmStream,
+            builder: (context, snapshot) {
+              if (snapshot.data == null) return Container();
+              return Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  children: <Widget>[
+                    Text(
+                      snapshot.data,
+                      style: Styles.whiteSmall,
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
         ],
       ),
     );

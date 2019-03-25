@@ -8,6 +8,7 @@ class SummaryCard extends StatelessWidget {
   final String label;
   final TextStyle totalStyle, totalValueStyle;
   final double totalValue, elevation, height;
+  final Color color;
 
   SummaryCard(
       {this.total,
@@ -16,6 +17,7 @@ class SummaryCard extends StatelessWidget {
       this.height,
       this.totalValue,
       this.totalValueStyle,
+      this.color,
       this.elevation});
 
   @override
@@ -23,9 +25,10 @@ class SummaryCard extends StatelessWidget {
     var top = 10.0;
 
     return new Padding(
-      padding: const EdgeInsets.only(left: 20.0, right: 20.0, top: 10.0),
+      padding: const EdgeInsets.only(left: 16.0, right: 16.0, top: 4.0),
       child: Card(
         elevation: elevation == null ? 6.0 : elevation,
+        color: color == null ? Colors.white : color,
         child: Column(
           children: <Widget>[
             new Padding(

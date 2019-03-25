@@ -28,7 +28,7 @@ class _OfferDetailsState extends State<OfferDetails>
   @override
   void initState() {
     super.initState();
-    appModel = supplierModelBloc.appModel;
+    appModel = supplierBloc.appModel;
     _getBids();
   }
 
@@ -139,6 +139,23 @@ class _OfferDetailsState extends State<OfferDetails>
               ),
             ),
             _getHeader(),
+            StreamBuilder<String>(
+              stream: supplierBloc.fcmStream,
+              builder: (context, snapshot) {
+                if (snapshot.data == null) return Container();
+                return Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    children: <Widget>[
+                      Text(
+                        snapshot.data,
+                        style: Styles.whiteSmall,
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
           ],
         ),
       ),
@@ -235,7 +252,7 @@ class _OfferDetailsState extends State<OfferDetails>
           icon: Icons.done,
           action: 3);
 
-      await supplierModelBloc.refreshModel();
+      await supplierBloc.refreshModel();
       setState(() {});
     } catch (e) {
       AppSnackbar.showErrorSnackbar(
@@ -284,7 +301,7 @@ class _OfferDetailsState extends State<OfferDetails>
           icon: Icons.done,
           action: 3);
 
-      await supplierModelBloc.refreshModel();
+      await supplierBloc.refreshModel();
       setState(() {});
     } catch (e) {
       AppSnackbar.showErrorSnackbar(

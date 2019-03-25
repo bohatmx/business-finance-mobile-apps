@@ -47,7 +47,7 @@ class _SettleInvoice extends State<SettleInvoice> implements SnackBarListener {
   void initState() {
     super.initState();
     _getCache();
-    appModel = customerModelBloc.appModel;
+    appModel = customerBloc.appModel;
   }
 
   void _getCache() async {
@@ -116,7 +116,7 @@ class _SettleInvoice extends State<SettleInvoice> implements SnackBarListener {
 
   void _updateModel() async {
     if (widget.invoice != null) {
-      await customerModelBloc.refreshModel();
+      await customerBloc.refreshModel();
       setState(() {});
     }
   }

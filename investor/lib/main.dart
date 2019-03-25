@@ -1,52 +1,51 @@
-
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:businesslibrary/data/investor.dart';
 import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/util/page_util/data.dart';
 import 'package:businesslibrary/util/page_util/intro_page_view.dart';
 import 'package:businesslibrary/util/theme_bloc.dart';
-
 import 'package:flutter/material.dart';
 import 'package:investor/ui/dashboard.dart';
 import 'package:investor/ui/signin_page.dart';
 import 'package:investor/ui/signup_page.dart';
 
-void main() => runApp(new InvestorApp2());
+void main() => runApp(new InvestorApp());
 
-class InvestorApp2 extends StatefulWidget {
+class InvestorApp extends StatefulWidget {
   @override
-  _InvestorApp2State createState() => _InvestorApp2State();
+  _InvestorAppState createState() => _InvestorAppState();
 }
 
-class _InvestorApp2State extends State<InvestorApp2> {
+class _InvestorAppState extends State<InvestorApp> {
   int themeIndex = 0;
   @override
   void initState() {
     super.initState();
     _getTheme();
   }
+
   void _getTheme() async {
     themeIndex = await SharedPrefs.getThemeIndex();
   }
+
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<int>(
-      initialData: themeIndex == null? 0: themeIndex,
-      stream: themeBloc.newThemeStream,
-      builder: (context, snapShot) => MaterialApp(
-        title: 'BFNInvestor',
-        debugShowCheckedModeBanner: false,
-        theme: snapShot.data == null
-            ? ThemeUtil.getTheme(themeIndex: themeIndex)
-            : ThemeUtil.getTheme(themeIndex: snapShot.data),
-        home: new StartPage(),
-      ),
-    );
+        initialData: themeIndex == null ? 0 : themeIndex,
+        stream: themeBloc.newThemeStream,
+        builder: (context, snapShot) {
+          print('☘ ☘ ☘ main.dart;  theme index: ☘ ${snapShot.data}');
+          return MaterialApp(
+            title: 'BFNInvestor',
+            debugShowCheckedModeBanner: false,
+            theme: snapShot.data == null
+                ? ThemeUtil.getTheme(themeIndex: themeIndex)
+                : ThemeUtil.getTheme(themeIndex: snapShot.data),
+            home: new StartPage(),
+          );
+        });
   }
 }
-
-
-
 
 class StartPage extends StatefulWidget {
   StartPage({Key key, this.title}) : super(key: key);
@@ -201,7 +200,11 @@ class _StartPageState extends State<StartPage> {
   void _startOnboarding() {
     Navigator.push(
       context,
-      new MaterialPageRoute(builder: (context) => new IntroPageView(items: sampleItems, user: null,)),
+      new MaterialPageRoute(
+          builder: (context) => new IntroPageView(
+                items: sampleItems,
+                user: null,
+              )),
     );
   }
 }
@@ -226,6 +229,4 @@ class BackImage extends StatelessWidget {
   }
 }
 
-
 //
-

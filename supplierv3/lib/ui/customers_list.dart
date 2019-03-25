@@ -5,12 +5,12 @@ import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:flutter/material.dart';
 
-class GovtEntitiesList extends StatefulWidget {
+class CustomerList extends StatefulWidget {
   @override
-  _GovtEntitiesListState createState() => _GovtEntitiesListState();
+  _CustomerListState createState() => _CustomerListState();
 }
 
-class _GovtEntitiesListState extends State<GovtEntitiesList>
+class _CustomerListState extends State<CustomerList>
     implements SnackBarListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   List<Customer> entities;

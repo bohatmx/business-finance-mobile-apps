@@ -41,7 +41,7 @@ class _InvoiceListState extends State<InvoiceList>
   _getCached() async {
     entity = await SharedPrefs.getCustomer();
     user = await SharedPrefs.getUser();
-    appModel = customerModelBloc.appModel;
+    appModel = customerBloc.appModel;
     pageLimit = appModel.pageLimit;
     _setBasePager();
     setState(() {});
@@ -132,6 +132,23 @@ class _InvoiceListState extends State<InvoiceList>
                     pageNumber: _pageNumber,
                   ),
                 ),
+                StreamBuilder<String>(
+                  stream: customerBloc.fcmStream,
+                  builder: (context, snapshot) {
+                    if (snapshot.data == null) return Container();
+                    return Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        children: <Widget>[
+                          Text(
+                            snapshot.data,
+                            style: Styles.whiteSmall,
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
               ],
             ),
     );
@@ -156,7 +173,7 @@ class _InvoiceListState extends State<InvoiceList>
           IconButton(
             icon: Icon(Icons.refresh),
             onPressed: () {
-              customerModelBloc.refreshModel();
+              customerBloc.refreshModel();
             },
           )
         ],

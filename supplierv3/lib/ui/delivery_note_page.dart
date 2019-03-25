@@ -133,7 +133,7 @@ class _DeliveryNotePageState extends State<DeliveryNotePage>
 
   Widget _getBottom() {
     return PreferredSize(
-      preferredSize: const Size.fromHeight(80.0),
+      preferredSize: const Size.fromHeight(100.0),
       child: new Column(
         children: <Widget>[
           Text(
@@ -154,6 +154,23 @@ class _DeliveryNotePageState extends State<DeliveryNotePage>
                     fontSize: 14.0),
               ),
             ),
+          ),
+          StreamBuilder<String>(
+            stream: supplierBloc.fcmStream,
+            builder: (context, snapshot) {
+              if (snapshot.data == null) return Container();
+              return Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  children: <Widget>[
+                    Text(
+                      snapshot.data,
+                      style: Styles.whiteSmall,
+                    ),
+                  ],
+                ),
+              );
+            },
           ),
         ],
       ),

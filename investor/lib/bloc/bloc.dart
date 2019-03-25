@@ -8,6 +8,10 @@ import 'package:businesslibrary/data/investor.dart';
 import 'package:businesslibrary/data/invoice_bid.dart';
 import 'package:businesslibrary/data/offer.dart';
 import 'package:businesslibrary/util/database.dart';
+import 'package:businesslibrary/util/lookups.dart';
+import 'package:flutter/material.dart';
+
+Bloc investorBloc = Bloc();
 
 class Bloc {
   final StreamController<List<Offer>> _openOffersController =
@@ -26,6 +30,8 @@ class Bloc {
 
   final StreamController<DashboardData> _dashController =
       StreamController<DashboardData>.broadcast();
+  final StreamController<String> _fcmMessageController =
+      StreamController.broadcast();
 
   get dashboardStream => _dashController.stream;
   get openOffersStream => _openOffersController.stream;
@@ -33,6 +39,7 @@ class Bloc {
   get unsettledBidsStream => _unsettledBidsController.stream;
   get chatResponseStream => _chatController.stream;
   get errorStream => _errorController.stream;
+  get fcmStream => _fcmMessageController.stream;
 
   Investor _investor;
   Investor get investor => _investor;
@@ -40,7 +47,8 @@ class Bloc {
   DashboardData get dashboardData => _dashboardData;
 
   Bloc() {
-    print('\n\n🌼 🌼 Bloc - CONSTRUCTOR - 🌼');
+    print(
+        '\n\n🌼 🌼 🌼 🌼 🌼 🌼 🌼 🌼 🌼 🌼 🌼 🌼  Investor Bloc - CONSTRUCTOR - 🌼 🌼 🌼');
     initialize();
   }
 
@@ -50,6 +58,18 @@ class Bloc {
     _investor = await SharedPrefs.getInvestor();
     await getCachedDashboard();
     await refreshRemoteDashboard();
+  }
+
+  receiveOfferMessage(Offer offer, BuildContext ctx) {
+    var msg =
+        '🔆 Offer arrived:  ${getFormattedAmount('${offer.offerAmount}', ctx)} ${getFormattedDateHour('${DateTime.now().toString()}')}';
+    _fcmMessageController.sink.add(msg);
+  }
+
+  receiveInvoiceBidMessage(InvoiceBid invoiceBid, BuildContext ctx) {
+    var msg =
+        '🔆 Invoice Bid arrived:  ${getFormattedAmount('${invoiceBid.amount}', ctx)} ${getFormattedDateHour('${DateTime.now().toString()}')}';
+    _fcmMessageController.sink.add(msg);
   }
 
   Future getCachedDashboard() async {
@@ -79,6 +99,7 @@ class Bloc {
   }
 
   close() {
+    _fcmMessageController.close();
     _openOffersController.close();
     _chatController.close();
     _errorController.close();

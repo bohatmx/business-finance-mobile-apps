@@ -39,7 +39,7 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
   }
 
   _getCached() async {
-    appModel = customerModelBloc.appModel;
+    appModel = customerBloc.appModel;
     entity = appModel.customer;
     setBasePager();
   }
@@ -141,7 +141,7 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
 //end of paging constructs
   Widget _getBottom() {
     return PreferredSize(
-      preferredSize: const Size.fromHeight(200.0),
+      preferredSize: const Size.fromHeight(220.0),
       child: Column(
         children: <Widget>[
           Padding(
@@ -172,6 +172,23 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
                     ],
                   ),
           ),
+          StreamBuilder<String>(
+            stream: customerBloc.fcmStream,
+            builder: (context, snapshot) {
+              if (snapshot.data == null) return Container();
+              return Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  children: <Widget>[
+                    Text(
+                      snapshot.data,
+                      style: Styles.whiteSmall,
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
         ],
       ),
     );
@@ -195,7 +212,7 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
           IconButton(
             icon: Icon(Icons.refresh),
             onPressed: () {
-              customerModelBloc.refreshModel();
+              customerBloc.refreshModel();
             },
           ),
         ],

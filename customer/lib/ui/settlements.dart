@@ -28,7 +28,7 @@ class _SettlementListState extends State<SettlementList>
   @override
   initState() {
     super.initState();
-    appModel = customerModelBloc.appModel;
+    appModel = customerBloc.appModel;
     setBasePager();
   }
 
@@ -74,7 +74,7 @@ class _SettlementListState extends State<SettlementList>
     print(
         '_SettlementListState.setBasePager appModel.pageLimit: ${appModel.pageLimit}, get first page');
     if (appModel.settlements == null || appModel.settlements.isEmpty) {
-      await customerModelBloc.refreshModel();
+      await customerBloc.refreshModel();
       setState(() {});
       return;
     }
@@ -252,7 +252,7 @@ class _SettlementListState extends State<SettlementList>
         textColor: Styles.white,
         backgroundColor: Styles.black);
 
-    await customerModelBloc.refreshSettlements();
+    await customerBloc.refreshSettlements();
     setBasePager();
     _key.currentState.removeCurrentSnackBar();
   }

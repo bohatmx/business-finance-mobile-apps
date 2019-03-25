@@ -19,6 +19,7 @@ import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/sector.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/FCM.dart';
+import 'package:businesslibrary/util/constants.dart';
 import 'package:businesslibrary/util/invoice_bid_card.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/message.dart';
@@ -33,7 +34,6 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:investor/bloc/bloc.dart';
-import 'package:investor/ui/charts.dart';
 import 'package:investor/ui/offer_list.dart';
 import 'package:investor/ui/profile.dart';
 import 'package:investor/ui/summary_card.dart';
@@ -141,9 +141,10 @@ class _DashboardState extends State<Dashboard>
 
         try {
           switch (messageType) {
-            case 'OFFER':
+            case FS_OFFERS:
               var m = Offer.fromJson(json.decode(mJSON));
               prettyPrint(m.toJson(), '\n\n########## FCM OFFER MESSAGE :');
+              bloc.receiveOfferMessage(m, context);
               onOfferMessage(m);
               break;
             case 'CHAT_RESPONSE':
@@ -152,14 +153,15 @@ class _DashboardState extends State<Dashboard>
                   m.toJson(), '\n\n########## FCM CHAT_RESPONSE MESSAGE :');
               onChatResponseMessage(m);
               break;
-            case 'INVOICE_BID':
+            case FS_INVOICE_BIDS:
               var m = InvoiceBid.fromJson(json.decode(mJSON));
               prettyPrint(
                   m.toJson(), '\n\n########## FCM INVOICE_BID MESSAGE :');
+              bloc.receiveInvoiceBidMessage(m, context);
               onInvoiceBidMessage(m);
               break;
 
-            case 'INVESTOR_INVOICE_SETTLEMENT':
+            case FS_SETTLEMENTS:
               Map map = json.decode(mJSON);
               prettyPrint(
                   map, '\n\n########## FCM INVESTOR_INVOICE_SETTLEMENT :');
@@ -290,7 +292,7 @@ class _DashboardState extends State<Dashboard>
               appBar: AppBar(
                 elevation: 6.0,
                 title: Text(
-                  'BFN',
+                  'BFN - Investor',
                   style: Styles.whiteSmall,
                 ),
                 leading: IconButton(
@@ -376,14 +378,29 @@ class _DashboardState extends State<Dashboard>
                   padding: const EdgeInsets.only(bottom: 0.0),
                   child: DashboardCard(
                     bloc: bloc,
-                    elevation: 8.0,
+                    elevation: 4.0,
                   ),
                 ),
               ),
               new InkWell(
                 onTap: _onOffersTapped,
                 child: Padding(
-                  padding: const EdgeInsets.only(bottom: 10.0),
+                  padding: const EdgeInsets.only(bottom: 4.0),
+                  child: SummaryCard(
+                    total: data == null ? 0 : data.unsettledBids.length,
+                    label: 'Unsettled Bids',
+                    totalStyle: Styles.purpleBoldMedium,
+                    totalValue: data == null ? 0.0 : _getTotalUnsettled(),
+                    totalValueStyle: Styles.tealBoldMedium,
+                    elevation: 6.0,
+                    color: Colors.yellow.shade100,
+                  ),
+                ),
+              ),
+              new InkWell(
+                onTap: _onOffersTapped,
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 4.0),
                   child: SummaryCard(
                     total: data == null ? 0 : data.totalOpenOffers,
                     label: 'Offers Open for Bids',
@@ -401,6 +418,15 @@ class _DashboardState extends State<Dashboard>
                     ),
             ],
           );
+  }
+
+  double _getTotalUnsettled() {
+    if (data == null) return 0.00;
+    var tot = 0.0;
+    data.unsettledBids.forEach((m) {
+      tot += m.amount;
+    });
+    return tot;
   }
 
   void _goToContactUsPage() {
@@ -458,7 +484,7 @@ class _DashboardState extends State<Dashboard>
                 children: <Widget>[
                   Text(
                     bloc.investor == null ? '' : bloc.investor.name,
-                    style: Styles.yellowBoldMedium,
+                    style: Styles.whiteBoldMedium,
                   ),
                 ],
               ),
@@ -602,18 +628,6 @@ class _DashboardState extends State<Dashboard>
         message: message,
         textColor: Styles.white,
         backgroundColor: Theme.of(context).primaryColor);
-  }
-
-  @override
-  onCharts() async {
-    print('_DashboardState.onCharts ..................');
-    await bloc.refreshRemoteDashboard();
-
-    Navigator.push(
-      context,
-      new MaterialPageRoute(builder: (context) => new Charts()),
-    );
-    return null;
   }
 
   void _changeTheme() {

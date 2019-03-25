@@ -26,10 +26,7 @@ class PurchaseOrderListPage extends StatefulWidget {
 }
 
 class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
-    implements
-        SnackBarListener,
-        POListener,
-        PagerControlListener{
+    implements SnackBarListener, POListener, PagerControlListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   List<PurchaseOrder> currentPage = List(), baseList;
   FirebaseMessaging _fcm = FirebaseMessaging();
@@ -59,6 +56,7 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
     print('\n\n_PurchaseOrderListPageState._getCached SUBSCRIBED to PO topic');
 //    setState(() {});
   }
+
   BasePager basePager;
   void setBasePager() {
     if (widget.model == null) return;
@@ -76,9 +74,7 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
     page.forEach((f) {
       currentPage.add(f);
     });
-    setState(() {
-
-    });
+    setState(() {});
   }
 
   double _getPageValue() {
@@ -88,6 +84,7 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
     });
     return t;
   }
+
   double _getTotalValue() {
     var t = 0.0;
     widget.model.purchaseOrders.forEach((po) {
@@ -99,49 +96,64 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
   int _pageNumber = 1;
   Widget _getBottom() {
     return PreferredSize(
-      preferredSize: const Size.fromHeight(200.0),
+      preferredSize: const Size.fromHeight(220.0),
       child: widget.model == null
           ? Container()
           : Column(
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.only(bottom:20.0),
-            child: PagingTotalsView(
-              pageValue: _getPageValue(),
-              totalValue: _getTotalValue(),
-              labelStyle: Styles.blackSmall,
-              pageValueStyle: Styles.blackBoldLarge,
-              totalValueStyle: Styles.brownBoldMedium,
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 20.0),
+                  child: PagingTotalsView(
+                    pageValue: _getPageValue(),
+                    totalValue: _getTotalValue(),
+                    labelStyle: Styles.blackSmall,
+                    pageValueStyle: Styles.blackBoldLarge,
+                    totalValueStyle: Styles.brownBoldMedium,
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(
+                      left: 8.0, right: 8.0, bottom: 12.0),
+                  child: PagerControl(
+                    itemName: 'Purchase Orders',
+                    pageLimit: widget.model.pageLimit,
+                    elevation: 16.0,
+                    items: widget.model.purchaseOrders.length,
+                    listener: this,
+                    color: Colors.pink.shade50,
+                    pageNumber: _pageNumber,
+                  ),
+                ),
+                StreamBuilder<String>(
+                  stream: supplierBloc.fcmStream,
+                  builder: (context, snapshot) {
+                    if (snapshot.data == null) return Container();
+                    return Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        children: <Widget>[
+                          Text(
+                            snapshot.data,
+                            style: Styles.whiteSmall,
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ],
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 8.0, right: 8.0, bottom: 12.0),
-            child:  PagerControl(
-              itemName: 'Purchase Orders',
-              pageLimit: widget.model.pageLimit,
-              elevation: 16.0,
-              items: widget.model.purchaseOrders.length,
-              listener: this,
-              color: Colors.pink.shade50,
-              pageNumber: _pageNumber,
-
-            ),
-          ),
-        ],
-      ),
     );
   }
 
   ScrollController scrollController = ScrollController();
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
         title: Text('Purchase Orders'),
         bottom: _getBottom(),
-        backgroundColor: Colors.pink.shade200,
       ),
       backgroundColor: Colors.brown.shade100,
       body: Container(
@@ -228,7 +240,6 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage>
         textColor: Styles.lightGreen,
         backgroundColor: Styles.black);
   }
-
 
   @override
   onNextPageRequired() {

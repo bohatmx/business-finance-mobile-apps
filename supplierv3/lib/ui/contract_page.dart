@@ -17,6 +17,7 @@ import 'package:businesslibrary/util/util.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:supplierv3/supplier_bloc.dart';
 
 class ContractPage extends StatefulWidget {
   final SupplierContract contract;
@@ -387,9 +388,26 @@ class _ContractPageState extends State<ContractPage>
                     style: Styles.whiteSmall,
                   ),
                 ),
+                StreamBuilder<String>(
+                  stream: supplierBloc.fcmStream,
+                  builder: (context, snapshot) {
+                    if (snapshot.data == null) return Container();
+                    return Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        children: <Widget>[
+                          Text(
+                            snapshot.data,
+                            style: Styles.whiteSmall,
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
               ],
             ),
-            preferredSize: Size.fromHeight(20.0)),
+            preferredSize: Size.fromHeight(40.0)),
       ),
       backgroundColor: Colors.brown.shade100,
       body: Padding(

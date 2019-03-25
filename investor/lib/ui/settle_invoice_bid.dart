@@ -19,6 +19,7 @@ import 'package:businesslibrary/util/webview.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:investor/bloc/bloc.dart';
 import 'package:investor/ui/unsettled_bids.dart';
 
 class SettleInvoiceBid extends StatefulWidget {
@@ -406,6 +407,23 @@ class _SettleInvoiceBid extends State<SettleInvoiceBid>
                             ),
                           ),
                         ),
+                  StreamBuilder<String>(
+                    stream: investorBloc.fcmStream,
+                    builder: (context, snapshot) {
+                      if (snapshot.data == null) return Container();
+                      return Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
+                          children: <Widget>[
+                            Text(
+                              snapshot.data,
+                              style: Styles.whiteSmall,
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
                 ],
               ),
       ),

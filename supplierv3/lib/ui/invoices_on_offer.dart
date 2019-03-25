@@ -260,7 +260,7 @@ class _InvoicesOnOfferState extends State<InvoicesOnOffer>
 
   Widget _getBottom() {
     return PreferredSize(
-      preferredSize: Size.fromHeight(200.0),
+      preferredSize: Size.fromHeight(220.0),
       child: appModel == null
           ? Container()
           : Column(
@@ -276,8 +276,8 @@ class _InvoicesOnOfferState extends State<InvoicesOnOffer>
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(
-                      left: 8.0, right: 8.0, bottom: 20.0),
+                  padding:
+                      const EdgeInsets.only(left: 8.0, right: 8.0, bottom: 8.0),
                   child: PagerControl(
                     itemName: 'Invoices',
                     pageLimit: appModel.pageLimit,
@@ -287,6 +287,23 @@ class _InvoicesOnOfferState extends State<InvoicesOnOffer>
                     color: Colors.amber.shade50,
                     pageNumber: _pageNumber,
                   ),
+                ),
+                StreamBuilder<String>(
+                  stream: supplierBloc.fcmStream,
+                  builder: (context, snapshot) {
+                    if (snapshot.data == null) return Container();
+                    return Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        children: <Widget>[
+                          Text(
+                            snapshot.data,
+                            style: Styles.whiteSmall,
+                          ),
+                        ],
+                      ),
+                    );
+                  },
                 ),
               ],
             ),
@@ -345,7 +362,7 @@ class _InvoicesOnOfferState extends State<InvoicesOnOffer>
       key: _scaffoldKey,
       appBar: AppBar(
         title: Text('Invoices'),
-        backgroundColor: Colors.brown.shade200,
+//        backgroundColor: Colors.brown.shade200,
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.refresh),
@@ -560,5 +577,52 @@ class InvoiceOnOfferCard extends StatelessWidget {
 
   String _getFormattedAmt() {
     return getFormattedAmount('${invoice.totalAmount}', context);
+  }
+}
+
+class AppBarBottom extends StatelessWidget {
+  final PagerControlListener listener;
+  final double pageValue, totalValue;
+  final int pageLimit, pageNumber, items;
+
+  AppBarBottom(
+      {@required this.listener,
+      @required this.pageValue,
+      @required this.totalValue,
+      @required this.pageLimit,
+      @required this.items,
+      @required this.pageNumber});
+
+  @override
+  Widget build(BuildContext context) {
+    return PreferredSize(
+      preferredSize: Size.fromHeight(200.0),
+      child: Column(
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.only(bottom: 20.0),
+            child: PagingTotalsView(
+              pageValue: pageValue,
+              totalValue: totalValue,
+              labelStyle: Styles.blackSmall,
+              pageValueStyle: Styles.blackBoldLarge,
+              totalValueStyle: Styles.brownBoldMedium,
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 8.0, right: 8.0, bottom: 20.0),
+            child: PagerControl(
+              itemName: 'Invoices',
+              pageLimit: pageLimit,
+              elevation: 16.0,
+              items: items,
+              listener: listener,
+              color: Colors.amber.shade50,
+              pageNumber: pageNumber,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

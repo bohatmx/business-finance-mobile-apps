@@ -295,15 +295,15 @@ class _SignInPageState extends State<SignInPage>
               actionLabel: "close");
         } else {
           //get wallet
-          Wallet wallet = await ListAPI.getWallet(
-              ownerType: 'customer', participantId: customer.participantId);
+          Wallet wallet =
+              await ListAPI.getWallet(participantId: customer.participantId);
           print(
               '_SignInPageState.checkResult ------- wallet recovered ${wallet.toJson()}');
           String msg;
           if (wallet != null) {
             msg = 'Wallet recovered';
           }
-          await customerModelBloc.refreshModelWithListener(this);
+          customerBloc.refreshModel();
           Navigator.push(
             context,
             new MaterialPageRoute(builder: (context) => new Dashboard(msg)),

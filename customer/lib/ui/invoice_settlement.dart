@@ -3,6 +3,8 @@ import 'package:businesslibrary/data/customer.dart';
 import 'package:businesslibrary/data/invoice.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
+import 'package:businesslibrary/util/styles.dart';
+import 'package:customer/customer_bloc.dart';
 import 'package:flutter/material.dart';
 
 class InvoiceSettlementPage extends StatefulWidget {
@@ -132,6 +134,23 @@ class _InvoiceSettlementState extends State<InvoiceSettlementPage>
                       ),
                     ],
                   ),
+                ),
+                StreamBuilder<String>(
+                  stream: customerBloc.fcmStream,
+                  builder: (context, snapshot) {
+                    if (snapshot.data == null) return Container();
+                    return Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        children: <Widget>[
+                          Text(
+                            snapshot.data,
+                            style: Styles.whiteSmall,
+                          ),
+                        ],
+                      ),
+                    );
+                  },
                 ),
               ],
             ),

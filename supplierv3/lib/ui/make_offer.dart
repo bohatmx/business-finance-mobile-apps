@@ -17,6 +17,7 @@ import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:supplierv3/supplier_bloc.dart';
 import 'package:supplierv3/ui/summary_helper.dart';
 
 class MakeOfferPage extends StatefulWidget {
@@ -314,9 +315,26 @@ class _MakeOfferPageState extends State<MakeOfferPage>
                     style: Styles.whiteBoldMedium,
                   ),
                 ),
+                StreamBuilder<String>(
+                  stream: supplierBloc.fcmStream,
+                  builder: (context, snapshot) {
+                    if (snapshot.data == null) return Container();
+                    return Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        children: <Widget>[
+                          Text(
+                            snapshot.data,
+                            style: Styles.whiteSmall,
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
               ],
             ),
-            preferredSize: Size.fromHeight(88.0)),
+            preferredSize: Size.fromHeight(110.0)),
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),

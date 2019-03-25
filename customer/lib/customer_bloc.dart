@@ -14,19 +14,22 @@ import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/Finders.dart';
 import 'package:businesslibrary/util/database.dart';
+import 'package:businesslibrary/util/lookups.dart';
+import 'package:flutter/material.dart';
 
 abstract class CustomerModelBlocListener {
   onEvent(String message);
 }
 
-class CustomerModelBloc implements CustomerBlocListener {
+class CustomerBloc implements CustomerBlocListener {
   final StreamController<CustomerApplicationModel> _appModelController =
       StreamController<CustomerApplicationModel>();
   final StreamController<String> _errorController = StreamController<String>();
   final CustomerApplicationModel _appModel = CustomerApplicationModel();
-  CustomerModelBlocListener _customerModelBlocListener;
+  final StreamController<String> _fcmMessageController =
+      StreamController.broadcast();
 
-  CustomerModelBloc() {
+  CustomerBloc() {
     print(
         '\n\n 🔵  🔵  🔵  🔵  🔵 CustomerModelBloc - CONSTRUCTOR - set listener and initialize app model');
     _appModel.setListener(this);
@@ -34,11 +37,38 @@ class CustomerModelBloc implements CustomerBlocListener {
   }
 
   get appModel => _appModel;
+  get fcmStream => _fcmMessageController.stream;
+  receivePurchaseOrderMessage(PurchaseOrder order, BuildContext ctx) {
+    print('☘ ☘ ☘ po arrived at Bloc receivePurchaseOrderMessage  ☘');
+    var msg =
+        '🔆 Purchase Order arrived:  ${getFormattedAmount('${order.amount}', ctx)} ${getFormattedDateHour('${DateTime.now().toString()}')}';
+    _fcmMessageController.sink.add(msg);
+  }
 
-  refreshModelWithListener(CustomerModelBlocListener listener) async {
-    _customerModelBlocListener = listener;
-    await _appModel.refreshModelWithListener(listener);
-    _appModelController.sink.add(_appModel);
+  receiveDeliveryNoteMessage(DeliveryNote note, BuildContext ctx) {
+    var msg =
+        '☘  Delivery Note arrived:  ${getFormattedAmount('${note.totalAmount}', ctx)} ${getFormattedDateHour('${DateTime.now().toString()}')}';
+    _fcmMessageController.sink.add(msg);
+  }
+
+  receiveDeliveryAcceptanceMessage(
+      DeliveryAcceptance acceptance, BuildContext ctx) {
+    var msg =
+        '🔆 Delivery Acceptance arrived:  ${acceptance.customerName} ${getFormattedDateHour('${DateTime.now().toString()}')}';
+    _fcmMessageController.sink.add(msg);
+  }
+
+  receiveInvoiceMessage(Invoice invoice, BuildContext ctx) {
+    var msg =
+        '🔆 Invoice arrived:  ${getFormattedAmount('${invoice.amount}', ctx)} ${getFormattedDateHour('${DateTime.now().toString()}')}';
+    _fcmMessageController.sink.add(msg);
+  }
+
+  receiveInvoiceAcceptanceMessage(
+      InvoiceAcceptance acceptance, BuildContext ctx) {
+    var msg =
+        '🔆 Invoice Acceptance arrived:  ${acceptance.invoiceNumber} ${getFormattedDateHour('${DateTime.now().toString()}')}';
+    _fcmMessageController.sink.add(msg);
   }
 
   refreshModel() async {
@@ -84,6 +114,7 @@ class CustomerModelBloc implements CustomerBlocListener {
   closeStream() {
     _appModelController.close();
     _errorController.close();
+    _fcmMessageController.close();
   }
 
   get appModelStream => _appModelController.stream;
@@ -101,7 +132,7 @@ class CustomerModelBloc implements CustomerBlocListener {
   }
 }
 
-final customerModelBloc = CustomerModelBloc();
+final customerBloc = CustomerBloc();
 
 abstract class CustomerBlocListener {
   onComplete();

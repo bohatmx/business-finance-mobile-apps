@@ -38,13 +38,16 @@ class DashboardCard extends StatelessWidget {
           return Card(
             elevation: elevation == null ? 4.0 : elevation,
             color: color == null ? Colors.white : color,
-            child: Column(
-              children: <Widget>[
-                _getTotalBids(data, context),
-                _getTotalBidAmount(data, context),
-                _getAverageBidAmount(data, context),
-                _getAverageDiscount(data, context),
-              ],
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                children: <Widget>[
+                  _getTotalBids(data, context),
+                  _getTotalBidAmount(data, context),
+                  _getAverageBidAmount(data, context),
+                  _getAverageDiscount(data, context),
+                ],
+              ),
             ),
           );
         }

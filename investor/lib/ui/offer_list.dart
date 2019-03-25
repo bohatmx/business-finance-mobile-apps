@@ -16,6 +16,7 @@ import 'package:businesslibrary/util/styles.dart';
 import 'package:businesslibrary/util/util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:investor/bloc/bloc.dart';
 import 'package:investor/ui/invoice_bidder.dart';
 
 class OfferList extends StatefulWidget {
@@ -468,6 +469,23 @@ class _OfferListState extends State<OfferList>
                   color: Colors.brown.shade50,
                   pageNumber: _pageNumber,
                 ),
+              ),
+              StreamBuilder<String>(
+                stream: investorBloc.fcmStream,
+                builder: (context, snapshot) {
+                  if (snapshot.data == null) return Container();
+                  return Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      children: <Widget>[
+                        Text(
+                          snapshot.data,
+                          style: Styles.whiteSmall,
+                        ),
+                      ],
+                    ),
+                  );
+                },
               ),
             ],
           );

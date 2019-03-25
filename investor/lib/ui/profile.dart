@@ -12,6 +12,7 @@ import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:flutter/material.dart';
+import 'package:investor/bloc/bloc.dart';
 import 'package:investor/ui/sector_list_page.dart';
 import 'package:investor/ui/supplier_list_page.dart';
 
@@ -424,7 +425,7 @@ class _ProfilePageState extends State<ProfilePage> implements SnackBarListener {
 
   Widget _getBottom() {
     return PreferredSize(
-      preferredSize: const Size.fromHeight(40.0),
+      preferredSize: const Size.fromHeight(60.0),
       child: new Column(
         children: <Widget>[
           Row(
@@ -441,6 +442,23 @@ class _ProfilePageState extends State<ProfilePage> implements SnackBarListener {
                 ),
               )
             ],
+          ),
+          StreamBuilder<String>(
+            stream: investorBloc.fcmStream,
+            builder: (context, snapshot) {
+              if (snapshot.data == null) return Container();
+              return Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  children: <Widget>[
+                    Text(
+                      snapshot.data,
+                      style: Styles.whiteSmall,
+                    ),
+                  ],
+                ),
+              );
+            },
           ),
         ],
       ),

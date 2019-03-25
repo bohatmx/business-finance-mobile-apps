@@ -4,8 +4,6 @@ import 'package:businesslibrary/data/dashboard_data.dart';
 import 'package:businesslibrary/data/delivery_acceptance.dart';
 import 'package:businesslibrary/data/delivery_note.dart';
 import 'package:businesslibrary/data/invoice.dart';
-import 'package:businesslibrary/data/invoice_acceptance.dart';
-import 'package:businesslibrary/data/invoice_bid.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/FCM.dart';
@@ -71,7 +69,7 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
           : Column(
               children: <Widget>[
                 Padding(
-                  padding: const EdgeInsets.only(bottom: 20.0),
+                  padding: const EdgeInsets.only(bottom: 8.0),
                   child: PagingTotalsView(
                     pageValue: _getPageValue(),
                     totalValue: _getTotalValue(),
@@ -81,8 +79,8 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(
-                      left: 8.0, right: 8.0, bottom: 20.0),
+                  padding:
+                      const EdgeInsets.only(left: 8.0, right: 8.0, bottom: 4.0),
                   child: PagerControl(
                     itemName: 'Delivery Notes',
                     pageLimit: appModel.pageLimit,
@@ -93,6 +91,23 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
                     pageNumber: _pageNumber,
                   ),
                 ),
+                StreamBuilder<String>(
+                  stream: supplierBloc.fcmStream,
+                  builder: (context, snapshot) {
+                    if (snapshot.data == null) return Container();
+                    return Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        children: <Widget>[
+                          Text(
+                            snapshot.data,
+                            style: Styles.whiteSmall,
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
               ],
             ),
     );
@@ -101,7 +116,7 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
   int mCount = 0;
   @override
   Widget build(BuildContext context) {
-    appModel = supplierModelBloc.appModel;
+    appModel = supplierBloc.appModel;
     mCount++;
     if (mCount == 1) {
       setBasePager();
@@ -298,48 +313,6 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
     if (res != null && res) {
       await Refresh.refresh(supplier);
     }
-  }
-
-  @override
-  onDeliveryAcceptanceMessage(DeliveryAcceptance acceptance) {
-    prettyPrint(acceptance.toJson(), "## Acceptance arrived: ");
-    AppSnackbar.showSnackbarWithAction(
-        scaffoldKey: _scaffoldKey,
-        message: 'Delivery acceptance arrived',
-        textColor: Colors.yellow,
-        action: 5,
-        listener: this,
-        actionLabel: 'OK',
-        icon: Icons.done_all,
-        backgroundColor: Colors.black);
-  }
-
-  @override
-  onInvoiceAcceptanceMessage(InvoiceAcceptance acceptance) {
-    prettyPrint(acceptance.toJson(), "## Invoice acceptance arrived:");
-    AppSnackbar.showSnackbarWithAction(
-        scaffoldKey: _scaffoldKey,
-        message: 'Invoice Acceptance arrived',
-        textColor: Colors.yellow,
-        action: 5,
-        listener: this,
-        actionLabel: 'OK',
-        icon: Icons.done_all,
-        backgroundColor: Colors.black);
-  }
-
-  @override
-  onInvoiceBidMessage(InvoiceBid invoiceBid) {
-    prettyPrint(invoiceBid.toJson(), '## Invoice Bid arrived');
-    AppSnackbar.showSnackbarWithAction(
-        scaffoldKey: _scaffoldKey,
-        message: 'Invoice Bid arrived',
-        textColor: Colors.yellow,
-        action: 5,
-        listener: this,
-        actionLabel: 'OK',
-        icon: Icons.done_all,
-        backgroundColor: Colors.black);
   }
 
   //paging constructs

@@ -13,6 +13,7 @@ import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:investor/bloc/bloc.dart';
 import 'package:investor/ui/invoice_due_diligence.dart';
 
 class InvoiceBidder extends StatefulWidget {
@@ -123,7 +124,7 @@ class _InvoiceBidderState extends State<InvoiceBidder>
   bool showFullyBid = false;
   Widget _getBottom() {
     return PreferredSize(
-      preferredSize: Size.fromHeight(140.0),
+      preferredSize: Size.fromHeight(160.0),
       child: Padding(
         padding: const EdgeInsets.only(bottom: 12.0, right: 20.0),
         child: Column(
@@ -240,6 +241,23 @@ class _InvoiceBidderState extends State<InvoiceBidder>
                       ],
                     ),
                   ),
+            StreamBuilder<String>(
+              stream: investorBloc.fcmStream,
+              builder: (context, snapshot) {
+                if (snapshot.data == null) return Container();
+                return Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    children: <Widget>[
+                      Text(
+                        snapshot.data,
+                        style: Styles.whiteSmall,
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
           ],
         ),
       ),

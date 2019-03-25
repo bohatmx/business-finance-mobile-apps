@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:supplierv3/supplier_bloc.dart';
 
-
 class SettlementList extends StatefulWidget {
   final SupplierApplicationModel model;
 
@@ -60,6 +59,23 @@ class _SettlementListState extends State<SettlementList>
                     color: Colors.brown.shade100,
                     pageNumber: _pageNumber,
                   ),
+                ),
+                StreamBuilder<String>(
+                  stream: supplierBloc.fcmStream,
+                  builder: (context, snapshot) {
+                    if (snapshot.data == null) return Container();
+                    return Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        children: <Widget>[
+                          Text(
+                            snapshot.data,
+                            style: Styles.whiteSmall,
+                          ),
+                        ],
+                      ),
+                    );
+                  },
                 ),
               ],
             ),
@@ -194,15 +210,14 @@ class _SettlementListState extends State<SettlementList>
         });
   }
 }
+
 class SettlementCard extends StatelessWidget {
   final InvestorInvoiceSettlement settlement;
 
   SettlementCard({this.settlement});
 
-
   @override
   Widget build(BuildContext context) {
-
     return Card(
       elevation: 2.0,
       child: Column(
@@ -214,4 +229,3 @@ class SettlementCard extends StatelessWidget {
     );
   }
 }
-

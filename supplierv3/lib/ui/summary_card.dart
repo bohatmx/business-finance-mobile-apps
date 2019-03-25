@@ -8,6 +8,7 @@ class SummaryCard extends StatelessWidget {
   final double totalValue, elevation;
   final String totalCountLabel, totalValueLabel;
   final TextStyle totalCountStyle, totalValueStyle;
+  final Color color;
 
   SummaryCard(
       {this.totalCount,
@@ -16,6 +17,7 @@ class SummaryCard extends StatelessWidget {
       this.totalValueLabel,
       this.elevation,
       this.totalCountStyle,
+      this.color,
       this.totalValueStyle});
 
   @override
@@ -26,32 +28,34 @@ class SummaryCard extends StatelessWidget {
       padding: const EdgeInsets.only(left: 0.0, right: 0.0, bottom: 4.0),
       child: Card(
         elevation: elevation == null ? 2.0 : elevation,
+        color: color == null ? Colors.white : color,
         child: Padding(
-          padding: const EdgeInsets.only(left:10.0, top: 20.0, right: 10.0, bottom: 20.0),
+          padding: const EdgeInsets.only(
+              left: 10.0, top: 16.0, right: 10.0, bottom: 16.0),
           child: Column(
             children: <Widget>[
               totalCount == null
                   ? Container()
                   : Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: <Widget>[
-                      Text(
-                        totalCountLabel == null ? '' : totalCountLabel,
-                        style: Styles.greyLabelMedium,
-                      ),
-                      Padding(
-                        padding:
-                            const EdgeInsets.only(left: 10.0, right: 10.0),
-                        child: Text(
-                          '$totalCount',
-                          style: totalCountStyle == null
-                              ? Styles.pinkBoldReallyLarge
-                              : totalCountStyle,
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: <Widget>[
+                        Text(
+                          totalCountLabel == null ? '' : totalCountLabel,
+                          style: Styles.greyLabelMedium,
                         ),
-                      ),
-                    ],
-                  ),
+                        Padding(
+                          padding:
+                              const EdgeInsets.only(left: 10.0, right: 10.0),
+                          child: Text(
+                            '$totalCount',
+                            style: totalCountStyle == null
+                                ? Styles.pinkBoldReallyLarge
+                                : totalCountStyle,
+                          ),
+                        ),
+                      ],
+                    ),
               totalValue == null
                   ? Container()
                   : Padding(

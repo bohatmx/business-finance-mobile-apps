@@ -311,7 +311,7 @@ class _SignUpPageState extends State<SignUpPage>
             action: 0,
             icon: Icons.done_all);
 
-        await supplierModelBloc.refreshModel();
+        await supplierBloc.refreshModel();
         exit();
       } catch (e) {
         AppSnackbar.showErrorSnackbar(

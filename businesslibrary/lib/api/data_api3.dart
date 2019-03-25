@@ -697,7 +697,9 @@ class DataAPI3 {
     var message = replyFromWeb['message'];
     print(message);
     var result = replyFromWeb['result'];
-    return AutoTradeOrder.fromJson(result);
+    var orderResult = AutoTradeOrder.fromJson(result);
+    await SharedPrefs.saveAutoTradeOrder(orderResult);
+    return orderResult;
   }
 
   static Future<AutoTradeOrder> updateAutoTradeOrder(
