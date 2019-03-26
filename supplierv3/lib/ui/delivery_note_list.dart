@@ -18,7 +18,6 @@ import 'package:flutter/scheduler.dart';
 import 'package:supplierv3/supplier_bloc.dart';
 import 'package:supplierv3/ui/delivery_note_page.dart';
 import 'package:supplierv3/ui/invoice_page.dart';
-import 'package:supplierv3/ui/summary_helper.dart';
 
 class DeliveryNoteList extends StatefulWidget {
   @override
@@ -124,7 +123,7 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
-        title: Text('Delivery Notes'),
+        title: Text('☘ Delivery Notes'),
         bottom: _getBottom(),
         backgroundColor: Colors.indigo.shade300,
         actions: <Widget>[
@@ -240,7 +239,7 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
       new MaterialPageRoute(builder: (context) => new DeliveryNotePage(null)),
     );
     if (res != null && res) {
-      await Refresh.refresh(supplier);
+      supplierBloc.refreshModel();
     }
   }
 
@@ -311,7 +310,7 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
           builder: (context) => new NewInvoicePage(deliveryAcceptance)),
     );
     if (res != null && res) {
-      await Refresh.refresh(supplier);
+      await supplierBloc.refreshModel();
     }
   }
 

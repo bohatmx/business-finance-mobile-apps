@@ -31,13 +31,13 @@ class _NewInvoicePageState extends State<NewInvoicePage>
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
   DeliveryAcceptance deliveryAcceptance;
-  List<DeliveryAcceptance> deliveryAcceptances;
+  List<DeliveryAcceptance> deliveryAcceptances = List();
   User _user;
   String invoiceNumber;
   Invoice invoice;
   Supplier supplier;
   double tax, totalAmount, amount;
-  List<SupplierContract> contracts;
+  List<SupplierContract> contracts = List();
   List<DropdownMenuItem<String>> items = List();
   DeliveryNote deliveryNote;
   bool isSubmit = false;
@@ -120,49 +120,16 @@ class _NewInvoicePageState extends State<NewInvoicePage>
           textColor: Colors.white,
           backgroundColor: Colors.black);
 
-      //check for possible duplicate
-      var existingInvoice = await ListAPI.getInvoice(
-          invoiceNumber: invoice.invoiceNumber,
-          poNumber: invoice.purchaseOrderNumber);
-      if (existingInvoice != null) {
-        print('DataAPI.registerInvoice - possible DUPLICATE invoice');
+      try {
+        invoice = await DataAPI3.registerInvoice(invoice);
+        Navigator.pop(context);
+      } catch (e) {
         AppSnackbar.showErrorSnackbar(
             scaffoldKey: _scaffoldKey,
-            message: 'Error. Possible duplicate invoice',
+            message: 'Invoice submission failed',
             listener: this,
-            actionLabel: 'Check');
-        return;
+            actionLabel: "ERROR ");
       }
-
-      var result = await DataAPI3.registerInvoice(invoice);
-//      switch (result) {
-//        case DataAPI3.InvoiceRegistered:
-//          isSuccess = true;
-//          setState(() {
-//            _opacity = 0.0;
-//          });
-//          _showRegistered();
-//          break;
-//        case DataAPI3.InvoiceRegisteredAccepted:
-//          isSuccess = true;
-//          setState(() {
-//            _opacity = 0.0;
-//          });
-//
-//          invoiceAcceptance = await ListAPI.getLastInvoiceAcceptance(
-//              supplier.documentReference);
-//          _showRegisteredAccepted();
-//
-//          break;
-//        default:
-//          isSuccess = false;
-//          AppSnackbar.showErrorSnackbar(
-//              scaffoldKey: _scaffoldKey,
-//              message: 'Invoice registration failed',
-//              listener: this,
-//              actionLabel: "ERROR ");
-//          break;
-//      }
     }
   }
 
@@ -197,14 +164,10 @@ class _NewInvoicePageState extends State<NewInvoicePage>
     prettyPrint(
         deliveryAcceptance.toJson(), '_getContracts: deliveryAcceptance:');
 
-//    if (deliveryAcceptance.customer != null) {
-//      contracts = await ListAPI.getSupplierGovtContracts(
-//          supplier.documentReference, deliveryAcceptance.govtEntity);
-//    } else {
-//      contracts = await ListAPI.getSupplierCompanyContracts(
-//          supplier.documentReference, deliveryAcceptance.company);
-//    }
-    if (contracts.isEmpty) {
+    if (deliveryAcceptance.customer != null) {
+      contracts = await ListAPI.getSupplierContracts(supplier.participantId);
+    }
+    if (contracts == null || contracts.isEmpty) {
       AppSnackbar.showErrorSnackbar(
           scaffoldKey: _scaffoldKey,
           message: 'No contracts  on file',

@@ -59,7 +59,7 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
-        title: Text('Delivery Notes', style: Styles.whiteBoldMedium),
+        title: Text('☘ Delivery Notes', style: Styles.whiteBoldMedium),
         bottom: _getBottom(),
         backgroundColor: Colors.indigo.shade200,
         actions: <Widget>[
@@ -285,27 +285,17 @@ class _DeliveryNoteListState extends State<DeliveryNoteList>
       purchaseOrderNumber: deliveryNote.purchaseOrderNumber,
     );
 
-    prettyPrint(
-        acceptance.toJson(), '_DeliveryNoteListState._acceptDelivery ......');
     try {
-      var key = await DataAPI3.acceptDelivery(acceptance);
-      if (key != null) {
-        AppSnackbar.showErrorSnackbar(
-            scaffoldKey: _scaffoldKey,
-            message: 'Delivery Acceptance failed',
-            listener: this,
-            actionLabel: 'ERROR');
-      } else {
-        AppSnackbar.showSnackbarWithAction(
-            scaffoldKey: _scaffoldKey,
-            message: 'Delivery  Note accepted',
-            textColor: Colors.white,
-            backgroundColor: Colors.black,
-            actionLabel: 'DONE',
-            listener: this,
-            action: 0,
-            icon: Icons.done);
-      }
+      await DataAPI3.acceptDelivery(acceptance);
+      AppSnackbar.showSnackbarWithAction(
+          scaffoldKey: _scaffoldKey,
+          message: 'Delivery  Note accepted',
+          textColor: Colors.white,
+          backgroundColor: Colors.black,
+          actionLabel: 'DONE',
+          listener: this,
+          action: 0,
+          icon: Icons.done);
     } catch (e) {
       print('_DeliveryNoteListState._acceptDelivery ERROR $e');
       AppSnackbar.showErrorSnackbar(

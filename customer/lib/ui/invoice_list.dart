@@ -11,7 +11,6 @@ import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:customer/customer_bloc.dart';
 import 'package:customer/ui/invoice_settlement.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
@@ -23,7 +22,6 @@ class InvoiceList extends StatefulWidget {
 class _InvoiceListState extends State<InvoiceList>
     implements SnackBarListener, PagerControlListener {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
-  FirebaseMessaging _fcm = FirebaseMessaging();
 
   Customer entity;
   List<Invoice> currentPage = List();
@@ -67,17 +65,13 @@ class _InvoiceListState extends State<InvoiceList>
         user: user.userId);
 
     try {
-      var result = await DataAPI3.acceptInvoice(acceptance);
-      _scaffoldKey.currentState.hideCurrentSnackBar();
-      if (result != null) {
-        showError();
-      } else {
-        AppSnackbar.showSnackbar(
-            scaffoldKey: _scaffoldKey,
-            message: 'Invoice accepted',
-            textColor: Colors.lightBlue,
-            backgroundColor: Colors.black);
-      }
+      await DataAPI3.acceptInvoice(acceptance);
+      AppSnackbar.showSnackbar(
+          scaffoldKey: _scaffoldKey,
+          message: 'Invoice accepted',
+          textColor: Colors.lightBlue,
+          backgroundColor: Colors.black);
+      customerBloc.refreshModel();
     } catch (e) {
       showError();
     }
@@ -161,35 +155,45 @@ class _InvoiceListState extends State<InvoiceList>
       _setBasePager();
       basePagerHasExecuted = true;
     }
-    return Scaffold(
-      key: _scaffoldKey,
-      appBar: AppBar(
-        title: Text(
-          'Invoices',
-          style: Styles.blackBoldMedium,
-        ),
-        backgroundColor: Colors.pink.shade200,
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.refresh),
-            onPressed: () {
-              customerBloc.refreshModel();
-            },
-          )
-        ],
-        bottom: _getBottom(),
-      ),
-      backgroundColor: Colors.brown.shade100,
-      body: Padding(
-        padding: const EdgeInsets.only(top: 12.0),
-        child: new Column(
-          children: <Widget>[
-            new Flexible(
-              child: _getListView(),
+    return StreamBuilder<CustomerApplicationModel>(
+      stream: customerBloc.appModelStream,
+      builder: (context, snapshot) {
+        print('🍇  🍇  🍇 StreamBuilder build: ${snapshot.data}');
+        if (snapshot.connectionState == ConnectionState.active) {
+          print('☘ ☘ ☘ refreshing invoice list via appModel... ☘ ☘ ☘');
+          appModel = snapshot.data;
+        }
+        return Scaffold(
+          key: _scaffoldKey,
+          appBar: AppBar(
+            title: Text(
+              'Invoices',
+              style: Styles.blackBoldMedium,
             ),
-          ],
-        ),
-      ),
+            backgroundColor: Colors.pink.shade200,
+            actions: <Widget>[
+              IconButton(
+                icon: Icon(Icons.refresh),
+                onPressed: () {
+                  customerBloc.refreshModel();
+                },
+              )
+            ],
+            bottom: _getBottom(),
+          ),
+          backgroundColor: Colors.brown.shade100,
+          body: Padding(
+            padding: const EdgeInsets.only(top: 12.0),
+            child: new Column(
+              children: <Widget>[
+                new Flexible(
+                  child: _getListView(),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -223,7 +227,7 @@ class _InvoiceListState extends State<InvoiceList>
     prettyPrint(invoice.toJson(), '_showDialog: invoice:');
 
     this.invoice = invoice;
-    if (invoice.invoiceAcceptance == null) {
+    if (invoice.invoiceAcceptance.trim() == 'n/a') {
       showInvoiceAcceptanceDialog();
     } else {
       showInvoiceSettlementDialog();
@@ -663,13 +667,15 @@ class InvoiceCard extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      invoice.invoiceAcceptance == null ? 'NO' : 'YES',
+                      invoice.invoiceAcceptance.trim() == 'n/a' ? 'NO' : 'YES',
                       style: Styles.blackSmall,
                     ),
                     Padding(
                       padding: const EdgeInsets.only(left: 18.0),
                       child: Opacity(
-                        opacity: invoice.invoiceAcceptance == null ? 0.0 : 1.0,
+                        opacity: invoice.invoiceAcceptance.trim() == 'n/a'
+                            ? 0.0
+                            : 1.0,
                         child: Icon(
                           Icons.done,
                           size: 24.0,

@@ -112,7 +112,7 @@ class SupplierBloc implements SupplierBlocListener {
       await _appModel.refreshModel();
       _appModelController.sink.add(_appModel);
     } catch (e) {
-      print('SupplierModelBloc.refreshModel - ${e.message}');
+      print('🌶 🌶 🌶 SupplierBloc.refreshModel - ${e.message}');
     }
   }
 
@@ -134,7 +134,7 @@ class SupplierBloc implements SupplierBlocListener {
   @override
   onComplete() {
     print(
-        '\n\n☕️ ☕️ ☕️ SupplierModelBloc.onComplete ########## adding model to stream sink ......... ');
+        '\n\n☕️ ☕️ ☕️ SupplierBloc.onComplete ########## adding model to stream sink ......... ');
     _appModelController.sink.add(_appModel);
   }
 

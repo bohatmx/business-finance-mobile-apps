@@ -332,9 +332,6 @@ class _DashboardState extends State<Dashboard>
   int count = 0;
   @override
   Widget build(BuildContext context) {
-    count++;
-    print(
-        '_DashboardState.build ++++++++++++++ build +++++++++ build: #$count');
     if (appModel == null || appModel.supplier == null) {
       appModel = supplierBloc.appModel;
       return Scaffold(
@@ -349,17 +346,13 @@ class _DashboardState extends State<Dashboard>
       builder: (context, snapshot) {
         switch (snapshot.connectionState) {
           case ConnectionState.none:
-            print('_DashboardState.build ConnectionState.nonne');
             break;
           case ConnectionState.active:
-            print('_DashboardState.build ConnectionState.active');
+            print('☘ ☘ _DashboardState.build ConnectionState.active');
             break;
           case ConnectionState.done:
-            print('_DashboardState.build ConnectionState.done');
             break;
           case ConnectionState.waiting:
-            print('_DashboardState.build ConnectionState.waiting');
-
             break;
           default:
             if (snapshot.hasError) {

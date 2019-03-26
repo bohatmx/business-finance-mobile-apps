@@ -271,7 +271,6 @@ class _DashboardState extends State<Dashboard>
   @override
   Widget build(BuildContext context) {
     message = widget.message;
-    print('_DashboardState.build ######');
     _configureFCM();
     return StreamBuilder<CustomerApplicationModel>(
       initialData: customerBloc.appModel,
@@ -289,20 +288,14 @@ class _DashboardState extends State<Dashboard>
         }
         switch (snapshot.connectionState) {
           case ConnectionState.none:
-            print(
-                '_DashboardState.build ################## ConnectionState.none');
             break;
           case ConnectionState.done:
-            print(
-                '_DashboardState.build ################## ConnectionState.done');
             break;
           case ConnectionState.waiting:
-            print(
-                '_DashboardState.build ################## ConnectionState.waiting');
             break;
           case ConnectionState.active:
             print(
-                '_DashboardState.build ################## ConnectionState.active');
+                '_DashboardState.build ☘ ☘ ☘ ################## ConnectionState.active');
             break;
         }
         return WillPopScope(

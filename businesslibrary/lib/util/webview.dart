@@ -1,7 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-
-import 'package:businesslibrary/data/purchase_order.dart';
 import 'package:businesslibrary/util/FCM.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/peach.dart';
@@ -31,22 +29,21 @@ class _BFNWebViewState extends State<BFNWebView> {
   void initState() {
     super.initState();
 
-    WidgetsBinding.instance
-        .addPostFrameCallback((_) => runOnceAfterBuild());
-
-
-
+    WidgetsBinding.instance.addPostFrameCallback((_) => runOnceAfterBuild());
   }
+
   void runOnceAfterBuild() {
-    print('\n\n_BFNWebViewState.runOnceAfterBuild ###################### ......');
+    print(
+        '\n\n_BFNWebViewState.runOnceAfterBuild ###################### ......');
 //    _listenForError();
 //    _listenForNotification();
 //    _listenForSuccess();
 //    print('_BFNWebViewState.runOnceAfterBuild - listening for Peach events');
 
-  _configureFCM();
+    _configureFCM();
     print('_BFNWebViewState.initState - subscribed to Peach topics');
   }
+
   void exit() {
     print('_BFNWebViewState.exit ********************************');
     Navigator.pop(context);
@@ -55,7 +52,7 @@ class _BFNWebViewState extends State<BFNWebView> {
   //FCM methods #############################
   _configureFCM() async {
     print(
-        '\n\n\ ################ CONFIGURE FCM MESSAGE ###########  starting _firebaseMessaging');
+        '\n\n\📪 📪 📪 📪 📪 📪  CONFIGURE FCM MESSAGE ########### 📪 📪 📪 📪 ');
 
     AndroidDeviceInfo androidInfo;
     IosDeviceInfo iosInfo;
@@ -64,7 +61,7 @@ class _BFNWebViewState extends State<BFNWebView> {
     try {
       androidInfo = await deviceInfo.androidInfo;
       print(
-          '\n\n\n################  Running on ${androidInfo.model} ################\n\n');
+          '\n\n🌶 🌶 🌶   Running on ${androidInfo.model} ################\n\n');
     } catch (e) {
       print(
           'FCM.configureFCM - error doing Android - this is NOT an Android phone!!');
@@ -73,7 +70,7 @@ class _BFNWebViewState extends State<BFNWebView> {
     try {
       iosInfo = await deviceInfo.iosInfo;
       print(
-          '\n\n\n################ Running on ${iosInfo.utsname.machine} ################\n\n');
+          '\n\n\n🌶 🌶 🌶 ################ Running on ${iosInfo.utsname.machine} ################\n\n');
       isRunningIOs = true;
     } catch (e) {
       print('FCM.configureFCM error doing iOS - this is NOT an iPhone!!');
@@ -82,7 +79,7 @@ class _BFNWebViewState extends State<BFNWebView> {
     _fcm.configure(
       onMessage: (Map<String, dynamic> map) async {
         prettyPrint(map,
-            '\n\n################ Message from FCM ################# ${DateTime.now().toIso8601String()}');
+            '\n\n📪 📪 📪 📪 📪  Message from FCM :: ${DateTime.now().toIso8601String()}');
 
         String messageType = 'unknown';
         String mJSON;
@@ -103,12 +100,10 @@ class _BFNWebViewState extends State<BFNWebView> {
               'FCM.configureFCM -------- EXCEPTION handling platform detection');
         }
 
-        print(
-            'FCM.configureFCM ************************** messageType: $messageType');
+        print('📪 📪 📪 📪 FCM.configureFCM *** messageType: $messageType');
 
         try {
           switch (messageType) {
-
             case 'PEACH_SUCCESS':
               Map map = json.decode(mJSON);
               prettyPrint(map, '\n\n########## FCM PEACH_SUCCESS :');
@@ -129,7 +124,6 @@ class _BFNWebViewState extends State<BFNWebView> {
               prettyPrint(map, '\n\n########## FCM PEACH_NOTIFY:');
               onPeachNotify(PeachNotification.fromJson(map));
               break;
-
           }
         } catch (e) {
           print(
@@ -138,11 +132,11 @@ class _BFNWebViewState extends State<BFNWebView> {
         }
       },
       onLaunch: (Map<String, dynamic> message) {
-        print('configureMessaging onLaunch *********** ');
+        print('📪 📪 📪 configureMessaging onLaunch *********** ');
         prettyPrint(message, 'message delivered on LAUNCH!');
       },
       onResume: (Map<String, dynamic> message) {
-        print('configureMessaging onResume *********** ');
+        print('📪 📪 📪 configureMessaging onResume *********** ');
         prettyPrint(message, 'message delivered on RESUME!');
       },
     );
@@ -150,10 +144,10 @@ class _BFNWebViewState extends State<BFNWebView> {
     _fcm.requestNotificationPermissions(
         const IosNotificationSettings(sound: true, badge: true, alert: true));
 
-    _fcm.onIosSettingsRegistered
-        .listen((IosNotificationSettings settings) {});
+    _fcm.onIosSettingsRegistered.listen((IosNotificationSettings settings) {});
     _subscribeToFCMTopics();
   }
+
   _subscribeToFCMTopics() async {
     _fcm.subscribeToTopic(FCM.TOPIC_PEACH_SUCCESS);
     _fcm.subscribeToTopic(FCM.TOPIC_PEACH_CANCEL);
@@ -213,7 +207,10 @@ class _BFNWebViewState extends State<BFNWebView> {
     Navigator.pop(context, PeachSuccess);
   }
 
-  StreamSubscription<QuerySnapshot> successStream, errorStream, cancelStream, notifyStream;
+  StreamSubscription<QuerySnapshot> successStream,
+      errorStream,
+      cancelStream,
+      notifyStream;
 
   void _listenForError() async {
     print('_BFNWebView_listenForError.........................');
@@ -225,28 +222,28 @@ class _BFNWebViewState extends State<BFNWebView> {
       querySnapshot.documentChanges.forEach((change) {
         // Do something with change
         if (change.type == DocumentChangeType.added) {
-          var errorNotification = PeachNotification.fromJson(
-              change.document.data);
+          var errorNotification =
+              PeachNotification.fromJson(change.document.data);
           if (errorNotification.payment_key == null) {
-            print('\n_BFNWebViewState._listenForError: errorNotification.payment_key == null');
+            print(
+                '\n_BFNWebViewState._listenForError: errorNotification.payment_key == null');
             return;
           }
           if (errorNotification.payment_key == widget.paymentKey) {
             prettyPrint(errorNotification.toJson(),
                 '\n\n_BFNWebView_listenForError- DocumentChangeType = added, error added:');
-            print('_BFNWebView_listenForError about to call errorStream.cancel();');
+            print(
+                '_BFNWebView_listenForError about to call errorStream.cancel();');
             errorStream.cancel();
             onPeachError(errorNotification);
           }
-
-
         } else {
           print('_BFNWebView_listenForError - this is NOT our error - IGNORE!');
         }
-
       });
     });
   }
+
   void _listenForNotification() async {
     print('_BFNWebView__listenForNotification........................');
     Query reference = fs
@@ -257,24 +254,23 @@ class _BFNWebViewState extends State<BFNWebView> {
       querySnapshot.documentChanges.forEach((change) {
         // Do something with change
         if (change.type == DocumentChangeType.added) {
-          var notification = PeachNotification.fromJson(
-              change.document.data);
+          var notification = PeachNotification.fromJson(change.document.data);
           if (notification.payment_key == widget.paymentKey) {
             prettyPrint(notification.toJson(),
                 '\n\n_BFNWebView__listenForNotification DocumentChangeType = added, error added:');
-            print('_BFNWebView__listenForNotification about to call notifyStream.cancel();');
+            print(
+                '_BFNWebView__listenForNotification about to call notifyStream.cancel();');
             notifyStream.cancel();
             onPeachSuccess(change.document.data);
           }
-
-
         } else {
-          print('_BFNWebView__listenForNotification - this is NOT our notification - IGNORE!');
+          print(
+              '_BFNWebView__listenForNotification - this is NOT our notification - IGNORE!');
         }
-
       });
     });
   }
+
   void _listenForSuccess() async {
     print('_BFNWebView__listenForSuccess.......................');
     Query reference = fs
@@ -286,8 +282,7 @@ class _BFNWebViewState extends State<BFNWebView> {
         try {
           // Do something with change
           if (change.type == DocumentChangeType.added) {
-            var notification = PeachNotification.fromJson(
-                change.document.data);
+            var notification = PeachNotification.fromJson(change.document.data);
             prettyPrint(change.document.data,
                 '\n\_BFNWebView__listenForSuccess DocumentChangeType = added, success added:');
             if (notification.payment_key == widget.paymentKey) {
@@ -300,13 +295,10 @@ class _BFNWebViewState extends State<BFNWebView> {
             print(
                 '_BFNWebView__listenForSuccess - this is NOT our success - IGNORE!');
           }
-
         } catch (e) {
           print(e);
         }
-
       });
     });
   }
-
 }

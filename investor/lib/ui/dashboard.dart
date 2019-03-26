@@ -67,7 +67,6 @@ class _DashboardState extends State<Dashboard>
   DeliveryAcceptance acceptance;
   BasicMessageChannel<String> basicMessageChannel;
   AppLifecycleState lifecycleState;
-  Bloc bloc = Bloc();
 
   @override
   initState() {
@@ -144,7 +143,7 @@ class _DashboardState extends State<Dashboard>
             case FS_OFFERS:
               var m = Offer.fromJson(json.decode(mJSON));
               prettyPrint(m.toJson(), '\n\n########## FCM OFFER MESSAGE :');
-              bloc.receiveOfferMessage(m, context);
+              investorBloc.receiveOfferMessage(m, context);
               onOfferMessage(m);
               break;
             case 'CHAT_RESPONSE':
@@ -157,7 +156,7 @@ class _DashboardState extends State<Dashboard>
               var m = InvoiceBid.fromJson(json.decode(mJSON));
               prettyPrint(
                   m.toJson(), '\n\n########## FCM INVOICE_BID MESSAGE :');
-              bloc.receiveInvoiceBidMessage(m, context);
+              investorBloc.receiveInvoiceBidMessage(m, context);
               onInvoiceBidMessage(m);
               break;
 
@@ -231,7 +230,7 @@ class _DashboardState extends State<Dashboard>
         message: 'Refreshing data',
         textColor: Styles.white,
         backgroundColor: Styles.black);
-    await bloc.refreshRemoteDashboard();
+    await investorBloc.refreshRemoteDashboard();
     _scaffoldKey.currentState.removeCurrentSnackBar();
     setState(() {
       count = 0;
@@ -264,12 +263,12 @@ class _DashboardState extends State<Dashboard>
         '\n♻️♻️ _DashboardState.build ********** DASHBOARD RE_BUILD *********** calling _configureFCM');
     //_configureFCM();
     return StreamBuilder<DashboardData>(
-        initialData: bloc.dashboardData,
-        stream: bloc.dashboardStream,
+        initialData: investorBloc.dashboardData,
+        stream: investorBloc.dashboardStream,
         builder: (context, snapshot) {
           print(
               '\n♻️ ♻️ ♻️ ♻️ ♻️ stream️ snapshot ... ${snapshot.connectionState} data: ${snapshot.data}');
-          investor = bloc.investor;
+          investor = investorBloc.investor;
           switch (snapshot.connectionState) {
             case ConnectionState.active:
               data = snapshot.data;
@@ -377,7 +376,7 @@ class _DashboardState extends State<Dashboard>
                 child: Padding(
                   padding: const EdgeInsets.only(bottom: 0.0),
                   child: DashboardCard(
-                    bloc: bloc,
+                    bloc: investorBloc,
                     elevation: 4.0,
                   ),
                 ),
@@ -475,7 +474,7 @@ class _DashboardState extends State<Dashboard>
 
   Widget _getBottom() {
     return PreferredSize(
-      preferredSize: const Size.fromHeight(60.0),
+      preferredSize: const Size.fromHeight(80.0),
       child: Padding(
         padding: const EdgeInsets.only(bottom: 20.0),
         child: data == null
@@ -483,8 +482,27 @@ class _DashboardState extends State<Dashboard>
             : Column(
                 children: <Widget>[
                   Text(
-                    bloc.investor == null ? '' : bloc.investor.name,
+                    investorBloc.investor == null
+                        ? ''
+                        : investorBloc.investor.name,
                     style: Styles.whiteBoldMedium,
+                  ),
+                  StreamBuilder<String>(
+                    stream: investorBloc.fcmStream,
+                    builder: (context, snapshot) {
+                      if (snapshot.data == null) return Container();
+                      return Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
+                          children: <Widget>[
+                            Text(
+                              snapshot.data,
+                              style: Styles.whiteSmall,
+                            ),
+                          ],
+                        ),
+                      );
+                    },
                   ),
                 ],
               ),
@@ -587,7 +605,7 @@ class _DashboardState extends State<Dashboard>
     if (id == investor.participantId) {
       _showBottomSheet(bid);
     }
-    await bloc.refreshRemoteDashboard();
+    await investorBloc.refreshRemoteDashboard();
   }
 
   double opacity = 1.0;
@@ -605,7 +623,7 @@ class _DashboardState extends State<Dashboard>
               'Offer arrived: ${getFormattedDateShortWithTime('${offer.date}', context)} ',
           subTitle: offer.supplierName));
     });
-    await bloc.refreshRemoteDashboard();
+    await investorBloc.refreshRemoteDashboard();
     _showSnack(
         'Offer arrived ${getFormattedAmount('${offer.offerAmount}', context)}');
   }
@@ -619,7 +637,7 @@ class _DashboardState extends State<Dashboard>
               'Settlement arrived: ${getFormattedDateShortWithTime('${s.date}', context)} ',
           subTitle: s.supplierName));
     });
-    await bloc.refreshRemoteDashboard();
+    await investorBloc.refreshRemoteDashboard();
   }
 
   void _showSnack(String message) {

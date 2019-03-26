@@ -1422,7 +1422,7 @@ class ListAPI {
   static Future<List<Invoice>> getInvoicesByPurchaseOrder(
       String purchaseOrderId, String supplier) async {
     print(
-        'ListAPI.getInvoicesByPurchaseOrder ............. deliveryNoteId: $purchaseOrderId  ');
+        '🍑 🍑 🍑 ListAPI.getInvoicesByPurchaseOrder ............. deliveryNoteId: $purchaseOrderId  ');
     List<Invoice> invoices = List();
     var qs = await _firestore
         .collection('invoices')
@@ -1434,7 +1434,7 @@ class ListAPI {
       return invoices;
     });
     print(
-        'ListAPI.getInvoicesByPurchaseOrder ............. fouund: ${qs.documents.length}');
+        'ListAPI.getInvoicesByPurchaseOrder ............. 🍑 🍑 🍑 found: ${qs.documents.length}');
     if (qs.documents.isNotEmpty) {
       qs.documents.forEach((doc) {
         var invoice = Invoice.fromJson(doc.data);
@@ -1448,7 +1448,7 @@ class ListAPI {
   static Future<Invoice> getInvoiceByDeliveryNote(
       String deliveryNoteId, String participantId) async {
     print(
-        'ListAPI.getInvoiceByDeliveryNote ............. deliveryNoteId: $deliveryNoteId  ');
+        '🥦 🥦 🥦 ListAPI.getInvoiceByDeliveryNote ............. deliveryNoteId: $deliveryNoteId  ');
     Invoice invoice;
     var qs = await _firestore
         .collection('invoices')
@@ -1460,7 +1460,7 @@ class ListAPI {
       return null;
     });
     print(
-        'ListAPI.getInvoiceByDeliveryNote ............. fouund: ${qs.documents.length}');
+        'ListAPI.getInvoiceByDeliveryNote ............. 🥦 🥦 🥦 found: ${qs.documents.length}');
     if (qs.documents.isNotEmpty) {
       invoice = Invoice.fromJson(qs.documents.first.data);
     }
@@ -1679,32 +1679,6 @@ class ListAPI {
     });
 
     print('ListAPI.getSupplierContracts ############ found: ${list.length}');
-    return list;
-  }
-
-  static Future<List<SupplierContract>> getSupplierGovtContracts(
-      String supplierDocumentRef, String govtEntity) async {
-    print(
-        'ListAPI.getSupplierGovtContracts .......  supplierDocumentRef: $supplierDocumentRef govtEntity: $govtEntity');
-    List<SupplierContract> list = List();
-    var qs = await _firestore
-        .collection('suppliers')
-        .document(supplierDocumentRef)
-        .collection('supplierContracts')
-        .where('govtEntity', isEqualTo: govtEntity)
-//        .orderBy('date', descending: true)
-        .getDocuments()
-        .catchError((e) {
-      print('ListAPI.getSupplierGovtContracts $e');
-      return list;
-    });
-
-    qs.documents.forEach((doc) {
-      list.add(new SupplierContract.fromJson(doc.data));
-    });
-
-    print(
-        'ListAPI.getSupplierGovtContracts ############ found: ${list.length}');
     return list;
   }
 

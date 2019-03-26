@@ -415,30 +415,21 @@ class _DeliveryNotePageState extends State<DeliveryNotePage>
         textColor: Colors.white,
         backgroundColor: Colors.black);
     try {
-      var resultNote = await DataAPI3.addDeliveryNote(note);
-      _scaffoldKey.currentState.hideCurrentSnackBar();
-      print('_DeliveryNotePageState._onSubmit ........ back. key: $resultNote');
+      await DataAPI3.addDeliveryNote(note);
+      AppSnackbar.showSnackbarWithAction(
+          scaffoldKey: _scaffoldKey,
+          message: 'Delivery Note submitted',
+          textColor: Colors.white,
+          backgroundColor: Colors.teal.shade800,
+          actionLabel: 'DONE',
+          action: 0,
+          listener: this,
+          icon: Icons.done);
+      isDone = true;
 
-      if (resultNote == null) {
-        AppSnackbar.showErrorSnackbar(
-            scaffoldKey: _scaffoldKey,
-            message: 'Delivery Note submission failed',
-            listener: this,
-            actionLabel: 'Close');
-      } else {
-        AppSnackbar.showSnackbarWithAction(
-            scaffoldKey: _scaffoldKey,
-            message: 'Delivery Note submitted',
-            textColor: Colors.white,
-            backgroundColor: Colors.teal.shade800,
-            actionLabel: 'DONE',
-            action: 0,
-            listener: this,
-            icon: Icons.done);
-        isDone = true;
-      }
-      await appModel.refreshDeliveryNotes();
+      await supplierBloc.refreshModel();
     } catch (e) {
+      print(e);
       AppSnackbar.showErrorSnackbar(
           scaffoldKey: _scaffoldKey,
           message: 'Delivery Note submission failed',
@@ -470,8 +461,7 @@ class _DeliveryNotePageState extends State<DeliveryNotePage>
   }
 
   void _onPOpicked(PurchaseOrder value) async {
-    print('_DeliveryNotePageState._onPOpicked: ');
-    prettyPrint(value.toJson(), '_DeliveryNotePageState._onPOpicked: ');
+    prettyPrint(value.toJson(), '🌼 🌼 DeliveryNotePageState._onPOpicked: ');
     _purchaseOrder = value;
     AppSnackbar.showSnackbarWithProgressIndicator(
         scaffoldKey: _scaffoldKey,
@@ -497,7 +487,7 @@ class _DeliveryNotePageState extends State<DeliveryNotePage>
   String amount, vat, totalAmount;
 
   void _onAmountChanged(String value) {
-    print('_DeliveryNotePageState._amtChanged: $value');
+//    print('_DeliveryNotePageState._amtChanged: $value');
     amount = value;
     //todo - internationalize
     double amt = double.parse(amount);
@@ -506,8 +496,8 @@ class _DeliveryNotePageState extends State<DeliveryNotePage>
     vat = xvat.toString();
     totalAmount = tot.toString();
     setState(() {});
-    print(
-        '_DeliveryNotePageState._onAmountChanged vat: $vat tottal: $totalAmount');
+//    print(
+//        '_DeliveryNotePageState._onAmountChanged vat: $vat tottal: $totalAmount');
   }
 
   DeliveryAcceptance deliveryAcceptance;

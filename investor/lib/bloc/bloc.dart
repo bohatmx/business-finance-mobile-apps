@@ -11,7 +11,7 @@ import 'package:businesslibrary/util/database.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:flutter/material.dart';
 
-Bloc investorBloc = Bloc();
+final Bloc investorBloc = Bloc();
 
 class Bloc {
   final StreamController<List<Offer>> _openOffersController =

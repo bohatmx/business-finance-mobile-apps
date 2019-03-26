@@ -70,7 +70,8 @@ class Database {
         String string = await jsonFile.readAsString();
         Map map = json.decode(string);
         InvoiceBids w = new InvoiceBids.fromJson(map);
-        print('Database ## getUnsettledInvoiceBids - returning InvoiceBids found: ${w.bids.length}');
+        print(
+            'Database ## getUnsettledInvoiceBids - returning InvoiceBids found: ${w.bids.length}');
         return w.bids;
       } else {
         return List();
@@ -99,6 +100,7 @@ class Database {
       return 0;
     }
   }
+
   static Future<DashboardData> getDashboard() async {
     dir = await getApplicationDocumentsDirectory();
 
@@ -153,7 +155,8 @@ class Database {
         String string = await jsonFile.readAsString();
         Map map = json.decode(string);
         InvoiceBids w = new InvoiceBids.fromJson(map);
-        print('\nDatabase ## getSettledInvoiceBids - returning SettledInvoiceBids found: ${w.bids.length} \n\n');
+        print(
+            '\nDatabase ## getSettledInvoiceBids - returning SettledInvoiceBids found: ${w.bids.length} \n\n');
         return w.bids;
       } else {
         return List();
@@ -206,18 +209,19 @@ class Database {
     fileExists = await jsonFile.exists();
 
     if (fileExists) {
-      print('Database_savePurchaseOrders  ## file exists ...writing purchaseOrders file');
+      print(
+          '🍔 🍔 Database_savePurchaseOrders  ## file exists ...writing purchaseOrders file');
       jsonFile.writeAsString(json.encode(map));
       print(
-          'Database_savePurchaseOrders ##  has cached list of purchaseOrders --  ###))))))))) : ${purchaseOrders.orders.length}');
+          '🍔 🍔 🍔 Database_savePurchaseOrders ##  has cached list of purchaseOrders --  ###))))))))) : ${purchaseOrders.orders.length}');
       return 0;
     } else {
       print(
-          'Database_savePurchaseOrders ## file does not exist ...creating and writing purchaseOrders file');
+          '🍔 🍔 Database_savePurchaseOrders ## file does not exist ...creating and writing purchaseOrders file');
       var file = await jsonFile.create();
       await file.writeAsString(json.encode(map));
       print(
-          'Database.savePurchaseOrders ${file.path} length: ${file.length()}');
+          '🍔 🍔 🍔 Database.savePurchaseOrders ${file.path} length: ${file.length()}');
       return 0;
     }
   }
@@ -241,28 +245,31 @@ class Database {
     }
   }
 
-  static Future<int> saveDeliveryAcceptances(DeliveryAcceptances deliveryAcceptances) async {
+  static Future<int> saveDeliveryAcceptances(
+      DeliveryAcceptances deliveryAcceptances) async {
     Map map = deliveryAcceptances.toJson();
     dir = await getApplicationDocumentsDirectory();
     jsonFile = new File(dir.path + "/DeliveryAcceptances.json");
     fileExists = await jsonFile.exists();
 
     if (fileExists) {
-      print('Database_saveDeliveryAcceptances  ## file exists ...writing deliveryAcceptances file');
+      print(
+          '🍇  🍇  🍇 Database_saveDeliveryAcceptances  ## file exists ...writing deliveryAcceptances file');
       jsonFile.writeAsString(json.encode(map));
       print(
-          'Database_saveDeliveryAcceptances ##  has cached list of deliveryAcceptances --  ###))))))))) : ${deliveryAcceptances.deliveryAcceptances.length}');
+          '🍇  🍇  🍇 Database_saveDeliveryAcceptances ##  has cached list of deliveryAcceptances --  ###))))))))) : ${deliveryAcceptances.deliveryAcceptances.length}');
       return 0;
     } else {
       print(
-          'Database_saveDeliveryAcceptances ## file does not exist ...creating and writing po file');
+          '🍇  🍇  🍇  Database_saveDeliveryAcceptances ## file does not exist ...creating and writing po file');
       var file = await jsonFile.create();
       await file.writeAsString(json.encode(map));
       print(
-          'Database.saveDeliveryAcceptances ${file.path} length: ${file.length()}');
+          ' 🍇  🍇  🍇  Database.saveDeliveryAcceptances ${file.path} length: ${file.length()}');
       return 0;
     }
   }
+
   static Future<List<DeliveryAcceptance>> getDeliveryAcceptances() async {
     dir = await getApplicationDocumentsDirectory();
 
@@ -288,17 +295,19 @@ class Database {
     fileExists = await jsonFile.exists();
 
     if (fileExists) {
-      print('Database_saveDeliveryNotes  ## file exists ...writing DeliveryNotes file');
+      print(
+          '🥦 🥦 🥦 Database_saveDeliveryNotes  ## file exists ...writing DeliveryNotes file');
       jsonFile.writeAsString(json.encode(map));
       print(
-          'Database_saveDeliveryNotes##  has cached list of delivery notes --  ###))))))))) : ${notes.notes.length}');
+          '🥦 🥦 🥦 Database_saveDeliveryNotes##  has cached list of delivery notes --  ###))))))))) : ${notes.notes.length}');
       return 0;
     } else {
       print(
-          'Database_saveDeliveryNotes ## file does not exist ...creating and writing delivery note file');
+          '🥦 🥦 🥦 Database_saveDeliveryNotes ## file does not exist ...creating and writing delivery note file');
       var file = await jsonFile.create();
       await file.writeAsString(json.encode(map));
-      print('Database.saveDeliveryNotes ${file.path} length: ${file.length()}');
+      print(
+          '🥦 🥦 🥦 Database.saveDeliveryNotes ${file.path} length: ${file.length()}');
       return 0;
     }
   }
@@ -313,8 +322,7 @@ class Database {
       String string = await jsonFile.readAsString();
       Map map = json.decode(string);
       Invoices w = new Invoices.fromJson(map);
-      print(
-          'Database ## returning invoices  ### found: ${w.invoices.length}');
+      print('Database ## returning invoices  ### found: ${w.invoices.length}');
       return w.invoices;
     } else {
       return List();
@@ -328,17 +336,19 @@ class Database {
     fileExists = await jsonFile.exists();
 
     if (fileExists) {
-      print('Database_saveInvoices  ## file exists ...writing invoices file');
+      print(
+          '🎁 🎁 🎁 Database_saveInvoices  ## file exists ...writing invoices file');
       jsonFile.writeAsString(json.encode(map));
       print(
-          'Database_saveInvoices ##  has cached list of invoices --  ###))))))))) : ${invoices.invoices.length}');
+          '🎁 🎁 🎁  Database_saveInvoices ##  has cached list of invoices --  ###))))))))) : ${invoices.invoices.length}');
       return 0;
     } else {
       print(
-          'Database_saveInvoices ## file does not exist ...creating and writing invoice file');
+          '🎁 🎁 🎁  Database_saveInvoices ## file does not exist ...creating and writing invoice file');
       var file = await jsonFile.create();
       await file.writeAsString(json.encode(map));
-      print('Database.saveInvoices ${file.path} length: ${file.length()}');
+      print(
+          '🎁 🎁 🎁  Database.saveInvoices ${file.path} length: ${file.length()}');
       return 0;
     }
   }
@@ -353,8 +363,7 @@ class Database {
       String string = await jsonFile.readAsString();
       Map map = json.decode(string);
       Offers w = new Offers.fromJson(map);
-      print(
-          'Database ## returning offers  ### found: ${w.offers.length}');
+      print('Database ## returning offers  ### found: ${w.offers.length}');
       //w.printFirstAndLast();
       return w.offers;
     } else {
@@ -371,17 +380,19 @@ class Database {
     if (fileExists) {
       jsonFile.writeAsString(json.encode(map));
       print(
-          'Database_saveOffers ##  has cached list of offers --  ### ))))))))) : ${offers.offers.length}');
+          '🎁 🎁 🎁  Database_saveOffers ##  has cached list of offers --  ### ))))))))) : ${offers.offers.length}');
       return 0;
     } else {
       print(
-          'Database_saveOffers ## file does not exist ...creating and writing offers file');
+          '🎁 🎁 🎁  Database_saveOffers ## file does not exist ...creating and writing offers file');
       var file = await jsonFile.create();
       await file.writeAsString(json.encode(map));
-      print('Database.saveOffers ${file.path} length: ${file.length()}');
+      print(
+          '🎁 🎁 🎁  Database.saveOffers ${file.path} length: ${file.length()}');
       return 0;
     }
   }
+
   static Future<List<InvoiceAcceptance>> getInvoiceAcceptances() async {
     dir = await getApplicationDocumentsDirectory();
 
@@ -400,14 +411,16 @@ class Database {
     }
   }
 
-  static Future<int> saveInvoiceAcceptances(InvoiceAcceptances acceptances) async {
+  static Future<int> saveInvoiceAcceptances(
+      InvoiceAcceptances acceptances) async {
     Map map = acceptances.toJson();
     dir = await getApplicationDocumentsDirectory();
     jsonFile = new File(dir.path + "/InvoiceAcceptance.json");
     fileExists = await jsonFile.exists();
 
     if (fileExists) {
-      print('saveInvoiceAcceptances  ## file exists ...writing InvoiceAcceptances file');
+      print(
+          'saveInvoiceAcceptances  ## file exists ...writing InvoiceAcceptances file');
       jsonFile.writeAsString(json.encode(map));
       print(
           'Database_saveInvoiceAcceptances ##  has cached list of acceptances --  ###))))))))) : ${acceptances.invoiceAcceptances.length}');
@@ -417,11 +430,14 @@ class Database {
           'Database_saveInvoiceAcceptances ## file does not exist ...creating and writing InvoiceAcceptances file');
       var file = await jsonFile.create();
       await file.writeAsString(json.encode(map));
-      print('Database.saveInvoiceAcceptances ${file.path} length: ${file.length()}');
+      print(
+          'Database.saveInvoiceAcceptances ${file.path} length: ${file.length()}');
       return 0;
     }
   }
-  static Future<List<InvestorInvoiceSettlement>> getInvestorInvoiceSettlements() async {
+
+  static Future<List<InvestorInvoiceSettlement>>
+      getInvestorInvoiceSettlements() async {
     dir = await getApplicationDocumentsDirectory();
 
     jsonFile = new File(dir.path + "/InvestorInvoiceSettlement.json");
@@ -430,7 +446,8 @@ class Database {
     if (fileExists) {
       String string = await jsonFile.readAsString();
       Map map = json.decode(string);
-      InvestorInvoiceSettlements w = new InvestorInvoiceSettlements.fromJson(map);
+      InvestorInvoiceSettlements w =
+          new InvestorInvoiceSettlements.fromJson(map);
       print(
           'Database ## returning InvestorInvoiceSettlements  ### found: ${w.settlements.length}');
       return w.settlements;
@@ -439,28 +456,28 @@ class Database {
     }
   }
 
-  static Future<int> saveInvestorInvoiceSettlements(InvestorInvoiceSettlements settlements) async {
+  static Future<int> saveInvestorInvoiceSettlements(
+      InvestorInvoiceSettlements settlements) async {
     Map map = settlements.toJson();
     dir = await getApplicationDocumentsDirectory();
     jsonFile = new File(dir.path + "/InvestorInvoiceSettlement.json");
     fileExists = await jsonFile.exists();
 
     if (fileExists) {
-      print('saveInvestorInvoiceSettlements  ## file exists ...writing InvestorInvoiceSettlements file');
       jsonFile.writeAsString(json.encode(map));
       print(
-          'Database_saveInvestorInvoiceSettlements##  has cached list of InvestorInvoiceSettlements --  ###))))))))) : ${settlements.settlements.length}');
+          '☘ Database_saveInvestorInvoiceSettlements##  has cached list of InvestorInvoiceSettlements --  ###))))))))) : ${settlements.settlements.length}');
       return 0;
     } else {
       print(
-          'Database_saveInvestorInvoiceSettlements ## file does not exist ...creating and writing InvestorInvoiceSettlements file');
+          '☘ Database_saveInvestorInvoiceSettlements ## file does not exist ...creating and writing InvestorInvoiceSettlements file');
       var file = await jsonFile.create();
       await file.writeAsString(json.encode(map));
-      print('Database.saveInvestorInvoiceSettlements ${file.path} length: ${file.length()}');
+      print(
+          '☘ Database.saveInvestorInvoiceSettlements ${file.path} ☘ length: ${file.length()}');
       return 0;
     }
   }
-
 }
 
 class Sectors {
@@ -604,11 +621,12 @@ class DeliveryNotes {
         'notes': notes,
       };
 }
+
 class DeliveryAcceptances {
   List<DeliveryAcceptance> deliveryAcceptances = List();
 
   DeliveryAcceptances(this.deliveryAcceptances);
-  
+
   DeliveryAcceptances.fromJson(Map data) {
     List map = data['deliveryAcceptances'];
     this.deliveryAcceptances = List();
@@ -618,9 +636,10 @@ class DeliveryAcceptances {
     });
   }
   Map<String, dynamic> toJson() => <String, dynamic>{
-    'deliveryAcceptances': deliveryAcceptances,
-  };
+        'deliveryAcceptances': deliveryAcceptances,
+      };
 }
+
 class InvoiceAcceptances {
   List<InvoiceAcceptance> invoiceAcceptances = List();
 
@@ -634,9 +653,10 @@ class InvoiceAcceptances {
     });
   }
   Map<String, dynamic> toJson() => <String, dynamic>{
-    'invoiceAcceptances': invoiceAcceptances,
-  };
+        'invoiceAcceptances': invoiceAcceptances,
+      };
 }
+
 class InvestorInvoiceSettlements {
   List<InvestorInvoiceSettlement> settlements = List();
 
@@ -650,6 +670,6 @@ class InvestorInvoiceSettlements {
     });
   }
   Map<String, dynamic> toJson() => <String, dynamic>{
-    'settlements': settlements,
-  };
+        'settlements': settlements,
+      };
 }

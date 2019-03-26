@@ -23,7 +23,7 @@ abstract class CustomerModelBlocListener {
 
 class CustomerBloc implements CustomerBlocListener {
   final StreamController<CustomerApplicationModel> _appModelController =
-      StreamController<CustomerApplicationModel>();
+      StreamController.broadcast();
   final StreamController<String> _errorController = StreamController<String>();
   final CustomerApplicationModel _appModel = CustomerApplicationModel();
   final StreamController<String> _fcmMessageController =

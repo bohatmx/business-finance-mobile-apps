@@ -18,7 +18,6 @@ import 'package:businesslibrary/util/styles.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:supplierv3/supplier_bloc.dart';
-import 'package:supplierv3/ui/summary_helper.dart';
 
 class MakeOfferPage extends StatefulWidget {
   final Invoice invoice;
@@ -171,7 +170,7 @@ class _MakeOfferPageState extends State<MakeOfferPage>
   bool submitting = false;
 
   _refreshData() async {
-    await Refresh.refresh(supplier);
+    await supplierBloc.refreshModel();
   }
 
   _submitOffer() async {
@@ -221,6 +220,9 @@ class _MakeOfferPageState extends State<MakeOfferPage>
 
     var offerAmt = (invoice.totalAmount * (100.0 - disc)) / 100.0;
     wallet = await SharedPrefs.getWallet();
+    if (wallet == null) {
+      wallet = await ListAPI.getWallet(participantId: supplier.participantId);
+    }
     var startTime = DateTime.now().toUtc();
     var endTime = startTime.add(new Duration(days: days)).toIso8601String();
 
@@ -238,10 +240,12 @@ class _MakeOfferPageState extends State<MakeOfferPage>
         participantId: supplier.participantId,
         customerName: invoice.customerName,
         customer: invoice.customer,
-        wallet: wallet.stellarPublicKey,
         supplierName: supplier.name,
         sector: sector.sectorId,
         sectorName: sector.sectorName);
+    if (wallet != null) {
+      offer.wallet = wallet.stellarPublicKey;
+    }
 
     print(
         '_MakeOfferPageState._submitOffer about to open snackbar ===================>');
@@ -257,30 +261,22 @@ class _MakeOfferPageState extends State<MakeOfferPage>
     }
     try {
       resultOffer = await DataAPI3.makeOffer(offer);
-      if (resultOffer == null) {
-        AppSnackbar.showErrorSnackbar(
-            scaffoldKey: _scaffoldKey,
-            message: 'Invoice Offer failed',
-            listener: this,
-            actionLabel: 'Close');
-        submitting = false;
-      } else {
-        offerId = resultOffer.offerId;
-        FirebaseMessaging mg = FirebaseMessaging();
-        mg.subscribeToTopic(FCM.TOPIC_INVOICE_BIDS + offerId);
-        needRefresh = true;
-        await _refreshData();
 
-        AppSnackbar.showSnackbarWithAction(
-            scaffoldKey: _scaffoldKey,
-            message: 'Ivoice Offer submitted OK',
-            textColor: Colors.white,
-            backgroundColor: Colors.teal.shade800,
-            actionLabel: "DONE",
-            listener: this,
-            action: OfferSubmitted,
-            icon: Icons.done);
-      }
+      offerId = resultOffer.offerId;
+      FirebaseMessaging mg = FirebaseMessaging();
+      mg.subscribeToTopic(FCM.TOPIC_INVOICE_BIDS + offerId);
+      needRefresh = true;
+      await _refreshData();
+
+      AppSnackbar.showSnackbarWithAction(
+          scaffoldKey: _scaffoldKey,
+          message: 'Ivoice Offer submitted OK',
+          textColor: Colors.white,
+          backgroundColor: Colors.teal.shade800,
+          actionLabel: "DONE",
+          listener: this,
+          action: OfferSubmitted,
+          icon: Icons.done);
     } catch (e) {
       AppSnackbar.showErrorSnackbar(
           scaffoldKey: _scaffoldKey,
