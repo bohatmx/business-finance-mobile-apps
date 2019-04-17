@@ -36,7 +36,7 @@ class DashboardCard extends StatelessWidget {
           );
         } else {
           return Card(
-            elevation: elevation == null ? 4.0 : elevation,
+            elevation: elevation == null ? 0.0 : elevation,
             color: color == null ? Colors.white : color,
             child: Padding(
               padding: const EdgeInsets.all(8.0),
@@ -46,6 +46,7 @@ class DashboardCard extends StatelessWidget {
                   _getTotalBidAmount(data, context),
                   _getAverageBidAmount(data, context),
                   _getAverageDiscount(data, context),
+                  Padding(padding: const EdgeInsets.all(8.0)),
                 ],
               ),
             ),
@@ -130,8 +131,8 @@ class DashboardCard extends StatelessWidget {
             child: Text(
               data == null
                   ? '0'
-                  : '${getFormattedAmount('${data.averageDiscountPerc}', context)}',
-              style: Styles.blueBoldMedium,
+                  : '${getFormattedAmount('${data.averageDiscountPerc} %', context)}',
+              style: Styles.blackBoldSmall,
             ),
           ),
         ],
@@ -159,7 +160,7 @@ class DashboardCard extends StatelessWidget {
               data == null
                   ? '0'
                   : '${getFormattedAmount('${data.averageBidAmount}', context)}',
-              style: Styles.blueBoldMedium,
+              style: Styles.blackBoldSmall,
             ),
           ),
         ],

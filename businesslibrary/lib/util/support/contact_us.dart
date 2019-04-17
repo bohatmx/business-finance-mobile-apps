@@ -27,7 +27,6 @@ class ContactUs extends StatefulWidget {
 
 class _ContactUsState extends State<ContactUs>
     with SingleTickerProviderStateMixin {
-  GoogleMapController _mapController;
   Map<String, double> _startLocation;
   Map<String, double> _currentLocation;
   Investor investor;
@@ -37,13 +36,19 @@ class _ContactUsState extends State<ContactUs>
   StreamSubscription<Map<String, double>> _locationSubscription;
   AnimationController _animationController;
   Animation<double> _animation;
+  Completer<GoogleMapController> _completer = Completer();
+  GoogleMapController _mapController;
 
   Location _location = new Location();
   bool _permission = false;
   String error;
 
   bool currentWidget = true;
-  double mLat = -25.883328, mLng = 28.168771;
+  static const double mLat = -25.883328, mLng = 28.168771;
+  CameraPosition _cameraPosition = CameraPosition(
+    target: LatLng(mLat, mLng),
+    zoom: 14.0,
+  );
   String userType;
   Image image1;
   static const String USER_SUPPLIER = '1',
@@ -122,6 +127,22 @@ class _ContactUsState extends State<ContactUs>
     });
   }
 
+  Set<Marker> _markers = Set();
+  BitmapDescriptor _landmarkIcon;
+  Future _buildLandmarkIcon() async {
+    if (_landmarkIcon != null) return;
+    final ImageConfiguration imageConfiguration =
+        createLocalImageConfiguration(context, size: Size.square(600.0));
+    await BitmapDescriptor.fromAssetImage(
+            imageConfiguration, 'assets/computers.png')
+        .then((img) {
+      _landmarkIcon = img;
+      print('_buildLandmarkIcon Ⓜ️ Ⓜ️ Ⓜ️ has been created');
+    }).catchError((err) {
+      print(err);
+    });
+  }
+
   Widget _getBottom() {
     return PreferredSize(
       preferredSize: Size.fromHeight(140.0),
@@ -185,6 +206,24 @@ class _ContactUsState extends State<ContactUs>
     );
   }
 
+  void _setMarker() async {
+    print('📍 📍 📍 📍 _setLandmarkMarkers: points on map: 🌀');
+    await _buildLandmarkIcon();
+    _markers.add(Marker(
+        onTap: () {
+          print('marker tapped!! ❤️ 🧡 💛 ');
+        },
+        icon: _landmarkIcon,
+        markerId: MarkerId(DateTime.now().toIso8601String()),
+        position: LatLng(mLat, mLng),
+        infoWindow: InfoWindow(
+            title: 'OneConnect',
+            snippet: 'Enterprise Cloud & Blockchain',
+            onTap: () {
+              print(' 🧩 🧩 🧩 infoWindow tapped  🧩 🧩 🧩 ');
+            })));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -195,16 +234,24 @@ class _ContactUsState extends State<ContactUs>
       body: Stack(
         children: <Widget>[
           GoogleMap(
-            onMapCreated: (controller) {
-              print('_ContactUsState.build ------ onMapCreated');
-              _mapController = controller;
-              setMapStuff();
+            initialCameraPosition: _cameraPosition,
+            mapType: _mapType == null ? MapType.hybrid : _mapType,
+            markers: _markers,
+            myLocationEnabled: true,
+            compassEnabled: true,
+            zoomGesturesEnabled: true,
+            rotateGesturesEnabled: true,
+            scrollGesturesEnabled: true,
+            tiltGesturesEnabled: true,
+            onTap: (latLng) {
+              print('🗳 🗳 🗳  map tapped for location 🍎 $latLng');
+              setState(() {});
             },
-            options: GoogleMapOptions(
-              myLocationEnabled: true,
-              compassEnabled: true,
-              zoomGesturesEnabled: true,
-            ),
+            onMapCreated: (mapController) {
+              _completer.complete(mapController);
+              _mapController = mapController;
+              _setMarker();
+            },
           ),
           Positioned(
             left: 10.0,
@@ -236,24 +283,6 @@ class _ContactUsState extends State<ContactUs>
         ],
       ),
     );
-  }
-
-  void setMapStuff() {
-    _mapController.updateMapOptions(GoogleMapOptions(
-        zoomGesturesEnabled: true,
-        myLocationEnabled: true,
-        compassEnabled: true,
-        mapType: MapType.normal));
-
-    _mapController.animateCamera(CameraUpdate.newCameraPosition(
-        CameraPosition(target: LatLng(mLat, mLng), zoom: 12.0)));
-    _mapController.addMarker(MarkerOptions(
-      position: LatLng(mLat, mLng),
-      icon: BitmapDescriptor.fromAsset('assets/computers.png'),
-      zIndex: 4.0,
-      infoWindowText:
-          InfoWindowText('OneConnect BFN', 'We are the FinTech People'),
-    ));
   }
 
   void _onPhoneTapped() async {
@@ -304,6 +333,12 @@ class _ContactUsState extends State<ContactUs>
     );
   }
 
+  MapType _mapType;
+  MapType hybrid = MapType.hybrid;
+  MapType normal = MapType.normal;
+  MapType terrain = MapType.terrain;
+  MapType satellite = MapType.satellite;
+
   int toggle = 0;
   void _onMapTypeToggle() {
     if (toggle == null) {
@@ -335,26 +370,20 @@ class _ContactUsState extends State<ContactUs>
   }
 
   void _doTerrainMap() {
-    _mapController.updateMapOptions(GoogleMapOptions(
-        zoomGesturesEnabled: true,
-        myLocationEnabled: true,
-        compassEnabled: true,
-        mapType: MapType.terrain));
+    setState(() {
+      _mapType = terrain;
+    });
   }
 
   void _doSatelliteMap() {
-    _mapController.updateMapOptions(GoogleMapOptions(
-        zoomGesturesEnabled: true,
-        myLocationEnabled: true,
-        compassEnabled: true,
-        mapType: MapType.satellite));
+    setState(() {
+      _mapType = satellite;
+    });
   }
 
   void _doNormalMap() {
-    _mapController.updateMapOptions(GoogleMapOptions(
-        zoomGesturesEnabled: true,
-        myLocationEnabled: true,
-        compassEnabled: true,
-        mapType: MapType.normal));
+    setState(() {
+      _mapType = normal;
+    });
   }
 }

@@ -23,6 +23,7 @@ import 'package:businesslibrary/util/constants.dart';
 import 'package:businesslibrary/util/invoice_bid_card.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/message.dart';
+import 'package:businesslibrary/util/my_transition.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:businesslibrary/util/summary_card.dart';
@@ -291,7 +292,7 @@ class _DashboardState extends State<Dashboard>
               appBar: AppBar(
                 elevation: 6.0,
                 title: Text(
-                  'BFN - Investor',
+                  'BFN - ☘ Investor',
                   style: Styles.whiteSmall,
                 ),
                 leading: IconButton(
@@ -377,10 +378,11 @@ class _DashboardState extends State<Dashboard>
                   padding: const EdgeInsets.only(bottom: 0.0),
                   child: DashboardCard(
                     bloc: investorBloc,
-                    elevation: 4.0,
+                    elevation: 2.0,
                   ),
                 ),
               ),
+              Padding(padding: const EdgeInsets.all(8.0)),
               new InkWell(
                 onTap: _onOffersTapped,
                 child: Padding(
@@ -390,8 +392,8 @@ class _DashboardState extends State<Dashboard>
                     label: 'Unsettled Bids',
                     totalStyle: Styles.purpleBoldMedium,
                     totalValue: data == null ? 0.0 : _getTotalUnsettled(),
-                    totalValueStyle: Styles.tealBoldMedium,
-                    elevation: 6.0,
+                    totalValueStyle: Styles.blackBoldMedium,
+                    elevation: 4.0,
                     color: Colors.yellow.shade100,
                   ),
                 ),
@@ -403,9 +405,9 @@ class _DashboardState extends State<Dashboard>
                   child: SummaryCard(
                     total: data == null ? 0 : data.totalOpenOffers,
                     label: 'Offers Open for Bids',
-                    totalStyle: Styles.pinkBoldMedium,
+                    totalStyle: Styles.purpleBoldLarge,
                     totalValue: data == null ? 0.00 : data.totalOpenOfferAmount,
-                    totalValueStyle: Styles.tealBoldMedium,
+                    totalValueStyle: Styles.blackBoldMedium,
                     elevation: 8.0,
                   ),
                 ),
@@ -464,19 +466,16 @@ class _DashboardState extends State<Dashboard>
 //      await investorModelBloc.refreshDashboard();
       return;
     }
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => UnsettledBids()),
-    );
+    Navigator.push(context, SlideRightRoute(widget: UnsettledBids()));
   }
 
   String mTitle = 'BFN is Rock Solid!';
 
   Widget _getBottom() {
     return PreferredSize(
-      preferredSize: const Size.fromHeight(80.0),
+      preferredSize: const Size.fromHeight(60.0),
       child: Padding(
-        padding: const EdgeInsets.only(bottom: 20.0),
+        padding: const EdgeInsets.only(bottom: 8.0),
         child: data == null
             ? Container()
             : Column(
@@ -518,11 +517,12 @@ class _DashboardState extends State<Dashboard>
 
   void _onOffersTapped() {
     print('_DashboardState._onOffersTapped');
-    Navigator.push(
-      context,
-      new MaterialPageRoute(
-          maintainState: false, builder: (context) => new OfferList()),
-    );
+//    Navigator.push(
+//      context,
+//      new MaterialPageRoute(
+//          maintainState: false, builder: (context) => new OfferList()),
+//    );
+    Navigator.push(context, SlideRightRoute(widget: OfferList()));
   }
 
   static const OfferConstant = 1,
@@ -539,7 +539,7 @@ class _DashboardState extends State<Dashboard>
     print('_DashboardState._onProfileRequested');
     Navigator.push(
       context,
-      new MaterialPageRoute(builder: (context) => new ProfilePage()),
+      SlideRightRoute(widget: ProfilePage()),
     );
   }
 

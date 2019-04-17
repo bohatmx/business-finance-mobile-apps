@@ -459,7 +459,7 @@ class _OfferListState extends State<OfferList>
               ),
               Padding(
                 padding: const EdgeInsets.only(
-                    left: 8.0, right: 8.0, bottom: 20.0, top: 2.0),
+                    left: 8.0, right: 8.0, bottom: 8.0, top: 2.0),
                 child: PagerControl(
                   itemName: 'Open Offers',
                   pageLimit: appModel.pageLimit,

@@ -18,7 +18,7 @@ class BasePager {
   Pages pages = Pages();
   List<Findable> currentPage = List();
   int _pageNumber = 1, _totalPages = 0, startKey;
-  
+
   int get pageNumber => _pageNumber;
   int get totalPages => _totalPages;
 
@@ -41,7 +41,8 @@ class BasePager {
   List<Findable> getNextPage() {
     currentIndex++;
     _pageNumber++;
-    print('BasePager.getNextPage: _pageNumber: $_pageNumber currentIndex: $currentIndex');
+    print(
+        'BasePager.getNextPage: _pageNumber: $_pageNumber currentIndex: $currentIndex');
     if (_pageNumber > pages._pages.length) {
       print(
           'BasePager._forwardPressed ... hey Toto, we not in Kansas nomore ....pageNumber: $_pageNumber');
@@ -115,6 +116,7 @@ class BasePager {
     }
     pages.doPrint();
   }
+
   void doPrint() {
     print('\n\nBasePager.doPrint ################### print current page');
     if (currentPage.isEmpty) {
@@ -156,36 +158,38 @@ class Pages {
   Page getPage(int index) {
     print('Pages.getPage ........... index: $index');
     if (_pages.isEmpty) {
-      print('Pages.getPage ------------ _pages.isEmpty. QUIT, return null page ...');
+      print(
+          'Pages.getPage ------------ _pages.isEmpty. QUIT, return null page ...');
 
       return null;
     }
     var page = _pages.elementAt(index);
-    print('Pages.getPage ###### items in new page: ${page.items.length}. check if 0');
+    print(
+        'Pages.getPage ###### items in new page: ${page.items.length}. check if 0');
     page.items.forEach((i) {
       if (i is Offer) {
         print(
-            'itemNumber: ${i.itemNumber} ${i.intDate} ${i.date} ${i.supplierName} customer: ${i.customerName} ${i.offerAmount}');
+            'itemNumber: 🍑  ${i.itemNumber} ${i.intDate} ${i.date} ${i.supplierName} customer: ${i.customerName} ${i.offerAmount}');
       }
       if (i is PurchaseOrder) {
         print(
-            'itemNumber: ${i.itemNumber} ${i.intDate} ${i.date} ${i.supplierName} customer: ${i.purchaserName} ${i.amount}');
+            'itemNumber: 🍑  ${i.itemNumber} ${i.intDate} ${i.date} ${i.supplierName} customer: ${i.purchaserName} ${i.amount}');
       }
       if (i is DeliveryNote) {
         print(
-            'itemNumber: ${i.itemNumber} ${i.intDate} ${i.date} ${i.supplierName} customer: ${i.customerName} ${i.amount}');
+            'itemNumber: 🍑  ${i.itemNumber} ${i.intDate} ${i.date} ${i.supplierName} customer: ${i.customerName} ${i.amount}');
       }
       if (i is Invoice) {
         print(
-            'itemNumber: ${i.itemNumber} ${i.intDate} ${i.date} ${i.supplierName} customer: ${i.customerName} ${i.amount}');
+            'itemNumber: 🍑  ${i.itemNumber} ${i.intDate} ${i.date} ${i.supplierName} customer: ${i.customerName} ${i.amount}');
       }
       if (i is InvoiceBid) {
         print(
-            'itemNumber: ${i.itemNumber} ${i.intDate} ${i.date} ${i.investorName} reservePercent: ${i.reservePercent} ${i.amount}');
+            'itemNumber: 🍑  ${i.itemNumber} ${i.intDate} ${i.date} ${i.investorName} reservePercent: ${i.reservePercent} ${i.amount}');
       }
       if (i is InvestorInvoiceSettlement) {
         print(
-            'itemNumber: ${i.itemNumber} ${i.intDate} ${i.date} ${i.investorName} supplier: ${i.supplierName} ${i.amount}');
+            'itemNumber: 🍑  ${i.itemNumber} ${i.intDate} ${i.date} ${i.investorName} supplier: ${i.supplierName} ${i.amount}');
       }
     });
     return page;
@@ -193,13 +197,14 @@ class Pages {
 
   List<Findable> getAllPages() {
     List<Findable> list = List();
-        _pages.forEach((page) {
+    _pages.forEach((page) {
       page.items.forEach((i) {
         list.add(i);
       });
     });
-        return list;
+    return list;
   }
+
   doPrint() {
     print('\n\n##############################################');
     print('Pages.doPrint .... pages: ${_pages.length}');
@@ -208,23 +213,23 @@ class Pages {
 //      p.items.forEach((i) {
 //        if (i is Offer) {
 //          print(
-//              'itemNumber: ${i.itemNumber} ${i.intDate} ${i.date} ${i.supplierName} customer: ${i.customerName} ${i.offerAmount}');
+//              'itemNumber: 🍑  ${i.itemNumber} ${i.intDate} ${i.date} ${i.supplierName} customer: ${i.customerName} ${i.offerAmount}');
 //        }
 //        if (i is PurchaseOrder) {
 //          print(
-//              'itemNumber: ${i.itemNumber} ${i.intDate} ${i.date} ${i.supplierName} customer: ${i.purchaserName} ${i.amount}');
+//              'itemNumber: 🍑  ${i.itemNumber} ${i.intDate} ${i.date} ${i.supplierName} customer: ${i.purchaserName} ${i.amount}');
 //        }
 //        if (i is DeliveryNote) {
 //          print(
-//              'itemNumber: ${i.itemNumber} ${i.intDate} ${i.date} ${i.supplierName} customer: ${i.customerName} ${i.amount}');
+//              'itemNumber: 🍑  ${i.itemNumber} ${i.intDate} ${i.date} ${i.supplierName} customer: ${i.customerName} ${i.amount}');
 //        }
 //        if (i is Invoice) {
 //          print(
-//              'itemNumber: ${i.itemNumber} ${i.intDate} ${i.date} ${i.supplierName} customer: ${i.customerName} ${i.amount}');
+//              'itemNumber: 🍑  ${i.itemNumber} ${i.intDate} ${i.date} ${i.supplierName} customer: ${i.customerName} ${i.amount}');
 //        }
 //        if (i is InvoiceBid) {
 //          print(
-//              'itemNumber: ${i.itemNumber} ${i.intDate} ${i.date} ${i.investorName} reservePercent: ${i.reservePercent} ${i.amount}');
+//              'itemNumber: 🍑  ${i.itemNumber} ${i.intDate} ${i.date} ${i.investorName} reservePercent: ${i.reservePercent} ${i.amount}');
 //        }
 //      });
 //    });
@@ -254,7 +259,7 @@ class PagerControl extends StatelessWidget {
 
   static const numbers = [2, 4, 6, 8, 10, 20];
   final List<DropdownMenuItem<int>> dropDownItems = List();
-  
+
   int _getTotalPages() {
     var t = 0;
     var rem = items % pageLimit;
@@ -264,6 +269,7 @@ class PagerControl extends StatelessWidget {
     }
     return t;
   }
+
   void _onNextPage() {
     print('\n\nPagerControl._onNextPage\n');
     listener.onNextPageRequired();
@@ -306,7 +312,7 @@ class PagerControl extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       elevation: elevation == null ? 8.0 : elevation,
-      color: color == null? Styles.white: color,
+      color: color == null ? Styles.white : color,
       child: Column(
         children: <Widget>[
           Padding(
@@ -315,7 +321,10 @@ class PagerControl extends StatelessWidget {
               children: <Widget>[
                 DropdownButton<int>(
                   items: dropDownItems,
-                  hint: Text('Per Page', style: Styles.blackSmall,),
+                  hint: Text(
+                    'Per Page',
+                    style: Styles.blackSmall,
+                  ),
                   onChanged: _onNumber,
                 ),
                 Padding(
@@ -411,20 +420,20 @@ class PagerControl extends StatelessWidget {
     );
   }
 }
+
 class PagingTotalsView extends StatelessWidget {
   final double pageValue, totalValue;
   final TextStyle totalValueStyle, pageValueStyle, labelStyle;
 
   PagingTotalsView(
-      {
-        this.pageValue,
-        this.totalValueStyle,
-        this.pageValueStyle,
-        this.totalValue, this.labelStyle});
+      {this.pageValue,
+      this.totalValueStyle,
+      this.pageValueStyle,
+      this.totalValue,
+      this.labelStyle});
 
   @override
   Widget build(BuildContext context) {
-
     return Column(
       children: <Widget>[
         Padding(

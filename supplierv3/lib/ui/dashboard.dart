@@ -20,6 +20,7 @@ import 'package:businesslibrary/util/constants.dart';
 import 'package:businesslibrary/util/invoice_bid_card.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/message.dart';
+import 'package:businesslibrary/util/my_transition.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:businesslibrary/util/support/chat_page.dart';
@@ -115,61 +116,64 @@ class _DashboardState extends State<Dashboard>
           switch (messageType) {
             case 'CHAT_RESPONSE':
               var m = ChatResponse.fromJson(json.decode(mJSON));
-              prettyPrint(
-                  m.toJson(), '\n\n########## FCM CHAT_RESPONSE MESSAGE :');
+              prettyPrint(m.toJson(),
+                  '\n\n🥦 🥦 🥦########## FCM CHAT_RESPONSE MESSAGE :');
               onChatResponseMessage(m);
               break;
             case FS_PURCHASE_ORDERS:
               var m = PurchaseOrder.fromJson(json.decode(mJSON));
-              prettyPrint(
-                  m.toJson(), '\n\n########## FCM PURCHASE_ORDER MESSAGE :');
+              prettyPrint(m.toJson(),
+                  '\n\n🥦 🥦 🥦########## FCM PURCHASE_ORDER MESSAGE :');
               supplierBloc.receivePurchaseOrderMessage(m, context);
               onPurchaseOrderMessage(m);
               break;
             case FS_DELIVERY_NOTES:
               var m = DeliveryNote.fromJson(json.decode(mJSON));
-              prettyPrint(
-                  m.toJson(), '\n\n########## FCM DELIVERY_NOTE MESSAGE :');
+              prettyPrint(m.toJson(),
+                  '\n\n🥦 🥦 🥦########## FCM DELIVERY_NOTE MESSAGE :');
               supplierBloc.receiveDeliveryNoteMessage(m, context);
               onDeliveryNoteMessage(m);
               break;
             case FS_DELIVERY_ACCEPTANCES:
               var m = DeliveryAcceptance.fromJson(json.decode(mJSON));
               prettyPrint(m.toJson(),
-                  '\n\n########## FCM DELIVERY_ACCEPTANCE MESSAGE :');
+                  '\n\n🥦 🥦 🥦 ########## FCM DELIVERY_ACCEPTANCE MESSAGE :');
               supplierBloc.receiveDeliveryAcceptanceMessage(m, context);
               onDeliveryAcceptanceMessage(m);
               break;
             case FS_INVOICES:
               var m = Invoice.fromJson(json.decode(mJSON));
-              prettyPrint(m.toJson(), '\n\n########## FCM MINVOICE ESSAGE :');
+              prettyPrint(
+                  m.toJson(), '\n\n🥦 🥦 🥦 ########## FCM MINVOICE ESSAGE :');
               supplierBloc.receiveInvoiceMessage(m, context);
               onInvoiceMessage(m);
               break;
             case FS_INVOICE_ACCEPTANCES:
               var m = InvoiceAcceptance.fromJson(json.decode(mJSON));
-              prettyPrint(m.toJson(), ' FCM INVOICE_ACCEPTANCE MESSAGE :');
+              prettyPrint(
+                  m.toJson(), '🥦 🥦 🥦 FCM INVOICE_ACCEPTANCE MESSAGE :');
               supplierBloc.receiveInvoiceAcceptanceMessage(m, context);
               onInvoiceAcceptanceMessage(m);
               break;
             case FS_OFFERS:
               var m = Offer.fromJson(json.decode(mJSON));
-              prettyPrint(m.toJson(), '\n\n########## FCM OFFER MESSAGE :');
+              prettyPrint(
+                  m.toJson(), '\n\n🥦 🥦 🥦 ########## FCM OFFER MESSAGE :');
               supplierBloc.receiveOfferMessage(m, context);
               onOfferMessage(m);
               break;
             case FS_INVOICE_BIDS:
               var m = InvoiceBid.fromJson(json.decode(mJSON));
-              prettyPrint(
-                  m.toJson(), '\n\n########## FCM INVOICE_BID MESSAGE :');
+              prettyPrint(m.toJson(),
+                  '\n\n🥦 🥦 🥦 ########## FCM INVOICE_BID MESSAGE :');
               supplierBloc.receiveInvoiceBidMessage(m, context);
               onInvoiceBidMessage(m);
               break;
 
             case FS_SETTLEMENTS:
               Map map = json.decode(mJSON);
-              prettyPrint(
-                  map, '\n\n########## FCM INVESTOR_INVOICE_SETTLEMENT :');
+              prettyPrint(map,
+                  '\n\n🥦 🥦 🥦 ########## FCM INVESTOR_INVOICE_SETTLEMENT :');
               onInvestorInvoiceSettlement(
                   InvestorInvoiceSettlement.fromJson(map));
               break;
@@ -505,10 +509,10 @@ class _DashboardState extends State<Dashboard>
     print('_DashboardState._onOffersTapped ...............');
     Navigator.push(
         context,
-        MaterialPageRoute(
-          builder: (context) => OfferList(
-                model: appModel,
-              ),
+        SlideRightRoute(
+          widget: OfferList(
+            model: appModel,
+          ),
         ));
   }
 
@@ -524,7 +528,7 @@ class _DashboardState extends State<Dashboard>
     print('_MainPageState._onInvoiceTapped ... go  to list of invoices');
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => InvoicesOnOffer(model: appModel)),
+      SlideRightRoute(widget: InvoicesOnOffer(model: appModel)),
     );
   }
 
@@ -532,10 +536,10 @@ class _DashboardState extends State<Dashboard>
     print('_MainPageState._onPurchaseOrdersTapped  go to list of pos');
     Navigator.push(
       context,
-      MaterialPageRoute(
-          builder: (context) => PurchaseOrderListPage(
-                model: appModel,
-              )),
+      SlideRightRoute(
+          widget: PurchaseOrderListPage(
+        model: appModel,
+      )),
     );
   }
 
@@ -543,7 +547,7 @@ class _DashboardState extends State<Dashboard>
     print('_MainPageState._onDeliveryNotesTapped go to  delivery notes');
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => DeliveryNoteList()),
+      SlideRightRoute(widget: DeliveryNoteList()),
     );
   }
 
@@ -733,15 +737,14 @@ class _DashboardState extends State<Dashboard>
     setState(() {});
   }
 
-  ThemeBloc _themeBloc = ThemeBloc();
   void _toggleTheme() {
     print('🥬 🥬 🥬  _toggleTheme, changeToRandomTheme 🌸 🌸 🌸');
-    _themeBloc.changeToRandomTheme();
+    themeBloc.changeToRandomTheme();
   }
 
   void _setTheme(int index) {
     print('🥬 🥬 🥬  _setTheme, index: $index');
-    _themeBloc.changeToTheme(index);
+    themeBloc.changeToTheme(index);
   }
 
   void onInvestorInvoiceSettlement(

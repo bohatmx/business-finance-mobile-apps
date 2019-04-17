@@ -54,7 +54,6 @@ class Bloc {
 
   initialize() async {
     print('\n🌼 🌼 🌼 🌼 🌼 🌼 🌼 🌼 Bloc - initialize - 🌼');
-
     _investor = await SharedPrefs.getInvestor();
     await getCachedDashboard();
     await refreshRemoteDashboard();
@@ -90,6 +89,27 @@ class Bloc {
     try {
       _dashboardData =
           await ListAPI.getInvestorDashboardData(_investor.participantId);
+      _dashboardData.averageBidAmount =
+          _dashboardData.totalBidAmount / _dashboardData.totalBids;
+
+      var totDiscount = 0.0;
+      var totAmt = 0.0;
+      _dashboardData.unsettledBids.forEach((bid) {
+        totDiscount += bid.discountPercent;
+        totAmt += bid.amount;
+      });
+      _dashboardData.settledBids.forEach((bid) {
+        totDiscount += bid.discountPercent;
+        totAmt += bid.amount;
+      });
+
+      _dashboardData.averageDiscountPerc = totDiscount /
+          (_dashboardData.settledBids.length +
+              _dashboardData.unsettledBids.length);
+      _dashboardData.averageBidAmount = totAmt /
+          (_dashboardData.settledBids.length +
+              _dashboardData.unsettledBids.length);
+      _dashboardData.totalBidAmount = totAmt;
       print('💊 💊 💊  feeding dash stream .... $_dashboardData 💊 💊 💊');
       _dashController.sink.add(_dashboardData);
       await Database.saveDashboard(_dashboardData);

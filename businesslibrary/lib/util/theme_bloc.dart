@@ -4,7 +4,7 @@ import 'dart:math';
 import 'package:businesslibrary/api/shared_prefs.dart';
 import 'package:flutter/material.dart';
 
-ThemeBloc themeBloc = ThemeBloc();
+final ThemeBloc themeBloc = ThemeBloc();
 
 class ThemeBloc {
   ThemeBloc() {

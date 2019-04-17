@@ -15,6 +15,7 @@ import 'package:businesslibrary/util/FCM.dart';
 import 'package:businesslibrary/util/constants.dart';
 import 'package:businesslibrary/util/lookups.dart';
 import 'package:businesslibrary/util/message.dart';
+import 'package:businesslibrary/util/my_transition.dart';
 import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:businesslibrary/util/support/contact_us.dart';
@@ -446,15 +447,14 @@ class _DashboardState extends State<Dashboard>
 
   void _goToContactPage() {
     print('_MainPageState._goToWalletPage .... ');
-    Navigator.push(
-        context, new MaterialPageRoute(builder: (context) => new ContactUs()));
+    Navigator.push(context, SlideRightRoute(widget: ContactUs()));
   }
 
   void _onInvoicesTapped() {
     print('_MainPageState._onInvoicesTapped ... go  to list of invoices');
     Navigator.push(
       context,
-      new MaterialPageRoute(builder: (context) => new InvoiceList()),
+      SlideRightRoute(widget: InvoiceList()),
     );
   }
 
@@ -462,7 +462,7 @@ class _DashboardState extends State<Dashboard>
     print('_MainPageState._onPurchaseOrdersTapped  go to list of pos');
     Navigator.push(
       context,
-      new MaterialPageRoute(builder: (context) => new PurchaseOrderListPage()),
+      SlideRightRoute(widget: PurchaseOrderListPage()),
     );
   }
 
@@ -470,7 +470,7 @@ class _DashboardState extends State<Dashboard>
     print('_MainPageState._onDeliveryNotesTapped go to  delivery notes');
     Navigator.push(
       context,
-      new MaterialPageRoute(builder: (context) => new DeliveryNoteList()),
+      SlideRightRoute(widget: DeliveryNoteList()),
     );
   }
 
@@ -478,7 +478,7 @@ class _DashboardState extends State<Dashboard>
     print('_MainPageState._onPaymentsTapped - go to payments');
     Navigator.push(
       context,
-      new MaterialPageRoute(builder: (context) => new SettlementList()),
+      SlideRightRoute(widget: SettlementList()),
     );
   }
 
@@ -505,7 +505,7 @@ class _DashboardState extends State<Dashboard>
               'Delivery Note arrived: ${getFormattedDateShortWithTime('${deliveryNote.date}', context)} ',
           subTitle: deliveryNote.supplierName));
     });
-    _showSnack(message: messages.last.message);
+//    _showSnack(message: messages.last.message);
     customerBloc.refreshDeliveryNotes();
   }
 
@@ -517,7 +517,7 @@ class _DashboardState extends State<Dashboard>
               'Invoice arrived: ${getFormattedDateShortWithTime('${invoice.date}', context)} ',
           subTitle: invoice.supplierName));
     });
-    _showSnack(message: messages.last.message);
+//    _showSnack(message: messages.last.message);
     customerBloc.refreshInvoices();
   }
 
@@ -529,7 +529,7 @@ class _DashboardState extends State<Dashboard>
       ));
     });
     setState(() {});
-    _showSnack(message: messages.last.message);
+//    _showSnack(message: messages.last.message);
   }
 
   void onInvestorInvoiceSettlement(InvestorInvoiceSettlement settlement) async {
@@ -554,7 +554,7 @@ class _DashboardState extends State<Dashboard>
               'Invoice Bid arrived: ${getFormattedDateShortWithTime('${bid.date}', context)} ',
           subTitle: bid.investorName));
     });
-    _showSnack(message: messages.last.message);
+//    _showSnack(message: messages.last.message);
     //await customerModelBloc.refreshModel();
     setState(() {});
   }
@@ -568,7 +568,7 @@ class _DashboardState extends State<Dashboard>
           subTitle: o.supplierName +
               ' ${getFormattedAmount('${o.offerAmount}', context)}'));
     });
-    _showSnack(message: messages.last.message);
+//    _showSnack(message: messages.last.message);
     await customerBloc.refreshOffers();
     setState(() {});
   }
@@ -581,7 +581,7 @@ class _DashboardState extends State<Dashboard>
               'Invoice Acceptance arrived: ${getFormattedDateShortWithTime('${acc.date}', context)} ',
           subTitle: acc.customerName));
     });
-    _showSnack(message: messages.last.message);
+//    _showSnack(message: messages.last.message);
     await customerBloc.refreshInvoiceAcceptances();
     setState(() {});
   }
@@ -594,7 +594,7 @@ class _DashboardState extends State<Dashboard>
               'Delivery Acceptance arrived: ${getFormattedDateShortWithTime('${acc.date}', context)} ',
           subTitle: acc.customerName));
     });
-    _showSnack(message: messages.last.message);
+//    _showSnack(message: messages.last.message);
     await customerBloc.refreshDeliveryAcceptances();
     setState(() {});
   }
@@ -607,7 +607,7 @@ class _DashboardState extends State<Dashboard>
               'Purchase Order arrived: ${getFormattedDateShortWithTime('${po.date}', context)} ',
           subTitle: po.supplierName));
     });
-    _showSnack(message: messages.last.message);
+//    _showSnack(message: messages.last.message);
     customerBloc.refreshPurchaseOrders();
     setState(() {});
   }

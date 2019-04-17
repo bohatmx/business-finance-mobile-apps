@@ -127,7 +127,7 @@ class _ProfilePageState extends State<ProfilePage> implements SnackBarListener {
       ),
       backgroundColor: Colors.brown.shade100,
       body: Padding(
-        padding: const EdgeInsets.all(12.0),
+        padding: const EdgeInsets.all(4.0),
         child: Card(
           elevation: 2.0,
           child: _getForm(),
@@ -237,7 +237,7 @@ class _ProfilePageState extends State<ProfilePage> implements SnackBarListener {
     return ListView(
       children: <Widget>[
         Padding(
-          padding: const EdgeInsets.only(top: 10.0, left: 20.0, right: 20.0),
+          padding: const EdgeInsets.only(top: 4.0, left: 20.0, right: 20.0),
           child: Column(
             children: <Widget>[
               Padding(
@@ -267,7 +267,7 @@ class _ProfilePageState extends State<ProfilePage> implements SnackBarListener {
                 keyboardType: TextInputType.numberWithOptions(decimal: true),
                 decoration: InputDecoration(
                   labelStyle: Styles.blackMedium,
-                  labelText: 'Max Investable Amount',
+                  labelText: 'Maximum Investable Amount',
                 ),
                 maxLength: 20,
                 controller: controllerMaxInvestable,
@@ -278,11 +278,11 @@ class _ProfilePageState extends State<ProfilePage> implements SnackBarListener {
                 keyboardType: TextInputType.numberWithOptions(decimal: true),
                 decoration: InputDecoration(
                   labelStyle: Styles.blackMedium,
-                  labelText: 'Max Single Offer Amount',
+                  labelText: 'Maximum Single Offer Amount',
                 ),
                 maxLength: 16,
                 controller: controllerMaxInvoice,
-                style: Styles.pinkBoldMedium,
+                style: Styles.pinkBoldLarge,
                 onChanged: _onInvoiceAmountChanged,
               ),
             ],
@@ -292,7 +292,7 @@ class _ProfilePageState extends State<ProfilePage> implements SnackBarListener {
           padding: const EdgeInsets.only(left: 18.0),
           child: Text(
             'Investment Filters',
-            style: Styles.greyLabelMedium,
+            style: Styles.greyLabelSmall,
           ),
         ),
         Row(
@@ -310,12 +310,8 @@ class _ProfilePageState extends State<ProfilePage> implements SnackBarListener {
                 selectedSectors == null
                     ? '$numberOfSectors'
                     : '${selectedSectors.length}',
-                style: Styles.tealBoldReallyLarge,
+                style: Styles.blackBoldMedium,
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(left: 18.0),
-              child: Text(' selected'),
             ),
           ],
         ),
@@ -334,17 +330,13 @@ class _ProfilePageState extends State<ProfilePage> implements SnackBarListener {
                 selectedSuppliers == null
                     ? '$numberOfSuppliers'
                     : '${selectedSuppliers.length}',
-                style: Styles.pinkBoldReallyLarge,
+                style: Styles.blackBoldMedium,
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(left: 18.0),
-              child: Text(' selected'),
             ),
           ],
         ),
         Padding(
-          padding: const EdgeInsets.only(top: 20.0, left: 30.0, right: 30.0),
+          padding: const EdgeInsets.only(top: 8.0, left: 30.0, right: 30.0),
           child: RaisedButton(
             onPressed: _onSubmit,
             elevation: 8.0,
@@ -361,7 +353,7 @@ class _ProfilePageState extends State<ProfilePage> implements SnackBarListener {
         autoTradeOrder == null
             ? Padding(
                 padding: const EdgeInsets.only(
-                    bottom: 30.0, left: 30.0, right: 30.0, top: 10.0),
+                    bottom: 30.0, left: 30.0, right: 30.0, top: 4.0),
                 child: RaisedButton(
                   onPressed: _onSubmit,
                   elevation: 8.0,

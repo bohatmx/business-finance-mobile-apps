@@ -39,7 +39,7 @@ class SummaryCard extends StatelessWidget {
                 children: <Widget>[
                   Text(
                     label,
-                    style: Styles.greyLabelMedium,
+                    style: Styles.greyLabelSmall,
                   ),
                   Padding(
                     padding: const EdgeInsets.only(left: 10.0, right: 10.0),

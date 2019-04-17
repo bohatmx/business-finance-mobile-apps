@@ -362,29 +362,23 @@ class _MyHomePageState extends State<MyHomePage> implements SnackBarListener {
         opacity = 0.0;
       });
       startDate = DateTime.now();
-      autoTradeStart = await DataAPI3.executeAutoTrades();
-      await SharedPrefs.saveAutoTradeStart(autoTradeStart);
+      var msg = await DataAPI3.executeAutoTrades();
+      print('RETURN from api call: $msg');
       setState(() {
         _showProgress = null;
       });
       setState(() {});
       opacity = 1.0;
-      if (autoTradeStart == null) {
-        AppSnackbar.showErrorSnackbar(
-            scaffoldKey: _scaffoldKey,
-            message: 'Problem with Auto Trade Session',
-            listener: this,
-            actionLabel: 'close');
-      } else {
-        print('_MyHomePageState._start ++++ summary in the house!');
-        AppSnackbar.showSnackbar(
-            scaffoldKey: _scaffoldKey,
-            message: 'Auto Trade Session complete',
-            textColor: Styles.white,
-            backgroundColor: Styles.black);
-        setState(() {});
-        _getLists(false);
-      }
+
+      print('_MyHomePageState._start ++++ summary in the house!');
+      AppSnackbar.showSnackbar(
+          scaffoldKey: _scaffoldKey,
+          message: 'Auto Trade Session started',
+          textColor: Styles.white,
+          backgroundColor: Styles.black);
+      setState(() {});
+      //_getLists(false);
+
     } catch (e) {
       setState(() {
         _showProgress = null;
