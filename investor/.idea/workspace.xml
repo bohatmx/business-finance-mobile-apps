@@ -6,22 +6,8 @@
     </shared>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b840dc6a-331e-46d9-b624-92fa4c1707ed" name="Default" comment=" refactored fcm messaging II">
-      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/api/data_api3.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/api/data_api3.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/api/file_util.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/api/file_util.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/api/signin.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/api/signin.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/util/database.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/util/database.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/util/selectors.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/util/selectors.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/util/util.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/util/util.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/util/webview.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/util/webview.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../crudderv3/.idea/libraries/Dart_Packages.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../crudderv3/.idea/libraries/Dart_Packages.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../crudderv3/.idea/libraries/Flutter_Plugins.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../crudderv3/.idea/libraries/Flutter_Plugins.xml" afterDir="false" />
+    <list default="true" id="b840dc6a-331e-46d9-b624-92fa4c1707ed" name="Default" comment="clean-up!! 🌼 🌺 🌼 🌺">
       <change beforePath="$PROJECT_DIR$/../crudderv3/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../crudderv3/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../customer/lib/customer_bloc.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/lib/customer_bloc.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../customer/lib/ui/dashboard.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/lib/ui/dashboard.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../customer/lib/ui/signup_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/lib/ui/signup_page.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/ui/summary_card.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/ui/summary_card.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../monitor/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../monitor/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../supplierv3/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../supplierv3/.idea/workspace.xml" afterDir="false" />
     </list>
@@ -254,7 +240,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>blackBoldMedium</find>
       <find>Bank</find>
       <find>ListView.builder(</find>
       <find>Chat</find>
@@ -284,6 +269,7 @@
       <find>itemNumber:</find>
       <find>_doDashboardHTTP: Sending</find>
       <find>refreshRemoteDashboard -----</find>
+      <find>This is NOT fu</find>
     </findStrings>
     <replaceStrings>
       <replace>Days Under Review'</replace>
@@ -541,13 +527,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1530197618099</updated>
-    </task>
-    <task id="LOCAL-00032" summary="investor ui tweaks">
-      <created>1541788398463</created>
-      <option name="number" value="00032" />
-      <option name="presentableId" value="LOCAL-00032" />
-      <option name="project" value="LOCAL" />
-      <updated>1541788398463</updated>
     </task>
     <task id="LOCAL-00033" summary="fixed auto trade messaging - cool shit!">
       <created>1541828344190</created>
@@ -885,7 +864,14 @@
       <option name="project" value="LOCAL" />
       <updated>1553567321583</updated>
     </task>
-    <option name="localTasksCounter" value="81" />
+    <task id="LOCAL-00081" summary="clean-up!! 🌼 🌺 🌼 🌺">
+      <created>1555932820674</created>
+      <option name="number" value="00081" />
+      <option name="presentableId" value="LOCAL-00081" />
+      <option name="project" value="LOCAL" />
+      <updated>1555932820674</updated>
+    </task>
+    <option name="localTasksCounter" value="82" />
     <servers />
   </component>
   <component name="TodoView">
@@ -899,6 +885,7 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-1920" y="-48" width="1680" height="986" extended-state="0" />
+    <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" sideWeight="0.49295774" visible="true" weight="0.1923077" />
       <window_info id="Structure" order="1" sideWeight="0.5070422" side_tool="true" visible="true" weight="0.1971917" />
@@ -943,7 +930,6 @@
   <component name="VcsManagerConfiguration">
     <option name="CHECK_CODE_SMELLS_BEFORE_PROJECT_COMMIT" value="false" />
     <option name="CHECK_NEW_TODO" value="false" />
-    <MESSAGE value="fixed paging bug in bid settlements" />
     <MESSAGE value="refactored batch settlement - kicking my ass good :(" />
     <MESSAGE value="removed need to listen to peach notification on app. Dealt with in cloud function" />
     <MESSAGE value="refactored batch settlements - investor can settle all bids on active page." />
@@ -968,7 +954,8 @@
     <MESSAGE value="migrated code caused by chaincode upgrade" />
     <MESSAGE value="the beat goes on!" />
     <MESSAGE value=" refactored fcm messaging II" />
-    <option name="LAST_COMMIT_MESSAGE" value=" refactored fcm messaging II" />
+    <MESSAGE value="clean-up!!    " />
+    <option name="LAST_COMMIT_MESSAGE" value="clean-up!!    " />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
