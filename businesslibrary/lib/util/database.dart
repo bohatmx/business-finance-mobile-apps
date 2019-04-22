@@ -30,7 +30,7 @@ class Database {
       String string = await jsonFile.readAsString();
       Map map = json.decode(string);
       Sectors w = new Sectors.fromJson(map);
-      print('Database ## returning sectors found: ${w.sectors.length}');
+      print('Database ## 🌼 🌺  returning sectors found: ${w.sectors.length}');
       return w.sectors;
     } else {
       return null;
@@ -47,7 +47,7 @@ class Database {
       print('Database_saveSectors  ## file exists ...writing sectors file');
       jsonFile.writeAsString(json.encode(map));
       print(
-          'Database_saveSectors ##  has cached list of sectors ###))))))))) : ${sectors.sectors.length}');
+          'Database_saveSectors ##  has cached list of sectors   🌼 🌺 🌼 🌺 🌼 🌺 🌼 🌺  : ${sectors.sectors.length}');
       return 0;
     } else {
       print(
@@ -71,7 +71,7 @@ class Database {
         Map map = json.decode(string);
         InvoiceBids w = new InvoiceBids.fromJson(map);
         print(
-            'Database ## getUnsettledInvoiceBids - returning InvoiceBids found: ${w.bids.length}');
+            'Database ## 🌼 🌺  getUnsettledInvoiceBids - returning InvoiceBids found: ${w.bids.length}');
         return w.bids;
       } else {
         return List();
@@ -90,7 +90,7 @@ class Database {
     if (fileExists) {
       jsonFile.writeAsString(json.encode(map));
       print(
-          'Database_saveUnsettledInvoiceBids ##  has cached list of InvoiceBids  ###))))))))) : ${bids.bids.length}\n\n');
+          'Database_saveUnsettledInvoiceBids ##  has cached list of InvoiceBids    🌼 🌺 🌼 🌺 🌼 🌺 🌼 🌺  : ${bids.bids.length}\n\n');
       return 0;
     } else {
       print(
@@ -112,7 +112,7 @@ class Database {
         String string = await jsonFile.readAsString();
         Map map = json.decode(string);
         DashboardData w = new DashboardData.fromJson(map);
-        print('Database ## getDashboard - returning DashboardData');
+        print('Database ## 🌼 🌺  getDashboard - returning DashboardData');
         return w;
       } else {
         print('Database.getDashboard - ERROR - file does not exist');
@@ -133,7 +133,7 @@ class Database {
     if (fileExists) {
       jsonFile.writeAsString(json.encode(map));
       print(
-          'Database_saveDashboard ##  has cached dashboard ###))))))))) dashboardData.json: ${jsonFile.length()}\n\n');
+          'Database_saveDashboard ##  has cached dashboard   🌼 🌺 🌼 🌺 🌼 🌺 🌼 🌺  dashboardData.json: ${jsonFile.length()}\n\n');
       return 0;
     } else {
       print(
@@ -156,7 +156,7 @@ class Database {
         Map map = json.decode(string);
         InvoiceBids w = new InvoiceBids.fromJson(map);
         print(
-            '\nDatabase ## getSettledInvoiceBids - returning SettledInvoiceBids found: ${w.bids.length} \n\n');
+            '\nDatabase ## 🌼 🌺  getSettledInvoiceBids - returning SettledInvoiceBids found: ${w.bids.length} \n\n');
         return w.bids;
       } else {
         return List();
@@ -175,7 +175,7 @@ class Database {
     if (fileExists) {
       jsonFile.writeAsString(json.encode(map));
       print(
-          'Database_saveSettledInvoiceBids ##  has cached list of SettledInvoiceBids  ###))))))))) : ${bids.bids.length}\n\n');
+          'Database_saveSettledInvoiceBids ##  has cached list of SettledInvoiceBids    🌼 🌺 🌼 🌺 🌼 🌺 🌼 🌺  : ${bids.bids.length}\n\n');
       return 0;
     } else {
       print(
@@ -196,7 +196,8 @@ class Database {
       String string = await jsonFile.readAsString();
       Map map = json.decode(string);
       PurchaseOrders w = new PurchaseOrders.fromJson(map);
-      print('Database ## returning PurchaseOrders found: ${w.orders.length}');
+      print(
+          'Database ## 🌼 🌺  returning PurchaseOrders found: ${w.orders.length}');
       return w.orders;
     }
     return null;
@@ -213,7 +214,7 @@ class Database {
           '🍔 🍔 Database_savePurchaseOrders  ## file exists ...writing purchaseOrders file');
       jsonFile.writeAsString(json.encode(map));
       print(
-          '🍔 🍔 🍔 Database_savePurchaseOrders ##  has cached list of purchaseOrders --  ###))))))))) : ${purchaseOrders.orders.length}');
+          '🍔 🍔 🍔 Database_savePurchaseOrders ##  has cached list of purchaseOrders --    🌼 🌺 🌼 🌺 🌼 🌺 🌼 🌺  : ${purchaseOrders.orders.length}');
       return 0;
     } else {
       print(
@@ -221,7 +222,7 @@ class Database {
       var file = await jsonFile.create();
       await file.writeAsString(json.encode(map));
       print(
-          '🍔 🍔 🍔 Database.savePurchaseOrders ${file.path} length: ${file.length()}');
+          '🍔 🍔 🍔 Database.savePurchaseOrders  🌷 ${file.path} length: ${file.length()}');
       return 0;
     }
   }
@@ -237,7 +238,7 @@ class Database {
       Map map = json.decode(string);
       DeliveryNotes w = new DeliveryNotes.fromJson(map);
       print(
-          'Database ## returning DeliveryNotes  ### found: ${w.notes.length}');
+          'Database ## 🌼 🌺  returning DeliveryNotes  ### found: ${w.notes.length}');
       //w.printFirstAndLast();
       return w.notes;
     } else {
@@ -257,7 +258,7 @@ class Database {
           '🍇  🍇  🍇 Database_saveDeliveryAcceptances  ## file exists ...writing deliveryAcceptances file');
       jsonFile.writeAsString(json.encode(map));
       print(
-          '🍇  🍇  🍇 Database_saveDeliveryAcceptances ##  has cached list of deliveryAcceptances --  ###))))))))) : ${deliveryAcceptances.deliveryAcceptances.length}');
+          '🍇  🍇  🍇 Database_saveDeliveryAcceptances ##  has cached list of deliveryAcceptances --    🌼 🌺 🌼 🌺 🌼 🌺 🌼 🌺  : ${deliveryAcceptances.deliveryAcceptances.length}');
       return 0;
     } else {
       print(
@@ -265,7 +266,7 @@ class Database {
       var file = await jsonFile.create();
       await file.writeAsString(json.encode(map));
       print(
-          ' 🍇  🍇  🍇  Database.saveDeliveryAcceptances ${file.path} length: ${file.length()}');
+          ' 🍇  🍇  🍇  Database.saveDeliveryAcceptances  🌷 ${file.path} length: ${file.length()}');
       return 0;
     }
   }
@@ -281,7 +282,7 @@ class Database {
       Map map = json.decode(string);
       var w = new DeliveryAcceptances.fromJson(map);
       print(
-          'Database ## returning DeliveryAcceptances  ### found: ${w.deliveryAcceptances.length}');
+          'Database ## 🌼 🌺  returning DeliveryAcceptances  ### found: ${w.deliveryAcceptances.length}');
       return w.deliveryAcceptances;
     } else {
       return List<DeliveryAcceptance>();
@@ -299,7 +300,7 @@ class Database {
           '🥦 🥦 🥦 Database_saveDeliveryNotes  ## file exists ...writing DeliveryNotes file');
       jsonFile.writeAsString(json.encode(map));
       print(
-          '🥦 🥦 🥦 Database_saveDeliveryNotes##  has cached list of delivery notes --  ###))))))))) : ${notes.notes.length}');
+          '🥦 🥦 🥦 Database_saveDeliveryNotes##  has cached list of delivery notes --    🌼 🌺 🌼 🌺 🌼 🌺 🌼 🌺  : ${notes.notes.length}');
       return 0;
     } else {
       print(
@@ -307,7 +308,7 @@ class Database {
       var file = await jsonFile.create();
       await file.writeAsString(json.encode(map));
       print(
-          '🥦 🥦 🥦 Database.saveDeliveryNotes ${file.path} length: ${file.length()}');
+          '🥦 🥦 🥦 Database.saveDeliveryNotes  🌷 ${file.path} length: ${file.length()}');
       return 0;
     }
   }
@@ -322,7 +323,8 @@ class Database {
       String string = await jsonFile.readAsString();
       Map map = json.decode(string);
       Invoices w = new Invoices.fromJson(map);
-      print('Database ## returning invoices  ### found: ${w.invoices.length}');
+      print(
+          'Database ## 🌼 🌺  returning invoices  ### found: ${w.invoices.length}');
       return w.invoices;
     } else {
       return List();
@@ -340,7 +342,7 @@ class Database {
           '🎁 🎁 🎁 Database_saveInvoices  ## file exists ...writing invoices file');
       jsonFile.writeAsString(json.encode(map));
       print(
-          '🎁 🎁 🎁  Database_saveInvoices ##  has cached list of invoices --  ###))))))))) : ${invoices.invoices.length}');
+          '🎁 🎁 🎁  Database_saveInvoices ##  has cached list of invoices --    🌼 🌺 🌼 🌺 🌼 🌺 🌼 🌺   🌷 🌷 🌷: ${invoices.invoices.length}');
       return 0;
     } else {
       print(
@@ -348,7 +350,7 @@ class Database {
       var file = await jsonFile.create();
       await file.writeAsString(json.encode(map));
       print(
-          '🎁 🎁 🎁  Database.saveInvoices ${file.path} length: ${file.length()}');
+          '🎁 🎁 🎁  Database.saveInvoices  🌷 ${file.path} length: ${file.length()}');
       return 0;
     }
   }
@@ -363,7 +365,8 @@ class Database {
       String string = await jsonFile.readAsString();
       Map map = json.decode(string);
       Offers w = new Offers.fromJson(map);
-      print('Database ## returning offers  ### found: ${w.offers.length}');
+      print(
+          'Database ## 🌼 🌺  returning offers  ### found: ${w.offers.length}');
       //w.printFirstAndLast();
       return w.offers;
     } else {
@@ -404,7 +407,7 @@ class Database {
       Map map = json.decode(string);
       InvoiceAcceptances w = new InvoiceAcceptances.fromJson(map);
       print(
-          'Database ## returning invoiceAcceptances  ### found: ${w.invoiceAcceptances.length}');
+          'Database ## 🌼 🌺  returning invoiceAcceptances  ### found: ${w.invoiceAcceptances.length}');
       return w.invoiceAcceptances;
     } else {
       return null;
@@ -423,7 +426,7 @@ class Database {
           'saveInvoiceAcceptances  ## file exists ...writing InvoiceAcceptances file');
       jsonFile.writeAsString(json.encode(map));
       print(
-          'Database_saveInvoiceAcceptances ##  has cached list of acceptances --  ###))))))))) : ${acceptances.invoiceAcceptances.length}');
+          'Database_saveInvoiceAcceptances ##  has cached list of acceptances --    🌼 🌺 🌼 🌺 🌼 🌺 🌼 🌺  : ${acceptances.invoiceAcceptances.length}');
       return 0;
     } else {
       print(
@@ -449,7 +452,7 @@ class Database {
       InvestorInvoiceSettlements w =
           new InvestorInvoiceSettlements.fromJson(map);
       print(
-          'Database ## returning InvestorInvoiceSettlements  ### found: ${w.settlements.length}');
+          'Database ## 🌼 🌺  returning InvestorInvoiceSettlements  ### found: ${w.settlements.length}');
       return w.settlements;
     } else {
       return null;
@@ -466,7 +469,7 @@ class Database {
     if (fileExists) {
       jsonFile.writeAsString(json.encode(map));
       print(
-          '☘ Database_saveInvestorInvoiceSettlements##  has cached list of InvestorInvoiceSettlements --  ###))))))))) : ${settlements.settlements.length}');
+          '☘ Database_saveInvestorInvoiceSettlements##  has cached list of InvestorInvoiceSettlements --    🌼 🌺 🌼 🌺 🌼 🌺 🌼 🌺  : ${settlements.settlements.length}');
       return 0;
     } else {
       print(

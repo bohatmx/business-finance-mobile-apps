@@ -64,6 +64,7 @@ class _DashboardState extends State<Dashboard>
   @override
   initState() {
     super.initState();
+    customerBloc.fixUsers();
     print('_DashboardState.initState .............. to get summary');
     animationController = AnimationController(
       duration: Duration(milliseconds: 1000),
@@ -102,7 +103,7 @@ class _DashboardState extends State<Dashboard>
     _fcm.configure(
       onMessage: (Map<String, dynamic> map) async {
         prettyPrint(map,
-            '\n\n🌺 🌺 🌺 ################ Message from FCM ################# 💙 ${DateTime.now().toIso8601String()}');
+            '\n\n🌺 🌺 🌺 ################ Message from FCM ################# 💙 💙 ${DateTime.now().toIso8601String()} 💙 💙 ');
 
         String messageType = 'unknown';
         String mJSON;
@@ -124,48 +125,50 @@ class _DashboardState extends State<Dashboard>
         }
 
         print(
-            '📭 📭 📭 📭  FCM.configureFCM ************************** messageType: $messageType');
+            '📭 📭 📭 📭  FCM MESSAGE type RECEIVED: 👽 👽 👽 👽 messageType: 🏓 $messageType');
 
         try {
           switch (messageType) {
             case FS_PURCHASE_ORDERS:
               var m = PurchaseOrder.fromJson(json.decode(mJSON));
-              prettyPrint(
-                  m.toJson(), '\n\n########## FCM PURCHASE_ORDER MESSAGE :');
+              prettyPrint(m.toJson(),
+                  '\n\nFCM ## 👽 👽 👽 👽  -  🌼 🌺  PURCHASE_ORDER MESSAGE :');
               customerBloc.receivePurchaseOrderMessage(m, context);
               onPurchaseOrderMessage(m);
               break;
             case FS_DELIVERY_NOTES:
               var m = DeliveryNote.fromJson(json.decode(mJSON));
-              prettyPrint(
-                  m.toJson(), '\n\n########## FCM DELIVERY_NOTE MESSAGE :');
+              prettyPrint(m.toJson(),
+                  '\n\nFCM ## 👽 👽 👽 👽  -  🌼 🌺  DELIVERY_NOTE MESSAGE :');
               customerBloc.receiveDeliveryNoteMessage(m, context);
               onDeliveryNoteMessage(m);
               break;
             case FS_DELIVERY_ACCEPTANCES:
               var m = DeliveryAcceptance.fromJson(json.decode(mJSON));
               prettyPrint(m.toJson(),
-                  '\n\n########## FCM DELIVERY_ACCEPTANCE MESSAGE :');
+                  '\n\nFCM ## 👽 👽 👽 👽  -  🌼 🌺  DELIVERY_ACCEPTANCE MESSAGE :');
               customerBloc.receiveDeliveryAcceptanceMessage(m, context);
               onDeliveryAcceptanceMessage(m);
               break;
             case FS_INVOICES:
               var m = Invoice.fromJson(json.decode(mJSON));
-              prettyPrint(m.toJson(), '\n\n########## FCM MINVOICE ESSAGE :');
+              prettyPrint(m.toJson(),
+                  '\n\nFCM ## 👽 👽 👽 👽  -  🌼 🌺  MINVOICE ESSAGE :');
               customerBloc.receiveInvoiceMessage(m, context);
               onInvoiceMessage(m);
               break;
             case FS_INVOICE_ACCEPTANCES:
               var m = InvoiceAcceptance.fromJson(json.decode(mJSON));
-              prettyPrint(m.toJson(), ' FCM INVOICE_ACCEPTANCE MESSAGE :');
+              prettyPrint(m.toJson(),
+                  'FCM ## 👽 👽 👽 👽 - 🏓 🏓 🏓 FCM INVOICE_ACCEPTANCE MESSAGE :');
               customerBloc.receiveInvoiceAcceptanceMessage(m, context);
               onInvoiceAcceptanceMessage(m);
               break;
 
             case FS_SETTLEMENTS:
               Map map = json.decode(mJSON);
-              prettyPrint(
-                  map, '\n\n########## FCM INVESTOR_INVOICE_SETTLEMENT :');
+              prettyPrint(map,
+                  '\n\nFCM ## 👽 👽 👽 👽  -  🌼 🌺  INVESTOR_INVOICE_SETTLEMENT :');
               onInvestorInvoiceSettlement(
                   InvestorInvoiceSettlement.fromJson(map));
               break;

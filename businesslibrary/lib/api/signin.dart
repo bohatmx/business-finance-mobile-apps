@@ -27,25 +27,26 @@ class SignIn {
 
   ///Existing user signs into BFN  and cahes data to SharedPrefs
   static Future<int> signIn(String email, String password) async {
-    print('SignIn.signIn ++++++++++++++++ Firebase  $email $password +++++++');
-    print('SignIn.signIn: ***** 7:56 AM version ****');
+    print(
+        '🔑 🔑 🔑 SignIn.signIn ++++++++++++++++ 🍏 🍎 Firebase  $email $password +++++++');
 
     FirebaseUser fbUser;
     try {
       fbUser = await _auth
           .signInWithEmailAndPassword(email: email, password: password)
           .catchError((e) {
-        print('SignIn.signIn: ------------ fucking *&%*fukIUHUB^!!  ERROR! $e');
-        return ErrorSignIn;
+        print(
+            '👿 👿 👿 SignIn.signIn: ------------ 👿 👿 fucking *&%*fukIUHUB^!!  👿 ERROR! $e');
+        throw e;
       });
 
       if (fbUser == null) {
-        return ErrorSignIn;
+        throw Exception('user is null 👿 👿 👿 ');
       }
     } catch (e) {
       print(
-          'SignIn.signIn:------------->>> FIREBASE AUTHENTICATION ERROR - $e');
-      return ErrorSignIn;
+          '👿 👿 👿 SignIn.signIn:------------->>> 👿 👿 FIREBASE AUTHENTICATION ERROR - $e');
+      throw e;
     }
     //get user from Firestore
     print('SignIn.signIn: ......... get user from Firestore');

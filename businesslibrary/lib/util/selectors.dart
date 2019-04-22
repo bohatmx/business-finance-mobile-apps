@@ -216,7 +216,7 @@ class _SupplierSelectorPageState extends State<SupplierSelectorPage> {
   _getSuppliers() async {
     suppliers = await ListAPI.getSuppliers();
     print(
-        'SupplierSelectorPage._getTypes types found:suppliers ${suppliers.length}');
+        '🌺 🌺 🌺 SupplierSelectorPage.getSuppliers; found:suppliers 🌼 ${suppliers.length}');
     setState(() {});
   }
 

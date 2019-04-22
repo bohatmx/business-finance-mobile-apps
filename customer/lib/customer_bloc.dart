@@ -15,6 +15,8 @@ import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/Finders.dart';
 import 'package:businesslibrary/util/database.dart';
 import 'package:businesslibrary/util/lookups.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 abstract class CustomerModelBlocListener {
@@ -31,9 +33,32 @@ class CustomerBloc implements CustomerBlocListener {
 
   CustomerBloc() {
     print(
-        '\n\n 🔵  🔵  🔵  🔵  🔵 CustomerModelBloc - CONSTRUCTOR - set listener and initialize app model');
+        '\n\n 🔵  🔵  🔵  🔵  🔵 CustomerModelBloc - CONSTRUCTOR - ✈️ ✈️ ✈️ ✈️  set listener and 🍏 🍎 initialize app model');
     _appModel.setListener(this);
-    _appModel.initialize();
+    initialize();
+  }
+
+  fixUsers() async {
+    print('🔵  🔵  🔵  🔵  🔵 fix Users - ️ 🔧️ 🔧️ 🔧️ 🔧 create Auth users');
+    Firestore fs = Firestore.instance;
+    FirebaseAuth auth = FirebaseAuth.instance;
+    var qs = await fs.collection('users').getDocuments();
+    var cnt = 0;
+    for (var doc in qs.documents) {
+      var user = User.fromJson(doc.data);
+      await auth.createUserWithEmailAndPassword(
+          email: user.email, password: user.password);
+      cnt++;
+      print(
+          '❤️ 🧡 💛 💚 💙 💜 Firebase Auth user 🌺 #$cnt created: ${user.firstName} ${user.lastName} ${user.userId}');
+    }
+  }
+
+  initialize() async {
+    await _appModel.initialize();
+    _appModelController.sink.add(_appModel);
+
+    print('🔵  🔵  🔵  🔵  🔵 App Model completed initialization 🎈 🎈');
   }
 
   get appModel => _appModel;
@@ -172,9 +197,9 @@ class CustomerApplicationModel {
     _listener = sbListener;
   }
 
-  void initialize() async {
+  Future initialize() async {
     print(
-        '\n\n\nCustomerApplicationModel.initialize - ############### load model data from cache');
+        '\n\n✈️ ✈️ ✈️ ✈️  CustomerApplicationModel.initialize - 🎈 🎈 🎈  load model data from cache');
     var start = DateTime.now();
     _customer = await SharedPrefs.getCustomer();
     _user = await SharedPrefs.getUser();
@@ -191,7 +216,7 @@ class CustomerApplicationModel {
           'CustomerApplicationModel.initialize, _purchaseOrders found in database: ${_purchaseOrders.length}');
     if (_purchaseOrders == null || _purchaseOrders.isEmpty) {
       refreshModel();
-      return;
+      return null;
     }
     print(
         '\n\nCustomerApplicationModel.initialize - ############### loading Model from cache ...');
@@ -217,8 +242,10 @@ class CustomerApplicationModel {
     _setItemNumbers(_settlements);
 
     var end = DateTime.now();
-    print(
-        '\n\nCustomerApplicationModel.initialize ######### model refreshed: elapsed time: ${end.difference(start).inMilliseconds} milliseconds. calling notifyListeners');
+    print('\n\n🎈 🎈 🎈 🎈 CustomerApplicationModel.initialize '
+        '🍏 🍎  model refreshed: elapsed time: '
+        '🍏 🍎 ${end.difference(start).inMilliseconds} milliseconds. calling notifyListeners');
+    return null;
   }
 
   double getTotalInvoiceValue() {

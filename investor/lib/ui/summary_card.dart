@@ -31,9 +31,7 @@ class DashboardCard extends StatelessWidget {
             break;
         }
         if (data == null) {
-          return Container(
-            child: Text('This is NOT fun!!'),
-          );
+          return Container();
         } else {
           return Card(
             elevation: elevation == null ? 0.0 : elevation,

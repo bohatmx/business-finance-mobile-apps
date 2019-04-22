@@ -342,7 +342,7 @@ class _SignUpPageState extends State<SignUpPage>
             MaterialPageRoute(
                 builder: (context) => Dashboard('Customer signed up!')));
       } catch (e) {
-        _showSignUpError(e);
+        _showSignUpError(e.message);
       }
     }
   }

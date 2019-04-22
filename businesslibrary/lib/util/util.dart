@@ -16,8 +16,9 @@ const DEBUG_URL = 'https://192.168.86.239:3000/sendTransaction'; //FIBRE
 //    'https://bfnwebapi1.eu-gb.mybluemix.net/sendTransactions';
 
 const DEBUG_URL_WEB_API = 'http://192.168.86.239:3000/';
-const RELEASE_URL_WEB_API = 'https://bfnwebapi1.eu-gb.mybluemix.net/';
+const RELEASE_URL_WEB_API = 'https://bfnwebapi-ztpzdxn4iq-uc.a.run.app/';
 //https://bfnwebapi-ztpzdxn4iq-uc.a.run.app/ping
+
 const DEBUG_URL_WEB_API_SENDTX = 'http://192.168.86.239:3000/sendTransaction';
 const RELEASE_URL_WEB_API_SENDTX =
     'https://bfnwebapi-ztpzdxn4iq-uc.a.run.app/sendTransaction';
@@ -38,7 +39,7 @@ String getURL() {
 
 String getChaincodeUrl() {
   if (isInDebugMode) {
-    return DEBUG_URL_WEB_API_SENDTX;
+    return RELEASE_URL_WEB_API_SENDTX;
   } else {
     return RELEASE_URL_WEB_API_SENDTX;
   }
@@ -56,8 +57,9 @@ String getMultipleTransactionsUrl() {
 
 String getWebUrl() {
   var url;
+  //todo - fix this before production .... 🌼 🌺🌼 🌺 🌼 🌺🌼 🌺 🌼 🌺
   if (isInDebugMode) {
-    url = DEBUG_URL_WEB_API;
+    url = RELEASE_URL_WEB_API;
   } else {
     url = RELEASE_URL_WEB_API;
   }

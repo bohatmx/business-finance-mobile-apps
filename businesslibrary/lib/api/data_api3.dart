@@ -280,6 +280,7 @@ class DataAPI3 {
     assert(customer != null);
     assert(admin != null);
 
+    print('DataAPI3.addCustomer 🌼 🌼 🌼 🌼 ....');
     var bag = APIBag(
         jsonString: JsonEncoder().convert(customer.toJson()),
         functionName: 'addCustomer',
@@ -641,24 +642,25 @@ class DataAPI3 {
 
   // ignore: missing_return
   static Future<Map> _sendChaincodeTransaction(APIBag bag) async {
+    var url = getChaincodeUrl();
     print(
-        '\n\n🔵 🔵 🔵 🔵 🔵 🔵   DataAPI3._sendChaincodeTransaction; sending:  \n🔵 🔵 🔵 🔵 🔵 🔵  '
-        '${json.encode(bag.toJson())}');
+        '\n\n🔵 🔵 🔵 🔵 🔵 🔵 🌼 🌼 🌼   DataAPI3._sendChaincodeTransaction; sending:  \n🔵 🔵 🔵 🔵 🔵 🔵 🌼 🌼 🌼 '
+        '${json.encode(bag.toJson())} \n🔵 🔵 🔵 🔵 🔵 🔵 $url');
     try {
       var httpClient = new HttpClient();
-      HttpClientRequest mRequest =
-          await httpClient.postUrl(Uri.parse(getChaincodeUrl()));
+      HttpClientRequest mRequest = await httpClient.postUrl(Uri.parse(url));
       mRequest.headers.contentType = contentType;
       mRequest.write(json.encode(bag.toJson()));
       HttpClientResponse mResponse = await mRequest.close();
       print(
-          '\n\n🔵 🔵 🔵 🔵 🔵 🔵   DataAPI3._sendChaincodeTransaction blockchain response status code:  ${mResponse.statusCode}');
+          '\n\n🔵 🔵 🔵 🔵 🔵 🔵   DataAPI3._sendChaincodeTransaction blockchain ☘☘☘ response status code:  ${mResponse.statusCode} ☘☘☘');
       if (mResponse.statusCode == 200) {
         // transforms and prints the response
         String reply = await mResponse.transform(utf8.decoder).join();
-        print('🔵 🔵 🔵  🔵 🔵 🔵  🔵 🔵 🔵  🔵 🔵 🔵  reply  ..............');
+        print(
+            '🔵 🔵 🔵 🌼  🔵 🔵 🔵 🌼  🔵 🔵 🔵 🌼  🔵 🔵 🔵 🌼  reply  ..............');
         Map map = JsonDecoder().convert(reply);
-        print(map);
+        prettyPrint(map, ' 🌷 🌷 🌷 CHAINCODE REPLY MAP  🌷 🌷 🌷');
         print(
             '\n🔵 🔵 🔵  🔵 🔵 🔵  end of result object, is a Map? : ${map['result'] is Map}  🔵 🔵 🔵  🔵 🔵 🔵 \n');
         if (map['statusCode'] == 200) {
@@ -669,7 +671,7 @@ class DataAPI3 {
       } else {
         mResponse.transform(utf8.decoder).listen((contents) {
           print(
-              '\n\n😡 😡 😡 😡 DataAPI3._sendChaincodeTransaction  $contents');
+              '\n\n😡 😡 😡 😡 statusCode: ${mResponse.statusCode} 👿 - DataAPI3._sendChaincodeTransaction contents: \n\n👿 👿  $contents');
         });
         print(
             '\n\n😡 😡 😡 😡  DataAPI3._sendChaincodeTransaction ERROR  ${mResponse.reasonPhrase}');
@@ -677,10 +679,9 @@ class DataAPI3 {
       }
     } catch (e) {
       print(
-          '\n\n👿 👿 👿  👿 👿 👿   DataAPI3._connectToWebAPI ERROR : \n$e \n\n👿 👿 👿 👿 👿 👿 ');
+          '\n\n👿 👿 👿  👿 👿 👿 DataAPI3._sendChaincodeTransaction ERROR : \n$e \n👿 👿 👿 👿 👿 👿 ');
       throw e;
     }
-    //return result;
   }
 
   static Future<AutoTradeOrder> addAutoTradeOrder(AutoTradeOrder order) async {
