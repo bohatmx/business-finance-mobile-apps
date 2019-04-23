@@ -324,7 +324,7 @@ class _DashboardState extends State<Dashboard>
   void _onRefreshPressed() async {
     AppSnackbar.showSnackbarWithProgressIndicator(
         scaffoldKey: _scaffoldKey,
-        message: 'Loading fresh data',
+        message: '  🏀  🏀  🏀 Loading fresh data',
         textColor: Styles.white,
         backgroundColor: Styles.black);
 
@@ -340,7 +340,7 @@ class _DashboardState extends State<Dashboard>
       appModel = supplierBloc.appModel;
       return Scaffold(
         appBar: AppBar(
-          title: Text('Dashboard loading ...'),
+          title: Text('☘ Dashboard loading ...'),
         ),
       );
     }

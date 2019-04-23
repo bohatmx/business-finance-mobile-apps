@@ -65,7 +65,7 @@ class _DashboardState extends State<Dashboard>
   initState() {
     super.initState();
     customerBloc.fixUsers();
-    print('_DashboardState.initState .............. to get summary');
+    print(' 🏀 _DashboardState.initState ..... to get summary');
     animationController = AnimationController(
       duration: Duration(milliseconds: 1000),
       vsync: this,
