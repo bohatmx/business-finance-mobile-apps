@@ -53,7 +53,7 @@ class Generator {
     _genListener = listener;
     var start = DateTime.now();
     print(
-        '\n\n 🔵   🔵   🔵   🔵   🔵  Generator.generate business trades starting ...\n\n');
+        '\n\n 🔵 🔵 🔵 🔵 🔵  Generator.generate business trades starting ... 🥦 🥦 🥦 \n\n');
     _genListener.onEvent('🔵  🔵  🔵  🔵  🔵 loading data ....', false);
     _customers = await ListAPI.getCustomersByCountry(country: 'ZA');
     _genListener.onEvent('💦  💦  💦 ${_customers.length} customers', false);
@@ -85,28 +85,27 @@ class Generator {
 
 //    await _processProfiles();
 //    await _processAutoTradeOrders();
-//    await _processPurchaseOrders();
-//    await _processDeliveryNotes();
-//    await _processDeliveryAcceptances();
-//    await _processInvoices();
-//    await _processInvoiceAcceptances();
+    await _processPurchaseOrders();
+    await _processDeliveryNotes();
+    await _processDeliveryAcceptances();
+    await _processInvoices();
+    await _processInvoiceAcceptances();
     await _processOffers();
 
-    _genListener.onEvent('🔵 🔵️ 🔵 🔵️ - JOB COMPLETE!', false);
+    _genListener.onEvent('🔵 🔵️ 🔵 🔵️ - JOB COMPLETE! 🥦 🥦 🥦 ', false);
     var end = DateTime.now();
     _genListener.onEvent(
-        '🔵 🔵️ 🔵 🔵️ - elapsed, inSeconds: ${end.difference(start).inSeconds} - inMinutes: ${end.difference(start).inMinutes}',
+        '🔵 🔵️ 🔵 🔵️ - elapsed, seconds: ${end.difference(start).inSeconds} - ⏰ minutes: ${end.difference(start).inMinutes}',
         false);
   }
 
   static Future _processProfiles() async {
     print(
-        '\n\n 🔵   🔵   🔵   🔵   🔵  Generator.generateProfilesAndOrders starting ...\n\n');
-    _genListener.onEvent('🔵  🔵  🔵  loading investors ....', false);
+        '\n\n 🔵 🔵 🔵 🔵 🔵  Generator.generateProfilesAndOrders starting ...\n\n');
+    _genListener.onEvent('🔵 🔵 🔵  loading investors ....', false);
     _investors = await ListAPI.getInvestors();
-    _genListener.onEvent('🔵  🔵  🔵  ${_investors.length} investors', false);
+    _genListener.onEvent('🔵 🔵 🔵  ${_investors.length} investors', false);
 
-//    List<InvestorProfile> profList = List();
     _profiles.clear();
     for (var investor in _investors) {
       InvestorProfile ip = InvestorProfile(
@@ -120,22 +119,6 @@ class Generator {
       _profiles.add(m);
       _genListener.onEvent('🍊 🍊 profile added ${m.name}', true);
     }
-//    _genListener.onEvent('🍊 🍊  sending ${profList.length} profiles', false);
-//    var bag = APIBag(
-//        jsonString: JsonEncoder().convert(profList),
-//        functionName: CHAIN_ADD_INVESTOR_PROFILES,
-//        userName: DataAPI3.TemporaryUserName);
-//
-//    try {
-//      var replyFromWeb = await _sendMultipleChaincodeTransactions(bag);
-//      var result = replyFromWeb['result'];
-//      result.forEach((m) {
-//        _profiles.add(InvestorProfile.fromJson(m));
-//      });
-//    } catch (e) {
-//      print('\n\n👿  👿  👿  👿  👿  👿  👿  👿 ');
-//      print(e);
-//    }
     _genListener.onEvent(
         '🍊 🍊 🍊 🍊  ${_profiles.length} profiles added', false);
     _genListener.onPhaseComplete(_profiles.length);
@@ -143,12 +126,12 @@ class Generator {
   }
 
   static Future _processAutoTradeOrders() async {
-//    List<AutoTradeOrder> ordList = List();
     _profiles = await ListAPI.getInvestorProfiles();
     if (_profiles.isEmpty) {
       _genListener.onEvent('💣 💣 💣  NO PROFILES FOUND, quit orders ', false);
       return null;
     }
+    _orders = List();
     for (var profile in _profiles) {
       var autoTradeOrder = AutoTradeOrder(
           investor: profile.investor,
@@ -160,25 +143,6 @@ class Generator {
       _genListener.onEvent(
           '🍏 🍏  added autoTradeOrder: ${m.investorName}', true);
     }
-//    _genListener.onEvent(
-//        '🍏 🍏  sending ${ordList.length} autoTradeOrders', false);
-//
-//    var bag = APIBag(
-//        jsonString: JsonEncoder().convert(ordList),
-//        functionName: CHAIN_ADD_AUTOTRADE_ORDERS,
-//        userName: DataAPI3.TemporaryUserName);
-//
-//    try {
-//      var replyFromWeb = await _sendMultipleChaincodeTransactions(bag);
-//      var result = replyFromWeb['result'];
-//      _orders.clear();
-//      result.forEach((m) {
-//        _orders.add(AutoTradeOrder.fromJson(m));
-//      });
-//    } catch (e) {
-//      print('\n\n👿  👿  👿  👿  👿  👿  👿  👿 ');
-//      print(e);
-//    }
     _genListener.onEvent(
         '🍏 🍏 🍏️  ${_orders.length} autoTradeOrders added', false);
     _genListener.onPhaseComplete(_orders.length);
@@ -186,7 +150,7 @@ class Generator {
   }
 
   static Future _processPurchaseOrders() async {
-    List<PurchaseOrder> poList = List();
+    _purchaseOrders = List();
     for (var unit in _units) {
       var po = PurchaseOrder(
         purchaseOrderNumber: _getRandomPO(),
@@ -203,42 +167,6 @@ class Generator {
           '📮 📮  purchaseOrders added ${m.purchaserName}', true);
     }
 
-//    var rem = poList.length % PAGE_SIZE;
-//    var pages = poList.length ~/ PAGE_SIZE;
-//    if (rem > 0) {
-//      pages++;
-//    }
-
-    // _purchaseOrders.clear();
-//    index = 0;
-//    for (var i = 0; i < pages; i++) {
-//      List<PurchaseOrder> pageList = List();
-//      for (var j = 0; j < PAGE_SIZE; j++) {
-//        try {
-//          pageList.add(poList.elementAt(index));
-//          index++;
-//        } catch (e) {}
-//      }
-//      _genListener.onEvent(
-//          '📮 📮  sending ${pageList.length} purchase orders', false);
-//      var bag = APIBag(
-//          jsonString: JsonEncoder().convert(pageList),
-//          functionName: CHAIN_ADD_PURCHASE_ORDERS,
-//          userName: DataAPI3.TemporaryUserName);
-//
-//      try {
-//        var replyFromWeb = await _sendMultipleChaincodeTransactions(bag);
-//        var result = replyFromWeb['result'];
-//        result.forEach((m) {
-//          _purchaseOrders.add(PurchaseOrder.fromJson(m));
-//        });
-//      } catch (e) {
-//        print('\n\n👿  👿  👿  👿  👿  👿  👿  👿 ');
-//        print(e);
-//      }
-//    }
-    print(
-        '\n\n📮 📮 📮 📮️  Generator.control - purchaseOrders generated: ${_purchaseOrders.length}\n\n');
     _genListener.onEvent(
         '📮 📮 📮 📮  ${_purchaseOrders.length} purchaseOrders generated',
         false);
@@ -247,6 +175,7 @@ class Generator {
   }
 
   static Future _processDeliveryNotes() async {
+    _deliveryNotes = List();
     for (var po in _purchaseOrders) {
       var note = DeliveryNote(
           supplierName: po.supplierName,
@@ -263,51 +192,6 @@ class Generator {
       _genListener.onEvent(
           '🌸 🌸  deliveryNote added: ${m.purchaseOrderNumber}', true);
     }
-//    var rem = _purchaseOrders.length % PAGE_SIZE;
-//    var pages = _purchaseOrders.length ~/ PAGE_SIZE;
-//    if (rem > 0) {
-//      pages++;
-//    }
-//
-//    _deliveryNotes.clear();
-//    index = 0;
-//    for (var i = 0; i < pages; i++) {
-//      List<DeliveryNote> noteList = List();
-//      for (var j = 0; j < PAGE_SIZE; j++) {
-//        try {
-//          var po = _purchaseOrders.elementAt(index);
-//          var note = DeliveryNote(
-//              supplierName: po.supplierName,
-//              amount: po.amount,
-//              purchaseOrderNumber: po.purchaseOrderNumber,
-//              purchaseOrder: po.purchaseOrderId,
-//              vat: po.amount * 0.15,
-//              supplier: po.supplier,
-//              customerName: po.purchaserName,
-//              totalAmount: po.amount * 1.15,
-//              customer: po.customer);
-//          noteList.add(note);
-//          index++;
-//        } catch (e) {}
-//      }
-//      _genListener.onEvent(
-//          '🌸 🌸  sending ${noteList.length} deliveryNotes', false);
-//      var bag = APIBag(
-//          jsonString: JsonEncoder().convert(noteList),
-//          functionName: CHAIN_ADD_DELIVERY_NOTES,
-//          userName: DataAPI3.TemporaryUserName);
-//
-//      try {
-//        var replyFromWeb = await _sendMultipleChaincodeTransactions(bag);
-//        var result = replyFromWeb['result'];
-//        result.forEach((m) {
-//          _deliveryNotes.add(DeliveryNote.fromJson(m));
-//        });
-//      } catch (e) {
-//        print('\n\n👿  👿  👿  👿  👿  👿  👿  👿 ');
-//        print(e);
-//      }
-//    }
     _genListener.onEvent(
         '🌸 🌸 🌸 ${_deliveryNotes.length} deliveryNotes generated', false);
     _genListener.onPhaseComplete(_deliveryNotes.length);
@@ -318,6 +202,7 @@ class Generator {
     if (_deliveryNotes.isEmpty) {
       _deliveryNotes = await ListAPI.getAllDeliveryNotes();
     }
+    _deliveryAcceptances = List();
     for (var note in _deliveryNotes) {
       var acc = DeliveryAcceptance(
         customer: note.customer,
@@ -333,48 +218,6 @@ class Generator {
           '⚽️ ⚽️   - deliveryAcceptances added: ${m.purchaseOrderNumber}',
           true);
     }
-//    var rem = _deliveryNotes.length % PAGE_SIZE;
-//    var pages = _deliveryNotes.length ~/ PAGE_SIZE;
-//    if (rem > 0) {
-//      pages++;
-//    }
-//    _deliveryAcceptances.clear();
-//    index = 0;
-//    for (var i = 0; i < pages; i++) {
-//      List<DeliveryAcceptance> daList = List();
-//      for (var j = 0; j < PAGE_SIZE; j++) {
-//        try {
-//          var note = _deliveryNotes.elementAt(index);
-//          var acc = DeliveryAcceptance(
-//            customer: note.customer,
-//            customerName: note.customerName,
-//            supplier: note.supplier,
-//            purchaseOrder: note.purchaseOrder,
-//            purchaseOrderNumber: note.purchaseOrderNumber,
-//            deliveryNote: note.deliveryNoteId,
-//          );
-//          daList.add(acc);
-//          index++;
-//        } catch (e) {}
-//      }
-//      _genListener.onEvent(
-//          '⚽️ ⚽️ sending ${daList.length} deliveryAcceptances', false);
-//      var bag = APIBag(
-//          jsonString: JsonEncoder().convert(daList),
-//          functionName: CHAIN_ADD_DELIVERY_NOTE_ACCEPTANCES,
-//          userName: DataAPI3.TemporaryUserName);
-//
-//      try {
-//        var replyFromWeb = await _sendMultipleChaincodeTransactions(bag);
-//        List result = replyFromWeb['result'];
-//        result.forEach((m) {
-//          _deliveryAcceptances.add(DeliveryAcceptance.fromJson(m));
-//        });
-//      } catch (e) {
-//        print('\n\n👿  👿  👿  👿  👿  👿  👿  👿 ');
-//        print(e);
-//      }
-//    }
     _genListener.onEvent(
         '⚽️ ⚽️ ⚽️ ⚽️  - deliveryAcceptances generated: ${_deliveryAcceptances.length}',
         false);
@@ -395,50 +238,13 @@ class Generator {
         '\n\n🅿️ 🅿️ 🅿️ 🅿️ 🅿️ 🅿️ 🅿️️  - deliveryAcceptances filtered: ${rMap.length}',
         false);
 
-//    var cnt = 0;
-//    List<Invoice> iList = List();
-//    for (var deliveryAcceptance in _deliveryAcceptances) {
-//      DeliveryNote note;
-//      _deliveryNotes.forEach((n) {
-//        if (deliveryAcceptance.deliveryNote == n.deliveryNoteId) {
-//          note = n;
-//        }
-//      });
-//      var invoice = Invoice(
-//        invoiceNumber: _getRandomInvoiceNumber(),
-//        customer: deliveryAcceptance.customer,
-//        supplier: deliveryAcceptance.supplier,
-//        purchaseOrder: deliveryAcceptance.purchaseOrder,
-//        deliveryNote: deliveryAcceptance.deliveryNote,
-//        supplierName: note.supplierName,
-//        customerName: deliveryAcceptance.customerName,
-//        purchaseOrderNumber: deliveryAcceptance.purchaseOrderNumber,
-//        amount: note.amount,
-//        valueAddedTax: note.vat,
-//        totalAmount: note.totalAmount,
-//        isOnOffer: false,
-//        isSettled: false,
-//        deliveryAcceptance: deliveryAcceptance.acceptanceId,
-//      );
-//      iList.add(invoice);
-////      try {
-////        var m = await DataAPI3.registerInvoice(invoice);
-////        _invoices.add(m);
-////        cnt++;
-////        _genListener.onEvent(
-////            '🅿️ 🅿️️- invoice: ${m.invoiceNumber} #$cnt', true);
-////      } catch (e) {
-////        print(e);
-////      }
-//    }
-
     var rem = _deliveryAcceptances.length % PAGE_SIZE;
     var pages = _deliveryAcceptances.length ~/ PAGE_SIZE;
     if (rem > 0) {
       pages++;
     }
 
-    _invoices.clear();
+    _invoices = List();
     index = 0;
     for (var i = 0; i < pages; i++) {
       List<Invoice> invList = List();
@@ -469,7 +275,9 @@ class Generator {
           );
           invList.add(invoice);
           index++;
-        } catch (e) {}
+        } catch (e) {
+          print(e);
+        }
       }
       _genListener.onEvent('⚽️ ⚽️ sending ${invList.length} invoices', false);
       var bag = APIBag(
@@ -499,41 +307,30 @@ class Generator {
     if (_invoices.isEmpty) {
       _invoices = await ListAPI.getAllInvoices();
     }
-//    for (var invoice in _invoices) {
-//      var acceptance = InvoiceAcceptance(
-//          customerName: invoice.customerName,
-//          customer: invoice.customer,
-//          invoice: invoice.invoiceId,
-//          invoiceNumber: invoice.invoiceNumber,
-//          supplier: invoice.supplier,
-//          supplierName: invoice.supplierName);
-//      var m = await DataAPI3.acceptInvoice(acceptance);
-//      _invoiceAcceptances.add(m);
-//      _genListener.onEvent(
-//          '🔷 🔷  - InvoiceAcceptances added: ${m.invoiceNumber}', true);
-//    }
     var rem = _invoices.length % PAGE_SIZE;
     var pages = _invoices.length ~/ PAGE_SIZE;
     if (rem > 0) {
       pages++;
     }
 
-    _invoiceAcceptances.clear();
+    _invoiceAcceptances = List();
     index = 0;
     for (var i = 0; i < pages; i++) {
       List<InvoiceAcceptance> accList = List();
       for (var j = 0; j < PAGE_SIZE; j++) {
-        var invoice = _invoices.elementAt(index);
-        var acceptance = InvoiceAcceptance(
-            customerName: invoice.customerName,
-            customer: invoice.customer,
-            invoice: invoice.invoiceId,
-            invoiceNumber: invoice.invoiceNumber,
-            supplier: invoice.supplier,
-            supplierName: invoice.supplierName);
+        try {
+          var invoice = _invoices.elementAt(index);
+          var acceptance = InvoiceAcceptance(
+              customerName: invoice.customerName,
+              customer: invoice.customer,
+              invoice: invoice.invoiceId,
+              invoiceNumber: invoice.invoiceNumber,
+              supplier: invoice.supplier,
+              supplierName: invoice.supplierName);
 
-        accList.add(acceptance);
-        index++;
+          accList.add(acceptance);
+          index++;
+        } catch (e) {}
       }
       _genListener.onEvent(
           '🔖 🔖 sending ${accList.length} InvoiceAcceptances', false);
@@ -554,43 +351,13 @@ class Generator {
       }
     }
     _genListener.onEvent(
-        '🔷 🔷 🔷 🔷  - InvoiceAcceptances generated: ${_invoiceAcceptances.length}',
+        '🔷 🔷 🔷 🔷  - InvoiceAcceptances generated: 🔷 ${_invoiceAcceptances.length}',
         false);
     _genListener.onPhaseComplete(_invoiceAcceptances.length);
     return null;
   }
 
   static Future _processOffers() async {
-//    for (var acceptance in _invoiceAcceptances) {
-//      Invoice invoice;
-//      _invoices.forEach((i) {
-//        if (i.invoiceId == acceptance.invoice) {
-//          invoice = i;
-//        }
-//      });
-//      double disc = _getRandomDisc();
-//      var sector = _sectors.elementAt(rand.nextInt(_sectors.length - 1));
-//      Offer offer = new Offer(
-//          supplier: invoice.supplier,
-//          invoice: invoice.invoiceId,
-//          purchaseOrder: invoice.purchaseOrder,
-//          offerAmount: invoice.amount * ((100 - disc) / 100),
-//          invoiceAmount: invoice.totalAmount,
-//          discountPercent: disc,
-//          startTime: getUTCDate(),
-//          endTime: _getRandomEndDate(),
-//          participantId: invoice.supplier,
-//          customerName: invoice.customerName,
-//          supplierName: invoice.supplierName,
-//          sectorName: sector.sectorName,
-//          customer: invoice.customer,
-//          sector: sector.sectorId,
-//          invoiceAcceptance: acceptance.acceptanceId);
-//      var m = await DataAPI3.makeOffer(offer);
-//      _offers.add(m);
-//      _genListener.onEvent('🛎 🛎  - offer added: ${m.offerAmount}', true);
-//    }
-
     _invoiceAcceptances = await ListAPI.getAllInvoiceAcceptances();
     _invoices = await ListAPI.getAllInvoices();
     var rem = _invoiceAcceptances.length % PAGE_SIZE;
@@ -600,7 +367,7 @@ class Generator {
     }
     print(
         '🚀 🚀 🚀  processing $pages pages * $PAGE_SIZE = ${PAGE_SIZE * pages} ish ... rem: $rem');
-    _offers.clear();
+    _offers = List();
     index = 0;
     for (var i = 0; i < pages; i++) {
       List<Offer> offerList = List();
@@ -608,31 +375,33 @@ class Generator {
         double disc = _getRandomDisc();
         var sector = _sectors.elementAt(rand.nextInt(_sectors.length - 1));
         assert(sector != null);
-        InvoiceAcceptance acceptance = _invoiceAcceptances.elementAt(index);
-        Invoice invoice;
-        _invoices.forEach((i) {
-          if (i.invoiceId == acceptance.invoice) {
-            invoice = i;
-          }
-        });
-        Offer offer = new Offer(
-            supplier: invoice.supplier,
-            invoice: invoice.invoiceId,
-            purchaseOrder: invoice.purchaseOrder,
-            offerAmount: invoice.amount * ((100 - disc) / 100),
-            invoiceAmount: invoice.totalAmount,
-            discountPercent: disc,
-            startTime: getUTCDate(),
-            endTime: _getRandomEndDate(),
-            participantId: invoice.supplier,
-            customerName: invoice.customerName,
-            supplierName: invoice.supplierName,
-            sectorName: sector.sectorName,
-            customer: invoice.customer,
-            sector: sector.sectorId,
-            invoiceAcceptance: acceptance.acceptanceId);
-        offerList.add(offer);
-        index++;
+        try {
+          InvoiceAcceptance acceptance = _invoiceAcceptances.elementAt(index);
+          Invoice invoice;
+          _invoices.forEach((i) {
+            if (i.invoiceId == acceptance.invoice) {
+              invoice = i;
+            }
+          });
+          Offer offer = new Offer(
+              supplier: invoice.supplier,
+              invoice: invoice.invoiceId,
+              purchaseOrder: invoice.purchaseOrder,
+              offerAmount: invoice.amount * ((100 - disc) / 100),
+              invoiceAmount: invoice.totalAmount,
+              discountPercent: disc,
+              startTime: getUTCDate(),
+              endTime: _getRandomEndDate(),
+              participantId: invoice.supplier,
+              customerName: invoice.customerName,
+              supplierName: invoice.supplierName,
+              sectorName: sector.sectorName,
+              customer: invoice.customer,
+              sector: sector.sectorId,
+              invoiceAcceptance: acceptance.acceptanceId);
+          offerList.add(offer);
+          index++;
+        } catch (e) {}
       }
       _genListener.onEvent(
           '🛎 🛎 🛎 sending ${offerList.length} offers, page: ${i + 1}', false);

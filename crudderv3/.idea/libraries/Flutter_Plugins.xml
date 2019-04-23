@@ -1,20 +1,8 @@
 <component name="libraryTable">
   <library name="Flutter Plugins">
     <CLASSES>
-      <root url="file://$PROJECT_DIR$/../../../flutter/.pub-cache/hosted/pub.dartlang.org/firebase_core-0.2.5+1" />
-      <root url="file://$PROJECT_DIR$/../../../flutter/.pub-cache/hosted/pub.dartlang.org/firebase_remote_config-0.0.6+1" />
       <root url="file://$PROJECT_DIR$/../../../flutter/.pub-cache/hosted/pub.dartlang.org/device_info-0.3.0" />
-      <root url="file://$PROJECT_DIR$/../../../flutter/.pub-cache/hosted/pub.dartlang.org/path_provider-0.4.1" />
-      <root url="file://$PROJECT_DIR$/../../../flutter/.pub-cache/hosted/pub.dartlang.org/shared_preferences-0.4.3" />
-      <root url="file://$PROJECT_DIR$/../../../flutter/.pub-cache/hosted/pub.dartlang.org/flutter_webview_plugin-0.3.0+2" />
-      <root url="file://$PROJECT_DIR$/../../../flutter/.pub-cache/hosted/pub.dartlang.org/location-1.4.1" />
-      <root url="file://$PROJECT_DIR$/../../../flutter/.pub-cache/hosted/pub.dartlang.org/google_maps_flutter-0.0.3+3" />
-      <root url="file://$PROJECT_DIR$/../../../flutter/.pub-cache/hosted/pub.dartlang.org/cloud_firestore-0.8.2+3" />
-      <root url="file://$PROJECT_DIR$/../../../flutter/.pub-cache/git/plugins-10030840c2766131d27e4e889d65b784ffbff80d/packages/url_launcher" />
       <root url="file://$PROJECT_DIR$/../../../flutter/.pub-cache/hosted/pub.dartlang.org/google_sign_in-3.3.0+1" />
-      <root url="file://$PROJECT_DIR$/../../../flutter/.pub-cache/hosted/pub.dartlang.org/firebase_messaging-2.2.0+1" />
-      <root url="file://$PROJECT_DIR$/../../../flutter/.pub-cache/hosted/pub.dartlang.org/firebase_storage-1.1.0+1" />
-      <root url="file://$PROJECT_DIR$/../../../flutter/.pub-cache/hosted/pub.dartlang.org/firebase_auth-0.7.0" />
       <root url="file://$PROJECT_DIR$/../../../flutter/.pub-cache/hosted/pub.dartlang.org/path_provider-0.5.0+1" />
       <root url="file://$PROJECT_DIR$/../../../flutter/.pub-cache/hosted/pub.dartlang.org/firebase_messaging-4.0.0+3" />
       <root url="file://$PROJECT_DIR$/../../../flutter/.pub-cache/hosted/pub.dartlang.org/firebase_auth-0.8.4+3" />
@@ -25,6 +13,9 @@
       <root url="file://$PROJECT_DIR$/../../../flutter/.pub-cache/hosted/pub.dartlang.org/cloud_firestore-0.9.13+1" />
       <root url="file://$PROJECT_DIR$/../../../flutter/.pub-cache/hosted/pub.dartlang.org/firebase_core-0.3.4" />
       <root url="file://$PROJECT_DIR$/../../../flutter/.pub-cache/git/plugins-8bdd77661c1cfc899eaad9cd14b9222611f49a39/packages/url_launcher" />
+      <root url="file://$PROJECT_DIR$/../../../flutter/.pub-cache/hosted/pub.dartlang.org/flutter_webview_plugin-0.3.4" />
+      <root url="file://$PROJECT_DIR$/../../../flutter/.pub-cache/git/plugins-43045155051a6f9a4fe2a0084aba047c4e3ab3cf/packages/url_launcher" />
+      <root url="file://$PROJECT_DIR$/../../../flutter/.pub-cache/hosted/pub.dartlang.org/firebase_auth-0.8.4+5" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

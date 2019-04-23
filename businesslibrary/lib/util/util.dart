@@ -5,7 +5,7 @@ import 'package:web_socket_channel/io.dart';
 //const DEBUG_URL_HOME = 'https://bfnrestv3.eu-gb.mybluemix.net/api/'; //FIBRE
 //const DEBUG_URL_ROUTER = 'https://bfnrestv3.eu-gb.mybluemix.net/api/'; //ROUTER
 const RELEASE_URL = 'https://bfnrestv3.eu-gb.mybluemix.net/api/'; //CLOUD
-const DEBUG_URL = 'https://192.168.86.239:3000/sendTransaction'; //FIBRE
+const DEBUG_URL = 'https://192.168.86.239:3001/sendTransaction'; //FIBRE
 
 //const DEBUG_URL_WEB_API_SENDTX = 'http://192.168.86.239:3000/sendTransaction';
 //const RELEASE_URL_WEB_API_SENDTX =
@@ -15,15 +15,15 @@ const DEBUG_URL = 'https://192.168.86.239:3000/sendTransaction'; //FIBRE
 //const RELEASE_URL_WEB_API_SENDTXS =
 //    'https://bfnwebapi1.eu-gb.mybluemix.net/sendTransactions';
 
-const DEBUG_URL_WEB_API = 'http://192.168.86.239:3000/';
+const DEBUG_URL_WEB_API = 'http://192.168.86.239:3001/';
 const RELEASE_URL_WEB_API = 'https://bfnwebapi-ztpzdxn4iq-uc.a.run.app/';
 //https://bfnwebapi-ztpzdxn4iq-uc.a.run.app/ping
 
-const DEBUG_URL_WEB_API_SENDTX = 'http://192.168.86.239:3000/sendTransaction';
+const DEBUG_URL_WEB_API_SENDTX = 'http://192.168.86.239:3001/sendTransaction';
 const RELEASE_URL_WEB_API_SENDTX =
     'https://bfnwebapi-ztpzdxn4iq-uc.a.run.app/sendTransaction';
 
-const DEBUG_URL_WEB_API_SENDTXS = 'http://192.168.86.239:3000/sendTransactions';
+const DEBUG_URL_WEB_API_SENDTXS = 'http://192.168.86.239:3001/sendTransactions';
 const RELEASE_URL_WEB_API_SENDTXS =
     'https://bfnwebapi-ztpzdxn4iq-uc.a.run.app/sendTransactions';
 
@@ -39,9 +39,9 @@ String getURL() {
 
 String getChaincodeUrl() {
   if (isInDebugMode) {
-    return RELEASE_URL_WEB_API_SENDTX;
+    return DEBUG_URL_WEB_API_SENDTX;
   } else {
-    return RELEASE_URL_WEB_API_SENDTX;
+    return DEBUG_URL_WEB_API_SENDTX;
   }
 }
 

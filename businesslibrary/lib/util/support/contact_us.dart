@@ -11,9 +11,7 @@ import 'package:businesslibrary/util/styles.dart';
 import 'package:businesslibrary/util/support/chat_page.dart';
 import 'package:businesslibrary/util/support_email.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:location/location.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ContactUs extends StatefulWidget {
@@ -39,7 +37,6 @@ class _ContactUsState extends State<ContactUs>
   Completer<GoogleMapController> _completer = Completer();
   GoogleMapController _mapController;
 
-  Location _location = new Location();
   bool _permission = false;
   String error;
 
@@ -59,7 +56,7 @@ class _ContactUsState extends State<ContactUs>
   @override
   void initState() {
     super.initState();
-    initPlatformState();
+
     getCached();
 
     _animationController = AnimationController(
@@ -89,43 +86,12 @@ class _ContactUsState extends State<ContactUs>
     if (supplier != null) {
       userType = USER_SUPPLIER;
     }
-    _locationSubscription =
-        _location.onLocationChanged().listen((Map<String, double> result) {});
+//    _locationSubscription =
+//        _location.onLocationChanged().listen((Map<String, double> result) {});
     print('_ContactUsState.getCached user: ${user.toJson()}');
   }
 
   void getLocation() async {}
-  initPlatformState() async {
-    print('_ContactUsState.initPlatformState ..............................');
-    Map<String, double> location;
-    // Platform messages may fail, so we use a try/catch PlatformException.
-    try {
-      _permission = await _location.hasPermission();
-      location = await _location.getLocation();
-      print(
-          '_ContactUsState.initPlatformState permission: $_permission location: $location');
-      error = null;
-    } on PlatformException catch (e) {
-      if (e.code == 'PERMISSION_DENIED') {
-        error = 'Permission denied';
-      } else if (e.code == 'PERMISSION_DENIED_NEVER_ASK') {
-        error =
-            'Permission denied - please ask the user to enable it from the app settings';
-      }
-
-      location = null;
-    }
-
-    // If the widget was removed from the tree while the asynchronous platform
-    // message was in flight, we want to discard the reply rather than calling
-    // setState to update our non-existent appearance.
-    //if (!mounted) return;
-
-    if (location != null) {}
-    setState(() {
-      _startLocation = location;
-    });
-  }
 
   Set<Marker> _markers = Set();
   BitmapDescriptor _landmarkIcon;

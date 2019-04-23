@@ -161,18 +161,18 @@ class _MyHomePageState extends State<MyHomePage>
       msgList.add('💦 💦  Adding sectors ...');
     });
 
-//    await DataAPI3.addSectors();
-//    setState(() {
-//      msgList.add('💦 💦  Sectors added to BFN and Firestore');
-//      msgList.add('💦 💦  Adding countries ...');
-//      _phaseCounter++;
-//    });
-//    await DataAPI3.addCountries();
-//    setState(() {
-//      msgList.add('💦 💦  Countries added to BFN and Firestore');
-//      msgList.add('💦 💦  Adding customers ...');
-//      _phaseCounter++;
-//    });
+    await DataAPI3.addSectors();
+    setState(() {
+      msgList.add('💦 💦  Sectors added to BFN and Firestore');
+      msgList.add('💦 💦  Adding countries ...');
+      _phaseCounter++;
+    });
+    await DataAPI3.addCountries();
+    setState(() {
+      msgList.add('💦 💦  Countries added to BFN and Firestore');
+      msgList.add('💦 💦  Adding customers ...');
+      _phaseCounter++;
+    });
     await _addCustomers();
     setState(() {
       _phaseCounter++;
@@ -205,6 +205,7 @@ class _MyHomePageState extends State<MyHomePage>
 
     print(
         '\n\n_MyHomePageState._start  ❤️ ❤️ ❤️ ❤️ ❤️ ###################### GENESIS : Demo Data COMPLETED!');
+    _generateWorkingData();
   }
 
   void _generateWorkingData() async {
@@ -254,20 +255,6 @@ class _MyHomePageState extends State<MyHomePage>
     }
     return invoiceAmount * 1000;
   }
-
-//  double _getRandomInvoiceAmount() {
-//    var m = rand.nextInt(1000);
-//    double seed = 0.0;
-//    if (m > 700) {
-//      seed = rand.nextInt(100) * 6950.00;
-//    } else {
-//      seed = rand.nextInt(100) * 765.00;
-//    }
-//    if (seed == 0.0) {
-//      seed = 100000.00;
-//    }
-//    return seed;
-//  }
 
   List<Customer> customers = List();
   Future _addCustomers() async {
@@ -433,7 +420,7 @@ class _MyHomePageState extends State<MyHomePage>
     }
     try {
       Investor e3 = new Investor(
-        name: 'TrueBlue Finaciers Inc.',
+        name: 'TrueBlue Financiers Inc.',
         email: 'info@trubluefunders.com',
         country: 'ZA',
       );
@@ -662,7 +649,7 @@ class _MyHomePageState extends State<MyHomePage>
       suppliers.add(result1);
       setState(() {
         recordCounter++;
-        msgList.add('💋  Suppliaer added: ${e1.name}');
+        msgList.add('💋  Supplier added: ${e1.name}');
       });
     } catch (e) {
       print(e);
@@ -682,7 +669,7 @@ class _MyHomePageState extends State<MyHomePage>
       var result2 = await DataAPI3.addSupplier(e2, u2);
       suppliers.add(result2);
       setState(() {
-        msgList.add('💋  Suppliaer added: ${e2.name}');
+        msgList.add('💋  Supplier added: ${e2.name}');
         recordCounter++;
       });
     } catch (e) {
@@ -691,7 +678,7 @@ class _MyHomePageState extends State<MyHomePage>
     try {
       Supplier e5 = new Supplier(
         name: 'TrebleX Engineering',
-        email: 'info@engineers.com',
+        email: 'info@treblex.com',
         country: 'ZA',
       );
       User u5 = new User(
@@ -699,11 +686,11 @@ class _MyHomePageState extends State<MyHomePage>
           lastName: 'Khoza',
           password: 'pass123',
           isAdministrator: true,
-          email: 'danielkk@engineers.com');
+          email: 'danielkk@treblex.com');
       var result5 = await DataAPI3.addSupplier(e5, u5);
       suppliers.add(result5);
       setState(() {
-        msgList.add('💋  Suppliaer added: ${e5.name}');
+        msgList.add('💋  Supplier added: ${e5.name}');
         recordCounter++;
       });
     } catch (e) {
@@ -724,7 +711,7 @@ class _MyHomePageState extends State<MyHomePage>
       var result6 = await DataAPI3.addSupplier(e6, u6);
       suppliers.add(result6);
       setState(() {
-        msgList.add('💋  Suppliaer added: ${e6.name}');
+        msgList.add('💋  Supplier added: ${e6.name}');
         recordCounter++;
       });
     } catch (e) {
@@ -745,7 +732,7 @@ class _MyHomePageState extends State<MyHomePage>
       var result7 = await DataAPI3.addSupplier(e7, u7);
       suppliers.add(result7);
       setState(() {
-        msgList.add('💋  Suppliaer added: ${e7.name}');
+        msgList.add('💋  Supplier added: ${e7.name}');
         recordCounter++;
       });
     } catch (e) {
@@ -754,7 +741,7 @@ class _MyHomePageState extends State<MyHomePage>
     try {
       Supplier e8 = new Supplier(
         name: 'Davids Rolling Logistics',
-        email: 'info@rolliin.com',
+        email: 'info@rolling.com',
         country: 'ZA',
       );
       User u8 = new User(
@@ -762,11 +749,11 @@ class _MyHomePageState extends State<MyHomePage>
           lastName: 'Johnson',
           password: 'pass123',
           isAdministrator: true,
-          email: 'tom@rolliin.com');
+          email: 'tom@rolling.com');
       var result8 = await DataAPI3.addSupplier(e8, u8);
       suppliers.add(result8);
       setState(() {
-        msgList.add('💋  Suppliaer added: ${e8.name}');
+        msgList.add('💋  Supplier added: ${e8.name}');
         recordCounter++;
       });
     } catch (e) {
@@ -787,7 +774,7 @@ class _MyHomePageState extends State<MyHomePage>
       var result9 = await DataAPI3.addSupplier(e9, u9);
       suppliers.add(result9);
       setState(() {
-        msgList.add('💋  Suppliaer added: ${e9.name}');
+        msgList.add('💋  Supplier added: ${e9.name}');
         recordCounter++;
       });
     } catch (e) {
@@ -808,7 +795,7 @@ class _MyHomePageState extends State<MyHomePage>
       var result10 = await DataAPI3.addSupplier(e10, u10);
       suppliers.add(result10);
       setState(() {
-        msgList.add('💋  Suppliaer added: ${e10.name}');
+        msgList.add('💋  Supplier added: ${e10.name}');
         recordCounter++;
       });
     } catch (e) {
@@ -829,7 +816,7 @@ class _MyHomePageState extends State<MyHomePage>
       var result11 = await DataAPI3.addSupplier(e11, u11);
       suppliers.add(result11);
       setState(() {
-        msgList.add('💋  Suppliaer added: ${e11.name}');
+        msgList.add('💋  Supplier added: ${e11.name}');
         recordCounter++;
       });
     } catch (e) {
@@ -850,7 +837,7 @@ class _MyHomePageState extends State<MyHomePage>
       var result12 = await DataAPI3.addSupplier(e12, u12);
       suppliers.add(result12);
       setState(() {
-        msgList.add('💋  Suppliaer added: ${e12.name}');
+        msgList.add('💋  Supplier added: ${e12.name}');
         recordCounter++;
       });
     } catch (e) {
@@ -871,7 +858,7 @@ class _MyHomePageState extends State<MyHomePage>
       var result13 = await DataAPI3.addSupplier(e13, u13);
       suppliers.add(result13);
       setState(() {
-        msgList.add('💋  Suppliaer added: ${e13.name}');
+        msgList.add('💋  Supplier added: ${e13.name}');
         recordCounter++;
       });
     } catch (e) {
@@ -880,7 +867,7 @@ class _MyHomePageState extends State<MyHomePage>
     try {
       Supplier e14 = new Supplier(
         name: 'Danielson Logistics',
-        email: 'info@dhhtransport.com',
+        email: 'info@danielson.com',
         country: 'ZA',
       );
       User u14 = new User(
@@ -888,12 +875,12 @@ class _MyHomePageState extends State<MyHomePage>
           lastName: 'Johnson',
           password: 'pass123',
           isAdministrator: true,
-          email: 'danj@logs.com');
+          email: 'danj@danielson.com');
       var result14 = await DataAPI3.addSupplier(e14, u14);
       suppliers.add(result14);
-      print('Generator.generateSuppliers COMPLETED');
+      print(' 🏀  🏀  🏀  🏀  🏀 Generator.generateSuppliers COMPLETED');
       setState(() {
-        msgList.add('💋  Suppliaer added: ${e14.name}');
+        msgList.add('💋  Supplier added: ${e14.name}');
         recordCounter++;
       });
     } catch (e) {
@@ -962,6 +949,7 @@ class _MyHomePageState extends State<MyHomePage>
 
   @override
   onEvent(String message, bool isRecordAdded) {
+    print(message);
     setState(() {
       if (isRecordAdded) {
         recordCounter++;
@@ -1049,7 +1037,7 @@ class _MyHomePageState extends State<MyHomePage>
   @override
   onPhaseComplete(int records) {
     setState(() {
-      _phaseCounter++;
+      _phaseCounter += records;
     });
   }
 

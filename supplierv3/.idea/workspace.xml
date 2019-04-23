@@ -4,24 +4,31 @@
     <option name="TOOL_WINDOW_CONFIGURED_FILTER" value="Show only selected application" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="80b8d4ed-f360-4af7-bada-dfcc0519f100" name="Default" comment="refactored fcm message handling and broadcast via stream">
-      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/api/data_api3.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/api/data_api3.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/api/file_util.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/api/file_util.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/api/signin.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/api/signin.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/util/database.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/util/database.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/util/selectors.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/util/selectors.dart" afterDir="false" />
+    <list default="true" id="80b8d4ed-f360-4af7-bada-dfcc0519f100" name="Default" comment="clean_up!! 🍏 🍎 🍏 🍎">
+      <change afterPath="$PROJECT_DIR$/../crudderv3/android/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../businesslibrary/.flutter-plugins" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/.flutter-plugins" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../businesslibrary/android/app/src/main/java/io/flutter/plugins/GeneratedPluginRegistrant.java" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/android/app/src/main/java/io/flutter/plugins/GeneratedPluginRegistrant.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/util/support/contact_us.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/util/support/contact_us.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/util/util.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/util/util.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/util/webview.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/util/webview.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../businesslibrary/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/pubspec.yaml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../crudderv3/.idea/libraries/Dart_Packages.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../crudderv3/.idea/libraries/Dart_Packages.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../crudderv3/.idea/libraries/Flutter_Plugins.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../crudderv3/.idea/libraries/Flutter_Plugins.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../crudderv3/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../crudderv3/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../customer/lib/customer_bloc.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/lib/customer_bloc.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../customer/lib/ui/dashboard.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/lib/ui/dashboard.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../customer/lib/ui/signup_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/lib/ui/signup_page.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../crudderv3/android/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../crudderv3/android/.idea/gradle.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../crudderv3/android/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../crudderv3/android/.idea/modules.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../crudderv3/android/app/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/../crudderv3/android/app/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../crudderv3/android/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/../crudderv3/android/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../crudderv3/android/gradle.properties" beforeDir="false" afterPath="$PROJECT_DIR$/../crudderv3/android/gradle.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../crudderv3/android/gradle/wrapper/gradle-wrapper.properties" beforeDir="false" afterPath="$PROJECT_DIR$/../crudderv3/android/gradle/wrapper/gradle-wrapper.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../crudderv3/lib/generator.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../crudderv3/lib/generator.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../crudderv3/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../crudderv3/lib/main.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../investor/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../investor/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../investor/lib/ui/summary_card.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../investor/lib/ui/summary_card.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../monitor/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../monitor/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../monitor/android/build.gradle" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../monitor/android/settings.gradle" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/build.gradle" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/settings.gradle" beforeDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <ignored path="../.gradle/4.4/fileChanges/last-build.bin" />
@@ -287,13 +294,30 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/lib/ui/dashboard.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="460">
-              <caret line="596" selection-start-line="596" selection-end-line="596" />
+            <state relative-caret-position="318">
+              <caret line="330" column="28" selection-start-line="330" selection-start-column="28" selection-end-line="330" selection-end-column="28" />
               <folding>
                 <element signature="e#0#20#0" expanded="true" />
+                <element signature="e#2826#3134#0" expanded="true" />
+                <element signature="e#9378#9714#0" expanded="true" />
+                <element signature="e#12338#15911#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/lib/supplier_bloc.dart">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-531">
+              <caret line="417" column="9" selection-start-line="417" selection-start-column="9" selection-end-line="417" selection-end-column="9" />
+              <folding>
+                <element signature="e#0#20#0" expanded="true" />
+                <element signature="e#4520#4716#0" expanded="true" />
+                <element signature="e#12661#14741#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -438,7 +462,6 @@
         <option value="$PROJECT_DIR$/pubspec.yaml" />
         <option value="$PROJECT_DIR$/../businesslibrary/lib/util/support/chat_page.dart" />
         <option value="$PROJECT_DIR$/ios/Podfile" />
-        <option value="$PROJECT_DIR$/../businesslibrary/lib/util/support/contact_us.dart" />
         <option value="$PROJECT_DIR$/android/app/src/main/AndroidManifest.xml" />
         <option value="$PROJECT_DIR$/../businesslibrary/pubspec.yaml" />
         <option value="$PROJECT_DIR$/../businesslibrary/lib/data/bank.dart" />
@@ -484,6 +507,7 @@
         <option value="$PROJECT_DIR$/../businesslibrary/lib/api/data_api3.dart" />
         <option value="$PROJECT_DIR$/../businesslibrary/lib/util/webview.dart" />
         <option value="$PROJECT_DIR$/../businesslibrary/lib/util/util.dart" />
+        <option value="$PROJECT_DIR$/../businesslibrary/lib/util/support/contact_us.dart" />
       </list>
     </option>
   </component>
@@ -660,13 +684,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1528992651558</updated>
-    </task>
-    <task id="LOCAL-00004" summary="added make offer ui">
-      <created>1529770238276</created>
-      <option name="number" value="00004" />
-      <option name="presentableId" value="LOCAL-00004" />
-      <option name="project" value="LOCAL" />
-      <updated>1529770238276</updated>
     </task>
     <task id="LOCAL-00005" summary="added contracts amd stuff ...">
       <created>1529922834960</created>
@@ -1004,7 +1021,14 @@
       <option name="project" value="LOCAL" />
       <updated>1553517228290</updated>
     </task>
-    <option name="localTasksCounter" value="53" />
+    <task id="LOCAL-00053" summary="clean_up!! 🍏 🍎 🍏 🍎">
+      <created>1555932989358</created>
+      <option name="number" value="00053" />
+      <option name="presentableId" value="LOCAL-00053" />
+      <option name="project" value="LOCAL" />
+      <updated>1555932989358</updated>
+    </task>
+    <option name="localTasksCounter" value="54" />
     <servers />
   </component>
   <component name="TestHistory">
@@ -1052,7 +1076,7 @@
     <frame x="-1920" y="-48" width="1680" height="1011" extended-state="0" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" sideWeight="0.4888535" visible="true" weight="0.18742369" />
-      <window_info id="Structure" order="1" sideWeight="0.5111465" side_tool="true" visible="true" weight="0.1953602" />
+      <window_info active="true" id="Structure" order="1" sideWeight="0.5111465" side_tool="true" visible="true" weight="0.1953602" />
       <window_info id="Designer" order="2" />
       <window_info id="Build Variants" order="3" sideWeight="0.5203956" side_tool="true" weight="0.25656688" />
       <window_info id="Image Layers" order="4" />
@@ -1062,7 +1086,7 @@
       <window_info id="UI Designer" order="8" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" sideWeight="0.4993895" weight="0.3274244" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.7924298" visible="true" weight="0.36670294" />
+      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.7924298" visible="true" weight="0.36670294" />
       <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.74125874" weight="0.5752475" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -1130,7 +1154,6 @@
   <component name="VcsManagerConfiguration">
     <option name="CHECK_CODE_SMELLS_BEFORE_PROJECT_COMMIT" value="false" />
     <option name="CHECK_NEW_TODO" value="false" />
-    <MESSAGE value="refactored FCM features II" />
     <MESSAGE value="ui tweaks for paging" />
     <MESSAGE value="ui tweaks for dashboard ui" />
     <MESSAGE value="ui tweaks for crudder and invoice/offer flow  ui" />
@@ -1155,7 +1178,8 @@
     <MESSAGE value="small tweaks, adjustments, mods etc." />
     <MESSAGE value="migration after chaicode upgrade" />
     <MESSAGE value="refactored fcm message handling and broadcast via stream" />
-    <option name="LAST_COMMIT_MESSAGE" value="refactored fcm message handling and broadcast via stream" />
+    <MESSAGE value="clean_up!!    " />
+    <option name="LAST_COMMIT_MESSAGE" value="clean_up!!    " />
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/../businesslibrary/lib/data/misc_data.dart">
@@ -1540,32 +1564,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/lib/supplier_bloc.dart">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="51">
-          <caret line="131" column="51" lean-forward="true" selection-start-line="131" selection-start-column="51" selection-end-line="131" selection-end-column="51" />
-          <folding>
-            <element signature="e#0#20#0" expanded="true" />
-            <element signature="e#1925#2102#0" expanded="true" />
-            <element signature="e#2628#2802#0" expanded="true" />
-            <element signature="e#2870#3047#0" expanded="true" />
-            <element signature="e#3140#3327#0" expanded="true" />
-            <element signature="e#3388#3557#0" expanded="true" />
-            <element signature="e#3648#3808#0" expanded="true" />
-            <element signature="e#3863#4033#0" expanded="true" />
-            <element signature="e#4103#4279#0" expanded="true" />
-            <element signature="e#4298#4490#0" expanded="true" />
-            <element signature="e#4508#4811#0" expanded="true" />
-            <element signature="e#4893#5058#0" expanded="true" />
-            <element signature="n#!!block;n#SupplierApplicationModel#0" />
-            <element signature="e#6647#8351#0" expanded="true" />
-            <element signature="e#12450#14530#0" expanded="true" />
-            <element signature="e#14557#14720#0" expanded="true" />
-            <element signature="e#14754#15005#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/../businesslibrary/lib/util/webview.dart">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="266">
@@ -1694,10 +1692,25 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/lib/ui/dashboard.dart">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="460">
-          <caret line="596" selection-start-line="596" selection-end-line="596" />
+        <state relative-caret-position="318">
+          <caret line="330" column="28" selection-start-line="330" selection-start-column="28" selection-end-line="330" selection-end-column="28" />
           <folding>
             <element signature="e#0#20#0" expanded="true" />
+            <element signature="e#2826#3134#0" expanded="true" />
+            <element signature="e#9378#9714#0" expanded="true" />
+            <element signature="e#12338#15911#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lib/supplier_bloc.dart">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-531">
+          <caret line="417" column="9" selection-start-line="417" selection-start-column="9" selection-end-line="417" selection-end-column="9" />
+          <folding>
+            <element signature="e#0#20#0" expanded="true" />
+            <element signature="e#4520#4716#0" expanded="true" />
+            <element signature="e#12661#14741#0" expanded="true" />
           </folding>
         </state>
       </provider>
