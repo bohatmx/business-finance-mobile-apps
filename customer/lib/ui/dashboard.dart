@@ -310,7 +310,7 @@ class _DashboardState extends State<Dashboard>
               elevation: 8.0,
 //              backgroundColor: Colors.brown.shade200,
               title: Text(
-                'BFN - Customer',
+                '☘Customer',
                 style: TextStyle(fontWeight: FontWeight.w100),
               ),
               leading:

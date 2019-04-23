@@ -372,7 +372,7 @@ class _DashboardState extends State<Dashboard>
             appBar: AppBar(
               elevation: 3.0,
               title: Text(
-                'BFN - Supplier',
+                '☘Supplier',
                 style: TextStyle(fontWeight: FontWeight.w900),
               ),
               leading: IconButton(

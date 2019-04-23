@@ -290,9 +290,9 @@ class _DashboardState extends State<Dashboard>
             child: Scaffold(
               key: _scaffoldKey,
               appBar: AppBar(
-                elevation: 6.0,
+                elevation: 8.0,
                 title: Text(
-                  'BFN - ☘ Investor',
+                  '☘ Investor',
                   style: Styles.whiteSmall,
                 ),
                 leading: IconButton(
@@ -469,7 +469,7 @@ class _DashboardState extends State<Dashboard>
     Navigator.push(context, SlideRightRoute(widget: UnsettledBids()));
   }
 
-  String mTitle = 'BFN is Rock Solid!';
+  String mTitle = '☘BFN is Rock Solid!';
 
   Widget _getBottom() {
     return PreferredSize(
