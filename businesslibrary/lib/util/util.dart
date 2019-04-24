@@ -50,7 +50,7 @@ String getMultipleTransactionsUrl() {
   if (isInDebugMode) {
     url = DEBUG_URL_WEB_API_SENDTXS;
   } else {
-    url = RELEASE_URL_WEB_API_SENDTXS;
+    url = DEBUG_URL_WEB_API_SENDTXS;
   }
   return url;
 }

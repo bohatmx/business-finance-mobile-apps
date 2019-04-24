@@ -1037,7 +1037,8 @@ class _MyHomePageState extends State<MyHomePage>
   @override
   onPhaseComplete(int records) {
     setState(() {
-      _phaseCounter += records;
+      _phaseCounter++;
+      recordCounter += records;
     });
   }
 

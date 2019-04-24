@@ -75,7 +75,7 @@ class Generator {
     print(
         '\n\n💦  💦  💦  Generator: number of units:   🔵  🔵 ${_units.length} to process\n\n');
     _genListener.onEvent(
-        '💦  💦  units to process: ${_units.length}  🔵 🔵 ', false);
+        '💦 💦  units to process: ${_units.length} 🔵🔵 ', false);
 
     _deliveryNotes = List();
     _deliveryAcceptances = List();
@@ -150,7 +150,7 @@ class Generator {
   }
 
   static Future _processPurchaseOrders() async {
-    _purchaseOrders = List();
+    var pos = List();
     for (var unit in _units) {
       var po = PurchaseOrder(
         purchaseOrderNumber: _getRandomPO(),
@@ -160,22 +160,59 @@ class Generator {
         description: 'Generated Demo Purchase Order',
         supplierName: unit.supplier.name,
         purchaserName: unit.customer.name,
+        date: DateTime.now().toUtc().toIso8601String(),
       );
-      var m = await DataAPI3.addPurchaseOrder(po);
-      _purchaseOrders.add(m);
-      _genListener.onEvent(
-          '📮 📮  purchaseOrders added ${m.purchaserName}', true);
+      pos.add(po);
     }
 
+    var rem = pos.length % PAGE_SIZE;
+    var pages = pos.length ~/ PAGE_SIZE;
+    if (rem > 0) {
+      pages++;
+    }
+
+    index = 0;
+    _purchaseOrders = List();
+    for (var i = 0; i < pages; i++) {
+      List<PurchaseOrder> poList = List();
+      for (var j = 0; j < PAGE_SIZE; j++) {
+        try {
+          poList.add(pos.elementAt(index));
+          index++;
+        } catch (e) {
+          print(e);
+        }
+      }
+      _genListener.onEvent(
+          '⚽️ ⚽️ sending ${poList.length} purchase orders, page: ${i + 1}',
+          false);
+      var bag = APIBag(
+          jsonString: JsonEncoder().convert(poList),
+          functionName: CHAIN_ADD_PURCHASE_ORDER,
+          userName: DataAPI3.TemporaryUserName);
+      try {
+        var replyFromWeb = await _sendMultipleChaincodeTransactions(bag);
+        List result = replyFromWeb['result'];
+        result.forEach((m) {
+          _purchaseOrders.add(PurchaseOrder.fromJson(m));
+        });
+      } catch (e) {
+        print('\n\n👿  👿  👿  👿  👿  👿  👿  👿 ');
+        print(e);
+      }
+    }
     _genListener.onEvent(
-        '📮 📮 📮 📮  ${_purchaseOrders.length} purchaseOrders generated',
+        '️🅿️️️🅿️️  purchase orders generated: ${_purchaseOrders.length}',
         false);
     _genListener.onPhaseComplete(_purchaseOrders.length);
     return null;
   }
 
   static Future _processDeliveryNotes() async {
-    _deliveryNotes = List();
+    if (_purchaseOrders.isEmpty) {
+      _purchaseOrders = await ListAPI.getAllPurchaseOrders();
+    }
+    List<DeliveryNote> notes = List();
     for (var po in _purchaseOrders) {
       var note = DeliveryNote(
           supplierName: po.supplierName,
@@ -187,13 +224,47 @@ class Generator {
           customerName: po.purchaserName,
           totalAmount: po.amount * 1.15,
           customer: po.customer);
-      var m = await DataAPI3.addDeliveryNote(note);
-      _deliveryNotes.add(m);
+      notes.add(note);
+    }
+
+    var rem = notes.length % PAGE_SIZE;
+    var pages = notes.length ~/ PAGE_SIZE;
+    if (rem > 0) {
+      pages++;
+    }
+
+    _deliveryNotes = List();
+    index = 0;
+    for (var i = 0; i < pages; i++) {
+      List<DeliveryNote> dnList = List();
+      for (var j = 0; j < PAGE_SIZE; j++) {
+        try {
+          dnList.add(notes.elementAt(index));
+          index++;
+        } catch (e) {
+          print(e);
+        }
+      }
       _genListener.onEvent(
-          '🌸 🌸  deliveryNote added: ${m.purchaseOrderNumber}', true);
+          '⚽️ ⚽️ sending ${dnList.length} deliveryNotes', false);
+      var bag = APIBag(
+          jsonString: JsonEncoder().convert(dnList),
+          functionName: CHAIN_ADD_DELIVERY_NOTE,
+          userName: DataAPI3.TemporaryUserName);
+
+      try {
+        var replyFromWeb = await _sendMultipleChaincodeTransactions(bag);
+        List result = replyFromWeb['result'];
+        result.forEach((m) {
+          _deliveryNotes.add(DeliveryNote.fromJson(m));
+        });
+      } catch (e) {
+        print('\n\n👿  👿  👿  👿  👿  👿  👿  👿 ');
+        print(e);
+      }
     }
     _genListener.onEvent(
-        '🌸 🌸 🌸 ${_deliveryNotes.length} deliveryNotes generated', false);
+        '️🔱🔱️️ deliveryNotes generated: ${_deliveryNotes.length}', false);
     _genListener.onPhaseComplete(_deliveryNotes.length);
     return null;
   }
@@ -202,7 +273,7 @@ class Generator {
     if (_deliveryNotes.isEmpty) {
       _deliveryNotes = await ListAPI.getAllDeliveryNotes();
     }
-    _deliveryAcceptances = List();
+    List<DeliveryAcceptance> acceptances = List();
     for (var note in _deliveryNotes) {
       var acc = DeliveryAcceptance(
         customer: note.customer,
@@ -212,31 +283,56 @@ class Generator {
         purchaseOrderNumber: note.purchaseOrderNumber,
         deliveryNote: note.deliveryNoteId,
       );
-      var m = await DataAPI3.acceptDelivery(acc);
-      _deliveryAcceptances.add(m);
+      acceptances.add(acc);
+    }
+
+    var rem = acceptances.length % PAGE_SIZE;
+    var pages = acceptances.length ~/ PAGE_SIZE;
+    if (rem > 0) {
+      pages++;
+    }
+
+    _deliveryAcceptances = List();
+    index = 0;
+    for (var i = 0; i < pages; i++) {
+      List<DeliveryAcceptance> accList = List();
+      for (var j = 0; j < PAGE_SIZE; j++) {
+        try {
+          accList.add(acceptances.elementAt(index));
+          index++;
+        } catch (e) {
+          print(e);
+        }
+      }
       _genListener.onEvent(
-          '⚽️ ⚽️   - deliveryAcceptances added: ${m.purchaseOrderNumber}',
-          true);
+          '⚽️ ⚽️ sending ${accList.length} deliveryAcks', false);
+      var bag = APIBag(
+          jsonString: JsonEncoder().convert(accList),
+          functionName: CHAIN_ADD_DELIVERY_NOTE_ACCEPTANCE,
+          userName: DataAPI3.TemporaryUserName);
+
+      try {
+        var replyFromWeb = await _sendMultipleChaincodeTransactions(bag);
+        List result = replyFromWeb['result'];
+        result.forEach((m) {
+          _deliveryAcceptances.add(DeliveryAcceptance.fromJson(m));
+        });
+      } catch (e) {
+        print('\n\n👿  👿  👿  👿  👿  👿  👿  👿 ');
+        print(e);
+      }
     }
     _genListener.onEvent(
-        '⚽️ ⚽️ ⚽️ ⚽️  - deliveryAcceptances generated: ${_deliveryAcceptances.length}',
-        false);
+        '🌺 🌺 deliveryAcks generated: ${_deliveryAcceptances.length}', false);
     _genListener.onPhaseComplete(_deliveryAcceptances.length);
-
     return null;
   }
 
   static Future _processInvoices() async {
-    Map<DeliveryNote, DeliveryAcceptance> rMap = Map();
-
     if (_deliveryNotes.isEmpty) {
       _deliveryNotes = await ListAPI.getAllDeliveryNotes();
       _deliveryAcceptances = await ListAPI.getAllDeliveryAcceptances();
     }
-
-    _genListener.onEvent(
-        '\n\n🅿️ 🅿️ 🅿️ 🅿️ 🅿️ 🅿️ 🅿️️  - deliveryAcceptances filtered: ${rMap.length}',
-        false);
 
     var rem = _deliveryAcceptances.length % PAGE_SIZE;
     var pages = _deliveryAcceptances.length ~/ PAGE_SIZE;
@@ -296,9 +392,7 @@ class Generator {
         print(e);
       }
     }
-    _genListener.onEvent(
-        '️🅿️️ ️🅿️️ ️🅿️️  🅿️️️  - invoices generated: ${_invoices.length}',
-        false);
+    _genListener.onEvent('☘️️☘ invoices generated: ${_invoices.length}', false);
     _genListener.onPhaseComplete(_invoices.length);
     return null;
   }
@@ -358,8 +452,10 @@ class Generator {
   }
 
   static Future _processOffers() async {
-    _invoiceAcceptances = await ListAPI.getAllInvoiceAcceptances();
-    _invoices = await ListAPI.getAllInvoices();
+    if (_invoiceAcceptances.isEmpty || _invoices.isEmpty) {
+      _invoiceAcceptances = await ListAPI.getAllInvoiceAcceptances();
+      _invoices = await ListAPI.getAllInvoices();
+    }
     var rem = _invoiceAcceptances.length % PAGE_SIZE;
     var pages = _invoiceAcceptances.length ~/ PAGE_SIZE;
     if (rem > 0) {
@@ -404,7 +500,7 @@ class Generator {
         } catch (e) {}
       }
       _genListener.onEvent(
-          '🛎 🛎 🛎 sending ${offerList.length} offers, page: ${i + 1}', false);
+          '🛎 🛎 sending ${offerList.length} offers, page: ${i + 1}', false);
       var bag = APIBag(
           jsonString: JsonEncoder().convert(offerList),
           functionName: CHAIN_ADD_OFFER,
@@ -416,8 +512,7 @@ class Generator {
         _offers.add(Offer.fromJson(m));
       });
     }
-    _genListener.onEvent(
-        '🛎 🛎 🛎 🛎  - offers generated: ${_offers.length}', false);
+    _genListener.onEvent('🛎 🛎  offers generated: ${_offers.length}', false);
     _genListener.onPhaseComplete(_offers.length);
     return null;
   }
