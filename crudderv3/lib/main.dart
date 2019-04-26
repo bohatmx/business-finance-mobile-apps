@@ -236,7 +236,7 @@ class _MyHomePageState extends State<MyHomePage>
     setState(() {
       phases = FIVE;
       msgList.add(
-          '❤️ 🧡 💛 💚 💙 💜 Generation complete:,  ⏪ $diffm minutes elapsed. ($diffs seconds)');
+          '❤️ 🧡 💛 💚 💙 💜 Done:,  ⏪ $diffm minutes elapsed. ($diffs seconds)');
     });
     print(
         '\n\n❤️ 🧡 💛 💚 💙 💜  #####################################  Demo Data COMPLETED! 🔴 $diffm minutes elapsed. 🔴 ($diffs seconds)');
@@ -1075,13 +1075,11 @@ class MessageCard extends StatelessWidget {
     return Card(
       elevation: 4.0,
       child: Padding(
-        padding: const EdgeInsets.only(left: 12.0, right: 12.0, top: 4.0),
-        child: ListTile(
-          leading: Icon(Icons.create),
-          title: Text(
-            message,
-            style: Styles.blackSmall,
-          ),
+        padding: const EdgeInsets.only(
+            left: 12.0, right: 4.0, top: 12.0, bottom: 12.0),
+        child: Text(
+          message,
+          style: Styles.blackSmall,
         ),
       ),
     );

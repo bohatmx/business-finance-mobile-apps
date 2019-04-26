@@ -75,7 +75,7 @@ class Generator {
     print(
         '\n\n💦  💦  💦  Generator: number of units:   🔵  🔵 ${_units.length} to process\n\n');
     _genListener.onEvent(
-        '💦 💦  units to process: ${_units.length} 🔵🔵 ', false);
+        '💦 💦  units to process: ${_units.length} 🔵 🔵 ', false);
 
     _deliveryNotes = List();
     _deliveryAcceptances = List();
@@ -92,10 +92,10 @@ class Generator {
     await _processInvoiceAcceptances();
     await _processOffers();
 
-    _genListener.onEvent('🔵 🔵️ 🔵 🔵️ - JOB COMPLETE! 🥦 🥦 🥦 ', false);
+    _genListener.onEvent('🔵 🔵️ 🔵 🔵️  JOB COMPLETE! ', false);
     var end = DateTime.now();
     _genListener.onEvent(
-        '🔵 🔵️ 🔵 🔵️ - elapsed, seconds: ${end.difference(start).inSeconds} - ⏰ minutes: ${end.difference(start).inMinutes}',
+        '🔵 elapsed: ${end.difference(start).inSeconds} seconds, ⏰ ${end.difference(start).inMinutes} minutes',
         false);
   }
 
@@ -184,8 +184,7 @@ class Generator {
         }
       }
       _genListener.onEvent(
-          '⚽️ ⚽️ sending ${poList.length} purchase orders, page: ${i + 1}',
-          false);
+          '⚽️ sending ${poList.length} purchase orders', false);
       var bag = APIBag(
           jsonString: JsonEncoder().convert(poList),
           functionName: CHAIN_ADD_PURCHASE_ORDER,
@@ -202,8 +201,7 @@ class Generator {
       }
     }
     _genListener.onEvent(
-        '️🅿️️️🅿️️  purchase orders generated: ${_purchaseOrders.length}',
-        false);
+        '️🅿️️️ purchase orders generated: ${_purchaseOrders.length}', false);
     _genListener.onPhaseComplete(_purchaseOrders.length);
     return null;
   }
@@ -245,8 +243,7 @@ class Generator {
           print(e);
         }
       }
-      _genListener.onEvent(
-          '⚽️ ⚽️ sending ${dnList.length} deliveryNotes', false);
+      _genListener.onEvent('⚽️ sending ${dnList.length} deliveryNotes', false);
       var bag = APIBag(
           jsonString: JsonEncoder().convert(dnList),
           functionName: CHAIN_ADD_DELIVERY_NOTE,
@@ -264,7 +261,7 @@ class Generator {
       }
     }
     _genListener.onEvent(
-        '️🔱🔱️️ deliveryNotes generated: ${_deliveryNotes.length}', false);
+        '️🔱️ deliveryNotes generated: ${_deliveryNotes.length}', false);
     _genListener.onPhaseComplete(_deliveryNotes.length);
     return null;
   }
@@ -304,8 +301,7 @@ class Generator {
           print(e);
         }
       }
-      _genListener.onEvent(
-          '⚽️ ⚽️ sending ${accList.length} deliveryAcks', false);
+      _genListener.onEvent('⚽️ sending ${accList.length} deliveryAcks', false);
       var bag = APIBag(
           jsonString: JsonEncoder().convert(accList),
           functionName: CHAIN_ADD_DELIVERY_NOTE_ACCEPTANCE,
@@ -323,7 +319,7 @@ class Generator {
       }
     }
     _genListener.onEvent(
-        '🌺 🌺 deliveryAcks generated: ${_deliveryAcceptances.length}', false);
+        '🌺 deliveryAcks generated: ${_deliveryAcceptances.length}', false);
     _genListener.onPhaseComplete(_deliveryAcceptances.length);
     return null;
   }
@@ -375,7 +371,7 @@ class Generator {
           print(e);
         }
       }
-      _genListener.onEvent('⚽️ ⚽️ sending ${invList.length} invoices', false);
+      _genListener.onEvent('⚽️ sending ${invList.length} invoices', false);
       var bag = APIBag(
           jsonString: JsonEncoder().convert(invList),
           functionName: CHAIN_ADD_INVOICE,
@@ -445,7 +441,7 @@ class Generator {
       }
     }
     _genListener.onEvent(
-        '🔷 🔷 🔷 🔷  - InvoiceAcceptances generated: 🔷 ${_invoiceAcceptances.length}',
+        '🔷 InvoiceAcceptances generated: 🔷 ${_invoiceAcceptances.length}',
         false);
     _genListener.onPhaseComplete(_invoiceAcceptances.length);
     return null;
@@ -512,7 +508,7 @@ class Generator {
         _offers.add(Offer.fromJson(m));
       });
     }
-    _genListener.onEvent('🛎 🛎  offers generated: ${_offers.length}', false);
+    _genListener.onEvent('🛎 🛎 offers generated: ${_offers.length}', false);
     _genListener.onPhaseComplete(_offers.length);
     return null;
   }

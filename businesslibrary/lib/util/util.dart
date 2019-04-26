@@ -59,7 +59,7 @@ String getWebUrl() {
   var url;
   //todo - fix this before production .... 🌼 🌺🌼 🌺 🌼 🌺🌼 🌺 🌼 🌺
   if (isInDebugMode) {
-    url = RELEASE_URL_WEB_API;
+    url = DEBUG_URL_WEB_API;
   } else {
     url = RELEASE_URL_WEB_API;
   }

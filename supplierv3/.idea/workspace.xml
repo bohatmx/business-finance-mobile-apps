@@ -6,11 +6,24 @@
   <component name="ChangeListManager">
     <list default="true" id="80b8d4ed-f360-4af7-bada-dfcc0519f100" name="Default" comment="tweaking stuff .. ☘">
       <change beforePath="$PROJECT_DIR$/../businesslibrary/lib/util/util.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../businesslibrary/lib/util/util.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../crudderv3/.idea/dictionaries/mac.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../crudderv3/.idea/dictionaries/mac.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../crudderv3/.idea/libraries/Dart_Packages.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../crudderv3/.idea/libraries/Dart_Packages.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../crudderv3/.idea/libraries/Flutter_Plugins.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../crudderv3/.idea/libraries/Flutter_Plugins.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../crudderv3/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../crudderv3/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../crudderv3/lib/generator.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../crudderv3/lib/generator.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../crudderv3/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../crudderv3/lib/main.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../customer/.idea/libraries/Flutter_Plugins.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/.idea/libraries/Flutter_Plugins.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../customer/android/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/../customer/android/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../investor/.idea/libraries/Dart_Packages.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../investor/.idea/libraries/Dart_Packages.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../investor/.idea/libraries/Flutter_Plugins.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../investor/.idea/libraries/Flutter_Plugins.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../investor/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../investor/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../monitor/.idea/libraries/Dart_Packages.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../monitor/.idea/libraries/Dart_Packages.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../monitor/.idea/libraries/Flutter_Plugins.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../monitor/.idea/libraries/Flutter_Plugins.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../monitor/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../monitor/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../monitor/android/app/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/../monitor/android/app/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../monitor/android/gradle/wrapper/gradle-wrapper.properties" beforeDir="false" afterPath="$PROJECT_DIR$/../monitor/android/gradle/wrapper/gradle-wrapper.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../monitor/android/gradlew.bat" beforeDir="false" afterPath="$PROJECT_DIR$/../monitor/android/gradlew.bat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Flutter_Plugins.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Flutter_Plugins.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <ignored path="../.gradle/4.4/fileChanges/last-build.bin" />
@@ -280,12 +293,11 @@
         <entry file="file://$PROJECT_DIR$/lib/ui/dashboard.dart">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="186">
-              <caret line="371" column="27" lean-forward="true" selection-start-line="371" selection-start-column="27" selection-end-line="371" selection-end-column="27" />
+              <caret line="371" column="27" selection-start-line="371" selection-start-column="27" selection-end-line="371" selection-end-column="27" />
               <folding>
                 <element signature="e#0#20#0" expanded="true" />
                 <element signature="e#2826#3134#0" expanded="true" />
                 <element signature="e#9378#9714#0" expanded="true" />
-                <element signature="e#11945#12270#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -294,7 +306,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/lib/supplier_bloc.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-531">
+            <state relative-caret-position="3059">
               <caret line="417" column="9" selection-start-line="417" selection-start-column="9" selection-end-line="417" selection-end-column="9" />
               <folding>
                 <element signature="e#0#20#0" expanded="true" />
@@ -516,7 +528,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="PackagesPane" />
+      <pane id="AndroidView" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -546,7 +558,7 @@
           <select />
         </subPane>
       </pane>
-      <pane id="AndroidView" />
+      <pane id="PackagesPane" />
       <pane id="Scope" />
     </panes>
   </component>
@@ -1056,9 +1068,10 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-1920" y="-48" width="1680" height="1011" extended-state="0" />
+    <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.4888535" visible="true" weight="0.18742369" />
-      <window_info id="Structure" order="1" sideWeight="0.5111465" side_tool="true" visible="true" weight="0.1953602" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.48722044" visible="true" weight="0.18620269" />
+      <window_info id="Structure" order="1" sideWeight="0.51277953" side_tool="true" visible="true" weight="0.1953602" />
       <window_info id="Designer" order="2" />
       <window_info id="Build Variants" order="3" sideWeight="0.5203956" side_tool="true" weight="0.25656688" />
       <window_info id="Image Layers" order="4" />
@@ -1068,7 +1081,7 @@
       <window_info id="UI Designer" order="8" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" sideWeight="0.4993895" weight="0.3274244" />
-      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.7924298" visible="true" weight="0.36670294" />
+      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.7924298" weight="0.36670294" />
       <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.74125874" weight="0.5752475" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -1629,6 +1642,18 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/lib/supplier_bloc.dart">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="3059">
+          <caret line="417" column="9" selection-start-line="417" selection-start-column="9" selection-end-line="417" selection-end-column="9" />
+          <folding>
+            <element signature="e#0#20#0" expanded="true" />
+            <element signature="e#4520#4716#0" expanded="true" />
+            <element signature="e#12661#14741#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/../businesslibrary/lib/util/theme_bloc.dart">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="95">
@@ -1672,27 +1697,14 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/lib/supplier_bloc.dart">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-531">
-          <caret line="417" column="9" selection-start-line="417" selection-start-column="9" selection-end-line="417" selection-end-column="9" />
-          <folding>
-            <element signature="e#0#20#0" expanded="true" />
-            <element signature="e#4520#4716#0" expanded="true" />
-            <element signature="e#12661#14741#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/lib/ui/dashboard.dart">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="186">
-          <caret line="371" column="27" lean-forward="true" selection-start-line="371" selection-start-column="27" selection-end-line="371" selection-end-column="27" />
+          <caret line="371" column="27" selection-start-line="371" selection-start-column="27" selection-end-line="371" selection-end-column="27" />
           <folding>
             <element signature="e#0#20#0" expanded="true" />
             <element signature="e#2826#3134#0" expanded="true" />
             <element signature="e#9378#9714#0" expanded="true" />
-            <element signature="e#11945#12270#0" expanded="true" />
           </folding>
         </state>
       </provider>
