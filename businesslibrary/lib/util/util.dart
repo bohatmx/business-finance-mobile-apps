@@ -16,8 +16,11 @@ const DEBUG_URL = 'https://192.168.86.239:3001/sendTransaction'; //FIBRE
 //    'https://bfnwebapi1.eu-gb.mybluemix.net/sendTransactions';
 
 const DEBUG_URL_WEB_API = 'http://192.168.86.239:3001/';
-const RELEASE_URL_WEB_API = 'https://bfnwebapi-ztpzdxn4iq-uc.a.run.app/';
+//const DEBUG_URL_WEB_API = 'http://192.168.86.239:3001/';
+
+const RELEASE_URL_WEB_API = 'https://bfnwebapi.mybluemix.net/';
 //https://bfnwebapi-ztpzdxn4iq-uc.a.run.app/ping
+//https://bfnwebapi.mybluemix.net/executeAutoTrades
 
 const DEBUG_URL_WEB_API_SENDTX = 'http://192.168.86.239:3001/sendTransaction';
 const RELEASE_URL_WEB_API_SENDTX =
@@ -25,7 +28,9 @@ const RELEASE_URL_WEB_API_SENDTX =
 
 const DEBUG_URL_WEB_API_SENDTXS = 'http://192.168.86.239:3001/sendTransactions';
 const RELEASE_URL_WEB_API_SENDTXS =
-    'https://bfnwebapi-ztpzdxn4iq-uc.a.run.app/sendTransactions';
+    'https://bfnwebapi.mybluemix.net/sendTransactions';
+////const RELEASE_URL_WEB_API_SENDTXS =
+//    'https://bfnwebapi-ztpzdxn4iq-uc.a.run.app/sendTransactions';
 
 String getURL() {
   var url;
