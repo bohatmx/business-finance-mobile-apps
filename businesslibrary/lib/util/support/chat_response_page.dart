@@ -99,11 +99,11 @@ class ChatResponseWindow extends State<ChatResponsePage>
       prettyPrint(resp.toJson(), '###### function call returned ChatResponse:');
     } catch (e) {
       print(e);
-      AppSnackbar.showErrorSnackbar(
-          scaffoldKey: _scaffoldKey,
-          message: 'Chat response failed',
-          listener: this,
-          actionLabel: 'close');
+//      AppSnackbar.showErrorSnackbar(
+//          scaffoldKey: _scaffoldKey,
+//          message: 'Chat response failed',
+//          listener: this,
+//          actionLabel: 'close');
     }
     //setState(() {});
   }

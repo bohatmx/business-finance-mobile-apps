@@ -78,11 +78,11 @@ class _WalletPageState extends State<WalletPage> implements SnackBarListener {
   Future _getAccount() async {
     print('_WalletPageState._getAccount .......... ${wallet.stellarPublicKey}');
 
-    AppSnackbar.showSnackbarWithProgressIndicator(
-        scaffoldKey: _scaffoldKey,
-        message: 'Getting Balances ...',
-        textColor: Colors.white,
-        backgroundColor: Colors.black);
+//    AppSnackbar.showSnackbarWithProgressIndicator(
+//        scaffoldKey: _scaffoldKey,
+//        message: 'Getting Balances ...',
+//        textColor: Colors.white,
+//        backgroundColor: Colors.black);
 
     account = await StellarCommsUtil.getAccount(wallet.stellarPublicKey);
     _scaffoldKey.currentState.hideCurrentSnackBar();

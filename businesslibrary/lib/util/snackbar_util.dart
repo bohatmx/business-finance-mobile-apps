@@ -1,23 +1,18 @@
+import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
-import 'package:meta/meta.dart';
 
-///Utility class to provide snackbars
-class AppSnackbar {
-  static showSnackbar(
-      {@required GlobalKey<ScaffoldState> scaffoldKey,
+class AppSnackBar {
+  static showSnackBar(
+      {@required BuildContext context,
       @required String message,
       @required Color textColor,
       @required Color backgroundColor}) {
-    if (scaffoldKey.currentState == null) {
-      print('AppSnackbar.showSnackbar --- currentState is NULL, quit ..');
-      return;
-    }
-    scaffoldKey.currentState.removeCurrentSnackBar();
-    scaffoldKey.currentState.showSnackBar(new SnackBar(
-      content:  _getText(message, textColor),
-      duration: new Duration(seconds: 15),
+    Flushbar(
+      message: message,
+      leftBarIndicatorColor: Colors.yellow,
+      icon: Icon(Icons.info),
       backgroundColor: backgroundColor,
-    ));
+    )..show(context);
   }
 
   static showSnackbarWithProgressIndicator(
@@ -91,14 +86,18 @@ class AppSnackbar {
       ),
     ));
   }
-  static Widget _getText( String message,
-      Color textColor,) {
+
+  static Widget _getText(
+    String message,
+    Color textColor,
+  ) {
     return Text(
       message,
       overflow: TextOverflow.clip,
       style: new TextStyle(color: textColor),
     );
   }
+
   static showErrorSnackbar(
       {@required GlobalKey<ScaffoldState> scaffoldKey,
       @required String message,
@@ -110,7 +109,7 @@ class AppSnackbar {
     }
     scaffoldKey.currentState.removeCurrentSnackBar();
     var snackbar = new SnackBar(
-      content:  _getText(message, Colors.white),
+      content: _getText(message, Colors.white),
       duration: new Duration(seconds: 20),
       backgroundColor: Colors.red.shade900,
       action: SnackBarAction(

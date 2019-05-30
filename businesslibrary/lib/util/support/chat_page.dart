@@ -7,7 +7,6 @@ import 'package:businesslibrary/data/investor.dart';
 import 'package:businesslibrary/data/supplier.dart';
 import 'package:businesslibrary/data/user.dart';
 import 'package:businesslibrary/util/lookups.dart';
-import 'package:businesslibrary/util/snackbar_util.dart';
 import 'package:businesslibrary/util/styles.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
@@ -22,9 +21,7 @@ class ChatPage extends StatefulWidget {
   State createState() => new ChatWindow();
 }
 
-class ChatWindow extends State<ChatPage>
-    with TickerProviderStateMixin
-    implements SnackBarListener {
+class ChatWindow extends State<ChatPage> with TickerProviderStateMixin {
   final List<Msg> _messages = <Msg>[];
   final TextEditingController _textController = new TextEditingController();
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
@@ -160,11 +157,11 @@ class ChatWindow extends State<ChatPage>
       prettyPrint(resp.toJson(), '######### message from function call:');
     } catch (e) {
       print(e);
-      AppSnackbar.showErrorSnackbar(
-          scaffoldKey: _scaffoldKey,
-          message: 'Message cannot be sent',
-          listener: this,
-          actionLabel: 'close');
+//      AppSnackbar.showErrorSnackbar(
+//          scaffoldKey: _scaffoldKey,
+//          message: 'Message cannot be sent',
+//          listener: this,
+//          actionLabel: 'close');
     }
   }
 

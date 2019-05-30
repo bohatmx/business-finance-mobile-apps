@@ -583,6 +583,144 @@ class DataAPI3 {
     return Sector.fromJson(result['result']);
   }
 
+  static Future<List<Sector>> getSectors() async {
+    var bag = APIBag(
+        functionName: 'getAllSectors',
+        jsonString: '{}',
+        userName: TemporaryUserName);
+
+    print('\n🔵 🔵 getting sectors from BFN blockchain: ' + bag.functionName);
+    var replyFromWeb = await _sendChaincodeTransaction(bag);
+    prettyPrint(replyFromWeb, 'replyFromWeb');
+    List list = replyFromWeb['list'];
+    List<Sector> mList = List();
+    list.forEach((m) {
+      mList.add(Sector.fromJson(m));
+    });
+    print(
+        '🔆 🔆 🔆 Sectors from BFN: 🔆 ${mList.length} : write to Firestore ...');
+    for (var sector in mList) {
+      await fs
+          .collection('sectors')
+          .document(sector.sectorId)
+          .setData(sector.toJson());
+      print('🍎 🍎 🍎 sector ${sector.sectorName} added to Firestore');
+    }
+    return mList;
+  }
+
+  static Future<List<Country>> fixCountries() async {
+    var bag = APIBag(
+        functionName: 'getAllCountries',
+        jsonString: '{}',
+        userName: TemporaryUserName);
+
+    print('\n🔵 🔵 getting countries from BFN blockchain: ' + bag.functionName);
+    var replyFromWeb = await _sendChaincodeTransaction(bag);
+    prettyPrint(replyFromWeb, 'replyFromWeb');
+    List list = replyFromWeb['list'];
+    List<Country> mList = List();
+    list.forEach((m) {
+      mList.add(Country.fromJson(m));
+    });
+    print(
+        '🔆 🔆 🔆 Countries from BFN: 🔆 ${mList.length} : write to Firestore ...');
+    var cnt = 0;
+    for (var country in mList) {
+      await fs
+          .collection('countries')
+          .document(country.countryId)
+          .setData(country.toJson());
+      cnt++;
+      print('🍎 🍎 🍎 country #$cnt ${country.name} added to Firestore');
+    }
+    return mList;
+  }
+
+  static Future<List<Customer>> fixCustomers() async {
+    var bag = APIBag(
+        functionName: 'getAllCustomers',
+        jsonString: '{}',
+        userName: TemporaryUserName);
+
+    print('\n🔵 🔵 getting customers from BFN blockchain: ' + bag.functionName);
+    var replyFromWeb = await _sendChaincodeTransaction(bag);
+    prettyPrint(replyFromWeb, 'replyFromWeb');
+    List list = replyFromWeb['list'];
+    List<Customer> mList = List();
+    list.forEach((m) {
+      mList.add(Customer.fromJson(m));
+    });
+    print(
+        '🔆 🔆 🔆 customers from BFN: 🔆 ${mList.length} : write to Firestore ...');
+    var cnt = 0;
+    for (var customer in mList) {
+      await fs
+          .collection('customers')
+          .document(customer.participantId)
+          .setData(customer.toJson());
+      cnt++;
+      print('🍎 🍎 🍎 customer #$cnt ${customer.name} added to Firestore');
+    }
+    return mList;
+  }
+
+  static Future<List<Supplier>> fixSuppliers() async {
+    var bag = APIBag(
+        functionName: 'getAllSuppliers',
+        jsonString: '{}',
+        userName: TemporaryUserName);
+
+    print('\n🔵 🔵 getting customers from BFN blockchain: ' + bag.functionName);
+    var replyFromWeb = await _sendChaincodeTransaction(bag);
+    prettyPrint(replyFromWeb, 'replyFromWeb');
+    List list = replyFromWeb['list'];
+    List<Supplier> mList = List();
+    list.forEach((m) {
+      mList.add(Supplier.fromJson(m));
+    });
+    print(
+        '🔆 🔆 🔆 Suppliers from BFN: 🔆 ${mList.length} : write to Firestore ...');
+    var cnt = 0;
+    for (var supplier in mList) {
+      await fs
+          .collection('suppliers')
+          .document(supplier.participantId)
+          .setData(supplier.toJson());
+      cnt++;
+      print('🥬 🥬 🥬  Suppliers #$cnt ${supplier.name} added to Firestore');
+    }
+    return mList;
+  }
+
+  static Future<List<Investor>> fixInvestors() async {
+    var bag = APIBag(
+        functionName: 'getAllInvestors',
+        jsonString: '{}',
+        userName: TemporaryUserName);
+
+    print('\n🔵 🔵 getting Investors from BFN blockchain: ' + bag.functionName);
+    var replyFromWeb = await _sendChaincodeTransaction(bag);
+    prettyPrint(replyFromWeb, 'replyFromWeb');
+    List list = replyFromWeb['list'];
+    List<Investor> mList = List();
+    list.forEach((m) {
+      mList.add(Investor.fromJson(m));
+    });
+    print(
+        '🔆 🔆 🔆 Investors from BFN: 🔆 ${mList.length} : write to Firestore ...');
+    var cnt = 0;
+    for (var supplier in mList) {
+      await fs
+          .collection('investors')
+          .document(supplier.participantId)
+          .setData(supplier.toJson());
+      cnt++;
+      print('🍊 🍊 🍊  Investors #$cnt ${supplier.name} added to Firestore');
+    }
+    return mList;
+  }
+
   static Future<Country> addCountry(Country country) async {
     var bag = APIBag(
         jsonString: JsonEncoder().convert(country.toJson()),
@@ -658,7 +796,7 @@ class DataAPI3 {
         // transforms and prints the response
         String reply = await mResponse.transform(utf8.decoder).join();
         print(
-            '🔵 🔵 🔵 🌼  🔵 🔵 🔵 🌼  🔵 🔵 🔵 🌼  🔵 🔵 🔵 🌼  reply  ..............');
+            '🔵 🔵 🔵 🌼  🔵 🔵 🔵 🌼  🔵 🔵 🔵 🌼  🔵 🔵 🔵 🌼  reply  ..............\n $reply');
         Map map = JsonDecoder().convert(reply);
         prettyPrint(map, ' 🌷 🌷 🌷 CHAINCODE REPLY MAP  🌷 🌷 🌷');
         print(

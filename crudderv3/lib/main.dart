@@ -53,30 +53,16 @@ class _MyHomePageState extends State<MyHomePage>
     super.initState();
   }
 
-  Future testCustomer() async {
+  Future testSectors() async {
     setState(() {
-      msgList.add('💦  💦  Testing Customer, User and Wallet');
+      msgList.add('💦  💦  Fixing customers etc.');
     });
     try {
-      Customer e1 = new Customer(
-        name: 'Xavier2 Construction Pty Ltd',
-        email: 'info@xavier.com',
-        country: 'ZA',
-        allowAutoAccept: true,
-      );
-      User u1 = new User(
-          firstName: 'Harry',
-          lastName: 'Rigby',
-          password: 'pass123',
-          isAdministrator: true,
-          email: 'harry@xavier2.com');
-
-      var result1 = await DataAPI3.addCustomer(e1, u1);
-      customers.add(result1);
-      setState(() {
-        msgList.add('❤️ ❤️ ❤️  Customer added: ${e1.name}');
-        recordCounter++;
-      });
+      AppSnackBar.showSnackBar(
+          context: context,
+          message: "Testing the new shit",
+          textColor: Colors.greenAccent,
+          backgroundColor: Colors.blueGrey);
     } catch (e) {
       print(e);
     }
@@ -135,7 +121,7 @@ class _MyHomePageState extends State<MyHomePage>
     if (!isBrandNew) {
       print(
           '_MyHomePageState._generateBrandNewNetwork - NETWORK ALREADY PAST Genesis. IGNORED. OUT.');
-      AppSnackbar.showErrorSnackbar(
+      AppSnackBar.showErrorSnackbar(
           scaffoldKey: _scaffoldKey,
           message: 'Genesis Run already executed. Out.',
           listener: this,
@@ -143,8 +129,8 @@ class _MyHomePageState extends State<MyHomePage>
       return;
     }
     if (isBusy) {
-      AppSnackbar.showSnackbar(
-          scaffoldKey: _scaffoldKey,
+      AppSnackBar.showSnackBar(
+          context: context,
           message: '💦 💦  💦  Process busy or finished. May not be run twice',
           textColor: Styles.white,
           backgroundColor: Styles.black);
@@ -210,8 +196,8 @@ class _MyHomePageState extends State<MyHomePage>
 
   void _generateWorkingData() async {
     if (isBusy) {
-      AppSnackbar.showSnackbar(
-          scaffoldKey: _scaffoldKey,
+      AppSnackBar.showSnackBar(
+          context: context,
           message: 'Process busy or finished. May not be run twice',
           textColor: Styles.white,
           backgroundColor: Styles.black);
@@ -260,8 +246,8 @@ class _MyHomePageState extends State<MyHomePage>
   Future _addCustomers() async {
     try {
       Customer e1 = new Customer(
-        name: 'Soweto Engineering Ltd',
-        email: 'info@soweto.eng.com',
+        name: 'Pecanwood Engineering Ltd',
+        email: 'info@pecan.eng.com',
         country: 'ZA',
         allowAutoAccept: true,
       );
@@ -270,7 +256,7 @@ class _MyHomePageState extends State<MyHomePage>
           lastName: 'Nkosi',
           password: 'pass123',
           isAdministrator: true,
-          email: 'johnn@oweto.eng.com');
+          email: 'johnnk@pecan.eng.com');
       var result1 = await DataAPI3.addCustomer(e1, u1);
       customers.add(result1);
       setState(() {
@@ -283,17 +269,17 @@ class _MyHomePageState extends State<MyHomePage>
 
     try {
       Customer e2 = new Customer(
-        name: 'GaRankuwa Manufacturing',
-        email: 'info@garankuwa.com',
+        name: 'GXB Manufacturing',
+        email: 'info@gxb.com',
         country: 'ZA',
         allowAutoAccept: true,
       );
       User u2 = new User(
-          firstName: 'Thomas',
+          firstName: 'Thomas B.',
           lastName: 'Maringa',
           password: 'pass123',
           isAdministrator: true,
-          email: 'tom@garankuwa.com');
+          email: 'tom@gxb.com');
       var result2 = await DataAPI3.addCustomer(e2, u2);
       customers.add(result2);
       setState(() {
@@ -305,17 +291,17 @@ class _MyHomePageState extends State<MyHomePage>
     }
     try {
       Customer e3 = new Customer(
-        name: 'Dept of Technology',
+        name: 'Dept of Water Conservation',
         email: 'info@tech.gov.za',
         country: 'ZA',
         allowAutoAccept: true,
       );
       User u3 = new User(
-          firstName: 'Kenneth',
+          firstName: 'Kenneth Charles',
           lastName: 'Dlamini',
           password: 'pass123',
           isAdministrator: true,
-          email: 'kendlam@tech.gov.za');
+          email: 'kendlam@water.gov.za');
       var result3 = await DataAPI3.addCustomer(e3, u3);
       customers.add(result3);
       setState(() {
@@ -327,17 +313,17 @@ class _MyHomePageState extends State<MyHomePage>
     }
     try {
       Customer e4 = new Customer(
-        name: 'Madibeng Municipality',
-        email: 'info@madibengmuni.gov.za',
+        name: 'Bronkhorstspruit Municipality',
+        email: 'info@bronk.gov.za',
         country: 'ZA',
         allowAutoAccept: true,
       );
       User u4 = new User(
-          firstName: 'Peter',
+          firstName: 'Mmaphefo',
           lastName: 'Makhubela',
           password: 'pass123',
           isAdministrator: true,
-          email: 'peterm@madibengmuni.gov.za');
+          email: 'peterm@bronk.gov.za');
       var result4 = await DataAPI3.addCustomer(e4, u4);
       customers.add(result4);
       setState(() {
@@ -349,17 +335,17 @@ class _MyHomePageState extends State<MyHomePage>
     }
     try {
       Customer e5 = new Customer(
-        name: 'Nasoob Distribution',
-        email: 'info@nasoobdist.com',
+        name: 'WR-D Distribution',
+        email: 'info@wrd.com',
         country: 'ZA',
         allowAutoAccept: true,
       );
       User u5 = new User(
-          firstName: 'Harry',
+          firstName: 'Samuel T',
           lastName: 'Jones',
           password: 'pass123',
           isAdministrator: true,
-          email: 'harry@nasoobdist.com');
+          email: 'sam@wrd.com');
       var result5 = await DataAPI3.addCustomer(e5, u5);
       customers.add(result5);
       setState(() {
@@ -378,16 +364,16 @@ class _MyHomePageState extends State<MyHomePage>
   Future _addInvestors() async {
     try {
       Investor e1 = new Investor(
-        name: 'WhiteBull Investors Ltd',
-        email: 'info@whitebullinvestors.com',
+        name: 'PurpleBull Investors Ltd',
+        email: 'info@pbullinvestors.com',
         country: 'ZA',
       );
       User u1 = new User(
-          firstName: 'Frank',
+          firstName: 'Thomas Frank',
           lastName: 'Greenburg',
           password: 'pass123',
           isAdministrator: true,
-          email: 'green@whitebullinvestors.com');
+          email: 'green@pbullinvestors.com');
       var result1 = await DataAPI3.addInvestor(e1, u1);
       investors.add(result1);
       setState(() {
@@ -399,16 +385,16 @@ class _MyHomePageState extends State<MyHomePage>
     }
     try {
       Investor e2 = new Investor(
-        name: 'Invoice Financiers LLC',
+        name: 'Invoice Buyers LLC',
         email: 'info@invoicefin.com',
         country: 'ZA',
       );
       User u2 = new User(
-          firstName: 'Samuel',
+          firstName: 'Samuel T.',
           lastName: 'Wallace',
           password: 'pass123',
           isAdministrator: true,
-          email: 'samwallace@invoicefin.com');
+          email: 'samtwallace@invoicefin.com');
       var result2 = await DataAPI3.addInvestor(e2, u2);
       investors.add(result2);
       setState(() {
@@ -420,16 +406,16 @@ class _MyHomePageState extends State<MyHomePage>
     }
     try {
       Investor e3 = new Investor(
-        name: 'TrueBlue Financiers Inc.',
-        email: 'info@trubluefunders.com',
+        name: 'TrueFin Financiers Inc.',
+        email: 'info@trufinfunders.com',
         country: 'ZA',
       );
       User u3 = new User(
           firstName: 'Harrison',
-          lastName: 'Nkuna',
+          lastName: 'McIlroy',
           password: 'pass123',
           isAdministrator: true,
-          email: 'harrison@trubluefunders.com');
+          email: 'harrisonm@trufinfunders.com');
       var result3 = await DataAPI3.addInvestor(e3, u3);
       investors.add(result3);
       setState(() {
@@ -441,16 +427,16 @@ class _MyHomePageState extends State<MyHomePage>
     }
     try {
       Investor e4 = new Investor(
-        name: '3DInvestors LLC',
-        email: 'info@d3iicom.com',
+        name: '5DInvestors LLC',
+        email: 'info@d5iicom.com',
         country: 'ZA',
       );
       User u4 = new User(
-          firstName: 'Mike',
+          firstName: 'Michael F.',
           lastName: 'Harris',
           password: 'pass123',
           isAdministrator: true,
-          email: 'mikeh@d3iicom.com');
+          email: 'mikefh@d5iicom.com');
       var result4 = await DataAPI3.addInvestor(e4, u4);
       investors.add(result4);
       setState(() {
@@ -462,16 +448,16 @@ class _MyHomePageState extends State<MyHomePage>
     }
     try {
       Investor e5 = new Investor(
-        name: 'Cash Machine LLC',
-        email: 'info@mcashmachinellc.com',
+        name: 'CashFlow Machine LLC',
+        email: 'info@fcashmachine.com',
         country: 'ZA',
       );
       User u5 = new User(
-          firstName: 'David',
+          firstName: 'Charles Thomas',
           lastName: 'Berger',
           password: 'pass123',
           isAdministrator: true,
-          email: 'danb@mcashmachinellc.com');
+          email: 'charlb@fcashmachine.com');
       var result5 = await DataAPI3.addInvestor(e5, u5);
       investors.add(result5);
       setState(() {
@@ -570,12 +556,14 @@ class _MyHomePageState extends State<MyHomePage>
           bottom: _getBottom(),
           actions: <Widget>[
             IconButton(
+              key: Key('testSectors'),
               icon: Icon(Icons.person),
               onPressed: () {
-                testCustomer();
+                testSectors();
               },
             ),
             IconButton(
+              key: Key('testChaincode'),
               icon: Icon(Icons.search),
               onPressed: () {
                 testChaincode();
