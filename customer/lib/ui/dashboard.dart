@@ -618,7 +618,7 @@ class _DashboardState extends State<Dashboard>
   List<Message> messages = List();
   void _showSnack(
       {@required String message, Color textColor, Color backColor}) {
-    AppSnackbar.showSnackbar(
+    AppSnackBar.showSnackbar(
         scaffoldKey: _scaffoldKey,
         message: message,
         textColor: textColor == null ? Colors.white : textColor,
